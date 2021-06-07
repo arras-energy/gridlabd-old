@@ -35,9 +35,23 @@ default_config = {
     "vegetation" : {
         "username" : "",
         "password" : "",
+        "provider" : "cfo",
+        "usecache" : True,
     },
     "maximum_image_size" : 2000000000,
 }
+
+#
+# Provider authentication
+#
+
+def cfo(username,password,usecache=True):
+    import cfo 
+    if "CFO_EMAIL" not in os.environ.keys():
+        os.environ['CFO_EMAIL'] = username
+    if "CFO_PASS" not in os.environ.keys():
+        os.environ['CFO_PASS'] = password
+    return cfo.api().authenticate(ignore_temp=(not usecache)) == 200
 
 #
 # Valid height units
@@ -94,6 +108,8 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     if not config["vegetation.username"] and not config["vegetation.password"]:
         warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users (see {config['repourl']} to register)")
+    elif config["vegetation"]["provider"] and not eval(config["vegetation"]["provider"])(username=config["vegetation.username"],password=config["vegetation.password"],usecache=config["vegetation"]["usecache"]):
+        warning(f"vegetation data provider authentication failed")
 
     # convert lat,lon to address
     try:

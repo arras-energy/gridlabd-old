@@ -25,8 +25,15 @@ The following command checks that the version of GridLAB-D supports the
 <div class="cell code" execution_count="1">
 
 ``` python
-bash% gridlabd --version='-ge 4.2.21'
+bash% gridlabd --version='-ge 4.2.22'
 ```
+
+<div class="output stream stdout">
+
+    ERROR    [INIT] : version '4.2.21' does not satisfy the version requirement '-ge 4.2.22'
+    FATAL    [INIT] : shutdown after command line rejected
+
+</div>
 
 </div>
 
@@ -401,6 +408,12 @@ the `set` option
 bash% gridlabd geodata config set name local_value
 ```
 
+<div class="output stream stdout">
+
+    WARNING [geodata]: config file '/Users/dchassin/Documents/github/slacgismo/gridlabd/gldcore/geodata/docs/geodata.conf' is not found
+
+</div>
+
 </div>
 
 <div class="cell markdown">
@@ -458,8 +471,6 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
     name='local_value'
 
 </div>
@@ -486,8 +497,6 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
     name='local_value'
     user.name='user_value'
 
@@ -515,8 +524,6 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
     name='local_value'
     user.name='user_value'
     system.name='system_value'
@@ -545,8 +552,6 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
     user.name='user_value'
     system.name='system_value'
 
@@ -830,9 +835,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    46b1370dc30e40b8b03cf470ac29ca28,37.41,-122.2,0
-    0e3e2e3c698246999b668a1ca32d297f,37.42,-122.2,1
-    946b1b3d852c4223972c5df0dc02b025,37.42,-122.21,2
+    b22d21eeeb584528b994818cb99a7f8f,37.41,-122.2,0
+    7b78fdd0ae004a0d8eb5bb39b4cf612a,37.42,-122.2,1
+    b3cb09473adf47fe930c26eeea8c2cb3,37.42,-122.21,2
 
 </div>
 
@@ -855,9 +860,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    2e8d7918c4bf11eb9c0e989e633f97ae,37.41,-122.2,0
-    2e8d7a6cc4bf11eb9c0e989e633f97ae,37.42,-122.2,1
-    2e8d7a9ec4bf11eb9c0e989e633f97ae,37.42,-122.21,2
+    e1b55c1ec7c511ebaa8ad0817adb129d,37.41,-122.2,0
+    e1b55cdcc7c511ebaa8ad0817adb129d,37.42,-122.2,1
+    e1b55d04c7c511ebaa8ad0817adb129d,37.42,-122.21,2
 
 </div>
 
@@ -1408,11 +1413,21 @@ options, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="52">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet -f TABLE
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude  elevation
+    id                                
+    0      37.41    -122.20      190.0
+    1      37.42    -122.20      249.0
+    2      37.42    -122.21      344.0
+
+</div>
 
 </div>
 
@@ -1424,11 +1439,21 @@ The precision of the elevations can be specified as well, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="53">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet -f TABLE
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude  elevation
+    id                                
+    0      37.41    -122.20     190.29
+    1      37.42    -122.20     249.34
+    2      37.42    -122.21     344.49
+
+</div>
 
 </div>
 
@@ -1439,11 +1464,28 @@ e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="54">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 -f TABLE
 ```
+
+<div class="output stream stdout">
+
+              latitude  longitude   id  distance  heading  elevation
+    position                                                        
+    0         37.41000 -122.20000  0.0       0.0      NaN       58.0
+    250       37.41225 -122.20000  NaN     250.0      0.0       63.0
+    500       37.41450 -122.20000  NaN     500.0      0.0       74.0
+    750       37.41674 -122.20000  NaN     750.0      0.0       76.0
+    1000      37.41899 -122.20000  NaN    1000.0      0.0       97.0
+    1112      37.42000 -122.20000  1.0    1112.0      0.0       76.0
+    1362      37.42000 -122.20283  NaN    1362.0    270.0       85.0
+    1612      37.42000 -122.20566  NaN    1612.0    270.0       91.0
+    1862      37.42000 -122.20849  NaN    1862.0    270.0      103.0
+    1995      37.42000 -122.21000  2.0    1995.0    270.0      105.0
+
+</div>
 
 </div>
 
@@ -1460,7 +1502,7 @@ following command:
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="55">
 
 ``` python
 bash% gridlabd geodata config set -w vegetation.username name@example.com
@@ -1476,11 +1518,21 @@ locations, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="56">
 
 ``` python
-bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
+bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE --vegetation.usecache=False
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude  base  cover  height
+    id                                          
+    0      37.41    -122.20   2.0   0.17    11.0
+    1      37.42    -122.20   1.0   0.18    15.0
+    2      37.42    -122.21   2.0   0.01     0.0
+
+</div>
 
 </div>
 
@@ -1491,11 +1543,21 @@ the `year` option, i.e.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="57">
 
 ``` python
 bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --year=2020 -f TABLE
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude  base  cover  height
+    id                                          
+    0      37.41    -122.20   2.0   0.17    11.0
+    1      37.42    -122.20   1.0   0.18    15.0
+    2      37.42    -122.21   2.0   0.01     0.0
+
+</div>
 
 </div>
 
@@ -1512,11 +1574,19 @@ The name of the utility at a location is the default data result, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="58">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 -f TABLE
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude             NAME
+    id                                      
+    0      37.42     -122.2  PACIFIC GAS ...
+
+</div>
 
 </div>
 
@@ -1532,11 +1602,19 @@ and the year for which the data is obtained, use the command
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="59">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR -f TABLE
 ```
+
+<div class="output stream stdout">
+
+        latitude  longitude  WINTR_PEAK  SUMMR_PEAK  CUSTOMERS    YEAR
+    id                                                                
+    0      37.42     -122.2     12624.0     17263.0  5471786.0  2018.0
+
+</div>
 
 </div>
 
@@ -1548,7 +1626,7 @@ specified, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="60">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
@@ -1563,12 +1641,18 @@ notebook.
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="61">
 
 ``` python
 from IPython.display import Image
 Image("/tmp/utility.png")
 ```
+
+<div class="output execute_result" execution_count="61">
+
+bash% [](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
+
+</div>
 
 </div>
 
@@ -1609,11 +1693,17 @@ cable type can be given on the command line, e.g.,
 
 </div>
 
-<div class="cell code" scrolled="false">
+<div class="cell code" execution_count="62" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/AC 610mm^2" -r 250 -f TABLE:linesag
 ```
+
+<div class="output stream stdout">
+
+    ERROR [geodata/powerline]: 'height'
+
+</div>
 
 </div>
 
@@ -1624,12 +1714,30 @@ which contains the following fields:
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="63">
 
 ``` python
 import pandas
 print("\n".join(pandas.read_csv("../geodata_powerline_cabletypes.csv").columns.to_list()))
 ```
+
+<div class="output stream stdout">
+
+    id
+    diameter
+    unit_weight
+    rated_tensile_strength
+    elasticity
+    thermal_expansion
+    conductor_crosssection_area
+    resistivity
+    nominal_resistance
+    nomimal_temperature
+    voltage_rating
+    reflectivity
+    emissivity
+
+</div>
 
 </div>
 
@@ -1639,11 +1747,30 @@ The first record contains the following values
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="64">
 
 ``` python
 pandas.read_csv("../geodata_powerline_cabletypes.csv",nrows=1).transpose()
 ```
+
+<div class="output execute_result" execution_count="64">
+
+                                                0
+    id                           TACSR/AC 610mm^2
+    diameter                               0.0342
+    unit_weight                             21.56
+    rated_tensile_strength                72000.0
+    elasticity                      71800000000.0
+    thermal_expansion                    0.000021
+    conductor_crosssection_area          0.000692
+    resistivity                            0.0039
+    nominal_resistance                   0.000046
+    nomimal_temperature                      15.0
+    voltage_rating                       230000.0
+    reflectivity                              0.5
+    emissivity                                0.6
+
+</div>
 
 </div>
 
@@ -1654,19 +1781,33 @@ warning is output and the requested values are not calculated, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="65">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag # missing cable type
 ```
 
+<div class="output stream stdout">
+
+    WARNING [geodata/powerline]: cable_type not specified
+    ERROR [geodata/powerline]: 'height'
+
 </div>
 
-<div class="cell code">
+</div>
+
+<div class="cell code" execution_count="66">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --cable_type="My cabletype" # bad cable type
 ```
+
+<div class="output stream stdout">
+
+    WARNING [geodata/powerline]: cable_type='My cabletype' not found
+    ERROR [geodata/powerline]: 'height'
+
+</div>
 
 </div>
 
@@ -1680,19 +1821,49 @@ You can obtain help using the `help` directive, e.g.,
 
 </div>
 
-<div class="cell code" scrolled="false">
+<div class="cell code" execution_count="67" scrolled="false">
 
 ``` python
 bash% gridlabd geodata help | head -n 10
 ```
 
+<div class="output stream stdout">
+
+    Help on module __main__:
+    
+    NAME
+        __main__ - Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
+    
+    DESCRIPTION
+        The geodata command gathers and joins geographic data. The geodata subcommand
+        uses directives that are documented in the DIRECTIVES section below.
+        
+        In general geodata is used to acquire geographic information at a location or
+
 </div>
 
-<div class="cell code">
+</div>
+
+<div class="cell code" execution_count="68">
 
 ``` python
 bash% gridlabd geodata help distance | head -n 10
 ```
+
+<div class="output stream stdout">
+
+    Help on module geodata_distance:
+    
+    NAME
+        geodata_distance - GridLAB-D Geodata Distance Package
+    
+    DESCRIPTION
+        The distance package computes the shortest distance between consecutive
+        positions.
+        
+        OPTIONS
+
+</div>
 
 </div>
 
@@ -1717,11 +1888,116 @@ about the stages of processing, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="69">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -v --units=km --precision.distance=3
 ```
+
+<div class="output stream stdout">
+
+    VERBOSE [geodata/distance]: verbose output enabled
+    VERBOSE [geodata/distance]: arg=37,-122 --> append 1 rows from args
+    VERBOSE [geodata/distance]: arg=38,-122 --> append 1 rows from args
+    VERBOSE [geodata/distance]: arg=--units=km --> option ['units', 'km'] accepted
+    VERBOSE [geodata/distance]: arg=--precision.distance=3 --> option ['precision.distance', '3'] accepted
+    VERBOSE [geodata/distance]: 2 rows total received
+    VERBOSE [geodata/distance]: creating row index
+    VERBOSE [geodata/distance]: data = 
+    --------------------------
+       latitude  longitude  id
+    0      37.0     -122.0   0
+    1      38.0     -122.0   1
+    --------------------------
+    
+    VERBOSE [geodata/distance]: options = {
+        "verbose": true,
+        "debug": false,
+        "silent": false,
+        "quiet": false,
+        "warning": true,
+        "key_index": "",
+        "max_threads": 1,
+        "config_file": "geodata.conf",
+        "field_separator": " ",
+        "record_separator": "\n",
+        "input_delimiter": "+",
+        "warning_as_error": false,
+        "plot": {
+            "figsize": [
+                7.0,
+                5.0
+            ],
+            "cmap": "",
+            "categorical": false,
+            "legend": false,
+            "scheme": "",
+            "k": 5,
+            "vmin": NaN,
+            "vmax": NaN,
+            "aspect": "auto"
+        },
+        "show": {
+            "block": true
+        },
+        "savefig": {
+            "dpi": 300,
+            "facecolor": "w",
+            "edgecolor": "k",
+            "orientation": "landscape",
+            "format": "png",
+            "transparent": false,
+            "pad_inches": 0.1
+        },
+        "table": {
+            "max_rows": 10,
+            "max_columns": 10,
+            "width": 80,
+            "max_colwidth": 16
+        },
+        "precision": {
+            "distance": 3,
+            "heading": 1,
+            "geolocation": 5,
+            "id": 0,
+            "resolution_id": 3
+        },
+        "resolution": 0,
+        "resolution_id": false,
+        "json": {
+            "orient": "index",
+            "data_format": "iso",
+            "double_precision": 10,
+            "force_ascii": true,
+            "date_unit": "s"
+        },
+        "units": "km",
+        "relative": false
+    }
+    VERBOSE [geodata/distance]: config = {
+        "geodata_url": "http://geodata.gridlabd.us/",
+        "output_format": "CSV",
+        "path_join": "outer",
+        "column_names": {
+            "ID": "id",
+            "UUID": "uuid",
+            "LAT": "latitude",
+            "LON": "longitude",
+            "DIST": "distance",
+            "HEAD": "heading",
+            "LOC": "location",
+            "POS": "position"
+        },
+        "uuid_type": 4,
+        "vegetation.username": "name@example.com",
+        "vegetation.password": "password5839",
+        "method": "haversine"
+    }
+    id,latitude,longitude,distance
+    0,37.0,-122.0,0.0
+    1,38.0,-122.0,111.195
+
+</div>
 
 </div>
 
@@ -1738,11 +2014,17 @@ returning an error condition, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="70">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --badoption -s || echo "Exit code $?"
 ```
+
+<div class="output stream stdout">
+
+    Exit code 4
+
+</div>
 
 </div>
 
@@ -1758,11 +2040,20 @@ The `-w` or `--warning` option suppresses warning messages, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="71">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w -f TABLE
 ```
+
+<div class="output stream stdout">
+
+                  latitude  longitude  id  distance
+    location                                       
+    9q94rzdk9gyt      37.0     -122.0   0       0.0
+    9qc0pvdq1cqt      38.0     -122.0   1  111195.0
+
+</div>
 
 </div>
 
@@ -1773,11 +2064,17 @@ If an error is desired instead of a warning, use the
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="72">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location --warning_as_error # key warning is an error
 ```
+
+<div class="output stream stdout">
+
+    ERROR [geodata/distance]: using index 'location' cannot be used with '--resolution=100.0' option
+
+</div>
 
 </div>
 
@@ -1795,11 +2092,17 @@ error occurred. For example, the following command has an invalid
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="73">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs
 ```
+
+<div class="output stream stdout">
+
+    ERROR [geodata/distance]: unit 'furlongs' is not recognized
+
+</div>
 
 </div>
 
@@ -1812,11 +2115,109 @@ configuration is also output after the traceback information.
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="74">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # invalid unit
 ```
+
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.21-210604-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
+        result = MODULE.apply(data,options,config,warning)
+      File "/usr/local/opt/gridlabd/4.2.21-210604-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
+        raise Exception(f"unit '{options['units']}' is not recognized")
+    Exception: unit 'furlongs' is not recognized
+    DEBUG [geodata/distance]: merge(args=['37,-122', '38,-122', '--units=furlongs']) --> data = 
+    ----
+    None
+    ----
+    options = {
+        "verbose": false,
+        "debug": true,
+        "silent": false,
+        "quiet": false,
+        "warning": true,
+        "key_index": "",
+        "max_threads": 1,
+        "config_file": "geodata.conf",
+        "field_separator": " ",
+        "record_separator": "\n",
+        "input_delimiter": "+",
+        "warning_as_error": false,
+        "plot": {
+            "figsize": [
+                7.0,
+                5.0
+            ],
+            "cmap": "",
+            "categorical": false,
+            "legend": false,
+            "scheme": "",
+            "k": 5,
+            "vmin": NaN,
+            "vmax": NaN,
+            "aspect": "auto"
+        },
+        "show": {
+            "block": true
+        },
+        "savefig": {
+            "dpi": 300,
+            "facecolor": "w",
+            "edgecolor": "k",
+            "orientation": "landscape",
+            "format": "png",
+            "transparent": false,
+            "pad_inches": 0.1
+        },
+        "table": {
+            "max_rows": 10,
+            "max_columns": 10,
+            "width": 80,
+            "max_colwidth": 16
+        },
+        "precision": {
+            "distance": 0,
+            "heading": 1,
+            "geolocation": 5,
+            "id": 0,
+            "resolution_id": 3
+        },
+        "resolution": 0,
+        "resolution_id": false,
+        "json": {
+            "orient": "index",
+            "data_format": "iso",
+            "double_precision": 10,
+            "force_ascii": true,
+            "date_unit": "s"
+        },
+        "units": "furlongs",
+        "relative": false
+    }
+    config = {
+        "geodata_url": "http://geodata.gridlabd.us/",
+        "output_format": "CSV",
+        "path_join": "outer",
+        "column_names": {
+            "ID": "id",
+            "UUID": "uuid",
+            "LAT": "latitude",
+            "LON": "longitude",
+            "DIST": "distance",
+            "HEAD": "heading",
+            "LOC": "location",
+            "POS": "position"
+        },
+        "uuid_type": 4,
+        "vegetation.username": "name@example.com",
+        "vegetation.password": "password5839",
+        "method": "haversine"
+    }
+
+</div>
 
 </div>
 
@@ -1845,11 +2246,30 @@ The current `geodata` configuration values are obtained using the
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="75">
 
 ``` python
 bash% gridlabd geodata --show_config
 ```
+
+<div class="output stream stdout">
+
+    --geodata_url='http://geodata.gridlabd.us/'
+    --output_format='CSV'
+    --path_join='outer'
+    --column_names.ID='id'
+    --column_names.UUID='uuid'
+    --column_names.LAT='latitude'
+    --column_names.LON='longitude'
+    --column_names.DIST='distance'
+    --column_names.HEAD='heading'
+    --column_names.LOC='location'
+    --column_names.POS='position'
+    --uuid_type=4
+    --vegetation.username='name@example.com'
+    --vegetation.password='password5839'
+
+</div>
 
 </div>
 
@@ -1867,11 +2287,61 @@ for options, e.g.,
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="76">
 
 ``` python
 bash% gridlabd geodata --show_options
 ```
+
+<div class="output stream stdout">
+
+    --verbose=False
+    --debug=False
+    --silent=False
+    --quiet=False
+    --warning=True
+    --key_index=''
+    --max_threads=1
+    --config_file='geodata.conf'
+    --field_separator=' '
+    --record_separator='\n'
+    --input_delimiter='+'
+    --warning_as_error=False
+    --plot.figsize=7.0.5.0
+    --plot.cmap=''
+    --plot.categorical=False
+    --plot.legend=False
+    --plot.scheme=''
+    --plot.k=5
+    --plot.vmin=nan
+    --plot.vmax=nan
+    --plot.aspect='auto'
+    --show.block=True
+    --savefig.dpi=300
+    --savefig.facecolor='w'
+    --savefig.edgecolor='k'
+    --savefig.orientation='landscape'
+    --savefig.format='png'
+    --savefig.transparent=False
+    --savefig.pad_inches=0.1
+    --table.max_rows=10
+    --table.max_columns=10
+    --table.width=80
+    --table.max_colwidth=16
+    --precision.distance=0
+    --precision.heading=1
+    --precision.geolocation=5
+    --precision.id=0
+    --precision.resolution_id=3
+    --resolution=0
+    --resolution_id=False
+    --json.orient='index'
+    --json.data_format='iso'
+    --json.double_precision=10
+    --json.force_ascii=True
+    --json.date_unit='s'
+
+</div>
 
 </div>
 
@@ -2019,20 +2489,47 @@ resolve the geolocation of a house using its address.
 
 </div>
 
-<div class="cell code">
+<div class="cell code" execution_count="77">
 
 ``` python
 bash% cat example.glm
 ```
 
+<div class="output stream stdout">
+
+    module residential;
+    class house
+    {
+        char1024 address;
+    }
+    
+    object house
+    {
+        name "Building_53";
+        address "2575 Sand Hill Rd., Menlo Park, CA";
+    }
+    #write /tmp/address.csv house:address
+    #geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
+    #include "/tmp/latlon.glm"
+
 </div>
 
-<div class="cell code">
+</div>
+
+<div class="cell code" execution_count="78">
 
 ``` python
 bash% gridlabd -I -w example.glm -o /tmp/example.json
 bash% gridlabd json-get objects Building_53 </tmp/example.json | awk '/latitude|longitude|address/{print$0;}'
 ```
+
+<div class="output stream stdout">
+
+        "latitude": "37.415460",
+        "longitude": "-122.201180",
+        "address": "2575 Sand Hill Rd., Menlo Park, CA",
+
+</div>
 
 </div>
 
@@ -2048,12 +2545,68 @@ dataset.
 
 </div>
 
-<div class="cell code" scrolled="false">
+<div class="cell code" execution_count="79" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D elevation path_example.csv -r 250 \
 | gridlabd geodata merge -D distance -f TABLE --relative --table.width=999 --table.max_rows=999
 ```
+
+<div class="output stream stdout">
+
+          position  latitude  longitude configuration  pole_height  distance  heading  elevation
+    id                                                                                          
+    0.0          0  37.41505 -122.20565         flat3         18.0       0.0      NaN       88.0
+    NaN        250  37.41471 -122.20845           NaN          NaN     250.0    263.0      100.0
+    1.0        254  37.41470 -122.20849         sideT         20.0       0.0    263.0      100.0
+    2.0        428  37.41445 -122.21044         sideT         21.0       0.0    262.7      112.0
+    3.0        595  37.41422 -122.21231         sideT         18.0       0.0    263.0      111.0
+    4.0        771  37.41398 -122.21427         sideT         20.0       0.0    263.0       98.0
+    5.0        976  37.41370 -122.21657         sideT         18.0       0.0    263.1       92.0
+    6.0       1128  37.41348 -122.21827         sideT         21.0       0.0    262.6       79.0
+    7.0       1326  37.41321 -122.22048         sideT         18.0       0.0    263.0       90.0
+    8.0       1490  37.41298 -122.22232         sideT         16.0       0.0    262.9       78.0
+    9.0       1690  37.41271 -122.22456         sideT         21.0       0.0    263.1       80.0
+    NaN       1940  37.41236 -122.22736           NaN          NaN     250.0    262.9       92.0
+    10.0      1941  37.41236 -122.22736         sideT         18.0       0.0    262.9       92.0
+    11.0      2123  37.41211 -122.22940         sideT         19.0       0.0    263.0       81.0
+    12.0      2341  37.41181 -122.23184         3pole         15.0       0.0    263.0      103.0
+    NaN       2591  37.41058 -122.23421           NaN          NaN     250.0    242.5       83.0
+    13.0      2718  37.40995 -122.23541         3pole         16.0       0.0    242.5      126.0
+    14.0      2941  37.40912 -122.23771         2pole         15.0       0.0    250.2      121.0
+    NaN       3191  37.40818 -122.24028           NaN          NaN     250.0    249.9       92.0
+    15.0      3268  37.40789 -122.24107         2pole         17.0       0.0    249.9      106.0
+    16.0      3466  37.40715 -122.24311         2pole         15.0       0.0    250.1      112.0
+    17.0      3653  37.40644 -122.24503         3pole         17.0       0.0    249.7      125.0
+    18.0      3759  37.40562 -122.24443         vert3         17.0       0.0    143.8      126.0
+    19.0      3878  37.40456 -122.24418         vert3         20.0       0.0    166.7      123.0
+    20.0      4009  37.40339 -122.24429         vert3         20.0       0.0    185.4      118.0
+    21.0      4115  37.40249 -122.24468         vert3         20.0       0.0    203.4      106.0
+    22.0      4267  37.40136 -122.24566         vert3         22.0       0.0    220.9      106.0
+    NaN       4517  37.40032 -122.24817           NaN          NaN     250.0    247.6      106.0
+    23.0      4627  37.39987 -122.24927         3pole         16.0       0.0    247.6      117.0
+    24.0      4793  37.39966 -122.25113         2pole         18.0       0.0    263.6      172.0
+    NaN       5043  37.39950 -122.25395           NaN          NaN     250.0    266.8      206.0
+    25.0      5248  37.39937 -122.25627         2pole         22.0       0.0    266.8      264.0
+    26.0      5397  37.39928 -122.25795         3pole         15.0       0.0    266.9      286.0
+    NaN       5647  37.39908 -122.26077           NaN          NaN     250.0    266.0      212.0
+    NaN       5897  37.39888 -122.26359           NaN          NaN     500.0    266.0      291.0
+    27.0      5977  37.39882 -122.26449         3pole         18.0       0.0    266.0      322.0
+    28.0      6119  37.39871 -122.26610         2pole         15.0       0.0    266.1      349.0
+    29.0      6250  37.39861 -122.26757         3pole         18.0       0.0    266.1      326.0
+    NaN       6500  37.39667 -122.26901           NaN          NaN     250.0    216.5      342.0
+    NaN       6750  37.39473 -122.27044           NaN          NaN     500.0    216.5      436.0
+    30.0      6783  37.39448 -122.27063         3pole         21.0       0.0    216.5      443.0
+    31.0      6971  37.39306 -122.27180         3pole         21.0       0.0    219.5      448.0
+    32.0      7215  37.39248 -122.27446         2pole         17.0       0.0    257.7      501.0
+    33.0      7463  37.39190 -122.27717         2pole         21.0       0.0    257.9      573.0
+    34.0      7593  37.39161 -122.27860         2pole         23.0       0.0    258.5      610.0
+    35.0      7840  37.39171 -122.28139         3pole         16.0       0.0    272.1      640.0
+    NaN       8090  37.39048 -122.28376           NaN          NaN     250.0    242.6      540.0
+    NaN       8340  37.38926 -122.28613           NaN          NaN     500.0    242.6      547.0
+    36.0      8583  37.38806 -122.28844         tower         23.0       0.0    242.6      632.0
+
+</div>
 
 </div>
 
@@ -2066,13 +2619,325 @@ powerline data.
 
 </div>
 
-<div class="cell code" scrolled="false">
+<div class="cell code" execution_count="80" scrolled="false">
 
 ``` python
-bash% gridlabd geodata merge -D elevation path_example.csv -r 250 --resolution_id \
-| gridlabd geodata merge -D vegetation \
-| gridlabd geodata merge -D powerline --cable_type="TACSR/AC 610mm^2" --margin.vertical=0 -f TABLE:latitude,longitude,pole_height,elevation,linesag,cover,height,contact --table.width=999 --table.max_rows=999
+bash% gridlabd geodata merge -D elevation path_example.csv -r 30 --resolution_id \
+| gridlabd geodata merge -D vegetation -w \
+| gridlabd geodata merge -D powerline --cable_type="TACSR/AC 610mm^2" --margin.vertical=2 -f TABLE:latitude,longitude,pole_height,elevation,linesag,cover,height,contact --table.width=999 --table.max_rows=999
 ```
+
+<div class="output stream stdout">
+
+           latitude  longitude  pole_height  elevation  linesag  cover  height  contact
+    id                                                                                 
+    0.000  37.41505 -122.20565         18.0       88.0     18.0   0.68    14.0     0.00
+    0.003  37.41501 -122.20599          NaN       88.0     14.9   0.73    16.0     0.73
+    0.007  37.41497 -122.20632          NaN       85.0     16.2   0.74    16.0     0.74
+    0.010  37.41493 -122.20666          NaN       85.0     15.7   0.72    17.0     0.72
+    0.014  37.41488 -122.20699          NaN       87.0     14.4   0.56    17.0     0.56
+    0.017  37.41484 -122.20733          NaN       89.0     14.4   0.30    17.0     0.30
+    0.021  37.41480 -122.20766          NaN       92.0     14.6   0.14    16.0     0.14
+    0.024  37.41476 -122.20800          NaN       94.0     17.2   0.07    10.0     0.00
+    0.028  37.41472 -122.20834          NaN      100.0     17.0   0.09     1.0     0.00
+    0.030  37.41470 -122.20849         20.0      100.0     20.0   0.09     1.0     0.00
+    0.033  37.41466 -122.20883          NaN      103.0     15.4   0.14     1.0     0.00
+    0.037  37.41461 -122.20916          NaN       97.0     21.4   0.16     1.0     0.00
+    0.040  37.41457 -122.20950          NaN       98.0     22.0   0.14     1.0     0.00
+    0.044  37.41453 -122.20983          NaN      101.0     22.1   0.11     0.0     0.00
+    0.047  37.41449 -122.21017          NaN      109.0     19.0   0.33     1.0     0.00
+    0.050  37.41445 -122.21044         21.0      112.0     21.0   0.31     1.0     0.00
+    0.053  37.41441 -122.21078          NaN      114.0     14.5   0.30     1.0     0.00
+    0.057  37.41437 -122.21111          NaN      117.0      8.7   0.33     1.0     0.00
+    0.060  37.41433 -122.21145          NaN      118.0      6.6   0.40     1.0     0.00
+    0.064  37.41428 -122.21178          NaN      117.0      8.0   0.44     1.0     0.00
+    0.067  37.41424 -122.21212          NaN      114.0     13.1   0.51     1.0     0.00
+    0.069  37.41422 -122.21231         18.0      111.0     18.0   0.51     1.0     0.00
+    0.073  37.41418 -122.21265          NaN      109.0     14.3   0.69     6.0     0.00
+    0.076  37.41414 -122.21298          NaN      110.0      9.2   0.72    13.0     0.72
+    0.080  37.41410 -122.21332          NaN      108.0      8.6   0.66    15.0     0.66
+    0.083  37.41406 -122.21365          NaN      104.0     11.7   0.62    15.0     0.62
+    0.087  37.41401 -122.21399          NaN      101.0     15.3   0.65    16.0     0.65
+    0.090  37.41398 -122.21427         20.0       98.0     20.0   0.68    17.0     0.00
+    0.093  37.41394 -122.21461          NaN       96.0     16.6   0.65    18.0     0.65
+    0.097  37.41390 -122.21494          NaN       95.0     13.8   0.52    19.0     0.52
+    0.100  37.41386 -122.21528          NaN       93.0     13.3   0.38    15.0     0.38
+    0.104  37.41382 -122.21561          NaN       91.0     14.2   0.20     9.0     0.00
+    0.107  37.41378 -122.21595          NaN       90.0     15.6   0.10     4.0     0.00
+    0.111  37.41373 -122.21628          NaN       90.0     17.3   0.07     2.0     0.00
+    0.114  37.41370 -122.21657         18.0       92.0     18.0   0.06     1.0     0.00
+    0.117  37.41366 -122.21691          NaN       92.0     12.5   0.06     0.0     0.00
+    0.121  37.41361 -122.21724          NaN       87.0     13.7   0.10     0.0     0.00
+    0.124  37.41357 -122.21758          NaN       84.0     14.7   0.11     1.0     0.00
+    0.128  37.41353 -122.21791          NaN       81.0     17.4   0.29     3.0     0.00
+    0.131  37.41348 -122.21825          NaN       79.0     20.9   0.50     4.0     0.00
+    0.131  37.41348 -122.21827         21.0       79.0     21.0   0.50     4.0     0.00
+    0.135  37.41344 -122.21861          NaN       76.0     21.1   0.67     7.0     0.00
+    0.138  37.41340 -122.21894          NaN       78.0     17.7   0.71    10.0     0.00
+    0.142  37.41336 -122.21928          NaN       81.0     14.8   0.67    13.0     0.67
+    0.145  37.41332 -122.21961          NaN       87.0     10.3   0.59    15.0     0.59
+    0.149  37.41327 -122.21995          NaN       88.0     12.3   0.54    16.0     0.54
+    0.152  37.41323 -122.22028          NaN       90.0     14.7   0.60    16.0     0.60
+    0.154  37.41321 -122.22048         18.0       90.0     18.0   0.68    16.0     0.00
+    0.158  37.41317 -122.22082          NaN       91.0     10.7   0.73    16.0     0.73
+    0.161  37.41313 -122.22115          NaN       89.0      8.2   0.74    17.0     0.74
+    0.165  37.41308 -122.22149          NaN       85.0      9.2   0.71    17.0     0.71
+    0.168  37.41304 -122.22182          NaN       81.0     12.0   0.70    15.0     0.70
+    0.172  37.41300 -122.22216          NaN       80.0     13.3   0.68    13.0     0.68
+    0.174  37.41298 -122.22232         16.0       78.0     16.0   0.62    12.0     0.00
+    0.177  37.41294 -122.22266          NaN       78.0     12.9   0.57    11.0     0.57
+    0.181  37.41290 -122.22299          NaN       78.0     11.3   0.42     9.0     0.00
+    0.184  37.41286 -122.22333          NaN       77.0     12.2   0.25     5.0     0.00
+    0.188  37.41282 -122.22366          NaN       74.0     16.4   0.12     3.0     0.00
+    0.191  37.41278 -122.22400          NaN       78.0     15.2   0.08     1.0     0.00
+    0.195  37.41274 -122.22433          NaN       79.0     18.3   0.06     1.0     0.00
+    0.197  37.41271 -122.22456         21.0       80.0     21.0   0.04     1.0     0.00
+    0.200  37.41267 -122.22490          NaN       81.0     16.4   0.02     0.0     0.00
+    0.204  37.41263 -122.22523          NaN       80.0     15.1   0.00     0.0     0.00
+    0.207  37.41258 -122.22557          NaN       74.0     20.1   0.01     0.0     0.00
+    0.211  37.41254 -122.22590          NaN       72.0     22.3   0.02     0.0     0.00
+    0.214  37.41250 -122.22624          NaN       79.0     16.8   0.06     1.0     0.00
+    0.218  37.41246 -122.22657          NaN       80.0     18.5   0.10     1.0     0.00
+    0.221  37.41242 -122.22691          NaN       85.0     17.6   0.19     2.0     0.00
+    0.225  37.41237 -122.22724          NaN       92.0     15.9   0.29     4.0     0.00
+    0.226  37.41236 -122.22736         18.0       92.0     18.0   0.29     4.0     0.00
+    0.230  37.41232 -122.22770          NaN       94.0     10.4   0.34     2.0     0.00
+    0.233  37.41228 -122.22803          NaN       94.0      6.5   0.41     3.0     0.00
+    0.237  37.41224 -122.22837          NaN       88.0     10.0   0.37     4.0     0.00
+    0.240  37.41220 -122.22870          NaN       82.0     15.0   0.26     4.0     0.00
+    0.244  37.41215 -122.22904          NaN       81.0     16.7   0.09     2.0     0.00
+    0.247  37.41211 -122.22937          NaN       81.0     18.8   0.07     2.0     0.00
+    0.247  37.41211 -122.22940         19.0       81.0     19.0   0.07     2.0     0.00
+    0.251  37.41207 -122.22974          NaN       82.0     16.1   0.05     1.0     0.00
+    0.254  37.41203 -122.23007          NaN       82.0     15.7   0.07     3.0     0.00
+    0.258  37.41199 -122.23041          NaN       83.0     15.6   0.10     3.0     0.00
+    0.261  37.41194 -122.23074          NaN       84.0     16.8   0.13     4.0     0.00
+    0.265  37.41190 -122.23108          NaN       85.0     19.5   0.12     4.0     0.00
+    0.268  37.41186 -122.23141          NaN       99.0     10.5   0.11     4.0     0.00
+    0.272  37.41182 -122.23175          NaN      103.0     13.0   0.13     2.0     0.00
+    0.273  37.41181 -122.23184         15.0      103.0     15.0   0.15     1.0     0.00
+    0.276  37.41166 -122.23212          NaN       91.0     23.2   0.07     1.0     0.00
+    0.280  37.41151 -122.23241          NaN       92.0     19.2   0.08     1.0     0.00
+    0.283  37.41137 -122.23269          NaN       95.0     14.4   0.04     1.0     0.00
+    0.287  37.41122 -122.23298          NaN       95.0     13.5   0.04     0.0     0.00
+    0.290  37.41107 -122.23326          NaN       98.0     10.6   0.04     1.0     0.00
+    0.294  37.41092 -122.23354          NaN       98.0     11.7   0.04     1.0     0.00
+    0.297  37.41077 -122.23383          NaN       95.0     16.9   0.14     4.0     0.00
+    0.301  37.41063 -122.23411          NaN       91.0     23.9   0.18     5.0     0.00
+    0.304  37.41048 -122.23440          NaN       79.0     40.1   0.49     9.0     0.00
+    0.308  37.41033 -122.23468          NaN       84.0     40.2   0.47     8.0     0.00
+    0.311  37.41018 -122.23496          NaN      104.0     26.3   0.48     6.0     0.00
+    0.315  37.41003 -122.23525          NaN      113.0     24.7   0.40     6.0     0.00
+    0.317  37.40995 -122.23541         16.0      126.0     16.0   0.40     6.0     0.00
+    0.320  37.40984 -122.23572          NaN      125.0     11.8   0.18     2.0     0.00
+    0.324  37.40973 -122.23603          NaN      122.0     11.0   0.10     2.0     0.00
+    0.327  37.40962 -122.23634          NaN      113.0     17.6   0.08     1.0     0.00
+    0.331  37.40950 -122.23665          NaN      109.0     20.5   0.09     1.0     0.00
+    0.334  37.40939 -122.23696          NaN      111.0     18.7   0.14     1.0     0.00
+    0.338  37.40928 -122.23727          NaN      105.0     26.3   0.28     2.0     0.00
+    0.341  37.40917 -122.23757          NaN      107.0     27.2   0.26     2.0     0.00
+    0.343  37.40912 -122.23771         15.0      121.0     15.0   0.42     5.0     0.00
+    0.346  37.40901 -122.23802          NaN      117.0     12.5   0.53     6.0     0.00
+    0.350  37.40889 -122.23833          NaN      108.0     15.9   0.28     5.0     0.00
+    0.353  37.40878 -122.23864          NaN       89.0     30.6   0.32     7.0     0.00
+    0.357  37.40867 -122.23894          NaN       88.0     28.3   0.42    11.0     0.00
+    0.360  37.40856 -122.23925          NaN       86.0     28.1   0.30    11.0     0.00
+    0.364  37.40844 -122.23956          NaN       85.0     28.0   0.26     9.0     0.00
+    0.367  37.40833 -122.23987          NaN       91.0     21.9   0.16     7.0     0.00
+    0.371  37.40822 -122.24018          NaN       87.0     26.9   0.15     4.0     0.00
+    0.374  37.40810 -122.24049          NaN       92.0     24.1   0.16     2.0     0.00
+    0.378  37.40799 -122.24079          NaN      104.0     15.2   0.19     1.0     0.00
+    0.381  37.40789 -122.24107         17.0      106.0     17.0   0.14     1.0     0.00
+    0.384  37.40778 -122.24138          NaN      108.0     11.5   0.09     1.0     0.00
+    0.388  37.40767 -122.24169          NaN      109.0      8.5   0.09     1.0     0.00
+    0.391  37.40755 -122.24200          NaN      111.0      5.9   0.11     1.0     0.00
+    0.395  37.40744 -122.24231          NaN      108.0      9.8   0.17     1.0     0.00
+    0.398  37.40733 -122.24261          NaN      111.0      9.1   0.28     1.0     0.00
+    0.402  37.40722 -122.24292          NaN      109.0     14.9   0.32     1.0     0.00
+    0.404  37.40715 -122.24311         15.0      112.0     15.0   0.32     1.0     0.00
+    0.407  37.40704 -122.24342          NaN      114.0     11.4   0.32     1.0     0.00
+    0.411  37.40692 -122.24373          NaN      115.0     10.4   0.33     1.0     0.00
+    0.414  37.40681 -122.24403          NaN      117.0      9.8   0.22     1.0     0.00
+    0.418  37.40669 -122.24434          NaN      119.0     10.8   0.16     1.0     0.00
+    0.421  37.40658 -122.24465          NaN      130.0      4.3   0.09     1.0     0.00
+    0.425  37.40647 -122.24496          NaN      129.0     11.3   0.09     1.0     0.00
+    0.426  37.40644 -122.24503         17.0      125.0     17.0   0.09     1.0     0.00
+    0.429  37.40621 -122.24486          NaN      129.0     10.4   0.09     1.0     0.00
+    0.433  37.40597 -122.24469          NaN      128.0     11.1   0.15     1.0     0.00
+    0.436  37.40574 -122.24452          NaN      127.0     14.1   0.12     1.0     0.00
+    0.438  37.40562 -122.24443         17.0      126.0     17.0   0.12     1.0     0.00
+    0.441  37.40535 -122.24437          NaN      125.0     14.9   0.08     2.0     0.00
+    0.445  37.40509 -122.24430          NaN      123.0     15.9   0.08     2.0     0.00
+    0.448  37.40482 -122.24424          NaN      123.0     16.9   0.11     2.0     0.00
+    0.452  37.40456 -122.24418         20.0      123.0     20.0   0.11     2.0     0.00
+    0.455  37.40429 -122.24421          NaN      121.0     17.6   0.15     2.0     0.00
+    0.459  37.40402 -122.24423          NaN      119.0     17.1   0.15     2.0     0.00
+    0.462  37.40375 -122.24426          NaN      118.0     17.6   0.23     3.0     0.00
+    0.466  37.40348 -122.24428          NaN      118.0     19.1   0.31     4.0     0.00
+    0.467  37.40339 -122.24429         20.0      118.0     20.0   0.31     3.0     0.00
+    0.471  37.40313 -122.24440          NaN      118.0     13.7   0.31     3.0     0.00
+    0.474  37.40288 -122.24451          NaN      115.0     12.8   0.22     1.0     0.00
+    0.478  37.40262 -122.24462          NaN      110.0     16.1   0.16     1.0     0.00
+    0.479  37.40249 -122.24468         20.0      106.0     20.0   0.16     1.0     0.00
+    0.483  37.40227 -122.24487          NaN      107.0     15.9   0.09     2.0     0.00
+    0.486  37.40205 -122.24507          NaN      108.0     13.4   0.08     1.0     0.00
+    0.490  37.40182 -122.24526          NaN      106.0     15.8   0.09     1.0     0.00
+    0.493  37.40160 -122.24545          NaN      106.0     17.8   0.10     1.0     0.00
+    0.497  37.40138 -122.24564          NaN      106.0     21.6   0.15     1.0     0.00
+    0.497  37.40136 -122.24566         22.0      106.0     22.0   0.15     1.0     0.00
+    0.501  37.40124 -122.24596          NaN      106.0     16.9   0.16     1.0     0.00
+    0.504  37.40111 -122.24626          NaN      106.0     12.6   0.18     1.0     0.00
+    0.508  37.40099 -122.24656          NaN      106.0      9.5   0.15     1.0     0.00
+    0.511  37.40086 -122.24687          NaN      106.0      7.3   0.20     1.0     0.00
+    0.515  37.40074 -122.24717          NaN      106.0      6.2   0.21     1.0     0.00
+    0.518  37.40061 -122.24747          NaN      106.0      6.1   0.28     2.0     0.00
+    0.522  37.40049 -122.24777          NaN      106.0      7.0   0.37     3.0     0.00
+    0.525  37.40036 -122.24807          NaN      106.0      9.0   0.49     4.0     0.00
+    0.529  37.40024 -122.24837          NaN      107.0     11.0   0.54     4.0     0.00
+    0.532  37.40012 -122.24867          NaN      108.0     14.0   0.59     5.0     0.00
+    0.536  37.39999 -122.24898          NaN      112.0     15.2   0.35    10.0     0.00
+    0.539  37.39987 -122.24927         16.0      117.0     16.0   0.36    11.0     0.00
+    0.543  37.39983 -122.24961          NaN      122.0     12.1   0.39    10.0     0.00
+    0.546  37.39979 -122.24994          NaN      129.0      9.8   0.43    10.0     0.43
+    0.550  37.39976 -122.25028          NaN      146.0      1.2   0.47     9.0     0.47
+    0.553  37.39972 -122.25061          NaN      157.0      2.1   0.49     8.0     0.49
+    0.557  37.39968 -122.25095          NaN      166.0      9.4   0.51     7.0     0.00
+    0.558  37.39966 -122.25113         18.0      172.0     18.0   0.51     7.0     0.00
+    0.562  37.39964 -122.25147          NaN      174.0     15.5   0.49     6.0     0.00
+    0.565  37.39962 -122.25181          NaN      169.0     20.9   0.46     5.0     0.00
+    0.569  37.39960 -122.25215          NaN      167.0     24.2   0.43     5.0     0.00
+    0.572  37.39958 -122.25249          NaN      171.0     22.5   0.47     7.0     0.00
+    0.576  37.39956 -122.25282          NaN      181.0     15.7   0.52     7.0     0.00
+    0.579  37.39955 -122.25316          NaN      186.0     14.8   0.55     7.0     0.00
+    0.583  37.39953 -122.25350          NaN      192.0     13.9   0.59     7.0     0.00
+    0.586  37.39951 -122.25384          NaN      199.0     12.9   0.65     8.0     0.00
+    0.590  37.39949 -122.25418          NaN      211.0      7.9   0.71     9.0     0.71
+    0.593  37.39947 -122.25452          NaN      217.0      9.9   0.73    11.0     0.73
+    0.597  37.39945 -122.25486          NaN      226.0      9.8   0.69    10.0     0.69
+    0.600  37.39943 -122.25520          NaN      237.0      8.7   0.60     9.0     0.60
+    0.604  37.39941 -122.25553          NaN      238.0     18.3   0.54     6.0     0.00
+    0.607  37.39939 -122.25587          NaN      256.0     12.1   0.42     6.0     0.00
+    0.611  37.39937 -122.25621          NaN      264.0     17.0   0.31     8.0     0.00
+    0.611  37.39937 -122.25627         22.0      264.0     22.0   0.31     8.0     0.00
+    0.615  37.39935 -122.25661          NaN      271.0     14.5   0.29     9.0     0.00
+    0.618  37.39933 -122.25695          NaN      282.0      4.8   0.31     9.0     0.31
+    0.622  37.39932 -122.25729          NaN      286.0      3.8   0.32    10.0     0.32
+    0.625  37.39930 -122.25763          NaN      286.0      8.7   0.30    11.0     0.30
+    0.629  37.39928 -122.25795         15.0      286.0     15.0   0.27    11.0     0.00
+    0.632  37.39926 -122.25829          NaN      286.0      9.9   0.26    10.0     0.26
+    0.636  37.39923 -122.25863          NaN      276.0     15.4   0.24    10.0     0.00
+    0.639  37.39921 -122.25896          NaN      266.0     21.9   0.24    12.0     0.00
+    0.643  37.39918 -122.25930          NaN      254.0     31.1   0.25    10.0     0.00
+    0.646  37.39916 -122.25964          NaN      255.0     28.0   0.26     8.0     0.00
+    0.650  37.39914 -122.25998          NaN      246.0     35.8   0.29     6.0     0.00
+    0.653  37.39911 -122.26032          NaN      219.0     62.3   0.34     5.0     0.00
+    0.657  37.39909 -122.26066          NaN      212.0     69.6   0.38     7.0     0.00
+    0.660  37.39907 -122.26099          NaN      207.0     75.7   0.40    17.0     0.00
+    0.664  37.39904 -122.26133          NaN      204.0     80.6   0.41    21.0     0.00
+    0.667  37.39902 -122.26167          NaN      224.0     63.3   0.46    22.0     0.00
+    0.671  37.39899 -122.26201          NaN      245.0     45.7   0.54    21.0     0.00
+    0.674  37.39897 -122.26235          NaN      258.0     37.0   0.66    21.0     0.00
+    0.678  37.39895 -122.26269          NaN      268.0     32.1   0.70    20.0     0.00
+    0.681  37.39892 -122.26302          NaN      278.0     27.7   0.73    17.0     0.00
+    0.685  37.39890 -122.26336          NaN      294.0     18.4   0.76    16.0     0.00
+    0.688  37.39888 -122.26370          NaN      300.0     19.8   0.80    16.0     0.00
+    0.692  37.39885 -122.26404          NaN      309.0     19.1   0.82    19.0     0.82
+    0.695  37.39883 -122.26438          NaN      315.0     22.2   0.79    21.0     0.79
+    0.696  37.39882 -122.26449         18.0      322.0     18.0   0.79    21.0     0.79
+    0.700  37.39880 -122.26483          NaN      330.0     11.5   0.68    19.0     0.68
+    0.703  37.39877 -122.26517          NaN      338.0      6.8   0.64    16.0     0.64
+    0.707  37.39875 -122.26551          NaN      345.0      5.0   0.58    12.0     0.58
+    0.710  37.39873 -122.26584          NaN      349.0      7.9   0.53    11.0     0.53
+    0.713  37.39871 -122.26610         15.0      349.0     15.0   0.52    12.0     0.00
+    0.716  37.39869 -122.26644          NaN      350.0      6.3   0.55    13.0     0.55
+    0.720  37.39866 -122.26678          NaN      350.0      0.4   0.59    15.0     0.59
+    0.723  37.39864 -122.26712          NaN      349.0     -2.5   0.60    15.0     0.60
+    0.727  37.39862 -122.26745          NaN      346.0     -1.3   0.60    14.0     0.60
+    0.728  37.39861 -122.26757         18.0      326.0     18.0   0.60    14.0     0.00
+    0.732  37.39838 -122.26774          NaN      326.0     17.5   0.57    10.0     0.00
+    0.735  37.39814 -122.26791          NaN      306.0     37.8   0.48     8.0     0.00
+    0.739  37.39791 -122.26809          NaN      296.0     48.9   0.48     8.0     0.00
+    0.742  37.39768 -122.26826          NaN      299.0     47.9   0.47     8.0     0.00
+    0.746  37.39745 -122.26843          NaN      312.0     37.7   0.53     7.0     0.00
+    0.749  37.39721 -122.26860          NaN      322.0     31.4   0.68    13.0     0.00
+    0.753  37.39698 -122.26878          NaN      327.0     30.9   0.68    13.0     0.00
+    0.756  37.39675 -122.26895          NaN      342.0     21.1   0.80    18.0     0.00
+    0.760  37.39652 -122.26912          NaN      352.0     17.2   0.79    11.0     0.00
+    0.763  37.39628 -122.26929          NaN      365.0     11.4   0.65     6.0     0.00
+    0.767  37.39605 -122.26946          NaN      379.0      5.1   0.60     8.0     0.60
+    0.770  37.39582 -122.26964          NaN      388.0      4.9   0.44     5.0     0.44
+    0.774  37.39559 -122.26981          NaN      394.0      8.4   0.40     9.0     0.40
+    0.777  37.39535 -122.26998          NaN      404.0      9.0   0.44     9.0     0.44
+    0.781  37.39512 -122.27015          NaN      421.0      3.3   0.41    11.0     0.41
+    0.784  37.39489 -122.27033          NaN      436.0      0.5   0.45     8.0     0.45
+    0.788  37.39466 -122.27050          NaN      440.0      9.5   0.45     4.0     0.00
+    0.790  37.39448 -122.27063         21.0      443.0     21.0   0.45     4.0     0.00
+    0.794  37.39425 -122.27082          NaN      442.0     18.8   0.48     3.0     0.00
+    0.797  37.39403 -122.27100          NaN      443.0     16.1   0.52     5.0     0.00
+    0.801  37.39380 -122.27119          NaN      446.0     13.0   0.56    11.0     0.00
+    0.804  37.39358 -122.27137          NaN      447.0     13.2   0.55    11.0     0.00
+    0.808  37.39335 -122.27156          NaN      447.0     16.1   0.68    22.0     0.68
+    0.811  37.39313 -122.27175          NaN      448.0     19.4   0.79    27.0     0.79
+    0.812  37.39306 -122.27180         21.0      448.0     21.0   0.79    27.0     0.79
+    0.816  37.39299 -122.27213          NaN      449.0     19.8   0.77    26.0     0.77
+    0.819  37.39292 -122.27245          NaN      449.0     21.3   0.79    25.0     0.79
+    0.823  37.39285 -122.27278          NaN      457.0     16.4   0.81    30.0     0.81
+    0.826  37.39277 -122.27311          NaN      461.0     17.4   0.83    33.0     0.83
+    0.830  37.39270 -122.27344          NaN      471.0     14.0   0.85    35.0     0.85
+    0.833  37.39263 -122.27376          NaN      484.0      9.1   0.86    33.0     0.86
+    0.837  37.39256 -122.27409          NaN      492.0     11.3   0.85    29.0     0.85
+    0.840  37.39249 -122.27442          NaN      502.0     13.2   0.81    25.0     0.81
+    0.841  37.39248 -122.27446         17.0      501.0     17.0   0.81    25.0     0.81
+    0.844  37.39241 -122.27479          NaN      494.0     24.4   0.76    21.0     0.00
+    0.848  37.39234 -122.27512          NaN      494.0     27.0   0.73    19.0     0.00
+    0.851  37.39227 -122.27544          NaN      505.0     20.7   0.73    18.0     0.00
+    0.855  37.39220 -122.27577          NaN      514.0     18.8   0.75    19.0     0.75
+    0.858  37.39213 -122.27610          NaN      525.0     17.2   0.77    20.0     0.77
+    0.862  37.39206 -122.27643          NaN      553.0      1.0   0.79    22.0     0.79
+    0.865  37.39199 -122.27676          NaN      564.0      4.2   0.81    23.0     0.81
+    0.869  37.39192 -122.27708          NaN      573.0     11.5   0.82    21.0     0.82
+    0.870  37.39190 -122.27717         21.0      573.0     21.0   0.84    23.0     0.84
+    0.873  37.39183 -122.27750          NaN      580.0     15.3   0.84    24.0     0.84
+    0.877  37.39177 -122.27783          NaN      593.0      7.8   0.82    25.0     0.82
+    0.880  37.39170 -122.27816          NaN      600.0     10.6   0.81    26.0     0.81
+    0.883  37.39163 -122.27849          NaN      610.0     15.0   0.67    20.0     0.67
+    0.885  37.39161 -122.27860         23.0      610.0     23.0   0.67    20.0     0.00
+    0.888  37.39162 -122.27894          NaN      614.0     17.2   0.67    18.0     0.67
+    0.892  37.39163 -122.27928          NaN      611.0     19.6   0.64    15.0     0.00
+    0.895  37.39165 -122.27962          NaN      609.0     22.3   0.57    14.0     0.00
+    0.899  37.39166 -122.27996          NaN      614.0     19.3   0.48    12.0     0.00
+    0.902  37.39167 -122.28030          NaN      643.0     -6.4   0.54    13.0     0.54
+    0.906  37.39168 -122.28064          NaN      642.0     -0.8   0.61    15.0     0.61
+    0.909  37.39170 -122.28097          NaN      642.0      4.9   0.68    16.0     0.68
+    0.913  37.39171 -122.28131          NaN      641.0     13.1   0.72    16.0     0.72
+    0.913  37.39171 -122.28139         16.0      640.0     16.0   0.72    16.0     0.72
+    0.917  37.39156 -122.28167          NaN      625.0     23.2   0.79    16.0     0.00
+    0.920  37.39142 -122.28196          NaN      620.0     20.8   0.79    16.0     0.00
+    0.924  37.39127 -122.28224          NaN      602.0     32.1   0.75    17.0     0.00
+    0.927  37.39112 -122.28253          NaN      596.0     31.9   0.74    17.0     0.00
+    0.931  37.39097 -122.28281          NaN      573.0     49.5   0.76    21.0     0.00
+    0.934  37.39083 -122.28310          NaN      554.0     63.8   0.73    21.0     0.00
+    0.938  37.39068 -122.28338          NaN      552.0     61.8   0.68    18.0     0.00
+    0.941  37.39053 -122.28367          NaN      540.0     70.4   0.64    16.0     0.00
+    0.945  37.39038 -122.28395          NaN      538.0     69.8   0.65    14.0     0.00
+    0.948  37.39024 -122.28423          NaN      523.0     82.8   0.63    14.0     0.00
+    0.952  37.39009 -122.28452          NaN      521.0     83.5   0.63    14.0     0.00
+    0.955  37.38994 -122.28480          NaN      524.0     79.8   0.62    14.0     0.00
+    0.959  37.38980 -122.28509          NaN      524.0     79.9   0.68    16.0     0.00
+    0.962  37.38965 -122.28537          NaN      542.0     62.6   0.68    16.0     0.00
+    0.966  37.38950 -122.28566          NaN      541.0     65.0   0.73    22.0     0.00
+    0.969  37.38935 -122.28594          NaN      550.0     58.0   0.71    24.0     0.00
+    0.973  37.38921 -122.28623          NaN      547.0     63.8   0.68    21.0     0.00
+    0.976  37.38906 -122.28651          NaN      557.0     57.1   0.69    26.0     0.00
+    0.980  37.38891 -122.28680          NaN      557.0     61.3   0.64    22.0     0.00
+    0.983  37.38876 -122.28708          NaN      566.0     57.1   0.65    27.0     0.00
+    0.987  37.38862 -122.28736          NaN      576.0     52.4   0.66    25.0     0.00
+    0.990  37.38847 -122.28765          NaN      589.0     45.6   0.63    21.0     0.00
+    0.994  37.38832 -122.28793          NaN      603.0     38.4   0.64    18.0     0.00
+    0.997  37.38817 -122.28822          NaN      621.0     28.1   0.58    12.0     0.00
+    1.000  37.38806 -122.28844         23.0      632.0     23.0   0.56     9.0     0.00
+
+</div>
 
 </div>
 
