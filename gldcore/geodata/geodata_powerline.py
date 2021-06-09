@@ -283,6 +283,7 @@ def linesag(data):
 
     data['linesag'] = float('nan') # default result
     result = data['linesag'].to_dict()
+
     # read cable specs from cable type
     global OPTIONS
     if not 'cable_type' in data.columns and not 'cable_type' in OPTIONS.keys():
@@ -379,7 +380,7 @@ def linesag(data):
                 # compute linesag at waypoints
                 for n,l in ld.items():
                     p = [l['latitude'],l['longitude']]
-                    d_hori = get_distance(p0,p1)
+                    d_hori = get_distance(p0,p)
                     try:
                         elevation = l['elevation']
                     except:
@@ -397,6 +398,7 @@ def linesag(data):
 
 
         elif p0: # continue a line segment
+
             # end last segment
             ld[id] = line
 
@@ -494,7 +496,6 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         dt = get_distance(p0,p1)
         sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
         sag_elevation = z0 - sag0_cosh*cos(sag_angle)
-
     result = sag_elevation[0]
     # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
     return result

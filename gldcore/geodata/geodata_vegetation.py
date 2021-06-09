@@ -59,6 +59,7 @@ def cfo(username,password,usecache=True):
 #
 # Valid height units
 #
+
 units = {
     "m" : 1.0,
     "meters" : 1.0,
@@ -182,6 +183,7 @@ def get_rowcol(pos,data):
     width = len(data[0])
     row = height-int(math.modf(abs(pos[0]))[0]*height)
     col = width-int(math.modf(abs(pos[1]))[0]*width)
+
     return row, col
 
 def get_position(pos):
@@ -227,8 +229,10 @@ def get_imagename(layer,pos):
 
         tifname (str)       The name of the image tile used
     """
+
     lat = pos[0]*10
     lon = pos[1]*10
+
     if lat < 0:
         lat = f"{-math.floor(lat)}S"
     elif lat > 0:
@@ -246,6 +250,7 @@ def get_imagename(layer,pos):
 vegetation_data = {}
 
 def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximum_image_size=default_config['maximum_image_size']):
+
     """Get the image data for a location
 
     ARGUMENTS
@@ -264,6 +269,7 @@ def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximu
     if not tifname in vegetation_data.keys():
         srcname = f"{repourl}/{year}/{tifname}.tif"
         dstname = f"{cachedir}/{year}/{tifname}.tif"
+
         if not os.path.exists(dstname):
             response = requests.get(srcname,stream=True)
             if response.status_code != 200:
@@ -272,6 +278,7 @@ def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximu
                 for chunk in response.iter_content(chunk_size=1024*1024):
                     if chunk:
                         fh.write(chunk)
+
         Image.MAX_IMAGE_PIXELS = maximum_image_size
         vegetation_data[tifname] = numpy.array(Image.open(dstname))
     return tifname, vegetation_data[tifname]
@@ -284,13 +291,14 @@ if __name__ == '__main__':
 
     import unittest
 
-    class TestElevation(unittest.TestCase):
+    class TestVegetation(unittest.TestCase):
 
         def test_vegetation_meters(self):
             test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
+
             default_options.update({"units":"meters"})
             result = apply(test)
             self.assertEqual(result["cover"][0],42)
@@ -302,6 +310,7 @@ if __name__ == '__main__':
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
+
             default_options.update({"units":"feet"})
             result = apply(test,default_options)
 
