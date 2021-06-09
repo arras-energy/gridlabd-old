@@ -110,6 +110,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
                     lat1 = lat2
                     lon1 = lon2
                     dist.append(d+dist[-1])
+                    dist.append(d-last)
         else:
             raise Exception(f"method '{config[method]}' is not recognized")
         try:
