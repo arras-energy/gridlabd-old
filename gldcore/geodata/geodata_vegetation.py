@@ -51,7 +51,10 @@ def cfo(username,password,usecache=True):
         os.environ['CFO_EMAIL'] = username
     if "CFO_PASS" not in os.environ.keys():
         os.environ['CFO_PASS'] = password
+    output = sys.stdout
+    sys.stdout = None
     return cfo.api().authenticate(ignore_temp=(not usecache)) == 200
+    sys.stdout = output
 
 #
 # Valid height units
