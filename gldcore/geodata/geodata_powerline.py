@@ -221,7 +221,8 @@ def get_line_tension_coefficient(d_hori):
     """
     # reference: IEC 60826:2017
     # fit of data is used
-    return 0.2106718346 + 0.0003126614987*d_hori
+    # 0.2106718346 + 0.0003126614987*d_hori
+    return 0.50723325 - 0.29656325/(0.05*d_hori+1)
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations
@@ -420,8 +421,8 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     span = sqrt(d_hori*d_hori + d_vert*d_vert)
     rts = cable['rated_tensile_strength']
     unit_weight = cable['unit_weight']
-    if d_vert > 30:
-        k_init = min(k_init, unit_weight*span*span/(2*d_vert*rts))
+    # if d_vert > 30:
+    #     k_init = min(k_init, 3.0*unit_weight*span*span/(2*d_vert*rts))
     H_init = rts*k_init
     sag_init = unit_weight*span*span/(8*H_init)
     P_rated = power_flow
@@ -493,6 +494,7 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         dt = get_distance(p0,p1)
         sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
         sag_elevation = z0 - sag0_cosh*cos(sag_angle)
+
     result = sag_elevation[0]
     # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
     return result
