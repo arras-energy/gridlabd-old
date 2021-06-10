@@ -475,7 +475,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
         verbose("pole_status = %d",pole_status);
         if ( pole_status == PS_FAILED )
         {
-            verbose("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
+            verbose("pole failed at %.0f%% stress, time to repair is %g h",pole_stress*100,repair_time);
             down_time = gl_globalclock;
             verbose("down_time = %lld", down_time);
         }
