@@ -301,9 +301,9 @@ if __name__ == '__main__':
 
             default_options.update({"units":"meters"})
             result = apply(test)
-            self.assertEqual(result["cover"][0],42)
-            self.assertEqual(result["height"][0],6)
-            self.assertEqual(result["base"][0],2)
+            self.assertEqual(result["cover"][0],0.05)
+            self.assertEqual(result["height"][0],0.0)
+            self.assertEqual(result["base"][0],0.0)
 
         def test_vegetation_feet(self):
             test = pandas.DataFrame({
@@ -314,8 +314,8 @@ if __name__ == '__main__':
             default_options.update({"units":"feet"})
             result = apply(test,default_options)
 
-            self.assertEqual(result["cover"][0],42)
-            self.assertEqual(result["height"][0],20)
-            self.assertEqual(result["base"][0],7)
+            self.assertEqual(result["cover"][0],0.05)
+            self.assertEqual(result["height"][0],0.0)
+            self.assertEqual(result["base"][0],0.0)
 
     unittest.main()
