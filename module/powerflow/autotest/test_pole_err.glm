@@ -1,4 +1,3 @@
-#set suppress_repeat_messages=FALSE
 
 clock {
 	starttime '2020-01-01 00:00:00';
@@ -9,7 +8,10 @@ clock {
 // network model
 ///////////////////////////////////////
 
-module powerflow;
+module powerflow
+{
+	stop_on_pole_failure TRUE;
+}
 object node
 {
     name node1;
@@ -71,14 +73,15 @@ object pole_configuration {
 	top_diameter (19/3.14);
 	fiber_strength 8000 psi;
 	repair_time 1 h;
+	degradation_rate 0.2;
 }
 
 object pole {
     name pole1;
     weather weather;
     configuration "WOOD-C-45/5";
-    tilt_angle 10 deg;
-    tilt_direction 270;
+    tilt_angle 20 deg;
+    tilt_direction 180;
     install_year 1990;
     object pole_mount
     {

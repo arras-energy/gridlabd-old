@@ -100,15 +100,19 @@ int pole_mount::init(OBJECT *parent)
         class overhead_line *line = OBJECTDATA(get_equipment(),class overhead_line);
         verbose("overhead_line = %s",get_equipment()->name);
         class line_configuration *config = OBJECTDATA(line->configuration,class line_configuration);
-        verbose("line_configuration = %s",line->configuration);
+        verbose("line_configuration = %s",line->configuration ? line->configuration->name : "(NA)");
         class line_spacing *spacing = OBJECTDATA(config->line_spacing,class line_spacing);
-        verbose("line_spacing = %s",config->line_spacing);
+        verbose("line_spacing = %s",config->line_spacing ? config->line_spacing->name : "(NA)");
         class overhead_line_conductor *conductor[] = {
             OBJECTDATA(config->phaseA_conductor,class overhead_line_conductor),
             OBJECTDATA(config->phaseB_conductor,class overhead_line_conductor),
             OBJECTDATA(config->phaseC_conductor,class overhead_line_conductor),
             OBJECTDATA(config->phaseN_conductor,class overhead_line_conductor)};
-        verbose("overhead_line_conductor = {A:%s, B:%s, C:%s, N:%s}",config->phaseA_conductor,config->phaseB_conductor,config->phaseC_conductor,config->phaseN_conductor);
+        verbose("overhead_line_conductor = {A:%s, B:%s, C:%s, N:%s}",
+            config->phaseA_conductor ? config->phaseA_conductor->name : "(NA)",
+            config->phaseB_conductor ? config->phaseB_conductor->name : "(NA)",
+            config->phaseC_conductor ? config->phaseC_conductor->name : "(NA)",
+            config->phaseN_conductor ? config->phaseN_conductor->name : "(NA)");
         line_moment = (
             spacing->distance_AtoE * (conductor[0]?conductor[0]->get_cable_weight():0.0) +
             spacing->distance_BtoE * (conductor[1]?conductor[1]->get_cable_weight():0.0) +
