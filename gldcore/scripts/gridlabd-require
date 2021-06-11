@@ -19,6 +19,7 @@ while [ $# -gt 0 ]; do
         STDOUT="/dev/stdout"
     else
         /usr/local/bin/python3 -m pip freeze | grep $1 1>$STDOUT 2>$STDERR || /usr/local/bin/python3 -m pip $QUIET install $1 
+        test "$(/usr/local/bin/python3 -m pip freeze | grep ^$1)" != "" || exit 1 
     fi
     shift 1
 done
