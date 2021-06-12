@@ -47,14 +47,11 @@ default_config = {
 
 def cfo(username,password,usecache=True):
     import cfo 
-    if "CFO_EMAIL" not in os.environ.keys():
+    if "CFO_EMAIL" not in os.environ.keys() and username:
         os.environ['CFO_EMAIL'] = username
-    if "CFO_PASS" not in os.environ.keys():
+    if "CFO_PASS" not in os.environ.keys() and password:
         os.environ['CFO_PASS'] = password
-    output = sys.stdout
-    sys.stdout = None
     return cfo.api().authenticate(ignore_temp=(not usecache)) == 200
-    sys.stdout = output
 
 #
 # Valid height units
