@@ -401,12 +401,6 @@ the `set` option
 bash% gridlabd geodata config set name local_value
 ```
 
-<div class="output stream stdout">
-
-    WARNING [geodata]: config file '/Users/dchassin/github/gridlabd/gldcore/geodata/docs/geodata.conf' is not found
-
-</div>
-
 </div>
 
 <div class="cell markdown">
@@ -464,6 +458,8 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
+    vegetation.username='name@example.com'
+    vegetation.password='password5839'
     name='local_value'
 
 </div>
@@ -490,6 +486,8 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
+    vegetation.username='name@example.com'
+    vegetation.password='password5839'
     name='local_value'
     user.name='user_value'
 
@@ -517,6 +515,8 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
+    vegetation.username='name@example.com'
+    vegetation.password='password5839'
     name='local_value'
     user.name='user_value'
     system.name='system_value'
@@ -545,6 +545,8 @@ bash% gridlabd geodata config show
     path_join='outer'
     column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
     uuid_type='4'
+    vegetation.username='name@example.com'
+    vegetation.password='password5839'
     user.name='user_value'
     system.name='system_value'
 
@@ -828,9 +830,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    8cbf6a063af34edeb0221c430c9503bb,37.41,-122.2,0
-    724b696aaea04b58959717e2197f2e86,37.42,-122.2,1
-    c4e96aafe7c94a3783f05d68afcce029,37.42,-122.21,2
+    3d91215ce8c34554baff863e47fafd2e,37.41,-122.2,0
+    9936e9925e754994ab6b880ab5fbc5a6,37.42,-122.2,1
+    f5a32965d69149afb365e4bf74ff8003,37.42,-122.21,2
 
 </div>
 
@@ -853,9 +855,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    8fd7f866c93c11eb8c1facde48001122,37.41,-122.2,0
-    8fd7fab4c93c11eb8c1facde48001122,37.42,-122.2,1
-    8fd7fae6c93c11eb8c1facde48001122,37.42,-122.21,2
+    875a4e4ecb8711eb914aacde48001122,37.41,-122.2,0
+    875a5010cb8711eb914aacde48001122,37.42,-122.2,1
+    875a5038cb8711eb914aacde48001122,37.42,-122.21,2
 
 </div>
 
@@ -1519,10 +1521,6 @@ bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,
 
 <div class="output stream stdout">
 
-    2021-06-09 09:06:49,018 WARNING cfo.utils [_auth_request] | Authentication failed. Try and run .authenticate(ignore_temp=True)
-    2021-06-09 09:06:49,018 WARNING cfo.utils [_auth_request] | b'{}\n'
-    2021-06-09 09:06:49,019 WARNING cfo.utils [authenticate] | Authentication failed with status code 401
-    WARNING [geodata/vegetation]: vegetation data provider authentication failed
         latitude  longitude  base  cover  height
     id                                          
     0      37.41    -122.20   2.0   0.17    11.0
@@ -1548,10 +1546,6 @@ bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,
 
 <div class="output stream stdout">
 
-    2021-06-09 09:07:08,386 WARNING cfo.utils [_auth_request] | Authentication failed. Try and run .authenticate(ignore_temp=True)
-    2021-06-09 09:07:08,386 WARNING cfo.utils [_auth_request] | b'{}\n'
-    2021-06-09 09:07:08,386 WARNING cfo.utils [authenticate] | Authentication failed with status code 401
-    WARNING [geodata/vegetation]: vegetation data provider authentication failed
         latitude  longitude  base  cover  height
     id                                          
     0      37.41    -122.20   2.0   0.17    11.0
@@ -1910,7 +1904,7 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 -v --units=km --precisi
     0      37.0     -122.0   0
     1      38.0     -122.0   1
     --------------------------
-    
+
     VERBOSE [geodata/distance]: options = {
         "verbose": true,
         "debug": false,
@@ -2125,9 +2119,9 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # i
 <div class="output stream stdout">
 
     Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210608-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
+      File "/usr/local/opt/gridlabd/4.2.21-210609-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
         result = MODULE.apply(data,options,config,warning)
-      File "/usr/local/opt/gridlabd/4.2.21-210608-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
+      File "/usr/local/opt/gridlabd/4.2.21-210609-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
         raise Exception(f"unit '{options['units']}' is not recognized")
     Exception: unit 'furlongs' is not recognized
     DEBUG [geodata/distance]: merge(args=['37,-122', '38,-122', '--units=furlongs']) --> data = 
@@ -2620,7 +2614,7 @@ powerline data.
 
 </div>
 
-<div class="cell code" execution_count="87" scrolled="false">
+<div class="cell code" execution_count="80" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D elevation path_example.csv -r 30 --resolution_id \
@@ -2737,6 +2731,11 @@ bash% gridlabd geodata merge -D elevation path_example.csv -r 30 --resolution_id
     0.334  37.40939 -122.23696          NaN      104.0     20.5   0.14     1.0     0.00
     0.338  37.40928 -122.23727          NaN      103.0     20.6   0.28     2.0     0.00
     0.341  37.40917 -122.23757          NaN      107.0     16.8   0.26     2.0     0.00
+
+</div>
+
+<div class="output stream stdout">
+
     0.343  37.40912 -122.23771         15.0      109.0     15.0   0.42     5.0     0.00
     0.346  37.40901 -122.23802          NaN      107.0     12.9   0.53     6.0     0.00
     0.350  37.40889 -122.23833          NaN       98.0     18.7   0.28     5.0     0.00
