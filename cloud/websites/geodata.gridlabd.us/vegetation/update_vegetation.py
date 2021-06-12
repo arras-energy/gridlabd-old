@@ -95,32 +95,31 @@ for layer in ["base","cover","height"]:
     for lat in lat_range:
         for lon in lon_range:
             name = get_imagename(layer,pos=(lat,lon),scale=1.0)
-            print(name)
-            # if not os.path.exists(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"):
-            #     continue
-            # print(f"Processing {layer}...",flush=True)
-            # name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
-            #         repourl = "http://geodata.gridlabd.us/vegetation",
-            #         cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
-            # width = len(tile[0])
-            # height = len(tile)
-            # missing = 0
-            # for row in range(height):
-            #     missing += len(numpy.where(tile[row]==255))
-            # if missing > 0:
-            #     print(f"WARNING: missing data found in {name}.tif")
-            # for row in range(10):
-            #     for col in range(10):
-            #         # print(f"row={row},col={col}")
-            #         slat = round(lat+row/10,1)
-            #         slon = round(lon+col/10,1)
-            #         # print(f"slat={slat},slon={slon}")
-            #         name = get_imagename(layer, pos=(slat+0.05,slon+0.05), scale=0.1)
-            #         print(f"Saving {name}.tif...",flush=True)
-            #         left = int(col*width/10)
-            #         right = int(left+width/10+1)
-            #         bottom = int(row*height/10)
-            #         top = int(bottom+height/10+1)
-            #         # print(f"{name}: left={left}, right={right}, bottom={bottom}, top={top}")
-            #         img = Image.fromarray(tile[bottom:top,left:right])
-            #         img.save(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif")
+            if not os.path.exists(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"):
+                continue
+            print(f"Processing {layer}...",flush=True)
+            name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
+                    repourl = "http://geodata.gridlabd.us/vegetation",
+                    cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
+            width = len(tile[0])
+            height = len(tile)
+            missing = 0
+            for row in range(height):
+                missing += len(numpy.where(tile[row]==255))
+            if missing > 0:
+                print(f"WARNING: missing data found in {name}.tif")
+            for row in range(10):
+                for col in range(10):
+                    # print(f"row={row},col={col}")
+                    slat = round(lat+row/10,1)
+                    slon = round(lon+col/10,1)
+                    # print(f"slat={slat},slon={slon}")
+                    name = get_imagename(layer, pos=(slat+0.05,slon+0.05), scale=0.1)
+                    print(f"Saving {name}.tif...",flush=True)
+                    left = int(col*width/10)
+                    right = int(left+width/10+1)
+                    bottom = int(row*height/10)
+                    top = int(bottom+height/10+1)
+                    # print(f"{name}: left={left}, right={right}, bottom={bottom}, top={top}")
+                    img = Image.fromarray(tile[bottom:top,left:right])
+                    img.save(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif")
