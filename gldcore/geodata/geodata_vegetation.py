@@ -47,11 +47,9 @@ default_config = {
 
 def cfo(username,password,usecache=True):
     import cfo 
-    if "CFO_EMAIL" not in os.environ.keys() and username:
-        os.environ['CFO_EMAIL'] = username
-    if "CFO_PASS" not in os.environ.keys() and password:
-        os.environ['CFO_PASS'] = password
-    return cfo.api().authenticate(ignore_temp=(not usecache)) == 200
+    os.environ['CFO_EMAIL'] = username
+    os.environ['CFO_PASS'] = password
+    return cfo.api().authenticate(ignore_temp=True) == 200
 
 #
 # Valid height units
@@ -172,29 +170,8 @@ def get_vegetation(pos,
         name,data = get_imagedata(layer,pos,repourl,cachedir,year)
         data = layer_process[layer](data)
         row,col = get_rowcol(pos,data)
-        height = len(data)
-        width = len(data[0])
-        dx = 1.0-math.modf(abs(pos[1])*width)[0]
-        dy = 1.0-math.modf(abs(pos[0])*height)[0]
-        e00 = float(data[row][col])
-        if row > 0:
-            e10 = float(data[row-1][col])
-        else:
-            e10 = e00
-        if col > 0:
-            e01 = float(data[row][col-1])
-        else:
-            e01 = e00
-        if row > 0 and col > 0:
-            e11 = float(data[row-1][col-1])
-        else:
-            e11 = e00
-        e0 = dx*e00 + (1-dx)*e01
-        e1 = dx*e10 + (1-dx)*e11 
 
-        result[layer] = [dy*e0 + (1-dy)*e1]
-
-        # result[layer] = [data[row][col]]
+        result[layer] = [data[row][col]]
 
     return result
 
