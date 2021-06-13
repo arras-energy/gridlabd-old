@@ -39,6 +39,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
 			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
 			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
+			PT_double, "wind_pressure[ft/lb/lb]", PADDR(wind_pressure), PT_DESCRIPTION, "wind pressure on pole",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
@@ -243,7 +244,7 @@ int pole::init(OBJECT *parent)
 	return 1;
 }
 
-TIMESTAMP pole::presync(TIMESTAMP t0)
+TIMESTAMP pole::sync(TIMESTAMP t0)
 {
 	// update pole degradation model
 	if ( install_year > 0 )
@@ -329,14 +330,14 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 	
-	TIMESTAMP t1 = node::presync(t0);
+	TIMESTAMP t1 = node::sync(t0);
 	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
 }
 
-TIMESTAMP pole::sync(TIMESTAMP t0)
+TIMESTAMP pole::presync(TIMESTAMP t0)
 {
-	return node::sync(t0);
+	return node::presync(t0);
 }
 
 TIMESTAMP pole::postsync(TIMESTAMP t0)
