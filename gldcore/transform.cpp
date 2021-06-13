@@ -653,7 +653,16 @@ int transform_saveall(FILE *fp)
 	TRANSFERFUNCTION *tf;
 	for ( tf = tflist ; tf != NULL ; tf = tf->next )
 	{
-		count += fprintf(fp,"filter %s(%s,%gs,%gs) = (", tf->name, tf->domain, tf->timestep, tf->timeskew);
+		count += fprintf(fp,"filter %s(%s,%gs,%gs", tf->name, tf->domain, tf->timestep, tf->timeskew);
+		if ( tf->resolution > 0 )
+		{
+			count += fprintf(fp,",resolution=%g",tf->resolution);
+		}
+		if ( tf->minimum < tf->maximum )
+		{
+			count += fprintf(fp,",minimum=%g,maximum=%g",tf->minimum,tf->maximum);
+		}
+		count += fprintf(fp,") = (");
 		for ( int m = tf->m - 1 ; m >= 0 ; m-- )
 		{
 			if ( tf->b[m] != 1.0 || m == 0 )
