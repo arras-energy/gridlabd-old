@@ -111,43 +111,44 @@ def convert(ifile,ofile) :
 				fw.write(val_str)	
 
 		# filters
-		fw.write('\n\n// FILTERS')
-		for name, specs in data['filters'].items() :
-			domain = specs['domain']
-			timestep = specs['timestep']
-			timeskew = specs['timeskew']
-			numerator = specs['numerator']
-			denominator = specs['denominator']
-			fw.write(f'\nfilter {name}({domain},{timestep},{timeskew}')
+		if 'filters' in data.keys():
+			fw.write('\n\n// FILTERS')
+			for name, specs in data['filters'].items() :
+				domain = specs['domain']
+				timestep = specs['timestep']
+				timeskew = specs['timeskew']
+				numerator = specs['numerator']
+				denominator = specs['denominator']
+				fw.write(f'\nfilter {name}({domain},{timestep},{timeskew}')
 
-			if 'minimum' in specs.keys():
-				fw.write(f',minimum={specs["minimum"]}')
+				if 'minimum' in specs.keys():
+					fw.write(f',minimum={specs["minimum"]}')
 
-			if 'maximum' in specs.keys():
-				fw.write(f',maximum={specs["maximum"]}')
+				if 'maximum' in specs.keys():
+					fw.write(f',maximum={specs["maximum"]}')
 
-			if 'resolution' in specs.keys():
-				fw.write(f',resolution={specs["resolution"]}')
+				if 'resolution' in specs.keys():
+					fw.write(f',resolution={specs["resolution"]}')
 
-			fw.write(') = (')
-			for n in range(len(numerator)):
-				if n == 0:
-					fw.write("%g"%numerator[0])
-				elif n == 1:
-					fw.write(f"%+g{domain}"%numerator[1])
-				else:
-					fw.write(f"%+g{domain}^%d"%(numerator[n],n))
+				fw.write(') = (')
+				for n in range(len(numerator)):
+					if n == 0:
+						fw.write("%g"%numerator[0])
+					elif n == 1:
+						fw.write(f"%+g{domain}"%numerator[1])
+					else:
+						fw.write(f"%+g{domain}^%d"%(numerator[n],n))
 
-			fw.write(') / (')
-			for n in range(len(denominator)):
-				if n == 0:
-					fw.write("%g"%denominator[0])
-				elif n == 1:
-					fw.write(f"%+g{domain}"%denominator[1])
-				else:
-					fw.write(f"%+g{domain}^%d"%(denominator[n],n))
+				fw.write(') / (')
+				for n in range(len(denominator)):
+					if n == 0:
+						fw.write("%g"%denominator[0])
+					elif n == 1:
+						fw.write(f"%+g{domain}"%denominator[1])
+					else:
+						fw.write(f"%+g{domain}^%d"%(denominator[n],n))
 
-			fw.write(');\n')
+				fw.write(');\n')
 
 		# classes
 		fw.write('\n\n// CLASSES')
