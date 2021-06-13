@@ -948,7 +948,7 @@ def write_csv(data):
 def filter(data):
     """Filter implementation"""
     if OPTIONS['filter']:
-        for action in OPTIONS['filter'].split(','):
+        for action in OPTIONS['filter'].split(';'):
             data = eval(f"data.{action}")
         if OPTIONS['select']:
             for column in OPTIONS['select'].split(','):
