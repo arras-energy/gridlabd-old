@@ -729,10 +729,10 @@ EXPORT int check()
 	//		FINDLIST *cow = gl_find_objects(FL_NEW,FT_ID,SAME,i,NULL);
 	//		OBJECT *moo = gl_find_next(cow, NULL);
 	//		char grass[64];
-	//		gl_output("object #%i, \'%s\', has more than one link feeding to it (this will diverge)", i, gl_name(moo, grass, 64));
+	//		output("object #%i, \'%s\', has more than one link feeding to it (this will diverge)", i, gl_name(moo, grass, 64));
 	//	}
 	//}
-	//gl_output("Found %i islands", islandct);
+	//output("Found %i islands", islandct);
 	//tlist = anchor.next;
 	//while(tlist != NULL){
 	//	PFLIST *tptr = tlist;
