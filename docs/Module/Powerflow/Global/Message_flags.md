@@ -5,13 +5,22 @@
 Shell:
 
 ~~~
-bash$ gridlabd -D|--define message_flags=<value>
+bash$ gridlabd -D|--define powerflow::message_flags=<value>
 ~~~
 
 GLM:
 
 ~~~
-  #set message_flags=[NONE|QUIET|WARNING|VERBOSE|DEBUG|ALL]
+  #set powerflow::message_flags=[NONE|QUIET|WARNING|VERBOSE|DEBUG|ALL]
+~~~
+
+or
+
+~~~
+module powerflow
+{
+  message_flags [NONE|QUIET|WARNING|VERBOSE|DEBUG|ALL];
+}
 ~~~
 
 # Description
