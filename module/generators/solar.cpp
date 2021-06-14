@@ -168,7 +168,7 @@ int solar::init_climate()
 		{
 			if(!gl_object_isa(weather, "climate")){
 				// strcmp failure
-				gl_error("weather property refers to a(n) \"%s\" object and not a climate object", weather->oclass->name);
+				error("weather property refers to a(n) \"%s\" object and not a climate object", weather->oclass->name);
 				/*  TROUBLESHOOT
 				While attempting to map a climate property, the solar array encountered an object that is not a climate object.
 				Please check to make sure a proper climate object is present, and/or specified.  If the bug persists, please
@@ -195,14 +195,14 @@ int solar::init_climate()
 			{
 				if (climates->hit_count>1)
 				{
-					gl_warning("solarpanel: %d climates found, using first one defined", climates->hit_count);
+					warning("solarpanel: %d climates found, using first one defined", climates->hit_count);
 					/*  TROUBLESHOOT
 					More than one climate object was found, so only the first one will be used by the solar array object
 					*/
 				}
 
 
-				gl_verbose("solar init: climate data was found!");
+				verbose("solar init: climate data was found!");
 				// force rank of object w.r.t climate
 				obj = gl_find_next(climates,NULL);
 				weather = obj;
@@ -213,7 +213,7 @@ int solar::init_climate()
 		if (weather == NULL)
 		{
 			//Replicate above warning
-			gl_warning("solarpanel: no climate data found, using static data");
+			warning("solarpanel: no climate data found, using static data");
 			/*  TROUBLESHOOT
 			No climate object was found and player mode was not enabled, so the solar array object
 			is utilizing default values for all relevant weather variables.
@@ -251,7 +251,7 @@ int solar::init_climate()
 		{
 			if((obj->flags & OF_INIT) != OF_INIT){
 				char objname[256];
-				gl_verbose("solar::init(): deferring initialization on %s", gl_name(obj, objname, 255));
+				verbose("solar::init(): deferring initialization on %s", gl_name(obj, objname, 255));
 				return 2; // defer
 			}
 			if (obj->rank<=hdr->rank)
@@ -415,7 +415,7 @@ int solar::init_climate()
 					}
 					else if (obj->latitude<0.0) //South - "north" is equatorial facing
 					{
-						gl_warning("solar:%s - Default solar position model is not recommended for southern hemisphere!",hdr->name);
+						warning("solar:%s - Default solar position model is not recommended for southern hemisphere!",hdr->name);
 						/*  TROUBLESHOOT
 						The Liu-Jordan (default) solar position and tilt model was built around the northern
 						hemisphere.  As such, operating in the southern hemisphere does not provide completely accurate
@@ -455,7 +455,7 @@ int solar::init_climate()
 	}
 	else	//Player mode, just drop a message
 	{
-		gl_warning("Solar object:%s is in player mode - be sure to specify relevant values",hdr->name);
+		warning("Solar object:%s is in player mode - be sure to specify relevant values",hdr->name);
 		/*  TROUBLESHOOT
 		The solar array object is in player mode.  It will not take values from climate files or objects.
 		Be sure to specify the Insolation, ambient_temperature, and wind_speed values as necessary.  It also
@@ -478,33 +478,33 @@ int solar::init(OBJECT *parent)
 		if((parent->flags & OF_INIT) != OF_INIT)
 		{
 			char objname[256];
-			gl_verbose("solar::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("solar::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
 
 	if (gen_mode_v == UNKNOWN)
 	{
-		gl_warning("Generator control mode is not specified! Using default: SUPPLY_DRIVEN");
+		warning("Generator control mode is not specified! Using default: SUPPLY_DRIVEN");
 		gen_mode_v = SUPPLY_DRIVEN;
 	} else if(gen_mode_v == CONSTANT_V){
-		gl_error("Generator control mode is CONSTANT_V. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
+		error("Generator control mode is CONSTANT_V. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
 		return 0;
 	} else if(gen_mode_v == CONSTANT_PQ){
-		gl_error("Generator control mode is CONSTANT_PQ. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
+		error("Generator control mode is CONSTANT_PQ. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
 		return 0;
 	} else if(gen_mode_v == CONSTANT_PF){
-		gl_error("Generator control mode is CONSTANT_PF. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
+		error("Generator control mode is CONSTANT_PF. The Solar object only operates in SUPPLY_DRIVEN generator control mode.");
 		return 0;
 	}
 	if (gen_status_v == UNKNOWN)
 	{
-		gl_warning("Solar panel status is unknown! Using default: ONLINE");
+		warning("Solar panel status is unknown! Using default: ONLINE");
 		gen_status_v = ONLINE;
 	}
 	if (panel_type_v == UNKNOWN)
 	{
-		gl_warning("Solar panel type is unknown! Using default: SINGLE_CRYSTAL_SILICON");
+		warning("Solar panel type is unknown! Using default: SINGLE_CRYSTAL_SILICON");
 		panel_type_v = SINGLE_CRYSTAL_SILICON;
 	}
 	switch(panel_type_v)
@@ -556,14 +556,14 @@ int solar::init(OBJECT *parent)
 	//Rated power output
 	if (Max_P == 0) {
 		Max_P = Rated_Insolation * efficiency * area; // We are calculating the module efficiency which should be less than cell efficiency. What about the sun hours??
-		gl_verbose("init(): Rated_kVA was not specified.  Calculating from other defaults.");
+		verbose("init(): Rated_kVA was not specified.  Calculating from other defaults.");
 		/* TROUBLESHOOT
 		The relationship between power output and other physical variables is described by Rated_kVA = Rated_Insolation * efficiency * area. Since Rated_kVA 
 		was not set, using this equation to calculate it.
 		*/
 
 		if(Max_P == 0) {
-			gl_warning("init(): Rated_kVA or {area or rated insolation or effiency} were not specified or specified as zero.  Leads to maximum power output of 0.");
+			warning("init(): Rated_kVA or {area or rated insolation or effiency} were not specified or specified as zero.  Leads to maximum power output of 0.");
 			/* TROUBLESHOOT
 			The relationship between power output and other physical variables is described by Rated_kVA = Rated_Insolation * efficiency * area. Since Rated_kVA
 			was not specified and this equation leads to a value of zero, the output of the model is likely to be no power at all times.
@@ -576,7 +576,7 @@ int solar::init(OBJECT *parent)
 
 			if (temp < Max_P * .99 || temp > Max_P* 1.01) {
 				Max_P = temp;
-				gl_warning("init(): Rated_kVA, efficiency, Rate_Insolation, and area did not calculated to the same value.  Ignoring Rated_kVA.");
+				warning("init(): Rated_kVA, efficiency, Rate_Insolation, and area did not calculated to the same value.  Ignoring Rated_kVA.");
 				/* TROUBLESHOOT
 				The relationship between power output and other physical variables is described by Rated_kVA = Rated_Insolation * efficiency * area. However, the model
 				can be overspecified. In the case that it is, we have defaulted to old versions of GridLAB-D and ignored the Rated_kVA and re-calculated it using
@@ -590,7 +590,7 @@ int solar::init(OBJECT *parent)
 		if (area != 0 && efficiency != 0) 
 			Rated_Insolation = Max_P / area / efficiency;
 		else {
-			gl_error("init(): Rated Insolation was not specified (or zero).  Power outputs cannot be calculated without a rated insolation value.");
+			error("init(): Rated Insolation was not specified (or zero).  Power outputs cannot be calculated without a rated insolation value.");
 			/* TROUBLESHOOT
 			The relationship between power output and other physical variables is described by Rated_kVA = Rated_Insolation * efficiency * area.  Rated_kVA
 			and Rated_Insolation are required values for the solar model.  Please specify both of these parameters or efficiency and area.
@@ -622,7 +622,7 @@ int solar::init(OBJECT *parent)
 		if(par->use_multipoint_efficiency == TRUE)
 		{
 			if(Max_P > par->p_dco){
-				gl_warning("The PV is over rated for its parent inverter.");
+				warning("The PV is over rated for its parent inverter.");
 				/*  TROUBLESHOOT
 				The maximum output for the PV array is larger than the inverter rating.  Ensure this 
 				was done intentionally.  If not, please correct your values and try again.
@@ -633,29 +633,29 @@ int solar::init(OBJECT *parent)
 		{//four quadrant inverter
 			if(par->number_of_phases_out == 4){
 				if(Max_P > par->p_rated/par->inv_eta){
-					gl_warning("The PV is over rated for its parent inverter.");
+					warning("The PV is over rated for its parent inverter.");
 					//Defined above
 				}
 			} else {
 				if(Max_P > par->number_of_phases_out*par->p_rated/par->inv_eta){
-					gl_warning("The PV is over rated for its parent inverter.");
+					warning("The PV is over rated for its parent inverter.");
 					//Defined above
 				}
 			}
 		} else {
 			if(par->number_of_phases_out == 4){
 				if(Max_P > par->p_rated/par->efficiency){
-					gl_warning("The PV is over rated for its parent inverter.");
+					warning("The PV is over rated for its parent inverter.");
 					//Defined above
 				}
 			} else {
 				if(Max_P > par->number_of_phases_out*par->p_rated/par->efficiency){
-					gl_warning("The PV is over rated for its parent inverter.");
+					warning("The PV is over rated for its parent inverter.");
 					//Defined above
 				}
 			}
 		}
-		//gl_verbose("Max_P is : %f", Max_P);
+		//verbose("Max_P is : %f", Max_P);
 	}
 	else if	(parent != NULL && strcmp(parent->oclass->name,"inverter") != 0)
 	{
@@ -666,7 +666,7 @@ int solar::init(OBJECT *parent)
 	}
 	else
 	{	// default values of voltage
-		gl_warning("solar panel:%d has no parent defined. Using static voltages.", obj->id);
+		warning("solar panel:%d has no parent defined. Using static voltages.", obj->id);
 		struct {
 			complex **var;
 			const char *varname;
@@ -691,7 +691,7 @@ int solar::init(OBJECT *parent)
 	if ((soiling_factor<0) || (soiling_factor>1.0))
 	{
 		soiling_factor = 0.95;
-		gl_warning("Invalid soiling factor specified, defaulting to 95%");
+		warning("Invalid soiling factor specified, defaulting to 95%");
 		/*  TROUBLESHOOT
 		A soiling factor less than zero or greater than 1.0 was specified.  This is not within the valid
 		range, so a default of 0.95 was selected.
@@ -701,7 +701,7 @@ int solar::init(OBJECT *parent)
 	if ((derating_factor<0) || (derating_factor>1.0))
 	{
 		derating_factor = 0.95;
-		gl_warning("Invalid derating factor specified, defaulting to 95%");
+		warning("Invalid derating factor specified, defaulting to 95%");
 		/*  TROUBLESHOOT
 		A derating factor less than zero or greater than 1.0 was specified.  This is not within the valid
 		range, so a default of 0.95 was selected.
@@ -719,7 +719,7 @@ int solar::init(OBJECT *parent)
 		//Check global, for giggles
 		if (enable_subsecond_models!=true)
 		{
-			gl_warning("solar:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
+			warning("solar:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The solar object has the deltamode_inclusive flag set, but not the module-level enable_subsecond_models flag.  The generator
 			will not simulate any dynamics this way.
@@ -757,7 +757,7 @@ int solar::init(OBJECT *parent)
 	{
 		if (enable_subsecond_models == true)
 		{
-			gl_warning("solar:%d %s - Deltamode is enabled for the module, but not this solar array!",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("solar:%d %s - Deltamode is enabled for the module, but not this solar array!",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The solar array is not flagged for deltamode operations, yet deltamode simulations are enabled for the overall system.  When deltamode
 			triggers, this array may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
