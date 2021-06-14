@@ -859,6 +859,14 @@ int GldMain::subcommand(const char *format, ...)
 		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
+        if ( global_echo )
+        {
+            int len = strlen(global_execdir);
+            if ( strncmp(command,global_execdir,len) == 0 )
+                fprintf(output_stream,"# %s",command+len+10);
+            else
+            fprintf(output_stream,"# %s",command);            
+        }
 		ppolls(pipes,NULL,output_stream,error_stream);
 		rc = pcloses(pipes);
 		if ( rc > 0 )

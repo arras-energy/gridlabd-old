@@ -895,8 +895,10 @@ def set_distance(data):
             head = (270-numpy.arctan2(last[0]-p0,last[1]-p1)*180/math.pi)%360
             if OPTIONS['resolution'] and OPTIONS['resolution'] > 0 and OPTIONS['resolution'] < dist:
                 segs = dist/OPTIONS['resolution']
-            dlat = (p0-last[0])/segs
-            dlon = (p1-last[1])/segs
+                dlat = (p0-last[0])/segs
+                dlon = (p1-last[1])/segs
+                lat = last[0]
+                lon = last[1]
         else:
             lat = p0
             lon = p1
