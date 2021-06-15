@@ -149,7 +149,7 @@ int refrigerator::create()
 	load.power_fraction = 1;
 	is_240 = true;	
 
-	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
+	warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The refrigerator explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -164,7 +164,7 @@ int refrigerator::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("refrigerator::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("refrigerator::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -186,7 +186,7 @@ int refrigerator::init(OBJECT *parent)
 	if (pTout==NULL)
 	{
 		static double default_air_temperature = 72;
-		gl_warning("%s (%s:%d) parent object lacks air temperature, using %0f degF instead", hdr->name, hdr->oclass->name, hdr->id, default_air_temperature);
+		warning("%s (%s:%d) parent object lacks air temperature, using %0f degF instead", hdr->name, hdr->oclass->name, hdr->id, default_air_temperature);
 		pTout = &default_air_temperature;
 	}
 
