@@ -100,6 +100,7 @@ import numpy as np
 from PIL import Image
 import pandas
 import json
+from IPython.display import display
 
 def TODO(value=float('nan')):
     """TODO default function -- this should never be called in the final product"""
@@ -120,6 +121,13 @@ default_options = {
     "nominal_temperature" : 15.0, # degC - temperature at which line loads are based
     "cable_type" : '', # cable type
     "elevation" : 0.0, # default elevation (0.0 = sea level)
+    "precision" : {
+        "linesag" : 1,
+    },
+    "margin" : {
+        "vertical" : 2.0,
+        "horizontal" : 2.0,
+    },
 }
 
 default_config = {
@@ -213,7 +221,8 @@ def get_line_tension_coefficient(d_hori):
     """
     # reference: IEC 60826:2017
     # fit of data is used
-    return 0.2106718346 + 0.0003126614987*d_hori
+    # 0.2106718346 + 0.0003126614987*d_hori
+    return 0.50723325 - 0.29656325/(0.05*d_hori+1)
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations
@@ -378,9 +387,9 @@ def linesag(data):
                         pass
                     sag = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
                         power_flow,global_horizontal_irradiance,ground_reflectance,
-                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density) \
-                        - elevation
-                    result[n] = sag
+                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+                    sag = sag - elevation
+                    result[n] = round(sag,OPTIONS["precision"]["linesag"])
 
                 # reset for next segment
                 p0 = p1
@@ -406,6 +415,7 @@ def linesag(data):
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         power_flow,global_horizontal_irradiance,ground_reflectance,
         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density):
+    # p1 is the location (lat, lon) of interested point, while p0 is the previous pole
     """Calculate line sag values"""
     global OPTIONS
     d_vert = abs(z0-z1)
@@ -413,8 +423,8 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     span = sqrt(d_hori*d_hori + d_vert*d_vert)
     rts = cable['rated_tensile_strength']
     unit_weight = cable['unit_weight']
-    if d_vert > 30:
-        k_init = min(k_init, unit_weight*span*span/(2*d_vert*rts))
+    # if d_vert > 30:
+    #     k_init = min(k_init, 3.0*unit_weight*span*span/(2*d_vert*rts))
     H_init = rts*k_init
     sag_init = unit_weight*span*span/(8*H_init)
     P_rated = power_flow
@@ -473,18 +483,19 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     #
     sag_load = total_unit_weight*span*span/(8*H_load)
     sag_angle = atan(wind_unit_weight/(ice_unit_weight+unit_weight))
+    C_catenary = H_load / (ice_unit_weight+unit_weight)
     if z0 > z1:
         d0_hori = d_hori*(1+d_vert/(4*sag_load))/2
-        d1_hori = d_hori - d0_hori
-        sag1 = total_unit_weight*d1_hori**2 /(2*H_load)
-        sag_elevation = z1-sag1*cos(sag_angle)
-        dt = get_distance(p0,[p0[0]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
+        sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
+        dt = get_distance(p0,p1)
+        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
     else:
         d0_hori = d_hori*(1-d_vert/(4*sag_load))/2
-        d1_hori = d_hori - d0_hori
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
-        sag_elevation = z0-sag0*cos(sag_angle)
-        dt = get_distance(p0,[p0[1]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
+        dt = get_distance(p0,p1)
+        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
     result = sag_elevation[0]
     # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
     return result
@@ -539,6 +550,12 @@ def linegallop(data):
 
     return data['linegallop']
 
+def contact(data, options=default_options, config=default_config, warning=print):
+
+    contact = ( data['linesag'] - data['height'] < options['margin']['vertical'] ) * data['cover']
+
+    return contact
+
 def apply(data, options=default_options, config=default_config, warning=print):
 
     global CABLETYPES
@@ -557,6 +574,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     result["linesag"] = linesag(data)
     result["linesway"] = linesway(data)
     result["linegallop"] = linegallop(data)
+    result["contact"] = contact(result)
 
     return result
 

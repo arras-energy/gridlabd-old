@@ -14,7 +14,7 @@
 
 // test a straight line between two locations at a specified resolution
 #setenv LOC=37.4150,-122.2056 37.3880,-122.2884 -r 1000 -f RAW:elevation
-#define ANS=87.0 93.0 178.0 115.0 106.0 303.0 409.0 602.0 634.0
+#define ANS=87.0 93.0 178.0 113.0 106.0 304.0 408.0 607.0 634.0
 #define RES=${SHELL gridlabd geodata merge -D elevation $LOC --recordsep ' '}
 #if ${RES} != ${ANS}
     #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
@@ -22,7 +22,7 @@
 
 // test a path
 #setenv LOC=${DIR:-.}/path_example.csv -f RAW:elevation
-#define ANS=88.0 100.0 112.0 111.0 98.0 92.0 79.0 90.0 78.0 80.0 92.0 81.0 103.0 126.0 121.0 106.0 112.0 125.0 126.0 123.0 118.0 106.0 106.0 117.0 172.0 264.0 286.0 322.0 349.0 326.0 443.0 448.0 501.0 573.0 610.0 641.0 632.0
+#define ANS=88.0 100.0 111.0 110.0 98.0 91.0 77.0 91.0 80.0 79.0 96.0 82.0 103.0 129.0 109.0 108.0 115.0 124.0 127.0 123.0 117.0 110.0 106.0 116.0 166.0 267.0 285.0 331.0 352.0 340.0 444.0 448.0 505.0 578.0 615.0 642.0 634.0
 #define RES=${SHELL gridlabd geodata merge -D elevation $LOC --recordsep ' '}
 #if ${RES} != ${ANS}
     #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
@@ -30,7 +30,7 @@
 
 // test a path at a specified resolution
 #setenv LOC=${DIR:-.}/path_example.csv -r 500 -f RAW:elevation
-#define ANS=88.0 100.0 112.0 111.0 98.0 92.0 79.0 90.0 78.0 80.0 92.0 81.0 103.0 126.0 121.0 106.0 112.0 125.0 126.0 123.0 118.0 106.0 106.0 117.0 172.0 264.0 286.0 112.0 322.0 349.0 326.0 90.0 443.0 448.0 501.0 573.0 610.0 640.0 67.0 632.0
+#define ANS=88.0 100.0 111.0 110.0 98.0 91.0 77.0 91.0 80.0 79.0 96.0 82.0 103.0 129.0 109.0 108.0 115.0 124.0 127.0 123.0 117.0 110.0 106.0 116.0 167.0 267.0 285.0 308.0 331.0 352.0 341.0 439.0 444.0 448.0 505.0 578.0 615.0 642.0 544.0 634.0
 #define RES=${SHELL gridlabd geodata merge -D elevation $LOC --recordsep ' '}
 #if ${RES} != ${ANS}
     #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
