@@ -13,20 +13,49 @@ import pandas
 from PIL import Image
 
 #
-# Defaults
+# Default options can be set from the command line only
 #
 default_options = {
     "units" : "meters",
     "precision" : {
-        "elevation" : 0
-    }
+        "vegetation" : 0
+    },
+    "year" : 2020,
 }
 
+#
+# Default configuration can be set using `config set` or from command line
+#
 default_config = {
     "nan_error" : False,
-    "cachedir" : "/usr/local/share/gridlabd/geodata/elevation/10m",
-    "repourl" : "http://geodata.gridlabd.us/elevation/10m",
+    "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
+    "repourl" : "http://geodata.gridlabd.us/vegetation",
+    "layers" : ["base","cover","height"],
+    "layer_units" : {"base":"m","cover":"%","height":"m"},
+    "vegetation" : {
+        "username" : "",
+        "password" : "",
+        "provider" : "cfo",
+        "usecache" : True,
+    },
+    "maximum_image_size" : 2000000000,
 }
+
+#
+# Provider authentication
+#
+
+def cfo(username,password,usecache=True):
+    import cfo 
+    if "CFO_EMAIL" not in os.environ.keys() and username:
+        os.environ['CFO_EMAIL'] = username
+    if "CFO_PASS" not in os.environ.keys() and password:
+        os.environ['CFO_PASS'] = password
+    return cfo.api().authenticate(ignore_temp=(not usecache)) == 200
+
+#
+# Valid height units
+#
 
 units = {
     "m" : 1.0,
@@ -34,22 +63,35 @@ units = {
     "ft" : 3.28083888,
     "feet" : 3.28083888,
 }
-#
-# Implementation of address package
-#
+
+def process_base(data):
+    return data
+
+def process_cover(data):
+    return data/100.0
+
+def process_height(data):
+    return data
+
+layer_process = {
+    "base" : process_base,
+    "cover" : process_cover,
+    "height" : process_height,
+}
+
 def apply(data, options=default_options, config=default_config, warning=print):
-    """Get the elevation at the locations specified in data
+    """Get the vegetation at the locations specified in data
 
     ARGUMENTS:
 
         data (pandas.DataFrame)
 
             The data frame must contain `latitude` and `longitude` fields at which
-            elevations will be computed.
+            vegetation will be computed.
 
         options (dict)
 
-            "units" specifies the units in which elevations are measured.  Valid units
+            "units" specifies the units in which vegetation are measured.  Valid units
             are ["meters","m"] and ["feet","ft"].
 
         config (dict)
@@ -65,60 +107,83 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     """
 
+    if not config["vegetation.username"] and not config["vegetation.password"]:
+        warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users (see {config['repourl']} to register)")
+    elif config["vegetation"]["provider"] and not eval(config["vegetation"]["provider"])(username=config["vegetation.username"],password=config["vegetation.password"],usecache=config["vegetation"]["usecache"]):
+        warning(f"vegetation data provider authentication failed")
+
     # convert lat,lon to address
     try:
         path = list(zip(data["latitude"],data["longitude"]))
     except:
         path = None
     if type(path) == type(None):
-        raise Exception("elevation dataset requires 'latitude' and 'longitude' fields")
-    elev = []
+        raise Exception("vegetation dataset requires 'latitude' and 'longitude' fields")
+    try:
+        precision = int(options["precision"]["vegetation"])
+    except:
+        warning("vegetation precision not found in options")
+        precision = 0
+    global units
+    if "units" not in options.keys() or options["units"] not in units.keys():
+        raise Exception(f"unit '{options['units']}' or is not valid")
+    unit = float(units[options["units"]])
+    result = {}
     for pos in path:
         try:
-            elev.append(get_elevation(pos,repourl=config["repourl"],cachedir=config["cachedir"]))
+            values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
+            for key, value in values.items():
+                if config["layer_units"][key] == "m":
+                    value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
+                elif config["layer_units"][key] == "%":
+                    value = list(map(lambda x:round(float(x),int(precision+2)),value))
+                if key in result.keys():
+                    result[key].extend(value)
+                else:
+                    result[key] = value
         except Exception as err:
             if config["nan_error"]:
                 elev.append(float("nan"))
             else:
                 raise
-    try:
-        precision = int(options["precision"]["elevation"])
-    except:
-        warning("elevation precision not found in options")
-        precision = 0
-    global units
-    if "units" not in options.keys() or options["units"] not in units.keys():
-        raise Exception(f"unit '{options['units']}' or is not valid")
-    unit = units[options["units"]]
-    data["elevation"] = (numpy.array(elev) * unit).round(precision)
+    for key, values in result.items():
+        data[key] = values
     return data
 
-#
-# Elevation data processing
-#
-
-def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"]):
-    """Compute the elevations at the locations specified
+def get_vegetation(pos,
+        repourl = default_config["repourl"],
+        cachedir = default_config["cachedir"],
+        layers = default_config["layers"],
+        year = default_options["year"]):
+    """Compute the vegetation at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
-    resolution is set, the elevations for each step along the path at the
+    resolution is set, the vegetation for each step along the path at the
     specified resolution are provided.
 
     ARGUMENTS
         args (tuple list) List of (lat,lon) tuples.
 
     RETURNS
-        DataFrame       Pandas dataframe containing the latitudes, longitudes,
-                        and elevations.
+        layer_data (dict)   Layer vegetation data
     """
-    n,e = get_imagedata(pos,repourl,cachedir)
-    row,col = get_rowcol(pos)
-    elev = [e[row][col]]
-    return elev
+    result = {}
+    for layer in layers:
+        name,data = get_imagedata(layer,pos,repourl,cachedir,year)
+        data = layer_process[layer](data)
+        row,col = get_rowcol(pos,data)
 
-def get_rowcol(pos):
-    row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
-    col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
+        result[layer] = [data[row][col]]
+
+    return result
+
+def get_rowcol(pos,data):
+    """Get the row and column location in a 1 degree^2 image tile"""
+    height = len(data)
+    width = len(data[0])
+    row = height-int(math.modf(abs(pos[0]))[0]*height)
+    col = width-int(math.modf(abs(pos[1]))[0]*width)
+
     return row, col
 
 def get_position(pos):
@@ -152,19 +217,22 @@ def get_distance(pos1, pos2):
     a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
     return 6371e3*(2*np.arctan2(np.sqrt(a),np.sqrt(1-a)))
 
-def get_imagename(pos):
+def get_imagename(layer,pos):
     """Get the image name for a location
 
     ARGUMENTS
 
+        layer (str)         The vegetation data layer, e.g., "cover", "height", "base"
         pos (float,float)   The latitude and longitude of the location
 
     RETURNS
 
         tifname (str)       The name of the image tile used
     """
-    lat = pos[0]
-    lon = pos[1]
+
+    lat = pos[0]*10
+    lon = pos[1]*10
+
     if lat < 0:
         lat = f"{-math.floor(lat)}S"
     elif lat > 0:
@@ -177,28 +245,31 @@ def get_imagename(pos):
         lon = f"{math.floor(lon)}E"
     else:
         lon = "0"
-    return f"{lat}_{lon}"
+    return f"{layer}/{lat}_{lon}"
 
-elevation_data = {}
+vegetation_data = {}
 
-def get_imagedata(pos,repourl,cachedir):
+def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximum_image_size=default_config['maximum_image_size']):
+
     """Get the image data for a location
 
     ARGUMENTS
 
+        layer (str)         The vegetation layer desired, i.e., "cover", "height", "base"
         pos (float,float)   The latitude and longitude of the location
 
     RETURNS
 
         tifname (str)       The name of the image tile used
-        elevation (nparray) The elevation data from the image
+        vegetation (nparray) The vegetation data from the image
     """
-    tifname = get_imagename(pos)
-    global elevation_data
-    os.makedirs(cachedir,exist_ok=True)
-    if not tifname in elevation_data.keys():
-        srcname = f"{repourl}/{tifname}.tif"
-        dstname = f"{cachedir}/{tifname}.tif"
+    tifname = get_imagename(layer,pos)
+    global vegetation_data
+    os.makedirs(f"{cachedir}/{year}/{layer}",exist_ok=True)
+    if not tifname in vegetation_data.keys():
+        srcname = f"{repourl}/{year}/{tifname}.tif"
+        dstname = f"{cachedir}/{year}/{tifname}.tif"
+
         if not os.path.exists(dstname):
             response = requests.get(srcname,stream=True)
             if response.status_code != 200:
@@ -207,8 +278,10 @@ def get_imagedata(pos,repourl,cachedir):
                 for chunk in response.iter_content(chunk_size=1024*1024):
                     if chunk:
                         fh.write(chunk)
-        elevation_data[tifname] = numpy.array(Image.open(dstname))
-    return tifname, elevation_data[tifname]
+
+        Image.MAX_IMAGE_PIXELS = maximum_image_size
+        vegetation_data[tifname] = numpy.array(Image.open(dstname))
+    return tifname, vegetation_data[tifname]
 
 
 #
@@ -218,24 +291,31 @@ if __name__ == '__main__':
 
     import unittest
 
-    class TestElevation(unittest.TestCase):
+    class TestVegetation(unittest.TestCase):
 
-        def test_elevation_meters(self):
+        def test_vegetation_meters(self):
             test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
+
+            default_options.update({"units":"meters"})
             result = apply(test)
-            self.assertEqual(result["elevation"][0],85.0)
-            self.assertEqual(result["elevation"][1],157.0)
+            self.assertEqual(result["cover"][0],0.05)
+            self.assertEqual(result["height"][0],0.0)
+            self.assertEqual(result["base"][0],0.0)
 
-        def test_elevation_feet(self):
+        def test_vegetation_feet(self):
             test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
-            result = apply(test,{"units":"feet"})
-            self.assertEqual(result["elevation"][0],279.0)
-            self.assertEqual(result["elevation"][1],515.0)
+
+            default_options.update({"units":"feet"})
+            result = apply(test,default_options)
+
+            self.assertEqual(result["cover"][0],0.05)
+            self.assertEqual(result["height"][0],0.0)
+            self.assertEqual(result["base"][0],0.0)
 
     unittest.main()

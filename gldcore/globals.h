@@ -1,4 +1,4 @@
-/* File: globals.h 
+/* File: globals.h
  * Copyright (C) 2008, Battelle Memorial Institute
 
 	@file globals.h
@@ -18,7 +18,7 @@
 #include "sanitize.h"
 
 #ifdef _MAIN_C
-#define GLOBAL 
+#define GLOBAL
 #define INIT(A) = A
 #else
 #define GLOBAL extern
@@ -37,7 +37,7 @@
 	LOCKVAR lock - Lock variable for concurrent access control
 	GLOBALVAR *next - Reference to the next global variable in the global variable list
  */
-typedef struct s_globalvar 
+typedef struct s_globalvar
 {
 	PROPERTY *prop;
 	uint32 flags;
@@ -52,8 +52,8 @@ typedef struct s_globalvar
 	Enum: e_exitcode
 		Exit codes
 
-	XC_EXFAILED = (-1) - Failure of exec/wait per system(3)  
-	XC_SUCCESS = 0 - Successful completion per system(3) 
+	XC_EXFAILED = (-1) - Failure of exec/wait per system(3)
+	XC_SUCCESS = 0 - Successful completion per system(3)
  	XC_ARGERR = 1 - Error processing command line arguments
 	XC_ENVERR = 2 - Bad environment startup
 	XC_TSTERR = 3 - Requested test failed
@@ -65,34 +65,34 @@ typedef struct s_globalvar
 	XC_IOERR = 9 - I/O error
 	XC_LDERR = 10 - Model load error
 	XC_SHFAILED = 127 - Shell failure per system(3)
-	XC_SIGNAL = 128 - Signal caught; must be or'd with SIG value if known 
+	XC_SIGNAL = 128 - Signal caught; must be or'd with SIG value if known
 	XC_SIGINT = (XC_SIGNAL|SIGINT) - SIGINT caught
 	XC_SIGHUP = (XC_SIGNAL|SIGHUP) - SIGHUP caught
 	XC_SIGKILL = (XC_SIGNAL|SIGKILL) - SIGKILL caught
 	XC_SIGTERM = (XC_SIGNAL|SIGTERM) - SIGTERM caught
 	XC_EXCEPTION = 255 - Exception caught
  */
-typedef enum e_exitcode 
+typedef enum e_exitcode
 {
 	XC_EXFAILED = -1,
 	XC_SUCCESS = 0,
-	XC_ARGERR = 1, 
-	XC_ENVERR = 2, 
-	XC_TSTERR = 3, 
-	XC_USRERR = 4, 
-	XC_RUNERR = 5, 
-	XC_INIERR = 6, 
-	XC_PRCERR = 7, 
+	XC_ARGERR = 1,
+	XC_ENVERR = 2,
+	XC_TSTERR = 3,
+	XC_USRERR = 4,
+	XC_RUNERR = 5,
+	XC_INIERR = 6,
+	XC_PRCERR = 7,
 	XC_SVRKLL = 8,
-	XC_IOERR = 9, 
-	XC_LDERR = 10, 
+	XC_IOERR = 9,
+	XC_LDERR = 10,
 	XC_SHFAILED = 127,
-	XC_SIGNAL = 128, 
-	XC_SIGINT = (XC_SIGNAL|SIGINT), 
-	XC_SIGHUP = (XC_SIGNAL|SIGHUP), 
-	XC_SIGKILL = (XC_SIGNAL|SIGKILL), 
-	XC_SIGTERM = (XC_SIGNAL|SIGTERM), 
-	XC_EXCEPTION = 255, 
+	XC_SIGNAL = 128,
+	XC_SIGINT = (XC_SIGNAL|SIGINT),
+	XC_SIGHUP = (XC_SIGNAL|SIGHUP),
+	XC_SIGKILL = (XC_SIGNAL|SIGKILL),
+	XC_SIGTERM = (XC_SIGNAL|SIGTERM),
+	XC_EXCEPTION = 255,
 } EXITCODE;
 
 #ifdef __cplusplus
@@ -129,8 +129,8 @@ size_t global_saveall(FILE *fp);
 	- <global_dateformat>
  */
 typedef enum e_dateformat {
-	DF_ISO		= 0, 
-	DF_US		= 1, 
+	DF_ISO		= 0,
+	DF_US		= 1,
 	DF_EURO		= 2,
 	DF_ISO8601	= 3,
 } DATEFORMAT;
@@ -148,9 +148,9 @@ typedef enum e_dateformat {
 	- global_init_sequence
  */
 typedef enum e_initseq {
-	IS_CREATION=0, 
-	IS_DEFERRED=1, 
-	IS_BOTTOMUP=2, 
+	IS_CREATION=0,
+	IS_DEFERRED=1,
+	IS_BOTTOMUP=2,
 	IS_TOPDOWN=3,
 } INITSEQ;
 
@@ -160,7 +160,7 @@ typedef enum e_initseq {
 	Enum: e_checkpointtype
 	CPT_NONE = 0 - checkpoints not enabled (default)
 	CPT_WALL = 1 - checkpoints run on wall clock interval
-	CPT_SIM = 2 - checkpoints run on sim clock interval 
+	CPT_SIM = 2 - checkpoints run on sim clock interval
 
 	See Also:
 	- global_checkpoint_type
@@ -186,7 +186,7 @@ typedef enum {
 	RNG3=3, /**< random numbers generated using post-V2 method */
 } RANDOMNUMBERGENERATOR; /**< identifies the type of random number generator used */
 
-/* 	Section: Global Variables 
+/* 	Section: Global Variables
 		Global variables may be accessed using <GldGlobalvar>
  */
 
@@ -304,7 +304,7 @@ GLOBAL char global_urlbase[1024] /**< default urlbase used for online resources 
 #ifdef _DEBUG
 	INIT("./");
 #else
-	INIT("http://www.gridlabd.org/"); 
+	INIT("http://www.gridlabd.org/");
 #endif
 
 /* Variable: global_randomseed */
@@ -336,7 +336,7 @@ GLOBAL char global_tmp[1024] /**< location for temp files */
 #ifdef WIN32
 							INIT("C:\\WINDOWS\\TEMP");
 #else
-							INIT("/tmp"); 
+							INIT("/tmp");
 #endif
 
 /* Variable: global_force_compile */
@@ -385,7 +385,7 @@ typedef enum {
  GLOBAL COMPLEXCONVERFORMAT global_complex_output_format INIT(CNF_DEFAULT);	/**< use whatever the numbers already are */
 
 /* Variable: global_object_format */
-GLOBAL char global_object_format[32] INIT("%s:%d"); 
+GLOBAL char global_object_format[32] INIT("%s:%d");
 
 /* Variable: global_object_scan */
 GLOBAL char global_object_scan[32] INIT("%[^:]:%d"); /**< the format to use when scanning for object ids */
@@ -450,11 +450,11 @@ GLOBAL char global_client_allowed[1024] INIT(""); /**< internet address from whi
 /* Variable: global_browser */
 GLOBAL char global_browser[1024] /**< default browser to use for GUI */
 #ifdef WIN32
-	INIT("iexplore"); 
+	INIT("iexplore");
 #elif defined(MACOSX)
 	INIT("safari");
 #else
-	INIT("firefox"); 
+	INIT("firefox");
 #endif
 
 /* Variable: global_server_quit_on_close */
@@ -611,7 +611,7 @@ void global_remote_write(void *local, GLOBALVAR *var); /** access remote global 
 typedef enum {
 	MC_NONE     = 0x00, /**< no module compiler flags */
 	MC_CLEAN    = 0x01, /**< clean build */
-	MC_KEEPWORK = 0x02, /**< keep intermediate files */ 
+	MC_KEEPWORK = 0x02, /**< keep intermediate files */
 	MC_DEBUG    = 0x04, /**< debug build */
 	MC_VERBOSE  = 0x08, /**< verbose output */
 } MODULECOMPILEFLAGS;
@@ -678,6 +678,9 @@ GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daem
 
 /* Variable: global_server_keepalive */
 GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after simulation finishes */
+
+/* Variable: global_echo */
+GLOBAL bool global_echo INIT(FALSE); /**< echo subcommands */
 
 /* Variable: global_json_complex_format */
 #define JCF_STRING  0x0000
@@ -774,10 +777,10 @@ typedef enum {
 } GLMSAVEOPTIONS;
 
 /* Variable: */
-GLOBAL bool global_ignore_errors INIT(FALSE); 
+GLOBAL bool global_ignore_errors INIT(FALSE);
 
 /* Type: FILESAVEOPTIONS */
-typedef enum 
+typedef enum
 {
 	FSO_MODULES 	= 0x0001,
 	FSO_PROPERTIES	= 0x0002,
@@ -827,7 +830,7 @@ class GldMain;
 /*	Class: GldGlobalvar
 		Global variable access class
  */
-class GldGlobalvar 
+class GldGlobalvar
 {
 private:
 	GldMain *my_instance;
@@ -846,7 +849,7 @@ public: // accessors
 	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
-class GldGlobals 
+class GldGlobals
 {
 private:
 	GldMain &instance;

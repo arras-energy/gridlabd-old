@@ -271,13 +271,13 @@ int64 solver_nr(unsigned int bus_count,
 	//Internal iteration counter - just NR limits
 	int64 Iteration = 0;
 
-	try 
+	try
 	{
 		if ( solver_python_init() == 0 )
 		{
 			Iteration = solver_python_solve(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
 			if ( Iteration >= 0 )
-			{
+			{		
 					return Iteration;
 			}
 		}
@@ -1643,7 +1643,7 @@ int64 solver_nr(unsigned int bus_count,
 
 					if ( (int)temp_size_c == -1)	//Make sure it is right
 					{
-						GL_THROW("NR: A line's phase was flagged as not full three-phase, but wasn't");
+						GL_THROW("NR: A line's phase was flagged as not full three-phase, but wasn't (phases=%x)",bus[tempa].phases);
 						/*  TROUBLESHOOT
 						A line inside the powerflow model was flagged as not being full three-phase or
 						triplex in any form.  It failed the other cases though, so it must have been.
