@@ -172,3 +172,4 @@ gldcore/converters/autotest/solver_nr_profile.csv
 gldcore/converters/autotest/table2glm_input_noclass.glm
 gldcore/converters/autotest/table2glm_input_noname.glm
 gldcore/converters/autotest/table2glm_input.glm
+gldcore/geodata/docs/geodata.conf

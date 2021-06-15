@@ -70,7 +70,7 @@ int occupantload::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("occupantload::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("occupantload::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -82,7 +82,7 @@ int occupantload::init(OBJECT *parent)
 
 	if (parent==NULL || (!gl_object_isa(parent,"house") && !gl_object_isa(parent,"house_e")))
 	{
-		gl_error("occupantload must have a parent house");
+		error("occupantload must have a parent house");
 		/*	TROUBLESHOOT
 			The occupantload object, being an enduse for the house model, must have a parent house
 			that it is connected to.  Create a house object and set it as the parent of the
@@ -96,7 +96,7 @@ int occupantload::init(OBJECT *parent)
 	load.end_obj = hdr;
 	attach = (gl_get_function(parent, "attach_enduse"));
 	if(attach == NULL){
-		gl_error("occupantload parent must publish attach_enduse()");
+		error("occupantload parent must publish attach_enduse()");
 		/*	TROUBLESHOOT
 			The occupantload object attempt to attach itself to its parent, which
 			must implement the attach_enduse function.
@@ -116,7 +116,7 @@ int occupantload::init(OBJECT *parent)
 		} else {
 			sprintf(outname, "occupancy_load:%i", hdr->id);
 		}
-		gl_warning("occupancy_load \'%s\' may not work properly with a non-analog load shape.", hdr->name ? hdr->name : outname);
+		warning("occupancy_load \'%s\' may not work properly with a non-analog load shape.", hdr->name ? hdr->name : outname);
 	}
 	return 1;
 }
@@ -130,30 +130,30 @@ TIMESTAMP occupantload::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	/* sanity checks */
 	if(heatgain_per_person < 0){
-		gl_error("negative heatgain per person, reseting to 400 BTU/hr");
+		error("negative heatgain per person, reseting to 400 BTU/hr");
 		heatgain_per_person = 400.0;
 	}
 	if(heatgain_per_person > 1600){
 		//	Bob's party is on fire.  Literally.
-		gl_error("heatgain per person above 1600 Btu/hr (470W), reseting to 400 Btu/hr");
+		error("heatgain per person above 1600 Btu/hr (470W), reseting to 400 Btu/hr");
 		heatgain_per_person = 400.0;
 	}
 
 
 	if(shape.type == MT_UNKNOWN){
 		if(number_of_occupants < 0){
-			gl_error("negative number of occupants, reseting to zero");
+			error("negative number of occupants, reseting to zero");
 			number_of_occupants = 0;
 		}
 		if(occupancy_fraction < 0.0){
-			gl_error("negative occupancy_fraction, reseting to zero");
+			error("negative occupancy_fraction, reseting to zero");
 			occupancy_fraction = 0.0;
 		}
 		if(occupancy_fraction > 1.0){
 			; /* party at Bob's house! */
 		}
 		if(occupancy_fraction * number_of_occupants > 300.0){
-			gl_error("attempting to fit 300 warm bodies into a house, reseting to zero");
+			error("attempting to fit 300 warm bodies into a house, reseting to zero");
 			// let's assume that the police cleared the party
 			// or the fire department said 'this is a bad sign, people!'
 			// how about that the house just plain collapsed?

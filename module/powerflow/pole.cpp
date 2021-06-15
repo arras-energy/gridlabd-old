@@ -311,7 +311,6 @@ int pole::init(OBJECT *parent)
 	if ( install_year > gl_globalclock )
 		warning("pole install year in the future are assumed to be current time");
     verbose("install_year = %d",(int)install_year);
-
 	return 1;
 }
 

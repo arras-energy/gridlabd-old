@@ -46,6 +46,10 @@ Specified the output format.  See `gridlabd geodata help` for details.
 
 Set the RAW output field separator.
 
+## `--filter=CALLS`
+
+The `--filter=CALLS` option applies the pandas dataframe calls to the resulting data before returning the result.  The CALLS may be a comma separate value list of valid dataframe function calls, e.g., `dropna()`, `drop(0)`, or `gt(0)`.  This may be used in conjunction with `--select` to remove rows that fail to meet certain criteria. Multiple filters are semicolon-delimited
+
 ## `-j|--join {inner,outer,left,right}`
 
 Controls how the dataset is merged with the input path. If [-j|--join {inner,outer,left,right}] is specified, the input is joined with the dataset in the manner specified, i.e., "left" uses the input index, "right" uses the dataset's index, "outer" forms the union of both indexes and sorts it, and "inner" forms the intersection of both indexes, preserving the order of the input index.
@@ -73,6 +77,10 @@ Set the RAW output record separator.
 ## `-s|--silent`
 
 Disables error output.
+
+## `--select=COLUMNS`
+
+Selects rows with columns that evaluate to `True`. Multiple colums are comma-delimited.
 
 ## `--show_config`
 

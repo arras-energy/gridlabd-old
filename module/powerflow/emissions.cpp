@@ -335,7 +335,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Nuclear_Order==0)
 	{
-		gl_verbose("Emissions:%s has nuclear disabled.",obj->name);
+		verbose("Emissions:%s has nuclear disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for nuclear generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -344,7 +344,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Hydroelectric_Order==0)
 	{
-		gl_verbose("Emissions:%s has hydro disabled.",obj->name);
+		verbose("Emissions:%s has hydro disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for hydroelectric generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -353,7 +353,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Solarthermal_Order==0)
 	{
-		gl_verbose("Emissions:%s has solar disabled.",obj->name);
+		verbose("Emissions:%s has solar disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for solar generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -362,7 +362,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Biomass_Order==0)
 	{
-		gl_verbose("Emissions:%s has biomass disabled.",obj->name);
+		verbose("Emissions:%s has biomass disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for biomass generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -371,7 +371,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Wind_Order==0)
 	{
-		gl_verbose("Emissions:%s has wind disabled.",obj->name);
+		verbose("Emissions:%s has wind disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for wind generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -380,7 +380,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Coal_Order==0)
 	{
-		gl_verbose("Emissions:%s has coal disabled.",obj->name);
+		verbose("Emissions:%s has coal disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for coal generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -389,7 +389,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Naturalgas_Order==0)
 	{
-		gl_verbose("Emissions:%s has natural gas disabled.",obj->name);
+		verbose("Emissions:%s has natural gas disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for natural generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -398,7 +398,7 @@ int emissions::init(OBJECT *parent)
 
 	if (Geothermal_Order==0)
 	{
-		gl_verbose("Emissions:%s has geothermal disabled.",obj->name);
+		verbose("Emissions:%s has geothermal disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for geothermal generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.
@@ -407,7 +407,7 @@ int emissions::init(OBJECT *parent)
 	
 	if (Petroleum_Order==0)
 	{
-		gl_verbose("Emissions:%s has petroleum disabled.",obj->name);
+		verbose("Emissions:%s has petroleum disabled.",obj->name);
 		/*  TROUBLESHOOT
 		The dispatch order for petroleum generators was set to 0, so these generator types will
 		be ignored from the emissions dispatch.  Ensure this was desired.

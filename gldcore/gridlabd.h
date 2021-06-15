@@ -2954,16 +2954,16 @@ public:
 	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); throw (const char*)buf;};
 
 	// Method: error
-	inline void error(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);};
+	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);}}
 
 	// Method: warning
-	inline void warning(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);};
+	inline void warning(const char *msg, ...) { if ( my()->flags&OF_WARNING ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
 
 	// Method: verbose
-	inline void verbose(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);};
+	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
 
 	// Method: debug
-	inline void debug(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);};
+	inline void debug(const char *msg, ...) { if ( my()->flags&OF_DEBUG ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);}}
 
 	// Method: set_defaults
 //	virtual void set_defaults(bool is_template = false); /* this force proper V4 initialization of objects (legacy defaults copy is no longer permitted) */
@@ -3655,7 +3655,7 @@ EXPORT int do_kill(void*);
 
 	This variable control which module message streams are active. See <MMF_ALL>.
  */
-set module_message_flags = MMF_ALL;
+set module_message_flags = MMF_NONE;
 
 #ifdef WIN32
 
