@@ -224,7 +224,7 @@ int transformer_configuration::init(OBJECT *parent)
 	
 	// check installation type
 	if (install_type==UNKNOWN)
-		gl_verbose("installation type not specified");
+		verbose("installation type not specified");
 		/*  TROUBLESHOOT
 		The type of installation (i.e., pad mounted versus pole top) was not specified. In most cases, this
 		message can be ignored as it does not effect the solution.  However, if using the transformer aging 
@@ -264,7 +264,7 @@ int transformer_configuration::init(OBJECT *parent)
 	if (connect_type!=SINGLE_PHASE_CENTER_TAPPED)
 	{
 		if ((impedance1.Re() != 0.0 && impedance1.Im() != 0.0) || (impedance2.Re() != 0.0 && impedance2.Im() != 0.0))
-			gl_warning("This connection type on transformer:%d (%s) does not support impedance (impedance1 or impedance2) of secondaries at this time.",obj->id,obj->name);
+			warning("This connection type on transformer:%d (%s) does not support impedance (impedance1 or impedance2) of secondaries at this time.",obj->id,obj->name);
 			/*  TROUBLESHOOT
 			At this time impedance1 and impedance2 are only defined and used for center-tap transformers to be
 			explicitly defined.  These values will be ignored for now.
@@ -272,14 +272,14 @@ int transformer_configuration::init(OBJECT *parent)
 		if (connect_type!=WYE_WYE)
 		{
 			if (shunt_impedance.Re() != 999999999 || shunt_impedance.Im() != 999999999)
-				gl_warning("This connection type on transformer:%d (%s) does not support shunt_impedance at this time.",obj->id,obj->name);
+				warning("This connection type on transformer:%d (%s) does not support shunt_impedance at this time.",obj->id,obj->name);
 				/* TROUBLESHOOT
 				At this time shunt_impedance is only defined and supported in center-tap and WYE-WYE transformers.  Theses values
 				will be ignored for now.
 				*/
 		}
 		if (no_load_loss != 0.0 || full_load_loss != 0.0)
-			gl_warning("This connection type on transformer:%d (%s) does not support shunt_impedance at this time.",obj->id,obj->name);
+			warning("This connection type on transformer:%d (%s) does not support shunt_impedance at this time.",obj->id,obj->name);
 			/* TROUBLESHOOT
 			At this time no_load_loss and full_load_loss are only defined and supported in 
 			center-tap transformers.  Theses values	will be ignored for now.
@@ -291,7 +291,7 @@ int transformer_configuration::init(OBJECT *parent)
 		// determine shunt and series resistances based on no-load and full-load losses
 		{
 			if (RX == 4.5 && kVA_rating > 500)
-				gl_warning("transormer_configuration:%d (%s) reactance_resistance_ratio was not set and defaulted to 4.5. This may cause issues with larger transformers (>0.5 MVA)",obj->id,obj->name);
+				warning("transormer_configuration:%d (%s) reactance_resistance_ratio was not set and defaulted to 4.5. This may cause issues with larger transformers (>0.5 MVA)",obj->id,obj->name);
 				/* TROUBLESHOOT
 				X/R ratios are highly dependent on the size of the transformer.  As the transformer rating goes up
 				so does the X/R ratio.  For small residential transformers (<500 kVA), the values range from about 2-5 as good
@@ -303,7 +303,7 @@ int transformer_configuration::init(OBJECT *parent)
 		if ((impedance1.Re() == 0.0 && impedance1.Im() == 0.0) && (impedance2.Re() != 0.0 && impedance2.Im() != 0.0))
 		{
 			impedance1 = impedance2;
-			gl_warning("impedance2 was defined, but impedance1 was not -- assuming they are equal");
+			warning("impedance2 was defined, but impedance1 was not -- assuming they are equal");
 			/* TROUBLESHOOT
 			One of the secondary side impedances (impedance1 or impedance2, or resistance1 and reactance1) was set to a 
 			non-zero value, indicating you wanted to use the secondary impedances, however, the other value was not also set.
@@ -313,7 +313,7 @@ int transformer_configuration::init(OBJECT *parent)
 		else if ((impedance1.Re() != 0.0 && impedance1.Im() != 0.0) && (impedance2.Re() == 0.0 && impedance2.Im() == 0.0))
 		{
 			impedance2 = impedance1;
-			gl_warning("impedance1 was defined, but impedance2 was not -- assuming they are equal");
+			warning("impedance1 was defined, but impedance2 was not -- assuming they are equal");
 			/* TROUBLESHOOT
 			One of the secondary side impedances (impedance1 or impedance2, or resistance1 and reactance1) was set to a 
 			non-zero value, indicating you wanted to use the secondary impedances, however, the other value was not also set.

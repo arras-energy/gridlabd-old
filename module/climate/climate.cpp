@@ -809,7 +809,7 @@ int climate::init(OBJECT *parent)
 	char found_file[1024];
 	if (gl_findfile(tmyfile.get_string(),climate_library_path,R_OK,found_file,sizeof(found_file))==NULL) // TODO: get proper values for solar
 	{
-		gl_error("weather file '%s' access failed", tmyfile.get_string());
+		error("weather file '%s' access failed", tmyfile.get_string());
 		return 0;
 	}
 
@@ -817,40 +817,40 @@ int climate::init(OBJECT *parent)
 	if (cloud_model != CM_NONE) {
 		//Cloud model input error checking.
 		if (cloud_opacity > 1 ) {
-			gl_warning("climate:%s - Cloud opacity must be no greater than 1.0, setting to 1.0",obj->name);
+			warning("climate:%s - Cloud opacity must be no greater than 1.0, setting to 1.0",obj->name);
 			cloud_opacity = 1.0;
 		}
 		else if (cloud_opacity < 0 ) {
-			gl_warning("climate:%s - Cloud opacity must be no less than 0.0, setting to 0.0",obj->name);
+			warning("climate:%s - Cloud opacity must be no less than 0.0, setting to 0.0",obj->name);
 			cloud_opacity = 0.0;
 		}
 		/*
 		if (cloud_reflectivity > 1 ) {
-			gl_warning("climate:%s - Cloud reflectivity must be no greater than 1.0, setting to 1.0",obj->name);
+			warning("climate:%s - Cloud reflectivity must be no greater than 1.0, setting to 1.0",obj->name);
 			cloud_opacity = 1.0;
 		}
 		else if (cloud_reflectivity < 0 ) {
-			gl_warning("climate:%s - Cloud reflectivity must be no less than 0.0, setting to 0.0",obj->name);
+			warning("climate:%s - Cloud reflectivity must be no less than 0.0, setting to 0.0",obj->name);
 			cloud_opacity = 0.0;
 		}
 		*/
 		if (cloud_speed_factor < 0 ) {
-			gl_warning("climate:%s - Cloud speed adjustment cannot be negative, setting to 1.0",obj->name);
+			warning("climate:%s - Cloud speed adjustment cannot be negative, setting to 1.0",obj->name);
 			cloud_speed_factor = 1.0;
 		}
 		if (cloud_alpha < cloud_num_layers ) {
-				gl_warning("climate:%s - Cloud model alpha value must be less than or equal to cloud_num_layers, setting to cloud_num_layers",obj->name);
+				warning("climate:%s - Cloud model alpha value must be less than or equal to cloud_num_layers, setting to cloud_num_layers",obj->name);
 				cloud_alpha = cloud_num_layers;
 		}
 		if (cloud_aerosol_transmissivity < 0 ) {
-				gl_warning("climate:%s - Cloud model aerosol transmissivity must be greater than or equal to 0, setting to default value of 0.9",obj->name);
+				warning("climate:%s - Cloud model aerosol transmissivity must be greater than or equal to 0, setting to default value of 0.9",obj->name);
 				cloud_aerosol_transmissivity = 0.9;
 		}
 		if (cloud_aerosol_transmissivity > 1 ) {
-				gl_warning("climate:%s - Cloud model aerosol transmissivity must be less than or equal to 1, setting to 1",obj->name);
+				warning("climate:%s - Cloud model aerosol transmissivity must be less than or equal to 1, setting to 1",obj->name);
 				cloud_aerosol_transmissivity = 1.0;
 		}
-		gl_warning("This cloud model places a large burden on computational resources. Patience and/or a more capable computer may be required.");
+		warning("This cloud model places a large burden on computational resources. Patience and/or a more capable computer may be required.");
 		init_cloud_pattern();
 		//write_out_cloud_pattern('C');
 		convert_to_binary_cloud();
@@ -864,7 +864,7 @@ int climate::init(OBJECT *parent)
 	} else if(strstr(tmyfile, ".csv") ) {
 		reader_type = RT_CSV;
 	} else {
-		gl_warning("climate: unrecognized filetype, assuming TMY2");
+		warning("climate: unrecognized filetype, assuming TMY2");
 	}
 
 	if(reader_type == RT_CSV ) {
@@ -873,7 +873,7 @@ int climate::init(OBJECT *parent)
 		int rv = 0;
 
 		if(reader == NULL ) {
-			gl_error("climate::init(): no csv_reader specified for tmyfile %s", tmyfile.get_string());
+			error("climate::init(): no csv_reader specified for tmyfile %s", tmyfile.get_string());
 			/* TROUBLESHOOT
 				The weather file provided is for the csv_reader object but not csv_reader object was specified in the reader property. 
 				Please specify the name of the csv_reader object in the climate object in the glm.
@@ -882,7 +882,7 @@ int climate::init(OBJECT *parent)
 		} else {
 			if((reader->flags & OF_INIT) != OF_INIT ) {
 				char objname[256];
-				gl_verbose("climate::init(): deferring initialization on %s", gl_name(reader, objname, 255));
+				verbose("climate::init(): deferring initialization on %s", gl_name(reader, objname, 255));
 				return 2; // defer
 			}
 			csv_reader *my = OBJECTDATA(reader,csv_reader);
@@ -901,14 +901,14 @@ int climate::init(OBJECT *parent)
 			//CSV Reader validity check
 			if (fabs(obj->latitude) > 90)
 			{
-				gl_error("climate:%s - Latitude is outside +/-90!",obj->name);
+				error("climate:%s - Latitude is outside +/-90!",obj->name);
 				//Defined below
 				return 0;
 			}
 
 			if (fabs(obj->longitude) > 180)
 			{
-				gl_error("climate:%s - Longitude is outside +/-180!",obj->name);
+				error("climate:%s - Longitude is outside +/-180!",obj->name);
 				//Defined below
 				return 0;
 			}
@@ -916,7 +916,7 @@ int climate::init(OBJECT *parent)
 			//Generic warning about southern hemisphere and Duffie-Beckman usage
 			if (obj->latitude<0)
 			{
-				gl_warning("climate:%s - Southern hemisphere solar position model may have issues",obj->name);
+				warning("climate:%s - Southern hemisphere solar position model may have issues",obj->name);
 				/*  TROUBLESHOOT
 				The default solar position model was built around a northern hemisphere assumption.  As such,
 				it doesn't always produce completely accurate results for southern hemisphere locations.  Calculated
@@ -935,7 +935,7 @@ int climate::init(OBJECT *parent)
 
 	// implicit if(reader_type == RT_TMY2) ~ do the following
 	if( file->open(found_file) < 3  ) {
-		gl_error("climate::init() -- weather file header improperly formed");
+		error("climate::init() -- weather file header improperly formed");
 		return 0;
 	}
 	
@@ -944,7 +944,7 @@ int climate::init(OBJECT *parent)
 	tmy = (TMYDATA*)malloc(sizeof(TMYDATA)*8760);
 	if (tmy==NULL)
 	{
-		gl_error("TMY buffer allocation failed");
+		error("TMY buffer allocation failed");
 		return 0;
 	}
 
@@ -971,7 +971,7 @@ int climate::init(OBJECT *parent)
 	//Generic check for TMY files
 	if (fabs(obj->latitude) > 90)
 	{
-		gl_error("climate:%s - Latitude is outside +/-90!",obj->name);
+		error("climate:%s - Latitude is outside +/-90!",obj->name);
 		/*  TROUBLESHOOT
 		The value read from the weather data indicates a latitude of greater
 		than 90 or less than -90 degrees.  This is not a valid value.  Please specify
@@ -983,7 +983,7 @@ int climate::init(OBJECT *parent)
 
 	if (fabs(obj->longitude) > 180)
 	{
-		gl_error("climate:%s - Longitude is outside +/-180!",obj->name);
+		error("climate:%s - Longitude is outside +/-180!",obj->name);
 		/*  TROUBLESHOOT
 		The value read from the weather data indicates a longitude of greater
 		than 180 or less than -180 degrees.  This is not a valid value.  Please specify
@@ -996,12 +996,12 @@ int climate::init(OBJECT *parent)
 	//Generic warning about southern hemisphere and Duffie-Beckman usage
 	if (obj->latitude<0)
 	{
-		gl_warning("climate:%s - Southern hemisphere solar position model may have issues",obj->name);
+		warning("climate:%s - Southern hemisphere solar position model may have issues",obj->name);
 		//Defined above
 	}
 
 	if(0 == gl_convert("m", "ft", &meter_to_feet) ) {
-		gl_error("climate::init unable to gl_convert() 'm' to 'ft'!");
+		error("climate::init unable to gl_convert() 'm' to 'ft'!");
 		return 0;
 	}
 	file->elevation = (int)(file->elevation * meter_to_feet);
@@ -1019,34 +1019,34 @@ int climate::init(OBJECT *parent)
 		if (hoy>=0 && hoy<8760 ) {
 			// pre-conversion of solar data from W/m^2 to W/sf
 			if(0 == gl_convert("W/m^2", "W/sf", &(dnr)) ) {
-				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
+				error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
 			if(0 == gl_convert("W/m^2", "W/sf", &(dhr)) ) {
-				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
+				error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
 			if(0 == gl_convert("W/m^2", "W/sf", &(ghr)) ) {
-				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
+				error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
 			if(0 == gl_convert("W/m^2", "W/sf", &(extra_dni)) ) {
-				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
+				error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
 			if(0 == gl_convert("W/m^2", "W/sf", &(extra_ghi)) ) {
-				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
+				error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
 			// if(0 == gl_convert("m/s", "m/s", &(wspeed)) ) {
-			// 	gl_error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
+			// 	error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
 			// 	return 0;
 			// }
 			tmy[hoy].temp_raw = temperature;
 			tmy[hoy].temp = temperature;
 			// post-conversion of copy of temperature from C to F
 			if(0 == gl_convert("degC", "degF", &(tmy[hoy].temp)) ) {
-				gl_error("climate::init unable to gl_convert() 'degC' to 'degF'!");
+				error("climate::init unable to gl_convert() 'degC' to 'degF'!");
 				return 0;
 			}
 			tmy[hoy].windspeed=wspeed;
@@ -1098,7 +1098,7 @@ int climate::init(OBJECT *parent)
 		}
 		else
 		{
-			gl_warning("%s(%d): hour %d is out of allowed range 0-8759 hours (month=%d, day=%d, hour=%d)", tmyfile.get_string(),line,hoy,month,day,hour);
+			warning("%s(%d): hour %d is out of allowed range 0-8759 hours (month=%d, day=%d, hour=%d)", tmyfile.get_string(),line,hoy,month,day,hour);
 		}
 
 		line++;
@@ -1106,11 +1106,11 @@ int climate::init(OBJECT *parent)
 	file->close();
 	if ( line < 8760 )
 	{
-		gl_error("%s(%d): unable to read a full year of data",tmyfile.get_string(),line);
+		error("%s(%d): unable to read a full year of data",tmyfile.get_string(),line);
 	}
 	if ( strstr(tmyfile, ".tmy2") ) 
 	{
-		gl_warning("TMY2 files exhibit unpredictable behavior, please use TMY3 file format.");
+		warning("TMY2 files exhibit unpredictable behavior, please use TMY3 file format.");
 	}
 	/* initialize climate to starttime */
 	presync(gl_globalclock);
@@ -1119,7 +1119,7 @@ int climate::init(OBJECT *parent)
 #if 0
 	if ( strcmp(forecast_spec,"")!=0 && gl_forecast_create(my(),forecast_spec)==NULL )
 	{
-		gl_error("%s: forecast '%s' is not valid", get_name(), forecast_spec.get_string());
+		error("%s: forecast '%s' is not valid", get_name(), forecast_spec.get_string());
 		return 0;
 	}
 	else if (get_forecast()!=NULL)
@@ -1186,9 +1186,9 @@ int climate::get_binary_cloud_value_for_location(double latitude, double longitu
 	//Debugging and validation
 	//write_out_cloud_pattern('C');
 //	write_out_cloud_pattern('B');
-//	gl_output("%i,%f,%f,%i,%i,%i", prev_NTime, latitude, longitude, pixel_x, pixel_y,*cloud);
-//	gl_output("%f,%i,%f,%i", latitude, pixel_x, longitude, pixel_y);
-//	gl_output(" ");
+//	output("%i,%f,%f,%i,%i,%i", prev_NTime, latitude, longitude, pixel_x, pixel_y,*cloud);
+//	output("%f,%i,%f,%i", latitude, pixel_x, longitude, pixel_y);
+//	output(" ");
 	return 1;
 }
 
@@ -1201,9 +1201,9 @@ int climate::get_fuzzy_cloud_value_for_location(double latitude, double longitud
 	//Debugging and validation
 //	write_out_cloud_pattern('F');
 //	write_out_cloud_pattern('B');
-//	gl_output("%i,%f,%f,%i,%i,%f", prev_NTime, latitude, longitude, pixel_x, pixel_y,*cloud); //fuzzy clouds
-//	gl_output("%f,%i,%f,%i", latitude, pixel_x, longitude, pixel_y);
-//	gl_output(" ");
+//	output("%i,%f,%f,%i,%i,%f", prev_NTime, latitude, longitude, pixel_x, pixel_y,*cloud); //fuzzy clouds
+//	output("%f,%i,%f,%i", latitude, pixel_x, longitude, pixel_y);
+//	output(" ");
 	return 1;
 }
 
@@ -2108,19 +2108,19 @@ int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &locatio
 	MAX_LAT_INDEX = CLOUD_TILE_SIZE + num_tile_edge * CLOUD_TILE_SIZE; // buffer plus the number of pixels
 	MIN_LON_INDEX = MIN_LAT_INDEX; // square
 	MAX_LON_INDEX = MAX_LAT_INDEX; // still square
-//	gl_output("degree_range lat: %f", degree_range_lat);
-//	gl_output("degree_range lon: %f", degree_range_lon);
-//	gl_output("lat_delta: %f", lat_delta);
-//	gl_output("long_delta: %f", long_delta);
+//	output("degree_range lat: %f", degree_range_lat);
+//	output("degree_range lon: %f", degree_range_lon);
+//	output("lat_delta: %f", lat_delta);
+//	output("long_delta: %f", long_delta);
 	degree_range_lat = ((double)(num_tile_edge * CLOUD_TILE_SIZE * PIXEL_EDGE_SIZE))/1000./KM_PER_DEG;
 	degree_range_lon = ((double)(num_tile_edge * CLOUD_TILE_SIZE * PIXEL_EDGE_SIZE))/1000./KM_PER_DEG/cos(RAD(lat_min));
 	MIN_LAT = lat_min - (degree_range_lat-lat_delta)/2.;
 	MAX_LAT = MIN_LAT + degree_range_lat;
 	MIN_LON = long_min - (degree_range_lon-long_delta)/2.;
 	MAX_LON = MIN_LON + degree_range_lon;
-//	gl_output("lat min: %i=%f\tlat max: %i=%f", MIN_LAT_INDEX, MIN_LAT, MAX_LAT_INDEX, MAX_LAT);
-//	gl_output("lon min: %i=%f\tlon max: %i=%f", MIN_LON_INDEX, MIN_LON, MAX_LON_INDEX, MAX_LON);
-//	gl_output(" ");
+//	output("lat min: %i=%f\tlat max: %i=%f", MIN_LAT_INDEX, MIN_LAT, MAX_LAT_INDEX, MAX_LAT);
+//	output("lon min: %i=%f\tlon max: %i=%f", MIN_LON_INDEX, MIN_LON, MAX_LON_INDEX, MAX_LON);
+//	output(" ");
 	return num_tile_edge + 2; //Adding extra tiles for off-screen buffer around perimeter;
 }
 
@@ -2291,37 +2291,37 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 				humidity = (gl_qerp(now, hoy0, tmy[hoy].rh, hoy1, tmy[hoy+1%8760].rh, hoy2, tmy[hoy+2%8760].rh));
 				if(humidity < 0.0 ) {
 					humidity = 0.0;
-					gl_verbose("Setting humidity to zero. Quadratic interpolation caused the humidity to drop below zero.");
+					verbose("Setting humidity to zero. Quadratic interpolation caused the humidity to drop below zero.");
 				}
 				solar_direct = (gl_qerp(now, hoy0, tmy[hoy].dnr, hoy1, tmy[hoy+1%8760].dnr, hoy2, tmy[hoy+2%8760].dnr));
 				if(solar_direct < 0.0 ) {
 					solar_direct = 0.0;
-					gl_verbose("Setting solar_direct to zero. Quadratic interpolation caused the solar_direct to drop below zero.");
+					verbose("Setting solar_direct to zero. Quadratic interpolation caused the solar_direct to drop below zero.");
 				}
 				solar_diffuse = (gl_qerp(now, hoy0, tmy[hoy].dhr, hoy1, tmy[hoy+1%8760].dhr, hoy2, tmy[hoy+2%8760].dhr));
 				if(solar_diffuse < 0.0 ) {
 					solar_diffuse = 0.0;
-					gl_verbose("Setting solar_diffuse to zero. Quadratic interpolation caused the solar_diffuse to drop below zero.");
+					verbose("Setting solar_diffuse to zero. Quadratic interpolation caused the solar_diffuse to drop below zero.");
 				}
 				solar_global = (gl_qerp(now, hoy0, tmy[hoy].ghr, hoy1, tmy[hoy+1%8760].ghr, hoy2, tmy[hoy+2%8760].ghr));
 				if(solar_global < 0.0 ) {
 					solar_global = 0.0;
-					gl_verbose("Setting solar_global to zero. Quadratic interpolation caused the solar_global to drop below zero.");
+					verbose("Setting solar_global to zero. Quadratic interpolation caused the solar_global to drop below zero.");
 				}
 				wind_speed = (gl_qerp(now, hoy0, tmy[hoy].windspeed, hoy1, tmy[hoy+1%8760].windspeed, hoy2, tmy[hoy+2%8760].windspeed));
 				if(wind_speed < 0.0 ) {
 					wind_speed = 0.0;
-					gl_verbose("Setting wind_speed to zero. Quadratic interpolation caused the wind_speed to drop below zero.");
+					verbose("Setting wind_speed to zero. Quadratic interpolation caused the wind_speed to drop below zero.");
 				}
 				rainfall = (gl_qerp(now, hoy0, tmy[hoy].rainfall, hoy1, tmy[hoy+1%8760].rainfall, hoy2, tmy[hoy+2%8760].rainfall));
 				if(rainfall < 0.0 ) {
 					rainfall = 0.0;
-					gl_verbose("Setting rainfall to zero. Quadratic interpolation caused the rainfall to drop below zero.");
+					verbose("Setting rainfall to zero. Quadratic interpolation caused the rainfall to drop below zero.");
 				}
 				snowdepth = (gl_qerp(now, hoy0, tmy[hoy].snowdepth, hoy1, tmy[hoy+1%8760].snowdepth, hoy2, tmy[hoy+2%8760].snowdepth));
 				if(snowdepth < 0.0 ) {
 					snowdepth = 0.0;
-					gl_verbose("Setting snowdepth to zero. Quadratic interpolation caused the snowdepth to drop below zero.");
+					verbose("Setting snowdepth to zero. Quadratic interpolation caused the snowdepth to drop below zero.");
 				}
 				solar_azimuth = (gl_qerp(now, hoy0, tmy[hoy].solar_azimuth, hoy1, tmy[hoy+1%8760].solar_azimuth, hoy2, tmy[hoy+2%8760].solar_azimuth));
 				solar_elevation = (gl_qerp(now, hoy0, tmy[hoy].solar_elevation, hoy1, tmy[hoy+1%8760].solar_elevation, hoy2, tmy[hoy+2%8760].solar_elevation));
@@ -2330,41 +2330,41 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 				solar_raw = (gl_qerp(now, hoy0, tmy[hoy].solar_raw, hoy1, tmy[hoy+1%8760].solar_raw, hoy2, tmy[hoy+2%8760].solar_raw));
 				if(solar_raw < 0.0 ) {
 					solar_raw = 0.0;
-					gl_verbose("Setting solar_raw to zero. Quadratic interpolation caused the solar_raw to drop below zero.");
+					verbose("Setting solar_raw to zero. Quadratic interpolation caused the solar_raw to drop below zero.");
 				}
 				pressure = gl_qerp(now, hoy0, tmy[hoy].pressure, hoy1, tmy[hoy+1%8760].pressure, hoy2, tmy[hoy+2%8760].pressure);
 				if(pressure < 0.0 ) {
 					pressure = 0.0;
-					gl_verbose("Setting pressure to zero. Quadratic interpolation caused the pressure to drop below zero.");
+					verbose("Setting pressure to zero. Quadratic interpolation caused the pressure to drop below zero.");
 				}
 				direct_normal_extra = gl_qerp(now, hoy0, tmy[hoy].direct_normal_extra, hoy1, tmy[hoy+1%8760].direct_normal_extra, hoy2, tmy[hoy+2%8760].direct_normal_extra);
 				if(direct_normal_extra < 0.0 ) {
 					direct_normal_extra = 0.0;
-					gl_verbose("Setting extraterrestrial_direct_normal to zero. Quadratic interpolation caused the extraterrestrial_direct_normal to drop below zero.");
+					verbose("Setting extraterrestrial_direct_normal to zero. Quadratic interpolation caused the extraterrestrial_direct_normal to drop below zero.");
 				}
 				global_horizontal_extra = gl_qerp(now, hoy0, tmy[hoy].global_horizontal_extra, hoy1, tmy[hoy+1%8760].global_horizontal_extra, hoy2, tmy[hoy+2%8760].global_horizontal_extra);
 				if(global_horizontal_extra < 0.0 ) {
 					global_horizontal_extra = 0.0;
-					gl_verbose("Setting global_horizontal_extra to zero. Quadratic interpolation caused the global_horizontal_extra to drop below zero.");
+					verbose("Setting global_horizontal_extra to zero. Quadratic interpolation caused the global_horizontal_extra to drop below zero.");
 				}
 				wind_dir = gl_qerp(now, hoy0, tmy[hoy].wind_dir, hoy1, tmy[hoy+1%8760].wind_dir, hoy2, tmy[hoy+2%8760].wind_dir);
 				if(wind_dir < 0.0 ) {
 					wind_dir = 360.0+wind_dir;
-					gl_verbose("Setting wind_dir to 360+wind_dir. Quadratic interpolation caused the wind_dir to drop below zero.");
+					verbose("Setting wind_dir to 360+wind_dir. Quadratic interpolation caused the wind_dir to drop below zero.");
 				}
 				if(wind_dir > 360.0 ) {
 					wind_dir = wind_dir-360.0;
-					gl_verbose("Setting wind_dir to wind_dir-360. Quadratic interpolation caused the wind_dir to rise above 360.");
+					verbose("Setting wind_dir to wind_dir-360. Quadratic interpolation caused the wind_dir to rise above 360.");
 				}
 				tot_sky_cov = gl_qerp(now, hoy0, tmy[hoy].tot_sky_cov, hoy1, tmy[hoy+1%8760].tot_sky_cov, hoy2, tmy[hoy+2%8760].tot_sky_cov);
 				if(tot_sky_cov < 0.0 ) {
 					tot_sky_cov = 0.0;
-					gl_verbose("Setting tot_sky_cov to zero. Quadratic interpolation caused the tot_sky_cov to drop below zero.");
+					verbose("Setting tot_sky_cov to zero. Quadratic interpolation caused the tot_sky_cov to drop below zero.");
 				}
 				opq_sky_cov = gl_qerp(now, hoy0, tmy[hoy].opq_sky_cov, hoy1, tmy[hoy+1%8760].opq_sky_cov, hoy2, tmy[hoy+2%8760].opq_sky_cov);
 				if(opq_sky_cov < 0.0 ) {
 					opq_sky_cov = 0.0;
-					gl_verbose("Setting opq_sky_cov to zero. Quadratic interpolation caused the opq_sky_cov to drop below zero.");
+					verbose("Setting opq_sky_cov to zero. Quadratic interpolation caused the opq_sky_cov to drop below zero.");
 				}
 
 				for ( int pt = 0; pt < CP_LAST; ++pt )

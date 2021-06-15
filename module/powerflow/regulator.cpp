@@ -196,7 +196,7 @@ int regulator::init(OBJECT *parent)
 			if (solver_method == SM_NR)
 			{
 				if(regulator_resistance == 0.0){
-					gl_warning("Regulator:%s regulator_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
+					warning("Regulator:%s regulator_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
 					/*  TROUBLESHOOT
 					Under Newton-Raphson solution method the impedance matrix cannot be a singular matrix for the inversion process.
 					Change the value of regulator_resistance to something small but larger that zero.
@@ -228,7 +228,7 @@ int regulator::init(OBJECT *parent)
 			multiply(W_mat,tmp_mat,tmp_mat1);
 			multiply(tmp_mat1,D_mat,A_mat);
 
-			gl_warning("Only WYE-WYE configurations are working in either Newton-Raphson or non-Manual controls");
+			warning("Only WYE-WYE configurations are working in either Newton-Raphson or non-Manual controls");
 			/*  TROUBLESHOOT
 			For this portion of development, only WYE-WYE configurations are fully supported.  Later implementations
 			will include support for other regulator configurations.  As it stands, WYE-WYE regulators work in SM_NR 

@@ -226,7 +226,7 @@ int powerflow_object::init(OBJECT *parent)
 	/* split connection is not permitted on neutral */
 	if (has_phase(PHASE_N) && has_phase(PHASE_S)) 
 	{
-		gl_warning("neutral phase ignored on split connection.");
+		warning("neutral phase ignored on split connection.");
 		phases ^= PHASE_N;
 	}
 
@@ -253,13 +253,13 @@ TIMESTAMP powerflow_object::postsync(TIMESTAMP t0)
 	{
 		char buffer[1024]="???";
 		gl_get_value_by_name(obj,"condition",buffer,sizeof(buffer));
-		gl_debug("powerflow_object %s (%s:%d): abnormal condition detected (condition=%s), switching solver to OUTAGE method", obj->name, obj->oclass->name, obj->id, buffer);
+		debug("powerflow_object %s (%s:%d): abnormal condition detected (condition=%s), switching solver to OUTAGE method", obj->name, obj->oclass->name, obj->id, buffer);
 		solution = PS_OUTAGE;
 		return t0;
 	}
 	else if (condition==OC_NORMAL && solution==PS_OUTAGE)
 	{
-		gl_debug("powerflow_object %s (%s:%d): normal condition restored, switching solver to NORMAL method", obj->name, obj->oclass->name, obj->id);
+		debug("powerflow_object %s (%s:%d): normal condition restored, switching solver to NORMAL method", obj->name, obj->oclass->name, obj->id);
 		solution = PS_NORMAL;
 		return t0;
 	}
@@ -326,9 +326,9 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 	else
 	{
 		if ( obj->name )
-			gl_warning("%s rating/limit violation type %s (%s)",obj->name,vf_name[vf_type&0x0f],message);
+			warning("%s rating/limit violation type %s (%s)",obj->name,vf_name[vf_type&0x0f],message);
 		else
-			gl_warning("%s:%d rating/limit violation type %s (%s)",obj->oclass->name,obj->id,vf_name[vf_type&0x0f],message);			
+			warning("%s:%d rating/limit violation type %s (%s)",obj->oclass->name,obj->id,vf_name[vf_type&0x0f],message);			
 	}
 	violation_count++;
 	violation_active++;

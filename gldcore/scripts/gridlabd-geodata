@@ -17,6 +17,7 @@ OPTIONS
   [-d|--debug]                enable debug output, including error traceback
   [-f|--format FORMAT]        change output format
   [--fieldsep STRING]         set the RAW output field separator
+  [--filter=SPECS]            apply dataframe functions as filter
   [-j|--join TYPE]            control how dataset joins with input path
   [-k|--key KEY]              change method for generating keys
   [-o|--output CSVOUT]        output to CSVOUT
@@ -25,6 +26,7 @@ OPTIONS
                               merged
   [--recordsep STRING]        change the RAW output record separator
   [-s|--silent]               disable error output
+  [--select=COLUMNS]          select only rows that have true values for column(s)
   [--show_config]             display the current configuration
   [--show_options]            display the current options
   [-T|--threadcount THREADS]  change maximum thread count
@@ -355,6 +357,7 @@ import haversine
 import geopandas
 import matplotlib.pyplot as plt
 import uuid
+import folium
 
 NAME = "geodata"
 VERSION = "0.0.0"
@@ -450,6 +453,8 @@ OPTIONS = {
         "force_ascii" : True,
         "date_unit" : "s",
     },
+    "filter" : "",
+    "select" : "",
 }
 
 E_OK = 0
@@ -942,6 +947,20 @@ def write_csv(data):
         except KeyError as err:
             error("write_csv(): invalid field specified",E_INVALID)
 
+def filter(data):
+    """Filter implementation"""
+    if OPTIONS['filter']:
+        for action in OPTIONS['filter'].split(';'):
+            data = eval(f"data.{action}")
+        if OPTIONS['select']:
+            for column in OPTIONS['select'].split(','):
+                data = data[data[column]]
+        result = data
+        debug(f"filter(data='{data}') --> {dataframe_to_table(result)}")
+        return result
+    else:
+        return data
+
 def write_raw(data):
     """Write raw output"""
     specs = CONFIG['output_format'].split(":")
@@ -1361,6 +1380,7 @@ def main(argc,argv):
         error(f"directive '{DIRECTIVE[0]}' is not valid",E_SYNTAX)
     data = globals()[DIRECTIVE[0]](args)
     if type(data) is pandas.DataFrame:
+        data = filter(data)
         if CONFIG['output_format'] == "CSV" or CONFIG['output_format'].startswith("CSV:"):
             write_csv(data)
         elif CONFIG['output_format'] == "RAW" or CONFIG['output_format'].startswith("RAW:"):

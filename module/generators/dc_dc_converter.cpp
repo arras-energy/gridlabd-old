@@ -85,7 +85,7 @@ int dc_dc_converter::create(void)
 int dc_dc_converter::init(OBJECT *parent)
 {
 
-	gl_warning("DC_DC_CONVERTER IS AN EXPERIMENTAL MODEL. IT HAS NOT BEEN PROPERLY VALIDATED.");
+	warning("DC_DC_CONVERTER IS AN EXPERIMENTAL MODEL. IT HAS NOT BEEN PROPERLY VALIDATED.");
 	
 				//initialize variables that are used internally
 	//set_terminal_voltage = 240; //V
@@ -156,7 +156,7 @@ int dc_dc_converter::init(OBJECT *parent)
 	/* TODO: set the context-dependent initial value of properties */
 	
 
-gl_verbose("dc_dc_converter init: initialized the variables");
+verbose("dc_dc_converter init: initialized the variables");
 	
 	struct {
 		complex **var;
@@ -178,10 +178,10 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 			*(map[i].var) = get_complex(parent,map[i].varname);
 
-		gl_verbose("dc_dc_converter init: mapped METER objects to internal variables");
+		verbose("dc_dc_converter init: mapped METER objects to internal variables");
 	}
 	else if (parent!=NULL && ((strcmp(parent->oclass->name,"inverter")==0))){
-		gl_verbose("dc_dc_converter init: parent WAS found, is an inverter!");
+		verbose("dc_dc_converter init: parent WAS found, is an inverter!");
 		parent_string = "inverter";
 			// construct circuit variable map to meter
 			/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
@@ -189,10 +189,10 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++){
 			*(map[i].var) = get_complex(parent,map[i].varname);
 		}
-		gl_verbose("dc_dc_converter init: mapped INVERTER objects to local variables");
+		verbose("dc_dc_converter init: mapped INVERTER objects to local variables");
 	}
 	else if (parent!=NULL && strcmp(parent->oclass->name,"battery")==0){
-		gl_verbose("dc_dc_converter init: parent WAS found, is an battery!");
+		verbose("dc_dc_converter init: parent WAS found, is an battery!");
 		parent_string = "dc_dc_converter";
 			// construct circuit variable map to meter
 			/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
@@ -200,17 +200,17 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++){
 			*(map[i].var) = get_complex(parent,map[i].varname);
 		}
-		gl_verbose("dc_dc_converter init: mapped BATTERY objects to internal variables");
+		verbose("dc_dc_converter init: mapped BATTERY objects to internal variables");
 	}
 	else{
 		
 			// construct circuit variable map to meter
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
-		gl_verbose("dc_dc_converter init: mapped meter objects to internal variables");
+		verbose("dc_dc_converter init: mapped meter objects to internal variables");
 
 		OBJECT *obj = THISOBJECTHDR;
-		gl_verbose("dc_dc_converter init: no parent meter defined, parent is not a meter");
-		gl_warning("dc_dc_converter:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
+		verbose("dc_dc_converter init: no parent meter defined, parent is not a meter");
+		warning("dc_dc_converter:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
 		// attach meter variables to each circuit in the default_meter
 			*(map[0].var) = &default_line_voltage[0];
@@ -224,7 +224,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 
 	}
 
-	gl_verbose("dc_dc_converter init: finished connecting with meter");
+	verbose("dc_dc_converter init: finished connecting with meter");
 
 
 
@@ -330,7 +330,7 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 	
 	V_Out = pCircuit_V[0];
 	
-	gl_verbose("dc_dc_c sync: got voltage from parent, is: %f %fj", V_Out.Re(),V_Out.Im());
+	verbose("dc_dc_c sync: got voltage from parent, is: %f %fj", V_Out.Re(),V_Out.Im());
 	
 	internal_losses = 1 - calculate_loss(Rtotal, Ltotal, Ctotal, DC, AC);
 		
@@ -360,7 +360,7 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	switch(gen_mode_v){
 		case SUPPLY_DRIVEN:
-			gl_verbose("dc_dc_c sync: supply driven");
+			verbose("dc_dc_c sync: supply driven");
 			{//TODO
 			//set V_Out for each phase
 			//set V_In from line
@@ -406,7 +406,7 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 			break;
 		case CONSTANT_PQ:
-			gl_verbose("dc_dc_c sync: constant pq");
+			verbose("dc_dc_c sync: constant pq");
 			{//TODO
 			//gather V_Out for each phase
 			//gather V_In (DC) from line
@@ -445,21 +445,21 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 			if ( strcmp(parent_string,"meter") == 0 )
 			{
 				VA_Out = complex(P_Out,Q_Out);
-				gl_verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+				verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 			}
 			else
 			{
 				I_Out = pLine_I[0];
-				gl_verbose("dc_dc_c sync: V_In requested is: (%f , %f)", V_In.Re(), V_In.Im());
+				verbose("dc_dc_c sync: V_In requested is: (%f , %f)", V_In.Re(), V_In.Im());
 				VA_Out = V_Out * ~ I_Out;
-				gl_verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+				verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 			}
 
 			V_In = V_Out / service_ratio;
 
 			VA_In = VA_Out / (efficiency * internal_losses);
 
-			gl_verbose("dc_dc_c sync: VA_In requested is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("dc_dc_c sync: VA_In requested is: (%f , %f)", VA_In.Re(), VA_In.Im());
 
 			losses = VA_Out * (1 - (efficiency * internal_losses));
 
@@ -470,13 +470,13 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 				I_In = ~I_In;
 			}
 
-			gl_verbose("dc_dc_c sync: I_In requested is: (%f , %f)", I_In.Re(), I_In.Im());
+			verbose("dc_dc_c sync: I_In requested is: (%f , %f)", I_In.Re(), I_In.Im());
 
 			return TS_NEVER;
 			}
 			break;
 		case CONSTANT_V:
-			gl_verbose("dc_dc_c sync: constant v");
+			verbose("dc_dc_c sync: constant v");
 			{
 			bool changed = false;
 			
@@ -486,13 +486,13 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//Gather Rload
 			I_Out = pLine_I[0];
 
-			gl_verbose("dc_dc_c sync: I from parent is: (%f , %f)", I_Out.Re(), I_Out.Im());
+			verbose("dc_dc_c sync: I from parent is: (%f , %f)", I_Out.Re(), I_Out.Im());
 			
 			V_In = V_Out / service_ratio;
 
 
-			gl_verbose("dc_dc_c sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
-			gl_verbose("dc_dc_c sync: V_In calculated: (%f , %f)", V_In.Re(), V_In.Im());
+			verbose("dc_dc_c sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
+			verbose("dc_dc_c sync: V_In calculated: (%f , %f)", V_In.Re(), V_In.Im());
 			
 			if (V_Out < (V_Set - margin)){
 				I_Out = I_out_prev + I_step_max / 2;
@@ -504,12 +504,12 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 				changed = false;
 			}
 
-			gl_verbose("dc_dc_c sync: I_In after adjustment is: (%f , %f)", I_Out.Re(), I_Out.Im());
+			verbose("dc_dc_c sync: I_In after adjustment is: (%f , %f)", I_Out.Re(), I_Out.Im());
 	
 
 			VA_Out = (~I_Out) * V_Out;
 
-			gl_verbose("dc_dc_c sync: VA_Out pre-limits is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+			verbose("dc_dc_c sync: VA_Out pre-limits is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 
 			if(VA_Out > Rated_kVA){
 				VA_Out = Rated_kVA;
@@ -595,12 +595,12 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 			*/
 
-			gl_verbose("dc_dc_c sync: VA_In requested pre-losses is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+			verbose("dc_dc_c sync: VA_In requested pre-losses is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 
 			VA_In = VA_Out / (efficiency * internal_losses);
 			losses = VA_Out * (1 - (efficiency * internal_losses));
 
-			gl_verbose("dc_dc_c sync: VA_In requested with losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("dc_dc_c sync: VA_In requested with losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
 
 
 			if(V_In == 0){
@@ -610,7 +610,7 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 				I_In = ~I_In;
 			}
 
-			gl_verbose("dc_dc_c sync: I_In requested is: (%f , %f)", I_In.Re(), I_In.Im());
+			verbose("dc_dc_c sync: I_In requested is: (%f , %f)", I_In.Re(), I_In.Im());
 
 			//TODO: check P and Q components to see if within bounds
 
