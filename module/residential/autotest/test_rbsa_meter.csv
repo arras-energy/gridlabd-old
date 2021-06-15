@@ -1,12 +1,4 @@
-# file...... test_rbsa_meter.csv
-# date...... Tue Jun 15 07:55:30 2021
-# user...... dchassin
-# host...... (null)
-# target.... meter 0
-# trigger... (none)
-# interval.. 3600
-# limit..... 0
-# timestamp,measured_power_A,measured_power_B,measured_power_C
+timestamp,measured_power_A,measured_power_B,measured_power_C
 2020-01-01 00:00:00 PST,nannand,nannand,nannand
 2020-01-01 01:00:00 PST,nannand,nannand,nannand
 2020-01-01 02:00:00 PST,nannand,nannand,nannand
@@ -8791,4 +8783,3 @@
 2020-12-31 21:00:00 PST,nannand,nannand,nannand
 2020-12-31 22:00:00 PST,nannand,nannand,nannand
 2020-12-31 23:00:00 PST,nannand,nannand,nannand
-# end of tape
