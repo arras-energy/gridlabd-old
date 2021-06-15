@@ -1,7 +1,7 @@
 // test_rbsa.glm
 
 #ifexist ../test_rbsa.csv
-#set DIR=..
+#define DIR=..
 #endif
 
 clock
@@ -42,5 +42,5 @@ object recorder
 }
 
 #ifexist ../test_rbsa_meter.csv
-#on_exit 0 "diff -q ../test_rbsa_meter.csv test_rbsa_meter.csv"
-#
+#on_exit 0 diff -q ../test_rbsa_meter.csv test_rbsa_meter.csv
+#endif
