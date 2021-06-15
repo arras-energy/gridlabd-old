@@ -440,17 +440,17 @@ TIMESTAMP rbsa::presync(TIMESTAMP t1)
 {
 	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
 	complex P(0,0,J);
-	*power_A = P;
-	*power_B = P;
-	*power_C = P;
+	if ( power_A ) *power_A = P;
+	if ( power_B ) *power_B = P;
+	if ( power_C ) *power_C = P;
 	complex I(0,0,J);
-	*current_A = I;
-	*current_B = I;
-	*current_C = I;
+	if ( current_A ) *current_A = I;
+	if ( current_B ) *current_B = I;
+	if ( current_C ) *current_C = I;
 	complex S(0,0,J);
-	*shunt_A = S;
-	*shunt_B = S;
-	*shunt_C = S;
+	if ( shunt_A ) *shunt_A = S;
+	if ( shunt_B ) *shunt_B = S;
+	if ( shunt_C ) *shunt_C = S;
 	return TS_NEVER;
 }
 double rbsa::apply_sensitivity(SENSITIVITY &component, double *variable)
@@ -504,17 +504,17 @@ TIMESTAMP rbsa::sync(TIMESTAMP t1)
 		}
 	}
 	complex P(Pr,Pi,J);
-	*power_A += P;
-	*power_B += P;
-	*power_C += P;
+	if ( power_A ) *power_A += P;
+	if ( power_B ) *power_B += P;
+	if ( power_C ) *power_C += P;
 	complex I(Ir,Ii,J);
-	*current_A += I;
-	*current_B += I;
-	*current_C += I;
+	if ( current_A ) *current_A += I;
+	if ( current_B ) *current_B += I;
+	if ( current_C ) *current_C += I;
 	complex S = complex(1,0,J)/complex(Zr,Zi,J);
-	*shunt_A += S;
-	*shunt_B += S;
-	*shunt_C += S;
+	if ( shunt_A ) *shunt_A += S;
+	if ( shunt_B ) *shunt_B += S;
+	if ( shunt_C ) *shunt_C += S;
 	total_power_A = ((*voltage_A/(*nominal_voltage)*S + I)*(*voltage_A)/(*nominal_voltage) + P);
 	total_power_B = ((*voltage_B/(*nominal_voltage)*S + I)*(*voltage_B)/(*nominal_voltage) + P);
 	total_power_C = ((*voltage_C/(*nominal_voltage)*S + I)*(*voltage_C)/(*nominal_voltage) + P);
