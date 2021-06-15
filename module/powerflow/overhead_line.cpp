@@ -1,7 +1,7 @@
 /** $Id: overhead_line.cpp 1182 2008-12-22 22:08:36Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file overhead_line.cpp
-	@addtogroup overhead_line 
+	@addtogroup overhead_line
 	@ingroup line
 
 	@{
@@ -12,13 +12,14 @@ using namespace std;
 
 CLASS* overhead_line::oclass = NULL;
 CLASS* overhead_line::pclass = NULL;
+overhead_line *overhead_line::defaults = NULL;
 
 overhead_line::overhead_line(MODULE *mod) : line(mod)
 {
 	if(oclass == NULL)
 	{
 		pclass = line::oclass;
-		
+
 		oclass = gl_register_class(mod,"overhead_line",sizeof(overhead_line),PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
 		if (oclass==NULL)
 			throw "unable to register class overhead_line";
@@ -27,6 +28,10 @@ overhead_line::overhead_line(MODULE *mod) : line(mod)
 
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "line",
+
+            PT_double, "ice_thickness[in]", get_ice_thickness_offset(),
+                PT_DESCRIPTION, "thickness of ice build-up on lines",
+
 			NULL) < 1) GL_THROW("unable to publish overhead_line properties in %s",__FILE__);
 
 		if (gl_publish_function(oclass,	"create_fault", (FUNCTIONADDR)create_fault_ohline)==NULL)
@@ -63,7 +68,7 @@ int overhead_line::init(OBJECT *parent)
 	size_t index;
 	OBJECT *temp_obj;
 	line::init(parent);
-	
+
 	if (!configuration)
 		throw "no overhead line configuration specified.";
 		/*  TROUBLESHOOT
@@ -85,7 +90,7 @@ int overhead_line::init(OBJECT *parent)
 	test_phases(config,'B');
 	test_phases(config,'C');
 	test_phases(config,'N');
-	
+
 	if ((!config->line_spacing || !gl_object_isa(config->line_spacing, "line_spacing")) && config->impedance11 == 0.0 && config->impedance22 == 0.0 && config->impedance33 == 0.0)
 		throw "invalid or missing line spacing on overhead line";
 		/*  TROUBLESHOOT
@@ -193,9 +198,9 @@ void overhead_line::recalc(void)
 	OBJECT *obj = THISOBJECTHDR;
 
 	// Zero out Zabc_mat and Yabc_mat. Un-needed phases will be left zeroed.
-	for (int i = 0; i < 3; i++) 
+	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 3; j++) 
+		for (int j = 0; j < 3; j++)
 		{
 			Zabc_mat[i][j] = 0.0;
 			Yabc_mat[i][j] = 0.0;
@@ -212,7 +217,7 @@ void overhead_line::recalc(void)
 			B_mat[i][j] = b_mat[i][j];
 		}
 	}
-	
+
 	if (config->impedance11 != 0 || config->impedance22 != 0 || config->impedance33 != 0)
 	{
 		// Load Zabc_mat and Yabc_mat based on the z11-z33 and c11-c33 line config parameters
@@ -255,7 +260,7 @@ void overhead_line::recalc(void)
 		double miles = length / 5280.0;
 		double cap_coeff;
 		complex cap_freq_mult;
-		
+
 		//Calculate coefficients for self and mutual impedance - incorporates frequency values
 		//Per Kersting (4.39) and (4.40)
 		if (enable_frequency_dependence == true)	//See if we may be updating due to frequency changes
@@ -434,7 +439,6 @@ void overhead_line::recalc(void)
 				else	//If diamA is 0, nothing is valid, make all zero
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
-					
 					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					While attempting to calculate the shunt capacitance for an overhead line, an invalid parameter was encountered.
@@ -519,7 +523,6 @@ void overhead_line::recalc(void)
 				else	//If diamb is 0, nothing is valid, make all zero
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
-					
 					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
@@ -661,7 +664,7 @@ void overhead_line::recalc(void)
 				P_mat[2][2] = p_cc;
 			}
 
-			//Now appropriately invert it - scale for frequency, distance, and microSiemens as well as per Kersting (5.14) and (5.15) 
+			//Now appropriately invert it - scale for frequency, distance, and microSiemens as well as per Kersting (5.14) and (5.15)
 			if (has_phase(PHASE_A) && !has_phase(PHASE_B) && !has_phase(PHASE_C)) //only A
 				Yabc_mat[0][0] = complex(1.0) / P_mat[0][0] * cap_freq_mult;
 			else if (!has_phase(PHASE_A) && has_phase(PHASE_B) && !has_phase(PHASE_C)) //only B
@@ -759,7 +762,7 @@ void overhead_line::recalc(void)
 
 	// Calculate line matrixies A_mat, B_mat, a_mat, b_mat, c_mat and d_mat based on Zabc_mat and Yabc_mat
 	recalc_line_matricies(Zabc_mat, Yabc_mat);
-	
+
 	//Check for negative resistance in the line's impedance matrix
 	bool neg_res = false;
 	for (int n = 0; n < 3; n++){
@@ -769,12 +772,12 @@ void overhead_line::recalc(void)
 			}
 		}
 	}
-	
+
 	if(neg_res == true){
 		warning("INIT: overhead_line:%s has a negative resistance in it's impedance matrix. This will result in unusual behavior. Please check the line's geometry and cable parameters.", obj->name);
 		/*  TROUBLESHOOT
 		A negative resistance value was found for one or more the real parts of the overhead_line's impedance matrix.
-		While this is numerically possible, it is a physical impossibility. This resulted most likely from a improperly 
+		While this is numerically possible, it is a physical impossibility. This resulted most likely from a improperly
 		defined conductor cable. Please check and modify the conductor objects used for this line to correct this issue.
 		*/
 	}
@@ -898,7 +901,7 @@ void overhead_line::test_phases(line_configuration *config, const char ph)
 * dist1_to_e - distance from line 1 to earth
 * dist2_to_e - distance from line 2 to earth
 * dist1_to_2 - distance from line 1 to line 2
-* 
+*
 * * Outputs *
 * dist1_to_2p - distance from line 1 to line 2's image - same as line 2 to line 1's image (isosceles trapezoid)
 */
@@ -976,7 +979,7 @@ EXPORT TIMESTAMP sync_overhead_line(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		default:
 			throw "invalid pass request";
 		}
-	} 
+	}
 	SYNC_CATCHALL(overhead_line);
 }
 
@@ -1020,7 +1023,7 @@ EXPORT int fix_fault_ohline(OBJECT *thisobj, int *implemented_fault, char *imp_f
 
 	//Clear the fault
 	retval = thisline->link_fault_off(implemented_fault, imp_fault_name, Extra_Data);
-	
+
 	//Clear the fault type
 	*implemented_fault = -1;
 

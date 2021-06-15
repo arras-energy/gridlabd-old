@@ -6,63 +6,68 @@ GLM:
 
 ~~~
 module powerflow {
-  message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
-  show_matrix_values "<string>";
-  primary_voltage_ratio "<decimal>";
-  nominal_frequency "<decimal>";
-  require_voltage_control "<string>";
-  geographic_degree "<decimal>";
+  all_powerflow_delta "<string>";
+  convergence_error_handling {COLLAPSE,IGNORE,FATAL};
+  current_frequency "<float> Hz";
+  default_maximum_power_error <float>;
+  default_maximum_voltage_error <float>;
+  default_resistance <float>;
+  deltamode_timestep <float> ns;
+  enable_frequency_dependence "<string>";
+  enable_inrush "<string>";
+  enable_mesh_fault_current "<string>";
+  enable_subsecond_models "<string>";
   fault_impedance "<string>";
+  geographic_degree <float>;
   ground_impedance "<string>";
-  warning_underfrequency "<decimal>";
-  warning_overfrequency "<decimal>";
-  warning_undervoltage "<decimal>";
-  warning_overvoltage "<decimal>";
-  warning_voltageangle "<decimal>";
-  maximum_voltage_error "<decimal>";
-  solver_method "{NR,GS,FBS}";
-  NR_matrix_file "<string>";
-  NR_matrix_output_interval "{ALL,PER_CALL,ONCE,NEVER}";
-  NR_matrix_output_references "<string>";
   line_capacitance "<string>";
   line_limits "<string>";
+  low_voltage_impedance_level <float>;
   lu_solver "<string>";
-  NR_iteration_limit "<integer>";
-  NR_deltamode_iteration_limit "<integer>";
-  NR_superLU_procs "<integer>";
-  default_maximum_voltage_error "<decimal>";
-  default_maximum_power_error "<decimal>";
-  NR_admit_change "<string>";
-  enable_subsecond_models "<string>";
-  all_powerflow_delta "<string>";
-  deltamode_timestep "<decimal> ns";
-  current_frequency "<decimal> Hz";
+  market_price_name "<string>";
   master_frequency_update "<string>";
-  enable_frequency_dependence "<string>";
-  default_resistance "<decimal>";
-  enable_inrush "<string>";
-  low_voltage_impedance_level "<decimal>";
-  enable_mesh_fault_current "<string>";
-  convergence_error_handling "{COLLAPSE,IGNORE,FATAL}";
+  maximum_voltage_error <float>;
+  message_flags [QUIET|WARNING|DEBUG|VERBOSE];
+  nominal_frequency <float>;
+  NR_admit_change "<string>";
+  NR_deltamode_iteration_limit <integer>;
+  NR_iteration_limit <integer>;
+  NR_matrix_file "<string>";
+  NR_matrix_output_interval {ALL,PER_CALL,ONCE,NEVER};
+  NR_matrix_output_references "<string>";
+  NR_superLU_procs <integer>;
+  primary_voltage_ratio <float>;
+  repair_time <float>;
+  require_voltage_control "<string>";
+  show_matrix_values "<string>";
+  solver_headers "<string>";
+  solver_method {NR,GS,FBS};
+  solver_ml_config "<string>";
   solver_profile_enable "<string>";
   solver_profile_filename "<string>";
   solver_profile_headers_included "<string>";
-  solver_headers "<string>";
-  solver_ml_config "<string>";
-  market_price_name "<string>";
+  stop_on_pole_failure {TRUE,FALSE};
+  warning_overfrequency <float>;
+  warning_overvoltage <float>;
+  warning_underfrequency <float>;
+  warning_undervoltage <float>;
+  warning_voltageangle <float>;
+  wind_dir_name "<string>";
+  wind_gust_name "<string>";
+  wind_speed_name "<string>";
 }
 ~~~
 
 # Description
 
-TODO
+The powerflow module calculates the voltages and currents on powerflow nodes and links, respectively. The choice of  `solver_method` depends on the network topology and the desired accuracy of the solution. The default solver is the Newton-Raphson solver, which can solve the most general network topology with the highest accuracy.
 
 ## Globals
 
 ### `message_flags`
 
 ~~~
-  message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+  message_flags [QUIET|WARNING|DEBUG|VERBOSE];
 ~~~
 
 Module message control flags
@@ -78,7 +83,7 @@ TODO
 ### `primary_voltage_ratio`
 
 ~~~
-  primary_voltage_ratio "<decimal>";
+  primary_voltage_ratio <float>;
 ~~~
 
 TODO
@@ -86,7 +91,7 @@ TODO
 ### `nominal_frequency`
 
 ~~~
-  nominal_frequency "<decimal>";
+  nominal_frequency <float>;
 ~~~
 
 TODO
@@ -102,7 +107,7 @@ TODO
 ### `geographic_degree`
 
 ~~~
-  geographic_degree "<decimal>";
+  geographic_degree <float>;
 ~~~
 
 TODO
@@ -126,7 +131,7 @@ TODO
 ### `warning_underfrequency`
 
 ~~~
-  warning_underfrequency "<decimal>";
+  warning_underfrequency <float>;
 ~~~
 
 TODO
@@ -134,7 +139,7 @@ TODO
 ### `warning_overfrequency`
 
 ~~~
-  warning_overfrequency "<decimal>";
+  warning_overfrequency <float>;
 ~~~
 
 TODO
@@ -142,7 +147,7 @@ TODO
 ### `warning_undervoltage`
 
 ~~~
-  warning_undervoltage "<decimal>";
+  warning_undervoltage <float>;
 ~~~
 
 TODO
@@ -150,7 +155,7 @@ TODO
 ### `warning_overvoltage`
 
 ~~~
-  warning_overvoltage "<decimal>";
+  warning_overvoltage <float>;
 ~~~
 
 TODO
@@ -158,7 +163,7 @@ TODO
 ### `warning_voltageangle`
 
 ~~~
-  warning_voltageangle "<decimal>";
+  warning_voltageangle <float>;
 ~~~
 
 TODO
@@ -166,7 +171,7 @@ TODO
 ### `maximum_voltage_error`
 
 ~~~
-  maximum_voltage_error "<decimal>";
+  maximum_voltage_error <float>;
 ~~~
 
 TODO
@@ -190,7 +195,7 @@ TODO
 ### `NR_matrix_output_interval`
 
 ~~~
-  NR_matrix_output_interval "{ALL,PER_CALL,ONCE,NEVER}";
+  NR_matrix_output_interval {ALL,PER_CALL,ONCE,NEVER};
 ~~~
 
 TODO
@@ -230,7 +235,7 @@ TODO
 ### `NR_iteration_limit`
 
 ~~~
-  NR_iteration_limit "<integer>";
+  NR_iteration_limit <integer>;
 ~~~
 
 TODO
@@ -238,7 +243,7 @@ TODO
 ### `NR_deltamode_iteration_limit`
 
 ~~~
-  NR_deltamode_iteration_limit "<integer>";
+  NR_deltamode_iteration_limit <integer>;
 ~~~
 
 TODO
@@ -246,7 +251,7 @@ TODO
 ### `NR_superLU_procs`
 
 ~~~
-  NR_superLU_procs "<integer>";
+  NR_superLU_procs <integer>;
 ~~~
 
 TODO
@@ -254,7 +259,7 @@ TODO
 ### `default_maximum_voltage_error`
 
 ~~~
-  default_maximum_voltage_error "<decimal>";
+  default_maximum_voltage_error <float>;
 ~~~
 
 TODO
@@ -262,7 +267,7 @@ TODO
 ### `default_maximum_power_error`
 
 ~~~
-  default_maximum_power_error "<decimal>";
+  default_maximum_power_error <float>;
 ~~~
 
 TODO
@@ -294,7 +299,7 @@ Forces all powerflow objects that are capable to participate in deltamode
 ### `deltamode_timestep`
 
 ~~~
-  deltamode_timestep "<decimal> ns";
+  deltamode_timestep "<float> ns";
 ~~~
 
 Desired minimum timestep for deltamode-related simulations
@@ -302,7 +307,7 @@ Desired minimum timestep for deltamode-related simulations
 ### `current_frequency`
 
 ~~~
-  current_frequency "<decimal> Hz";
+  current_frequency "<float> Hz";
 ~~~
 
 Current system-level frequency of the powerflow system
@@ -326,7 +331,7 @@ Flag to enable frequency-based variations in impedance values of lines and loads
 ### `default_resistance`
 
 ~~~
-  default_resistance "<decimal>";
+  default_resistance <float>;
 ~~~
 
 TODO
@@ -342,7 +347,7 @@ Flag to enable in-rush calculations for lines and transformers in deltamode
 ### `low_voltage_impedance_level`
 
 ~~~
-  low_voltage_impedance_level "<decimal>";
+  low_voltage_impedance_level <float>;
 ~~~
 
 Lower limit of voltage (in per-unit) at which all load types are converted to impedance for in-rush calculations
@@ -358,7 +363,7 @@ Flag to enable mesh-based fault current calculations
 ### `convergence_error_handling`
 
 ~~~
-  convergence_error_handling "{COLLAPSE,IGNORE,FATAL}";
+  convergence_error_handling {COLLAPSE,IGNORE,FATAL};
 ~~~
 
 Flag to handle convergence error
@@ -409,7 +414,47 @@ ML solver configuration file location
   market_price_name "<string>";
 ~~~
 
-TODO
+Sets the name of the market price property to use when access power markets.
+
+### `repair_time`
+
+~~~
+  repair_time <float> h;
+~~~
+
+Specifies the number of hour required to repair a failed power pole. The default is 1 hour.
+
+### `wind_speed_name`
+
+~~~
+  wind_speed_name "<string>";
+~~~
+
+Specifies the name of the climate or weather object property to use for wind speed.  The default is `wind_speed`.
+
+### `wind_dir_name`
+
+~~~
+  wind_dir_name "<string>"l
+~~~
+
+Specifies the name of the climate or weather object property to use for wind direction.  The default is `wind_dir_name`.
+
+### `wind_gust_name`
+
+~~~
+  wind_gust_name "<string>";
+~~~
+
+Specifies the name of the climate or weather object property to use for wind direction.  The default is `wind_dir_name`.
+
+### `stop_on_pole_failure`
+
+~~~
+  stop_on_pole_failure <boolean>;
+~~~
+
+Specifies whether the simulation should stop when a pole fails.
 
 # See also
 
