@@ -1,0 +1,46 @@
+// test_rbsa.glm
+
+#ifexist ../test_rbsa.csv
+#set DIR=..
+#endif
+
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+module powerflow;
+object meter {
+	name "test_meter";
+	phases ABC;
+	nominal_voltage 240 V;
+}
+
+module residential;
+object rbsa {
+	parent "test_meter";
+	floor_area 10 ksf;
+	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Ventilation:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Water_Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Refrigeration:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Plugs:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Appliances:{ZR:0.9;PR:0.1;PI:0.01}";
+	filename "${DIR:-.}/test_rbsa.csv";
+};
+
+module tape;
+object recorder
+{
+	parent "test_meter";
+	file "test_rbsa_meter.csv";
+	interval "1h";
+	property "measured_power_A,measured_power_B,measured_power_C";
+}
+
+#ifexist ../test_rbsa_meter.csv
+#on_exit 0 "diff -q ../test_rbsa_meter.csv test_rbsa_meter.csv"
+#
