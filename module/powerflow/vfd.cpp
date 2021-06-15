@@ -169,7 +169,7 @@ int vfd::init(OBJECT *parent)
 	{
 		voltageLLRating = tNode->nominal_voltage * sqrt(3.0);
 
-		gl_warning("VFD:%d - %s - rated_output_voltage was not set, defaulting to TO node nominal",obj->id,(obj->name ? obj->name : "Unnamed"));
+		warning("VFD:%d - %s - rated_output_voltage was not set, defaulting to TO node nominal",obj->id,(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		The rated_output_voltage was not set for the VFD.  It has been defaulted to the nominal_voltage value of the TO node.
 		*/
@@ -184,7 +184,7 @@ int vfd::init(OBJECT *parent)
 
 		if (temp_diff_value > 0.5)
 		{
-			gl_warning("VFD:%d - %s - rated_output_voltage does not match the TO node nominal voltage",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("VFD:%d - %s - rated_output_voltage does not match the TO node nominal voltage",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The rated_output_voltage does not match the nominal_voltage of the TO node.  This may cause some issues with simulations results.
 			*/
@@ -196,7 +196,7 @@ int vfd::init(OBJECT *parent)
 
 	if (temp_voltage_check < 0.0)
 	{
-		gl_warning("VFD:%d - %s - FROM node nominal_voltage is not equal to or greater than TO node nominal_voltage - implies DC-DC converter!e",obj->id,(obj->name ? obj->name : "Unnamed"));
+		warning("VFD:%d - %s - FROM node nominal_voltage is not equal to or greater than TO node nominal_voltage - implies DC-DC converter!e",obj->id,(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		The from node nominal_voltage is less than the to node nominal_voltage.  This implies an internal DC-DC converter, which is not explicityly modeled.  Efficiency values
 		will not be accurate!
@@ -206,7 +206,7 @@ int vfd::init(OBJECT *parent)
 	//Check the nominal output frequency
 	if (nominal_output_frequency <= 0.0)
 	{
-		gl_warning("VFD:%d - %s - nominal_output_frequency is not set or is negative - defaulting to system nominal",obj->id,(obj->name ? obj->name : "Unnamed"));
+		warning("VFD:%d - %s - nominal_output_frequency is not set or is negative - defaulting to system nominal",obj->id,(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		The nominal_output_frequency variable was not set properly - defaulting to nominal_frequency of the system.
 		 */
@@ -362,7 +362,7 @@ void vfd::CheckParameters()
 	
 	if ((desiredFrequency > 0.0) && (desiredFrequency < 3.0))
 	{
-		gl_warning("VFD:%d - %s - the desired_motor_speed results in a frequency of less than 3.0 Hz",obj->id,(obj->name ? obj->name : "Unnamed"));
+		warning("VFD:%d - %s - the desired_motor_speed results in a frequency of less than 3.0 Hz",obj->id,(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		The desired_motor_speed results in a value that is less than the starting frequency of a typical VFD.  This is high discouraged, since it may
 		not function properly in this range.
@@ -371,7 +371,7 @@ void vfd::CheckParameters()
 
 	if (desiredRPM/ratedRPM <=0.75)
 	{
-		gl_warning("VFD:%d - %s - VFD currently at %f%% of rated speed -- VFDs perform best when running at >= 75 percent output",obj->id,(obj->name ? obj->name : "Unnamed"),(desiredRPM*100/ratedRPM));
+		warning("VFD:%d - %s - VFD currently at %f%% of rated speed -- VFDs perform best when running at >= 75 percent output",obj->id,(obj->name ? obj->name : "Unnamed"),(desiredRPM*100/ratedRPM));
 		/*  TROUBLESHOOT
 		Recommended to run a VFD at 75%.  Lower values are not recommended and can result in odd behavior
 		*/

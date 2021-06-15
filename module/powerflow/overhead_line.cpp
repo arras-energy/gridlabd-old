@@ -435,7 +435,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 					
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
+					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					While attempting to calculate the shunt capacitance for an overhead line, an invalid parameter was encountered.
 					To calculate shunt capacitance, ensure the condutor to earth distance for each phase is defined, as well as the
@@ -520,7 +520,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 					
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
+					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_bb = p_bc = p_bn = 0.0;
@@ -576,7 +576,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
+					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_cc = p_cn = 0.0;
@@ -606,7 +606,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
+					warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_nn = 0.0;
@@ -771,7 +771,7 @@ void overhead_line::recalc(void)
 	}
 	
 	if(neg_res == true){
-		gl_warning("INIT: overhead_line:%s has a negative resistance in it's impedance matrix. This will result in unusual behavior. Please check the line's geometry and cable parameters.", obj->name);
+		warning("INIT: overhead_line:%s has a negative resistance in it's impedance matrix. This will result in unusual behavior. Please check the line's geometry and cable parameters.", obj->name);
 		/*  TROUBLESHOOT
 		A negative resistance value was found for one or more the real parts of the overhead_line's impedance matrix.
 		While this is numerically possible, it is a physical impossibility. This resulted most likely from a improperly 

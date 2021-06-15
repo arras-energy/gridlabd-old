@@ -131,7 +131,7 @@ int ZIPload::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("zipload::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("zipload::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -140,7 +140,7 @@ int ZIPload::init(OBJECT *parent)
 
 	if (demand_response_mode == true)
 	{
-		gl_warning("zipload_init: The demand response zipload is an experimental model at this time.");
+		warning("zipload_init: The demand response zipload is an experimental model at this time.");
 		/*  TROUBLESHOOT
 		The warning is pretty obvious.  However, over time, we will be developing this model further.  If you have any questions 
 		about it, please see the Matlab files found in ../design/dr_model/ or read the paper titled "On the Equilibrium Dynamics of Demand Response"
@@ -171,7 +171,7 @@ int ZIPload::init(OBJECT *parent)
 				drm.nbins = L;
 			else
 			{
-				gl_warning("zipload_init: Using a value for thermostatic_control_range (L) greater than 50 may cause some instabilities.");
+				warning("zipload_init: Using a value for thermostatic_control_range (L) greater than 50 may cause some instabilities.");
 				/*  TROUBLESHOOT
 				This warning is shown only as a reminder.  Large values of L (thermostatic_control_range) can cause instabilities for some
 				combinations of ron and roff.  If you receive inderminant numbers as part of the solution, try reducing L.
@@ -204,7 +204,7 @@ int ZIPload::init(OBJECT *parent)
 			{
 				roff = phi/(1-phi);
 				ron = 1;
-				gl_warning("ron or roff was not set.  Using phi to calculate.  Step changes in demand rates as a function of time will be ignored.");
+				warning("ron or roff was not set.  Using phi to calculate.  Step changes in demand rates as a function of time will be ignored.");
 				/*  TROUBLESHOOT
 				Ideally, in the method currently being used, ron and roff (heating and cooling rates) should be used to calculate phi.
 				If you receive this error, the phi is being used to calculate ron and roff initially.  However, phi does not update  
@@ -218,7 +218,7 @@ int ZIPload::init(OBJECT *parent)
 			{
 				roff = 1;
 				ron = (1-phi)/phi;
-				gl_warning("ron or roff was not set.  Using phi to calculate. Step changes in demand rates as a function of time will be ignored.");
+				warning("ron or roff was not set.  Using phi to calculate. Step changes in demand rates as a function of time will be ignored.");
 				/*  TROUBLESHOOT
 				Ideally, in the method currently being used, ron and roff (heating and cooling rates) should be used to calculate phi.
 				If you receive this error, the phi is being used to calculate ron and roff initially.  However, phi does not update  

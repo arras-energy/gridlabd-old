@@ -52,7 +52,6 @@ HASH hash(OBJECTNAME name);
 #define OF_WARNING		0x00020000  /**< Object flag; disables warning messages from the object */
 #define OF_DEBUG		0x00040000  /**< Object flag; disables debug messages from the object */
 #define OF_VERBOSE		0x00080000  /**< Object flag; disables verbose messages from the object */
-#define OF_SILENT		0x000f0000	/**< Object flag; disables all messages from the object */
 
 typedef struct s_headerdata
 {
