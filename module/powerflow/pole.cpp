@@ -39,6 +39,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
 			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
 			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
+			PT_double, "wind_pressure[ft/lb/lb]", PADDR(wind_pressure), PT_DESCRIPTION, "wind pressure on pole",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
@@ -169,7 +170,7 @@ int pole::init(OBJECT *parent)
 		* config->strength_factor_250b_wood 
 		* config->fiber_strength
 		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
-	gl_verbose("resisting moment %.0f ft*lb",resisting_moment);
+	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;
@@ -186,17 +187,17 @@ int pole::init(OBJECT *parent)
 			line_configuration *line_config = OBJECTDATA(line->configuration,line_configuration);
 			if ( line_config == NULL )
 			{
-				gl_warning("line %s has no line configuration--skipping",line->get_name());
+				warning("line %s has no line configuration--skipping",line->get_name());
 				break;
 			}
 			line_spacing *spacing = OBJECTDATA(line_config->line_spacing,line_spacing);
 			if ( spacing == NULL )
 			{
-				gl_warning("line configure %s has no line spacing data--skipping",line_config->get_name());
+				warning("line configure %s has no line spacing data--skipping",line_config->get_name());
 				break;
 			}
 			if ( line->length == 0.0 )
-				gl_warning("wire has no length--wire moment will not be calculated");
+				warning("wire has no length--wire moment will not be calculated");
 			overhead_line_conductor *phaseA = OBJECTDATA(line_config->phaseA_conductor,overhead_line_conductor);
 			if ( phaseA != NULL )
 				add_wire(line,spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
@@ -209,12 +210,12 @@ int pole::init(OBJECT *parent)
 			overhead_line_conductor *phaseN = OBJECTDATA(line_config->phaseN_conductor,overhead_line_conductor);
 			if ( phaseN != NULL )
 				add_wire(line,spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
-			gl_verbose("found link %s",(const char*)(line->get_name()));
+			verbose("found link %s",(const char*)(line->get_name()));
 		}
 	}
 	if ( wire_data == NULL )
 	{
-		gl_warning("no wire data found--wire loading is not included");
+		warning("no wire data found--wire loading is not included");
 	}
 	is_deadend = ( n_lines < 2 );
 
@@ -238,12 +239,12 @@ int pole::init(OBJECT *parent)
 	pole_stress_polynomial_c = wire_tension;
 
 	if ( install_year > gl_globalclock )
-		gl_warning("pole install year in the future are assumed to be current time");
+		warning("pole install year in the future are assumed to be current time");
 
 	return 1;
 }
 
-TIMESTAMP pole::presync(TIMESTAMP t0)
+TIMESTAMP pole::sync(TIMESTAMP t0)
 {
 	// update pole degradation model
 	if ( install_year > 0 )
@@ -273,7 +274,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		{
 			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
 		}
-		gl_debug("pole repaired");
+		debug("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
@@ -308,12 +309,12 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
-		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%", 
+		verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%", 
 			(const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
 		{
-			gl_debug("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
+			debug("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
 			down_time = gl_globalclock;
 			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 			{
@@ -329,14 +330,14 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 	
-	TIMESTAMP t1 = node::presync(t0);
+	TIMESTAMP t1 = node::sync(t0);
 	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
 }
 
-TIMESTAMP pole::sync(TIMESTAMP t0)
+TIMESTAMP pole::presync(TIMESTAMP t0)
 {
-	return node::sync(t0);
+	return node::presync(t0);
 }
 
 TIMESTAMP pole::postsync(TIMESTAMP t0)

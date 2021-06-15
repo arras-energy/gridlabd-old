@@ -3,6 +3,7 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-check
 bin_SCRIPTS += gldcore/scripts/gridlabd-compare
 bin_SCRIPTS += gldcore/scripts/gridlabd-contributors
 bin_SCRIPTS += gldcore/scripts/gridlabd-convert
+bin_SCRIPTS += gldcore/scripts/gridlabd-geodata
 bin_SCRIPTS += gldcore/scripts/gridlabd-git
 bin_SCRIPTS += gldcore/scripts/gridlabd-help
 bin_SCRIPTS += gldcore/scripts/gridlabd-json-get
@@ -17,3 +18,5 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-trace
 bin_SCRIPTS += gldcore/scripts/gridlabd-validate
 bin_SCRIPTS += gldcore/scripts/gridlabd-version
 bin_SCRIPTS += gldcore/scripts/gridlabd-weather
+
+python_requirements += gldcore/scripts/requirements.txt

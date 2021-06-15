@@ -68,6 +68,7 @@ static PyObject *pBranchtags = NULL;
 static PyObject *pBranchdata = NULL;
 static PyObject *pLearndata = NULL;
 static PyObject *pKwargs = NULL;
+static double topology_hash_resolution = 0.00001; // sensitivity of topology change hashcode
 
 FILE *SolverTimer::fp = NULL;
 
@@ -85,9 +86,9 @@ void solver_python_log(int level, const char *format, ...)
 }
 
 void set_dict_value (
-	PyObject *pObject, 
-	const char *name, 
-	PyObject *pValue, 
+	PyObject *pObject,
+	const char *name,
+	PyObject *pValue,
 	bool incref=true)
 {
 	PyObject *pOld = PyDict_GetItemString(pObject,name);
@@ -99,15 +100,15 @@ void set_dict_value (
 		}
 		PyDict_SetItemString(pObject,name,pValue);
 		if ( incref )
-		{	
+		{
 			Py_INCREF(pValue);
 		}
 	}
 }
 
 void set_dict_value (
-	PyObject *pObject, 
-	const char *name, 
+	PyObject *pObject,
+	const char *name,
 	long value)
 {
 	PyObject *pValue = PyLong_FromLong(value);
@@ -115,8 +116,8 @@ void set_dict_value (
 }
 
 void set_dict_value (
-	PyObject *pObject, 
-	const char *name, 
+	PyObject *pObject,
+	const char *name,
 	double value)
 {
 	PyObject *pValue = PyFloat_FromDouble(value);
@@ -132,7 +133,7 @@ void init_kwargs(void)
 }
 
 SOLVERPYTHONSTATUS solver_python_config (
-	const char *localconfig = NULL, 
+	const char *localconfig = NULL,
 	const char *shareconfig = CONFIGPATH CONFIGNAME)
 {
 	const char *configname = localconfig ? localconfig : (const char*)solver_py_config;
@@ -218,23 +219,28 @@ SOLVERPYTHONSTATUS solver_python_config (
 				else if ( strcmp(tag,"busdata") == 0 )
 				{
 					python_busdata = strdup(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): python_busdata = '%s'",configname,python_busdata);					
+					solver_python_log(1,"solver_python_config(configname='%s'): python_busdata = '%s'",configname,python_busdata);
 				}
 				else if ( strcmp(tag,"branchdata") == 0 )
 				{
 					python_branchdata = strdup(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): python_branchdata = '%s'",configname,python_branchdata);					
+					solver_python_log(1,"solver_python_config(configname='%s'): python_branchdata = '%s'",configname,python_branchdata);
 				}
 				else if ( strcmp(tag,"learndata") == 0 )
 				{
 					python_learndata = strdup(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): python_learndata = '%s'",configname,python_learndata);					
+					solver_python_log(1,"solver_python_config(configname='%s'): python_learndata = '%s'",configname,python_learndata);
 				}
 				else if ( strcmp(tag,"profiler") == 0 )
 				{
 					SolverTimer::open(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): profiler = '%s'",configname,value);					
+					solver_python_log(1,"solver_python_config(configname='%s'): profiler = '%s'",configname,value);
 				}
+                else if ( strcmp(tag,"topology_hash_resolution") == 0 )
+                {
+                    topology_hash_resolution = atof(value);
+                    solver_python_log(1,"solver_python_config(configname='%s'): topology_hash_resolution = '%lg'",configname,topology_hash_resolution);
+                }
 				else if ( strcmp(tag,"option") == 0 )
 				{
 					char lhs[1024], rhs[1024];
@@ -248,7 +254,7 @@ SOLVERPYTHONSTATUS solver_python_config (
 						}
 						else
 						{
-							solver_python_log(1,"solver_python_config(configname='%s'): option %s=%s ok",configname,lhs,rhs);					
+							solver_python_log(1,"solver_python_config(configname='%s'): option %s=%s ok",configname,lhs,rhs);
 						}
 					}
 					else
@@ -344,7 +350,7 @@ void init_branchtags(void)
 		python_branchtags[n] = strdup(tags,',',&tags);
 	}
 	if ( pBranchtags == NULL )
-	{	
+	{
 		pBranchtags = PyDict_New();
 	}
 }
@@ -610,9 +616,9 @@ void ref_to_ang(void *x, void *c, bool inverse)
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
 #define DATA(S,T,X,D,C) 		{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C}
-#define DATA_R(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::DOUBLE,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
-#define DATA_X(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PDOUBLE,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
-#define DATA_C(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PCOMPLEX,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA_R(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::DOUBLE,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA_X(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PDOUBLE,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA_C(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PCOMPLEX,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define THREEPHASE_R(B,X,D) \
 	DATA_R(B,#X "A",X,[0],D,NULL), \
 	DATA_R(B,#X "B",X,[1],D,NULL), \
@@ -673,7 +679,7 @@ static struct s_map
 	} type;
 	bool is_ref;
 	int64 ref_offset;
-} busmap[] = 
+} busmap[] =
 {
 	DATA(bus,"name",name,ED_INIT,char_to_str),
 	DATA(bus,"type",type,ED_INIT,int_to_double),
@@ -701,7 +707,7 @@ static struct s_map
 	THREEPHASE_N(bus,Jacob_B,ED_OUT),
 	THREEPHASE_N(bus,Jacob_C,ED_OUT),
 	THREEPHASE_N(bus,Jacob_D,ED_OUT),
-}, branchmap[] = 
+}, branchmap[] =
 {
 	DATA(branch,"phases",phases,ED_OUT,uchar_to_double),
 	DATA(branch,"origphases",origphases,ED_INIT,uchar_to_double),
@@ -741,7 +747,7 @@ void sync_property(PyObject *data, size_t n, void *ptr, void (*convert)(void*,vo
 	{
 		if ( convert == char_to_str )
 		{
-			if ( pValue == NULL ) 
+			if ( pValue == NULL )
 			{
 				if ( ptr )
 				{
@@ -845,7 +851,7 @@ void sync_none(PyObject *data, size_t n, bool inverse)
 void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
 {
 	if ( dir & map->dir )
-	{	
+	{
 		if ( map->offset >= 0 && map->offset < map->size )
 		{
 			void *ptr = (void*)((char*)source + map->offset);
@@ -1008,14 +1014,34 @@ static PyObject *sync_model(
 	return pModel;
 }
 
+unsigned long long get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, bool changed=true)
+{
+    static unsigned long long hashcode = 0;
+    if ( changed )
+    {
+        static unsigned long long A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
+        hashcode = 18443;
+        for ( unsigned int n = 0 ; n < branch_count ; n++ )
+        {
+            #define CODE(x) (int64)(x/topology_hash_resolution)
+            #define HASH(x) hashcode=((hashcode*A)^(CODE(x[0].r)*B));hashcode=((hashcode*A)^(CODE(x[1].r)*B)),hashcode=((hashcode*A)^(CODE(x[2].r)*B));hashcode=((hashcode*A)^(CODE(x[0].i)*B));hashcode=((hashcode*A)^(CODE(x[1].i)*B)),hashcode=((hashcode*A)^(CODE(x[2].i)*B));
+            HASH(branch[n].Yfrom)
+            HASH(branch[n].Yto)
+            HASH(branch[n].YSfrom)
+            HASH(branch[n].YSto)
+    	}
+    }
+    return hashcode;
+}
+
 int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
 	unsigned int &branch_count,
 	BRANCHDATA *&branch,
-	NR_SOLVER_STRUCT *powerflow_values, 
-	NRSOLVERMODE powerflow_type , 
-	NR_MESHFAULT_IMPEDANCE *mesh_imped_values, 
+	NR_SOLVER_STRUCT *powerflow_values,
+	NRSOLVERMODE powerflow_type ,
+	NR_MESHFAULT_IMPEDANCE *mesh_imped_values,
 	bool *bad_computations,
 	int64 &iterations)
 {
@@ -1025,6 +1051,8 @@ int solver_python_solve (
 	{
 		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
 		PyObject *pResult = NULL;
+        extern bool NR_admit_change;
+        PyDict_SetItemString(pModel,"topology_hashcode",PyLong_FromLong(get_linkhash(branch_count,branch,NR_admit_change)));
 		if ( ! python_call(pModule,(void*)&pResult,"solve","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
@@ -1062,7 +1090,7 @@ PyObject *check_dict(PyObject *pObj,const char *name)
 	if ( pDict == NULL )
 	{
 		pDict = PyDict_New();
-		PyDict_SetItemString(pObj,name,pDict); 
+		PyDict_SetItemString(pObj,name,pDict);
 	}
 	return pDict;
 }
@@ -1233,7 +1261,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 			PyObject *pCols = PyList_New(0);
 			PyDict_SetItemString(pData,"cols",pCols);
 			for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
-			{ 
+			{
 				if ( powerflow_values->Y_Amatrix->cols[n] == NULL )
 				{
 					continue;
@@ -1318,12 +1346,12 @@ PyObject *sync_solution(
 
 void solver_python_learn (
 	unsigned int bus_count,
-	BUSDATA *bus, 
-	unsigned int branch_count, 
-	BRANCHDATA *branch, 
-	NR_SOLVER_STRUCT *powerflow_values, 
-	NRSOLVERMODE powerflow_type , 
-	NR_MESHFAULT_IMPEDANCE *mesh_imped_values, 
+	BUSDATA *bus,
+	unsigned int branch_count,
+	BRANCHDATA *branch,
+	NR_SOLVER_STRUCT *powerflow_values,
+	NRSOLVERMODE powerflow_type ,
+	NR_MESHFAULT_IMPEDANCE *mesh_imped_values,
 	bool *bad_computations,
 	int64 iterations)
 {
@@ -1362,7 +1390,7 @@ void solver_dump(unsigned int &bus_count,
 		if ( c&0x02 ) strcat(phases[c],"B"); // phase B
 		if ( c&0x01 ) strcat(phases[c],"C"); // phase C
 		if ( c&0x08 ) strcat(phases[c],"D"); // delta
-		if ( c&0x10 ) strcat(phases[c],"Z"); // different children	
+		if ( c&0x10 ) strcat(phases[c],"Z"); // different children
 		if ( c&0x40 ) strcat(phases[c],"H"); // house connected node
 	}
 	//
@@ -1406,8 +1434,8 @@ void solver_dump(unsigned int &bus_count,
 		fprintf(fh,"%d,%s,%s,%s,%s,%s,"
 			// Vbase and MVAbase
 			"%g,%g,"
-#define POLAR(X) "%g,%g,%g,%g,%g,%g," 
-#define RECT(X) "%g,%g,%g,%g,%g,%g," 
+#define POLAR(X) "%g,%g,%g,%g,%g,%g,"
+#define RECT(X) "%g,%g,%g,%g,%g,%g,"
 #define DELIM ""
 #include "solver_ml_branchdump.h"
 #undef POLAR

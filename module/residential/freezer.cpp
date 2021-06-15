@@ -108,19 +108,19 @@ int freezer::create()
 	// name of enduse
 	load.name = oclass->name;
 
-	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
+	warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 
 	return res;
 }
 
 int freezer::init(OBJECT *parent)
 {
-	gl_warning("This device, %s, is considered very experimental and has not been validated.", get_name());
+	warning("This device, %s, is considered very experimental and has not been validated.", get_name());
 
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("freezer::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("freezer::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -198,7 +198,7 @@ TIMESTAMP freezer::presync(TIMESTAMP t0, TIMESTAMP t1)
 			Tair = (Tair-C2)*exp(-nHours/C1)+C2;
 		}
 		if (Tair < 0 || Tair > 32){
-			gl_warning("freezer air temperature out of control");
+			warning("freezer air temperature out of control");
 			// was exception, now semi-valid with power outages
 		}
 		last_time = t1;
@@ -256,7 +256,7 @@ TIMESTAMP freezer::sync(TIMESTAMP t0, TIMESTAMP t1)
 	load.total = Qr * KWPBTUPH * COP;
 
 	if(pCircuit->pV->Mag() < (120.0 * 0.6) ){ /* stall voltage */
-		gl_verbose("freezer motor has stalled");
+		verbose("freezer motor has stalled");
 		motor_state = S_OFF;
 		Qr = 0;
 		return TS_NEVER;
