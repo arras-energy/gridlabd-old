@@ -17,22 +17,30 @@ object meter {
 	nominal_voltage 240 V;
 }
 
-module residential;
-object rbsa {
+module residential
+{
+	message_flags VERBOSE|DEBUG;
+}
+object rbsa 
+{
 	parent "test_meter";
 	floor_area 10 ksf;
+	filename "${DIR:-.}/test_rbsa.csv";
 	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Ventilation:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Water_Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "WaterHeating:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Refrigeration:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Plugs:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "InteriorLighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Miscellaneous:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Appliances:{ZR:0.9;PR:0.1;PI:0.01}";
-	filename "${DIR:-.}/test_rbsa.csv";
-};
+	flags VERBOSE|DEBUG;
+}
 
-module tape;
+module tape
+{
+	csv_header_type NAME;
+}
 object recorder
 {
 	parent "test_meter";
