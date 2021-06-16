@@ -274,11 +274,13 @@ class Callback
 public:
     inline Callback(const char *str) 
     { 
-        IN_MYCONTEXT output_debug("entering python:%s...",str); name = str; 
+        IN_MYCONTEXT output_debug("entering python:%s...",str); 
+        name = str; 
     };
     inline ~Callback(void) 
     { 
-        IN_MYCONTEXT output_debug("exiting python:%s...",name); name = NULL; 
+        IN_MYCONTEXT output_debug("exiting python:%s...",name); 
+        name = NULL; 
     };
     static inline bool is_active(void) 
     { 
