@@ -92,25 +92,36 @@ rbsa::RBSADATA * rbsa::add_enduse(const char *filename, const char *enduse)
 }
 rbsa::RBSADATA * rbsa::add_enduse(RBSADATA *repo, const char *enduse)
 {
-	while ( repo->next_enduse != NULL && repo->enduse != NULL )
+	if ( find_enduse(repo,enduse) != NULL )
 	{
-		repo = repo->next_enduse;
+		gl_debug("enduse %s already exists", enduse);
+		return repo;
 	}
-	if ( repo->enduse != NULL ) // this is aleady in use
+	else if ( repo->enduse == NULL )
 	{
+		repo->enduse = strdup(enduse);
+		return repo;
+	}
+	else if ( repo->next_enduse == NULL )
+	{
+		// gl_debug("adding %s after %s", enduse, repo->enduse);
 		RBSADATA *item = (RBSADATA*)malloc(sizeof(RBSADATA));
 		memset((void*)item,0,sizeof(RBSADATA));
 		item->filename = repo->filename;
 		item->next_file = repo->next_file;
+		item->enduse = strdup(enduse);
+		item->next_enduse = repo->next_enduse;
 		repo->next_enduse = item;
-		repo = item;
+		return item;
 	}
-	repo->enduse = strdup(enduse);
-	return repo;
+	else
+	{
+		return add_enduse(repo->next_enduse,enduse);
+	}	
 }
-rbsa::RBSADATA *rbsa::get_first_enduse(const char *filename)
+rbsa::RBSADATA *rbsa::get_first_enduse(const char *filename=NULL)
 {
-	RBSADATA *repo = find_file(filename);
+	RBSADATA *repo = filename ? find_file(filename) : get_first_file();
 	return repo;
 }
 rbsa::RBSADATA *rbsa::get_next_enduse(RBSADATA *repo)
@@ -124,15 +135,17 @@ rbsa::RBSADATA *rbsa::find_enduse(const char *filename, const char *enduse)
 }
 rbsa::RBSADATA *rbsa::find_enduse(RBSADATA *repo, const char *enduse)
 {
-	while ( repo != NULL )
+	for ( RBSADATA *item = repo ; item != NULL ; item = item->next_enduse )
 	{
-		if ( strcmp(repo->enduse,enduse) == 0 )
+		// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> testing %s",repo,enduse,item->enduse);
+		if ( item->enduse != NULL && strcmp(item->enduse,enduse) == 0 )
 		{
-			break;
+			// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> 0x%x",repo,enduse,item);
+			return item;
 		}
-		repo = repo->next_enduse;
 	}
-	return repo;
+	// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> NULL",repo,enduse);
+	return NULL;
 }
 size_t rbsa::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
 {
@@ -203,6 +216,7 @@ rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition
 	if ( e == NULL )
 	{
 		warning("unable to add composition '%s' -- enduse '%s' not found",composition,enduse);
+		debug("add_component(enduse='%s',composition='%s') --> NULL",enduse,composition);
 		return NULL;	
 	}
 
@@ -236,6 +250,7 @@ rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition
 	components = c;
 Done:
 	free(buffer);
+	debug("add_component(enduse='%s',composition='%s') --> 0x%x",enduse,composition,c);
 	return c;
 Error:
 	free(c);
@@ -245,7 +260,9 @@ Error:
 bool rbsa::set_component(const char *enduse, const char *term, double value)
 {
 	COMPONENT *c = find_component(enduse);
-	return c ? set_component(c,term,value) : false;
+	bool result = c ? set_component(c,term,value) : false;
+	debug("set_component(enduse='%s',term='%s',value=%g) --> %s", enduse, term, value, result ? "true" : "false");
+	return result;
 }
 bool rbsa::set_component(COMPONENT *component, const char *term, double value)
 {
@@ -317,6 +334,7 @@ rbsa::COMPONENT *rbsa::find_component(const char *enduse)
 			break;
 		}
 	}
+	debug("find_component(enduse='%s') --> 0x%x", enduse, c);
 	return c;
 }
 
@@ -538,11 +556,11 @@ int rbsa::composition(char *buffer, size_t len)
 			error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",buffer);
 			return 0;
 		}
-		if ( find_component(enduse) )
-		{
-			error("composition '%s' has already been specified",enduse);
-			return 0;
-		}
+		// if ( find_component(enduse) )
+		// {
+		// 	error("composition '%s' has already been specified",enduse);
+		// 	return 0;
+		// }
 		add_component(enduse,composition);
 		return 1; 
 	}
@@ -616,7 +634,7 @@ int rbsa::filename(char *filename, size_t len)
 	size_t max_column = 0;
 	memset(map,0,sizeof(map));
 	size_t daytype_ndx = 0;
-	size_t enduse_ndx = 0;
+	int enduse_ndx = -1;
 	while ( (item=strtok_r(last?NULL:header,",\r\n",&last)) != NULL )
 	{
 		if ( max_column >= MAXDATA )
@@ -646,9 +664,10 @@ int rbsa::filename(char *filename, size_t len)
 		{
 			map[max_column].type = DT_REAL;
 			map[max_column].format = "%lg";
-			if ( enduse_ndx == 0 )
+			if ( enduse_ndx == -1 )
 				enduse_ndx = max_column;
 			map[max_column].data = add_enduse(data,item);
+			// debug("%s: added enduse %s to column %d", filename, item, max_column);
 		}
 		max_column++;
 		if ( last == NULL ) 
@@ -657,6 +676,10 @@ int rbsa::filename(char *filename, size_t len)
 		}
 	}
 	debug("%s: found %d columns", filename, max_column);
+	if ( enduse_ndx == -1 )
+	{
+		warning("%s: no enduse data found", filename);
+	}
 
 	// load records
 	char line[1024];
@@ -730,5 +753,27 @@ int rbsa::filename(char *filename, size_t len)
 		verbose("%d records loaded from file '%s'", count, (const char*)filename);
 	}
 	fclose(fp);
+
+	// debug("RBSA data dump follows...");
+	// for ( RBSADATA *file = data ; file != NULL ; file = file->next_file)
+	// {
+	// 	debug("\tFilename: %s",file->filename);
+	// 	for ( RBSADATA *enduse = file ; enduse != NULL ; enduse = enduse->next_enduse )
+	// 	{
+	// 		debug("\t\tEnduse: %s",enduse->enduse);
+	// 		for ( unsigned int month = 0 ; month < 12 ; month++)
+	// 		{
+	// 			// debug("\t\t\tMonth: %u", month);
+	// 			// for (unsigned int daytype = 0 ; daytype < _DT_SIZE ; daytype++ )
+	// 			// {
+	// 			// 	debug("\t\t\t\tDaytype: %u", daytype);
+	// 			// 	// for (unsigned int hour = 0 ; hour < 24 ; hour++ )
+	// 			// 	// {
+	// 			// 	// 	debug("\t\t\t\t\tHour %u: %g", hour, enduse->data[hour]);
+	// 			// 	// }
+	// 			// }
+	// 		}
+	// 	}
+	// }
 	return 1;
 }
