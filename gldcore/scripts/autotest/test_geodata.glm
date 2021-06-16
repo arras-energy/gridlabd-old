@@ -1,4 +1,5 @@
 // test geodata create and merge directives
+#set echo=TRUE
 
 #ifexist "../path_example.csv"
 #define DIR=..
@@ -13,8 +14,8 @@
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k position
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k location
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k latitude,longitude
-#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name 
-#geodata create name=obj2+latitude=37.4205+longitude=-122.2046 name=obj3+latitude=37.5205+longitude=-122.3046 -k name 
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name
+#geodata create name=obj2+latitude=37.4205+longitude=-122.2046 name=obj3+latitude=37.5205+longitude=-122.3046 -k name
 
 // geodata merge distance from pipe
 #geodata create name=obj4+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance

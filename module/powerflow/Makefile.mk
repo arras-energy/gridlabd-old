@@ -1,4 +1,4 @@
-pkglib_LTLIBRARIES += module/powerflow/powerflow.la 
+pkglib_LTLIBRARIES += module/powerflow/powerflow.la
 
 module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
@@ -40,6 +40,7 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/overhead_line_conducto
 module_powerflow_powerflow_la_SOURCES += module/powerflow/overhead_line.cpp module/powerflow/overhead_line.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/pole.h module/powerflow/pole.cpp
 module_powerflow_powerflow_la_SOURCES += module/powerflow/pole_configuration.h module/powerflow/pole_configuration.cpp
+module_powerflow_powerflow_la_SOURCES += module/powerflow/pole_mount.h module/powerflow/pole_mount.cpp
 module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow.cpp module/powerflow/powerflow.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_library.cpp module/powerflow/powerflow_library.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_object.cpp module/powerflow/powerflow_object.h

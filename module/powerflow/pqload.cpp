@@ -180,11 +180,11 @@ int pqload::init(OBJECT *parent){
 		if (climates==NULL)
 		{
 			not_found = 1;
-			gl_warning("pqload: no climate data found");
+			warning("pqload: no climate data found");
 		}
 		else if (climates->hit_count>1)
 		{
-			gl_warning("pqload: %d climates found, using first one defined", climates->hit_count);
+			warning("pqload: %d climates found, using first one defined", climates->hit_count);
 		}
 	}
 	if (climates!=NULL)

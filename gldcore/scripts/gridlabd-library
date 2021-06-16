@@ -117,7 +117,7 @@ function fetch_index()
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION library archive from ${GITPROJ}... "
 #		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.glm$' > $INDEX || rm -f $INDEX
-		curl -s $GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index >$INDEX
+		curl -sL $GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index >$INDEX
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "library files found"
 	fi
 	if [ ! -f $INDEX ]; then
@@ -220,10 +220,10 @@ function get()
 	for f in $(export FORMAT=default; index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
+			(curl -sL $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
 		else
 			echo -n "Refreshing $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to refresh $f")
+			(curl -sL $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to refresh $f")
 		fi
 	done
 }

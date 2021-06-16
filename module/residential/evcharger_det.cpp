@@ -113,7 +113,7 @@ int evcharger_det::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("evcharger_det::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("evcharger_det::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -157,7 +157,7 @@ int evcharger_det::init(OBJECT *parent)
 	if (glob_min_timestep > 1)					//Now check us
 	{
 		off_nominal_time=true;					//Set flag
-		gl_verbose("evcharger_det:%s - minimum_timestep set - problems may emerge",hdr->name);
+		verbose("evcharger_det:%s - minimum_timestep set - problems may emerge",hdr->name);
 		/*  TROUBLESHOOT
 		The evcharger detected that the forced minimum timestep feature is enabled.  This may cause
 		issues with the evcharger schedule, especially if arrival/departure times are shorter than a
@@ -171,7 +171,7 @@ int evcharger_det::init(OBJECT *parent)
 	{
 		if (load.config != EUC_IS220)
 		{
-			gl_warning("evcharger_det:%s - The max charge rate is over 1.7 kW (Level 1), but the load is still 110-V connected.",hdr->name ? hdr->name : "unnamed");
+			warning("evcharger_det:%s - The max charge rate is over 1.7 kW (Level 1), but the load is still 110-V connected.",hdr->name ? hdr->name : "unnamed");
 			/*  TROUBLESHOOT
 			The evcharger_det maximum_charge_rate implies a level 2 or higher charge rate, but it still set up to be connected as a normal level 1 110/120 VAC device.
 			This may cause issues with circuit breakers tripping.  If this is undesired, be sure to specify the proper configuration property.
@@ -193,7 +193,7 @@ int evcharger_det::init(OBJECT *parent)
 	//See if it is bigger
 	if (temp_amps > load.breaker_amps)
 	{
-		gl_warning("evcharger_det:%s - the breaker rating may be too low for this maximum charge rate.",hdr->name ? hdr->name : "unnamed");
+		warning("evcharger_det:%s - the breaker rating may be too low for this maximum charge rate.",hdr->name ? hdr->name : "unnamed");
 		/*  TROUBLESHOOT
 		The evcharger_det maximum_charge_rate and configuration calculated a maximum breaker current that may be above the current setting.
 		This may cause the breaker to trip and affect simulation results.  If this is undesired, set the breaker_amps property to a higher value.
@@ -212,7 +212,7 @@ int evcharger_det::init(OBJECT *parent)
 		//Make sure we have what appears to be a valid index
 		if (VehicleLocation==0)
 		{
-			gl_warning("Vehicle location not set, using defaults");
+			warning("Vehicle location not set, using defaults");
 			/*  TROUBLESHOOT
 			The value for vehicle_index was not set, so a read of the NHTS file was not even attempted.
 			A set of default values will be used instead.
@@ -226,7 +226,7 @@ int evcharger_det::init(OBJECT *parent)
 			//Make sure it worked
 			if (FPTemp == NULL)
 			{
-				gl_warning("NHTS data file not found, using defaults");
+				warning("NHTS data file not found, using defaults");
 				/*  TROUBLESHOOT
 				The formatted .CSV file of NHTS (or NHTS-like) data was not found.
 				A set of default values will be used instead.
@@ -558,7 +558,7 @@ int evcharger_det::init(OBJECT *parent)
 	}
 	else
 	{
-		gl_warning("NHTS data file not found, using defaults");
+		warning("NHTS data file not found, using defaults");
 		//Defined above
 	}
 
@@ -575,7 +575,7 @@ int evcharger_det::init(OBJECT *parent)
 	//See if home first
 	//temp_hours_curr = (double)(int)(CarInformation.HomeArrive/100);
 	temp_hours_curr = floor(CarInformation.HomeArrive / 100);
-	//gl_verbose("INIT: temp_hours_curr (HomeArrive) = %0.4f.", temp_hours_curr);
+	//verbose("INIT: temp_hours_curr (HomeArrive) = %0.4f.", temp_hours_curr);
 	temp_hours_curr_two = (CarInformation.HomeArrive - temp_hours_curr*100) / 60.0;
 	temp_hours_A = temp_hours_curr + temp_hours_curr_two;									//Home Arrive
 	temp_hours_B = temp_hours_A + CarInformation.HomeDuration/3600.0;						//Home Depart
@@ -594,7 +594,7 @@ int evcharger_det::init(OBJECT *parent)
 
 	//temp_hours_curr = (double)(int)(CarInformation.WorkArrive/100);
 	temp_hours_curr = floor(CarInformation.WorkArrive/100);
-	//gl_verbose("INIT: temp_hours_curr (WorkArrive) = %0.4f.", temp_hours_curr);
+	//verbose("INIT: temp_hours_curr (WorkArrive) = %0.4f.", temp_hours_curr);
 	temp_hours_curr_two = (CarInformation.WorkArrive - temp_hours_curr*100) / 60.0;
 	temp_hours_C = temp_hours_curr + temp_hours_curr_two;									//Work Arrive
 	temp_hours_D = temp_hours_C + CarInformation.WorkDuration/3600.0;						//Work Depart
@@ -636,7 +636,7 @@ int evcharger_det::init(OBJECT *parent)
 	//temp_hours_curr = temp_date.hour + temp_date.minute/60.0;//POSSIBLE PROBLEM HERE********************************************************************************************************
 	temp_hours_curr = ((double)(temp_date.hour)) + (((double)(temp_date.minute))/60.0) + (((double)(temp_date.second))/3600.0);
 	temp_sec_curr = ((double)(temp_date.hour))*3600.0 + ((double)(temp_date.minute))*60.0 + ((double)(temp_date.second));
-	//gl_verbose("INIT: temp_hours_curr (hours in right format) = %0.4f.", temp_hours_curr);
+	//verbose("INIT: temp_hours_curr (hours in right format) = %0.4f.", temp_hours_curr);
 	
 	//Determine the schedule we are in
 	if (temp_sec_A < temp_sec_B)	//HArrive < HDepart
@@ -656,13 +656,13 @@ int evcharger_det::init(OBJECT *parent)
 					{
 						//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_hours_A - temp_hours_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_A - temp_sec_curr));
-						//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 					}
 					else
 					{
 						//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_hours_A + 24.0 - temp_hours_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_A + 86400.0 - temp_sec_curr));
-						//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 					}
 				}
 				else if ((temp_sec_curr >= temp_sec_A) && (temp_sec_curr < temp_sec_B))	//At home
@@ -673,7 +673,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_hours_B - temp_hours_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_B - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				else if ((temp_sec_curr >= temp_sec_B) && (temp_sec_curr < temp_sec_C))		//Departed home, but not at work
 				{
@@ -683,7 +683,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_hours_C - temp_hours_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_C - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				else	//Must be at work
 				{
@@ -693,7 +693,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_D - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_D - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 			}
 			else	//WArrive < HArrive - driving initially, but to work
@@ -709,13 +709,13 @@ int evcharger_det::init(OBJECT *parent)
 					{
 						//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_C - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_C - temp_sec_curr));
-						//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 					}
 					else
 					{
 						//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_C + 24.0 - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_C + 86400.0 - temp_sec_curr));
-						//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 					}
 				}
 				else if ((temp_sec_curr >= temp_sec_C) && (temp_sec_curr < temp_sec_D))	//At work
@@ -726,7 +726,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_D - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_D - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				else if ((temp_sec_curr >= temp_sec_D) && (temp_sec_curr < temp_sec_A))		//Departed work, but not at home
 				{
@@ -736,7 +736,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_A - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_A - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				else	//Must be at home
 				{
@@ -746,7 +746,7 @@ int evcharger_det::init(OBJECT *parent)
 					//Figure out time to next transition
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_B - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_B - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 			}
 		}
@@ -763,13 +763,13 @@ int evcharger_det::init(OBJECT *parent)
 				{
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_D - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_D - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				else
 				{
 					//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_D + 24.0 - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 					CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_D + 86400.0 - temp_sec_curr));
-					//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 				}
 			}
 			else if ((temp_sec_curr >= temp_sec_D) && (temp_sec_curr < temp_sec_A))	//Driving to home
@@ -780,7 +780,7 @@ int evcharger_det::init(OBJECT *parent)
 				//Figure out time to next transition
 				//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_A - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 				CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_A - temp_sec_curr));
-				//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+				//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 			}
 			else if ((temp_sec_curr >= temp_sec_A) && (temp_sec_curr < temp_sec_B))		//At home
 			{
@@ -790,7 +790,7 @@ int evcharger_det::init(OBJECT *parent)
 				//Figure out time to next transition
 				//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_B - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 				CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_B - temp_sec_curr));
-				//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+				//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 			}
 			else	//Must be at leaving home and driving to work
 			{
@@ -800,7 +800,7 @@ int evcharger_det::init(OBJECT *parent)
 				//Figure out time to next transition
 				//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_C - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 				CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_C - temp_sec_curr));
-				//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+				//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 			}
 		}
 	}
@@ -817,13 +817,13 @@ int evcharger_det::init(OBJECT *parent)
 			{
 				//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_B - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 				CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_B - temp_sec_curr));
-				//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+				//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 			}
 			else
 			{
 				//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_B + 24.0 - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 				CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_B + 86400.0 - temp_sec_curr));
-				//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+				//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 			}
 		}
 		else if ((temp_sec_curr >= temp_sec_B) && (temp_sec_curr < temp_sec_C))	//Departed home, but not arrived at work
@@ -834,7 +834,7 @@ int evcharger_det::init(OBJECT *parent)
 			//Figure out time to next transition
 			//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_C - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 			CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_C - temp_sec_curr));
-			//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+			//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 		}
 		else if ((temp_sec_curr >= temp_sec_C) && (temp_sec_curr < temp_sec_D))		//At work
 		{
@@ -844,7 +844,7 @@ int evcharger_det::init(OBJECT *parent)
 			//Figure out time to next transition
 			//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_D - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 			CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_D - temp_sec_curr));
-			//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+			//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 		}
 		else	//Must be driving home from work
 		{
@@ -854,7 +854,7 @@ int evcharger_det::init(OBJECT *parent)
 			//Figure out time to next transition
 			//CarInformation.next_state_change = temp_time + (TIMESTAMP)((temp_sec_A - temp_sec_curr)*3600.0);//POSSIBLE PROBLEM HERE********************************************************************************************************
 			CarInformation.next_state_change = temp_time + (TIMESTAMP)(floor(temp_sec_A - temp_sec_curr));
-			//gl_verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
+			//verbose("INIT: next_state_change = %d.", CarInformation.next_state_change);
 		}
 	}
 
@@ -927,7 +927,7 @@ int evcharger_det::init(OBJECT *parent)
 				//Just default to 50%
 				CarInformation.battery_SOC = 50.0;
 
-				gl_warning("Battery SOC calculation messed up and somehow went outsize 0 - 100 range!");
+				warning("Battery SOC calculation messed up and somehow went outsize 0 - 100 range!");
 				/*  TROUBLESHOOT
 				The initial battery SOC somehow ended up outside a 0 - 100% range.  It has been forced to 50%.
 				*/
@@ -947,7 +947,7 @@ int evcharger_det::init(OBJECT *parent)
 				//Half discharge us, just cause
 				CarInformation.battery_capacity = CarInformation.battery_size / 2.0;
 
-				gl_warning("Battery attempted to discharge too far!");
+				warning("Battery attempted to discharge too far!");
 				/*  TROUBLESHOOT
 				While attepting to initialize the battery, it encountered a negative or overloaded
 				SOC condition.  It has been arbitrarily set to 50%.
@@ -968,7 +968,7 @@ int evcharger_det::init(OBJECT *parent)
 				//If too low, fully discharge
 				CarInformation.battery_capacity = 0.0;
 
-				gl_warning("Battery attempted to discharge too far!");
+				warning("Battery attempted to discharge too far!");
 				/*  TROUBLESHOOT
 				While attepting to initialize the battery, it encountered a negative or overloaded
 				SOC condition.  It has been arbitrarily set to 50%.
@@ -1104,8 +1104,8 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 						//Add in how long it takes us to drive
 						//CarInformation.next_state_change = t1 + (TIMESTAMP)(CarInformation.HomeWorkDuration);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = t1 + (TIMESTAMP)(floor(CarInformation.HomeWorkDuration));
-						//gl_verbose("CASE: VL_HOME: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-						//gl_verbose("CASE: VL_HOME: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("CASE: VL_HOME: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+						//verbose("CASE: VL_HOME: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 					}
 
 					//Zero our output - power already should be
@@ -1118,8 +1118,8 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 					//Update battery capacity with "last time's worth" of charge
 					temp_double = (double)(tdiff) / 3600.0 * ChargeRate / 1000.0 * CarInformation.ChargeEfficiency;	//Convert to kWh 
-					//gl_verbose("CASE: VL_HOME: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-					//gl_verbose("CASE: VL_HOME: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("CASE: VL_HOME: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+					//verbose("CASE: VL_HOME: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 
 					//Accumulate it
 					CarInformation.battery_capacity += temp_double;
@@ -1211,15 +1211,15 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 						//Add in how long we are at work
 						//CarInformation.next_state_change = t1 + (TIMESTAMP)(CarInformation.WorkDuration);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = t1 + (TIMESTAMP)(floor(CarInformation.WorkDuration));
-						//gl_verbose("CASE: VL_HOME_TO_WORK: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-						//gl_verbose("CASE: VL_HOME_TO_WORK: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("CASE: VL_HOME_TO_WORK: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+						//verbose("CASE: VL_HOME_TO_WORK: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 					}
 				}
 				else	//Yep, reaffirm our location
 				{
 					CarInformation.Location = VL_HOME_TO_WORK;
-					//gl_verbose("CASE: VL_HOME_TO_WORK: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-					//gl_verbose("CASE: VL_HOME_TO_WORK: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("CASE: VL_HOME_TO_WORK: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+					//verbose("CASE: VL_HOME_TO_WORK: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				break;
 			case VL_WORK:
@@ -1291,16 +1291,16 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 						//Add in how long it takes us to drive
 						//CarInformation.next_state_change = t1 + (TIMESTAMP)(CarInformation.WorkHomeDuration);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = t1 + (TIMESTAMP)(floor(CarInformation.WorkHomeDuration));
-						//gl_verbose("CASE: VL_WORK: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-						//gl_verbose("CASE: VL_WORK: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("CASE: VL_WORK: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+						//verbose("CASE: VL_WORK: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 					}
 				}
 				else	//Yes
 				{
 					//Just reaffirm our location
 					CarInformation.Location = VL_WORK;
-					//gl_verbose("CASE: VL_WORK: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-					//gl_verbose("CASE: VL_WORK: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("CASE: VL_WORK: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+					//verbose("CASE: VL_WORK: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				break;
 			case VL_WORK_TO_HOME:
@@ -1373,15 +1373,15 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 						//Add in how long we are home
 						//CarInformation.next_state_change = t1 + (TIMESTAMP)(CarInformation.HomeDuration);//POSSIBLE PROBLEM HERE********************************************************************************************************
 						CarInformation.next_state_change = t1 + (TIMESTAMP)(floor(CarInformation.HomeDuration));
-						//gl_verbose("CASE: VL_WORK_TO_HOME: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-						//gl_verbose("CASE: VL_WORK_TO_HOME: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+						//verbose("CASE: VL_WORK_TO_HOME: t1 >= CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+						//verbose("CASE: VL_WORK_TO_HOME: t1 >= CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 					}
 				}
 				else	//Yep, reaffirm our location
 				{
 					CarInformation.Location = VL_WORK_TO_HOME;
-					//gl_verbose("CASE: VL_WORK_TO_HOME: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
-					//gl_verbose("CASE: VL_WORK_TO_HOME: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
+					//verbose("CASE: VL_WORK_TO_HOME: t1 < CarInformation.next_state_change: temp_double = %0.4f.", temp_double);
+					//verbose("CASE: VL_WORK_TO_HOME: t1 < CarInformation.next_state_change: next_state_change = %d.", CarInformation.next_state_change);
 				}
 				break;
 			case VL_UNKNOWN:
@@ -1395,8 +1395,8 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 		//Update the pointer
 		prev_time = t1;
-		//gl_verbose("SYNC: t0 = %d.", t0);
-		//gl_verbose("SYNC: t1 = %d.", t1);
+		//verbose("SYNC: t0 = %d.", t0);
+		//verbose("SYNC: t1 = %d.", t1);
 	}
 
 	//Update enduse parameter - assumes only constant power right now
@@ -1416,7 +1416,7 @@ TIMESTAMP evcharger_det::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	//Residential enduse sync
 	t2 = residential_enduse::sync(t0, t1);
-	//gl_verbose("SYNC: t2 = %d.", t2);
+	//verbose("SYNC: t2 = %d.", t2);
 	if (tret < t2)
 	{
 		if (tret == TS_NEVER)
