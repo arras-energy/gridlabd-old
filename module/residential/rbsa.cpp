@@ -104,7 +104,6 @@ rbsa::RBSADATA * rbsa::add_enduse(RBSADATA *repo, const char *enduse)
 	}
 	else if ( repo->next_enduse == NULL )
 	{
-		// gl_debug("adding %s after %s", enduse, repo->enduse);
 		RBSADATA *item = (RBSADATA*)malloc(sizeof(RBSADATA));
 		memset((void*)item,0,sizeof(RBSADATA));
 		item->filename = repo->filename;
@@ -137,14 +136,11 @@ rbsa::RBSADATA *rbsa::find_enduse(RBSADATA *repo, const char *enduse)
 {
 	for ( RBSADATA *item = repo ; item != NULL ; item = item->next_enduse )
 	{
-		// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> testing %s",repo,enduse,item->enduse);
 		if ( item->enduse != NULL && strcmp(item->enduse,enduse) == 0 )
 		{
-			// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> 0x%x",repo,enduse,item);
 			return item;
 		}
 	}
-	// gl_debug("find_enduse(repo=0x%x,enduse='%s') -> NULL",repo,enduse);
 	return NULL;
 }
 size_t rbsa::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
@@ -456,19 +452,16 @@ int rbsa::init(OBJECT *parent)
 
 TIMESTAMP rbsa::presync(TIMESTAMP t1)
 {
-	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
-	complex P(0,0,J);
-	if ( power_A ) *power_A = P;
-	if ( power_B ) *power_B = P;
-	if ( power_C ) *power_C = P;
-	complex I(0,0,J);
-	if ( current_A ) *current_A = I;
-	if ( current_B ) *current_B = I;
-	if ( current_C ) *current_C = I;
-	complex S(0,0,J);
-	if ( shunt_A ) *shunt_A = S;
-	if ( shunt_B ) *shunt_B = S;
-	if ( shunt_C ) *shunt_C = S;
+	complex O(0,0,J);
+	if ( power_A ) *power_A = O;
+	if ( power_B ) *power_B = O;
+	if ( power_C ) *power_C = O;
+	if ( current_A ) *current_A = O;
+	if ( current_B ) *current_B = O;
+	if ( current_C ) *current_C = O;
+	if ( shunt_A ) *shunt_A = O;
+	if ( shunt_B ) *shunt_B = O;
+	if ( shunt_C ) *shunt_C = O;
 	return TS_NEVER;
 }
 double rbsa::apply_sensitivity(SENSITIVITY &component, double *variable)
@@ -556,11 +549,6 @@ int rbsa::composition(char *buffer, size_t len)
 			error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",buffer);
 			return 0;
 		}
-		// if ( find_component(enduse) )
-		// {
-		// 	error("composition '%s' has already been specified",enduse);
-		// 	return 0;
-		// }
 		add_component(enduse,composition);
 		return 1; 
 	}
@@ -736,8 +724,6 @@ int rbsa::filename(char *filename, size_t len)
 			error("ignore extra data in '%s' after '%s'",(const char*)filename,line);
 			fclose(fp);
 		}
-		// unsigned int month = map[month_ndx].buffer.integer;
-		// unsigned int hour = map[hour_ndx].buffer.integer;
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
 			map[n].data->data[count] = map[n].buffer.real;
@@ -753,27 +739,5 @@ int rbsa::filename(char *filename, size_t len)
 		verbose("%d records loaded from file '%s'", count, (const char*)filename);
 	}
 	fclose(fp);
-
-	// debug("RBSA data dump follows...");
-	// for ( RBSADATA *file = data ; file != NULL ; file = file->next_file)
-	// {
-	// 	debug("\tFilename: %s",file->filename);
-	// 	for ( RBSADATA *enduse = file ; enduse != NULL ; enduse = enduse->next_enduse )
-	// 	{
-	// 		debug("\t\tEnduse: %s",enduse->enduse);
-	// 		for ( unsigned int month = 0 ; month < 12 ; month++)
-	// 		{
-	// 			// debug("\t\t\tMonth: %u", month);
-	// 			// for (unsigned int daytype = 0 ; daytype < _DT_SIZE ; daytype++ )
-	// 			// {
-	// 			// 	debug("\t\t\t\tDaytype: %u", daytype);
-	// 			// 	// for (unsigned int hour = 0 ; hour < 24 ; hour++ )
-	// 			// 	// {
-	// 			// 	// 	debug("\t\t\t\t\tHour %u: %g", hour, enduse->data[hour]);
-	// 			// 	// }
-	// 			// }
-	// 		}
-	// 	}
-	// }
 	return 1;
 }
