@@ -1,17 +1,101 @@
-module powerflow;
-module climate;
-
 #set suppress_repeat_messages=FALSE
 
 clock {
+    timezone "PST+8PDT";
 	starttime '2020-01-01 00:00:00';
 	stoptime '2021-01-01 00:00:00';
 }
+
+///////////////////////////////////////
+// weather model
+///////////////////////////////////////
+
+module climate;
 
 #weather get CA-Chino_Airport.tmy3
 object climate {
 	name weather;
 	tmyfile "CA-Chino_Airport.tmy3";
+}
+
+///////////////////////////////////////
+// pole model
+///////////////////////////////////////
+
+module powerflow;
+
+object overhead_line_conductor
+{
+	name conductor;
+	geometric_mean_radius 0.031300;
+	diameter 0.927 in;
+	resistance 0.185900;
+}
+
+object line_spacing
+{
+	name spacing;
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 5.656854;
+	distance_AN 4.272002;
+	distance_CN 5.0;
+	distance_AE 28.0;
+	distance_BE 28.0;
+	distance_CE 28.0;
+	distance_NE 24.0;
+}
+
+object line_configuration
+{
+	name configuration;
+	conductor_A conductor;
+	conductor_B conductor;
+	conductor_C conductor;
+	conductor_N conductor;
+	spacing spacing;
+}
+
+object overhead_line
+{
+     phases "ABCN";
+     name line_1_2;
+     from node1;
+     to node2;
+     length 500;
+     configuration configuration;
+}
+
+object node
+{
+     name node1;
+     bustype SWING;
+     phases "ABCN";
+     nominal_voltage 2400;
+}
+
+object node
+{
+     name node2;
+     bustype PQ;
+     phases "ABCN";
+     nominal_voltage 2400;
+}
+
+///////////////////////////////////////
+// pole model
+///////////////////////////////////////
+
+class equipment
+{
+    enumeration {FAILED=0, OK=1} status;
+}
+
+object equipment
+{
+    name device1;
+    status OK;
 }
 
 object pole_configuration {
@@ -26,58 +110,72 @@ object pole_configuration {
 }
 
 object pole {
-	name pole1;
-	weather weather;
-	configuration "WOOD-C-45/5"; 
-	phases ABC;
-	nominal_voltage 12470;
-	tilt_angle 5 deg;
-	tilt_direction 270;
-	install_year 1990;
-}
+    name pole1;
+    weather weather;
+    configuration "WOOD-C-45/5";
+    tilt_angle 5 deg;
+    tilt_direction 270;
+    install_year 1990;
+    object pole_mount {
+        equipment device1;
+        weight 250 lb;
+        area 4 sf;
+        height 35 ft;
+    };
+    object pole_mount
+    {
+        equipment line_1_2;
+        pole_spacing 300 ft;
+    };
+};
 
-object line_spacing {
-	name spacing1;
-	distance_AE 30;
-	distance_BE 35;
-	distance_CE 40;
-}
-
-object overhead_line_conductor {
-	name conductor1;
-	diameter 0.5 in;
-}
-object line_configuration {
-	name linetype1;
-	spacing spacing1;
-	conductor_A conductor1;
-	conductor_B conductor1;
-	conductor_C conductor1;
-}
-
-object overhead_line {
-	phases ABC;
-	from pole1;
-	to pole2;
-	length 500 ft;
-	configuration linetype1;
-}
 object pole {
 	name pole2;
 	weather weather;
-	configuration "WOOD-C-45/5"; 
-	phases ABC;
-	nominal_voltage 12470;
+	configuration "WOOD-C-45/5";
 	tilt_angle 8 deg;
-	tilt_direction 270;
+	tilt_direction 180;
 	install_year 2000;
-//	equipment_area 5 sf;
-//	equipment_height 25 ft;
+    object pole_mount
+    {
+        equipment device2;
+        weight 250 lb;
+        area 4 sf;
+        height 35 ft;
+    };
+    object pole_mount
+    {
+        equipment line_1_2;
+        pole_spacing 300 ft;
+    };
 }
 
-module tape;
+object equipment
+{
+    name device2;
+    status OK;
+}
+
+///////////////////////////////////////
+// recorder model
+///////////////////////////////////////
+
+module tape
+{
+    csv_header_type NAME;
+}
 object multi_recorder {
 	interval 3600;
-	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
+	property "weather:wind_speed, weather:wind_dir";
+#for POLE in ${FIND class=pole}
+    property "${POLE}:tilt_angle, ${POLE}:tilt_direction";
+    property "${POLE}:pole_stress, ${POLE}:total_moment, ${POLE}:resisting_moment";
+    property "${POLE}:susceptibility, ${POLE}:status";
+    property "${POLE/pole/device}:status";
+#done
 	file test_pole.csv;
 }
+
+#ifexist "../test_pole.csv"
+#on_exit 0 diff -q test_pole.csv ../test_pole.csv
+#endif

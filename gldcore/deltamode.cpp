@@ -237,14 +237,21 @@ DT delta_modedesired(DELTAMODEFLAGS *flags)
 		}
 	}
 	/* dt_desired unmodified means nobody want delta mode, return 0 */
-	if ( dt_desired != DT_INFINITY && ! global_deltamode_allowed )
+	if ( dt_desired != DT_INFINITY )
 	{
-		output_warning("delta-mode simulation request is ignored (deltamode_allowed=%s)",global_deltamode_allowed?"TRUE":"FALSE");
-		return DT_INFINITY;
+		if ( global_deltamode_allowed )
+		{
+				return dt_desired;
+		}
+		else
+		{ 
+			output_error("request to enter delta-mode cannot be satisfied when deltamode_allowed is FALSE");
+			return DT_INVALID;
+		}
 	}
 	else
 	{
-		return dt_desired;
+		return DT_INFINITY;
 	}
 }
 

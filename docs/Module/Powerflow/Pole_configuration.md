@@ -7,10 +7,10 @@ GLM:
 ~~~
   object pole_configuration {
     pole type "WOOD";
-    design_ice_thickness 0.25; 
+    design_ice_thickness 0.25;
     desing_wind_loading 4.0;
-    design_temperature 15.0; 
-    overload_factor_vertical 1.9; 
+    design_temperature 15.0;
+    overload_factor_vertical 1.9;
     overload_factor_transverse_general 1.75;
     overload_factor_transverse_crossing 2.2;
     overload_factor_transverse_wire 1.65;
@@ -20,10 +20,9 @@ GLM:
     strength_factor_250b_support 1.0;
     pole_length 45.0;
     pole_depth 4.5;
-    ground_diameter 32.5/3.14; 
+    ground_diameter 32.5/3.14;
     top_diameter 19/3.14;
     fiber_strength 8000;
-    repair_time 0;
     treatment_method "CRESOTE";
   }
 ~~~
@@ -37,7 +36,7 @@ The `pole_configuration` object contains information about pole designs, and is 
 ### `pole_type`
 
 ~~~
-  enumeration {STEEL=1, CONCRETE=2, WOOD=0} pole_type; 
+  enumeration {STEEL=1, CONCRETE=2, WOOD=0} pole_type;
 ~~~
 
 The material from which pole is made.
@@ -45,7 +44,7 @@ The material from which pole is made.
 ### `design_ice_thickness`
 
 ~~~
-  double design_ice_thickness[in]; 
+  double design_ice_thickness[in];
 ~~~
 
 The design ice thickness on conductors.
@@ -53,7 +52,7 @@ The design ice thickness on conductors.
 ### `design_wind_loading`
 
 ~~~
-  double design_wind_loading[psi]; 
+  double design_wind_loading[psi];
 ~~~
 
 The design wind loading of the pole.
@@ -61,7 +60,7 @@ The design wind loading of the pole.
 ### `design_temperature`
 
 ~~~
-  double design_temperature[degF]; 
+  double design_temperature[degF];
 ~~~
 
 The design temperature of the pole.
@@ -69,7 +68,7 @@ The design temperature of the pole.
 ### `overload_factor_vertical`
 
 ~~~
-  double overload_factor_vertical; 
+  double overload_factor_vertical;
 ~~~
 
 The vertical design overload factor.
@@ -77,7 +76,7 @@ The vertical design overload factor.
 ### `overload_factor_transverse_general`
 
 ~~~
-  double overload_factor_transverse_general; 
+  double overload_factor_transverse_general;
 ~~~
 
 The general transverse design overload factor.
@@ -85,7 +84,7 @@ The general transverse design overload factor.
 ### `overload_factor_transverse_crossing`
 
 ~~~
-  double overload_factor_transverse_crossing; 
+  double overload_factor_transverse_crossing;
 ~~~
 
 The transverse crossing design overload factor.
@@ -93,7 +92,7 @@ The transverse crossing design overload factor.
 ### `overload_factor_transverse_wire`
 
 ~~~
-  double overload_factor_transverse_wire; 
+  double overload_factor_transverse_wire;
 ~~~
 
 The transverse wire design overload factor.
@@ -101,7 +100,7 @@ The transverse wire design overload factor.
 ### `overload_factor_longitudinal_general`
 
 ~~~
-  double overload_factor_longitudinal_general; 
+  double overload_factor_longitudinal_general;
 ~~~
 
 The longitudinal general design overload factor.
@@ -109,7 +108,7 @@ The longitudinal general design overload factor.
 ### `overload_factor_longitudinal_deadend`
 
 ~~~
-  double overload_factor_longitudinal_deadend; 
+  double overload_factor_longitudinal_deadend;
 ~~~
 
 The longitudinal deadend design overload factor.
@@ -117,7 +116,7 @@ The longitudinal deadend design overload factor.
 ### `strength_factor_250b_wood`
 
 ~~~
-  double strength_factor_250b_wood; 
+  double strength_factor_250b_wood;
 ~~~
 
 The Rule 250B wood structure design strength factor.
@@ -125,7 +124,7 @@ The Rule 250B wood structure design strength factor.
 ### `strength_factor_250b_support`
 
 ~~~
-  double strength_factor_250b_support; 
+  double strength_factor_250b_support;
 ~~~
 
 The Rule 250B support hardware design strength factor.
@@ -133,7 +132,7 @@ The Rule 250B support hardware design strength factor.
 ### `strength_factor_250c_wood`
 
 ~~~
-  double strength_factor_250c_wood; 
+  double strength_factor_250c_wood;
 ~~~
 
 The Rule 250C wood structure design strength factor.
@@ -149,7 +148,7 @@ The Rule 250C support hardware design strength factor.
 ### `pole_length`
 
 ~~~
-  double pole_length[ft]; 
+  double pole_length[ft];
 ~~~
 
 The total length of pole including underground portion.
@@ -157,7 +156,7 @@ The total length of pole including underground portion.
 ### `pole_depth`
 
 ~~~
-  double pole_depth[ft]; 
+  double pole_depth[ft];
 ~~~
 
 The depth of pole underground.
@@ -165,7 +164,7 @@ The depth of pole underground.
 ### `ground_diameter`
 
 ~~~
-  double ground_diameter[in]; 
+  double ground_diameter[in];
 ~~~
 
 The diameter of pole at ground level.
@@ -173,7 +172,7 @@ The diameter of pole at ground level.
 ### `top_diameter`
 
 ~~~
-  double top_diameter[in]; 
+  double top_diameter[in];
 ~~~
 
 The diameter of pole at top.
@@ -181,23 +180,15 @@ The diameter of pole at top.
 ### `fiber_strength`
 
 ~~~
-  double fiber_strength[psi]; 
+  double fiber_strength[psi];
 ~~~
 
 The pole structural strength.
 
-### `repair_time`
-
-~~~
-  double repair_time[h]; 
-~~~
-
-The nominal pole repair time.
-
 ### `treatment_method`
 
 ~~~
-  enumeration {NONE, CREOSOTE, PENTA, CCA} treatment_method; 
+  enumeration {NONE, CREOSOTE, PENTA, CCA} treatment_method;
 ~~~
 
 The pole treatment method.
@@ -207,4 +198,3 @@ The pole treatment method.
 * [[/Module/Powerflow/Pole]]
 * [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
 * [UEP Bulletin 1728F-804](https://www.rd.usda.gov/files/UEP_Bulletin_1728F-804.pdf)
-

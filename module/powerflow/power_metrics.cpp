@@ -330,7 +330,7 @@ void power_metrics::check_fault_check(void)
 			//While we're in here, see if we can do secondary events - otherwise warn us
 			if (fault_check_object_lnk->rel_eventgen == NULL)
 			{
-				gl_warning("No eventgen object mapped up to %s, unscheduled faults are not allowed",fault_check_object->name);
+				warning("No eventgen object mapped up to %s, unscheduled faults are not allowed",fault_check_object->name);
 				/*  TROUBLESHOOT
 				No eventgen object is specified on the fault_check field eventgen_object.  Without this specified, "unscheduled"
 				faults can not occur and will simply stop the simulation.  This includes fuses blowing and "non-faulted" switch

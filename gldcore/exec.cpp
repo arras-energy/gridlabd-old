@@ -1029,7 +1029,7 @@ STATUS GldExec::init_by_deferral_retry(OBJECT **def_array, int def_ct)
 				case 1:
 					wlock(&obj->lock);
 					obj->flags |= OF_INIT;
-					obj->flags -= OF_DEFERRED;
+					obj->flags &= ~(unsigned long long)OF_DEFERRED;
 					wunlock(&obj->lock);
 					break;
 				case 2:

@@ -1,5 +1,5 @@
-// powerflow/pole_configuration.h
-// Copyright (C) 2018, Stanford University
+// module/powerflow/pole_configuration.h
+// Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #ifndef _POLECONFIGURATION_H
 #define _POLECONFIGURATION_H
@@ -33,17 +33,17 @@ public: // wood pole model parameters
 	double design_wind_loading; 		// (see Chart 1)
 	double design_temperature; 		// (see Chart 1)
 	// overload factors (see Chart 2)
-	double overload_factor_vertical; 	
-	double overload_factor_transverse_general; 	
-	double overload_factor_transverse_crossing; 	
-	double overload_factor_transverse_wire; 	
-	double overload_factor_longitudinal_general; 	
-	double overload_factor_longitudinal_deadend; 	
+	double overload_factor_vertical;
+	double overload_factor_transverse_general;
+	double overload_factor_transverse_crossing;
+	double overload_factor_transverse_wire;
+	double overload_factor_longitudinal_general;
+	double overload_factor_longitudinal_deadend;
 	// strength factors (see Chart 3)
-	double strength_factor_250b_wood; 	
-	double strength_factor_250b_support; 	
-	double strength_factor_250c_wood; 	
-	double strength_factor_250c_support; 	
+	double strength_factor_250b_wood;
+	double strength_factor_250b_support;
+	double strength_factor_250c_wood;
+	double strength_factor_250c_support;
 	double cable_diameter;		// (see Section F)
 	double ice_thickness;		// (see Section F)
 	double pole_length; 		// (see Chart 4)
@@ -58,6 +58,7 @@ public: // wood pole model parameters
 	double wire_height_P;
 	double wire_height_T;
 	double degradation_rate;
+    double material_density;
 	typedef enum {
 		PTM_NONE = 0,
 		PTM_CREOSOTE = 1,
