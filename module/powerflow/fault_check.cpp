@@ -133,7 +133,7 @@ int fault_check::init(OBJECT *parent)
 	{
 		if (reliability_search_mode == true)
 		{
-			gl_warning("fault_check:%s was forced into meshed search mode due to multiple grids being desired",obj->name ? obj->name : "Unnamed");
+			warning("fault_check:%s was forced into meshed search mode due to multiple grids being desired",obj->name ? obj->name : "Unnamed");
 			/*  TROUBLESHOOT
 			While starting up a fault_check object, the grid_association flag was set.  This flag requires the meshed topology checking routines
 			to be active, so that capability was enabled.  If this is undesired, please deactivate grid_association capability.
@@ -206,7 +206,7 @@ TIMESTAMP fault_check::sync(TIMESTAMP t0)
 			//Mandate "mesh mode" for this, just because I say so
 			if (reliability_search_mode == true)	//Radial
 			{
-				gl_warning("fault_check interaction with restoration requires meshed checking mode - enabling this now");
+				warning("fault_check interaction with restoration requires meshed checking mode - enabling this now");
 				/*  TROUBLESHOOT
 				The restoration algorithm is improved by using the meshed mode of topology checking for faults.  This has
 				been automatically enabled for the object.  If this is undesired, do not use fault_check with restoration.
@@ -259,7 +259,7 @@ TIMESTAMP fault_check::sync(TIMESTAMP t0)
 					}
 					else	//Must be in reliability mode
 					{
-						gl_warning("Unsupported phase on node %s",NR_busdata[index].name);
+						warning("Unsupported phase on node %s",NR_busdata[index].name);
 						/*  TROUBLESHOOT
 						An unsupported connection was found on the indicated bus in the system.  Since reliability
 						is enabled, the solver will simply ignore the unsupported components for now.
@@ -322,7 +322,7 @@ TIMESTAMP fault_check::sync(TIMESTAMP t0)
 				}
 				else	//Must be in reliability mode
 				{
-					gl_warning("Unsupported phase on a possibly meshed node");
+					warning("Unsupported phase on a possibly meshed node");
 					/*  TROUBLESHOOT
 					An unsupported connection was found on the system.  Since reliability is enabled,
 					the solver will simply ignore the unsupported components for now.
@@ -977,7 +977,7 @@ void fault_check::support_check_alterations(int baselink_int, bool rest_mode)
 		//See if the FROM side of our newly restored greatness is supported.  If it isn't, there's no point in proceeding
 		if (rest_mode == true)	//Restoration
 		{
-			gl_verbose("Alterations support check called restoration on bus %s",NR_busdata[base_bus_val].name);
+			verbose("Alterations support check called restoration on bus %s",NR_busdata[base_bus_val].name);
 
 			if ((NR_busdata[base_bus_val].phases & 0x07) != 0x00)	//We have phase, means OK above us
 			{
@@ -989,7 +989,7 @@ void fault_check::support_check_alterations(int baselink_int, bool rest_mode)
 		}
 		else	//Destructive!
 		{
-			gl_verbose("Alterations support check called removal on bus %s",NR_busdata[base_bus_val].name);
+			verbose("Alterations support check called removal on bus %s",NR_busdata[base_bus_val].name);
 
 			//Recurse our way in - adjusted version of original search_links function above (but no storage, because we don't care now)
 			support_search_links(base_bus_val, base_bus_val, rest_mode);
@@ -1715,7 +1715,7 @@ void fault_check::allocate_alterations_values(bool reliability_mode_bool)
 	{
 		if (restoration_object==NULL)
 		{
-			gl_warning("Restoration object not detected!");	//Put down here because the variable may not be populated in time for init
+			warning("Restoration object not detected!");	//Put down here because the variable may not be populated in time for init
 			/*  TROUBLESHOOT
 			The fault_check object can use a restoration object in the system.  If the restoration object is present,
 			unsuccessful node support checks will call the reconfiguration.

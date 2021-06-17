@@ -4,6 +4,7 @@
 
 ~~~
 bash$ gridlabd --version[=<format>]
+bash$ gridlabd --version[=-<requirement>]
 ~~~
 
 # Description
@@ -16,6 +17,8 @@ GridLAB-D 4.2.0-191115
 ~~~
 
 The `--version` option also supports formatting specifications to obtain additional version, build, and installation information. The format options are as follows:
+
+In addition, the version command supports verifying that the version meets certain requirements.  See the [[/GLM/Macro/Version]] for details on the syntax for the requirements.
 
 ## Format
 
@@ -53,10 +56,16 @@ Outputs the installation path, e.g., `/usr/local/opt/gridlabd/4.2.0-191115-maste
 
 Outputs the installation name, e.g., `gridlabd-4.2.0-191115-develop_fix_manual`.
 
+# Example
+
+The following command verifies that the version is at least 4.2:
+
+~~~
+bash$ gridlabd --version=-'ge 4.2'
+~~~
+
 # See also
 
 * [[/Subcommand/Version]]
 * [[/Command/Origin]]
-
-
-Outputs `package-major.minor.patch-build-branch-system-hardware`.
+* [[/GLM/Macro/Version]]

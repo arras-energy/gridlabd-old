@@ -653,7 +653,16 @@ int transform_saveall(FILE *fp)
 	TRANSFERFUNCTION *tf;
 	for ( tf = tflist ; tf != NULL ; tf = tf->next )
 	{
-		count += fprintf(fp,"filter %s(%s,%gs,%gs) = (", tf->name, tf->domain, tf->timestep, tf->timeskew);
+		count += fprintf(fp,"filter %s(%s,%gs,%gs", tf->name, tf->domain, tf->timestep, tf->timeskew);
+		if ( tf->resolution > 0 )
+		{
+			count += fprintf(fp,",resolution=%g",tf->resolution);
+		}
+		if ( tf->minimum < tf->maximum )
+		{
+			count += fprintf(fp,",minimum=%g,maximum=%g",tf->minimum,tf->maximum);
+		}
+		count += fprintf(fp,") = (");
 		for ( int m = tf->m - 1 ; m >= 0 ; m-- )
 		{
 			if ( tf->b[m] != 1.0 || m == 0 )
@@ -687,5 +696,50 @@ int transform_saveall(FILE *fp)
 		}
 		count += fprintf(fp,");");
 	}
+	return count;
+}
+
+TRANSFERFUNCTION *transfer_function_getfirst(void)
+{
+	return tflist;
+}
+
+int transfer_function_to_json(char *buffer, int size, TRANSFERFUNCTION *tf)
+{
+	int count = 0;
+	count += snprintf(buffer+count,size-count,"\"%s\" : {",tf->name);
+	count += snprintf(buffer+count,size-count,"\"domain\":\"%s\",",tf->domain);
+	count += snprintf(buffer+count,size-count,"\"timestep\":\"%gs\",",tf->timestep);
+	count += snprintf(buffer+count,size-count,"\"timeskew\":\"%gs\",",tf->timeskew);
+	int flen = 0;
+	char flags[256] = "";
+	if ( tf->flags&FC_MINIMUM )
+	{
+		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sMINIMUM",flen>0?"|":"");
+		count += snprintf(buffer+count,size-count,"\"minimum\":\"%g\",",tf->minimum);
+	}
+	if ( tf->flags&FC_MAXIMUM )
+	{
+		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sMAXIMUM",flen>0?"|":"");
+		count += snprintf(buffer+count,size-count,"\"maximum\":\"%g\",",tf->maximum);
+	}
+	if ( tf->flags & FC_RESOLUTION )
+	{
+		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sRESOLUTION",flen>0?"|":"");
+		count += snprintf(buffer+count,size-count,"\"resolution\":\"%g\",",tf->resolution);
+	}
+	count += snprintf(buffer+count,size-count,"\"numerator\":[");
+	for ( unsigned int m = 0 ; m < tf->m ; m++ )
+	{
+		count += snprintf(buffer+count,size-count,"%g%s",tf->b[m],m<tf->m-1?",":"");
+	}
+	count += snprintf(buffer+count,size-count,"],");
+	count += snprintf(buffer+count,size-count,"\"denominator\":[");
+	for ( unsigned int n = 0 ; n < tf->n ; n++ )
+	{
+		count += snprintf(buffer+count,size-count,"%g%s",tf->a[n],n<tf->n-1?",":"");
+	}
+	count += snprintf(buffer+count,size-count,"]");
+	count += snprintf(buffer+count,size-count,"}");
 	return count;
 }
