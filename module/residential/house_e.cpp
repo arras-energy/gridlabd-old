@@ -969,23 +969,23 @@ int house_e::create()
 				eu = elcap1990;
 				break;
 			case IES_ELCAP2010:
-				gl_warning("ELCAP2010 implicit enduse data is not valid for individual enduses");
+				warning("ELCAP2010 implicit enduse data is not valid for individual enduses");
 				eu = elcap2010;
 				break;
 			case IES_RBSA2014:
-				gl_warning("RBSA2014 implicit enduse data is not valid for individual enduses");
+				warning("RBSA2014 implicit enduse data is not valid for individual enduses");
 				eu = rbsa2014;
 				break;
 			case IES_RBSA2014_DISCRETE:
-				gl_warning("RBSA2014 discrete implicit enduse data is experimental");
+				warning("RBSA2014 discrete implicit enduse data is experimental");
 				eu = rbsa2014_discrete;
 				break;
 			case IES_EIA2015:
-				gl_warning("EIA 2015 implicit enduse data is experimental");
+				warning("EIA 2015 implicit enduse data is experimental");
 				eu = eia2015;
 				break;
 			default:
-				gl_error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);
+				error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);
 				eu = elcap1990;
 				break;
 			}
@@ -1002,7 +1002,7 @@ int house_e::create()
 						sched = gl_schedule_create(eu->schedule_name,eu->schedule_definition);
 					}
 					if(sched == NULL){
-						gl_error("error creating schedule for enduse \'%s\'", eu->schedule_name);
+						error("error creating schedule for enduse \'%s\'", eu->schedule_name);
 						return FAILED;
 					}
 					IMPLICITENDUSE *item = (IMPLICITENDUSE*)gl_malloc(sizeof(IMPLICITENDUSE));
@@ -1011,7 +1011,7 @@ int house_e::create()
 					item->load.shape = gl_loadshape_create(sched);
 					if (gl_set_value_by_type(PT_loadshape,item->load.shape,eu->shape)==0)
 					{
-						gl_error("loadshape '%s' could not be created", name);
+						error("loadshape '%s' could not be created", name);
 						result = FAILED;
 					}
 					item->load.name = eu->implicit_name;
@@ -1030,7 +1030,7 @@ int house_e::create()
 			}
 			if (found==0)
 			{
-				gl_error("schedule '%s' for implicit enduse '%s' not found", name, eulist[n_eu]);
+				error("schedule '%s' for implicit enduse '%s' not found", name, eulist[n_eu]);
 				result = FAILED;
 			}
 		}
@@ -1063,7 +1063,7 @@ int house_e::init_climate()
 		if (climates==NULL)
 		{
 			not_found = 1;
-			gl_warning("house_e: no climate data found, using static data");
+			warning("house_e: no climate data found, using static data");
 
 			//default to mock data
 			extern double default_outdoor_temperature, default_humidity, default_solar[9];
@@ -1073,7 +1073,7 @@ int house_e::init_climate()
 		}
 		else if (climates->hit_count>1 && weather != 0)
 		{
-			gl_warning("house_e: %d climates found, using first one defined", climates->hit_count);
+			warning("house_e: %d climates found, using first one defined", climates->hit_count);
 		}
 	}
 	if (climates!=NULL)
@@ -1116,7 +1116,7 @@ int house_e::init_climate()
 			}
 			if((obj->flags & OF_INIT) != OF_INIT){
 				char objname[256];
-				gl_verbose("house::init(): deferring initialization on %s", gl_name(obj, objname, 255));
+				verbose("house::init(): deferring initialization on %s", gl_name(obj, objname, 255));
 				return 0; // defer
 			}
 		}
@@ -1413,7 +1413,7 @@ void house_e::set_window_Rvalue(){
 	if(glass_type == GM_LOW_E_GLASS){
 		switch(glazing_layers){
 			case GL_ONE:
-				gl_error("no value for one pane of low-e glass");
+				error("no value for one pane of low-e glass");
 				break;
 			case GL_TWO:
 				switch(window_frame){
@@ -1532,7 +1532,7 @@ int house_e::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("house::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("house::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -1578,7 +1578,7 @@ int house_e::init(OBJECT *parent)
 		//Check it, for completeness
 		if (pHouseConn==NULL)
 		{
-			gl_error("Failure to map powerflow variable from house:%s",obj->name);
+			error("Failure to map powerflow variable from house:%s",obj->name);
 			/*  TROUBLESHOOT
 			While attempting to map the house variables to the required powerflow variables,
 			an error occurred.  Please try again.  If the error persists, please submit your
@@ -1596,14 +1596,14 @@ int house_e::init(OBJECT *parent)
 		//Make sure it worked
 		if (pMeterStatus==NULL)
 		{
-			gl_error("Failure to map powerflow variable from house:%s",obj->name);
+			error("Failure to map powerflow variable from house:%s",obj->name);
 			//Defined above
 			return 0;
 		}
 	}
 	else
 	{
-		gl_warning("house_e:%d %s; using static voltages", obj->id, parent==NULL?"has no parent triplex_meter defined":"parent is not a triplex_meter");
+		warning("house_e:%d %s; using static voltages", obj->id, parent==NULL?"has no parent triplex_meter defined":"parent is not a triplex_meter");
 
 		// attach meter variables to each circuit in the default_meter
 		*(map[0].var) = &default_line_voltage[0];
@@ -1660,9 +1660,9 @@ int house_e::init(OBJECT *parent)
 
 	if(heating_system_type == HT_HEAT_PUMP) {
 		if(cooling_system_type == CT_NONE) 
-			gl_warning("A HEAT_PUMP heating_system_type with no air conditioning does not make a lot of sense. You may encounter odd behavior with house %s",obj->name);
+			warning("A HEAT_PUMP heating_system_type with no air conditioning does not make a lot of sense. You may encounter odd behavior with house %s",obj->name);
 		else if(cooling_system_type == CT_UNKNOWN) {
-			gl_warning("A HEAT_PUMP heating_system_type with no air conditioning does not make a lot of sense. Setting cooling_system_type to ELECTRIC.");
+			warning("A HEAT_PUMP heating_system_type with no air conditioning does not make a lot of sense. Setting cooling_system_type to ELECTRIC.");
 			cooling_system_type = CT_ELECTRIC;
 		}
 	}
@@ -1712,7 +1712,7 @@ int house_e::init(OBJECT *parent)
 	if (air_thermal_mass==0) air_thermal_mass = 3*air_heat_capacity*air_mass;	// thermal mass of air [BTU/F]  //*3 multiplier is to reflect that the air mass includes surface effects from the mass as well.  
 	//if (air_heat_fraction==0) air_heat_fraction=0.5;
 	if (air_heat_fraction!=0) {
-		gl_warning("The air_heat_fraction is no longer used to determine heat gain/loss to the air. Setting mass_solar_gain_fraction and mass_internal_gain_fraction to 1-air_heat_fraction specified for house %s.", obj->name);
+		warning("The air_heat_fraction is no longer used to determine heat gain/loss to the air. Setting mass_solar_gain_fraction and mass_internal_gain_fraction to 1-air_heat_fraction specified for house %s.", obj->name);
 		mass_solar_gain_fraction=1-air_heat_fraction;
 		mass_internal_gain_fraction=1-air_heat_fraction;
 	}
@@ -1774,7 +1774,7 @@ int house_e::init(OBJECT *parent)
 	{	/* auxiliary heating and no normal heating?  crazy talk! */
 		static int aux_for_rst = 0;
 		if(aux_for_rst == 0){
-			gl_warning("house_e heating strategies with auxiliary heat but without normal heating modes are converted"
+			warning("house_e heating strategies with auxiliary heat but without normal heating modes are converted"
 				"to resistively heated houses, see house %s",obj->name);
 			aux_for_rst = 1;
 		}
@@ -1875,7 +1875,7 @@ int house_e::init(OBJECT *parent)
 				hvac_motor_efficiency = 0.9244;
 				break;
 			default:
-				gl_warning("Unknown motor_efficiency setting.  Setting to AVERAGE.");
+				warning("Unknown motor_efficiency setting.  Setting to AVERAGE.");
 				hvac_motor_efficiency = 0.8740;
 				motor_efficiency = ME_AVERAGE;
 				break;
@@ -1968,7 +1968,7 @@ int house_e::init(OBJECT *parent)
 		//Check global, for giggles
 		if (enable_subsecond_models!=true)
 		{
-			gl_warning("house_e:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
+			warning("house_e:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The house_e object has the deltamode_inclusive flag set, but not the module-level enable_subsecond_models flag.  The house
 			will not simulate any dynamics this way.
@@ -1986,7 +1986,7 @@ int house_e::init(OBJECT *parent)
 	{
 		if (enable_subsecond_models == true)
 		{
-			gl_warning("house_e:%d %s - Deltamode is enabled for the module, but not this house!",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("house_e:%d %s - Deltamode is enabled for the module, but not this house!",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The house is not flagged for deltamode operations, yet deltamode simulations are enabled for the overall system.  When deltamode
 			triggers, this house may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
@@ -2003,12 +2003,12 @@ int house_e::init(OBJECT *parent)
 		{
 			if ( strstr(gas_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
 			{
-				gl_debug("euname '%s' in gas_enduses '%s', setting gas fraction to 1.0", circuit->pLoad->name, (const char*)gas_enduses);
+				debug("euname '%s' in gas_enduses '%s', setting gas fraction to 1.0", circuit->pLoad->name, (const char*)gas_enduses);
 				circuit->pLoad->gas_fraction = 1.0;
 			}
 			else
 			{
-				gl_debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
+				debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
 				circuit->pLoad->gas_fraction = 0.0;
 			}
 		}
@@ -2042,7 +2042,7 @@ CIRCUIT *house_e::attach(OBJECT *obj, ///< object to attach
 	CIRCUIT *c = new CIRCUIT;
 	if (c==NULL)
 	{
-		gl_error("memory allocation failure");
+		error("memory allocation failure");
 		return 0;
 		/* Note ~ this returns a null pointer, but iff the malloc fails.  If
 		 * that happens, we're already in SEGFAULT sort of bad territory. */
@@ -2278,7 +2278,7 @@ void house_e::update_system(double dt)
 		}
 	}
 	if(heating_cop_curve == HC_CURVED){
-		gl_error("CURVED heating_cop_curve is not supported yet.");
+		error("CURVED heating_cop_curve is not supported yet.");
 		error_flag = 1;
 	}
 
@@ -2301,7 +2301,7 @@ void house_e::update_system(double dt)
 		}
 	}
 	if(cooling_cop_curve == CC_CURVED){
-		gl_error("CURVE cooling_cop_curve is not supported yet.");
+		error("CURVE cooling_cop_curve is not supported yet.");
 		error_flag = 1;
 	}
 
@@ -2334,11 +2334,11 @@ void house_e::update_system(double dt)
 		heating_capacity_adj = design_heating_capacity;
 	}
 	if(heating_cap_curve == HP_LINEAR){
-		gl_error("LINEAR heating_cap_curve is not supported at this time");
+		error("LINEAR heating_cap_curve is not supported at this time");
 		error_flag = 1;
 	}
 	if(heating_cap_curve == HP_CURVED){
-		gl_error("CURVED heating _cap_curve is not supported at this time");
+		error("CURVED heating _cap_curve is not supported at this time");
 		error_flag = 1;
 	}
 
@@ -2349,11 +2349,11 @@ void house_e::update_system(double dt)
 		cooling_capacity_adj = design_cooling_capacity;
 	}
 	if(cooling_cap_curve == CP_LINEAR){
-		gl_error("LINEAR cooling_cap_curve is not supported at this time");
+		error("LINEAR cooling_cap_curve is not supported at this time");
 		error_flag = 1;
 	}
 	if(cooling_cap_curve == CP_CURVED){
-		gl_error("CURVED cooling_cap_curve is not supported at this time");
+		error("CURVED cooling_cap_curve is not supported at this time");
 		error_flag = 1;
 	}
 
@@ -2548,7 +2548,7 @@ void house_e::update_system(double dt)
 					load.admittance += complex(hvac_motor_real_loss,hvac_motor_reactive_loss);
 				}
 				else if (motor_model == MM_FULL)
-					gl_warning("FULL motor model is not yet supported. No losses are assumed.");
+					warning("FULL motor model is not yet supported. No losses are assumed.");
 
 		} else {
 			//	gas heat & resistive heat -> fan power P and heating power Z
@@ -2632,7 +2632,7 @@ TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1)
 	{
 		if (window_high_temp <= window_low_temp)
 		{
-			gl_error("The high window temperature cutoff must be greater than the low window temperature cutoff.");
+			error("The high window temperature cutoff must be greater than the low window temperature cutoff.");
 			/* TROUBLESHOOT
 			The window_high_temperature_cutoff must be a value greater than the window_low_temperature_cutoff.  These
 			two values define a temperature "deadband" in which there is a possibility that the window will "open".  
@@ -2651,7 +2651,7 @@ TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 				if (calc_val > 1.0) 
 				{
-					gl_verbose("Function value for window_opening calculation was greater than 1 (%.2f). Capping value at 1.", calc_val); 
+					verbose("Function value for window_opening calculation was greater than 1 (%.2f). Capping value at 1.", calc_val); 
 					/* TROUBLESHOOT
 					The function to described whether the window should open or not is limited to the range [0,1], as it is compared to a
 					uniformly distributed random number in the range [0,1]. If your function (using a=window_quadratic_coefficient,
@@ -2662,7 +2662,7 @@ TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1)
 				}
 				else if (calc_val < 0.)
 				{
-					gl_verbose("Function value for window_opening calculation was less than 0 (%.2f). Capping value at 0.", calc_val); 
+					verbose("Function value for window_opening calculation was less than 0 (%.2f). Capping value at 0.", calc_val); 
 					/* TROUBLESHOOT
 					The function to described whether the window should open or not is limited to the range [0,1], as it is compared to a
 					uniformly distributed random number in the range [0,1]. If your function (using a=window_quadratic_coefficient,
@@ -2690,12 +2690,12 @@ TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 				if (calc_val > 1.0) 
 				{
-					gl_verbose("Function value for window_opening calculation was greater than 1 or less than 0 (%.2f). Limiting to that range", calc_val); 
+					verbose("Function value for window_opening calculation was greater than 1 or less than 0 (%.2f). Limiting to that range", calc_val); 
 					calc_val = 1.01;
 				}
 				else if (calc_val < 0.)
 				{
-					gl_verbose("Function value for window_opening calculation was greater than 1 or less than 0 (%.2f). Limiting to that range", calc_val); 
+					verbose("Function value for window_opening calculation was greater than 1 or less than 0 (%.2f). Limiting to that range", calc_val); 
 					calc_val = -0.01;
 				}
 
@@ -2732,7 +2732,7 @@ TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1)
 			GL_THROW("%s:%d circuit %d has an invalid circuit type (%d)", obj->oclass->name, obj->id, c->id, (int)c->type);
 		c->pLoad->voltage_factor = c->pV->Mag() / ((c->pLoad->config&EUC_IS220) ? 240 : 120) * c->smartfuse->vFactor;
 		if ((c->pLoad->voltage_factor > 1.06 || c->pLoad->voltage_factor < 0.88) && (ANSI_voltage_check==true))
-			gl_warning("%s - %s:%d is outside of ANSI standards (voltage = %.0f percent of nominal 120/240)", obj->name, obj->oclass->name,obj->id,c->pLoad->voltage_factor*100);
+			warning("%s - %s:%d is outside of ANSI standards (voltage = %.0f percent of nominal 120/240)", obj->name, obj->oclass->name,obj->id,c->pLoad->voltage_factor*100);
 	}
 
 	//First run allocation - handles overall residential allocation as well
@@ -2828,7 +2828,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	t2 = sync_enduses(t0, t1);
 #ifdef _DEBUG
-//		gl_debug("house %s (%d) sync_enduses event at '%s'", obj->name, obj->id, gl_strftime(t2));
+//		debug("house %s (%d) sync_enduses event at '%s'", obj->name, obj->id, gl_strftime(t2));
 #endif
 
 	// get the fractions to properly apply themselves
@@ -2839,7 +2839,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 	if (t < t2) {
 		t2 = t;
 #ifdef _DEBUG
-//			gl_debug("house %s (%d) sync_panel event '%s'", obj->name, obj->id, gl_strftime(t2));
+//			debug("house %s (%d) sync_panel event '%s'", obj->name, obj->id, gl_strftime(t2));
 #endif
 	}
 
@@ -2889,7 +2889,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 				}
 			}
 		} else {
-			gl_error("Both the thermostat_off_cycle_time and the thermostat_on_cycle_time must be greater than zero.");
+			error("Both the thermostat_off_cycle_time and the thermostat_on_cycle_time must be greater than zero.");
 			return TS_INVALID;
 		}
 	} else {
@@ -2900,7 +2900,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 	if (isnan(dt2) || !isfinite(dt2) || dt2<0)
 	{
 #ifdef _DEBUG
-//		gl_debug("house %s (%d) time to next event is indeterminate", obj->name, obj->id);
+//		debug("house %s (%d) time to next event is indeterminate", obj->name, obj->id);
 #endif
 		// try again in 1 second if there is a solution in the future
 		//if (sgn(dTair)==sgn(Tevent-Tair) && Tevent) 
@@ -2913,7 +2913,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 		// need to do a second pass to get next state
 		t = t1+1; if (t<t2) t2 = t;
 #ifdef _DEBUG
-//		gl_debug("house %s (%d) time to next event is less than time resolution", obj->name, obj->id);
+//		debug("house %s (%d) time to next event is less than time resolution", obj->name, obj->id);
 #endif
 	}
 	else
@@ -2921,14 +2921,14 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 		// next event is found
 		t = t1+(TIMESTAMP)(ceil(dt2)*TS_SECOND); if (t<t2) t2 = t;
 #ifdef _DEBUG
-//		gl_debug("house %s (%d) time to next event is %.2f hrs", obj->name, obj->id, dt2/3600);
+//		debug("house %s (%d) time to next event is %.2f hrs", obj->name, obj->id, dt2/3600);
 #endif
 	}
 
 #ifdef _DEBUG
 	char tbuf[64];
 	gl_printtime(t2, tbuf, 64);
-//		gl_debug("house %s (%d) next event at '%s'", obj->name, obj->id, tbuf);
+//		debug("house %s (%d) next event at '%s'", obj->name, obj->id, tbuf);
 #endif
 
 	// enforce dwell time
@@ -2937,7 +2937,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 		TIMESTAMP t = (TIMESTAMP)(ceil((t2<0 ? -t2 : t2)/system_dwell_time)*system_dwell_time);
 		t2 = (t2<0 ? t : -t);
 	}
-	//gl_output("glsovers returns %f.",dt2);
+	//output("glsovers returns %f.",dt2);
 	//Update the off-return value
 	return t2;
 }
@@ -2972,7 +2972,7 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 		wunlock(obj->parent);
 
 	TIMESTAMP rv = paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
-	gl_debug("house postsync based on paneldump_interval=%lld --> %lld", paneldump_interval, rv);
+	debug("house postsync based on paneldump_interval=%lld --> %lld", paneldump_interval, rv);
 	return rv;
 }
 
@@ -3134,7 +3134,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if (TcoolOff<TheatOff && cooling_system_type!=CT_NONE)
 	{
 		char buffer[64];
-		gl_error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)), TcoolOff, TheatOff);
+		error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)), TcoolOff, TheatOff);
 		return TS_INVALID;
 	}
 
@@ -3142,7 +3142,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if(system_mode == SM_UNKNOWN)
 	{
 		char buffer[64];
-		gl_warning("%s: system_mode was unknown, changed to off", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)));
+		warning("%s: system_mode was unknown, changed to off", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)));
 		system_mode = SM_OFF;
 	}
 	
@@ -3347,7 +3347,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			c->status = BRK_CLOSED;
 			c->reclose = TS_NEVER;
 			t2 = t1; // must immediately reevaluate devices affected
-			gl_debug("house_e:%d panel breaker %d closed", obj->id, c->id);
+			debug("house_e:%d panel breaker %d closed", obj->id, c->id);
 		}
 
 		// if breaker is closed 
@@ -3356,7 +3356,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			// compute circuit current
 			if (((c->pV)->Mag() == 0) || (*pMeterStatus==0))	//Meter offline or voltage 0
 			{
-				gl_debug("house_e:%d circuit %d (enduse %s) voltage is zero", obj->id, c->id, c->pLoad->name);
+				debug("house_e:%d circuit %d (enduse %s) voltage is zero", obj->id, c->id, c->pLoad->name);
 
 				if (*pMeterStatus==0)	//If we've been disconnected, still apply latent load heat
 				{
@@ -3382,7 +3382,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 
 					// average five minutes before reclosing, exponentially distributed
 					c->reclose = t1 + (TIMESTAMP)(gl_random_exponential(RNGSTATE,1/300.0)*TS_SECOND); 
-					gl_debug("house_e:%d circuit breaker %d tripped - enduse %s overload at %.0f A", obj->id, c->id,
+					debug("house_e:%d circuit breaker %d tripped - enduse %s overload at %.0f A", obj->id, c->id,
 						c->pLoad->name, current.Mag());
 				}
 
@@ -3391,7 +3391,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					c->status = BRK_FAULT;
 					c->reclose = TS_NEVER;
-					gl_warning("house_e:%d, %s circuit breaker %d failed - enduse %s is no longer running", obj->id, obj->name, c->id, c->pLoad->name);
+					warning("house_e:%d, %s circuit breaker %d failed - enduse %s is no longer running", obj->id, obj->name, c->id, c->pLoad->name);
 				}
 
 				// must immediately reevaluate everything
@@ -3506,9 +3506,9 @@ TIMESTAMP house_e::sync_enduses(TIMESTAMP t0, TIMESTAMP t1)
 	//gl_strftime(&dt1, two, 127);
 	//gl_localtime(t2,&dt2);
 	//gl_strftime(&dt2, one, 127);
-	//gl_verbose("house_e:%d ~ sync_eu %s at %s", obj->id, one, two);
+	//verbose("house_e:%d ~ sync_eu %s at %s", obj->id, one, two);
 	//if(0 == strcmp("(invalid time)", gl_strftime(t2))){
-		//gl_verbose("TAKE NOTE OF THIS TIMESTEP");
+		//verbose("TAKE NOTE OF THIS TIMESTEP");
 	//}
 	return t2;
 }
@@ -3522,21 +3522,21 @@ void house_e::check_controls(void)
 		/* check for air temperature excursion */
 		if (Tair<warn_low_temp || Tair>warn_high_temp)
 		{
-			gl_warning("house_e:%d (%s) air temperature excursion (%.1f degF) at %s", 
+			warning("house_e:%d (%s) air temperature excursion (%.1f degF) at %s", 
 				obj->id, obj->name?obj->name:"anonymous", Tair, gl_strftime(obj->clock, buffer, 255));
 		}
 
 		/* check for mass temperature excursion */
 		if (Tmaterials<warn_low_temp || Tmaterials>warn_high_temp)
 		{
-			gl_warning("house_e:%d (%s) mass temperature excursion (%.1f degF) at %s", 
+			warning("house_e:%d (%s) mass temperature excursion (%.1f degF) at %s", 
 				obj->id, obj->name?obj->name:"anonymous", Tmaterials, gl_strftime(obj->clock, buffer, 255));
 		}
 
 		/* check for heating equipment sizing problem */
 		if ((system_mode==SM_HEAT || system_mode==SM_AUX) && Teq<heating_setpoint)
 		{
-			gl_warning("house_e:%d (%s) heating equipement undersized at %s", 
+			warning("house_e:%d (%s) heating equipement undersized at %s", 
 				obj->id, obj->name?obj->name:"anonymous", gl_strftime(obj->clock, buffer, 255));
 		}
 
@@ -3546,7 +3546,7 @@ void house_e::check_controls(void)
 			(cooling_system_type != CT_NONE) &&
 			Teq>cooling_setpoint)
 		{
-			gl_warning("house_e:%d (%s) cooling equipement undersized at %s", 
+			warning("house_e:%d (%s) cooling equipement undersized at %s", 
 				obj->id, obj->name?obj->name:"anonymous", gl_strftime(obj->clock, buffer, 255));
 		}
 
@@ -3554,7 +3554,7 @@ void house_e::check_controls(void)
 		if ((dTair>0 && Tevent<Tair) || (dTair<0 && Tevent>Tair))
 		{
 			char mode_buffer[1024];
-			gl_warning("house_e:%d (%s) possible control problem (system_mode %s) -- Tevent-Tair mismatch with dTair (Tevent=%.1f, Tair=%.1f, dTair=%.1f) at %s", 
+			warning("house_e:%d (%s) possible control problem (system_mode %s) -- Tevent-Tair mismatch with dTair (Tevent=%.1f, Tair=%.1f, dTair=%.1f) at %s", 
 				obj->id, obj->name?obj->name:"anonymous", gl_getvalue(obj,"system_mode", mode_buffer, 1023)==NULL?"ERR":mode_buffer, Tevent, Tair, dTair, gl_strftime(obj->clock, buffer, 255));
 		}
 	}

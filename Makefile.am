@@ -7,7 +7,7 @@
 # HiPAS GridLAB-D 4.2
 #   Copyright (C) 2020 Regents of the Leland Stanford Junior University
 #
-# Authors: 
+# Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
 ACLOCAL_AMFLAGS = -I m4
@@ -41,7 +41,7 @@ AM_LDFLAGS += $(GLD_LDFLAGS)
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST =
-dist_pkgdata_DATA = 
+dist_pkgdata_DATA =
 pkgdata_DATA =
 noinst_LTLIBRARIES =
 pkglib_LTLIBRARIES =
@@ -49,17 +49,13 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
+python_requirements = $(top_srcdir)/requirements.txt
+
+docs_targets =
+
 # required modules
-include third_party/superLU_MT/Makefile_combined.mk
-include third_party/jsonCpp/Makefile.mk
-include gldcore/link/engine/Makefile.mk
-include gldcore/link/matlab/Makefile.mk
-include gldcore/link/python/Makefile.mk
+include third_party/Makefile.mk
 include gldcore/Makefile.mk
-include gldcore/rt/Makefile.mk
-include gldcore/converters/Makefile.mk
-include gldcore/solvers/Makefile.mk
-include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
 include cloud/Makefile.mk
 
@@ -167,7 +163,7 @@ clean-wc:
 
 install-validate: install validate
 
-check-local validate: 
+check-local validate:
 	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilities/save_validation_output;exit 1))
 
 scratchdir = scratch
@@ -184,7 +180,7 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 		autoreconf -isf && ./configure && make
 	touch $@
 
-$(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp 
+$(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
 	test -d $@/gldcore || mkdir -p $@/gldcore
 # 	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
@@ -262,7 +258,7 @@ rpm-prep:
 clean-local: python-clean
 	@rm -rf $(top_srcdir)/documents/html
 	@rm -rf $(top_srcdir)/validate.txt
-	@rm -f $(top_srcdir)/gridlabd.spec 
+	@rm -f $(top_srcdir)/gridlabd.spec
 	@rm -f $(top_srcdir)/gridlabd.bin origin.txt
 	@rm -rf $(top_srcdir)/build
 	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
@@ -270,30 +266,30 @@ clean-local: python-clean
 distclean-local: python-clean
 	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh --depends)
 	@rm -rf $(top_srcdir)/autom4te.cache
-	@rm -f $(top_srcdir)/aclocal.m4 
+	@rm -f $(top_srcdir)/aclocal.m4
 	@rm -f $(top_srcdir)/autoscan.log
 	@rm -f $(top_srcdir)/m4/libtool.m4
 	@rm -f $(top_srcdir)/ltoptions.m4
 	@rm -f $(top_srcdir)/ltsugar.m4
 	@rm -f $(top_srcdir)/ltversion.m4
 	@rm -f $(top_srcdir)/lt~obsolete.m4
-	@rm -f $(top_srcdir)/configure 
-	@rm -f $(top_srcdir)/config.log 
-	@rm -f $(top_srcdir)/config.status 
-	@rm -f $(top_srcdir)/gridlabd.spec 
-	@rm -f $(top_srcdir)/libtool 
-	@rm -f $(top_srcdir)/Makefile 
+	@rm -f $(top_srcdir)/configure
+	@rm -f $(top_srcdir)/config.log
+	@rm -f $(top_srcdir)/config.status
+	@rm -f $(top_srcdir)/gridlabd.spec
+	@rm -f $(top_srcdir)/libtool
+	@rm -f $(top_srcdir)/Makefile
 	@rm -f $(top_srcdir)/Makefile.in
-	@rm -f $(top_srcdir)/build-aux/ar-lib 
-	@rm -f $(top_srcdir)/build-aux/compile 
-	@rm -f $(top_srcdir)/build-aux/config.log 
-	@rm -f $(top_srcdir)/build-aux/config.guess 
-	@rm -f $(top_srcdir)/build-aux/config.sub 
-	@rm -f $(top_srcdir)/build-aux/install-sh 
-	@rm -f $(top_srcdir)/build-aux/ltmain.sh 
-	@rm -f $(top_srcdir)/build-aux/missing 
+	@rm -f $(top_srcdir)/build-aux/ar-lib
+	@rm -f $(top_srcdir)/build-aux/compile
+	@rm -f $(top_srcdir)/build-aux/config.log
+	@rm -f $(top_srcdir)/build-aux/config.guess
+	@rm -f $(top_srcdir)/build-aux/config.sub
+	@rm -f $(top_srcdir)/build-aux/install-sh
+	@rm -f $(top_srcdir)/build-aux/ltmain.sh
+	@rm -f $(top_srcdir)/build-aux/missing
 	@rm -f $(top_srcdir)/build-aux/depcomp
-	@rm -f $(top_srcdir)/gridlabd.spec 
+	@rm -f $(top_srcdir)/gridlabd.spec
 	@rm -f $(top_srcdir)/gridlabd.bin origin.txt
 	@rm -rf $(top_srcdir)/build
 	@rm -rf $(top_srcdir)/documents/html
@@ -303,7 +299,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: index python-requirements python-install
+install-exec-hook: index python-requirements python-install docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -318,11 +314,11 @@ install-exec-hook: index python-requirements python-install
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
-python-requirements: requirements.txt
-	@python3 -m pip install -q -r $<
+python-requirements: $(python_requirements)
+	cat $(python_requirements) | python3 -m pip install -q -r /dev/stdin
 
 reconfigure: distclean
-	autoreconf -isf && ./configure
+	autoreconf -isf && ./configure --quiet
 
 libraries: armadillo
 	
@@ -337,7 +333,7 @@ third_party/armadillo-7.800.1: third_party/armadillo-7.800.1.tar.gz
 	@(cd $(top_srcdir)/third_party && tar xf armadillo-7.800.1.tar.gz) 
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
+	autoreconf -isf && ./configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
@@ -374,10 +370,11 @@ developer-html: # TODO
 	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
 
 troubleshooting-html:
-	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
+	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
 
 documents/gridlabd.pdf: documents/gridlabd.glm
 	(cd documents ; gridlabd gridlabd.glm)
 	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
 
+docs: $(docs_targets)

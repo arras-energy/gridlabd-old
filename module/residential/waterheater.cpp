@@ -231,7 +231,7 @@ int waterheater::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("waterheater::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("waterheater::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -254,15 +254,15 @@ int waterheater::init(OBJECT *parent)
 
 	if(pTair == 0){
 		pTair = &sTair;
-		gl_warning("waterheater parent lacks \'air_temperature\' property, using default");
+		warning("waterheater parent lacks \'air_temperature\' property, using default");
 	}
 	if(pTout == 0){
 		pTout = &sTout;
-		gl_warning("waterheater parent lacks \'outside_temperature\' property, using default");
+		warning("waterheater parent lacks \'outside_temperature\' property, using default");
 	}
 	if(pRH == 0){
 		pRH = &sTout;
-		gl_warning("waterheater parent lacks \'outside_temperature\' property, using default");
+		warning("waterheater parent lacks \'outside_temperature\' property, using default");
 	}
 
 	/* sanity checks */
@@ -271,7 +271,7 @@ int waterheater::init(OBJECT *parent)
 		if (tank_diameter <= 0) {
 			if (tank_height <= 0) {
 				// None of the parameters were set, so defaulting to a standard size
-				gl_warning( "waterheater::init() : tank volume, diameter, and height were not specified, defaulting to 50 gallons and 3.78 ft");
+				warning( "waterheater::init() : tank volume, diameter, and height were not specified, defaulting to 50 gallons and 3.78 ft");
 
 				tank_volume   = 50;				
 				tank_height   = 3.782; // was the old default for a 1.5 ft diameter
@@ -279,7 +279,7 @@ int waterheater::init(OBJECT *parent)
 				area 		  = (pi * pow(tank_diameter,2))/4;
 			} else {
 				// Only height was set, so defaulting to a standard gallon size
-				gl_warning( "waterheater::init() : tank volume and diameter were not specified, defaulting to 50 gallons");
+				warning( "waterheater::init() : tank volume and diameter were not specified, defaulting to 50 gallons");
 
 				tank_volume   = 50;
 				tank_diameter = 2 * sqrt( tank_volume * (1/GALPCF) / (pi * tank_height) );
@@ -288,14 +288,14 @@ int waterheater::init(OBJECT *parent)
 		} else {
 			if (tank_height <= 0) {
 				// Only tank diameter was set, so defaulting to a standard size
-				gl_warning( "waterheater::init() : tank volume and height were not specified, defaulting to 50 gallons");
+				warning( "waterheater::init() : tank volume and height were not specified, defaulting to 50 gallons");
 
 				tank_volume   = 50;				
 				area 		  = (pi * pow(tank_diameter,2))/4;
 				tank_height   = tank_volume/GALPCF / area;
 			} else {
 				// Tank volume was not set, so calculating size
-				gl_verbose( "waterheater::init() : tank volume was not specified, calculating from height and diameter");
+				verbose( "waterheater::init() : tank volume was not specified, calculating from height and diameter");
 				
 				area 		  = (pi * pow(tank_diameter,2))/4;
 				tank_volume   = area * tank_height * GALPCF;
@@ -303,7 +303,7 @@ int waterheater::init(OBJECT *parent)
 		}		
 	} else {
 		if (tank_volume > 100.0 || tank_volume < 20.0){
-			gl_error("watertank volume of %f outside the volume bounds of 20 to 100 gallons.", tank_volume);
+			error("watertank volume of %f outside the volume bounds of 20 to 100 gallons.", tank_volume);
 			/*	TROUBLESHOOT
 				All waterheaters must be set between 20 and 100 gallons.  Most waterheaters are assumed to be 50 gallon tanks.
 			*/
@@ -312,14 +312,14 @@ int waterheater::init(OBJECT *parent)
 		if (tank_height <= 0) {
 			if (tank_diameter <= 0) {
 				// Only tank volume was set, set defaulting to a standard size
-				gl_warning( "waterheater::init() : height and diameter were not specified, defaulting to 3.78 ft");
+				warning( "waterheater::init() : height and diameter were not specified, defaulting to 3.78 ft");
 		
 				tank_height   = 3.782; // was the old default for a 1.5 ft diameter
 				tank_diameter = 2 * sqrt( tank_volume * (1/GALPCF) / (pi * tank_height) );
 				area 		  = (pi * pow(tank_diameter,2))/4;
 			} else {
 				// Tank height was not set, so calculating size
-				gl_verbose( "waterheater::init() : tank height was not specified, calculating from volume and diameter");
+				verbose( "waterheater::init() : tank height was not specified, calculating from volume and diameter");
 				
 				area 		  = (pi * pow(tank_diameter,2))/4;
 				tank_height	  = tank_volume/GALPCF / area;
@@ -327,7 +327,7 @@ int waterheater::init(OBJECT *parent)
 		} else {
 			if (tank_diameter <= 0) {
 				// Tank volume and height were set, so calculating diameter
-				gl_verbose( "waterheater::init() : diameter was not specified, calculating from volume and height");
+				verbose( "waterheater::init() : diameter was not specified, calculating from volume and height");
 		
 				tank_diameter = 2 * sqrt( tank_volume * (1/GALPCF) / (pi * tank_height) );
 				area 		  = (pi * pow(tank_diameter,2))/4;
@@ -337,7 +337,7 @@ int waterheater::init(OBJECT *parent)
 				temp_tank_diameter = 2 * sqrt( tank_volume * (1/GALPCF) / (pi * tank_height) );
 
 				if ( abs(temp_tank_diameter - tank_diameter) > 0.05 ) {
-					gl_error( "waterheater::init() : tank volume, diameter, and height were all set, but did not agree with each other.  Please unspecify one variable to be calculated.");
+					error( "waterheater::init() : tank volume, diameter, and height were all set, but did not agree with each other.  Please unspecify one variable to be calculated.");
 					/*  TROUBLESHOOT
 						The three variables, tank_volume, tank_diameter, and height are geometrically dependent.  The values given are
 						not properly dependent ( volume = pi * (diameter/2)^2 * height ) to a relative precision of 0.05 feet in the
@@ -354,14 +354,14 @@ int waterheater::init(OBJECT *parent)
 	Cw = tank_volume/GALPCF * RHOWATER * Cp;  // [Btu/F]
 
 	if (height <= 0) {
-		gl_verbose("waterheater::init() : setting initial height to tank height.");
+		verbose("waterheater::init() : setting initial height to tank height.");
 		height = tank_height;
 	} else if (height > tank_height) {
-		gl_warning("waterheater::init() : height of water column was set to value greater than tank height. setting initial height to tank height.");
+		warning("waterheater::init() : height of water column was set to value greater than tank height. setting initial height to tank height.");
 		height = tank_height;
 	}
 	if (tank_setpoint<90 || tank_setpoint>160)
-		gl_error("watertank thermostat is set to %f and is outside the bounds of 90 to 160 degrees Fahrenheit (32.2 - 71.1 Celsius).", tank_setpoint);
+		error("watertank thermostat is set to %f and is outside the bounds of 90 to 160 degrees Fahrenheit (32.2 - 71.1 Celsius).", tank_setpoint);
 		/*	TROUBLESHOOT
 			All waterheaters must be set between 90 degF and 160 degF.
 		*/
@@ -679,7 +679,7 @@ TIMESTAMP waterheater::presync(TIMESTAMP t0, TIMESTAMP t1){
 
 	if(Tw > 212.0){
 		//GL_THROW("the waterheater is boiling!");
-		gl_warning("waterheater:%i is boiling", my->id);
+		warning("waterheater:%i is boiling", my->id);
 		/*	TROUBLESHOOT
 			The temperature model for the waterheater has broken, or the environment around the
 			waterheater has burst into flames.  Please post this with your model and dump files
@@ -1349,7 +1349,7 @@ double waterheater::actual_kW(void)
         if ( actual_voltage > 2.0*nominal_voltage )
         {
             if (trip_counter++ > 10)
-				gl_error("Water heater line voltage for waterheater:%d is too high, exceeds twice nominal voltage.",obj->id);
+				error("Water heater line voltage for waterheater:%d is too high, exceeds twice nominal voltage.",obj->id);
 			/*	TROUBLESHOOT
 				The waterheater is receiving twice the nominal voltage consistantly, or about 480V on what
 				should be a 240V circuit.  Please sanity check your powerflow model as it feeds to the
@@ -1526,7 +1526,7 @@ void waterheater::wrong_model(WRONGMODEL msg)
 {
 	const char *errtxt[] = {"model is not one-zone", "model is not two-zone"};
 	OBJECT *obj = THISOBJECTHDR;
-	gl_warning("%s (waterheater:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
+	warning("%s (waterheater:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the waterheater code, not by the core
 }
 

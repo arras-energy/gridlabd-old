@@ -126,7 +126,7 @@ EVDEMAND *load_demand_profile(char *filename)
 	char filepath[1024];
 	if (gl_findfile(filename,NULL,R_OK,filepath,sizeof(filepath))==NULL)	
 	{
-		//gl_error("searching for demand profile file '%s'",filename);
+		//error("searching for demand profile file '%s'",filename);
 		GL_THROW( "unable to find demand profile" );
 	}
 	EVDEMAND *data = new EVDEMAND;
@@ -142,7 +142,7 @@ EVDEMAND *load_demand_profile(char *filename)
 	FILE *fp = fopen(filepath,"r");
 	if (fp==NULL)
 	{	
-		//gl_error("reading file %s line %d",filename,linenum);
+		//error("reading file %s line %d",filename,linenum);
 		GL_THROW( "unable to read demand profile in '%s' at line %d", filename, linenum );
 	}
 	char line[1024];
@@ -341,7 +341,7 @@ int evcharger::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("evcharger::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("evcharger::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -422,7 +422,7 @@ double evcharger::update_state(double dt /* seconds */)
 		case VS_HOME:
 			if (gl_random_bernoulli(RNGSTATE,demand.home*dt/3600))
 			{
-				gl_debug("%s (%s:%d) leaves for work with %.0f%% charge",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id,charge*100);
+				debug("%s (%s:%d) leaves for work with %.0f%% charge",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id,charge*100);
 				vehicle_state = VS_WORK;
 			}
 			break;
@@ -437,9 +437,9 @@ double evcharger::update_state(double dt /* seconds */)
 				if (charge<0.25 && vehicle_type==VT_HYBRID)
 					charge = 0.25;
 				if (charge<=0)
-					gl_warning("%s (%s:%d) vehicle has run out of charge while away from home", obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
+					warning("%s (%s:%d) vehicle has run out of charge while away from home", obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
 				else
-					gl_debug("%s (%s:%d) returns from work with %.0f%% charge",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id, charge*100);
+					debug("%s (%s:%d) returns from work with %.0f%% charge",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id, charge*100);
 			}
 			break;
 		// these are not yet supported
@@ -495,19 +495,19 @@ double evcharger::update_state(double dt /* seconds */)
 			charge += d_charge_kWh/capacity;
 			if (charge>1.0)
 			{
-				gl_warning("%s (%s:%d) overcharge by %.0f%% truncated",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id, (charge-1)*100);
+				warning("%s (%s:%d) overcharge by %.0f%% truncated",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id, (charge-1)*100);
 				// TODO: the balance of charge should be dumped as heat into the garage
 				charge = 1.0;
 			}
 			else if (charge<0.0)
 			{
-				gl_warning("%s (%s:%d) 100%% discharged", obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
+				warning("%s (%s:%d) 100%% discharged", obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
 				// TODO: the balance of charge should be dumped as heat into the garage
 				charge = 0.0;
 			}
 			else if (charge>0.999)
 			{
-				gl_debug("%s (%s:%d) charge complete",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
+				debug("%s (%s:%d) charge complete",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
 				charge = 1.0;
 			}
 
@@ -579,7 +579,7 @@ TIMESTAMP evcharger::sync(TIMESTAMP t0, TIMESTAMP t1)
 			load.energy += (load.total * gl_tohours(t1-t0));
 	double dt = update_state(gl_toseconds(t1-t0));
 	if (dt==0)
-		gl_warning("%s (%s:%d) didn't advance the clock",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
+		warning("%s (%s:%d) didn't advance the clock",obj->name?obj->name:"anonymous",obj->oclass->name,obj->id);
 
 
 	return dt<0 ? TS_NEVER : (TIMESTAMP)(t1+dt*TS_SECOND); 

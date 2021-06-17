@@ -142,7 +142,7 @@ int thermal_storage::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("thermal_storage::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("thermal_storage::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -171,7 +171,7 @@ int thermal_storage::init(OBJECT *parent)
 	//Check the cooling capacity
 	if ( design_cooling_capacity == NULL )
 	{
-		gl_warning("\'design_cooling_capacity\' not specified in parent ~ default to 5 ton or 60,000 Btu/hr");
+		warning("\'design_cooling_capacity\' not specified in parent ~ default to 5 ton or 60,000 Btu/hr");
 		/* TROUBLESHOOT
 			The thermal_storage did not reference a parent object that publishes design_cooling_capacity, so 5 ton was assumed.
 			Confirm or change the parent reference and try again.
@@ -200,7 +200,7 @@ int thermal_storage::init(OBJECT *parent)
 	} else if (state_of_charge >= 0 && stored_capacity >= 0)
 	{
 		stored_capacity = (state_of_charge / 100) * total_capacity;
-		gl_warning("stored_capacity and SOC are both defined, SOC being used for initial energy state");
+		warning("stored_capacity and SOC are both defined, SOC being used for initial energy state");
 		/*  TROUBLESHOOT
 		During the initialization of the system, a value was specified for both the stored_capacity and SOC (state of charge).
 		The thermal energy storage object gives precedence to the SOC variable, so the initial stored_capacity will be the SOC
@@ -238,7 +238,7 @@ int thermal_storage::init(OBJECT *parent)
 			}
 		}
 
-		gl_verbose("thermal_storage charging defaulting to internal schedule");
+		verbose("thermal_storage charging defaulting to internal schedule");
 		/*  TROUBLESHOOT
 		recharge_schedule_type was not set to EXTERNAL, so the internal schedule definition will be used
 		for the recharging schedule.
@@ -276,7 +276,7 @@ int thermal_storage::init(OBJECT *parent)
 			}
 		}
 
-		gl_verbose("thermal_storage discharging defaulting to internal schedule");
+		verbose("thermal_storage discharging defaulting to internal schedule");
 		/*  TROUBLESHOOT
 		discharge_schedule_type was not set to EXTERNAL, so the internal schedule definition will be used
 		for the discharging availability schedule.
@@ -311,7 +311,7 @@ TIMESTAMP thermal_storage::sync(TIMESTAMP t0, TIMESTAMP t1)
 	{
 		if (*recharge_time_ptr == 1 && *discharge_time_ptr == 1)
 		{
-			gl_warning("recharge and discharge can not both be scheduled to be concurrently on ~ defaulting to recharge");
+			warning("recharge and discharge can not both be scheduled to be concurrently on ~ defaulting to recharge");
 			/*  TROUBLEHSOOT
 			The schedules or control values used to determine when the thermal energy storage can charge or discharge are overlapping.  In this
 			case, the system gives precedence to recharging the thermal energy storage.  If this behavior is undesired, please ensure proper time

@@ -62,7 +62,7 @@ public:
 	};
 
 	/* assignment operations */
-	inline complex &operator = (complex x) /**< complex assignment */
+	inline complex &operator = (const complex &x) /**< complex assignment */
 	{
 		r = x.r;
 		i = x.i;
@@ -206,26 +206,26 @@ public:
 		i = (b*sin(c));
 		return *this;
 	};
-	inline complex &operator += (complex x) /**< add a complex number */
+	inline complex &operator += (const complex &x) /**< add a complex number */
 	{
 		r += x.r;
 		i += x.i;
 		return *this;
 	};
-	inline complex &operator -= (complex x)  /**< subtract a complex number */
+	inline complex &operator -= (const complex &x)  /**< subtract a complex number */
 	{
 		r -= x.r;
 		i -= x.i;
 		return *this;
 	};
-	inline complex &operator *= (complex x)  /**< multip[le by a complex number */
+	inline complex &operator *= (const complex &x)  /**< multip[le by a complex number */
 	{
 		double pr=r;
 		r = pr * x.r - i * x.i;
 		i = pr * x.i + i * x.r;
 		return *this;
 	};
-	inline complex &operator /= (complex y)  /**< divide by a complex number */
+	inline complex &operator /= (const complex &y)  /**< divide by a complex number */
 	{
 		double xr=r;
 		double a = y.r*y.r+y.i*y.i;
@@ -233,7 +233,7 @@ public:
 		i = (i*y.r-xr*y.i)/a;
 		return *this;
 	};
-	inline complex &operator ^= (complex x) /**< raise to a complex power */
+	inline complex &operator ^= (const complex &x) /**< raise to a complex power */
 	{
 		double lm = log(Mag()), a = Arg(), b = exp(x.r*lm-x.i*a), c = x.r*a+x.i*lm;
 		r = (b*cos(c));
@@ -242,52 +242,52 @@ public:
 	};
 
 	/* binary math operations */
-	inline complex operator + (double y) /**< double sum */
+	inline complex operator + (double y) const /**< double sum */
 	{
 		complex x(*this);
 		return x+=y;
 	};
-	inline complex operator - (double y) /**< double subtract */
+	inline complex operator - (double y) const /**< double subtract */
 	{
 		complex x(*this);
 		return x-=y;
 	};
-	inline complex operator * (double y) /**< double multiply */
+	inline complex operator * (double y) const /**< double multiply */
 	{
 		complex x(*this);
 		return x*=y;
 	};
-	inline complex operator / (double y) /**< double divide */
+	inline complex operator / (double y) const /**< double divide */
 	{
 		complex x(*this);
 		return x/=y;
 	};
-	inline complex operator ^ (double y) /**< double power */
+	inline complex operator ^ (double y) const /**< double power */
 	{
 		complex x(*this);
 		return x^=y;
 	};
-	inline complex operator + (complex y) /**< complex sum */
+	inline complex operator + (const complex &y) const /**< complex sum */
 	{
 		complex x(*this);
 		return x+=y;
 	};
-	inline complex operator - (complex y) /**< complex subtract */
+	inline complex operator - (const complex &y) const /**< complex subtract */
 	{
 		complex x(*this);
 		return x-=y;
 	};
-	inline complex operator * (complex y) /**< complex multiply */
+	inline complex operator * (const complex &y) const /**< complex multiply */
 	{
 		complex x(*this);
 		return x*=y;
 	};
-	inline complex operator / (complex y) /**< complex divide */
+	inline complex operator / (const complex &y) const /**< complex divide */
 	{
 		complex x(*this);
 		return x/=y;
 	};
-	inline complex operator ^ (complex y) /**< complex power */
+	inline complex operator ^ (const complex &y) const /**< complex power */
 	{
 		complex x(*this);
 		return x^=y;
@@ -310,21 +310,21 @@ public:
 	}
 
 	/* magnitude comparisons */
-	inline bool operator == (double m)	{ return Mag()==m; };
-	inline bool operator != (double m)	{ return Mag()!=m; };
-	inline bool operator < (double m)	{ return Mag()<m; };
-	inline bool operator <= (double m)	{ return Mag()<=m; };
-	inline bool operator > (double m)	{ return Mag()>m; };
-	inline bool operator >= (double m)	{ return Mag()>=m; };
+	inline bool operator == (double m) const { return Mag()==m; };
+	inline bool operator != (double m) const { return Mag()!=m; };
+	inline bool operator < (double m) const { return Mag()<m; };
+	inline bool operator <= (double m) const { return Mag()<=m; };
+	inline bool operator > (double m) const { return Mag()>m; };
+	inline bool operator >= (double m) const { return Mag()>=m; };
 
 	/* angle comparisons */
-	inline complex operator == (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)==0.0;};
-	inline complex operator != (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)!=0.0;};
-	inline complex operator < (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)<PI;};
-	inline complex operator <= (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)<=PI;};
-	inline complex operator > (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)>PI;};
-	inline complex operator >= (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)>=PI;};
-	inline bool IsFinite(void) { return isfinite(r) && isfinite(i); };
+	inline complex operator == (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)==0.0;};
+	inline complex operator != (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)!=0.0;};
+	inline complex operator < (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)<PI;};
+	inline complex operator <= (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)<=PI;};
+	inline complex operator > (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)>PI;};
+	inline complex operator >= (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)>=PI;};
+	inline bool IsFinite(void) const { return isfinite(r) && isfinite(i); };
 };
 
 #ifdef REAL4

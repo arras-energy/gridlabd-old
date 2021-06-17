@@ -153,7 +153,7 @@ int fuse::init(OBJECT *parent)
 	{
 		current_limit = 9999.0;	//Set to arbitrary large value
 
-		gl_warning("fuse:%s has a zero current limit - set to 9999.9 Amps",obj->name);
+		warning("fuse:%s has a zero current limit - set to 9999.9 Amps",obj->name);
 		/*  TROUBLESHOOT
 		A fuse somehow had a current limit of 0.0 Amps set.  This is invalid, so a placeholder
 		value of 9999.0 Amps is used.  Please adjust this value accordingly.
@@ -162,7 +162,7 @@ int fuse::init(OBJECT *parent)
 
 	if (mean_replacement_time<=0.0)	//Make sure the time makes sense
 	{
-		gl_warning("Fuse:%s has a negative or 0 mean replacement time - defaulting to 1 hour",obj->name);
+		warning("Fuse:%s has a negative or 0 mean replacement time - defaulting to 1 hour",obj->name);
 		/*  TROUBLESHOOT
 		A fuse has a negative or zero time specified for mean_replacement_time.  The value has therefore been
 		overridden to 1 hour.  If this is unacceptable, please change the value in your GLM file.
@@ -175,7 +175,7 @@ int fuse::init(OBJECT *parent)
 
 	if (solver_method==SM_FBS)
 	{
-		gl_warning("Fuses only work for the attached node in the FBS solver, not any deeper.");
+		warning("Fuses only work for the attached node in the FBS solver, not any deeper.");
 		/*  TROUBLESHOOT
 		Under the Forward-Back sweep method, fuses can only affect their directly attached downstream node.
 		Due to the nature of the FBS algorithm, nodes further downstream (especially constant current loads)
@@ -186,7 +186,7 @@ int fuse::init(OBJECT *parent)
 	//check the fuse resistance value to see that it is not zero
 	if (solver_method == SM_NR){
 		if(fuse_resistance == 0.0){
-			gl_warning("Fuse:%s fuse_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
+			warning("Fuse:%s fuse_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
 			/*  TROUBLESHOOT
 			Under Newton-Raphson solution method the impedance matrix cannot be a singular matrix for the inversion process.
 			Change the value of fuse_resistance to something small but larger that zero.
@@ -323,7 +323,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 				//Make sure it was found
 				if (event_schedule == NULL)
 				{
-					gl_warning("Unable to map add_event function in eventgen:%s",*(*eventgen_obj)->name);
+					warning("Unable to map add_event function in eventgen:%s",*(*eventgen_obj)->name);
 					/*  TROUBLESHOOT
 					While attempting to map the "add_event" function from an eventgen object, the function failed to be
 					found.  Ensure the target object in fault_check is an eventgen object and this function exists.  If
@@ -400,7 +400,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			if ((current_current_values[0] > current_limit) && (phase_A_state == GOOD))
 			{
 				phase_A_state = BLOWN;	//Blow the fuse
-				gl_warning("Phase A of fuse:%s just blew!",obj->name);
+				warning("Phase A of fuse:%s just blew!",obj->name);
 				/*  TROUBLESHOOT
 				The current through phase A of the fuse just exceeded the maximum rated value.
 				Use a larger value, or otherwise change your system and try again.
@@ -442,7 +442,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			{
 				phase_B_state = BLOWN;	//Blow the fuse
 
-				gl_warning("Phase B of fuse:%s just blew!",obj->name);
+				warning("Phase B of fuse:%s just blew!",obj->name);
 				/*  TROUBLESHOOT
 				The current through phase B of the fuse just exceeded the maximum rated value.
 				Use a larger value, or otherwise change your system and try again.
@@ -484,7 +484,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			{
 				phase_C_state = BLOWN;	//Blow the fuse
 
-				gl_warning("Phase C of fuse:%s just blew!",obj->name);
+				warning("Phase C of fuse:%s just blew!",obj->name);
 				/*  TROUBLESHOOT
 				The current through phase C of the fuse just exceeded the maximum rated value.
 				Use a larger value, or otherwise change your system and try again.
@@ -607,7 +607,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			}	//End fault object present
 			else	//No object, just fail us out - save the iterations
 			{
-				gl_warning("No fault_check object present - Newton-Raphson solver may fail!");
+				warning("No fault_check object present - Newton-Raphson solver may fail!");
 				/*  TROUBLESHOOT
 				A fuse blew and created an open link.  If the system is not meshed, the Newton-Raphson
 				solver will likely fail.  Theoretically, this should be a quick fail due to a singular matrix.
@@ -1055,7 +1055,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 				*fixtime = prev_fuse_time + (int64)(3600*gl_random_exponential(RNGSTATE,1.0/mean_replacement_time));
 
 				//Announce it for giggles
-				gl_warning("Phase %c of fuse:%d (%s) just blew",phase_verbose,hdr->id,hdr->name);
+				warning("Phase %c of fuse:%d (%s) just blew",phase_verbose,hdr->id,hdr->name);
 			}
 			else	//Still good
 			{
@@ -1074,7 +1074,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 				*fixtime = TS_NEVER;	//Update the time check just in case
 
 				//Send an announcement for giggles
-				gl_warning("Phase %c of fuse:%d (%s) just returned to service",phase_verbose,hdr->id,hdr->name);
+				warning("Phase %c of fuse:%d (%s) just returned to service",phase_verbose,hdr->id,hdr->name);
 			}
 			else //Still driving there or on break, no fixed yet
 			{
