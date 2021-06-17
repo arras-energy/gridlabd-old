@@ -10,9 +10,8 @@ brew install autoconf automake libtool gnu-sed gawk armadillo
 [ ! -e /usr/local/bin/sed ] && ln -s /usr/local/bin/gsed /usr/local/bin/sed
 [ ! -e /usr/local/bin/libtoolize ] && ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
 
-# python3
+# install python3
 brew install python3
-pip3 install matplotlib pandas numpy Pillow networkx pytz
 
 # docs generators
 brew install mono
