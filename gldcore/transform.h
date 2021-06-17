@@ -131,6 +131,9 @@ int transform_to_string(char *buffer, int size, TRANSFORM *xform);
 int transform_write(TRANSFORM *xform, FILE *fp);
 int transform_saveall(FILE *fp);
 
+int transfer_function_to_json(char *buffer, int size, TRANSFERFUNCTION *tf);
+TRANSFERFUNCTION *transfer_function_getfirst(void);
+
 #ifdef __cplusplus
 }
 #endif

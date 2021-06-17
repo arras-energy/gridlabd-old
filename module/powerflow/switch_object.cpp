@@ -138,7 +138,7 @@ int switch_object::init(OBJECT *parent)
 		}
 
 		//Generic warning for switches
-		gl_warning("switch objects may not behave properly under FBS!");
+		warning("switch objects may not behave properly under FBS!");
 		/*  TROUBLESHOOT
 		Due to the nature of the forward-backward sweep algorithm, and open
 		switch may induce the desired behavior on the system.  If open, it should prevent
@@ -163,7 +163,7 @@ int switch_object::init(OBJECT *parent)
 		}
 
 		if(switch_resistance == 0.0){
-			gl_warning("Switch:%s switch_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
+			warning("Switch:%s switch_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
 			/*  TROUBLESHOOT
 			Under Newton-Raphson solution method the impedance matrix cannot be a singular matrix for the inversion process.
 			Change the value of switch_resistance to something small but larger that zero.
@@ -660,7 +660,7 @@ void switch_object::NR_switch_sync_post(char *work_phases_pre, char *work_phases
 			}	//End fault object present
 			else	//No object, just fail us out - save the iterations
 			{
-				gl_warning("No fault_check object present - Newton-Raphson solver may fail!");
+				warning("No fault_check object present - Newton-Raphson solver may fail!");
 				/*  TROUBLESHOOT
 				A switch changed and created an open link.  If the system is not meshed, the Newton-Raphson
 				solver will likely fail.  Theoretically, this should be a quick fail due to a singular matrix.
@@ -696,7 +696,7 @@ TIMESTAMP switch_object::sync(TIMESTAMP t0)
 				//Make sure it was found
 				if (event_schedule == NULL)
 				{
-					gl_warning("Unable to map add_event function in eventgen:%s",*(*eventgen_obj)->name);
+					warning("Unable to map add_event function in eventgen:%s",*(*eventgen_obj)->name);
 					/*  TROUBLESHOOT
 					While attempting to map the "add_event" function from an eventgen object, the function failed to be
 					found.  Ensure the target object in fault_check is an eventgen object and this function exists.  If
@@ -1421,7 +1421,7 @@ void switch_object::set_switch(bool desired_status)
 	}
 	else
 	{
-		gl_warning("Switch status updated, but no other changes made.");
+		warning("Switch status updated, but no other changes made.");
 		/*  TROUBLESHOOT
 		When changed under solver methods other than NR, only the switch status
 		is changed.  The solver handles other details in a specific step, so no

@@ -48,7 +48,7 @@ int appliance::create()
 int appliance::init(OBJECT *parent)
 {
 
-	gl_warning("This device, %s, is considered very experimental and has not been validated.", get_name());
+	warning("This device, %s, is considered very experimental and has not been validated.", get_name());
 
 	// check that duration is a vector
 	if ( duration.get_rows()!=1 )
@@ -58,7 +58,7 @@ int appliance::init(OBJECT *parent)
 	n_states = (unsigned int)duration.get_cols();
 	if ( state<0 || state>=n_states )
 		exception("initial state must be between 0 and %d, inclusive", n_states-1);
-	gl_debug("n_states = %d (initial state is %d)", n_states, state);
+	debug("n_states = %d (initial state is %d)", n_states, state);
 
 	// transition must be either 1xN or NxN
 	if ( ( transition.get_rows()!=1 && transition.get_rows()!=n_states ) || transition.get_cols()!=n_states )
@@ -119,19 +119,19 @@ void appliance::update_next_t(void)
 	{
 		// transition occurs exactly at the next scheduled time
 		next_t = gl_globalclock + (TIMESTAMP)duration.get_at(0,state);
-		gl_debug("%s: non-probabilistic transition scheduled at %lld", get_name(), next_t);
+		debug("%s: non-probabilistic transition scheduled at %lld", get_name(), next_t);
 	}
 	else if ( gl_random_uniform(&my()->rng_state,0,1)<transition_probability )
 	{
 		// transition is uncertain
 		next_t = gl_globalclock + (TIMESTAMP)gl_random_uniform(&my()->rng_state,1,duration.get_at(0,state));
-		gl_debug("%s: transition scheduled at %lld", get_name(), next_t);
+		debug("%s: transition scheduled at %lld", get_name(), next_t);
 	}
 	else
 	{
 		// transition does not occur so check in again later
 		next_t = -(gl_globalclock + (TIMESTAMP)duration.get_at(0,state));
-		gl_debug("%s: no transition scheduled prior to %lld", get_name(), next_t);
+		debug("%s: no transition scheduled prior to %lld", get_name(), next_t);
 	}
 }
 void appliance::update_power(void)
@@ -148,7 +148,7 @@ void appliance::update_state(void)
 	{
 		// linear transition array
 		state = (state+1)%n_states;
-		gl_debug("%s: now in state %d", get_name(), state);
+		debug("%s: now in state %d", get_name(), state);
 	}
 	else
 	{
@@ -166,7 +166,7 @@ void appliance::update_state(void)
 			if ( rn<0 )
 			{
 				state = n;
-				gl_debug("%s: now in state %d", get_name(), state);
+				debug("%s: now in state %d", get_name(), state);
 				break;
 			}
 		}
@@ -197,7 +197,7 @@ int appliance::precommit(TIMESTAMP t1)
 	// next transition was missed somehow (this should never occur)
 	else if ( now>next_t )
 	{	
-		gl_error("%s: transition at %lld missed", get_name(), next_t); 
+		error("%s: transition at %lld missed", get_name(), next_t); 
 		return 0;
 	}
 

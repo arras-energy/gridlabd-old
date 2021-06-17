@@ -1,1 +1,1 @@
-#exec echo "this is an error message" > /dev/stderr
+#exec echo "this is an error message" && exit 1 > /dev/stderr

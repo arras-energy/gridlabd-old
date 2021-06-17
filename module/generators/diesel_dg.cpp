@@ -817,7 +817,7 @@ int diesel_dg::init(OBJECT *parent)
 	else
 	{
 		OBJECT *obj = THISOBJECTHDR;
-		gl_warning("diesel_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
+		warning("diesel_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
 		// attach meter variables to each circuit in the default_meter
 			*(map[0].var) = &default_line123_voltage[0];
@@ -837,7 +837,7 @@ int diesel_dg::init(OBJECT *parent)
 		Gen_type=DYNAMIC;
 
 		//Pass a warning
-		gl_warning("diesel_dg:%s forced into DYN_SYNCHRONOUS mode",obj->name?obj->name:"unnamed");
+		warning("diesel_dg:%s forced into DYN_SYNCHRONOUS mode",obj->name?obj->name:"unnamed");
 		/*  TROUBLESHOOT
 		The diesel_dg object had the deltamode_inclusive flag set, but was not of the DYN_SYNCHRONOUS type.
 		It has been forced to this type.  If this is not desired, please remove the deltamode_inclusive flag
@@ -868,7 +868,7 @@ int diesel_dg::init(OBJECT *parent)
 		{
 			Rated_VA = 12000.0;
 
-			gl_warning("Generator power not specified, defaulting to 12 KVA");
+			warning("Generator power not specified, defaulting to 12 KVA");
 			/*  TROUBLESHOOT
 			A rated power for the diesel_dg object was not specified for the non-dynamic
 			operation.  It has been assigned a default of 12 KVA.
@@ -881,7 +881,7 @@ int diesel_dg::init(OBJECT *parent)
 		{
 			Rated_V = 480.0;
 
-			gl_warning("Generator voltage not specified, defaulting to 480 V");
+			warning("Generator voltage not specified, defaulting to 480 V");
 			/*  TROUBLESHOOT
 			A rated voltage for the diesel_dg object was not specified for the non-dynamic
 			operation.  It has been assigned a default of 480 V.
@@ -938,7 +938,7 @@ int diesel_dg::init(OBJECT *parent)
 		{
 			Rated_VA = 10e6;	//Set to parameter-basis default
 
-			gl_warning("diesel_dg:%s did not have a valid Rated_VA set, assuming 10 MVA",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s did not have a valid Rated_VA set, assuming 10 MVA",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The Rated_VA value was not set or was set to a negative number.  It is being forced to 10 MVA, which is
 			the machine base for all of the other default parameter values.
@@ -950,7 +950,7 @@ int diesel_dg::init(OBJECT *parent)
 		{
 			Rated_V = 15000.0;	//Set to parameter-basis default
 
-			gl_warning("diesel_dg:%s did not have a valid Rated_V set, assuming 15 kV",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s did not have a valid Rated_V set, assuming 15 kV",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The Rated_V property was not set or was invalid.  It is being forced to 15 kV, which aligns with the base for
 			all default parameters.  This will be checked again later to see if it matches the connecting point.  If this
@@ -990,7 +990,7 @@ int diesel_dg::init(OBJECT *parent)
 		//Check specified power against per-phase limit (power_base) - impose that for now
 		if (power_val[0].Mag()>power_base)
 		{
-			gl_warning("diesel_dg:%s - power_out_A is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_A is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_A value that is above 1/3 the total rating.  It will be thresholded to
 			that level.
@@ -1008,7 +1008,7 @@ int diesel_dg::init(OBJECT *parent)
 
 		if (power_val[1].Mag()>power_base)
 		{
-			gl_warning("diesel_dg:%s - power_out_B is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_B is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_B value that is above 1/3 the total rating.  It will be thresholded to
 			that level.
@@ -1026,7 +1026,7 @@ int diesel_dg::init(OBJECT *parent)
 
 		if (power_val[2].Mag()>power_base)
 		{
-			gl_warning("diesel_dg:%s - power_out_C is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_C is above 1/3 the total rating, capping",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_C value that is above 1/3 the total rating.  It will be thresholded to
 			that level.
@@ -1045,7 +1045,7 @@ int diesel_dg::init(OBJECT *parent)
 		//Check for zeros - if any are zero, 50% them (real generator, arbitrary)
 		if (power_val[0].Mag() == 0.0)
 		{
-			gl_warning("diesel_dg:%s - power_out_A is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_A is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_A value that is zero.  This can cause the generator to never
 			partake in the powerflow.  It is being arbitrarily set to 50% of the per-phase rating.  If this is
@@ -1057,7 +1057,7 @@ int diesel_dg::init(OBJECT *parent)
 
 		if (power_val[1].Mag() == 0.0)
 		{
-			gl_warning("diesel_dg:%s - power_out_B is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_B is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_B value that is zero.  This can cause the generator to never
 			partake in the powerflow.  It is being arbitrarily set to 50% of the per-phase rating.  If this is
@@ -1069,7 +1069,7 @@ int diesel_dg::init(OBJECT *parent)
 
 		if (power_val[2].Mag() == 0.0)
 		{
-			gl_warning("diesel_dg:%s - power_out_C is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - power_out_C is zero - arbitrarily setting to 50%%",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has a power_out_C value that is zero.  This can cause the generator to never
 			partake in the powerflow.  It is being arbitrarily set to 50% of the per-phase rating.  If this is
@@ -1084,7 +1084,7 @@ int diesel_dg::init(OBJECT *parent)
 		//Check if the convergence criterion is proper
 		if (rotor_speed_convergence_criterion<0.0)
 		{
-			gl_warning("diesel_dg:%s - rotor_speed_convergence is less than zero - negating",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - rotor_speed_convergence is less than zero - negating",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The value specified for deltamode convergence, rotor_speed_convergence, is a negative value.
 			It has been made positive.
@@ -1094,7 +1094,7 @@ int diesel_dg::init(OBJECT *parent)
 		}
 		else if (rotor_speed_convergence_criterion==0.0)
 		{
-			gl_warning("diesel_dg:%s - rotor_speed_convergence is zero - it may never exit deltamode!",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s - rotor_speed_convergence is zero - it may never exit deltamode!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			A zero value has been specified as the deltamode convergence criterion for rotor speed.  This is an incredibly tight
 			tolerance and may result in the system never converging and exiting deltamode.
@@ -1150,7 +1150,7 @@ int diesel_dg::init(OBJECT *parent)
 			//See if the exciter is enabled
 			if (Exciter_type == NO_EXC)
 			{
-				gl_warning("diesel_dg:%s - voltage convergence is enabled, but no exciter is present",(obj->name ? obj->name : "unnamed"));
+				warning("diesel_dg:%s - voltage convergence is enabled, but no exciter is present",(obj->name ? obj->name : "unnamed"));
 				/*  TROUBLESHOOT
 				While performing simple checks on the voltage convergence criterion, no exciter is turned on.  This convergence check
 				does nothing in this situation -- it requires an exciter to function
@@ -1160,7 +1160,7 @@ int diesel_dg::init(OBJECT *parent)
 			//Check if the convergence criterion is proper
 			if (voltage_convergence_criterion<0.0)
 			{
-				gl_warning("diesel_dg:%s - voltage_convergence is less than zero - negating",obj->name?obj->name:"unnamed");
+				warning("diesel_dg:%s - voltage_convergence is less than zero - negating",obj->name?obj->name:"unnamed");
 				/*  TROUBLESHOOT
 				The value specified for deltamode convergence, voltage_convergence, is a negative value.
 				It has been made positive.
@@ -1170,7 +1170,7 @@ int diesel_dg::init(OBJECT *parent)
 			}
 			else if (voltage_convergence_criterion==0.0)
 			{
-				gl_warning("diesel_dg:%s - voltage_convergence is zero - it may never exit deltamode!",obj->name?obj->name:"unnamed");
+				warning("diesel_dg:%s - voltage_convergence is zero - it may never exit deltamode!",obj->name?obj->name:"unnamed");
 				/*  TROUBLESHOOT
 				A zero value has been specified as the deltamode convergence criterion for voltage magnitude.  This is an incredibly tight
 				tolerance and may result in the system never converging and exiting deltamode.
@@ -1207,7 +1207,7 @@ int diesel_dg::init(OBJECT *parent)
 		//Check global, for giggles
 		if (enable_subsecond_models!=true)
 		{
-			gl_warning("diesel_dg:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has the deltamode_inclusive flag set, but not the module-level enable_subsecond_models flag.  The generator
 			will not simulate any dynamics this way.
@@ -1278,7 +1278,7 @@ int diesel_dg::init(OBJECT *parent)
 
 	if (Kd1 == 0) {
 		if (Kd2 == 0) {
-			gl_warning("diesel_dg:%d %s - cannot set both Kd1 and Kd2 as 0 for the CVR conntrol! Have changed Kd2 to be 1",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("diesel_dg:%d %s - cannot set both Kd1 and Kd2 as 0 for the CVR conntrol! Have changed Kd2 to be 1",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The diesel_dg is not flagged for deltamode operations, yet deltamode simulations are enabled for the overall system.  When deltamode
 			triggers, this generator may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
@@ -1507,7 +1507,7 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//Make sure it worked
 			if (torque_delay == NULL)
 			{
-				gl_error("diesel_dg: failed to allocate to allocate the delayed torque array for DEGOV1!");
+				error("diesel_dg: failed to allocate to allocate the delayed torque array for DEGOV1!");
 				//Define below
 
 				return TS_INVALID;
@@ -2008,7 +2008,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			//Make sure it worked
 			if (torque_delay == NULL)
 			{
-				gl_error("diesel_dg: failed to allocate to allocate the delayed torque array for Governor!");
+				error("diesel_dg: failed to allocate to allocate the delayed torque array for Governor!");
 				/*  TROUBLESHOOT
 				The diesel_dg object failed to allocate the memory needed for the delayed torque array inside
 				the governor control.  Please try again.  If the error persists, please submit your code
@@ -2052,7 +2052,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 				//Make sure it worked
 				if (x5a_delayed == NULL)
 				{
-					gl_error("diesel_dg: failed to allocate to allocate the delayed x5a array for Governor!");
+					error("diesel_dg: failed to allocate to allocate the delayed x5a array for Governor!");
 					/*  TROUBLESHOOT
 					The diesel_dg object failed to allocate the memory needed for the delayed x5a array inside
 					the governor control.  Please try again.  If the error persists, please submit your code
@@ -2249,7 +2249,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong pconstant_Flag_flag");
+				error("wrong pconstant_Flag_flag");
 				return SM_ERROR;
 			}
 			//5 - Turbine LL
@@ -2330,7 +2330,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong ggv1_flag");
+				error("wrong ggv1_flag");
 				return SM_ERROR;
 			}
 
@@ -2355,7 +2355,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong ggv1_rselect parameter");
+				error("wrong ggv1_rselect parameter");
 				return SM_ERROR;
 			}
 
@@ -2676,7 +2676,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong pconstant_flag");
+				error("wrong pconstant_flag");
 				return SM_ERROR;
 			}
 
@@ -2757,7 +2757,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong ggv1_flag");
+				error("wrong ggv1_flag");
 				return SM_ERROR;
 			}
 
@@ -2783,7 +2783,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 			}
 			else
 			{
-				gl_error("wrong ggv1_rselect parameter");
+				error("wrong ggv1_rselect parameter");
 				return SM_ERROR;
 			}
 
@@ -3388,7 +3388,7 @@ STATUS diesel_dg::apply_dynamics(MAC_STATES *curr_time, MAC_STATES *curr_delta, 
 		}
 		else
 		{
-			gl_error("wrong pconstant_Flag");
+			error("wrong pconstant_Flag");
 			return FAILED;
 		}
 
@@ -3462,7 +3462,7 @@ STATUS diesel_dg::apply_dynamics(MAC_STATES *curr_time, MAC_STATES *curr_delta, 
 		}
 		else
 		{
-			gl_error("Wrong ggv1_rselect parameter");
+			error("Wrong ggv1_rselect parameter");
 			return FAILED;
 		}
 
@@ -3537,7 +3537,7 @@ STATUS diesel_dg::apply_dynamics(MAC_STATES *curr_time, MAC_STATES *curr_delta, 
 		}
 		else
 		{
-			gl_error("wrong ggv1_Flag");
+			error("wrong ggv1_Flag");
 			return FAILED;
 		}
 
@@ -3929,7 +3929,7 @@ STATUS diesel_dg::init_dynamics(MAC_STATES *curr_time)
 		else
 		{
 			/****** COMMENTS/TROUBLESHOOT *****/
-			gl_error("wrong pconstant_Flag");
+			error("wrong pconstant_Flag");
 			return FAILED;
 		}
 
@@ -3973,7 +3973,7 @@ STATUS diesel_dg::init_dynamics(MAC_STATES *curr_time)
 		else
 		{
 			/****** COMMENTS/TROUBLESHOOT *****/
-			gl_error("wrong ggv1_Flag");
+			error("wrong ggv1_Flag");
 			return FAILED;
 		}
 
@@ -4003,7 +4003,7 @@ STATUS diesel_dg::init_dynamics(MAC_STATES *curr_time)
 		}
 		else
 		{
-			gl_error("wrong ggv1_rselect parameter");
+			error("wrong ggv1_rselect parameter");
 			return FAILED;
 		}
 
@@ -4222,7 +4222,7 @@ EXPORT STATUS update_diesel_dg(OBJECT *obj, unsigned int64 dt, unsigned int iter
 	}
 	catch (char *msg)
 	{
-		gl_error("update_diesel_dg(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
+		error("update_diesel_dg(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
 	}
 }

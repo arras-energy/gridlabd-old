@@ -10,3 +10,6 @@ bash$ gridlabd --threadcount|-T <n>
 
 Set the maximum number of threads allowed.
 
+# See also
+
+* [[/Command/Nprocs]]

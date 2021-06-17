@@ -153,7 +153,7 @@ int clotheswasher::create()
 	load.power_factor = 0.95;
 	load.power_fraction = 1.0;
 
-	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
+	warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The clothes washer explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -168,7 +168,7 @@ int clotheswasher::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("clotheswasher::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("clotheswasher::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -180,7 +180,7 @@ int clotheswasher::init(OBJECT *parent)
 	if (load.power_factor==0) load.power_factor = 0.95;
 
 	if(shape.params.analog.power < 0.1){
-		gl_error("clotheswasher motor is undersized, using 500W motor");
+		error("clotheswasher motor is undersized, using 500W motor");
 		shape.params.analog.power = 0.5;
 	}
 
