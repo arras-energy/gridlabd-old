@@ -897,7 +897,7 @@ int inverter::init(OBJECT *parent)
 			{&pLine_I,				"current_A"}, // assumes 2 and 3(N) follow immediately in memory
 		};
 
-		gl_warning("Inverter:%d has no parent meter object defined; using static voltages", obj->id);
+		warning("Inverter:%d has no parent meter object defined; using static voltages", obj->id);
 		
 		// attach meter variables to each circuit in the default_meter
 		*(map[0].var) = &default_line123_voltage[0];
@@ -937,17 +937,17 @@ int inverter::init(OBJECT *parent)
 
 	if (gen_mode_v == UNKNOWN && inverter_type_v != FOUR_QUADRANT)
 	{
-		gl_warning("Inverter control mode is not specified! Using default: CONSTANT_PF");
+		warning("Inverter control mode is not specified! Using default: CONSTANT_PF");
 		gen_mode_v = (enumeration)CONSTANT_PF;
 	}
 	if (gen_status_v == UNKNOWN)
 	{
-		gl_warning("Inverter status is unknown! Using default: ONLINE");
+		warning("Inverter status is unknown! Using default: ONLINE");
 		gen_status_v = (enumeration)ONLINE;
 	}
 	if (inverter_type_v == UNKNOWN)
 	{
-		gl_warning("Inverter type is unknown! Using default: PWM");
+		warning("Inverter type is unknown! Using default: PWM");
 		inverter_type_v = (enumeration)PWM;
 	}
 			
@@ -1079,12 +1079,12 @@ int inverter::init(OBJECT *parent)
 				
 				//checks for Volt-VAr schedule
 				VoltVArSchedInput = volt_var_sched;
-				gl_warning(VoltVArSchedInput.c_str());
+				warning(VoltVArSchedInput.c_str());
 				if(VoltVArSchedInput.length() == 0)	{
 					VoltVArSched->push_back(std::make_pair (119.5,0));	
 					//put two random things on the schedule with Q values of zero, all scheduled Qs will then be zero
 					VoltVArSched->push_back(std::make_pair (120.5,0));
-					gl_warning("Volt/VAr schedule unspecified. Setting inverter for constant power factor of 1.0");
+					warning("Volt/VAr schedule unspecified. Setting inverter for constant power factor of 1.0");
 				}
 				else
 				{
@@ -1852,7 +1852,7 @@ int inverter::init(OBJECT *parent)
 			// Find all batteries
 			batteries = gl_find_objects(FL_NEW, FT_CLASS, SAME, "battery", FT_END);
 			if(batteries == NULL || batteries->hit_count == 0){
-				gl_warning("No battery objects were found, but the VSI object exists. Now assume the VSI is attached with infinite input power.");
+				warning("No battery objects were found, but the VSI object exists. Now assume the VSI is attached with infinite input power.");
 				/* TROUBLESHOOT
 				No battery object attached to VSI. In reality, a battery is required for VSI to output enough power.
 				*/
@@ -1861,7 +1861,7 @@ int inverter::init(OBJECT *parent)
 				while( (objBattery = gl_find_next(batteries,objBattery)) )
 				{
 					if(index >= batteries->hit_count){
-						gl_warning("VSI: %s does not find a battery attached to it. Now assume VSI: %s is attached with infinite input power.", (obj->name ? obj->name : "Unnamed"), (obj->name ? obj->name : "Unnamed"));
+						warning("VSI: %s does not find a battery attached to it. Now assume VSI: %s is attached with infinite input power.", (obj->name ? obj->name : "Unnamed"), (obj->name ? obj->name : "Unnamed"));
 						break;
 					}
 					if (strcmp(objBattery->parent->name, obj->name) == 0) {
@@ -3379,12 +3379,12 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 					//Ensuring battery has capacity to charge or discharge as needed.
 					if ((b_soc >= 1.0) && (temp_VA.Re() < 0) && (b_soc != -1))	//Battery full and positive influx of real power
 					{
-						gl_warning("inverter:%s - battery full - no charging allowed",obj->name);
+						warning("inverter:%s - battery full - no charging allowed",obj->name);
 						temp_VA.SetReal(0.0);	//Set to zero - reactive considerations may change this
 					}
 					else if ((b_soc <= soc_reserve) && (temp_VA.Re() > 0) && (b_soc != -1))	//Battery "empty" and attempting to extract real power
 					{
-						gl_warning("inverter:%s - battery at or below the SOC reserve - no discharging allowed",obj->name);
+						warning("inverter:%s - battery at or below the SOC reserve - no discharging allowed",obj->name);
 						temp_VA.SetReal(0.0);	//Set output to zero - again, reactive considerations may change this
 					}
 
@@ -3904,7 +3904,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 			// Check P_in (calcualted from V_In and I_In), and compared with p_in (calculated from VA_Out)
 			if (P_in < p_in) {
-				gl_warning("DC maximum power output is less than the real power output from the inverter. A higher DC power rating is recommended. Currently the VSI power output is not limited by the DC power output.");
+				warning("DC maximum power output is less than the real power output from the inverter. A higher DC power rating is recommended. Currently the VSI power output is not limited by the DC power output.");
 				/*  TROUBLESHOOT
 				DC maximum power output is less than the real power output from the inverter.
 				Although currently inverter does not adjust its power output based on teh DC limitations.
@@ -5011,7 +5011,7 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 		//make sure it worked
 		if (funadd==NULL)
 		{
-			gl_error("inverter:%s -- Failed to find node swing swapper function",(hdr->name ? hdr->name : "Unnamed"));
+			error("inverter:%s -- Failed to find node swing swapper function",(hdr->name ? hdr->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			While attempting to map the function to change the swing status of the parent bus, the function could not be found.
 			Ensure the inverter is actually attached to something.  If the error persists, please submit your code and a bug report
@@ -5026,7 +5026,7 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 
 		if (stat_val == 0)	//Failed :(
 		{
-			gl_error("Failed to swap SWING status of node:%s on inverter:%s",(hdr->parent->name ? hdr->parent->name : "Unnamed"),(hdr->name ? hdr->name : "Unnamed"));
+			error("Failed to swap SWING status of node:%s on inverter:%s",(hdr->parent->name ? hdr->parent->name : "Unnamed"),(hdr->name ? hdr->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			While attempting to handle special reliability actions on a "special" device (switch, recloser, etc.), the function required
 			failed to execute properly.  If the problem persists, please submit a bug report and your code to the trac website.

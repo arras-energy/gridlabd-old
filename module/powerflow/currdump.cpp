@@ -139,13 +139,13 @@ void currdump::dump(TIMESTAMP t)
 
 	if ( links == NULL )
 	{
-		gl_warning("no links were found to dump");
+		warning("no links were found to dump");
 		return;
 	}
 
 	if ( strcmp(filemode,"a") == 0 ) 
 	{
-		gl_verbose("voltdump is appending data to %s",filename.get_string());
+		verbose("voltdump is appending data to %s",filename.get_string());
 	}
 
 	outfile = fopen(filename, filemode);

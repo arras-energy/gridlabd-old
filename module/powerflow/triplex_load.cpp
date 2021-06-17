@@ -147,7 +147,7 @@ int triplex_load::init(OBJECT *parent)
 	{
 		if ((constant_current[0] != 0.0) || (constant_current[1] != 0.0) || (constant_current[2] != 0.0))
 		{
-			gl_warning("triplex_load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
+			warning("triplex_load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
 			/*  TROUBLESHOOT
 			Due to the potential for moving reference frame of deltamode systems, constant current loads are computed using a scaled
 			per-unit approach, rather than the fixed constant_current value.  You may get results that differ from traditional GridLAB-D
@@ -234,7 +234,7 @@ void triplex_load::triplex_load_update_fxn()
 
 			OBJECT *obj = THISOBJECTHDR;
 
-			gl_warning("load:%s - ZIP components on phase 1 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[0]);
+			warning("load:%s - ZIP components on phase 1 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[0]);
 			/*  TROUBLESHOOT
 			ZIP load fractions must sum to 1.  The values (power_fraction_1, impedance_fraction_1, and current_fraction_1) did not sum to 1. To 
 			ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.
@@ -334,7 +334,7 @@ void triplex_load::triplex_load_update_fxn()
 
 			OBJECT *obj = THISOBJECTHDR;
 
-			gl_warning("load:%s - ZIP components on phase 2 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[1]);
+			warning("load:%s - ZIP components on phase 2 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[1]);
 			/*  TROUBLESHOOT
 			ZIP load fractions must sum to 1.  The values (power_fraction_2, impedance_fraction_2, and current_fraction_2) did not sum to 1. To 
 			ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.
@@ -432,7 +432,7 @@ void triplex_load::triplex_load_update_fxn()
 
 			OBJECT *obj = THISOBJECTHDR;
 
-			gl_warning("load:%s - ZIP components on phase 12 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[2]);
+			warning("load:%s - ZIP components on phase 12 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[2]);
 			/*  TROUBLESHOOT
 			ZIP load fractions must sum to 1.  The values (power_fraction_12, impedance_fraction_12, and current_fraction_12) did not sum to 1. To 
 			ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.

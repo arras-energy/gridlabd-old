@@ -1,4 +1,5 @@
-![master](https://github.com/dchassin/gridlabd/workflows/master/badge.svg) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) 
+![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 

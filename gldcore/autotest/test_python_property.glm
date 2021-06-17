@@ -1,7 +1,10 @@
 
 #ifexist ../test_python_property.py
-#system cp ../test_python_property.py .
+#set pythonpath=..
+#else
+#set pythonpath=.
 #endif
+
 
 clock {
 	starttime "2020-01-01 00:00:00";
