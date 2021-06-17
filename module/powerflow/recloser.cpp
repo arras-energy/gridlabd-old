@@ -81,13 +81,13 @@ int recloser::init(OBJECT *parent)
 
 	if(ntries<0)
 	{
-		gl_warning("The number of recloser tries is less than 0 resetting to zero");
+		warning("The number of recloser tries is less than 0 resetting to zero");
 		ntries = 0;
 	}
 
 	if(retry_time < 0)
 	{
-		gl_warning("retry time is < 0 resetting to zero");
+		warning("retry time is < 0 resetting to zero");
 		retry_time = 0;
 	}
 

@@ -177,14 +177,14 @@ int substation::init(OBJECT *parent)
 
 	//Base check higher so can be used below
 	if(base_power <= 0){
-		gl_warning("substation:%i is using the default base power of 100 VA. This could cause instability on your system.", hdr->id);
+		warning("substation:%i is using the default base power of 100 VA. This could cause instability on your system.", hdr->id);
 		base_power = 100;//default gives a max power error of 1 VA.
 	}
 
 	//Check convergence-posting criterion
 	if (power_convergence_value<=0.0)
 	{
-		gl_warning("power_convergence_value not set - defaulting to 0.01 base_power");
+		warning("power_convergence_value not set - defaulting to 0.01 base_power");
 		/*  TROUBLESHOOT
 		A value was not specified for the convergence criterion required before posting an 
 		answer up to pw_load.  This value has defaulted to 1% of base_power.  If a different threshold
@@ -202,7 +202,7 @@ int substation::init(OBJECT *parent)
 			//Make sure it is done, otherwise defer
 			if((parent->flags & OF_INIT) != OF_INIT){
 				char objname[256];
-				gl_verbose("substation::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+				verbose("substation::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 
 				return 2; // defer
 			}
@@ -231,7 +231,7 @@ int substation::init(OBJECT *parent)
 			//Check our bustype - otherwise we may get overridden (NR-esque check)
 			if (bustype != SWING)
 			{
-				gl_warning("substation attached to pw_load and not a SWING bus - forcing to SWING");
+				warning("substation attached to pw_load and not a SWING bus - forcing to SWING");
 				/*  TROUBLESHOOT
 				When a substation object is connected to PowerWorld via a pw_load object, the
 				substation must be designated as a SWING bus.  This designation will now be forced upon
@@ -256,7 +256,7 @@ int substation::init(OBJECT *parent)
 			//See if we're a swing, if not, this is meaningless
 			if (bustype != SWING)
 			{
-				gl_warning("substation is not a SWING bus, so answers may be unexpected");
+				warning("substation is not a SWING bus, so answers may be unexpected");
 				/*  TROUBLESHOOT
 				A substation object appears set to accept sequence voltage values, but it is not a SWING bus.  This
 				may end up causing the voltages to be converted from sequence, but then overridden by the distribution
@@ -272,7 +272,7 @@ int substation::init(OBJECT *parent)
 			has_parent = 2;	//Normal node
 
 			//Warn that nothing was found
-			gl_warning("substation:%s is set up as a normal node, no sequence values will be calculated",hdr->name);
+			warning("substation:%s is set up as a normal node, no sequence values will be calculated",hdr->name);
 			/*  TROUBLESHOOT
 			A substation is currently behaving just like a normal powerflow node.  If it was desired that it convert a 
 			schedule or player of sequence values, please initialize those values to non-zero along with the player attachment.

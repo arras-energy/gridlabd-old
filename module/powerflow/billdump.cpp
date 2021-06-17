@@ -91,7 +91,7 @@ void billdump::dump(TIMESTAMP t){
 	}
 
 	if(nodes == NULL){
-		gl_warning("no nodes were found to dump");
+		warning("no nodes were found to dump");
 		return;
 	}
 

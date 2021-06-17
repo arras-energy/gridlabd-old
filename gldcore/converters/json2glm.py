@@ -81,6 +81,7 @@ def convert(ifile,ofile,json_type) :
 				fw.write("\n }")
 
 		else : 
+
 			# clock
 			header_str = '\n' + 'clock {'
 			tmzone_str = '\n' + '\t' + 'timezone ' + data['globals']['timezone_locale']['value']+';'
@@ -133,6 +134,46 @@ def convert(ifile,ofile,json_type) :
 					val_str = '\n' + '// ' + p_id + ' is set to ' + p_info['value']
 					fw.write(val_str)	
 
+			# filters
+			if 'filters' in data.keys():
+				fw.write('\n\n// FILTERS')
+				for name, specs in data['filters'].items() :
+					domain = specs['domain']
+					timestep = specs['timestep']
+					timeskew = specs['timeskew']
+					numerator = specs['numerator']
+					denominator = specs['denominator']
+					fw.write(f'\nfilter {name}({domain},{timestep},{timeskew}')
+
+					if 'minimum' in specs.keys():
+						fw.write(f',minimum={specs["minimum"]}')
+
+					if 'maximum' in specs.keys():
+						fw.write(f',maximum={specs["maximum"]}')
+
+					if 'resolution' in specs.keys():
+						fw.write(f',resolution={specs["resolution"]}')
+
+					fw.write(') = (')
+					for n in range(len(numerator)):
+						if n == 0:
+							fw.write("%g"%numerator[0])
+						elif n == 1:
+							fw.write(f"%+g{domain}"%numerator[1])
+						else:
+							fw.write(f"%+g{domain}^%d"%(numerator[n],n))
+
+					fw.write(') / (')
+					for n in range(len(denominator)):
+						if n == 0:
+							fw.write("%g"%denominator[0])
+						elif n == 1:
+							fw.write(f"%+g{domain}"%denominator[1])
+						else:
+							fw.write(f"%+g{domain}^%d"%(denominator[n],n))
+
+					fw.write(');\n')
+
 			# classes
 			fw.write('\n\n// CLASSES')
 			for p_id, p_info in data['classes'].items() : 
@@ -144,46 +185,38 @@ def convert(ifile,ofile,json_type) :
 						val_str = val_str + "\n" + "\t" + v_info['type'] + " " + v_id + ';'
 				if header_str : 
 					fw.write(header_str)
-					fw.write(val_str)	
-					fw.write("\n}")
+					fw.write(p_info)
+					fw.write('\n}' )
 
-			# schedules
-			fw.write('\n\n// SCHEDULES')
-			for p_id, p_info in data['schedules'].items() : 
-				header_str = '\n' + 'schedule ' + p_id + '\n{'
-				fw.write(header_str)
-				fw.write(p_info)
-				fw.write('\n}' )
-
-			# objects
-			fw.write('\n\n// OBJECTS')
-			obj_id = []
-			if data['objects'] :
-				for p_id, p_info in data['objects'].items() : 
-					obj_id.append([int(p_info['id']),p_id])
-					obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
-					id_list,ordered_obj_list= zip(*obj_id_sorted)
-				for obj_id_sorted in ordered_obj_list : 
-					classname = data['objects'][obj_id_sorted]['class']
-					classdata = data['classes'][classname]
-					# print("CLASSNAME",classname,classdata)
-					fw.write(f"\nobject {classname}")
-					fw.write("\n{")
-					fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
-					for v_id, v_info in data['objects'][obj_id_sorted].items() : 
-						if v_id not in objects_ignore and v_info:
-							# print(v_id)
-							if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
-								v_str = v_info.replace(':','_')
-							else:
-								v_str = v_info.replace('"', '\\\"')
-							if '\n' in v_info :
-								var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
-							else : 
-								val_str = f"\n\t{v_id} \"{v_str}\";"
-							fw.write(val_str)
-					fw.write("\n}")
-			fw.write('\n')
+				# objects
+				fw.write('\n\n// OBJECTS')
+				obj_id = []
+				if data['objects'] :
+					for p_id, p_info in data['objects'].items() : 
+						obj_id.append([int(p_info['id']),p_id])
+						obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
+						id_list,ordered_obj_list= zip(*obj_id_sorted)
+					for obj_id_sorted in ordered_obj_list : 
+						classname = data['objects'][obj_id_sorted]['class']
+						classdata = data['classes'][classname]
+						# print("CLASSNAME",classname,classdata)
+						fw.write(f"\nobject {classname}")
+						fw.write("\n{")
+						fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+						for v_id, v_info in data['objects'][obj_id_sorted].items() : 
+							if v_id not in objects_ignore and v_info:
+								# print(v_id)
+								if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
+									v_str = v_info.replace(':','_')
+								else:
+									v_str = v_info.replace('"', '\\\"')
+								if '\n' in v_info :
+									var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
+								else : 
+									val_str = f"\n\t{v_id} \"{v_str}\";"
+								fw.write(val_str)
+						fw.write("\n}")
+				fw.write('\n')
 
 
 if __name__ == '__main__':

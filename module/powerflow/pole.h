@@ -1,5 +1,5 @@
 // powerflow/pole.h
-// Copyright (C) 2018, Stanford University
+// Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #ifndef _POLE_H
 #define _POLE_H
@@ -10,93 +10,70 @@
 
 #include <list>
 
-typedef struct s_wiredata {
-	overhead_line *line; // overhead line object
-	double height; // height of wire
-	double diameter; // diameter of wire
-	double heading; // direction of wire from pole
-	double tension; // tension on wire
-	double span; // distance wire spans
-	OBJECT *protection; // protection object selected by fault
-	int fault; // fault code
-	char fault_type[8]; // fault name
-	TIMESTAMP repair; // fault repair time
-	char data[32]; // extra data space
-} WIREDATA;
-class pole : public node
+class pole : public gld_object
 {
-public:
-	inline void add_wire(overhead_line *line, double height, double diameter, double heading, double tension, double span) {
-		WIREDATA *item = new WIREDATA;
-		item->line = line;
-		item->height = height;
-		item->diameter = diameter;
-		item->heading = heading;
-		item->tension = tension;
-		item->span = span;
-		item->protection = NULL;
-		item->fault = 0;
-		memset(item->fault_type,0,sizeof(item->fault_type));
-		strcpy(item->fault_type,"TLL");
-		item->repair = TS_NEVER;
-		memset(item->data,0,sizeof(item->data));
-		wire_data->push_back(*item);
-	};
 public:
 	static CLASS *oclass;
 	static CLASS *pclass;
+    static pole *defaults;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
-	enum {PS_OK=0, PS_FAILED=1,};
-	enumeration pole_status;
-	double tilt_angle;
-	double tilt_direction;
-	object weather;
-	object configuration;
-	double equipment_area;		// (see Section E)
-	double equipment_height;	// (see Section E)
-	double degradation_rate;
-	int install_year; // year pole was installed
-	double repair_time;
+	enum {PS_OK=0, PS_FAILED=1};
+	GL_ATOMIC(enumeration, pole_status);
+	GL_ATOMIC(double, tilt_angle);
+	GL_ATOMIC(double, tilt_direction);
+	GL_ATOMIC(object, configuration);
+	GL_ATOMIC(double, degradation_rate);
+	GL_ATOMIC(int16, install_year); // year pole was installed
+	GL_ATOMIC(double, repair_time);
+    GL_ATOMIC(object, weather);
+    GL_ATOMIC(double, wind_speed);
+    GL_ATOMIC(double, wind_direction);
+    GL_ATOMIC(double, wind_gusts);
+    GL_ATOMIC(double, pole_moment);		// (see Section D)
+	GL_ATOMIC(double, pole_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+    GL_ATOMIC(double, resisting_moment); 	// (see Section B)
+	GL_ATOMIC(double, equipment_moment);	// (see Section E)
+	GL_ATOMIC(double, equipment_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+    GL_ATOMIC(double, wire_load);		// (see Section F)
+	GL_ATOMIC(double, wire_load_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, wire_moment);		// (see Section F)
+	GL_ATOMIC(double, wire_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, wind_pressure);		// (see Section D)
+	GL_ATOMIC(double, wire_tension);	// (see Section G)
+	GL_ATOMIC(double, pole_stress);	// ratio of total to resisting moment
+	GL_ATOMIC(double, pole_stress_polynomial_a); //polynomial components of pole stress function
+	GL_ATOMIC(double, pole_stress_polynomial_b); //polynomial components of pole stress function
+	GL_ATOMIC(double, pole_stress_polynomial_c); //polynomial components of pole stress function
+	GL_ATOMIC(double, susceptibility);	// d(pole_stress)/d(wind_speed)
+	GL_ATOMIC(double, total_moment);
+	GL_ATOMIC(double, critical_wind_speed);
+	GL_ATOMIC(bool, is_deadend);
+	GL_ATOMIC(double, current_hollow_diameter);
+	GL_ATOMIC(double, guy_height);
 private:
-	double ice_thickness;
-	double resisting_moment; 	// (see Section B)
-	double pole_moment;		// (see Section D)
-	double pole_moment_nowind; // wire moment without the wind component for wind speed at failure calc
-	double equipment_moment;	// (see Section E)
-	double equipment_moment_nowind; // wire moment without the wind component for wind speed at failure calc
-	double wire_load;		// (see Section F)
-	double wire_load_nowind; // wire moment without the wind component for wind speed at failure calc
-	double wire_moment;		// (see Section F)
-	double wire_moment_nowind; // wire moment without the wind component for wind speed at failure calc
-	double wind_pressure;		// (see Section D)
-	double wire_tension;	// (see Section G)
-	double pole_stress;	// ratio of total to resisting moment
-	double pole_stress_polynomial_a; //polynomial components of pole stress function
-	double pole_stress_polynomial_b; //polynomial components of pole stress function
-	double pole_stress_polynomial_c; //polynomial components of pole stress function
-	double susceptibility;	// d(pole_stress)/d(wind_speed)
-	double total_moment;
-	double critical_wind_speed;
-	bool is_deadend;
-	double current_hollow_diameter;
+    gld_property *wind_speed_ref;
+	gld_property *wind_direction_ref;
+	gld_property *wind_gusts_ref;
+private:
+    void reset_commit_accumulators();
+    void reset_sync_accumulators();
 private:
 	class pole_configuration *config;
 	double last_wind_speed;
-	double *wind_speed;
-	double *wind_direction;
-	double *wind_gust;
-	std::list<WIREDATA> *wire_data;
 	TIMESTAMP down_time;
 public:
+	double height; // effective pole height for moment calculations
+    bool recalc; // flag for recalculation
+public:
 	pole(MODULE *);
-	int isa(char *);
 	int create(void);
 	int init(OBJECT *);
+    TIMESTAMP precommit(TIMESTAMP);
 	TIMESTAMP presync(TIMESTAMP);
 	TIMESTAMP sync(TIMESTAMP);
 	TIMESTAMP postsync(TIMESTAMP);
+    TIMESTAMP commit(TIMESTAMP,TIMESTAMP);
 };
 
 #endif // _POLE_H
-
