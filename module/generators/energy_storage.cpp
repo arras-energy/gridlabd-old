@@ -104,7 +104,7 @@ double energy_storage::timestamp_to_hours(TIMESTAMP t)
 int energy_storage::init(OBJECT *parent)
 {
 
-	gl_verbose("energy_storage init: about to exit");
+	verbose("energy_storage init: about to exit");
 	return 1; /* return 1 on success, 0 on failure */
 }
 

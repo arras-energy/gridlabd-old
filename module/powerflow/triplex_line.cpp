@@ -67,7 +67,7 @@ int triplex_line::init(OBJECT *parent)
 	int result = line::init(parent);
 
 	if (!has_phase(PHASE_S))
-		gl_warning("%s (%s:%d) is triplex but doesn't have phases S set", obj->name, obj->oclass->name, obj->id);
+		warning("%s (%s:%d) is triplex but doesn't have phases S set", obj->name, obj->oclass->name, obj->id);
 		/*  TROUBLESHOOT
 		A triplex line has been used, but this triplex line does not have the phase S designated to indicate it
 		contains single-phase components.  Without this specified, you may get invalid results.
@@ -243,7 +243,7 @@ void triplex_line::recalc(void)
 	
 	if (line_config->impedance11 != 0.0 || line_config->impedance22 != 0.0)
 	{
-		gl_warning("Using a 2x2 z-matrix, instead of geometric values, is an under-determined system. Ground and/or neutral currents will be incorrect.");
+		warning("Using a 2x2 z-matrix, instead of geometric values, is an under-determined system. Ground and/or neutral currents will be incorrect.");
 	
 		complex miles = complex(length/5280,0);
 		if ((solver_method == SM_FBS) || (solver_method == SM_NR))
@@ -379,7 +379,7 @@ void triplex_line::recalc(void)
 	}
 	
 	if(neg_res == true){
-		gl_warning("INIT: triplex_line:%s has a negative resistance in it's impedance matrix. This will result in unusual behavior. Please check the line's geometry and cable parameters.", obj->name);
+		warning("INIT: triplex_line:%s has a negative resistance in it's impedance matrix. This will result in unusual behavior. Please check the line's geometry and cable parameters.", obj->name);
 		/*  TROUBLESHOOT
 		A negative resistance value was found for one or more the real parts of the triplex_line's impedance matrix.
 		While this is numerically possible, it is a physical impossibility. This resulted most likely from a improperly 

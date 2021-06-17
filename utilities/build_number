@@ -21,7 +21,7 @@ if [ -d .git ]; then
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
 		echo "#define BUILD_ID \"$(git log -n 1 | sed -n '1s/^commit //p')\"" >> $2
 		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2- -d' ')\"" >> $2
-		echo "#define BUILD_STATUS $(git status -b --porcelain | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $2
+		echo "#define BUILD_STATUS $(git status -b --porcelain | sed s'/"//g' | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $2
 		cd -
 	fi
 

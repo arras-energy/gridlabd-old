@@ -188,7 +188,7 @@ int regulator_configuration::init(OBJECT *parent)
 	if (Control != MANUAL)
 	{
 		if (band_width == 0)
-			gl_warning("band_width is set to zero in automatic control. May cause oscillations.");
+			warning("band_width is set to zero in automatic control. May cause oscillations.");
 		if (regulation == 0)
 			GL_THROW("regulation must be set to a non-zero number when operating in an automatic controlled mode.");
 			/* TROUBLESHOOT
