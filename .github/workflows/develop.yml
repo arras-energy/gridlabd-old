@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install libraries
-      run: yum install blas-devel -y
+      run: yum install blas -y
     - name: Update python3 modules
       run: pip3 install -r requirements.txt
     - name: Install openfido
