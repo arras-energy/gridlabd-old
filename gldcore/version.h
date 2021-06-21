@@ -11,7 +11,7 @@
 
 #define REV_MAJOR 4
 #define REV_MINOR 2
-#define REV_PATCH 22
+#define REV_PATCH 23
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

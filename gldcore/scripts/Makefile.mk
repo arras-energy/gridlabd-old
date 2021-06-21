@@ -11,6 +11,7 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-job
 bin_SCRIPTS += gldcore/scripts/gridlabd-library
 bin_SCRIPTS += gldcore/scripts/gridlabd-manual
 bin_SCRIPTS += gldcore/scripts/gridlabd-openfido
+bin_SCRIPTS += gldcore/scripts/gridlabd-pandas
 bin_SCRIPTS += gldcore/scripts/gridlabd-python
 bin_SCRIPTS += gldcore/scripts/gridlabd-require
 bin_SCRIPTS += gldcore/scripts/gridlabd-template

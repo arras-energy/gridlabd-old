@@ -140,7 +140,6 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 	#include "line_configuration.h"
 	#include "line_spacing.h"
 	#include "overhead_line_conductor.h"
-	#include "pole_configuration.h"
 	#include "power_metrics.h"
 	#include "regulator_configuration.h"
 	#include "restoration.h"
@@ -173,7 +172,6 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 			#include "pqload.h"
 		#include "meter.h"
 		#include "motor.h"
-		#include "pole.h"
 		#include "substation.h"
 		#include "triplex_node.h"
 			#include "triplex_load.h"
@@ -184,6 +182,11 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 #include "impedance_dump.h"
 #include "load_tracker.h"
 #include "voltdump.h"
+
+#include "pole.h"
+#include "pole_configuration.h"
+#include "pole_mount.h"
+
 
 #endif // _POWERFLOW_H
 

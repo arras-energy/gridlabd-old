@@ -132,6 +132,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new vfd(module);
 	new pole(module);
 	new pole_configuration(module);
+    new pole_mount(module);
 
 	/* always return the first class registered */
 	return node::oclass;
@@ -294,7 +295,7 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 				else //Not in service - just pass
 					function_status = SM_DELTA;
 
-				//Just make sure we didn't error 
+				//Just make sure we didn't error
 				if (function_status == SM_ERROR)
 				{
 					gl_error("Powerflow object:%s - deltamode function returned an error!",delta_objects[curr_object_number]->name);
@@ -331,7 +332,7 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 				gl_error("powerflow:interupdate - solver_nr call: unknown exception");
 				error_state = true;
 			}
-			
+
 			//De-flag any changes that may be in progress
 			NR_admit_change = false;
 
@@ -447,7 +448,7 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 		{
 			return SM_ERROR;
 		}
-				
+
 		//Determine how to exit - event or delta driven
 		if (event_driven == false)
 		{
@@ -761,7 +762,7 @@ EXPORT int check()
 		front->next = NULL;
 		front->ptr = _node;
 		back = front;
-		while (front != NULL) 
+		while (front != NULL)
 		{
 			// find all links from the node
 			for ( OBJECT *now=gl_find_next(list, NULL) ; now != NULL ; now = gl_find_next(list, now) )

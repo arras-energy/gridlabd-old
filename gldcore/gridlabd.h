@@ -2957,7 +2957,7 @@ public:
 	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);}}
 
 	// Method: warning
-	inline void warning(const char *msg, ...) { if ( my()->flags&OF_WARNING ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
+	inline void warning(const char *msg, ...) { if ( !(my()->flags&OF_WARNING) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
 
 	// Method: verbose
 	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
