@@ -195,7 +195,7 @@ battery::battery(MODULE *module)
 				PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the reserve state of charge the battery can reach.",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = NULL;
-		memset(this,0,sizeof(battery));
+		memset((void*)this,0,sizeof(battery));
 
 		if (gl_publish_function(oclass,	"preupdate_battery_object", (FUNCTIONADDR)preupdate_battery)==NULL)
 			GL_THROW("Unable to publish battery deltamode function");
@@ -307,7 +307,7 @@ int battery::init(OBJECT *parent)
 		if ( (parent->flags & OF_INIT) != OF_INIT )
 		{
 			char objname[256];
-			gl_verbose("battery::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("battery::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -324,7 +324,7 @@ int battery::init(OBJECT *parent)
 		//Check global, for giggles
 		if (enable_subsecond_models!=true)
 		{
-			gl_warning("battery:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
+			warning("battery:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has the deltamode_inclusive flag set, but not the module-level enable_subsecond_models flag.  The generator
 			will not simulate any dynamics this way.
@@ -340,7 +340,7 @@ int battery::init(OBJECT *parent)
 	{
 		if (enable_subsecond_models == true)
 		{
-			gl_warning("battery:%d %s - Deltamode is enabled for the module, but not this generator!",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("battery:%d %s - Deltamode is enabled for the module, but not this generator!",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The diesel_dg is not flagged for deltamode operations, yet deltamode simulations are enabled for the overall system.  When deltamode
 			triggers, this generator may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
@@ -506,7 +506,7 @@ int battery::init(OBJECT *parent)
 			number_of_phases_out = 3;
 			phases = 0x07;
 
-			gl_warning("Battery:%d has no parent meter object defined; using static voltages", obj->id);
+			warning("Battery:%d has no parent meter object defined; using static voltages", obj->id);
 
 			// attach meter variables to each circuit in the default_meter
 			pCircuit_V = &default_line_voltage[0];
@@ -540,7 +540,7 @@ int battery::init(OBJECT *parent)
 				if (climates==NULL)
 				{
 					not_found = 1;
-					gl_warning("battery: no climate data found, using static data");
+					warning("battery: no climate data found, using static data");
 
 					//default to mock data
 					static double tout=59.0, solar=1000;
@@ -549,7 +549,7 @@ int battery::init(OBJECT *parent)
 				}
 				else if (climates->hit_count>1)
 				{
-					gl_warning("battery: %d climates found, using first one defined", climates->hit_count);
+					warning("battery: %d climates found, using first one defined", climates->hit_count);
 				}
 			}
 			if (climates!=NULL)
@@ -575,7 +575,7 @@ int battery::init(OBJECT *parent)
 		if (gen_status_v == OFFLINE)
 		{
 			//OBJECT *obj = THISOBJECTHDR;
-			gl_warning("Generator (id:%d) is out of service!",obj->id);
+			warning("Generator (id:%d) is out of service!",obj->id);
 		}
 		else
 		{
@@ -619,38 +619,38 @@ int battery::init(OBJECT *parent)
 				default:
 					if (V_Max == 0)
 					{
-						gl_warning("V_max was not given -- using default value (battery: %d)",obj->id);
+						warning("V_max was not given -- using default value (battery: %d)",obj->id);
 						V_Max = 115; //V
 					}
 					if (I_Max == 0)
 					{
-						gl_warning("I_max was not given -- using default value (battery: %d)",obj->id);
+						warning("I_max was not given -- using default value (battery: %d)",obj->id);
 						I_Max = 435; //A
 					}
 					if (Max_P == 0)
 					{
-						gl_warning("Max_P was not given -- using default value (battery: %d)",obj->id);
+						warning("Max_P was not given -- using default value (battery: %d)",obj->id);
 						Max_P = V_Max.Re()*I_Max.Re(); //W
 					}
 					if (E_Max == 0)
 					{
-						gl_warning("E_max was not given -- using default value (battery: %d)",obj->id);
+						warning("E_max was not given -- using default value (battery: %d)",obj->id);
 						E_Max = 6*Max_P; //Wh
 					}
 					if (base_efficiency == 0)
 					{
-						gl_warning("base_efficiency was not given -- using default value (battery: %d)",obj->id);
+						warning("base_efficiency was not given -- using default value (battery: %d)",obj->id);
 						base_efficiency = 0.8; // roundtrip
 					}
 					break;
 			}
 		}
 		if (power_set_high <= power_set_low && (gen_mode_v == GM_POWER_DRIVEN || gen_mode_v == GM_POWER_VOLTAGE_HYBRID))
-			gl_warning("power_set_high is less than power_set_low -- oscillations will most likely occur");
+			warning("power_set_high is less than power_set_low -- oscillations will most likely occur");
 
 		if (Energy < 0)
 		{
-			gl_warning("Initial Energy was not set, or set to a negative number.  Randomizing initial value.");
+			warning("Initial Energy was not set, or set to a negative number.  Randomizing initial value.");
 			Energy = gl_random_normal(RNGSTATE,E_Max/2,E_Max/20);
 		}
 
@@ -709,17 +709,17 @@ int battery::init(OBJECT *parent)
 			default:
 				if (v_max == 0)
 				{
-					gl_warning("v_max was not given -- using default value (battery: %d)",obj->id);
+					warning("v_max was not given -- using default value (battery: %d)",obj->id);
 					v_max = 115; //V
 				}
 				if (e_max == 0)
 				{
-					gl_warning("e_max was not given -- using default value (battery: %d)",obj->id);
+					warning("e_max was not given -- using default value (battery: %d)",obj->id);
 					e_max = 400000; //Wh
 				}
 				if (eta_rt == 0)
 				{
-					gl_warning("eta_rt was not given -- using default value (battery: %d)",obj->id);
+					warning("eta_rt was not given -- using default value (battery: %d)",obj->id);
 					eta_rt = 0.8; // roundtrip
 				}
 				break;
@@ -727,7 +727,7 @@ int battery::init(OBJECT *parent)
 		
 		//figure out the size of the battery module
 		if (battery_type == UNKNOWN){
-			gl_warning("(battery: %s) the battery type is unknown. Using static voltage curve",obj->name);
+			warning("(battery: %s) the battery type is unknown. Using static voltage curve",obj->name);
 		} else if (battery_type == LI_ION){
 			n_series = floor(v_max/4.1);
 		} else {//battery_type is LEAD_ACID
@@ -746,11 +746,11 @@ int battery::init(OBJECT *parent)
 			soc = 1;
 		}
 		if ( soc < 0){
-			gl_warning("no initial state of charge given -- using default value (battery: %s)",obj->name);
+			warning("no initial state of charge given -- using default value (battery: %s)",obj->name);
 			soc = 1;
 			battery_state = BS_FULL;
 		} else if ( soc > 1){
-			gl_warning("initial state of charge is greater than 1 setting to 1 (battery: %s)",obj->name);
+			warning("initial state of charge is greater than 1 setting to 1 (battery: %s)",obj->name);
 			soc = 1;
 			battery_state = BS_FULL;
 		}
@@ -996,7 +996,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					if (volt[0].Mag() > V_Max.Mag() || volt[1].Mag() > V_Max.Mag() || volt[2].Mag() > V_Max.Mag())
 					{
-						gl_warning("The voltages at the batteries meter are higher than rated. No power output.");
+						warning("The voltages at the batteries meter are higher than rated. No power output.");
 						battery_state = BS_WAITING;
 
 						last_current[0].SetPolar(parasitic_power_draw/3/volt[0].Mag(),volt[0].Arg());
@@ -1253,7 +1253,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					if (volt.Mag() > V_Max.Mag() || volt.Mag()/240 < 0.9 || volt.Mag()/240 > 1.1)
 					{
-						gl_verbose("The voltages at the batteries meter are higher than rated, or outside of ANSI emergency specifications. No power output.");
+						verbose("The voltages at the batteries meter are higher than rated, or outside of ANSI emergency specifications. No power output.");
 						battery_state = BS_WAITING;
 
 						last_current[0].SetPolar(parasitic_power_draw/volt.Mag(),volt.Arg());
@@ -1559,7 +1559,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					if (high_voltage > V_Max.Mag())
 					{
-						gl_verbose("The voltages at the battery meter are higher than rated. No power output.");
+						verbose("The voltages at the battery meter are higher than rated. No power output.");
 						battery_state = BS_WAITING;
 						prev_state = 0;
 
@@ -1735,7 +1735,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					if (volt.Mag() > V_Max.Mag() || volt.Mag()/240 < 0.9 || volt.Mag()/240 > 1.1)
 					{
-						gl_verbose("The voltages at the battery meter are higher than rated, or outside of ANSI emergency specifications. No power output.");
+						verbose("The voltages at the battery meter are higher than rated, or outside of ANSI emergency specifications. No power output.");
 						battery_state = BS_WAITING;
 						prev_state = -1;
 
@@ -1863,12 +1863,12 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//gather V_Out
 			//gather I_Out
 			//gather P_Out
-			////gl_verbose("battery sync: entered");
+			////verbose("battery sync: entered");
 			V_Out = pCircuit_V[0];
 			I_Out = pLine_I[0];
 
-			//gl_verbose("battery sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
-			//gl_verbose("battery sync: I_Out from parent is: (%f , %f)", I_Out.Re(), V_Out.Im());
+			//verbose("battery sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
+			//verbose("battery sync: I_Out from parent is: (%f , %f)", I_Out.Re(), V_Out.Im());
 
 
 			V_In = V_Out;
@@ -1879,8 +1879,8 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//finds the CURRENT efficiency
 			efficiency = base_efficiency * calculate_efficiency(V_Out, I_Out);
 
-			//gl_verbose("battery sync: base_efficiency is: %f", base_efficiency);
-			//gl_verbose("battery sync: efficiency is: %f", efficiency);
+			//verbose("battery sync: base_efficiency is: %f", base_efficiency);
+			//verbose("battery sync: efficiency is: %f", efficiency);
 
 			if (I_Out > 0){ // charging
 				I_Internal = I_Out * efficiency; //actual stored current is less than what was put in
@@ -1891,33 +1891,33 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 
 
-			//gl_verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
-			//gl_verbose("battery sync: V_Internal to push is: (%f , %f)", V_Internal.Re(), V_Internal.Im());
-			//gl_verbose("battery sync: I_Internal to push is: (%f , %f)", I_Internal.Re(), I_Internal.Im());
+			//verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
+			//verbose("battery sync: V_Internal to push is: (%f , %f)", V_Internal.Re(), V_Internal.Im());
+			//verbose("battery sync: I_Internal to push is: (%f , %f)", I_Internal.Re(), I_Internal.Im());
 
 			VA_Out = V_Out * (~I_Out);
 			VA_Internal = V_Internal * I_Internal;  // charging rate is slower than termainl voltage suggests, similarly,
 												//discharge rate is faster than the terminal voltage suggests
 				
-			//gl_verbose("battery sync: VA_Out from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
-			//gl_verbose("battery sync: VA_Internal calculated is: (%f , %f)", VA_Internal.Re(), VA_Internal.Im());
+			//verbose("battery sync: VA_Out from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+			//verbose("battery sync: VA_Internal calculated is: (%f , %f)", VA_Internal.Re(), VA_Internal.Im());
 			
 
 			if ( !recalculate){//if forced recalculate is false, check where the time is
-			//gl_verbose("battery sync: don't recalculate");
+			//verbose("battery sync: don't recalculate");
 				if ( t0 == prev_time){
-					//gl_verbose("battery sync: reached expected time, set energy and don't recalculate");
+					//verbose("battery sync: reached expected time, set energy and don't recalculate");
 					Energy = E_Next; // we're all set this time around, just set the energy level onward
-					//gl_verbose("battery sync: Energy level is %f", Energy);
-					//gl_verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
-					//gl_verbose("battery sync: I_In to push is: (%f , %f)", I_In.Re(), I_In.Im());
+					//verbose("battery sync: Energy level is %f", Energy);
+					//verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
+					//verbose("battery sync: I_In to push is: (%f , %f)", I_In.Re(), I_In.Im());
 					recalculate = true; //recalculate the next time around
 					
 					return battery::sync(t0, t1);
 				}else{
-					//gl_verbose("battery sync: Didn't reach expected time, force recalculate");
-					//gl_verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
-					//gl_verbose("battery sync: I_In to push is: (%f , %f)", I_In.Re(), I_In.Im());
+					//verbose("battery sync: Didn't reach expected time, force recalculate");
+					//verbose("battery sync: V_In to push is: (%f , %f)", V_In.Re(), V_In.Im());
+					//verbose("battery sync: I_In to push is: (%f , %f)", I_In.Re(), I_In.Im());
 					Energy = E_Next;
 					//TIMESTAMP prev_time2 = prev_time;
 					//prev_time = t0;
@@ -1929,28 +1929,28 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}else{
 				//////////////////// need this in hours //////////////////
 				//TIMESTAMP t2 = t1 - t0;
-				//gl_verbose("battery sync: recalculate!");
-				//gl_verbose("battery sync: energy level pre changes is: %f", Energy);
-				//gl_verbose("battery sync: energy level to go to next is: %f", E_Next);
+				//verbose("battery sync: recalculate!");
+				//verbose("battery sync: energy level pre changes is: %f", Energy);
+				//verbose("battery sync: energy level to go to next is: %f", E_Next);
 
 				///need to use timestamp_to_hours from the core, not here, how to reference core?
 				//double t2 = (timestamp_to_hours((TIMESTAMP)t1) - timestamp_to_hours((TIMESTAMP)t0));
 				double t2 = (gl_tohours((TIMESTAMP)t1) - gl_tohours((TIMESTAMP)t0));
 
 				if ( fabs((double)V_Out.Re()) > fabs((double)V_Max.Re())){
-					//gl_verbose("battery sync: V_Out exceeded allowable V_Out, setting to max");
+					//verbose("battery sync: V_Out exceeded allowable V_Out, setting to max");
 					V_Out = V_Max;
 					V_In = V_Out;
 					V_Internal = V_Out - (I_Out * Rinternal);
 				}
 
 				if ( fabs((double)I_Out.Re()) > fabs((double)I_Max.Re())){
-					//gl_verbose("battery sync: I_Out exceeded allowable I_Out, setting to max");
+					//verbose("battery sync: I_Out exceeded allowable I_Out, setting to max");
 					I_Out = I_Max;
 				}
 
 				if ( fabs((double)VA_Out.Re()) > fabs((double)Max_P)){
-					//gl_verbose("battery sync: VA_Out exceeded allowable VA_Out, setting to max");
+					//verbose("battery sync: VA_Out exceeded allowable VA_Out, setting to max");
 					VA_Out = complex(Max_P , 0);
 					VA_Internal = VA_Out - (I_Out * I_Out * Rinternal);
 				}
@@ -1960,11 +1960,11 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			prev_time = t1;
 
 			if ( VA_Out < 0){ //discharging
-				//gl_verbose("battery sync: discharging");
+				//verbose("battery sync: discharging");
 				if ( Energy == 0 || Energy <= margin){ 
-					//gl_verbose("battery sync: battery is empty!");
+					//verbose("battery sync: battery is empty!");
 					if ( connected){
-						//gl_verbose("battery sync: empty BUT it is connected, passing request onward");
+						//verbose("battery sync: empty BUT it is connected, passing request onward");
 						I_In = I_Max + complex(fabs(I_Out.Re()), fabs(I_Out.Im())); //power was asked for to discharge but battery is empty, forward request along the line
 						I_Prev = I_Max / efficiency;
 						//Get as much as you can from the microturbine --> the load asked for as well as the max
@@ -1974,7 +1974,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 						return t3;
 					}
 					else{
-						//gl_verbose("battery sync: battery is empty with nothing connected!  drop request!");
+						//verbose("battery sync: battery is empty with nothing connected!  drop request!");
 						I_In = 0;
 						I_Prev = 0;
 						V_In = V_Out;
@@ -1986,9 +1986,9 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				}
 
 				if ( (Energy + (V_Internal * I_Prev.Re()).Re() * t2) <= margin){ //headed to empty
-					//gl_verbose("battery sync: battery is headed to empty");
+					//verbose("battery sync: battery is headed to empty");
 					if ( connected){
-						//gl_verbose("battery sync: BUT battery is connected, so pass request onward");
+						//verbose("battery sync: BUT battery is connected, so pass request onward");
 						I_In = I_Max + complex(fabs(I_Out.Re()), fabs(I_Out.Im())); //this won't let the battery go empty... change course 
 						I_Prev = I_Max / efficiency;
 						//if the battery is connected to something which serves the load and charges the battery
@@ -1997,7 +1997,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 						TIMESTAMP t3 = rfb_event_time(t0, (I_In - complex(fabs(I_Out.Re()), fabs(I_Out.Im()))) * V_Internal / efficiency, Energy);
 						return t3;
 					}else{
-						//gl_verbose("battery sync: battery is about to be empty with nothing connected!!");
+						//verbose("battery sync: battery is about to be empty with nothing connected!!");
 						TIMESTAMP t3 = rfb_event_time(t0, VA_Internal, Energy);
 						E_Next = 0; //expecting return when time is empty
 						I_In = 0; 
@@ -2006,7 +2006,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 						return t3;
 					}
 				}else{ // doing fine
-					//gl_verbose("battery sync: battery is not empty, demand supplied from the battery");
+					//verbose("battery sync: battery is not empty, demand supplied from the battery");
 					E_Next = Energy + (VA_Internal.Re() * t2);
 					I_In = 0; //nothign asked for
 					I_Prev = 0;
@@ -2016,17 +2016,17 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				}
 			}else if (VA_Out > 0){ //charging
 				if ( Energy >= (E_Max - margin)){
-					//gl_verbose("battery sync: battery is full!");
+					//verbose("battery sync: battery is full!");
 					if ( connected){
 						//attempt to let other items serve the load if the battery is full instead of draining the battery
-						//gl_verbose("battery sync: battery is full and connected, passing the power request onward");
+						//verbose("battery sync: battery is full and connected, passing the power request onward");
 						E_Next = Energy;
 						I_In = I_Out = 0; //drop the request to charge
 						I_Prev = 0;
 						recalculate = false;
 						return TS_NEVER;
 					}else{
-						//gl_verbose("battery sync: battery is full, and charging");
+						//verbose("battery sync: battery is full, and charging");
 						I_In = I_Out = 0; //can't charge any more... drop the current somehow?
 						I_Prev = 0;
 						V_Out = V_Out; // don't drop V_Out in this case
@@ -2037,7 +2037,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				}
 
 				if ( Energy + ((V_Internal * I_Prev.Re()) * efficiency * t2).Re() >= (E_Max - margin)){ //if it is this far, it is charging at max
-					//gl_verbose("battery sync: battery is about to be full");
+					//verbose("battery sync: battery is about to be full");
 					TIMESTAMP t3 = rfb_event_time(t0, VA_Internal, Energy);
 					I_In = 0;
 					I_Prev = 0;
@@ -2046,7 +2046,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					return t3;
 				}else{
 					if ( connected){
-						//gl_verbose("battery sync: battery is charging but not yet full, connected");
+						//verbose("battery sync: battery is charging but not yet full, connected");
 						//if it is connected, use whatever is connected to help it charge;
 						I_In = I_Max - I_Out; // total current in is now I_Max
 						I_Prev = I_Max * efficiency;
@@ -2055,7 +2055,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 						TIMESTAMP t3 = rfb_event_time(t0, (I_Max * V_Internal * efficiency), Energy);
 						return t3;
 					}else{
-						//gl_verbose("battery sync: battery is charging but not yet full, not connected");
+						//verbose("battery sync: battery is charging but not yet full, not connected");
 						I_In = 0;
 						I_Prev = 0;
 						E_Next = Energy + (VA_Internal * t2).Re();
@@ -2065,7 +2065,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 				}
 			}else{// VA_Out = 0
-				//gl_verbose("battery sync: battery is not charging or discharging");
+				//verbose("battery sync: battery is not charging or discharging");
 				recalculate = false;
 				I_In = 0;
 				I_Prev = 0;
@@ -2112,14 +2112,14 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 		if ( t0 != 0 && bat_load != 0){
 			if ( bat_load < 0 && battery_state != BS_EMPTY){
 				if ( bat_load < -p_max){
-					gl_warning("battery_load is greater than rated. Setting to plate rating.");
+					warning("battery_load is greater than rated. Setting to plate rating.");
 					bat_load = -p_max;
 				}
 				battery_state = BS_DISCHARGING;
 				p_br = p_max/pow(eta_rt,0.5);
 			} else if ( bat_load > 0 && battery_state != BS_FULL){
 				if ( bat_load > p_max){
-					gl_warning("battery_load is greater than rated. Setting to plate rating.");
+					warning("battery_load is greater than rated. Setting to plate rating.");
 					bat_load = p_max;
 				}
 				battery_state = BS_CHARGING;
@@ -2168,7 +2168,7 @@ STATUS battery::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 	}
 	else {
 		// Do nothing for battery during delta mode - soc is not changed
-		gl_warning("battery:%s does not use internal_battery_model, or its parent inverter is not FQM_CONSTANT_PQ. No actions executed for this battery during delta mode",obj->name?obj->name:"unnamed");
+		warning("battery:%s does not use internal_battery_model, or its parent inverter is not FQM_CONSTANT_PQ. No actions executed for this battery during delta mode",obj->name?obj->name:"unnamed");
 
 	}
 	//Just return a pass - not sure how we'd fail
@@ -2271,14 +2271,14 @@ double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigne
 	if ( bat_load != 0){
 		if ( bat_load < 0 && battery_state != BS_EMPTY){
 			if ( bat_load < -p_max){
-				gl_warning("battery_load is greater than rated. Setting to plate rating.");
+				warning("battery_load is greater than rated. Setting to plate rating.");
 				bat_load = -p_max;
 			}
 			battery_state = BS_DISCHARGING;
 			p_br = p_max/pow(eta_rt,0.5);
 		} else if ( bat_load > 0 && battery_state != BS_FULL){
 			if ( bat_load > p_max){
-				gl_warning("battery_load is greater than rated. Setting to plate rating.");
+				warning("battery_load is greater than rated. Setting to plate rating.");
 				bat_load = p_max;
 			}
 			battery_state = BS_CHARGING;

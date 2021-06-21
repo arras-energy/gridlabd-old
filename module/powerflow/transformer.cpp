@@ -130,6 +130,8 @@ void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 
 int transformer::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_XFRM;
+	
 	int idex;
 
 	if (!configuration)
@@ -147,7 +149,7 @@ int transformer::init(OBJECT *parent)
 		*/
 	if((configuration->flags & OF_INIT) != OF_INIT){
 		char objname[256];
-		gl_verbose("transformer::init(): deferring initialization on %s", gl_name(configuration, objname, 255));
+		verbose("transformer::init(): deferring initialization on %s", gl_name(configuration, objname, 255));
 		return 2; // defer
 	}
 	double V_base,za_basehi,za_baselo,V_basehi;
@@ -1032,7 +1034,7 @@ int transformer::init(OBJECT *parent)
 				if (climate_list==NULL)
 				{
 					//Warn
-					gl_warning("No climate data found - using static temperature");
+					warning("No climate data found - using static temperature");
 					/*  TROUBLESHOOT
 					While attempting to map a climate object for the transformer aging model, no climate object could be
 					found.  Static temperature data will be used instead.  Please check your code or manually specify a climate
@@ -1051,7 +1053,7 @@ int transformer::init(OBJECT *parent)
 					if (climate==NULL)
 					{
 						//Warn
-						gl_warning("No climate data found - using static temperature");
+						warning("No climate data found - using static temperature");
 						/*  TROUBLESHOOT
 						While attempting to map a climate object for the transformer aging model, no climate object could be
 						found.  Static temperature data will be used instead.  Please check your code or manually specify a climate
@@ -1070,7 +1072,7 @@ int transformer::init(OBJECT *parent)
 						if (ptheta_A == NULL)
 						{
 							//Warn
-							gl_warning("No climate data found - using static temperature");
+							warning("No climate data found - using static temperature");
 							/*  TROUBLESHOOT
 							While attempting to map a climate object for the transformer aging model, no climate object could be
 							found.  Static temperature data will be used instead.  Please check your code or manually specify a climate
@@ -1085,7 +1087,7 @@ int transformer::init(OBJECT *parent)
 				else	//Must not have found one
 				{
 					//Warn
-					gl_warning("No climate data found - using static temperature");
+					warning("No climate data found - using static temperature");
 					/*  TROUBLESHOOT
 					While attempting to map a climate object for the transformer aging model, no climate object could be
 					found.  Static temperature data will be used instead.  Please check your code or manually specify a climate
@@ -1103,7 +1105,7 @@ int transformer::init(OBJECT *parent)
 				if (ptheta_A == NULL)
 				{
 					//Warn
-					gl_warning("No climate data found - using static temperature");
+					warning("No climate data found - using static temperature");
 					/*  TROUBLESHOOT
 					While attempting to map a climate object for the transformer aging model, no climate object could be
 					found.  Static temperature data will be used instead.  Please check your code or manually specify a climate
@@ -1191,7 +1193,7 @@ TIMESTAMP transformer::postsync(TIMESTAMP t0)
 					t_TO = t_TOR*(((dtheta_TO_U/config->dtheta_TO_R)-(dtheta_TO_i/config->dtheta_TO_R))/(pow((dtheta_TO_U/config->dtheta_TO_R),(1/n)) - pow((dtheta_TO_i/config->dtheta_TO_R),(1/n))));
 					dtheta_H_U = dtheta_H_R*pow(K,2*m);
 				} else if(life_loss >= 100){
-					gl_warning("%s: The transformer has reached its operational lifespan. Resetting transformer lifetime parameters.",obj->name);
+					warning("%s: The transformer has reached its operational lifespan. Resetting transformer lifetime parameters.",obj->name);
 					/*  TROUBLESHOOT
 					During the simulation, while using the transformer thermal aging model, the transformer reached the end of its
 					life.  It was assumed that the transformer was replaced with a new transformer of the same make, model, etc. to 
@@ -1736,7 +1738,7 @@ int transformer::transformer_saturation_update(bool *deltaIsat)
 			}
 			else	//Somehow we're flagged for saturation, but have no winding set
 			{
-				gl_warning("transformer:%d %s is set to model saturation, but has no magnetization location",obj->id,obj->name ? obj->name : "Unnamed");
+				warning("transformer:%d %s is set to model saturation, but has no magnetization location",obj->id,obj->name ? obj->name : "Unnamed");
 				/*  TROUBLESHOOT
 				While attempting to initialize a transformer for inrush saturation calculations, it was noticed that
 				no magentization location was specified.  No saturation can be modeled in this case.  Please specify

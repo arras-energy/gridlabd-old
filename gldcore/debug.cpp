@@ -222,7 +222,7 @@ static const char *get_objname(OBJECT *obj)
 {
 	static char buf[1024];
 	if (obj->name) return obj->name;
-	sprintf(buf,"%s:%d", obj->oclass->name, obj->id);
+	snprintf(buf,sizeof(buf)-1,"%s:%d", obj->oclass->name, obj->id);
 	return buf;
 }
 
@@ -241,7 +241,7 @@ static STATUS exec(const char *format,...)
 	char cmd[1024];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(cmd,format,ptr);
+	vsnprintf(cmd,sizeof(cmd)-1,format,ptr);
 	va_end(ptr);
 	output_debug("Running '%s'", cmd);
 	return system(cmd)==0?SUCCESS:FAILED;
@@ -426,7 +426,7 @@ static int exec_add_watchpoint(OBJECT *obj, /**< the object being watched */
 
 static void list_object(OBJECT *obj, PASSCONFIG pass)
 {
-	char details[132] = "";
+	char details[4096] = "";
 	char buf1[64],buf2[64],buf3[64];
 	if (list_unnamed==0 && obj->name==NULL)
 		return;
@@ -438,7 +438,7 @@ static void list_object(OBJECT *obj, PASSCONFIG pass)
 	{
 		char valid_to[64] = "";
 		convert_from_timestamp(obj->valid_to,valid_to,sizeof(valid_to));
-		sprintf(details,"%s %c%c%c %s/%s/%d ", valid_to,
+		snprintf(details,sizeof(details)-1,"%s %c%c%c %s/%s/%d ", valid_to,
 			obj->flags&OF_RECALC?'c':'-', obj->flags&OF_RERANK?'r':'-', obj->flags&OF_FOREIGN?'f':'-',
 			obj->oclass->module->name, obj->oclass->name, obj->id);
 	}

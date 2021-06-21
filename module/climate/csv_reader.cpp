@@ -32,12 +32,11 @@ EXPORT TIMESTAMP sync_csv_reader(OBJECT *obj, TIMESTAMP t0)
 
 csv_reader::csv_reader()
 {
-	memset(this, 0, sizeof(csv_reader));
+	memset((void*)this, 0, sizeof(csv_reader));
 }
 
 csv_reader::csv_reader(MODULE *module)
 {
-	memset(this, 0, sizeof(csv_reader));
 	if (oclass==NULL)
 	{
 		oclass = gl_register_class(module,"csv_reader",sizeof(csv_reader),PC_NOSYNC);
@@ -63,7 +62,7 @@ csv_reader::csv_reader(MODULE *module)
 			PT_char256,"columns",PADDR(columns_str), PT_DESCRIPTION, "column names",
 			PT_char256,"filename",PADDR(filename), PT_DESCRIPTION, "filename",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		memset(this,0,sizeof(csv_reader));
+		memset((void*)this,0,sizeof(csv_reader));
 	}
 }
 
@@ -247,7 +246,8 @@ int csv_reader::read_prop(char *line)
 	} 
 	else if ( prop->ptype == PT_char32 ) 
 	{
-		strncpy((char *)addr, valstr, 32);
+		memcpy((char *)addr, valstr, 32);
+		((char*)addr)[31] = '\0';
 //	} else if ( prop->ptype == PT_char256 ) {
 //		strncpy((char *)addr, valstr, 256);
 	} 

@@ -71,13 +71,7 @@ rectifier::rectifier(MODULE *module)
 			PT_KEYWORD, "S",(set)PHASE_S,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-
-
-
-
-
-
-		memset(this,0,sizeof(rectifier));
+		memset((void*)this,0,sizeof(rectifier));
 		/* TODO: set the default values of all properties here */
 	}
 }
@@ -88,7 +82,7 @@ rectifier::rectifier(MODULE *module)
 /* Object creation is called once for each object that is created by the core */
 int rectifier::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	/* TODO: set the context-free initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -174,7 +168,7 @@ int rectifier::init(OBJECT *parent)
 	frequency_losses = 0;
 
 
-	gl_verbose("rectifier init: initialized the variables");
+	verbose("rectifier init: initialized the variables");
 
 	if (parent!=NULL && gl_object_isa(parent,"meter"))
 	{
@@ -298,7 +292,7 @@ int rectifier::init(OBJECT *parent)
 	internal_switch_resistance(switch_type_choice);
 	filter_circuit_impact((power_electronics::FILTER_TYPE)filter_type_v, (power_electronics::FILTER_IMPLEMENTATION)filter_imp_v);
 
-	gl_verbose("rectifier init: about to exit");
+	verbose("rectifier init: about to exit");
 	return 1;
 }
 
@@ -386,19 +380,19 @@ void rectifier::iterative_IV(complex VA, const char* phase_designation)
 	power_C_In = (~IdetC) * VdetC;
 
 
-	gl_verbose("rectifier sync: iterative solver: Total VA delivered is: (%f , %f)", s.Re(), s.Im());
+	verbose("rectifier sync: iterative solver: Total VA delivered is: (%f , %f)", s.Re(), s.Im());
 
-	gl_verbose("rectifier sync: iterative solver: power_A_In delivered is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
-	gl_verbose("rectifier sync: iterative solver: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
+	verbose("rectifier sync: iterative solver: power_A_In delivered is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
+	verbose("rectifier sync: iterative solver: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
+	verbose("rectifier sync: iterative solver: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
 
-	gl_verbose("rectifier sync: iterative solver: power_B_In delivered is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
-	gl_verbose("rectifier sync: iterative solver: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
+	verbose("rectifier sync: iterative solver: power_B_In delivered is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
+	verbose("rectifier sync: iterative solver: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
+	verbose("rectifier sync: iterative solver: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
 
-	gl_verbose("rectifier sync: iterative solver: power_C_In delivered is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
-	gl_verbose("rectifier sync: iterative solver: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
+	verbose("rectifier sync: iterative solver: power_C_In delivered is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
+	verbose("rectifier sync: iterative solver: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
+	verbose("rectifier sync: iterative solver: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
 
 	return;
 	}
@@ -456,27 +450,27 @@ void rectifier::iterative_IV(complex VA, const char* phase_designation)
 	if(phase_designation == "A"){
 	voltage_A = Vdet;
 	current_A = Idet;
-	gl_verbose("rectifier sync: iterative solver: power_A_In asked for was: (%f , %f)", VA.Re(), VA.Im());
-	gl_verbose("rectifier sync: iterative solver: power_A_In delivered is: (%f , %f)", s.Re(), s.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
-	gl_verbose("rectifier sync: iterative solver: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
+	verbose("rectifier sync: iterative solver: power_A_In asked for was: (%f , %f)", VA.Re(), VA.Im());
+	verbose("rectifier sync: iterative solver: power_A_In delivered is: (%f , %f)", s.Re(), s.Im());
+	verbose("rectifier sync: iterative solver: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
+	verbose("rectifier sync: iterative solver: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
 
 	}
 	else if(phase_designation == "B"){
 	voltage_B = Vdet;
 	current_B = Idet;
-	gl_verbose("rectifier sync: iterative solver: power_B_In asked for was: (%f , %f)", VA.Re(), VA.Im());
-	gl_verbose("rectifier sync: iterative solver: power_B_In delivered is: (%f , %f)", s.Re(), s.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
-	gl_verbose("rectifier sync: iterative solver: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
+	verbose("rectifier sync: iterative solver: power_B_In asked for was: (%f , %f)", VA.Re(), VA.Im());
+	verbose("rectifier sync: iterative solver: power_B_In delivered is: (%f , %f)", s.Re(), s.Im());
+	verbose("rectifier sync: iterative solver: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
+	verbose("rectifier sync: iterative solver: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
 	}
 	else if(phase_designation == "C"){
 	voltage_C = Vdet;
 	current_C = Idet;
-	gl_verbose("rectifier sync: iterative solver: power_C_In asked for was: (%f , %f)", VA.Re(), VA.Im());
-	gl_verbose("rectifier sync: iterative solver: power_C_In delivered is: (%f , %f)", s.Re(), s.Im());
-	gl_verbose("rectifier sync: iterative solver: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
-	gl_verbose("rectifier sync: iterative solver: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
+	verbose("rectifier sync: iterative solver: power_C_In asked for was: (%f , %f)", VA.Re(), VA.Im());
+	verbose("rectifier sync: iterative solver: power_C_In delivered is: (%f , %f)", s.Re(), s.Im());
+	verbose("rectifier sync: iterative solver: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
+	verbose("rectifier sync: iterative solver: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
 	}
 
 
@@ -503,8 +497,8 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 	V_Out = complex(V_Rated, 0);
 	I_Out = (*pLine_I).Re();
 
-	gl_verbose("rectifier sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
-	gl_verbose("rectifier sync: I_Out from parent is: (%f , %f)", I_Out.Re(), I_Out.Im());
+	verbose("rectifier sync: V_Out from parent is: (%f , %f)", V_Out.Re(), V_Out.Im());
+	verbose("rectifier sync: I_Out from parent is: (%f , %f)", I_Out.Re(), I_Out.Im());
 
 	internal_losses = 1 - calculate_loss(Rtotal, Ltotal, Ctotal, DC, AC);
 	frequency_losses = 1 - calculate_frequency_loss(input_frequency, Rtotal,Ltotal, Ctotal);
@@ -546,20 +540,20 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 				I_Out = ~(VA_Out / V_Out); //These values are completely real, but since parent object uses complex, use here as well and follow rule for complex conjugate
 				*pLine_I=I_Out;
 				*pCircuit_V = V_Out;
-				gl_verbose("rectifier sync: VA_Out is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
-				gl_verbose("rectifier sync: V_Out is: (%f , %f)", V_Out.Re(), V_Out.Im());
-				gl_verbose("rectifier sync: I_Out is: (%f , %f)", I_Out.Re(), I_Out.Im());
-				gl_verbose("rectifier sync: losses is: (%f , %f)", losses.Re(), losses.Im());
+				verbose("rectifier sync: VA_Out is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+				verbose("rectifier sync: V_Out is: (%f , %f)", V_Out.Re(), V_Out.Im());
+				verbose("rectifier sync: I_Out is: (%f , %f)", I_Out.Re(), I_Out.Im());
+				verbose("rectifier sync: losses is: (%f , %f)", losses.Re(), losses.Im());
 
 
-				gl_verbose("rectifier sync: supply driven about to exit");
+				verbose("rectifier sync: supply driven about to exit");
 				return TS_NEVER;
 			}
 			break;
 			/*
 			case CONSTANT_PQ:
 			{//TODO
-			gl_verbose("rectifier sync: constant pq rectifier");
+			verbose("rectifier sync: constant pq rectifier");
 			//P_Out is either set or input from elsewhere
 			//Q_Out is either set or input from elsewhere
 
@@ -571,14 +565,14 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 			VA_Out = V_Out * (~I_Out);
 			}
 
-			gl_verbose("rectifier sync: VA_Out calculated from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+			verbose("rectifier sync: VA_Out calculated from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 
 			VA_In = VA_Out / (efficiency * internal_losses);
 			losses = VA_Out * (1 - (efficiency * internal_losses));
 
 			//I_In = VA_In / V_In;
 
-			gl_verbose("rectifier sync: VA_In calculated after losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("rectifier sync: VA_In calculated after losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
 
 			if(number_of_phases_in == 3){
 			iterative_IV(VA_In, "D");
@@ -622,24 +616,24 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 
 
-			gl_verbose("rectifier sync: VA_In is: (%f , %f)", VA_In.Re(), VA_In.Im());
-			gl_verbose("rectifier sync: power_A_In is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
-			gl_verbose("rectifier sync: power_B_In is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
-			gl_verbose("rectifier sync: power_C_In is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
-			gl_verbose("rectifier sync: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
-			gl_verbose("rectifier sync: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
-			gl_verbose("rectifier sync: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
-			gl_verbose("rectifier sync: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
-			gl_verbose("rectifier sync: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
-			gl_verbose("rectifier sync: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
+			verbose("rectifier sync: VA_In is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("rectifier sync: power_A_In is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
+			verbose("rectifier sync: power_B_In is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
+			verbose("rectifier sync: power_C_In is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
+			verbose("rectifier sync: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
+			verbose("rectifier sync: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
+			verbose("rectifier sync: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
+			verbose("rectifier sync: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
+			verbose("rectifier sync: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
+			verbose("rectifier sync: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
 
-			gl_verbose("rectifier sync: constant pq about to exit");
+			verbose("rectifier sync: constant pq about to exit");
 			return TS_NEVER;
 			}
 			break;
 			case CONSTANT_V:
 			{
-			gl_verbose("rectifier sync: constant v rectifier");
+			verbose("rectifier sync: constant v rectifier");
 			bool changed = false;
 
 
@@ -749,13 +743,13 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 
 
-			gl_verbose("rectifier sync: VA_Out requested from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
+			verbose("rectifier sync: VA_Out requested from parent is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
 
 
 			VA_In = VA_Out / (efficiency * internal_losses);
 			losses = VA_Out * (1 - (efficiency * internal_losses));
 
-			gl_verbose("rectifier sync: VA_In after losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("rectifier sync: VA_In after losses is: (%f , %f)", VA_In.Re(), VA_In.Im());
 
 			//after we export this current to the generator that is hooked up on the input, 
 			//we will expect that during the next timestep, the generator will give us a
@@ -788,19 +782,19 @@ TIMESTAMP rectifier::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//TODO: check P and Q components to see if within bounds
 
 
-			gl_verbose("rectifier sync: VA_In is: (%f , %f)", VA_In.Re(), VA_In.Im());
-			gl_verbose("rectifier sync: power_A_In is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
-			gl_verbose("rectifier sync: power_B_In is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
-			gl_verbose("rectifier sync: power_C_In is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
-			gl_verbose("rectifier sync: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
-			gl_verbose("rectifier sync: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
-			gl_verbose("rectifier sync: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
-			gl_verbose("rectifier sync: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
-			gl_verbose("rectifier sync: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
-			gl_verbose("rectifier sync: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
+			verbose("rectifier sync: VA_In is: (%f , %f)", VA_In.Re(), VA_In.Im());
+			verbose("rectifier sync: power_A_In is: (%f , %f)", power_A_In.Re(), power_A_In.Im());
+			verbose("rectifier sync: power_B_In is: (%f , %f)", power_B_In.Re(), power_B_In.Im());
+			verbose("rectifier sync: power_C_In is: (%f , %f)", power_C_In.Re(), power_C_In.Im());
+			verbose("rectifier sync: voltage_A is: (%f , %f)", voltage_A.Re(), voltage_A.Im());
+			verbose("rectifier sync: voltage_B is: (%f , %f)", voltage_B.Re(), voltage_B.Im());
+			verbose("rectifier sync: voltage_C is: (%f , %f)", voltage_C.Re(), voltage_C.Im());
+			verbose("rectifier sync: current_A is: (%f , %f)", current_A.Re(), current_A.Im());
+			verbose("rectifier sync: current_B is: (%f , %f)", current_B.Re(), current_B.Im());
+			verbose("rectifier sync: current_C is: (%f , %f)", current_C.Re(), current_C.Im());
 
 
-			gl_verbose("rectifier sync: constant v rectifier about to exit");
+			verbose("rectifier sync: constant v rectifier about to exit");
 			if(changed){
 			TIMESTAMP t2 = TS_NEVER;
 			return t2;

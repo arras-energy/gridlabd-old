@@ -161,6 +161,15 @@ gldcore/link/python/examples/example_3/x.csv
 gldcore/link/python/examples/example_1/example.png
 gldcore/link/python/examples/example_1/x.csv
 gldcore/autotest/test.glm
+powerflow/autotest/test_IEEE13_pole_output.csv
 gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
+openfido.err
+test_*.html
+gldcore/converters/autotest/IEEE-123.html
+gldcore/converters/autotest/solver_nr_profile.csv
+gldcore/converters/autotest/table2glm_input_noclass.glm
+gldcore/converters/autotest/table2glm_input_noname.glm
+gldcore/converters/autotest/table2glm_input.glm
+gldcore/geodata/docs/geodata.conf

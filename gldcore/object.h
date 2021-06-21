@@ -31,8 +31,10 @@ typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
 typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
+typedef unsigned long long HASH;
 
 #define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+HASH hash(OBJECTNAME name);
 
 /* object flags */
 #define OF_NONE			0x00000000	/**< Object flag; none set */
@@ -50,7 +52,6 @@ typedef char FULLNAME[1024]; /** Full object name (including space name) */
 #define OF_WARNING		0x00020000  /**< Object flag; disables warning messages from the object */
 #define OF_DEBUG		0x00040000  /**< Object flag; disables debug messages from the object */
 #define OF_VERBOSE		0x00080000  /**< Object flag; disables verbose messages from the object */
-#define OF_SILENT		0x000f0000	/**< Object flag; disables all messages from the object */
 
 typedef struct s_headerdata
 {
@@ -220,7 +221,7 @@ typedef struct s_callbacks {
 		double (*weibull)(unsigned int *rng,double a, double b);
 		double (*rayleigh)(unsigned int *rng,double a);
 	} random;
-	int (*object_isa)(OBJECT *obj, const char *type);
+	int (*object_isa)(OBJECT *obj, const char *type, const char *module);
 	DELEGATEDTYPE* (*register_type)(CLASS *oclass, const char *type,int (*from_string)(void*,const char *),int (*to_string)(void*,char*,int));
 	int (*define_type)(CLASS*,DELEGATEDTYPE*,...);
 	struct {
@@ -365,7 +366,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs, void *result);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
@@ -401,7 +402,7 @@ int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int si
 int object_get_value_by_addr(OBJECT *obj, void *addr, char *value, int size, PROPERTY *prop);
 
 OBJECT *object_get_reference(OBJECT *obj, const char *name);
-int object_isa(OBJECT *obj, const char *type);
+int object_isa(OBJECT *obj, const char *type, const char *module = NULL);
 OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
 OBJECT *object_find_name(OBJECTNAME name);
 int object_build_name(OBJECT *obj, char *buffer, int len);

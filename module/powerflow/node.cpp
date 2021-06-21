@@ -419,12 +419,12 @@ int node::create(void)
 	LoadHistTermL = NULL;
 	LoadHistTermC = NULL;
 
-	memset(voltage,0,sizeof(voltage));
-	memset(voltaged,0,sizeof(voltaged));
-	memset(current,0,sizeof(current));
-	memset(pre_rotated_current,0,sizeof(pre_rotated_current));
-	memset(power,0,sizeof(power));
-	memset(shunt,0,sizeof(shunt));
+	memset((void*)voltage,0,sizeof(voltage));
+	memset((void*)voltaged,0,sizeof(voltaged));
+	memset((void*)current,0,sizeof(current));
+	memset((void*)pre_rotated_current,0,sizeof(pre_rotated_current));
+	memset((void*)power,0,sizeof(power));
+	memset((void*)shunt,0,sizeof(shunt));
 
 	current_dy[0] = current_dy[1] = current_dy[2] = complex(0.0,0.0);
 	current_dy[3] = current_dy[4] = current_dy[5] = complex(0.0,0.0);
@@ -478,6 +478,7 @@ int node::create(void)
 int node::init(OBJECT *parent)
 {
 	OBJECT *obj = THISOBJECTHDR;
+	violation_watch = violation_watchset&VW_NODE;
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
 	if (has_phase(PHASE_S))
@@ -658,7 +659,7 @@ int node::init(OBJECT *parent)
 			//See if it is a swing, just to toss a warning
 			if ((parNode->bustype==SWING) || (parNode->bustype==SWING_PQ))
 			{
-				gl_warning("Node:%s is parented to a swing node and will get folded into it.",obj->name);
+				warning("Node:%s is parented to a swing node and will get folded into it.",obj->name);
 				/*  TROUBLESHOOT
 				When a node has the parent field populated, it is assumed this is for a "zero-length" line connection.
 				If a swing node is specified, it will assume the node is linked to the swing node via a zero-length
@@ -824,7 +825,7 @@ int node::init(OBJECT *parent)
 			//Make sure nominal voltages match
 			if (nominal_voltage != parNode->nominal_voltage)
 			{
-				gl_warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
+				warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
 				/*  TROUBLESHOOT
 				A node object was parented to another node object with a different nominal_voltage set.  The childed object will now
 				take the parent nominal_voltage.  If this is not intended, please add a transformer between these nodes.
@@ -898,7 +899,7 @@ int node::init(OBJECT *parent)
 					//Make sure it worked
 					if (LUSolverFcns.dllLink==NULL)
 					{
-						gl_warning("Failure to load solver_%s as a library, defaulting to superLU",LUSolverName.get_string());
+						warning("Failure to load solver_%s as a library, defaulting to superLU",LUSolverName.get_string());
 						/*  TROUBLESHOOT
 						While attempting to load the DLL for an external LU solver, the file did not appear to meet
 						the libary specifications.  superLU is being used instead.  Please check the library file and
@@ -926,7 +927,7 @@ int node::init(OBJECT *parent)
 						//Make sure it worked
 						if (LUSolverFcns.ext_init == NULL)
 						{
-							gl_warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
+							warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
 							/*  TROUBLESHOOT
 							While attempting to link the LU_init routine of an external LU matrix solver library, the routine
 							failed to be found.  Check the external library and try again.  At this failure, powerflow will revert
@@ -943,7 +944,7 @@ int node::init(OBJECT *parent)
 						//Make sure it worked
 						if (LUSolverFcns.ext_alloc == NULL)
 						{
-							gl_warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
+							warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
 							/*  TROUBLESHOOT
 							While attempting to link the LU_init routine of an external LU matrix solver library, the routine
 							failed to be found.  Check the external library and try again.  At this failure, powerflow will revert
@@ -960,7 +961,7 @@ int node::init(OBJECT *parent)
 						//Make sure it worked
 						if (LUSolverFcns.ext_solve == NULL)
 						{
-							gl_warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
+							warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
 							/*  TROUBLESHOOT
 							While attempting to link the LU_init routine of an external LU matrix solver library, the routine
 							failed to be found.  Check the external library and try again.  At this failure, powerflow will revert
@@ -977,7 +978,7 @@ int node::init(OBJECT *parent)
 						//Make sure it worked
 						if (LUSolverFcns.ext_destroy == NULL)
 						{
-							gl_warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
+							warning("LU_init of external solver solver_%s not found, defaulting to superLU",LUSolverName.get_string());
 							/*  TROUBLESHOOT
 							While attempting to link the LU_init routine of an external LU matrix solver library, the routine
 							failed to be found.  Check the external library and try again.  At this failure, powerflow will revert
@@ -997,7 +998,7 @@ int node::init(OBJECT *parent)
 						}
 						else
 						{
-							gl_verbose("External solver solver_%s found, utilizing for NR",LUSolverName.get_string());
+							verbose("External solver solver_%s found, utilizing for NR",LUSolverName.get_string());
 							/*  TROUBLESHOOT
 							An external LU matrix solver library was specified and found, so NR will be calculated
 							using that instead of superLU.
@@ -1010,7 +1011,7 @@ int node::init(OBJECT *parent)
 				}//end found external and linked
 				else	//Not found, just default to superLU
 				{
-					gl_warning("The external solver solver_%s could not be found, defaulting to superLU",LUSolverName.get_string());
+					warning("The external solver solver_%s could not be found, defaulting to superLU",LUSolverName.get_string());
 					/*  TROUBLESHOOT
 					While attempting to link an external LU matrix solver library, the file could not be found.  Ensure it is
 					in the proper GridLAB-D folder and is named correctly.  If the error persists, please submit your code and
@@ -1030,7 +1031,7 @@ int node::init(OBJECT *parent)
 
 		if (mean_repair_time < 0.0)
 		{
-			gl_warning("node:%s has a negative mean_repair_time, set to 1 hour",obj->name);
+			warning("node:%s has a negative mean_repair_time, set to 1 hour",obj->name);
 			/*  TROUBLESHOOT
 			A node object had a mean_repair_time that is negative.  This ia not a valid setting.
 			The value has been changed to 0.  Please set the variable to an appropriate variable
@@ -1080,7 +1081,7 @@ int node::init(OBJECT *parent)
 				//Make sure nominal voltages match
 				if (nominal_voltage != parNode->nominal_voltage)
 				{
-					gl_warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
+					warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
 					//Define above
 
 					nominal_voltage = parNode->nominal_voltage;
@@ -1334,7 +1335,7 @@ int node::init(OBJECT *parent)
 		{
 			if ((TopologicalParent->flags & OF_DELTAMODE) != OF_DELTAMODE)
 			{
-				gl_warning("Object %s (node:%d) is flagged for deltamode, but it's parent is not.  This may lead to incorrect answers!",obj->name?obj->name:"Unknown",obj->id);
+				warning("Object %s (node:%d) is flagged for deltamode, but it's parent is not.  This may lead to incorrect answers!",obj->name?obj->name:"Unknown",obj->id);
 				/*  TROUBLESHOOT
 				A childed node's parent is not flagged for deltamode.  This may lead to some erroneous errors in the powerflow.  Please apply the
 				flags DELTAMODE property to the parent, or utilize the all_powerflow_delta module-level flag to fix this.
@@ -1762,7 +1763,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 				//See if we are the swing bus AND our flag is enabled, otherwise warn
 				if ((obj == NR_swing_bus) && (deltamode_inclusive == false))
 				{
-					gl_warning("SWING bus:%s is not flagged for deltamode",obj->name);
+					warning("SWING bus:%s is not flagged for deltamode",obj->name);
 					/*  TROUBLESHOOT
 					Deltamode is enabled for the overall powerflow module, but not for the SWING node
 					of the powerflow.  This means the overall powerflow is not being calculated or included
@@ -1778,7 +1779,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 				//Make sure the file name isn't empty either
 				if (MDFileName[0] == '\0')
 				{
-					gl_warning("NR: A matrix dump was requested, but no filename was specified. No dump will occur");
+					warning("NR: A matrix dump was requested, but no filename was specified. No dump will occur");
 					/*  TROUBLESHOOT
 					The powerflow module was configured such that a Newton-Raphson-based matrix dump was desired.  However, no file
 					was specified in NR_matrix_file.  No output will be performed.
@@ -1866,7 +1867,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 			//Make sure it worked
 			if (delta_functions[temp_pwr_object_current] == NULL)
 			{
-				gl_warning("Failure to map deltamode function for device:%s",obj->name);
+				warning("Failure to map deltamode function for device:%s",obj->name);
 				/*  TROUBLESHOOT
 				Attempts to map up the interupdate function of a specific device failed.  Please try again and ensure
 				the object supports deltamode.  This error may simply be an indication that the object of interest
@@ -2756,7 +2757,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 				}
 				else if (result<0)	//Failure to converge, but we just let it stay where we are for now
 				{
-					gl_verbose("Newton-Raphson failed to converge, sticking at same iteration.");
+					verbose("Newton-Raphson failed to converge, sticking at same iteration.");
 					/*  TROUBLESHOOT
 					Newton-Raphson failed to converge in the number of iterations specified in NR_iteration_limit.
 					It will try again (if the global iteration limit has not been reached).
@@ -3205,6 +3206,19 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
+	if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+
 	try {
 		// This zeroes out all of the unused phases at each node in the FBS method
 		if (solver_method==SM_FBS)
@@ -4191,7 +4205,7 @@ SIMULATIONMODE node::inter_deltaupdate_node(unsigned int64 delta_time, unsigned 
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 
@@ -4595,7 +4609,7 @@ void node::init_freq_dynamics(void)
 	}//End FOR loop
 
 	//Copy into current, since we may have already just done this
-	memcpy(&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
+	memcpy((void*)&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
 }
 
 //Function to perform the GFA-type responses
@@ -4898,7 +4912,7 @@ STATUS node::NR_swap_swing_status(bool desired_status)
 		}
 		else	//Indicate we're not one
 		{
-			gl_warning("node:%s - Not a SWING-capable bus, so no swing status swap changed",(hdr->name ? hdr->name : "unnamed"));
+			warning("node:%s - Not a SWING-capable bus, so no swing status swap changed",(hdr->name ? hdr->name : "unnamed"));
 			/*  TROUBLESHOOT
 			While attempting to swap a node from being a "swing node", it was tried on a node that was not already a SWING or SWING_PQ
 			node, which is not a valid attempt.
@@ -4915,7 +4929,7 @@ STATUS node::NR_swap_swing_status(bool desired_status)
 		}
 		else	//Indicate we're not one
 		{
-			gl_warning("node:%s - Not a SWING-capable bus, so no swing status swap changed",(hdr->name ? hdr->name : "unnamed"));
+			warning("node:%s - Not a SWING-capable bus, so no swing status swap changed",(hdr->name ? hdr->name : "unnamed"));
 			//Defined above
 		}
 	}
@@ -5008,7 +5022,7 @@ STATUS node::NR_map_current_update_function(OBJECT *callObj)
 	}
 	else	//Other method
 	{
-		gl_warning("node:%d - %s - Attempted to map an NR-based function, but is not using an NR solver",hdr->id,(hdr->name ? hdr->name : "Unnamed"));
+		warning("node:%d - %s - Attempted to map an NR-based function, but is not using an NR solver",hdr->id,(hdr->name ? hdr->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		An object just attempted to map a current injection update function that only works with the Newton-Raphson solver, but that
 		method is not being used.
@@ -5036,7 +5050,7 @@ STATUS node::link_VFD_functions(OBJECT *linkVFD)
 	//Make sure it worked
 	if (VFD_updating_function == NULL)
 	{
-		gl_warning("Failure to map VFD current injection update for device:%s",(obj->name ? obj->name : "Unnamed"));
+		warning("Failure to map VFD current injection update for device:%s",(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT
 		Attempts to map a function for the proper VFD updates did not work.  Please try again, making sure
 		this node is connected to a VFD properly.  If the error persists, please submit an issue ticket.

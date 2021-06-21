@@ -466,7 +466,7 @@ int load::init(OBJECT *parent)
 	{
 		if ((constant_current[0] != 0.0) || (constant_current[1] != 0.0) || (constant_current[2] != 0.0))
 		{
-			gl_warning("load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
+			warning("load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
 			/*  TROUBLESHOOT
 			Due to the potential for moving reference frame of deltamode systems, constant current loads are computed using a scaled
 			per-unit approach, rather than the fixed constant_current value.  You may get results that differ from traditional GridLAB-D
@@ -477,7 +477,7 @@ int load::init(OBJECT *parent)
 		//Separate, secondary check (for readibility) for the explicit D-Y loads
 		if ((constant_current_dy[0] != 0.0) || (constant_current_dy[1] != 0.0) || (constant_current_dy[2] != 0.0) || (constant_current_dy[3] != 0.0) || (constant_current_dy[4] != 0.0) || (constant_current_dy[5] != 0.0))
 		{
-			gl_warning("load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
+			warning("load:%s - constant_current loads in deltamode are handled slightly different", obj->name ? obj->name : "unnamed");
 			//Defined above
 		}
 
@@ -731,7 +731,7 @@ void load::load_update_fxn(bool fault_mode)
 
 				OBJECT *obj = THISOBJECTHDR;
 
-				gl_warning("load:%s - ZIP components on phase %c did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", temp[index], power_fraction[index]);
+				warning("load:%s - ZIP components on phase %c did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", temp[index], power_fraction[index]);
 				/*  TROUBLESHOOT
 				ZIP load fractions must sum to 1.  The values (power_fraction_X, impedance_fraction_X, and current_fraction_X) on the given phase did not sum to 1. To 
 				ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.
@@ -3119,7 +3119,7 @@ SIMULATIONMODE load::inter_deltaupdate_load(unsigned int64 delta_time, unsigned 
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 

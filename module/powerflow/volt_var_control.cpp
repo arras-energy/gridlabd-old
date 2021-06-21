@@ -204,7 +204,7 @@ int volt_var_control::init(OBJECT *parent)
 
 	if (cap_time_delay < 1)	//Has to be positive in leiu of previous error check
 	{
-		gl_warning("volt_var_control %s: capacitor_delay should be greater than or equal to 1 to prevent convergence issues.",obj->name);
+		warning("volt_var_control %s: capacitor_delay should be greater than or equal to 1 to prevent convergence issues.",obj->name);
 		/*  TROUBLESHOOT
 		The capacitor_delay should be greater than or equal to 1.0 to avoid having a system oscillate switch positions until the
 		convergence limit is reached.
@@ -221,7 +221,7 @@ int volt_var_control::init(OBJECT *parent)
 
 	if (reg_time_delay < 1)	//Has to be positive in leiu of previous error check
 	{
-		gl_warning("volt_var_control %s: regulator_delay should be greater than or equal to 1 to prevent convergence issues.",obj->name);
+		warning("volt_var_control %s: regulator_delay should be greater than or equal to 1 to prevent convergence issues.",obj->name);
 		/*  TROUBLESHOOT
 		The regulator_delay should be greater than or equal to 1.0 to avoid having a system oscillate switch positions until the
 		convergence limit is reached.
@@ -542,7 +542,7 @@ int volt_var_control::init(OBJECT *parent)
 				//General catch of all voltages
 				if ((num_des_volt != num_min_volt) || (num_min_volt != num_max_volt))
 				{
-					gl_warning("volt_var_control %s: Desired, minimum, and maximum voltages don't match",obj->name);
+					warning("volt_var_control %s: Desired, minimum, and maximum voltages don't match",obj->name);
 					/*  TROUBLESHOOT
 					The lists for desired_voltages, minimum_voltages, and maximum_voltages should all have the same
 					number of elements.  If they don't, if at each field has at least one specification, the first for
@@ -650,7 +650,7 @@ int volt_var_control::init(OBJECT *parent)
 				//Now figure out vbw_low, vbw_high, and max_vdrop
 				if ((num_max_vdrop != num_vbw_low) || (num_vbw_low != num_vbw_high))
 				{
-					gl_warning("volt_var_control %s: VDrop, low V BW, and high V BW don't match",obj->name);
+					warning("volt_var_control %s: VDrop, low V BW, and high V BW don't match",obj->name);
 					/*  TROUBLESHOOT
 					The lists for maximum voltage drop, voltage drop low loading, and voltage drop high loading
 					should all have the same number of elements.  If they don't, if at each field has at least one specification, the first for
@@ -764,7 +764,7 @@ int volt_var_control::init(OBJECT *parent)
 					//vbw_high is supposed to be less than vbw_low (heavy loading means we should be more constrained)
 					if (vbw_high[index] > vbw_low[index])
 					{
-						gl_warning("volt_var_control %s: Low loading deadband for regulator %d is expected to be larger than the high loading deadband",obj->name,(index+1));
+						warning("volt_var_control %s: Low loading deadband for regulator %d is expected to be larger than the high loading deadband",obj->name,(index+1));
 						/*  TROUBLESHOOT
 						The high_load_deadband is larger than the low_load_deadband setting.  The algorithm proposed in the referenced paper
 						suggests low_load_deadband should be larger (less constrained) than the high load.  This may need to be fixed to be
@@ -802,7 +802,7 @@ int volt_var_control::init(OBJECT *parent)
 
 	if (substation_lnk_obj == NULL)	//If nothing specified, just use the first feeder regulator
 	{
-		gl_warning("volt_var_control %s: A link to monitor power-factor was not specified, using first regulator.",obj->name);
+		warning("volt_var_control %s: A link to monitor power-factor was not specified, using first regulator.",obj->name);
 		/*  TROUBLESHOOT
 		The volt_var_control object requires a link-based object to measure power factor.  Since one was not specified, the control
 		scheme will just monitor the power values of the first feeder regulator.
@@ -1095,7 +1095,7 @@ int volt_var_control::init(OBJECT *parent)
 				if ((pCapacitor_list[index]->pt_phase & (PHASE_A | PHASE_B | PHASE_C)) == NO_PHASE)
 				{
 					temp_obj = OBJECTHDR(pCapacitor_list[index]);
-					gl_warning("Capacitor %s has no pt_phase set, volt_var_control %s will pick the first phases_connected",temp_obj->name,obj->name);
+					warning("Capacitor %s has no pt_phase set, volt_var_control %s will pick the first phases_connected",temp_obj->name,obj->name);
 					/*  TROUBLESHOOT
 					To properly operate capacitors from the volt_var_control object, a pt_phase property must be defined.  One was missing,
 					so the volt_var_control object assigned the first phase_connected value to pt_phase on that capacitor for proper operation.
@@ -1119,7 +1119,7 @@ int volt_var_control::init(OBJECT *parent)
 	}//End cap list if
 	else	//Implies no capacitors
 	{
-		gl_warning("volt_var_control %s: No capacitors specified.",obj->name);
+		warning("volt_var_control %s: No capacitors specified.",obj->name);
 		/*  TROUBLESHOOT
 		The capacitor_list in the volt_var_control is empty.  This means no
 		capacitors are controlled by the volt_var_control object, which more or
@@ -1411,7 +1411,7 @@ int volt_var_control::init(OBJECT *parent)
 			{
 				pMeasurement_list[index][0] = RegToNodes[index];	//Default is just use the load side
 
-				gl_warning("volt_var_control %s: No measurement point specified for reg %d - defaulting to load side of regulator",obj->name,(index+1));
+				warning("volt_var_control %s: No measurement point specified for reg %d - defaulting to load side of regulator",obj->name,(index+1));
 				/*  TROUBLESHOOT
 				If no measuremnt points are specified for a regualtor in the volt_var_control object, it will default
 				to the load side of the regulator.  Please specify measurement points for better control.
@@ -1496,7 +1496,7 @@ int volt_var_control::init(OBJECT *parent)
 	if ((pf_phase & (PHASE_A | PHASE_B | PHASE_C)) == 0)	//No phase (that we care about)
 	{
 		pf_phase = (substation_link->phases & (PHASE_A | PHASE_B | PHASE_C));	//Just bring in the phases of the link
-		gl_warning("volt_var_control %s: Power factor monitored phases not set - defaulting to substation_link phases",obj->name);
+		warning("volt_var_control %s: Power factor monitored phases not set - defaulting to substation_link phases",obj->name);
 		/*  TROUBLESHOOT
 		The pf_phases variable was not set, so the volt_var_control object defaulted to the phases of the substation_link object.
 		If this is not desired, please specify the phases on pf_phases.
@@ -1705,7 +1705,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					//Make sure it isn't too big or small - otherwise toss a warning (it will cause problem)
 					if (VSet[0] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase A will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase A will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 						/*  TROUBLESHOOT
 						The set point necessary to maintain the end point voltage exceeds the maximum voltage limit specified by the system.  Either
 						increase this maximum_voltage limit, or configure your system differently.
@@ -1729,7 +1729,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[0] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase A will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase A will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 						/*  TROUBLESHOOT
 						The set point necessary to maintain the end point voltage exceeds the minimum voltage limit specified by the system.  Either
 						decrease this minimum_voltage limit, or configure your system differently.
@@ -1761,7 +1761,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					//Make sure it isn't too big or small - otherwise toss a warning (it will cause problem)
 					if (VSet[1] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase B will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase B will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[1] > 0)	//In raise region
@@ -1781,7 +1781,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[1] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase B will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase B will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[1] > 0)	//In raise region
@@ -1809,7 +1809,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 
 					if (VSet[2] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase C will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase C will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[2] > 0)	//In raise region
@@ -1829,7 +1829,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[2] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase C will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
+						warning("volt_var_control %s: The set point for phase C will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[2] > 0)	//In raise region

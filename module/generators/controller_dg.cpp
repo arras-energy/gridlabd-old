@@ -37,7 +37,7 @@ controller_dg::controller_dg(MODULE *mod)
 
 		defaults = this;
 
-		memset(this,0,sizeof(controller_dg));
+		memset((void*)this,0,sizeof(controller_dg));
 
 		if (gl_publish_function(oclass,	"interupdate_controller_object", (FUNCTIONADDR)interupdate_controller_dg)==NULL)
 			GL_THROW("Unable to publish controller_dg deltamode function");
@@ -88,7 +88,7 @@ int controller_dg::init(OBJECT *parent)
 	if(controlled_dgs[0] == '\0'){
 		dgs = gl_find_objects(FL_NEW,FT_CLASS,SAME,"diesel_dg",FT_END);
 		if(dgs == NULL){
-			gl_error("No diesel_dg objects were found.");
+			error("No diesel_dg objects were found.");
 			return 0;
 			/* TROUBLESHOOT
 			No diesel_dg objects were found in your .glm file.
@@ -99,7 +99,7 @@ int controller_dg::init(OBJECT *parent)
 		//Find all dgs with the controller group id
 		dgs = gl_find_objects(FL_NEW,FT_CLASS,SAME,"diesel_dg",AND,FT_GROUPID,SAME,controlled_dgs.get_string(),FT_END);
 		if(dgs == NULL){
-			gl_error("Although controller given group id, no dgs with given group id found.");
+			error("Although controller given group id, no dgs with given group id found.");
 			/*  TROUBLESHOOT
 			While trying to put together a list of all dg objects with the specified controller groupid, no such dg objects were found.
 			*/
@@ -115,7 +115,7 @@ int controller_dg::init(OBJECT *parent)
 		pDG = (diesel_dg **)gl_malloc(dgs->hit_count*sizeof(diesel_dg*));
 		DGpNdName = (const char **)gl_malloc(dgs->hit_count*sizeof(char*));
 		if(pDG == NULL){
-			gl_error("Failed to allocate diesel_dg array.");
+			error("Failed to allocate diesel_dg array.");
 			return 0;
 		}
 
@@ -128,7 +128,7 @@ int controller_dg::init(OBJECT *parent)
 			// so that the corresponding connected switch can be found
 			OBJECT *dgParent = obj->parent;
 			if(dgParent == NULL){
-				gl_error("Failed to find diesel_dg parent node object.");
+				error("Failed to find diesel_dg parent node object.");
 				return 0;
 			}
 			DGpNdName[index] = dgParent->name;
@@ -139,7 +139,7 @@ int controller_dg::init(OBJECT *parent)
 			}
 			pDG[index] = OBJECTDATA(obj,diesel_dg);
 			if(pDG[index] == NULL){
-				gl_error("Unable to map object as diesel_dg object.");
+				error("Unable to map object as diesel_dg object.");
 				return 0;
 			}
 
@@ -148,7 +148,7 @@ int controller_dg::init(OBJECT *parent)
 			// Find DG parent object data
 			node *tempNode = OBJECTDATA(dgParent,node);
 			if(tempNode == NULL){
-				gl_error("Unable to map object as diesel_dg object.");
+				error("Unable to map object as diesel_dg object.");
 			}
 			GenPobj[index] = tempNode;
 
@@ -191,7 +191,7 @@ int controller_dg::init(OBJECT *parent)
 	obj = NULL;
 	switches = gl_find_objects(FL_NEW,FT_CLASS,SAME,"switch",FT_END);
 	if(switches == NULL){
-		gl_error("No switch objects were found.");
+		error("No switch objects were found.");
 		return 0;
 		/* TROUBLESHOOT
 		No switch objects were found in your .glm file.
@@ -203,7 +203,7 @@ int controller_dg::init(OBJECT *parent)
 		dgSwitchObj = (OBJECT**)gl_malloc(dgs->hit_count*sizeof(OBJECT*));
 		pSwitch = (switch_object **)gl_malloc(dgs->hit_count*sizeof(switch_object*));
 		if(pSwitch == NULL){
-			gl_error("Failed to allocate switch array.");
+			error("Failed to allocate switch array.");
 			return 0;
 		}
 
@@ -233,7 +233,7 @@ int controller_dg::init(OBJECT *parent)
 				pSwitch[dgswitchFound] = OBJECTDATA(obj,switch_object);
 				dgSwitchObj[dgswitchFound] = obj;
 				if(pSwitch[dgswitchFound] == NULL){
-					gl_error("Unable to map object as switch object.");
+					error("Unable to map object as switch object.");
 					return 0;
 				}
 				dgswitchFound++;
@@ -249,7 +249,7 @@ int controller_dg::init(OBJECT *parent)
 		//Check global, for giggles
 		if (enable_subsecond_models!=true)
 		{
-			gl_warning("diesel_dg:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
+			warning("diesel_dg:%s indicates it wants to run deltamode, but the module-level flag is not set!",obj->name?obj->name:"unnamed");
 			/*  TROUBLESHOOT
 			The diesel_dg object has the deltamode_inclusive flag set, but not the module-level enable_subsecond_models flag.  The generator
 			will not simulate any dynamics this way.
@@ -274,7 +274,7 @@ int controller_dg::init(OBJECT *parent)
 	{
 		if (enable_subsecond_models == true)
 		{
-			gl_warning("diesel_dg:%d %s - Deltamode is enabled for the module, but not this generator!",obj->id,(obj->name ? obj->name : "Unnamed"));
+			warning("diesel_dg:%d %s - Deltamode is enabled for the module, but not this generator!",obj->id,(obj->name ? obj->name : "Unnamed"));
 			/*  TROUBLESHOOT
 			The diesel_dg is not flagged for deltamode operations, yet deltamode simulations are enabled for the overall system.  When deltamode
 			triggers, this generator may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
@@ -470,7 +470,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 
 		// Throw warning
 		if (phase_A_P > 0 || phase_B_P > 0 || phase_C_P > 0) {
-			gl_warning("Reverse real power flow detected at generator switch %s, generator is absorbing real power now!", obj->name);
+			warning("Reverse real power flow detected at generator switch %s, generator is absorbing real power now!", obj->name);
 			/*  TROUBLESHOOT
 			The diesel generator is absorbing real power, which is not allowed.
 			Should check kVA rating and power_out_A/power_out_B/power_out_C value settings.
@@ -550,7 +550,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 			prev_Vset_val[index] = ctrlGen[index]->curr_state->Vset_ref;
 
 			// Replicate curr_state into next
-			memcpy(ctrlGen[index]->next_state,ctrlGen[index]->curr_state,sizeof(CTRL_VARS));
+			memcpy((void*)ctrlGen[index]->next_state,ctrlGen[index]->curr_state,sizeof(CTRL_VARS));
 		}
 
 	} // End first pass and timestep of deltamode (initial condition stuff)
@@ -604,7 +604,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 			pDG[index]->gen_base_set_vals.vset = ctrlGen[index]->next_state->Vset_ctrl;
 
 			// Copy everything back into curr_state, since we'll be back there
-			memcpy(ctrlGen[index]->curr_state,ctrlGen[index]->next_state,sizeof(CTRL_VARS));
+			memcpy((void*)ctrlGen[index]->curr_state,ctrlGen[index]->next_state,sizeof(CTRL_VARS));
 
 			// Check convergence - pick the max difference
 			temp_double = fmax(temp_double, fabs(ctrlGen[index]->curr_state->Pref_ctrl - prev_Pref_val[index]));

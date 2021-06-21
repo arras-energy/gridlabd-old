@@ -172,7 +172,7 @@ int triplex_node::init(OBJECT *parent)
 	if ( !(has_phase(PHASE_S)) )
 	{
 		OBJECT *obj = THISOBJECTHDR;
-		gl_warning("Init() triplex_node (name:%s, id:%d): Phases specified did not include phase S. Adding phase S.", obj->name,obj->id);
+		warning("Init() triplex_node (name:%s, id:%d): Phases specified did not include phase S. Adding phase S.", obj->name,obj->id);
 		/* TROUBLESHOOT
 		Triplex nodes and meters require a single phase and a phase S component (for split-phase).
 		This particular triplex object did not include it, so it is being added.
@@ -263,7 +263,7 @@ SIMULATIONMODE triplex_node::inter_deltaupdate_triplex_node(unsigned int64 delta
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 

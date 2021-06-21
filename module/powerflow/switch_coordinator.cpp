@@ -76,14 +76,14 @@ switch_coordinator::switch_coordinator(MODULE *module)
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
-		memset(this,0,sizeof(switch_coordinator));
+		memset((void*)this,0,sizeof(switch_coordinator));
 	}
 }
 
 int switch_coordinator::create(void)
 {
 	debug("switch_coordinator::create()");
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	debug("switch_coordinator::create() -> 1");
 	return 1; /* return 1 on success, 0 on failure */
 }

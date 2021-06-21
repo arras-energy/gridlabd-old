@@ -1,4 +1,5 @@
-FROM slacgismo/gridlabd_dockerhub_base:latest
+FROM slacgismo/gridlabd_dockerhub_base:210520
+
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd

@@ -107,11 +107,7 @@ microturbine::microturbine(MODULE *module)
 				PT_KEYWORD, "S",(set)PHASE_S,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-
-	
-
-
-		memset(this,0,sizeof(microturbine));
+		memset((void*)this,0,sizeof(microturbine));
 		/* TODO: set the default values of all properties here */
 	}
 }
@@ -120,7 +116,7 @@ microturbine::microturbine(MODULE *module)
 /* Object creation is called once for each object that is created by the core */
 int microturbine::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	/* TODO: set the context-free initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -196,7 +192,7 @@ int microturbine::init(OBJECT *parent)
 	efficiency = 0;
 	pf_Out = 1;
 
-	gl_verbose("microturbine init: finished initializing variables");
+	verbose("microturbine init: finished initializing variables");
 
 	struct {
 		complex **var;
@@ -224,27 +220,27 @@ int microturbine::init(OBJECT *parent)
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 			*(map[i].var) = get_complex(parent,map[i].varname);
 
-		gl_verbose("microturbine init: mapped METER objects to internal variables");
+		verbose("microturbine init: mapped METER objects to internal variables");
 	}
 	else if (parent!=NULL && strcmp(parent->oclass->name,"rectifier")==0){
-		gl_verbose("microturbine init: parent WAS found, is an rectifier!");
+		verbose("microturbine init: parent WAS found, is an rectifier!");
 			// construct circuit variable map to meter
 			/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++){
 			*(map[i].var) = get_complex(parent,map[i].varname);
 		}
-		gl_verbose("microturbine init: mapped RECTIFIER objects to internal variables");
+		verbose("microturbine init: mapped RECTIFIER objects to internal variables");
 	}
 	else{
 		
 			// construct circuit variable map to meter
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
-		gl_verbose("microturbine init: mapped meter objects to internal variables");
+		verbose("microturbine init: mapped meter objects to internal variables");
 
 		OBJECT *obj = THISOBJECTHDR;
-		gl_verbose("microturbine init: no parent meter defined, parent is not a meter");
-		gl_warning("microturbine:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
+		verbose("microturbine init: no parent meter defined, parent is not a meter");
+		warning("microturbine:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
 		// attach meter variables to each circuit in the default_meter
 			*(map[0].var) = &default_line_voltage[0];
@@ -258,7 +254,7 @@ int microturbine::init(OBJECT *parent)
 
 	}
 
-	gl_verbose("microturbine init: finished connecting with meter");
+	verbose("microturbine init: finished connecting with meter");
 
 
 
@@ -291,14 +287,14 @@ complex *microturbine::get_complex(OBJECT *obj, const char *name)
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL )
 	{	
-		gl_error("property %s is not found in meter %s", name, obj->name);
+		error("property %s is not found in meter %s", name, obj->name);
 		static char buffer[1024];
 		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
 		throw(buffer);
 	}
 	if ( p->ptype!=PT_complex)
 	{
-		gl_error("property %s is in meter %s is not complex", name, obj->name);
+		error("property %s is in meter %s is not complex", name, obj->name);
 		static char buffer[1024];
 		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
 		throw(buffer);
@@ -337,22 +333,22 @@ TIMESTAMP microturbine::sync(TIMESTAMP t0, TIMESTAMP t1)
 	phaseB_I_Out = pLine_I_B[0];
 	phaseC_I_Out = pLine_I_C[0];
 
-	gl_verbose("microturbine sync: phaseA_V_Out from parent is: (%f , %f)", phaseA_V_Out.Re(), phaseA_V_Out.Im());
-	gl_verbose("microturbine sync: phaseB_V_Out from parent is: (%f , %f)", phaseB_V_Out.Re(), phaseB_V_Out.Im());
-	gl_verbose("microturbine sync: phaseC_V_Out from parent is: (%f , %f)", phaseC_V_Out.Re(), phaseC_V_Out.Im());
+	verbose("microturbine sync: phaseA_V_Out from parent is: (%f , %f)", phaseA_V_Out.Re(), phaseA_V_Out.Im());
+	verbose("microturbine sync: phaseB_V_Out from parent is: (%f , %f)", phaseB_V_Out.Re(), phaseB_V_Out.Im());
+	verbose("microturbine sync: phaseC_V_Out from parent is: (%f , %f)", phaseC_V_Out.Re(), phaseC_V_Out.Im());
 
-	gl_verbose("microturbine sync: phaseA_I_Out from parent is: (%f , %f)", phaseA_I_Out.Re(), phaseA_I_Out.Im());
-	gl_verbose("microturbine sync: phaseB_I_Out from parent is: (%f , %f)", phaseB_I_Out.Re(), phaseB_I_Out.Im());
-	gl_verbose("microturbine sync: phaseC_I_Out from parent is: (%f , %f)", phaseC_I_Out.Re(), phaseC_I_Out.Im());
+	verbose("microturbine sync: phaseA_I_Out from parent is: (%f , %f)", phaseA_I_Out.Re(), phaseA_I_Out.Im());
+	verbose("microturbine sync: phaseB_I_Out from parent is: (%f , %f)", phaseB_I_Out.Re(), phaseB_I_Out.Im());
+	verbose("microturbine sync: phaseC_I_Out from parent is: (%f , %f)", phaseC_I_Out.Re(), phaseC_I_Out.Im());
 
 	power_A_Out = (~phaseA_I_Out) * phaseA_V_Out;
 	power_B_Out = (~phaseB_I_Out) * phaseB_V_Out;
 	power_C_Out = (~phaseC_I_Out) * phaseC_V_Out;
 
 
-	gl_verbose("microturbine sync: power_A_Out from parent is: (%f , %f)", power_A_Out.Re(), power_A_Out.Im());
-	gl_verbose("microturbine sync: power_B_Out from parent is: (%f , %f)", power_B_Out.Re(), power_B_Out.Im());
-	gl_verbose("microturbine sync: power_C_Out from parent is: (%f , %f)", power_C_Out.Re(), power_C_Out.Im());
+	verbose("microturbine sync: power_A_Out from parent is: (%f , %f)", power_A_Out.Re(), power_A_Out.Im());
+	verbose("microturbine sync: power_B_Out from parent is: (%f , %f)", power_B_Out.Re(), power_B_Out.Im());
+	verbose("microturbine sync: power_C_Out from parent is: (%f , %f)", power_C_Out.Re(), power_C_Out.Im());
 
 
 	VA_Out = power_A_Out + power_B_Out + power_C_Out;
@@ -363,14 +359,14 @@ TIMESTAMP microturbine::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 
 	
-	gl_verbose("microturbine sync: E_A_Internal calc is: (%f , %f)", E_A_Internal.Re(), E_A_Internal.Im());
-	gl_verbose("microturbine sync: E_B_Internal calc is: (%f , %f)", E_B_Internal.Re(), E_B_Internal.Im());
-	gl_verbose("microturbine sync: E_C_Internal calc is: (%f , %f)", E_C_Internal.Re(), E_C_Internal.Im());
+	verbose("microturbine sync: E_A_Internal calc is: (%f , %f)", E_A_Internal.Re(), E_A_Internal.Im());
+	verbose("microturbine sync: E_B_Internal calc is: (%f , %f)", E_B_Internal.Re(), E_B_Internal.Im());
+	verbose("microturbine sync: E_C_Internal calc is: (%f , %f)", E_C_Internal.Re(), E_C_Internal.Im());
 
 
 	frequency = determine_frequency(VA_Out);
 
-	gl_verbose("microturbine sync: determined frequency is: %f", frequency);
+	verbose("microturbine sync: determined frequency is: %f", frequency);
 
 	if(frequency > Max_Frequency){
 		throw ("the frequency asked for from the microturbine is too high!");
@@ -385,7 +381,7 @@ TIMESTAMP microturbine::sync(TIMESTAMP t0, TIMESTAMP t1)
 	Heat_Out = determine_heat(VA_Out, loss);
 	Fuel_Used = Heat_Out + VA_Out.Mag();
 	
-	gl_verbose("microturbine sync: about to exit");
+	verbose("microturbine sync: about to exit");
 
 return TS_NEVER;
 }

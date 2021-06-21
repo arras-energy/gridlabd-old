@@ -4,8 +4,8 @@
 	@author David P. Chassin
 	@addtogroup output Output functions
 	@ingroup core
-	
-	Implements functions that send output to the current environment's console, 
+
+	Implements functions that send output to the current environment's console,
 	error stream, and test result string using printf style args.
 
 	Debug, warning, errors, fatal messages should provide an indicate of the context in which
@@ -16,7 +16,7 @@
 	it is and this is left to the programmers judgement, save to say that if the situation is not
 	expected to seriously affect the result, it should be a warning; if the results are likely
 	to be seriously affected, it should be an error; and if the result is hopelessly compromised
-	it should be a fatal error.  
+	it should be a fatal error.
 	\code
 	output_fatal("module_load(file='%s', argc=%d, argv=['%s',...]): intrinsic %s is not defined in module", file, argc,argc>0?argv[0]:"",fname);
 	\endcode
@@ -39,6 +39,13 @@ static char buffer[65536];
 #define CHECK 0xcdcd
 int overflow=CHECK;
 int flush = 0;
+
+bool output_enable_flush(bool enable)
+{
+	int old = flush;
+	flush = ( enable ? 1 : 0 );
+	return old;
+}
 
 static char prefix[16]="";
 void output_prefix_enable(void)
@@ -68,7 +75,7 @@ void output_prefix_enable(void)
 	IN_MYCONTEXT output_debug("exiting output_prefix_enable");
 }
 
-/** output_redirect() changes where output message are sent 
+/** output_redirect() changes where output message are sent
 	instead of the usual stdin, stdout streams
  **/
 static struct s_redirection {
@@ -97,7 +104,7 @@ static struct {
 FILE* output_redirect_stream(const char *name, FILE *fp)
 {
 	size_t i;
-	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
+	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 	{
 		if (strcmp(name,map[i].name)==0)
 		{
@@ -119,7 +126,7 @@ FILE* output_get_stream(const char *name)
 {
 	size_t i;
 	FILE *fp = stderr;
-	for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ ) 
+	for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 	{
 		if ( strcmp(name,map[i].name) == 0 )
 		{
@@ -156,14 +163,14 @@ FILE* output_redirect(const char *name, const char *path)
 		{"progress",&redirect.progress,"gridlabd.prg"},
 	};
 	size_t i;
-	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
+	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 	{
 		if (strcmp(name,map[i].name)==0)
 		{
 			const char *mode = "w";
 			if (*(map[i].file)!=NULL)
 				fclose(*(map[i].file));
-			
+
 			/* test for append mode, path led with + */
 			if (path != NULL && path[0]=='+')
 			{	mode = "a";
@@ -225,6 +232,17 @@ void output_cleanup(void)
 	output_fatal(NULL);
 	output_message(NULL);
 	output_debug(NULL);
+}
+
+void output_flushall(void)
+{
+    fflush(redirect.output);
+    fflush(redirect.error);
+    fflush(redirect.warning);
+    fflush(redirect.debug);
+    fflush(redirect.verbose);
+    fflush(redirect.profile);
+    fflush(redirect.progress);
 }
 
 static int default_printstd(const char *format,...)
@@ -315,9 +333,9 @@ const char *output_get_time_context(void)
 }
 
 /** Output a fatal error message
-	
-	output_fatal() will produce output to the standard output stream.  
-	Error messages are always preceded by the string "FATAL: " 
+
+	output_fatal() will produce output to the standard output stream.
+	Error messages are always preceded by the string "FATAL: "
 	and a newline is always appended to the message.
  **/
 int output_fatal(const char *format,...) /**< \bprintf style argument list */
@@ -362,9 +380,9 @@ Unlock:
 }
 
 /** Output an error message to the stdout stream using printf style argument processing
-	
-	output_error() will produce output to the standard output stream.  
-	Error messages are always preceded by the string "ERROR: " 
+
+	output_error() will produce output to the standard output stream.
+	Error messages are always preceded by the string "ERROR: "
 	and a newline is always appended to the message.
  **/
 int output_error(const char *format,...) /**< \bprintf style argument list */
@@ -413,9 +431,9 @@ Unlock:
 }
 
 /** Output an error message to the stdout stream using printf style argument processing
-	
-	output_error() will produce output to the standard output stream.  
-	Error messages are always preceded by the string "ERROR: " 
+
+	output_error() will produce output to the standard output stream.
+	Error messages are always preceded by the string "ERROR: "
 	and a newline is always appended to the message.
  **/
 int output_error_raw(const char *format,...) /**< \bprintf style argument list */
@@ -464,10 +482,10 @@ Unlock:
 }
 
 /** Output an test message to the stdout stream using printf style argument processing
-	
-	output_test() will produce output to the test output file defined by the 
+
+	output_test() will produce output to the test output file defined by the
 	variable \p global_testoutputfile.
-	A newline is always appended to the message. 
+	A newline is always appended to the message.
  **/
 int output_test(const char *format,...) /**< \bprintf style argument list */
 {
@@ -512,7 +530,7 @@ Unlock:
 }
 
 /** Output a warning message to the stdout stream using printf style argument processing
-	
+
 	output_warning() will produce output to the standard output stream only when the
 	\p global_warn_mode variable is not \b 0.  Warning messages are always preceded by
 	the string "WARNING: " and a newline is always appended to the message.
@@ -562,7 +580,7 @@ Unlock:
 }
 
 /** Output a debug message to the stdout stream using printf style argument processing
-	
+
 	output_debug() will produce output to the standard output stream only when the
 	\p global_debug_output variable is not \b 0.  Debug messages are always preceded by
 	the string "DEBUG: " and a newline is always appended to the message.
@@ -574,9 +592,10 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 		struct timeval tv;
 		gettimeofday(&tv,NULL);
 		struct tm *t = localtime(&tv.tv_sec);
-		char timestamp[256];
+		char timestamp[1024];
 		strftime(timestamp,64,"%Y-%m-%d %H:%M:%S",t);
-		snprintf(timestamp+strlen(timestamp),64,".%06d %s",tv.tv_usec,time_context);
+		int len = strlen(timestamp);
+		snprintf(timestamp+len,sizeof(timestamp)-len-1,".%06u %s",(unsigned int)tv.tv_usec,time_context);
 
 		/* check for repeated message */
 		static char lastfmt[4096] = "";
@@ -619,10 +638,10 @@ Unlock:
 }
 
 /** Output a verbose message to the stdout stream using printf style argument processing
-	
+
 	output_verbose() will produce output to the standard output stream only when the
 	\p global_verbose_mode variable is not \b 0.  Verbose message always have
-	leading spaces and an ellipsis printed before the string, and 
+	leading spaces and an ellipsis printed before the string, and
 	a newline is always appended to the message.
  **/
 int output_verbose(const char *format,...) /**< \bprintf style argument list */
@@ -668,7 +687,7 @@ Unlock:
 	return 0;
 }
 /** Output a message to the stdout stream using printf style argument processing
-	
+
 	output_message() will produce output to the standard output stream only when the
 	\p global_quiet_mode variable is not \b 0.  A newline is always appended to the message.
  **/
@@ -705,9 +724,17 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 		}
 Output:
 		if (redirect.output)
+		{
 			result = fprintf(redirect.output,"%s%s\n", prefix, buffer);
+			if ( flush )
+			{
+				fflush(redirect.output);
+			}
+		}
 		else
+		{
 			result = (*printstd)("%s%s\n", prefix, buffer);
+		}
 Unlock:
 		wunlock(&output_lock);
 		return result;
@@ -782,9 +809,9 @@ int output_progress()
 }
 
 /** Output a raw string to the stdout stream using printf style argument processing
-	
+
 	output_raw() will produce output to the standard output stream only when the
-	\p global_quiet_mode variable is not \b 0.  
+	\p global_quiet_mode variable is not \b 0.
  **/
 int output_raw(const char *format,...) /**< \bprintf style argument list */
 {
@@ -828,7 +855,7 @@ int output_xsd(const char *spec)
 			output_error("unable to load parent module %s", modulename);
 			return 0;
 		}
-		
+
 	}
 	else if(sscanf(spec, "%[A-Za-z_0-9]::%[A-Za-z_0-9]",modulename, submodulename) == 2)
 	{
@@ -860,7 +887,7 @@ int output_xsd(const char *spec)
 	//	strcpy(modulename, submodulename);
 	output_message("<?xml version=\"1.0\" encoding=\"utf-%d\"?>",global_xml_encoding);
 	output_message("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/\" xmlns=\"http://www.w3.org/\" elementFormDefault=\"qualified\">\n");
-	for (oclass=(classname[0]!='\0'?oclass:class_get_first_class()); oclass!=NULL; oclass=oclass->next) 
+	for (oclass=(classname[0]!='\0'?oclass:class_get_first_class()); oclass!=NULL; oclass=oclass->next)
 	{
 		if (class_get_xsd(oclass,buffer,sizeof(buffer))<=0)
 		{
@@ -902,7 +929,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 	/* heading */
 	fprintf(fp,"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
 	fprintf(fp,"<!-- output by %s -->\n", PACKAGE_NAME);
-	
+
 	/* document */
 	fprintf(fp,"<html xsl:version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\">\n");
 	{
@@ -922,7 +949,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 			{
 				GLOBALVAR *var=NULL;
 				MODULE *mod;
-				
+
 				fprintf(fp,"<H1><xsl:value-of select=\"modelname\"/></H1>\n");
 
 				/* table of contents */

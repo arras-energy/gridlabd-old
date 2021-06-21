@@ -1,4 +1,4 @@
-/* File: output.h 
+/* File: output.h
  * Copyright (C) 2008, Battelle Memorial Institute
 
 	@file output.h
@@ -31,6 +31,7 @@ PRINTFUNCTION output_set_stdout(PRINTFUNCTION call);
 PRINTFUNCTION output_set_stderr(PRINTFUNCTION call);
 
 int output_init(int argc, const char *argv[]);
+bool output_enable_flush(bool enable);
 void output_cleanup(void);
 
 void output_prefix_enable(void);
@@ -50,7 +51,7 @@ int output_raw(const char *format,...);
 int output_test(const char *format,...);
 int output_progress(void);
 int output_profile(const char *format,...);
-
+void output_flushall(void);
 int output_notify_error(void (*)(void));
 
 void output_set_time_context(TIMESTAMP ts);

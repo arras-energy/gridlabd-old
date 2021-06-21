@@ -76,7 +76,7 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 	{
 		if ( once_value==value )
 		{
-			gl_verbose("Assert skipped with ONCE logic");
+			verbose("Assert skipped with ONCE logic");
 			return TS_NEVER;
 		} 
 		else 
@@ -125,7 +125,7 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				get_parent()->get_name(), get_target(), x, range, value);
 			return 0;
 		}
-		gl_verbose("Assert passed on %s", get_parent()->get_name());
+		verbose("Assert passed on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 	else if ( status == ASSERT_FALSE )
@@ -137,12 +137,12 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				get_parent()->get_name(), get_target(), x, range, value);
 			return 0;
 		}
-		gl_verbose("Assert passed on %s", get_parent()->get_name());
+		verbose("Assert passed on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 	else
 	{
-		gl_verbose("Assert test is not being run on %s", get_parent()->get_name());
+		verbose("Assert test is not being run on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 
@@ -162,7 +162,7 @@ EXPORT SIMULATIONMODE update_double_assert(OBJECT *obj, TIMESTAMP t0, unsigned i
 {
 	char buff[64];
 	char dateformat[8]="";
-	char error_output_buff[1024];
+	char error_output_buff[4000];
 	char datebuff[64];
 	double_assert *da = OBJECTDATA(obj,double_assert);
 	DATETIME delta_dt_val;
@@ -241,16 +241,16 @@ EXPORT SIMULATIONMODE update_double_assert(OBJECT *obj, TIMESTAMP t0, unsigned i
 
 					//Output date appropriately
 					if ( strcmp(dateformat,"ISO")==0)
-						sprintf(datebuff,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"US")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"EURO")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    %.09f : ",del_clock);
 
 					//Actual error part
-					sprintf(error_output_buff,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());
+					snprintf(error_output_buff,sizeof(error_output_buff)-1,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());
 
 					//Send it out
 					gl_output("%s%s",datebuff,error_output_buff);
@@ -282,16 +282,16 @@ EXPORT SIMULATIONMODE update_double_assert(OBJECT *obj, TIMESTAMP t0, unsigned i
 
 					//Output date appropriately
 					if ( strcmp(dateformat,"ISO")==0)
-						sprintf(datebuff,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"US")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"EURO")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    %.09f : ",del_clock);
 
 					//Actual error part
-					sprintf(error_output_buff,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());
+					snprintf(error_output_buff,sizeof(error_output_buff)-1,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());
 
 					//Send it out
 					gl_output("%s%s",datebuff,error_output_buff);

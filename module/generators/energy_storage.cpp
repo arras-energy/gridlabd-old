@@ -77,11 +77,7 @@ energy_storage::energy_storage(MODULE *module)
 				PT_KEYWORD, "S",(set)PHASE_S,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-
-
-
-
-		memset(this,0,sizeof(energy_storage));
+		memset((void*)this,0,sizeof(energy_storage));
 		/* TODO: set the default values of all properties here */
 	}
 }
@@ -89,7 +85,7 @@ energy_storage::energy_storage(MODULE *module)
 /* Object creation is called once for each object that is created by the core */
 int energy_storage::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	/* TODO: set the context-free initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -108,7 +104,7 @@ double energy_storage::timestamp_to_hours(TIMESTAMP t)
 int energy_storage::init(OBJECT *parent)
 {
 
-	gl_verbose("energy_storage init: about to exit");
+	verbose("energy_storage init: about to exit");
 	return 1; /* return 1 on success, 0 on failure */
 }
 

@@ -13,6 +13,7 @@ class overhead_line_conductor : public powerflow_library
 public:
 	static CLASS *pclass;
     static CLASS *oclass;
+    static overhead_line_conductor *defaults;
 
 	/* get_name acquires the name of an object or 'unnamed' if non set */
 	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
@@ -24,7 +25,10 @@ public:
 	double resistance;
 	double cable_diameter;
 	LINERATINGS winter, summer;
-	
+
+    GL_ATOMIC(double,cable_weight);
+    GL_ATOMIC(double,cable_strength);
+
 	overhead_line_conductor(MODULE *mod);
 	inline overhead_line_conductor(CLASS *cl=oclass):powerflow_library(cl){};
 	int create(void);

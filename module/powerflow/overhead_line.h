@@ -14,6 +14,9 @@ class overhead_line : public line
 public:
     static CLASS *oclass;
     static CLASS *pclass;
+    static overhead_line *defaults;
+public:
+    GL_ATOMIC(double,ice_thickness);
 public:
 	void recalc(void);
 public:

@@ -322,6 +322,7 @@ int link_object::create(void)
 int link_object::init(OBJECT *parent)
 {
 	OBJECT *obj = GETOBJECT(this);
+	violation_watch = violation_watchset&VW_LINK;
 
 	powerflow_object::init(parent);
 
@@ -343,7 +344,7 @@ int link_object::init(OBJECT *parent)
 	
 	if (mean_repair_time < 0.0)
 	{
-		gl_warning("link:%s has a negative mean_repair_time, set to 1 hour",obj->name);
+		warning("link:%s has a negative mean_repair_time, set to 1 hour",obj->name);
 		/*  TROUBLESHOOT
 		A link object had a mean_repair_time that is negative.  This ia not a valid setting.
 		The value has been changed to 0.  Please set the variable to an appropriate variable
@@ -405,7 +406,7 @@ int link_object::init(OBJECT *parent)
 		{
 			if (gl_object_isa(to->parent,"link","powerflow"))
 			{
-				gl_warning("%s (id:%d) already has a link parented - this could give invalid answers in FBS!",to->name,to->id);
+				warning("%s (id:%d) already has a link parented - this could give invalid answers in FBS!",to->name,to->id);
 				/*  TROUBLESHOOT
 				While connecting the different objects, a link's 'to' end already has another link as a parent.  This is
 				indicative of a loop or other 'non-radial' condition on the system.  The exception to this is if an open
@@ -418,7 +419,7 @@ int link_object::init(OBJECT *parent)
 			}
 			else if (gl_object_isa(to->parent,"node","powerflow"))
 			{
-				gl_warning("%s (id:%d) is parented to a node, but has a link running into it!",to->name,to->id);
+				warning("%s (id:%d) is parented to a node, but has a link running into it!",to->name,to->id);
 				/*  TROUBLESHOOT
 				While connecting the different objects, a link's 'to' end already has a parent of another node.  This may
 				cause invalid answers on the system an an inaccurate powerflow.  Please check the node's connection and
@@ -582,7 +583,7 @@ int link_object::init(OBJECT *parent)
 			//See if the limits are zero and toss some warnings
 			if (*link_limits[0][0] == 0.0 || *link_limits[0][1] == 0.0 || *link_limits[0][2] == 0.0)
 			{
-				gl_warning("continuous_rating for link:%s is zero - this may lead to odd warning messages about line limits with nonsense values",obj->name);
+				warning("continuous_rating for link:%s is zero - this may lead to odd warning messages about line limits with nonsense values",obj->name);
 				/*  TROUBLESHOOT
 				The value for continuous_rating is set to zero for the particular link object.  This may cause warnings related to line ratings
 				that have nonsense values like '1.#J%'.  To resolve these warnings, please put a valid number in for continuous_rating.  Load order
@@ -592,7 +593,7 @@ int link_object::init(OBJECT *parent)
 
 			if (*link_limits[1][0] == 0.0 || *link_limits[1][1] == 0.0 || *link_limits[1][2] == 0.0)
 			{
-				gl_warning("emergency_rating for link:%s is zero - this may lead to odd warning messages about line limits with nonsense values",obj->name);
+				warning("emergency_rating for link:%s is zero - this may lead to odd warning messages about line limits with nonsense values",obj->name);
 				/*  TROUBLESHOOT
 				The value for emergency_rating is set to zero for the particular link object.  This may cause warnings related to line ratings
 				that have nonsense values like '1.#J%'.  To resolve these warnings, please put a valid number in for emergency_rating.
@@ -2607,7 +2608,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 				//Make sure it worked
 				if (delta_functions[temp_pwr_object_current] == NULL)
 				{
-					gl_warning("Failure to map deltamode function for device:%s",obj->name);
+					warning("Failure to map deltamode function for device:%s",obj->name);
 					/*  TROUBLESHOOT
 					Attempts to map up the interupdate function of a specific device failed.  Please try again and ensure
 					the object supports deltamode.  The object simply may not support delta mode.  If the error persists,
@@ -2630,7 +2631,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					//Make sure it worked
 					if (NR_branchdata[NR_branch_reference].ExtraDeltaModeFunc == NULL)
 					{
-						gl_warning("Failure to map deltamode saturation function for device:%s",obj->name ? obj->name : "Unnamed");
+						warning("Failure to map deltamode saturation function for device:%s",obj->name ? obj->name : "Unnamed");
 						/*  TROUBLESHOOT
 						Attempts to map up the saturation function of a specific device (transformer) failed.
 						Please try again.  If the error persists, please submit your code and a bug report
@@ -2834,7 +2835,7 @@ TIMESTAMP link_object::sync(TIMESTAMP t0)
 void link_object::BOTH_link_postsync_fxn(void)
 {
 	double temp_power_check;
-	bool over_limit;
+	bool limit_check;
 
 	 // updates published current_in variable
 		read_I_in[0] = current_in[0];
@@ -2857,7 +2858,7 @@ void link_object::BOTH_link_postsync_fxn(void)
 		calculate_power();
 
 	//Perform limit check
-	perform_limit_checks(&temp_power_check, &over_limit);
+	perform_limit_checks(&temp_power_check, &limit_check);
 }
 
 //Functionalized limit checking, mostly for restoration calls
@@ -2882,10 +2883,10 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 			//Check power - rating is in kVA - just use power_out (tends to be a little more accurate
 			temp_power_check = power_out.Mag() / 1000.0;
 
-			if (temp_power_check > *link_limits[0][0])
+			if ( violation_watchset&VW_LINK && temp_power_check > *link_limits[0][0] )
 			{
 				//Exceeded rating - no emergency ratings for transformers, at this time
-				gl_warning("transformer:%s is at %.2f%% of its rated power value",THISOBJECTHDR->name,(temp_power_check/(*link_limits[0][0])*100.0));
+				add_violation(VF_POWER,"transformer is at %.2f%% of its rated power value",(temp_power_check/(*link_limits[0][0])*100.0));
 				/*  TROUBLESHOOT
 				The total power passing through a transformer is above its kVA rating.
 				*/
@@ -2894,7 +2895,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 				*over_limit_value = (temp_power_check - (power_out.Mag()/1000.0))*1000.0;
 
 				//Flag as over
-				*over_limits = true;
+				*over_limits = (violation_detected = true);
 			}
 		}//End transformers
 		else	//Must be a line - that's the only other option right now
@@ -2908,14 +2909,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					if (read_I_out[0].Mag() > *link_limits[1][0])
 					{
 						//Exceeded emergency
-						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 1!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
+						add_violation(VF_CURRENT,"line is at %.2f%% of its emergency rating on phase 1",(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the emergency rating associated with it.
 						*/
 					}
 					else	//Just continuous exceed
 					{
-						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 1!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
+						add_violation(VF_CURRENT,"line is at %.2f%% of its continuous rating on phase 1",(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the continuous rating associated with it.
 						*/
@@ -2934,7 +2935,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = true;
+					*over_limits = (violation_detected = true);
 
 				}//End Phase 1 check
 
@@ -2944,14 +2945,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					if (read_I_out[1].Mag() > *link_limits[1][1])
 					{
 						//Exceeded emergency
-						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 2!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
+						add_violation(VF_CURRENT,"line is at %.2f%% of its emergency rating on phase 2",(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the emergency rating associated with it.
 						*/
 					}
 					else	//Just continuous exceed
 					{
-						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 2!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
+						add_violation(VF_CURRENT,"line is at %.2f%% of its continuous rating on phase 2",(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the continuous rating associated with it.
 						*/
@@ -2970,7 +2971,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = true;
+					*over_limits = (violation_detected = true);
 
 				}//End Phase 2 check
 			}//End triplex line check
@@ -2985,14 +2986,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[0].Mag() > *link_limits[1][0])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase A!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its emergency rating on phase A",(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
 							/*  TROUBLESHOOT
 							Phase A on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase A!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its continuous rating on phase A",(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
 							/*  TROUBLESHOOT
 							Phase A on the line has exceeded the continuous rating associated with it.
 							*/
@@ -3011,7 +3012,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase A check
 				}//End has Phase A
@@ -3024,14 +3025,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[1].Mag() > *link_limits[1][1])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase B!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its emergency rating on phase B",(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
 							/*  TROUBLESHOOT
 							Phase B on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase B!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its continuous rating on phase B",(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
 							/*  TROUBLESHOOT
 							Phase B on the line has exceeded the continuous rating associated with it.
 							*/
@@ -3050,7 +3051,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase B check
 				}//End has Phase B
@@ -3063,14 +3064,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[2].Mag() > *link_limits[1][2])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase C!",THISOBJECTHDR->name,(read_I_out[2].Mag()/(*link_limits[1][2])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its emergency rating on phase C",(read_I_out[2].Mag()/(*link_limits[1][2])*100.0));
 							/*  TROUBLESHOOT
 							Phase C on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase C!",THISOBJECTHDR->name,(read_I_out[2].Mag()/(*link_limits[0][2])*100.0));
+							add_violation(VF_CURRENT,"line is at %.2f%% of its continuous rating on phase C",(read_I_out[2].Mag()/(*link_limits[0][2])*100.0));
 							/*  TROUBLESHOOT
 							Phase C on the line has exceeded the continuous rating associated with it.
 							*/
@@ -3089,7 +3090,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase C check
 				}//End has Phase C
@@ -4997,7 +4998,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase A of the link object. This object
 					does not have a valid phase A to fault.
@@ -5026,7 +5027,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase B of the link object. This object
 					does not have a valid phase B to fault.
@@ -5055,7 +5056,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase C of the link object. This object
 					does not have a valid phase C to fault.
@@ -5674,7 +5675,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -5700,7 +5701,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -5726,7 +5727,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -6026,7 +6027,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_A
 					else
 					{
-						gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6051,7 +6052,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_B
 					else
 					{
-						gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6076,7 +6077,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_C
 					else
 					{
-						gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6318,7 +6319,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_A
 					else
 					{
-						gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6343,7 +6344,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_B
 					else
 					{
-						gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6368,7 +6369,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_C
 					else
 					{
-						gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+						warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6648,7 +6649,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -6674,7 +6675,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -6700,7 +6701,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -7119,7 +7120,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					/*  TROUBLESHOOT
 					While attempting to access the mean_repair_time of the safety device, GridLAB-D encountered
 					an error.  Ensure the object has this value.  If it does not, it will be ignored.  If it does
@@ -7199,7 +7200,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					//Defined above
 					*repair_time = 0;
 				}
@@ -7279,7 +7280,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					//Defined above
 					*repair_time = 0;
 				}
@@ -7355,7 +7356,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					//See if it worked
 					if (temp_double_val == NULL)
 					{
-						gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+						warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 						//Defined above
 						*repair_time = 0;
 					}
@@ -7427,7 +7428,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -7515,7 +7516,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 									//See if it worked
 									if (temp_double_val == NULL)
 									{
-										gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+										warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 										//Defined above
 										*repair_time = 0;
 									}
@@ -7596,7 +7597,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -7660,7 +7661,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -7752,9 +7753,9 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			}
 
 			if (temp_branch == -99)
-				gl_verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_busdata[0].name);
+				verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_busdata[0].name);
 			else
-				gl_verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_branchdata[temp_branch].name);
+				verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_branchdata[temp_branch].name);
 		}//End a change has been flagged
 
 		return 1;	//Successful
@@ -7888,7 +7889,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase A of the link object. This object
 					does not have a valid phase A to fault.
@@ -7917,7 +7918,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase B of the link object. This object
 					does not have a valid phase B to fault.
@@ -7946,7 +7947,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase C of the link object. This object
 					does not have a valid phase C to fault.
@@ -8565,7 +8566,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -8591,7 +8592,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8617,7 +8618,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -8914,7 +8915,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8939,7 +8940,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8964,7 +8965,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -9243,7 +9244,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -9269,7 +9270,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -9295,7 +9296,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
+					warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -9821,7 +9822,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//End not very first pass
 				else	//Is the first pass, just inform fault current doesn't exit
 				{
-					gl_warning("link:%d - %s -- fault current not available on very first time loop",objhdr->id,(objhdr->name ? objhdr->name : "Unnamed"));
+					warning("link:%d - %s -- fault current not available on very first time loop",objhdr->id,(objhdr->name ? objhdr->name : "Unnamed"));
 					/*  TROUBLESHOOT
 					Due to the nature of the mesh-fault current calculation algorithm, it can not calculate a fault current on the very first iteration
 					of the system.  Please place your fault time at least one second in the future and try again.
@@ -9927,7 +9928,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					/*  TROUBLESHOOT
 					While attempting to access the mean_repair_time of the safety device, GridLAB-D encountered
 					an error.  Ensure the object has this value.  If it does not, it will be ignored.  If it does
@@ -10007,7 +10008,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					//Defined above
 					*repair_time = 0;
 				}
@@ -10087,7 +10088,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				//See if it worked
 				if (temp_double_val == NULL)
 				{
-					gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+					warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 					//Defined above
 					*repair_time = 0;
 				}
@@ -10163,7 +10164,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					//See if it worked
 					if (temp_double_val == NULL)
 					{
-						gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+						warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 						//Defined above
 						*repair_time = 0;
 					}
@@ -10235,7 +10236,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -10323,7 +10324,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 									//See if it worked
 									if (temp_double_val == NULL)
 									{
-										gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+										warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 										//Defined above
 										*repair_time = 0;
 									}
@@ -10404,7 +10405,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -10468,7 +10469,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//See if it worked
 								if (temp_double_val == NULL)
 								{
-									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
 									//Defined above
 									*repair_time = 0;
 								}
@@ -10560,9 +10561,9 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			}
 
 			if (temp_branch == -99)
-				gl_verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_busdata[0].name);
+				verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_busdata[0].name);
 			else
-				gl_verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_branchdata[temp_branch].name);
+				verbose("Event %d induced on %s by using %s",*implemented_fault,objhdr->name,NR_branchdata[temp_branch].name);
 		}//End a change has been flagged
 
 		return 1;	//Successful
@@ -11587,9 +11588,9 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			UNLOCK_OBJECT(NR_swing_bus);	//Release us
 
 			if (temp_node == -99)
-				gl_verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_busdata[0].name);
+				verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_busdata[0].name);
 			else
-				gl_verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_branchdata[temp_node].name);
+				verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_branchdata[temp_node].name);
 		}//End actual change
 
 		return 1;
@@ -12518,9 +12519,9 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			UNLOCK_OBJECT(NR_swing_bus);	//Release us
 
 			if (temp_node == -99)
-				gl_verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_busdata[0].name);
+				verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_busdata[0].name);
 			else
-				gl_verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_branchdata[temp_node].name);
+				verbose("Event %s removed from %s by restoring %s",imp_fault_name,objhdr->name,NR_branchdata[temp_node].name);
 		}//End actual change
 
 		return 1;
@@ -12938,15 +12939,15 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 						V_sb[1] = A_t[1][0]*V_sys[0] + A_t[1][1]*V_sys[1] + A_t[1][2]*V_sys[2];
 						V_sb[2] = A_t[2][0]*V_sys[0] + A_t[2][1]*V_sys[1] + A_t[2][2]*V_sys[2];
 					} else {
-					gl_warning("Delta-grounded WYE transformers with less than three phases aren't handled. Ignoring object. Fault current is not accurate.");
+					warning("Delta-grounded WYE transformers with less than three phases aren't handled. Ignoring object. Fault current is not accurate.");
 					}
 				} else if(temp_connection_type == 4){// Single phase transformer
-					gl_warning("Single phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
+					warning("Single phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
 				} else {//split-phase transformer
-					gl_warning("split-phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
+					warning("split-phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
 				}
 			} else if (gl_object_isa(temp_transformer, "regulator", "powerflow")){ // regulator right now assumed to have all taps in neutral.
-				gl_warning("regulators are neglected from the fault calculation");
+				warning("regulators are neglected from the fault calculation");
 			} else {
 				GL_THROW("link object is a type 4 but is not a transformer or a regulator!");
 			}
@@ -13089,15 +13090,15 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 					V_sb[1] = A_t[1][0]*V_sys[0] + A_t[1][1]*V_sys[1] + A_t[1][2]*V_sys[2];
 					V_sb[2] = A_t[2][0]*V_sys[0] + A_t[2][1]*V_sys[1] + A_t[2][2]*V_sys[2];
 				} else {
-				gl_warning("Delta-grounded WYE transformers with less than three phases aren't handled. Ignoring object. Fault current is not accurate.");
+				warning("Delta-grounded WYE transformers with less than three phases aren't handled. Ignoring object. Fault current is not accurate.");
 				}
 			} else if(temp_connection_type == 4){// Single phase transformer
-				gl_warning("Single phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
+				warning("Single phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
 			} else {//split-phase transformer
-				gl_warning("split-phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
+				warning("split-phase transformers are not supported for fault analysis at this time. Ignoring object. Fault current is not accurate.");
 			}
 		} else if (gl_object_isa(temp_transformer, "regulator", "powerflow")){ // regulator right now assumed to have all taps in neutral.
-			gl_warning("regulators are neglected from the fault calculation");
+			warning("regulators are neglected from the fault calculation");
 		} else {
 			GL_THROW("link object is a type 4 but is not a transformer or a regulator!");
 		}
@@ -13281,11 +13282,11 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 					NR_branchdata[temp_branch_fc].If_from[1] = NR_branchdata[temp_branch_fc].If_to[1]/temp_v_ratio;
 					NR_branchdata[temp_branch_fc].If_from[2] = NR_branchdata[temp_branch_fc].If_to[2]/temp_v_ratio;
 				} else if(temp_connection_type == 3){//Delta grounded WYE transformer
-					gl_warning("Delta-grounded WYE transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+					warning("Delta-grounded WYE transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 				} else if(temp_connection_type == 4){// Single phase transformer
-					gl_warning("Single phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+					warning("Single phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 				} else {//split-phase transformer
-					gl_warning("split-phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+					warning("split-phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 				}
 			} else if (gl_object_isa(temp_transformer, "regulator", "powerflow")){ // regulator right now assumed to have all taps in neutral.
 				if(NR_branchdata[temp_branch_fc].fault_link_below != -1){
@@ -13296,7 +13297,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 				NR_branchdata[temp_branch_fc].If_from[0] = NR_branchdata[temp_branch_fc].If_to[0];
 				NR_branchdata[temp_branch_fc].If_from[1] = NR_branchdata[temp_branch_fc].If_to[1];
 				NR_branchdata[temp_branch_fc].If_from[2] = NR_branchdata[temp_branch_fc].If_to[2];
-				gl_warning("regulators are neglected from the fault calculation");
+				warning("regulators are neglected from the fault calculation");
 			} else {
 				GL_THROW("link object is a type 4 but is not a transformer or a regulator!");
 			}
@@ -13354,11 +13355,11 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 				NR_branchdata[temp_branch_fc].If_from[1] = NR_branchdata[temp_branch_fc].If_to[1]/temp_v_ratio;
 				NR_branchdata[temp_branch_fc].If_from[2] = NR_branchdata[temp_branch_fc].If_to[2]/temp_v_ratio;
 			} else if(temp_connection_type == 3){//Delta grounded WYE transformer
-				gl_warning("Delta-grounded WYE transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+				warning("Delta-grounded WYE transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 			} else if(temp_connection_type == 4){// Single phase transformer
-				gl_warning("Single phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+				warning("Single phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 			} else {//split-phase transformer
-				gl_warning("split-phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
+				warning("split-phase transformers are not supported for fault analysis at this time. Fault current is not accurate.");
 			}
 		} else if (gl_object_isa(temp_transformer, "regulator", "powerflow")){ // regulator right now assumed to have all taps in neutral.
 			if(NR_branchdata[temp_branch_fc].fault_link_below != -1){
@@ -13369,7 +13370,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 			NR_branchdata[temp_branch_fc].If_from[0] = NR_branchdata[temp_branch_fc].If_to[0];
 			NR_branchdata[temp_branch_fc].If_from[1] = NR_branchdata[temp_branch_fc].If_to[1];
 			NR_branchdata[temp_branch_fc].If_from[2] = NR_branchdata[temp_branch_fc].If_to[2];
-			gl_warning("regulators are neglected from the fault calculation");
+			warning("regulators are neglected from the fault calculation");
 		} else {
 			GL_THROW("link object is a type 4 but is not a transformer or a regulator!");
 		}

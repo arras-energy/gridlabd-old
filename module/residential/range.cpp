@@ -231,7 +231,7 @@ int range::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("range::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("range::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -249,11 +249,11 @@ int range::init(OBJECT *parent)
 
 	if(pTair == 0){
 		pTair = &sTair;
-		gl_warning("range parent lacks \'air_temperature\' property, using default");
+		warning("range parent lacks \'air_temperature\' property, using default");
 	}
 	if(pTout == 0){
 		pTout = &sTout;
-		gl_warning("range parent lacks \'outside_temperature\' property, using default");
+		warning("range parent lacks \'outside_temperature\' property, using default");
 	}
 
 	/* sanity checks */
@@ -330,7 +330,7 @@ int range::init(OBJECT *parent)
 	switch(shape.type){
 		case MT_UNKNOWN:
 			/* normal, undriven behavior. */
-			gl_warning("This device, %s, is considered very experimental and has not been validated.", get_name());
+			warning("This device, %s, is considered very experimental and has not been validated.", get_name());
 			break;
 		case MT_ANALOG:
 			if(shape.params.analog.energy == 0.0){
@@ -467,7 +467,7 @@ TIMESTAMP range::presync(TIMESTAMP t0, TIMESTAMP t1){
 
 	if(Tw > 212.0){
 		//GL_THROW("the range is boiling!");
-		gl_warning("range:%i is using an experimental model and should not be considered reliable", my->id);
+		warning("range:%i is using an experimental model and should not be considered reliable", my->id);
 		/*	TROUBLESHOOT
 			The range object has a number of VERY experimental features and development is incomplete.
 			If you are receiving this error message, reccommend no longer using this particular feature
@@ -1222,7 +1222,7 @@ void range::wrong_model(enumeration msg)
 {
 	const char *errtxt[] = {"model is not one-zone","model is not two-zone"};
 	OBJECT *obj = THISOBJECTHDR;
-	gl_warning("%s (range:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
+	warning("%s (range:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the range code, not by the core
 }
 

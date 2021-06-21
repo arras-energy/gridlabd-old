@@ -89,8 +89,8 @@ int line::create()
 
 int line::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_LINE;
 	int result = link_object::init(parent);
-	
 
 	node *pFrom = OBJECTDATA(from,node);
 	node *pTo = OBJECTDATA(to,node);
@@ -174,7 +174,7 @@ void line::load_matrix_based_configuration(complex Zabc_mat[3][3], complex Yabc_
 	{
 		if (use_line_cap == false)
 		{
-			gl_warning("Shunt capacitance of line:%s specified without setting powerflow::line_capacitance = TRUE. Shunt capacitance will be ignored.",THISOBJECTHDR->name);
+			warning("Shunt capacitance of line:%s specified without setting powerflow::line_capacitance = TRUE. Shunt capacitance will be ignored.",THISOBJECTHDR->name);
 
 			for (int i = 0; i < 3; i++) 
 			{

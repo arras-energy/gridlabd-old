@@ -1,90 +1,106 @@
-#!/bin/bash
+#!/usr/local/bin/python3
+"""General GridLAB-D file format converter for command line and macro usage.
+"""
+import sys, os
+import importlib
+from importlib import util
 
-FILE1="/dev/stdin"
-FILE2="/dev/stdout"
-TYPE1=""
-TYPE2=""
-VERBOSE=false
-SYNTAX="Syntax: gridlabd convert [-v|--verbose] [-f|--from TYPE1] FILE1 [-t|--to TYPE2] FILE2 [OPTIONS]"
+MODPATH = os.getenv("GLD_ETC")
+if not MODPATH:
+	MODPATH = "/usr/local/share/gridlabd"
 
-if [ $# -lt 2 ]; then
-	echo $SYNTAX
-	exit 1
-fi
+INPUTFILE = None
+OUTPUTFILE = None
+INPUTTYPE = None
+OUTPUTTYPE = None
+OPTIONS = {}
+VERBOSE = False
+DEBUG = False
 
-function error ()
-{
-	EXITCODE=$1
-	shift 1
-	echo "ERROR [convert]: $*" > /dev/stderr
-	exit $EXITCODE
-}
+E_OK = 0
+E_SYNTAX = 1
+E_MISSING = 2
+E_EXCEPTION = 3
+def error(msg,exitcode=None):
+	print(f"ERROR [gridlabd-convert]: {msg}")
+	if not exitcode is None:
+		exit(exitcode)
 
-function warning ()
-{
-	echo "WARNING [convert]: $*" > /dev/stderr
-}
+def verbose(msg):
+	if VERBOSE:
+		print(f"VERBOSE [gridlabd-convert]: {msg}")
 
-function verbose()
-{
-	if ( $VERBOSE ); then
-		echo "VERBOSE [convert]: $*" > /dev/stderr
-	fi
-}
+SYNTAX = "Syntax: gridlabd convert [[-i|--input] FILE1] [[-o|--output] FILE2] [-v|--verbose] [-d|--debug] [-f|--from TYPE1] [-t|--to TYPE2] [OPTIONS]"
+if len(sys.argv) == 1:
+	print(SYNTAX)
+	exit(1)
+n = 1
+while n < len(sys.argv):
+	if sys.argv[n] in ['-h','--help']:
+		print(SYNTAX)
+		exit(0)
+	elif sys.argv[n] in ['-v','--verbose']:
+		VERBOSE = True
+	elif sys.argv[n] in ['-d','--debug']:
+		DEBUG = True
+	elif sys.argv[n] in ['-f','--from']:
+		n += 1
+		try:
+			INPUTTYPE = sys.argv[n]
+		except:
+			error("missing input file type",E_MISSING)
+	elif sys.argv[n] in ['-t','--to']:
+		n += 1
+		try:
+			OUTPUTTYPE = sys.argv[n]
+		except:
+			error("missing output file type",E_MISSING)
+	elif sys.argv[n] in ['-i','--input']:
+		n +=1 
+		try:
+			INPUTFILE = sys.argv[n]
+		except:
+			error("missing input file name",E_MISSING)
+	elif sys.argv[n] in ['-o','--output']:
+		n +=1 
+		try:
+			OUTPUTFILE = sys.argv[n]
+		except:
+			error("missing output file name",E_MISSING)
+	elif not INPUTFILE:
+		INPUTFILE = sys.argv[n]
+	elif not OUTPUTFILE:
+		OUTPUTFILE = sys.argv[n]
+	else:
+		specs = sys.argv[n].split('=')
+		if len(specs) == 1:
+			OPTIONS[specs[0]] = None
+		else:
+			OPTIONS[specs[0]] = '='.join(specs[1:])
+	n += 1
 
-OPTIONS=""
+if not INPUTFILE:
+	INPUTFILE = "/dev/stdin"
+elif not INPUTTYPE:
+	INPUTTYPE = os.path.splitext(INPUTFILE)
+if not OUTPUTFILE:
+	OUTPUTFILE = "/dev/stdout"
+elif not OUTPUTTYPE:
+	OUTPUTTYPE = os.path.splitext(OUTPUTFILE)
 
-while [ $# -gt 0 ]; do
-	if [ "$1" == "-h" -o "$1" == "--help" ]; then
-		echo $SYNTAX
-		exit 0
-	elif [ "$1" == "-v" -o "$1" == "--verbose" ]; then
-		VERBOSE=true
-		verbose "verbose is enabled"
-	elif [ "$1" == "-f" -o "$1" == "--from" ]; then
-		if [ $# -lt 2 ]; then
-			error 1 "missing 'to' type"
-		fi
-		TYPE1=$2
-		verbose "input file type '$TYPE1'"
-		shift 1
-	elif [ "$1" == "-t" -o "$1" == "--to" ]; then
-		if [ $# -lt 2 ]; then
-			error 1 "missing 'to' type"
-		fi
-		TYPE2=$2
-		verbose "input file type '$TYPE2'"
-		shift 1
-	elif [ "$FILE1" == "/dev/stdin" ]; then
-		FILE1=$1
-		verbose "input file '$FILE1'"
-	elif [ "$FILE2" == "/dev/stdout" ]; then
-		FILE2=$1
-		verbose "output file '$FILE2'"
-	else
-		OPTIONS=$OPTIONS $1
-		verbose "option '$1'"
-	fi
-	shift 1
-done
+modname = f'{MODPATH}/{INPUTTYPE}2{OUTPUTTYPE}.py'
+if os.path.exists(modname):
+	verbose(f"loading '{modname}'")
+	modspec = util.spec_from_file_location(OUTPUTTYPE, f"{modname}.py")
+	mod = importlib.import_module(f'{INPUTTYPE}2{OUTPUTTYPE}')
+	verbose(f"calling {modname}.convert({INPUTFILE.__repr__()},{OUTPUTFILE.__repr__()},{OPTIONS.__repr__()})")
+	try:
+		mod.convert(INPUTFILE,OUTPUTFILE,OPTIONS)
+	except Exception as err:
+		if DEBUG:
+			raise
+		else:
+			error(err,E_EXCEPTION)
+else:
+	error(f"{modname} not found")
 
-if [ -z "$TYPE1" ]; then
-	NAME=$(basename "${FILE1}")
-	TYPE1=${NAME##*.}
-	verbose "automatic input file type '$TYPE1'"
-fi
-if [ -z "$TYPE1" ]; then
-	error 1 "no input file type identified (no extension or --from option)"
-fi
-
-if [ -z "$TYPE2" ]; then
-	NAME=$(basename "${FILE2}")
-	TYPE2=${NAME##*.}
-	verbose "automatic output file type '$TYPE2'"
-fi
-if [ -z "$TYPE2" ]; then
-	error 1 "no output file type identified (no extension or --to option)"
-fi
-
-verbose "Calling '/usr/local/bin/python3 \"${GLD_ETC}/${TYPE1}2${TYPE2}.py\" -i \"$FILE1\" -o \"$FILE2\" $OPTIONS'"
-/usr/local/bin/python3 "${GLD_ETC}/${TYPE1}2${TYPE2}.py" -i "$FILE1" -o "$FILE2" $OPTIONS

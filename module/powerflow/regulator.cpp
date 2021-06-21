@@ -88,6 +88,8 @@ int regulator::create()
 
 int regulator::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_VREG;
+
 	bool TapInitialValue[3];
 	size_t jindex;
 	int result = link_object::init(parent);
@@ -194,7 +196,7 @@ int regulator::init(OBJECT *parent)
 			if (solver_method == SM_NR)
 			{
 				if(regulator_resistance == 0.0){
-					gl_warning("Regulator:%s regulator_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
+					warning("Regulator:%s regulator_resistance has been set to zero. This will result singular matrix. Setting to the global default.",obj->name);
 					/*  TROUBLESHOOT
 					Under Newton-Raphson solution method the impedance matrix cannot be a singular matrix for the inversion process.
 					Change the value of regulator_resistance to something small but larger that zero.
@@ -226,7 +228,7 @@ int regulator::init(OBJECT *parent)
 			multiply(W_mat,tmp_mat,tmp_mat1);
 			multiply(tmp_mat1,D_mat,A_mat);
 
-			gl_warning("Only WYE-WYE configurations are working in either Newton-Raphson or non-Manual controls");
+			warning("Only WYE-WYE configurations are working in either Newton-Raphson or non-Manual controls");
 			/*  TROUBLESHOOT
 			For this portion of development, only WYE-WYE configurations are fully supported.  Later implementations
 			will include support for other regulator configurations.  As it stands, WYE-WYE regulators work in SM_NR 
@@ -828,7 +830,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the maximum setting.  This may indicate
 		a problem with settings, or your system.
@@ -839,7 +841,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -847,7 +849,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -855,7 +857,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the minimum setting.  This may indicate
 		a problem with settings, or your system.
@@ -866,7 +868,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -874,7 +876,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		//Defined above
 	}
 	if (offnominal_time && (t0 > next_time))
