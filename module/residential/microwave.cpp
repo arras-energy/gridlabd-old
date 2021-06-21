@@ -72,7 +72,7 @@ int microwave::create()
 	standby_power = 0.01;
 	shape.load = gl_random_uniform(RNGSTATE,0, 0.1);  // assuming a default maximum 10% of the sync time 
 
-	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
+	warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 
 	return res;
 }
@@ -85,22 +85,22 @@ void microwave::init_noshape(){
 		GL_THROW("microwave power can not exceed 4 kW (and most don't exceed 2 kW)");
 	}
 	if(shape.params.analog.power < 0.700){
-		gl_warning("microwave installed power is smaller than traditional microwave ovens");
+		warning("microwave installed power is smaller than traditional microwave ovens");
 	} else if(shape.params.analog.power > 1.800){
-		gl_warning("microwave installed power is greater than traditional microwave ovens");
+		warning("microwave installed power is greater than traditional microwave ovens");
 	}
 	if(standby_power < 0){
-		gl_warning("negative standby power, resetting to 1%% of installed power");
+		warning("negative standby power, resetting to 1%% of installed power");
 		standby_power = shape.params.analog.power * 0.01;
 	} else if(standby_power > shape.params.analog.power){
-		gl_warning("standby power exceeds installed power, resetting to 1%% of installed power");
+		warning("standby power exceeds installed power, resetting to 1%% of installed power");
 		standby_power = shape.params.analog.power * 0.01;
 	}
 	if(cycle_time < 0){
 		GL_THROW("negative cycle_length is an invalid value");
 	}
 	if(cycle_time > 14400){
-		gl_warning("cycle_length is abnormally long and may give unusual results");
+		warning("cycle_length is abnormally long and may give unusual results");
 	}
 }
 
@@ -109,7 +109,7 @@ int microwave::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("microwave::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("microwave::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -120,7 +120,7 @@ int microwave::init(OBJECT *parent)
 
 	if(shape.type == MT_UNKNOWN){
 		init_noshape();
-		gl_warning("This device, %s, is considered very experimental and has not been validated.", get_name());
+		warning("This device, %s, is considered very experimental and has not been validated.", get_name());
 		// initial demand
 		update_state(0.0);
 	} else if(shape.type == MT_ANALOG){
@@ -136,13 +136,13 @@ int microwave::init(OBJECT *parent)
 			;
 		}
 	} else if(shape.type == MT_QUEUED){
-		gl_error("queued loadshapes not supported ~ will attempt to run as an unshaped load");
+		error("queued loadshapes not supported ~ will attempt to run as an unshaped load");
 		shape.type = MT_UNKNOWN;
 		init_noshape();
 		// initial demand
 		update_state(0.0);
 	} else {
-		gl_error("unrecognized loadshape");
+		error("unrecognized loadshape");
 		return 0;
 	}
 	load.total = load.power = standby_power;
@@ -212,11 +212,11 @@ double microwave::update_state(double dt)
 	static double avgrt = sumrt/sizeof(rt);
 
 	if(shape.load < 0.0){
-		gl_error("microwave demand less than 0, reseting to zero");
+		error("microwave demand less than 0, reseting to zero");
 		shape.load = 0.0;
 	}
 	if(shape.load > 1.0){
-		gl_error("microwave demand greater than 1, reseting to one");
+		error("microwave demand greater than 1, reseting to one");
 		shape.load = 1.0;
 	}
 	switch (state) {

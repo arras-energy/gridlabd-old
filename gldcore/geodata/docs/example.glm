@@ -1,0 +1,14 @@
+module residential;
+class house
+{
+    char1024 address;
+}
+
+object house
+{
+    name "Building_53";
+    address "2575 Sand Hill Rd., Menlo Park, CA";
+}
+#write /tmp/address.csv house:address
+#geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
+#include "/tmp/latlon.glm"
