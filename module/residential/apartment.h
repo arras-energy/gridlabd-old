@@ -181,6 +181,9 @@ public:
 
 private:
 
+	// meter
+	gld_property *power[3];
+
 	// multizone solver
 	msolver *solver;
 
@@ -206,6 +209,9 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP precommit(TIMESTAMP t1);
+	TIMESTAMP presync(TIMESTAMP t1);
+	TIMESTAMP sync(TIMESTAMP t1);
+	TIMESTAMP postsync(TIMESTAMP t1);
 
 	// support methods
 	void update(void);

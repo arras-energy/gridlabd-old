@@ -8,6 +8,7 @@
 EXPORT_CREATE(apartment);
 EXPORT_INIT(apartment);
 EXPORT_PRECOMMIT(apartment);
+EXPORT_SYNC(apartment);
 
 CLASS *apartment::oclass = NULL;
 apartment *apartment::defaults = NULL;
@@ -16,7 +17,7 @@ char1024 apartment::load_property = "base_power";
 double apartment::maximum_temperature_update = 0.1;
 TIMESTAMP apartment::maximum_timestep = 3600;
 
-#define PASSCONFIG PC_AUTOLOCK
+#define PASSCONFIG PC_AUTOLOCK|PC_PRETOPDOWN|PC_BOTTOMUP
 
 apartment::apartment(MODULE *module)
 {
@@ -378,6 +379,35 @@ int apartment::create(void)
 
 int apartment::init(OBJECT *parent)
 {
+	// check parent
+	gld_object *meter = get_object(parent);
+	if ( ! meter->isa("meter","powerflow") )
+	{
+		error("parent object is not a powerflow meter");
+		return 0;
+	}
+	else
+	{
+		gld_property phases(parent,"phases");
+		if ( ! phases.is_valid() )
+		{
+			error("parent object does not publish phases");
+			return 0;
+		}
+		if ( phases.get_set()&0x0100 ) // delta connection flag
+		{
+			power[0] = new gld_property(parent,"power_AB");
+			power[0] = new gld_property(parent,"power_BC");
+			power[0] = new gld_property(parent,"power_CA");
+		}
+		else
+		{
+			power[0] = new gld_property(parent,"power_A");
+			power[0] = new gld_property(parent,"power_B");
+			power[0] = new gld_property(parent,"power_C");
+		}
+	}
+
 	// check for missing values
 	if ( building_floors <= 1 )
 	{
@@ -717,3 +747,46 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	return a;
 }
 
+TIMESTAMP apartment::presync(TIMESTAMP t1)
+{
+	complex power0 = 0.0;
+	if ( power[0] ) power[0]->setp(power0);
+	if ( power[1] ) power[1]->setp(power0);
+	if ( power[2] ) power[2]->setp(power0);
+
+	return TS_NEVER;
+}
+
+TIMESTAMP apartment::sync(TIMESTAMP t1)
+{
+	// TODO convert plant work to power load
+	power_core = 0.0;
+	power_parking = 0.0;
+	power_system = gl_random_uniform(&(my()->rng_state),0,1); // Q_AE + Q_CE + E/mu * u.abs();
+	power_units = 0.0;
+	power_total = power_core + power_parking + power_system + power_units;
+
+	complex power3 = power_total/3.0;
+	if ( power[0] ) 
+	{
+		complex power0 = power[0]->get_complex()+power3;
+		power[0]->setp(power0);
+	}
+	if ( power[1] ) 
+	{
+		complex power1 = power[1]->get_complex()+power3;
+		power[1]->setp(power1);
+	}
+	if ( power[2] ) 
+	{
+		complex power2 = power[2]->get_complex()+power3;
+		power[2]->setp(power2);
+	}
+
+	return TS_NEVER;
+}
+
+TIMESTAMP apartment::postsync(TIMESTAMP t1)
+{
+	return TS_NEVER;
+}
