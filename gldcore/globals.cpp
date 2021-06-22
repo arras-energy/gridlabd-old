@@ -1399,6 +1399,33 @@ DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 	return buffer;
 }
 
+DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
+{
+    int len = 0;
+    FINDLIST *finder = findlist_create(FL_NEW, spec);
+    for ( OBJECT *obj = find_first(finder) ; obj != NULL ; obj = find_next(finder,obj) )
+    {
+        char name[1024];
+        int sz;
+        if ( obj->name )
+        {
+            strcpy(name,obj->name);
+            sz = strlen(name);
+        }
+        else
+        {
+            sz = snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+        }
+        if ( sz > size-len )
+        {
+            output_error("global buffer for FIND is too small to contain result");
+            return NULL;
+        }
+        len += snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
+    }
+    return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1490,6 +1517,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"FILETYPE ",9) == 0 )
 		return global_filetype(buffer,size,name+9);
 
+    if ( strncmp(name,"FIND ",5) == 0 )
+    {
+        return global_findobj(buffer,size,name+5);
+    }
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;

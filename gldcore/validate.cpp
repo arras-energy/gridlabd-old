@@ -569,7 +569,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 		{
 			IN_MYCONTEXT output_verbose("(proc %d) %s error was expected, code %d in %.1f seconds", id, name, code, t);
 		}
-		else if ( code==XC_SUCCESS ) // expected success
+		else if ( !is_exc && !is_err && code==XC_SUCCESS ) // expected success
 		{
 			IN_MYCONTEXT output_verbose("(proc %d) %s success was expected, code %d in %.1f seconds", id, name, code, t);
 		}
