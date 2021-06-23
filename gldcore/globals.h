@@ -743,8 +743,9 @@ typedef enum {
 	DMC_VALIDATE	= 0x0001000000000000,
 	DMC_VERSION		= 0x0002000000000000,
 	DMC_XCORE		= 0x0004000000000000,
+	DMC_PYTHON      = 0x0008000000000000,
 	DMC_NONE		=  0, /**< no messages allowed */
-	DMC_ALL			= 0x0007ffffffffffff, /**< all messages allowed */
+	DMC_ALL			= 0x000fffffffffffff, /**< all messages allowed */
 } GLOBALMESSAGECONTEXT;
 
 /* Variable:  */
