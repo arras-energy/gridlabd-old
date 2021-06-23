@@ -74,8 +74,6 @@ public:
 	static char1024 load_property;
 	static double maximum_temperature_update;
 	static TIMESTAMP maximum_timestep;
-	static double default_outdoor_humidity;
-	static double default_solar_gain;
 
 public:
 
@@ -124,9 +122,11 @@ public:
 
 	GL_ATOMIC(double,system_cooling_air_temperature);
 	GL_ATOMIC(double,system_cooling_capacity);
+	GL_ATOMIC(double,system_cooling_design_temperature);
 	GL_ATOMIC(double,system_cooling_efficiency);
 	GL_ATOMIC(double,system_heating_air_temperature);
 	GL_ATOMIC(double,system_heating_capacity);
+	GL_ATOMIC(double,system_heating_design_temperature)
 	GL_ATOMIC(double,system_heating_efficiency);
 	GL_ATOMIC(SYSTEMPLANTMODE,system_mode);
 	GL_ATOMIC(SYSTEMTYPECENTRAL,system_type_central);
@@ -183,6 +183,11 @@ private:
 
 	// meter
 	gld_property *power[3];
+	gld_property *minimum_temperature;
+	gld_property *maximum_temperature;
+	gld_property *outdoor_temperature;
+	gld_property *outdoor_humidity;
+	gld_property *global_horizontal;
 
 	// multizone solver
 	msolver *solver;

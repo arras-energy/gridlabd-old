@@ -140,7 +140,7 @@ apartment::apartment(MODULE *module)
 				PT_DEFAULT,"+0 pu", 
 				PT_DESCRIPTION,"parking ventilation demand as a fraction of installed capacity",
 			PT_int16,"parking_size",get_parking_size_offset(), 
-				PT_DEFAULT,"0", 
+				PT_DEFAULT,"-1", 
 				PT_DESCRIPTION,"total number of parking spots installed",
 
 			PT_double,"power_core[kW]",get_power_core_offset(), 
@@ -165,6 +165,8 @@ apartment::apartment(MODULE *module)
 			PT_double,"system_cooling_capacity[kBtu/h]",get_system_cooling_capacity_offset(),
 				PT_DEFAULT,"+0 kBtu/h",
 				PT_DESCRIPTION,"system cooling capacity",
+			PT_double,"system_cooling_design_temperature[degF]",get_system_cooling_design_temperature_offset(), 
+				PT_DESCRIPTION,"system cooling design temperature",
 			PT_double,"system_cooling_efficiency[kBtu/kWh]",get_system_cooling_efficiency_offset(),
 				PT_DEFAULT,"+15 kBtu/kWh",
 				PT_DESCRIPTION,"system cooling efficiency",
@@ -174,6 +176,8 @@ apartment::apartment(MODULE *module)
 			PT_double,"system_heating_capacity[kBtu/h]",get_system_heating_capacity_offset(),
 				PT_DEFAULT,"+0 kBtu/h",
 				PT_DESCRIPTION,"system heating capacity",
+			PT_double,"system_heating_design_temperature[degF]",get_system_heating_design_temperature_offset(), 
+				PT_DESCRIPTION,"system heating design temperature",
 			PT_double,"system_heating_efficiency[kBtu/kWh]",get_system_heating_efficiency_offset(),
 				PT_DEFAULT,"+10 kBtu/kWh",
 				PT_DESCRIPTION,"system heating efficiency",
@@ -374,12 +378,22 @@ apartment::apartment(MODULE *module)
 int apartment::create(void) 
 {
 	solver = NULL;
+	miniumum_temperature = NULL;
+	maximum_temperature = NULL;
+	outdoor_temperature = NULL;
+	outdoor_humidity = NULL;
+	global_horizontal = NULL;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
 int apartment::init(OBJECT *parent)
 {
 	// check parent
+	if ( parent == NULL )
+	{
+		error("parent meter object is not specified");
+		return 0;
+	}
 	gld_object *meter = get_object(parent);
 	if ( ! meter->isa("meter","powerflow") )
 	{
@@ -397,14 +411,48 @@ int apartment::init(OBJECT *parent)
 		if ( phases.get_set()&0x0100 ) // delta connection flag
 		{
 			power[0] = new gld_property(parent,"power_AB");
-			power[0] = new gld_property(parent,"power_BC");
-			power[0] = new gld_property(parent,"power_CA");
+			power[1] = new gld_property(parent,"power_BC");
+			power[2] = new gld_property(parent,"power_CA");
 		}
 		else
 		{
 			power[0] = new gld_property(parent,"power_A");
-			power[0] = new gld_property(parent,"power_B");
-			power[0] = new gld_property(parent,"power_C");
+			power[1] = new gld_property(parent,"power_B");
+			power[2] = new gld_property(parent,"power_C");
+		}
+	}
+
+	// check weather
+	if ( weather == NULL )
+	{
+		warning("weather object is not specified, using default temperature, humidity, and solar values");
+	}
+	else
+	{
+		minimum_temperature = new gld_property(weather,"minimum_temperature");
+		if ( minimum_temperature == NULL )
+		{
+			warning("weather object does not publish minimum_temperature");
+		}
+		maximum_temperature = new gld_property(weather,"maximum_temperature");
+		if ( maximum_temperature == NULL )
+		{
+			warning("weather object does not publish maximum_temperature");
+		}
+		outdoor_temperature = new gld_property(weather,"temperature");
+		if ( outdoor_temperature == NULL )
+		{
+			warning("weather object does not publish temperature");
+		}
+		outdoor_humidity = new gld_property(weather,"humidity");
+		if ( outdoor_humidity == NULL )
+		{
+			warning("weather object does not publish humidity");
+		}
+		global_horizontal = new gld_property(weather,"global_horizontal");
+		if ( global_horizontal == NULL )
+		{
+			warning("weather object does not publish global_horizontal");
 		}
 	}
 
@@ -429,23 +477,25 @@ int apartment::init(OBJECT *parent)
 	{
 		core_width = ( core_configuration&CC_DOUBLE ) ? 6.0 : 5.0;
 	}
-	if ( parking_size == 0 )
+	if ( parking_size < 0 )
 	{
 		parking_size = building_floors*building_units;
-	}
-	if ( system_cooling_capacity == 0 )
-	{
-		// TODO
-	}
-	if ( system_heating_capacity == 0 )
-	{
-		// TODO
 	}
 	if ( unit_cooling_capacity == 0 )
 	{
 		// TODO
+		// Q_HA = 1.5 * ( U_OA * (Tmin_O-T_H_A) )
 	}
 	if ( unit_heating_capacity == 0 )
+	{
+		// TODO
+	}
+	if ( system_cooling_capacity == 0 )
+	{
+		// TODO
+		// building_units * ()
+	}
+	if ( system_heating_capacity == 0 )
 	{
 		// TODO
 	}
