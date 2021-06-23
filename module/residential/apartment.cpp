@@ -378,7 +378,7 @@ apartment::apartment(MODULE *module)
 int apartment::create(void) 
 {
 	solver = NULL;
-	miniumum_temperature = NULL;
+	minimum_temperature = NULL;
 	maximum_temperature = NULL;
 	outdoor_temperature = NULL;
 	outdoor_humidity = NULL;
