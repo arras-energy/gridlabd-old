@@ -14,8 +14,11 @@ The `#input` macro allows a non-GLM file to be input inline using [[/Command/Aut
 
 ## CSV converters 
 Input: `csv`
+
 Output: `glm`
+
 From: `ami`, `scada`, `onpoint-weather`, `table`
+
 Type: `ceus`, `rbsa`, `climate`, `object`
 
 # Example 1
