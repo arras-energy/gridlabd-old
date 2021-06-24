@@ -10,7 +10,7 @@ GLM:
 
 # Description
 
-The `#input` macro allows a non-GLM file to be input inline using [[/GLM/Command/Automatic import conversion.md]] with options, e.g., 
+The `#input` macro allows a non-GLM file to be input inline using [[/GLM/Command/Automatic import conversion]] with options, e.g., 
 
 # Example
 
