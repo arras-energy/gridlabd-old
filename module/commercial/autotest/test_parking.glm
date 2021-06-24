@@ -2,7 +2,10 @@ module commercial
 {
     nightlight_threshold "5 W/m^2";
 }
-module tape;
+module tape
+{
+    csv_header_type NAME;
+}
 
 clock {
     timezone "US/CA/San Francisco";
@@ -58,7 +61,7 @@ object meter
             charger_active parking_load*10;
             object recorder
             {
-                file "parking.csv";
+                file "test_parking.csv";
                 interval "1h";
                 property "lighting_power,ventilation_power,charger_power,total_power";
             };
@@ -66,8 +69,14 @@ object meter
     };
     object recorder 
     {
-        file "meter.csv";
+        file "test_parking_meter.csv";
         property "measured_power_A,measured_power_B,measured_power_C";
         interval "1h";
     };
 }
+
+#for FILE in test_parking.csv test_parking_meter.csv
+#ifexist "../${FILE}"
+#on_exit 0 diff ../${FILE} ${FILE}
+#endif
+#done
