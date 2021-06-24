@@ -449,7 +449,7 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     k_angle = 1.194 - cos(phi) + 0.194*cos(2*phi) + 0.368*sin(2*phi)
     air_mass, k_f, air_viscosity = get_air_properties(air_temperature)
     Nre = wind_speed * (diameter + 2*ice_thickness) * air_mass / air_viscosity
-    if wind_speed > 1.1:
+    if wind_speed < 0.81:
         Q_C_coeff_first = k_angle*(1.01+1.35*Nre**0.52)*k_f
         Q_C_constant = -k_angle*(1.01+1.35*Nre**0.52)*k_f*(air_temperature+273.0)
     else:
