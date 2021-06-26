@@ -1,3 +1,4 @@
+#set complex_format="%+.0lf%+.0lf"
 module commercial
 {
     nightlight_threshold "5 W/m^2";
@@ -77,6 +78,6 @@ object meter
 
 #for FILE in test_parking.csv test_parking_meter.csv
 #ifexist "../${FILE}"
-#on_exit 0 diff ../${FILE} ${FILE}
+#on_exit 0 diff ../${FILE} ${FILE} >> gridlabd.err 
 #endif
 #done
