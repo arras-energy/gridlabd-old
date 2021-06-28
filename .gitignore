@@ -79,10 +79,9 @@ gldcore/stamp-h1
 .cproject
 .project
 .settings/
-Makefile
 config.log
 config.status
-configure
+./configure
 gldcore/gridlabd
 gridlabd.spec
 libtool

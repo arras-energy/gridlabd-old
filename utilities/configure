@@ -1,0 +1,21 @@
+#!/bin/bash
+# 
+# This script generates a list of the makefile that must be included to build the gridlabd package
+#
+
+PATHNAME=$1
+SOURCE=${PATHNAME%/*}
+FILENAME=${PATHNAME##*/}
+INCLUDE=${SOURCE:-.}/makefile.inc
+test "$SOURCE" == "$FILENAME" && SOURCE=.
+echo "# gridlabd make configuration" > $INCLUDE
+# echo "# COMMAND = $0 $* " >> $INCLUDE
+# echo "# UPDATED = $(date)" >> $INCLUDE
+# echo "# SOURCE = $SOURCE" >> $INCLUDE
+# echo "# FILENAME = $FILENAME" >> $INCLUDE
+for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
+	FOLDER=${MAKEFILE%/*}
+	test "$MAKEFILE" != "$PATHNAME" && echo "include $MAKEFILE" >> $INCLUDE
+done
+
+echo $INCLUDE
