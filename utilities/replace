@@ -1,0 +1,49 @@
+#!/bin/bash
+
+TMP=/tmp/$$
+trap "rm -f $TMP.{in,out}" EXIT
+
+INPUT=/dev/stdin
+OUTPUT=/dev/stdout
+function syntax()
+{
+	echo "Syntax: $(basename $0) [-i input] [-o output] [name=value ...]"
+}
+if [ $# -eq 0 ]; then
+	syntax > /dev/stderr
+	exit 1
+fi
+
+SUBST=
+while [ $# -gt 0 ]; do
+	if [ "$1" == "-i" ]; then
+		shift 1
+		INPUT=$1
+	elif [ "$1" == "-o" ]; then
+		shift 1
+		OUTPUT=$1
+	elif [ $1 == "--help" -o $1 == "-h" -o $1 == "help" ]; then
+		syntax > $OUTPUT
+		exit 0
+	else
+		SUBST="$SUBST $1"
+	fi
+	shift 1
+done
+
+cp $INPUT $TMP.in
+for P in $SUBST; do
+	if [ "${P[0]}" == "-" ]; then
+		continue
+	fi
+	N=$(echo "$P" | cut -f1 -d=)
+	V=$(echo "$P" | cut -f2- -d=)
+	sed "s:@@@$N@@@:$V:g" <$TMP.in >$TMP.out
+	mv $TMP.out $TMP.in
+done
+if [ ! -z "$(grep @@@ $TMP.in)" ]; then
+	grep -n @@@ $TMP.in | sed "s|^|ERROR: missing substitution: $INPUT@|" > /dev/stderr
+	exit 1
+fi
+cp $TMP.in $OUTPUT
+

@@ -1,28 +1,35 @@
-BUILD_TARGETS += $(BUILD)bin/gridlabd
-BUILD_TARGETS += $(BUILD)bin/gridlabd.bin
+# gldcore/makefile
+
+BUILD_FOLDERS += $(BUILD)gldcore 
 
 INCLUDE_DIRS += $(BUILD)gldcore
 
-BUILD_FOLDERS += $(BUILD)gldcore 
 GLDCORE_SOURCES = $(wildcard $(SOURCE)gldcore/*.cpp)
-GLDCORE_HEADERS= $(wildcard $(SOURCE)gldcore/*.h)
+GLDCORE_HEADERS = $(subst $(SOURCE)gldcore/gridlabd.h,,$(subst $(SOURCE)gldcore/gldcore.h,,$(wildcard $(SOURCE)gldcore/*.h)))
 GLDCORE_OBJECTS = $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(BUILD)gldcore/$(SRC).o)
 
-$(BUILD)%.o: $(SOURCE)%.cpp $(SOURCE)gridlabd.h
-	@echo "  C++ $@"
-	$(ECHO)gcc -Wall -O3 -g $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR)) -I$(<D) $(BUILDINFO) $(PYTHONCFLAGS) -DMAIN_PYTHON -fPIC -c $< -o $@ $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+BIN_TARGETS += $(BIN)gridlabd
 
-$(BUILD)bin/gridlabd: $(SOURCE)gldcore/gridlabd
-	@echo "  CP $@"
-	$(ECHO)cp $< $@
+ETC_TARGETS += $(ETC)tzinfo.txt
+ETC_TARGETS += $(ETC)unitfile.txt
+
+$(BUILD)gldcore/%.o: $(SOURCE)gldcore/%.cpp $(SOURCE)gldcore/gldcore.h $(SOURCE)gldcore/gridlabd.h
+	@echo "  C++ $@"
+	$(ECHO)gcc $(CFLAGS) $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR)) -I$(<D) $(BUILDINFO) $(PYTHONCFLAGS) -DMAIN_PYTHON -fPIC -c $< -o $@ $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+
+$(BIN)gridlabd: $(SOURCE)gldcore/gridlabd $(BIN)gridlabd.bin
+	@echo "  REP $@"
+	$(ECHO)$(SOURCE)utilities/replace PREFIX=$(PREFIX) PYTHON_EXEC=$(PYTHON_EXEC) -i $< -o $@
 	$(ECHO)chmod +x $@
 
-$(SOURCE)gldcore/gridlabd.in: $(SOURCE)gldcore/gridlabd.m4sh
-	@echo "  M4 $@"
-	$(ECHO)autom4te -l m4sh $< > $@
+$(BIN)gridlabd.bin: $(GLDCORE_OBJECTS)
+	@echo "  LD  $@"
+	$(ECHO)gcc $(LDFLAGS) $^ $(PYTHONLDFLAGS) -lcurl -lcurses -lc++ -lpython$(PYTHON_MAJOR).$(PYTHON_MINOR) $(LDFLAGS) -o $@ 
 
-$(BUILD)bin/gridlabd.bin: $(GLDCORE_OBJECTS)
-	@echo "  LD $@"
-	$(ECHO)gcc -W -O3 -g $^ $(PYTHONLDFLAGS) -lcurl -lcurses -lc++ -lpython3.9 $(LDFLAGS) -o $@ 
+$(ETC)%.txt: $(SOURCE)gldcore/%.txt
+	@echo "  CP  $@"
+	$(ECHO)cp $< $@
 
-$(SOURCE)gridlabd.h: $(GLDCORE_HEADERS)
+$(SOURCE)gldcore/gridlabd.h: $(GLDCORE_HEADERS)
+
+$(SOURCE)gldcore/gldcore.h: $(GLDCORE_HEADERS)

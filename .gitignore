@@ -82,7 +82,6 @@ gldcore/stamp-h1
 config.log
 config.status
 ./configure
-gldcore/gridlabd
 gridlabd.spec
 libtool
 m4/libtool.m4
