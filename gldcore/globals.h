@@ -13,7 +13,9 @@
 #endif
 
 #include "version.h"
+#ifndef REV_MAJOR
 #include "build.h"
+#endif
 #include "validate.h"
 #include "sanitize.h"
 

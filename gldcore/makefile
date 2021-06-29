@@ -10,9 +10,9 @@ GLDCORE_OBJECTS = $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(BUILD
 
 $(BUILD)%.o: $(SOURCE)%.cpp $(SOURCE)gridlabd.h
 	@echo "  C++ $@"
-	$(ECHO)gcc -Wall -O3 -g $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR)) -I$(<D) $(PYTHONCFLAGS) -DMAIN_PYTHON -fPIC -c $< -o $@ $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+	$(ECHO)gcc -Wall -O3 -g $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR)) -I$(<D) $(BUILDINFO) $(PYTHONCFLAGS) -DMAIN_PYTHON -fPIC -c $< -o $@ $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 
-$(BUILD)bin/gridlabd: $(SOURCE)gldcore/gridlabd.in
+$(BUILD)bin/gridlabd: $(SOURCE)gldcore/gridlabd
 	@echo "  CP $@"
 	$(ECHO)cp $< $@
 	$(ECHO)chmod +x $@
@@ -23,6 +23,6 @@ $(SOURCE)gldcore/gridlabd.in: $(SOURCE)gldcore/gridlabd.m4sh
 
 $(BUILD)bin/gridlabd.bin: $(GLDCORE_OBJECTS)
 	@echo "  LD $@"
-	$(ECHO)gcc -W -O3 -g $^ $(PYTHONLDFLAGS) -lcurl -lcurses -lc++ -lpython $(LDFLAGS) -o $@ 
+	$(ECHO)gcc -W -O3 -g $^ $(PYTHONLDFLAGS) -lcurl -lcurses -lc++ -lpython3.9 $(LDFLAGS) -o $@ 
 
 $(SOURCE)gridlabd.h: $(GLDCORE_HEADERS)

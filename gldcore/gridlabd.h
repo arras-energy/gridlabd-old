@@ -142,7 +142,9 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include <vector>
 
 #include "aggregate.h"
+#ifndef REV_MAJOR
 #include "build.h"
+#endif
 #include "class.h"
 #include "cmdarg.h"
 #include "compare.h"
