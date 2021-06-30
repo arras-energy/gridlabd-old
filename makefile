@@ -160,6 +160,7 @@ endif
 ifndef CFLAGS
 CFLAGS = -W -O2 -g
 endif
+CFLAGS += -fPIC
 
 # default link flags
 ifndef LDFLAGS
@@ -168,7 +169,11 @@ endif
 
 # default archive flags
 ifndef ARFLAGS
+ifeq ($(SYSTEM),Darwin)
+ARFLAGS = -dynamiclib
+else
 ARFLAGS = -shared
+endif
 endif
 
 # default shared object flags
