@@ -16,9 +16,12 @@ echo "# gridlabd make configuration" > $INCLUDE
 for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 	FOLDER=${MAKEFILE%/*}
 	if [ "$MAKEFILE" != "$PATHNAME" ]; then
-		NAME=$(echo "${FOLDER/$SOURCE\//}" | tr -c A-Za-z _ | tr a-z A-Z)
+		name=$(echo "${FOLDER/$SOURCE\//}")
+		NAME=$(echo "${name}" | tr -c A-Za-z _ | tr a-z A-Z)
 		echo "" >> $INCLUDE
-		echo "# $FOLDER" >> $INCLUDE
+		echo "# $MAKEFILE" >> $INCLUDE
+		echo "${NAME%_*} = ${FOLDER}/" >> $INCLUDE
+		echo "${NAME}BUILD = \$(BUILD)${name}/" >> $INCLUDE
 		echo "${NAME}CFLAGS = \$(CFLAGS) \$(CPPFLAGS) \$(CXXFLAGS)" >> $INCLUDE
 		echo "${NAME}LDFLAGS = \$(LDFLAGS)" >> $INCLUDE
 		echo "${NAME}ARFLAGS = \$(ARFLAGS)" >> $INCLUDE
@@ -28,6 +31,7 @@ for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 		echo "${NAME}OBJECTS = " >> $INCLUDE
 		echo "${NAME}PARAMS = " >> $INCLUDE
 		echo "include $MAKEFILE" >> $INCLUDE
+		echo "BUILD_FOLDERS += ${FOLDER}" >> $INCLUDE
 	fi
 done
 
