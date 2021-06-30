@@ -22,6 +22,8 @@ for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 		echo "# $MAKEFILE" >> $INCLUDE
 		echo "${NAME%_*} = ${FOLDER}/" >> $INCLUDE
 		echo "${NAME}BUILD = \$(BUILD)${name}/" >> $INCLUDE
+		echo "${NAME}SOURCE = \$(SOURCE)${name}/" >> $INCLUDE
+		echo "${NAME}INCLUDE = " >> $INCLUDE
 		echo "${NAME}CFLAGS = \$(CFLAGS) \$(CPPFLAGS) \$(CXXFLAGS)" >> $INCLUDE
 		echo "${NAME}LDFLAGS = \$(LDFLAGS)" >> $INCLUDE
 		echo "${NAME}ARFLAGS = \$(ARFLAGS)" >> $INCLUDE

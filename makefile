@@ -31,9 +31,9 @@
 #   VERBOSE = no           Disables verbose output during build
 #   SILENT = yes           Enables silent processing (only errors are output)
 #   PYTHON_EXEC = pathname Specify the python executable to use when running applications
-#   BUILD = path           Specify where the build intermediate files are maintained
-#   PREFIX = path          Specify where the application folder is created
-#   INSTALL = path         Specify where the application install links are created
+#   BUILD = path/          Specify where the build intermediate files are maintained
+#   PREFIX = path/         Specify where the application folder is created
+#   INSTALL = path/        Specify where the application install links are created
 #
 
 # system requirements
@@ -104,10 +104,16 @@ SOURCE = $(PWD)/
 endif
 
 # Build folder for the build
+ifndef BUILD
 ifeq ($(SOURCE),$(PWD)/)
 BUILD = $(PWD)/build/
 else
 BUILD = $(PWD)/
+endif
+else
+ifneq ($(shell basename $(BUILD)x),x)
+BUILD+=/
+endif
 endif
 
 ####################################################
@@ -189,6 +195,10 @@ endif
 # install prefix (actual install folder)
 ifndef PREFIX
 PREFIX = /usr/local/opt/$(PACKAGE)/$(VERSION)-$(BUILDNUM)-$(BRANCH)/
+else
+ifneq ($(shell basename $(PREFIX)x),x)
+PREFIX+=/
+endif
 endif
 
 # target lists
@@ -275,6 +285,10 @@ prefix: $(BUILD_TARGETS) $(PREFIX_TARGETS)
 # install folder (links to install folder)
 ifndef INSTALL
 INSTALL = /usr/local
+else
+ifneq ($(shell basename $(INSTALL)x),x)
+INSTALL+=/
+endif
 endif
 
 # aggregate targets

@@ -1,13 +1,13 @@
 # gldcore/makefile
 
 BIN_TARGETS += $(BIN)gridlabd
-INCLUDE_DIRS += $(BUILD)gldcore
 
-GLDCORE_SOURCES += $(wildcard $(SOURCE)gldcore/*.cpp)
-GLDCORE_HEADERS += $(subst $(SOURCE)gldcore/gridlabd.h,,$(subst $(SOURCE)gldcore/gldcore.h,,$(wildcard $(SOURCE)gldcore/*.h)))
-GLDCORE_OBJECTS += $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(BUILD)gldcore/$(SRC).o)
+GLDCORE_SOURCES += $(wildcard $(GLDCORE_SOURCE)*.cpp)
+GLDCORE_INCLUDE += $(GLDCORE_SOURCE)
+GLDCORE_HEADERS += $(subst $(GLDCORE_SOURCE)gridlabd.h,,$(subst $(GLDCORE_SOURCE)gldcore.h,,$(wildcard $(GLDCORE_SOURCE)*.h)))
+GLDCORE_OBJECTS += $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(GLDCORE_BUILD)/$(SRC).o)
 
-GLDCORE_CFLAGS += $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR))
+GLDCORE_CFLAGS += $(foreach DIR,$(GLDCORE_INCLUDE),-I$(DIR))
 GLDCORE_CFLAGS += $(PYTHONCFLAGS) 
 GLDCORE_CFLAGS += $(BUILDINFO) -DMAIN_PYTHON -fPIC 
 
@@ -21,11 +21,11 @@ GLDCORE_SCRIPT_PARAMS += PYTHON_EXEC=$(PYTHON_EXEC)
 # Main executable
 #
 
-$(BUILD)gldcore/%.o: $(SOURCE)gldcore/%.cpp $(SOURCE)gldcore/gldcore.h $(SOURCE)gldcore/gridlabd.h
+$(GLDCORE_BUILD)%.o: $(GLDCORE_SOURCE)%.cpp $(GLDCORE_SOURCE)gldcore.h $(GLDCORE_SOURCE)gridlabd.h
 	$(INFO) "  CPP $@"
 	$(ECHO)gcc $(GLDCORE_CFLAGS) -I$(<D) -c $< -o $@ 
 
-$(BIN)gridlabd: $(SOURCE)gldcore/gridlabd $(BIN)gridlabd.bin
+$(BIN)gridlabd: $(GLDCORE_SOURCE)/gridlabd $(BIN)gridlabd.bin
 	$(INFO) "  TXT $@"
 	$(ECHO)$(SOURCE)utilities/replace $(GLDCORE_SCRIPT_PARAMS)-i $< -o $@
 	$(ECHO)chmod +x $@
@@ -34,13 +34,13 @@ $(BIN)gridlabd.bin: $(GLDCORE_OBJECTS)
 	$(INFO) "  LD  $@"
 	$(ECHO)gcc $(GLDCORE_LDFLAGS) $^ -o $@ 
 
-$(ETC)%.txt: $(SOURCE)gldcore/%.txt
+$(ETC)%.txt: $(GLDCORE_SOURCE)%.txt
 	$(INFO) "  TXT $@"
 	$(ECHO)cp $< $@
 
-$(SOURCE)gldcore/gridlabd.h: $(GLDCORE_HEADERS)
+$(GLDCORE_SOURCE)gridlabd.h: $(GLDCORE_HEADERS)
 
-$(SOURCE)gldcore/gldcore.h: $(GLDCORE_HEADERS)
+$(GLDCORE_SOURCE)gldcore.h: $(GLDCORE_HEADERS)
 
 #
 # Shared files
