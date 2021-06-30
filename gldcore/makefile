@@ -1,14 +1,7 @@
 # gldcore/makefile
 
-BUILD_FOLDERS += $(BUILD)gldcore 
-
-INCLUDE_DIRS += $(BUILD)gldcore
-
 BIN_TARGETS += $(BIN)gridlabd
-
-#
-# gldcore build configuration
-#
+INCLUDE_DIRS += $(BUILD)gldcore
 
 GLDCORE_SOURCES += $(wildcard $(SOURCE)gldcore/*.cpp)
 GLDCORE_HEADERS += $(subst $(SOURCE)gldcore/gridlabd.h,,$(subst $(SOURCE)gldcore/gldcore.h,,$(wildcard $(SOURCE)gldcore/*.h)))
