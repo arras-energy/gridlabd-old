@@ -39,9 +39,10 @@
 # system requirements
 PYTHON_MAJOR_REQ = 3
 PYTHON_MINOR_REQ = 9
-DARWIN_MAJOR_REQ = 20
+DARWIN_MAJOR_REQ = 18
 LINUX_MAJOR_REQ = 5
 
+# default target
 all: build
 
 #
@@ -120,12 +121,14 @@ include $(SOURCE)makefile.conf
 # Local configuration
 -include ./makefile.conf
 
+# control echo of commands
 ifeq ($(VERBOSE),yes)
 ECHO = 
 else
 ECHO = @
 endif
 
+# control output of progress
 ifdef ($(SILENT),yes)
 INFO = @true
 else 
@@ -174,11 +177,13 @@ PREFIX = /usr/local/opt/$(PACKAGE)/$(VERSION)-$(BUILDNUM)-$(BRANCH)/
 endif
 
 # target lists
-INCLUDE_DIRS =
-BUILD_TARGETS = 
-INSTALL_TARGETS =
-CLEAN_TARGETS =
-BUILD_FOLDERS = 
+INCLUDE_DIRS = # list of folders that must be included when building modules
+BUILD_TARGETS = # list of files that must be built
+INSTALL_TARGETS = # list of files that must be installed
+CLEAN_TARGETS = # list of files that must be deleted when cleaning
+BUILD_FOLDERS = # folders that must be included in build process
+
+# important settings
 PREFIX_FOLDERS = $(PREFIX){bin,lib,share,include,doc}
 PYTHONCFLAGS = $(shell python3-config --cflags) 
 PYTHONLDFLAGS = $(shell python3-config --ldflags)
@@ -230,12 +235,22 @@ INCLUDE = $(shell $(SOURCE)utilities/configure $(SOURCE)$(MAKEFILE))
 include $(INCLUDE)
 PREFIX_TARGETS += $(BIN_TARGETS) $(ETC_TARGETS) $(LIB_TARGETS) $(DOC_TARGETS) $(INC_TARGETS)
 
-# create build folders
-$(shell mkdir -p $(BUILD_FOLDERS) $(PREFIX_FOLDERS))
+####################################################
+#
+# License and copyright targets
+#
+$(PREFIX)LICENSE: $(SOURCE)LICENSE
+	$(INFO) "  TXT $@"
+	$(ECHO)cp $< $@
 
+$(PREFIX)COPYRIGHT: $(SOURCE)COPYRIGHT
+	$(INFO) "  TXT $@"
+	$(ECHO)$(SOURCE)utilities/replace -i $< -o $@ MAJOR=$(REV_MAJOR) MINOR=$(REV_MINOR) YEAR=$(shell date +'%Y')
+
+BUILD_TARGETS += $(PREFIX)LICENSE $(PREFIX)COPYRIGHT
+
+# target to build application folder
 prefix: $(BUILD_TARGETS) $(PREFIX_TARGETS)
-
-CLEAN_TARGETS += $(PREFIX_TARGETS) $(BUILD_TARGETS) $(GLDCORE_OBJECTS)
 
 ####################################################
 #
@@ -261,8 +276,14 @@ $(INSTALL)%: $(SOURCE)%
 
 # rm options for clean targets
 ifndef CLEAN
-CLEAN = rm -f
+CLEAN = rm -rf
 endif
+
+# standard clean targets
+CLEAN_TARGETS += $(PREFIX_TARGETS) $(BUILD_TARGETS) $(GLDCORE_OBJECTS)
+
+# create build folders
+$(shell mkdir -p $(BUILD_FOLDERS) $(PREFIX_FOLDERS))
 
 ####################################################
 #
@@ -282,7 +303,6 @@ info_targets: info
 	@echo INSTALL_TARGETS = $(INSTALL_TARGETS)
 	@echo CLEAN_TARGETS = $(CLEAN_TARGETS)
 
-
 help: 
 	@echo "Syntax: make -f $(MAKEFILE) TARGET ..."
 	@echo "Valid targets:"
@@ -292,7 +312,7 @@ help:
 	@echo "  info      display make configuration"
 	@echo "  install   install $(PACKAGE) to $(INSTALL)"
 
-build: prefix 
+build: prefix $(PREFIX)LICENSE $(PREFIX)COPYRIGHT
 	$(INFO) $(BUILD) ok
 
 install: prefix $(INSTALL_TARGETS)
@@ -301,5 +321,7 @@ install: prefix $(INSTALL_TARGETS)
 
 clean: 
 	@$(CLEAN) $(CLEAN_TARGETS)
-	@rmdir $(BUILD_FOLDERS)
+	$(INFO) $(PREFIX) clean
+	@$(CLEAN) $(BUILD_FOLDERS) 
+	$(INFO) $(BUILD) clean
 
