@@ -15,7 +15,20 @@ echo "# gridlabd make configuration" > $INCLUDE
 # echo "# FILENAME = $FILENAME" >> $INCLUDE
 for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 	FOLDER=${MAKEFILE%/*}
-	test "$MAKEFILE" != "$PATHNAME" && echo "include $MAKEFILE" >> $INCLUDE
+	if [ "$MAKEFILE" != "$PATHNAME" ]; then
+		NAME=$(echo "${FOLDER/$SOURCE\//}" | tr -c A-Za-z _ | tr a-z A-Z)
+		echo "" >> $INCLUDE
+		echo "# $FOLDER" >> $INCLUDE
+		echo "${NAME}CFLAGS = \$(CFLAGS) \$(CPPFLAGS) \$(CXXFLAGS)" >> $INCLUDE
+		echo "${NAME}LDFLAGS = \$(LDFLAGS)" >> $INCLUDE
+		echo "${NAME}ARFLAGS = \$(ARFLAGS)" >> $INCLUDE
+		echo "${NAME}SOFLAGS = \$(SOFLAGS)" >> $INCLUDE
+		echo "${NAME}SOURCES = " >> $INCLUDE
+		echo "${NAME}HEADERS = " >> $INCLUDE
+		echo "${NAME}OBJECTS = " >> $INCLUDE
+		echo "${NAME}PARAMS = " >> $INCLUDE
+		echo "include $MAKEFILE" >> $INCLUDE
+	fi
 done
 
 echo $INCLUDE

@@ -10,20 +10,17 @@ BIN_TARGETS += $(BIN)gridlabd
 # gldcore build configuration
 #
 
-GLDCORE_SOURCES = $(wildcard $(SOURCE)gldcore/*.cpp)
-GLDCORE_HEADERS = $(subst $(SOURCE)gldcore/gridlabd.h,,$(subst $(SOURCE)gldcore/gldcore.h,,$(wildcard $(SOURCE)gldcore/*.h)))
-GLDCORE_OBJECTS = $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(BUILD)gldcore/$(SRC).o)
+GLDCORE_SOURCES += $(wildcard $(SOURCE)gldcore/*.cpp)
+GLDCORE_HEADERS += $(subst $(SOURCE)gldcore/gridlabd.h,,$(subst $(SOURCE)gldcore/gldcore.h,,$(wildcard $(SOURCE)gldcore/*.h)))
+GLDCORE_OBJECTS += $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(BUILD)gldcore/$(SRC).o)
 
-GLDCORE_CFLAGS = $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 GLDCORE_CFLAGS += $(foreach DIR,$(INCLUDE_DIRS),-I$(DIR))
 GLDCORE_CFLAGS += $(PYTHONCFLAGS) 
 GLDCORE_CFLAGS += $(BUILDINFO) -DMAIN_PYTHON -fPIC 
 
-GLDCORE_LDFLAGS = $(LDFLAGS) 
 GLDCORE_LDFLAGS += $(PYTHONLDFLAGS) 
 GLDCORE_LDFLAGS += -lcurl -lcurses -lc++ -lpython$(PYTHON_MAJOR).$(PYTHON_MINOR)
 
-GLDCORE_SCRIPT_PARAMS = 
 GLDCORE_SCRIPT_PARAMS += PREFIX=$(PREFIX) 
 GLDCORE_SCRIPT_PARAMS += PYTHON_EXEC=$(PYTHON_EXEC) 
 

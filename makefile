@@ -166,6 +166,16 @@ ifndef LDFLAGS
 LDFLAGS =
 endif
 
+# default archive flags
+ifndef ARFLAGS
+ARFLAGS = -shared
+endif
+
+# default shared object flags
+ifndef SOFLAGS
+SOFLAGS =
+endif
+
 ####################################################
 #
 # Build folders and targets
