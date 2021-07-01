@@ -395,8 +395,25 @@ rbsa::rbsa(MODULE *module)
 
 int rbsa::create(void) 
 {
-
-	memcpy((void*)this,defaults,sizeof(*this));
+	components = NULL;
+	voltage_A = NULL;
+	voltage_B = NULL;
+	voltage_C = NULL;
+	nominal_voltage = NULL;
+	temperature = NULL;
+	price = NULL;
+	solar = NULL;
+	occupancy = NULL;
+	data = NULL;
+	power_A = NULL;
+	power_B = NULL;
+	power_C = NULL;
+	current_A = NULL;
+	current_B = NULL;
+	current_C = NULL;
+	shunt_A = NULL;
+	shunt_B = NULL;
+	shunt_C = NULL;
 	return 1; 
 }
 
