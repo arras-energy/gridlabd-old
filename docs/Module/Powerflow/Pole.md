@@ -98,7 +98,7 @@ Time required to repair or replace the pole after failure.
 ### `wind_speed`
 
 ~~~
-    wind_speed 0.0 m/s;
+    int32 wind_speed [m/s];
 ~~~
 
 The wind speed at the location of the pole.  This is automatically set is the
@@ -107,7 +107,7 @@ The wind speed at the location of the pole.  This is automatically set is the
 ### `wind_direction`
 
 ~~~
-    wind_direction 0.0 deg;
+    int32 wind_direction [deg];
 ~~~
 
 The wind direction at the location of the pole.  This is automatically set is the
@@ -116,7 +116,7 @@ The wind direction at the location of the pole.  This is automatically set is th
 ### `wind_gusts`
 
 ~~~
-    wind_gusts 0.0 m/s;
+    int32 wind_gusts [m/s];
 ~~~
 
 The wind gusts at the location of the pole.  This is automatically set is the
