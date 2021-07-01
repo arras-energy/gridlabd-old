@@ -141,6 +141,14 @@ pole::pole(MODULE *mod)
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wind speed at pole failure",
 
+            PT_double, "wire_moment[ft*lb]", get_wire_moment_offset(),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "wind moment at pole failure",
+
+            PT_double, "wire_tension[ft*lb]", get_wire_tension_offset(),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "wind tension at pole failure",
+
             PT_double, "guy_height[ft]", get_guy_height_offset(),
                 PT_DEFAULT, "0 ft",
                 PT_DESCRIPTION, "guy wire attachment height",
