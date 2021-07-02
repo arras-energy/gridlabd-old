@@ -44,6 +44,7 @@ LINUX_MAJOR_REQ = 5
 
 # default target
 all: build
+	@echo Run 'make install' to install $(PACKAGE_NAME) $(VERSION)
 
 #
 # Check version of make
@@ -311,6 +312,26 @@ $(shell mkdir -p $(BUILD_FOLDERS) $(PREFIX_FOLDERS))
 
 ####################################################
 #
+# Cloud resources
+#
+
+AWS = $(shell which aws)
+ifneq ($(AWS),)
+AWS_VERSION = $(shell $(AWS) --version | cut -f1 -d' ' | cut -f2 -d/ 2>/dev/null)
+endif
+
+GCP = $(shell which gcp)
+ifneq ($(GCP),)
+GCP_VERSION = $(shell $(GCP) --version | cut -f1 -d' ' | cut -f2 -d/ 2>/dev/null)
+endif
+
+AZ = $(shell which az)
+ifneq ($(AZ),)
+AZ_VERSION = $(shell $(AZ) --version | cut -f1 -d' ' | cut -f2 -d/ 2>/dev/null)
+endif
+
+####################################################
+#
 # Standard targets
 #
 
@@ -325,6 +346,9 @@ info:
 	@echo BUILD = $(BUILD)
 	@echo PREFIX = $(PREFIX)
 	@echo INSTALL = $(INSTALL)
+	@echo AWS_VERSION = $(AWS_VERSION)
+	@echo GCP_VERSION = $(GCP_VERSION)
+	@echo AZ_VERSION = $(AZ_VERSION)
 
 targets:
 	@echo BUILD_TARGETS = $(BUILD_TARGETS)
