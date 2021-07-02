@@ -78,7 +78,7 @@ object meter
     };
 }
 
-#for FILE in test_parking.csv test_parking_meter.csv
+#for FILE in test_parking.csv // test_parking_meter.csv
 #ifexist "../${FILE}"
 #on_exit 0 diff ../${FILE} ${FILE} >> gridlabd.err 
 #endif
