@@ -34,6 +34,7 @@ for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 		echo "${NAME}PARAMS = " >> $INCLUDE
 		echo "include $MAKEFILE" >> $INCLUDE
 		echo "BUILD_FOLDERS += \${BUILD}$name" >> $INCLUDE
+		echo "CLEAN_TARGETS += \$(${NAME}OBJECTS)" >> $INCLUDE
 	fi
 done
 

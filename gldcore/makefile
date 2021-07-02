@@ -17,7 +17,7 @@ GLDCORE_LDFLAGS += -lcurl -lcurses -lc++ -lpython$(PYTHON_MAJOR).$(PYTHON_MINOR)
 GLDCORE_SCRIPT_PARAMS += PREFIX=$(PREFIX) 
 GLDCORE_SCRIPT_PARAMS += PYTHON_EXEC=$(PYTHON_EXEC) 
 
-CLEAN_TARGETS += $(BIN)gridlabd.bin $(GLDCORE_OBJECTS)
+CLEAN_TARGETS += $(BIN)gridlabd.bin
 
 #
 # Main executable
