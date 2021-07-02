@@ -284,7 +284,7 @@ prefix: $(BUILD_TARGETS) $(PREFIX_TARGETS)
 
 # install folder (links to install folder)
 ifndef INSTALL
-INSTALL = /usr/local
+INSTALL = /usr/local/
 else
 ifneq ($(shell basename $(INSTALL)x),x)
 INSTALL+=/
@@ -303,13 +303,8 @@ $(INSTALL)%: $(SOURCE)%
 # Clean options
 #
 
-# rm options for clean targets
-ifndef CLEAN
-CLEAN = rm -rf
-endif
-
 # standard clean targets
-CLEAN_TARGETS += $(PREFIX_TARGETS) $(BUILD_TARGETS) $(GLDCORE_OBJECTS)
+CLEAN_TARGETS += $(PREFIX_TARGETS) $(BUILD_TARGETS) $(BIN_TARGETS) $(ETC_TARGETS)
 
 # create build folders
 $(shell mkdir -p $(BUILD_FOLDERS) $(PREFIX_FOLDERS))
@@ -322,15 +317,25 @@ $(shell mkdir -p $(BUILD_FOLDERS) $(PREFIX_FOLDERS))
 info: 
 	@echo PACKAGE_NAME = $(PACKAGE_NAME)
 	@echo PACKAGE = $(PACKAGE)
+	@echo VERSION = $(VERSION)
+	@echo SYSTEM = $(SYSTEM)
+	@echo BRANCH = $(BRANCH)
+	@echo PYTHON_VERSION = $(PYTHON_VERSION)
 	@echo SOURCE = $(SOURCE)
 	@echo BUILD = $(BUILD)
 	@echo PREFIX = $(PREFIX)
 	@echo INSTALL = $(INSTALL)
 
-info_targets: info
+targets:
 	@echo BUILD_TARGETS = $(BUILD_TARGETS)
 	@echo INSTALL_TARGETS = $(INSTALL_TARGETS)
 	@echo CLEAN_TARGETS = $(CLEAN_TARGETS)
+
+flags:
+	@echo CCFLAGS = $(CCFLAGS)
+	@echo LDFLAGS = $(LDFLAGS)
+	@echo ARFLAGS = $(ARFLAGS)
+	@echo SOFLAGS = $(SOFLAGS)
 
 help: 
 	@echo "Syntax: make -f $(MAKEFILE) TARGET ..."
@@ -349,8 +354,8 @@ install: prefix $(INSTALL_TARGETS)
 	$(INFO) $(INSTALL) ok
 
 clean: 
-	@$(CLEAN) $(CLEAN_TARGETS)
+	$(ECHO)$(RM) $(CLEAN_TARGETS)
 	$(INFO) $(PREFIX) clean
-	@$(CLEAN) $(BUILD_FOLDERS) 
+	$(ECHO)rmdir $(shell echo $(BUILD_FOLDERS) | tr ' ' '\n' | sort -u -r) $(PREFIX_FOLDERS)
 	$(INFO) $(BUILD) clean
 

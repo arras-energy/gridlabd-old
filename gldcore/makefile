@@ -17,13 +17,15 @@ GLDCORE_LDFLAGS += -lcurl -lcurses -lc++ -lpython$(PYTHON_MAJOR).$(PYTHON_MINOR)
 GLDCORE_SCRIPT_PARAMS += PREFIX=$(PREFIX) 
 GLDCORE_SCRIPT_PARAMS += PYTHON_EXEC=$(PYTHON_EXEC) 
 
+CLEAN_TARGETS += $(BIN)gridlabd.bin $(GLDCORE_OBJECTS)
+
 #
 # Main executable
 #
 
 $(GLDCORE_BUILD)%.o: $(GLDCORE_SOURCE)%.cpp $(GLDCORE_SOURCE)gldcore.h $(GLDCORE_SOURCE)gridlabd.h
 	$(INFO) "  CPP $@"
-	$(ECHO)gcc $(GLDCORE_CFLAGS) -I$(<D) -c $< -o $@ 
+	$(ECHO)$(CXX) $(GLDCORE_CFLAGS) -I$(<D) -c $< -o $@ 
 
 $(BIN)gridlabd: $(GLDCORE_SOURCE)/gridlabd $(BIN)gridlabd.bin
 	$(INFO) "  TXT $@"
@@ -32,7 +34,7 @@ $(BIN)gridlabd: $(GLDCORE_SOURCE)/gridlabd $(BIN)gridlabd.bin
 
 $(BIN)gridlabd.bin: $(GLDCORE_OBJECTS)
 	$(INFO) "  LD  $@"
-	$(ECHO)gcc $(GLDCORE_LDFLAGS) $^ -o $@ 
+	$(ECHO)$(CXX) $(GLDCORE_LDFLAGS) $^ -o $@ 
 
 $(ETC)%.txt: $(GLDCORE_SOURCE)%.txt
 	$(INFO) "  TXT $@"
