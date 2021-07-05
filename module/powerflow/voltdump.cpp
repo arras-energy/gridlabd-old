@@ -138,13 +138,13 @@ void voltdump::dump(TIMESTAMP t)
 
 	if ( nodes == NULL )
 	{
-		gl_warning("no nodes were found to dump");
+		warning("no nodes were found to dump");
 		return;
 	}
 
 	if (strcmp(filemode,"a")==0)
 	{
-		gl_verbose("voltdump is appending data to %s",filename.get_string());
+		verbose("voltdump is appending data to %s",filename.get_string());
 	}
 	outfile = fopen(filename, filemode);
 	if ( outfile == NULL ) 
@@ -208,7 +208,7 @@ void voltdump::dump(TIMESTAMP t)
 
 TIMESTAMP voltdump::commit(TIMESTAMP t)
 {	
-	gl_verbose("Interval is equal to : %f", interval);
+	verbose("Interval is equal to : %f", interval);
 	if ( interval != 0 ) 
 	{	
 		unsigned long long dt = (unsigned long long)interval;

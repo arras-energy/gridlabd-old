@@ -76,7 +76,7 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 	{
 		if ( once_value==value )
 		{
-			gl_verbose("Assert skipped with ONCE logic");
+			verbose("Assert skipped with ONCE logic");
 			return TS_NEVER;
 		} 
 		else 
@@ -125,7 +125,7 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				get_parent()->get_name(), get_target(), x, range, value);
 			return 0;
 		}
-		gl_verbose("Assert passed on %s", get_parent()->get_name());
+		verbose("Assert passed on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 	else if ( status == ASSERT_FALSE )
@@ -137,12 +137,12 @@ TIMESTAMP double_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				get_parent()->get_name(), get_target(), x, range, value);
 			return 0;
 		}
-		gl_verbose("Assert passed on %s", get_parent()->get_name());
+		verbose("Assert passed on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 	else
 	{
-		gl_verbose("Assert test is not being run on %s", get_parent()->get_name());
+		verbose("Assert test is not being run on %s", get_parent()->get_name());
 		return TS_NEVER;
 	}
 

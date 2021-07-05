@@ -19,7 +19,7 @@ EXPORT STATUS postupdate_central_dg_control(OBJECT *obj, complex *useful_value, 
 
 
 //inverter extends power_electronics
-class central_dg_control
+class central_dg_control : gld_object
 {
 private:
 	

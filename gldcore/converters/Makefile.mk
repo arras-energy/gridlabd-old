@@ -2,6 +2,8 @@
 # INPUT CONVERTERS
 #
 
+python_requirements += gldcore/converters/requirements.txt
+
 # csv -> glm
 dist_pkgdata_DATA += gldcore/converters/csv2glm.py
 dist_pkgdata_DATA += gldcore/converters/csv-ceus2glm-ceus.py
@@ -12,7 +14,9 @@ dist_pkgdata_DATA += gldcore/converters/csv-scada2glm-ceus.py
 dist_pkgdata_DATA += gldcore/converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += gldcore/converters/csv-noaa-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv-onpoint-weather2glm-weather.py
+dist_pkgdata_DATA += gldcore/converters/csv-table2glm-library.py
 dist_pkgdata_DATA += gldcore/converters/csv-visualcrossing-weather2glm-weather.py
+dist_pkgdata_DATA += gldcore/converters/csv-table2glm-object.py
 
 # mdb -> glm
 dist_pkgdata_DATA += gldcore/converters/mdb2glm.py
@@ -41,6 +45,10 @@ dist_pkgdata_DATA += gldcore/converters/glm2omd.py
 # json -> csv
 dist_pkgdata_DATA += gldcore/converters/json2csv.py
 dist_pkgdata_DATA += gldcore/converters/json2csv-profile.py
+
+# json -> html
+dist_pkgdata_DATA += gldcore/converters/json2html.py
+dist_pkgdata_DATA += gldcore/converters/json2html_config.py
 
 # json -> glm
 dist_pkgdata_DATA += gldcore/converters/json2glm.py
