@@ -3944,7 +3944,7 @@ int dllkill() { return do_kill(NULL); }
 	#define snprintf _snprintf
 #else /* ANSI */
 #ifndef __MINGW32__
-	#include "dlfcn.h"
+	#include <dlfcn.h>
 #endif
 	#define PREFIX ""
 	#ifndef DLEXT
@@ -3953,7 +3953,7 @@ int dllkill() { return do_kill(NULL); }
 #ifndef __MINGW32__
 	#define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #else
-	#include "dlfcn.h"
+	#include <dlfcn.h>
 	#define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #endif
 	#define DLSYM(H,S) dlsym(H,S)

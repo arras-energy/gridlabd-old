@@ -117,6 +117,9 @@ BUILD+=/
 endif
 endif
 
+REPLACE = $(SOURCE)utilities/replace
+DEPENDS = $(SOURCE)utilities/depends
+
 ####################################################
 #
 # Make configuration
@@ -271,7 +274,7 @@ $(PREFIX)LICENSE: $(SOURCE)LICENSE
 
 $(PREFIX)COPYRIGHT: $(SOURCE)COPYRIGHT
 	$(INFO) "  TXT $@"
-	$(ECHO)$(SOURCE)utilities/replace -i $< -o $@ MAJOR=$(REV_MAJOR) MINOR=$(REV_MINOR) YEAR=$(shell date +'%Y')
+	$(ECHO)$(REPLACE) -i $< -o $@ MAJOR=$(REV_MAJOR) MINOR=$(REV_MINOR) YEAR=$(shell date +'%Y')
 
 BUILD_TARGETS += $(PREFIX)LICENSE $(PREFIX)COPYRIGHT
 

@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Find dependencies
+#
+
+if [ "$1" == "-i" ]; then
+	shift 1
+	FILES=$*
+else
+	FILES=
+fi
+for F in "$*"; do
+	LIST=$(grep '#include ".*\.h"' < $F | cut -f2 -d'"' | sort -u)
+	for G in $LIST; do
+		INC="${F%/*}/$G"
+		if [ "$INC" != "$F" ]; then
+			FILES+="$INC "
+		fi
+	done
+done
+echo $FILES | tr ' ' '\n' | sort -u | tr '\n' ' '
+echo ""

@@ -208,9 +208,9 @@ public:
 		if ( data[n]==NULL ) data[n]=new double; 
 		return *data[n]; 
 	};
-	const double operator[] (const size_t n) const
+	double operator[] (const size_t n) const
 	{
-		if ( data[n]==NULL ) data[n]=new double; 
+		if ( data[n]==NULL ) { return QNAN; }; 
 		return *data[n];
 	}
 };

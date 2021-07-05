@@ -5,7 +5,7 @@ BIN_TARGETS += $(BIN)gridlabd
 GLDCORE_SOURCES += $(wildcard $(GLDCORE_SOURCE)*.cpp)
 GLDCORE_INCLUDE += $(GLDCORE_SOURCE)
 GLDCORE_HEADERS += $(subst $(GLDCORE_SOURCE)gridlabd.h,,$(subst $(GLDCORE_SOURCE)gldcore.h,,$(wildcard $(GLDCORE_SOURCE)*.h)))
-GLDCORE_OBJECTS += $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(GLDCORE_BUILD)/$(SRC).o)
+GLDCORE_OBJECTS += $(foreach SRC,$(notdir $(basename $(GLDCORE_SOURCES))),$(GLDCORE_BUILD)$(SRC).o)
 
 GLDCORE_CFLAGS += $(foreach DIR,$(GLDCORE_INCLUDE),-I$(DIR))
 GLDCORE_CFLAGS += $(PYTHONCFLAGS) 
@@ -23,11 +23,13 @@ CLEAN_TARGETS += $(BIN)gridlabd.bin
 # Main executable
 #
 
-$(GLDCORE_BUILD)%.o: $(GLDCORE_SOURCE)%.cpp $(GLDCORE_SOURCE)gldcore.h $(GLDCORE_SOURCE)gridlabd.h
+$(GLDCORE_SOURCE)%.cpp: $(GLDCORE_SOURCE)gldcore.h $(GLDCORE_SOURCE)gridlabd.h
+
+$(GLDCORE_BUILD)%.o: $(GLDCORE_SOURCE)%.cpp
 	$(INFO) "  CPP $@"
 	$(ECHO)$(CXX) $(GLDCORE_CFLAGS) -I$(<D) -c $< -o $@ 
 
-$(BIN)gridlabd: $(GLDCORE_SOURCE)/gridlabd $(BIN)gridlabd.bin
+$(BIN)gridlabd: $(GLDCORE_SOURCE)gridlabd $(BIN)gridlabd.bin
 	$(INFO) "  TXT $@"
 	$(ECHO)$(SOURCE)utilities/replace $(GLDCORE_SCRIPT_PARAMS)-i $< -o $@
 	$(ECHO)chmod +x $@
@@ -40,9 +42,9 @@ $(ETC)%.txt: $(GLDCORE_SOURCE)%.txt
 	$(INFO) "  TXT $@"
 	$(ECHO)cp $< $@
 
-$(GLDCORE_SOURCE)gridlabd.h: $(GLDCORE_HEADERS)
+$(GLDCORE_SOURCE)gridlabd.h: $(shell $(DEPENDS) $(GLDCORE_SOURCE)gridlabd.h)
 
-$(GLDCORE_SOURCE)gldcore.h: $(GLDCORE_HEADERS)
+$(GLDCORE_SOURCE)gldcore.h: $(shell $(DEPENDS) $(GLDCORE_SOURCE)gldcore.h)
 
 #
 # Shared files
