@@ -204,7 +204,7 @@ int capacitor::init(OBJECT *parent)
 	}
 	else if (SecondaryRemote != NULL)	//Should only be populated for VARVOLT scheme,
 	{
-		gl_warning("Capacitor:%d has a secondary sensor specified, but is not in VARVOLT control.  This will be ignored.",obj->id);
+		warning("Capacitor:%d has a secondary sensor specified, but is not in VARVOLT control.  This will be ignored.",obj->id);
 		/*  TROUBLESHOOT
 		The secondary remote sensor field is only used in the VAR-VOLT control scheme.  When not under this control scheme, any inputs
 		to this field are ignored.
@@ -249,28 +249,28 @@ int capacitor::init(OBJECT *parent)
 	cap_value[2] = complex(0,capacitor_C/(cap_nominal_voltage * cap_nominal_voltage));
 
 	if ((control == VOLT) && ((voltage_set_high == 0) || (voltage_set_low == 0)))
-		gl_warning("Capacitor:%d does not have one or both of its voltage set points set.",obj->id);
+		warning("Capacitor:%d does not have one or both of its voltage set points set.",obj->id);
 		/*  TROUBLESHOOT
 		If the VOLT control schemes is active, you must specify the voltage set points for the band of operation.  Without these,
 		the capacitor will not function and will effectively perform no action.
 		*/
 
 	if ((control == VARVOLT) && (voltage_set_high == 0))
-		gl_warning("Capacitor:%d does not have its upper voltage limit set.",obj->id);
+		warning("Capacitor:%d does not have its upper voltage limit set.",obj->id);
 		/*  TROUBLESHOOT
 		When under the VAR-VOLT control scheme, the voltage_set_high set point should be set to the upper voltage
 		limit the capacitor will remain switched on for.
 		*/
 
 	if (((control == VAR) || (control == VARVOLT) ) && ((VAr_set_high == 0) || (VAr_set_low == 0)))
-		gl_warning("Capacitor:%d does not have one or both of its VAr set points set.",obj->id);
+		warning("Capacitor:%d does not have one or both of its VAr set points set.",obj->id);
 		/*  TROUBLESHOOT
 		If VAR or VARVOLT control schemes are active, you must specify the reactive power set points for the band of operation.  Without these,
 		the capacitor will not function and will effectively perform no action.
 		*/
 
 	if ((control==CURRENT) && ((current_set_high == 0) || (current_set_low == 0)))
-		gl_warning("Capacitor:%d does not have one or both of its current set points set.",obj->id);
+		warning("Capacitor:%d does not have one or both of its current set points set.",obj->id);
 		/*  TROUBLESHOOT
 		If the CURRENT control scheme is active, you must specify the current set points for the band of operation.  Without these,
 		the capacitor will not function and will effectively perform no action.
@@ -302,14 +302,14 @@ int capacitor::init(OBJECT *parent)
 		*/
 
 	if ((control != MANUAL) && (time_delay == 0) && (dwell_time==0))
-		gl_warning("Automatic controls can oscillate to the iteration limit with no time delays.  To prevent this, ensure your switching limits are reasonable.");
+		warning("Automatic controls can oscillate to the iteration limit with no time delays.  To prevent this, ensure your switching limits are reasonable.");
 		/*  TROUBLESHOOT
 		With no time delays set (time_delay or dwell_time), the capacitor performs everything instantaneously.  If the set points are too close together,
 		the capacitor may oscillate until the convergence limit is reached.  Avoid this for proper answers.
 		*/
 
 	if ((control == VARVOLT) && (lockout_time==0))
-		gl_warning("No lockout time specified for capacitor:%d's VAR-VOLT control scheme.  May switch excessively.",obj->id);
+		warning("No lockout time specified for capacitor:%d's VAR-VOLT control scheme.  May switch excessively.",obj->id);
 		/*  TROUBLESHOOT
 		Without a lockout_time set, the capacitor will only turn off for the delays instituted in time_delay.
 		*/
@@ -323,7 +323,7 @@ int capacitor::init(OBJECT *parent)
 		*/
 
 	if ((control == MANUAL) && (control_level == BANK) && ((pt_phase & (PHASE_A | PHASE_B | PHASE_C)) == 0))	//Manual bank control with no phases monitored
-		gl_warning("Capacitor:%d is set to manual bank mode, but does not know which phase to monitor.",obj->id);
+		warning("Capacitor:%d is set to manual bank mode, but does not know which phase to monitor.",obj->id);
 		/*  TROUBLESHOOT
 		A capacitor is set to manual bank mode.  However, pt_phase is empty and the capacitor does not know which phase
 		to monitor to switch all conencted phases.  Specify at least one phase in pt_phase to enable the bank control
@@ -331,7 +331,7 @@ int capacitor::init(OBJECT *parent)
 
 	if ((phases_connected & (PHASE_A | PHASE_B | PHASE_C)) == 0)
 	{
-		gl_warning("No capacitor phase connection information is available for capacitor:%d.  Defaulting to the phases property.",obj->id);
+		warning("No capacitor phase connection information is available for capacitor:%d.  Defaulting to the phases property.",obj->id);
 		/*  TROUBLESHOOT
 		The capacitor does not have any information specified about how the capacitors are actually connected.  The phases property of the
 		capacitor will be utilized instead.  If this is incorrect, explicitly specify the phases in phases_connected.

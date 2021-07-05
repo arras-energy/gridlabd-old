@@ -614,6 +614,33 @@ int GldJsonWriter::write_objects(FILE *fp)
 	return len;
 }
 
+int GldJsonWriter::write_filters(FILE *fp)
+{
+	int len = 0;
+	TRANSFERFUNCTION *tf = transfer_function_getfirst();
+	if ( tf )
+	{
+		len += write(",\n\t\"filters\" : {\n\t\t");
+	}
+	for ( tf = transfer_function_getfirst() ; tf != NULL ; tf = tf->next )
+	{
+		char buffer[1024];
+		if ( transfer_function_to_json(buffer,sizeof(buffer),tf) > 0 )
+		{
+			if ( tf != transfer_function_getfirst() )
+			{
+				write(",\n\t\t");
+			}
+			write(buffer);
+		}
+	}
+	if ( len > 0 )
+	{
+		len += write("\n\t}");
+	}
+	return len;
+}
+
 // return number of bytes written
 int GldJsonWriter::write_output(FILE *fp)
 {
@@ -641,6 +668,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	{
 		len += write_schedules(fp);
 	}
+	len += write_filters(fp);
 	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
 	{
 		len += write_objects(fp);

@@ -1,7 +1,7 @@
 /** $Id: overhead_line_conductor.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file overhead_line_conductor.cpp
-	@addtogroup overhead_line_conductor 
+	@addtogroup overhead_line_conductor
 	@ingroup line
 
 	@{
@@ -12,6 +12,7 @@ using namespace std;
 
 CLASS* overhead_line_conductor::oclass = NULL;
 CLASS* overhead_line_conductor::pclass = NULL;
+overhead_line_conductor *overhead_line_conductor::defaults = NULL;
 
 overhead_line_conductor::overhead_line_conductor(MODULE *mod) : powerflow_library(mod)
 {
@@ -45,6 +46,10 @@ overhead_line_conductor::overhead_line_conductor(MODULE *mod) : powerflow_librar
 			PT_double, "rating.winter.emergency[A]", PADDR(winter.emergency),
 				PT_DEFAULT, "2000 A",
 				PT_DESCRIPTION, "Emergency winter amp rating",
+            PT_double, "weight[lb/ft]", get_cable_weight_offset(),
+                PT_DESCRIPTION, "Cable weight per lineal foot",
+            PT_double, "strength[lb]", get_cable_strength_offset(),
+                PT_DESCRIPTION, "Cable strength",
             NULL) < 1) GL_THROW("unable to publish overhead_line_conductor properties in %s",__FILE__);
     }
 }
@@ -52,7 +57,7 @@ overhead_line_conductor::overhead_line_conductor(MODULE *mod) : powerflow_librar
 int overhead_line_conductor::create(void)
 {
 	int result = powerflow_library::create();
-	
+
 	return result;
 }
 

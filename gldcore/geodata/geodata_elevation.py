@@ -113,10 +113,31 @@ def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config[
     """
     n,e = get_imagedata(pos,repourl,cachedir)
     row,col = get_rowcol(pos)
-    elev = [e[row][col]]
-    return elev
+    dx = 1.0-math.modf(abs(pos[1])*3600)[0]
+    dy = 1.0-math.modf(abs(pos[0])*3600)[0]
+    e00 = float(e[row][col])
+    if row > 0:
+        e10 = float(e[row-1][col])
+    else:
+        e10 = e00
+    if col > 0:
+        e01 = float(e[row][col-1])
+    else:
+        e01 = e00
+    if row > 0 and col > 0:
+        e11 = float(e[row-1][col-1])
+    else:
+        e11 = e00
+    e0 = dx*e00 + (1-dx)*e01
+    e1 = dx*e10 + (1-dx)*e11 
+
+    elev = dy*e0 + (1-dy)*e1
+
+
+    return [elev]
 
 def get_rowcol(pos):
+    """Find the row and column index of a pixel for a position"""
     row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
     col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
     return row, col

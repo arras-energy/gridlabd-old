@@ -179,7 +179,7 @@ int windturb_dg::init_climate()
 	climates = gl_find_objects(FL_NEW,FT_CLASS,SAME,"climate",FT_END);
 	if (climates==NULL)
 	{
-		gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
+		warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
 
 		//default to mock data
 		static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
@@ -190,7 +190,7 @@ int windturb_dg::init_climate()
 	}
 	else if (climates->hit_count>1)
 	{
-		gl_verbose("windturb_dg: %d climates found, using first one defined", climates->hit_count);
+		verbose("windturb_dg: %d climates found, using first one defined", climates->hit_count);
 	}
 	// }
 	if (climates!=NULL)
@@ -198,7 +198,7 @@ int windturb_dg::init_climate()
 		if (climates->hit_count==0)
 		{
 			//default to mock data
-			gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
+			warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
 			static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
 			pWS = &avgWS;
 			pPress = &Press;
@@ -506,7 +506,7 @@ int windturb_dg::init(OBJECT *parent)
 	{
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("windturb_dg::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("windturb_dg::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 		if (gl_object_isa(parent,"meter","powerflow"))	//Attach to meter
@@ -546,7 +546,7 @@ int windturb_dg::init(OBJECT *parent)
 
 			// check nominal voltage against rated voltage
 			if ( fabs(1 - (*parNominalVoltage * sqrt(3.0) / Rated_V) ) > 0.1 )
-				gl_warning("windturb_dg (id:%d, name:%s): Rated generator voltage (LL: %.1f) and nominal voltage (LL: %.1f) of meter parent are different by greater than 10 percent. Odd behavior may occur.",obj->id,obj->name,Rated_V,*parNominalVoltage * sqrt(3.0));
+				warning("windturb_dg (id:%d, name:%s): Rated generator voltage (LL: %.1f) and nominal voltage (LL: %.1f) of meter parent are different by greater than 10 percent. Odd behavior may occur.",obj->id,obj->name,Rated_V,*parNominalVoltage * sqrt(3.0));
 			/* TROUBLESHOOT
 			Currently, the model allows you to attach the turbine to a voltage that is quite different than the rated terminal
 			voltage of the generator.  However, this may cause odd behavior, as the solved powerflow voltage is used to calculate
@@ -612,7 +612,7 @@ int windturb_dg::init(OBJECT *parent)
 
 			// check nominal voltage against rated voltage
 			if ( fabs(1 - (*parNominalVoltage / Rated_V) ) > 0.1 )
-				gl_warning("windturb_dg (id:%d, name:%s): Rated generator voltage (LL: %.1f) and nominal voltage (LL: %.1f) of meter parent are different by greater than 10 percent. Odd behavior may occur.",obj->id,obj->name,Rated_V,*parNominalVoltage * sqrt(3.0));
+				warning("windturb_dg (id:%d, name:%s): Rated generator voltage (LL: %.1f) and nominal voltage (LL: %.1f) of meter parent are different by greater than 10 percent. Odd behavior may occur.",obj->id,obj->name,Rated_V,*parNominalVoltage * sqrt(3.0));
 			/* TROUBLESHOOT
 			Currently, the model allows you to attach the turbine to a voltage that is quite different than the rated terminal
 			voltage of the generator.  However, this may cause odd behavior, as the solved powerflow voltage is used to calculate
@@ -647,7 +647,7 @@ int windturb_dg::init(OBJECT *parent)
 	}
 	else
 	{
-		gl_warning("windturb_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");	
+		warning("windturb_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");	
 
 		// attach meter variables to each circuit in the default_meter
 		*(map[0].var) = &default_line123_voltage[0];
@@ -663,14 +663,14 @@ int windturb_dg::init(OBJECT *parent)
 
 	if (Gen_status==OFFLINE)
 	{
-		gl_warning("init_windturb_dg (id:%d,name:%s): Generator is out of service!", obj->id,obj->name); 	
+		warning("init_windturb_dg (id:%d,name:%s): Generator is out of service!", obj->id,obj->name); 	
 	}	
 
 	if (Gen_type == SYNCHRONOUS || Gen_type == INDUCTION)
 	{
 		if (Gen_mode == CONSTANTE)
 		{
-			gl_warning("init_windturb_dg (id:%d,name:%s): Synchronous and induction generators in constant voltage mode has not been fully tested and my not work properly.", obj->id,obj->name);
+			warning("init_windturb_dg (id:%d,name:%s): Synchronous and induction generators in constant voltage mode has not been fully tested and my not work properly.", obj->id,obj->name);
 		}
 	}
 
@@ -943,7 +943,7 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 							{
 								OBJECT *obj = THISOBJECTHDR;
 
-								gl_warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
+								warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
 								/* TROUBLESHOOT
 								This may need some work.  The generator models are solved iteratively by using the system voltage
 								as the boundary condition.  The current model iterates on solving the current injection, but then
@@ -1058,7 +1058,7 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 							{
 								OBJECT *obj = THISOBJECTHDR;
 
-								gl_warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
+								warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
 								/* TROUBLESHOOT
 								This may need some work.  The generator models are solved iteratively by using the system voltage
 								as the boundary condition.  The current model iterates on solving the current injection, but then
@@ -1069,7 +1069,7 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 								break;
 							}
 						}
-						gl_debug("windturb_dg iteration count = %d",temp_count);
+						debug("windturb_dg iteration count = %d",temp_count);
 					}
 					else
 					{
