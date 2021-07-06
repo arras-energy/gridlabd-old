@@ -289,7 +289,7 @@ DEPRECATED static int copyright(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->copyright(argc,argv);
 }
-int GldCmdarg::copyright(int argc, const char *argv[])
+int GldCmdarg::copyright(int , const char *[])
 {
 	legal_notice();
 	return 0;
@@ -299,7 +299,7 @@ DEPRECATED static int warn(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->warn(argc,argv);
 }
-int GldCmdarg::warn(int argc, const char *argv[])
+int GldCmdarg::warn(int , const char *[])
 {
 	global_warn_mode = !global_warn_mode;
 	return 0;
@@ -309,7 +309,7 @@ DEPRECATED static int bothstdout(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->bothstdout(argc,argv);
 }
-int GldCmdarg::bothstdout(int argc, const char *argv[])
+int GldCmdarg::bothstdout(int , const char *[])
 {
 	output_both_stdout();
 	return 0;
@@ -319,7 +319,7 @@ DEPRECATED static int check(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->check(argc,argv);
 }
-int GldCmdarg::check(int argc, const char *argv[])
+int GldCmdarg::check(int , const char *[])
 {
 	/* check main core implementation */
 	if ( property_check()==FAILED )
@@ -334,7 +334,7 @@ DEPRECATED static int debug(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->debug(argc,argv);
 }
-int GldCmdarg::debug(int argc, const char *argv[])
+int GldCmdarg::debug(int , const char *[])
 {
 	global_debug_output = !global_debug_output;
 	return 0;
@@ -344,7 +344,7 @@ DEPRECATED static int debugger(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->debugger(argc,argv);
 }
-int GldCmdarg::debugger(int argc, const char *argv[])
+int GldCmdarg::debugger(int , const char *[])
 {
 	global_debug_mode = 1;
 	global_debug_output = 1;
@@ -355,7 +355,7 @@ DEPRECATED static int dumpall(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->dumpall(argc,argv);
 }
-int GldCmdarg::dumpall(int argc, const char *argv[])
+int GldCmdarg::dumpall(int , const char *[])
 {
 	global_dumpall = !global_dumpall;
 	return 0;
@@ -365,7 +365,7 @@ DEPRECATED static int quiet(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->quiet(argc,argv);
 }
-int GldCmdarg::quiet(int argc, const char *argv[])
+int GldCmdarg::quiet(int , const char *[])
 {
 	global_quiet_mode = !global_quiet_mode;
 	return 0;
@@ -375,7 +375,7 @@ DEPRECATED static int verbose(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->verbose(argc,argv);
 }
-int GldCmdarg::verbose(int argc, const char *argv[])
+int GldCmdarg::verbose(int , const char *[])
 {
 	global_verbose_mode=!global_verbose_mode;
 	return 0;
@@ -385,7 +385,7 @@ DEPRECATED static int _check_version(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->_check_version(argc,argv);
 }
-int GldCmdarg::_check_version(int argc, const char *argv[])
+int GldCmdarg::_check_version(int , const char *[])
 {
 	check_version(0);
 	return 0;
@@ -395,7 +395,7 @@ DEPRECATED static int profile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->profile(argc,argv);
 }
-int GldCmdarg::profile(int argc, const char *argv[])
+int GldCmdarg::profile(int , const char *[])
 {
 	global_profiler = !global_profiler;
 	return 0;
@@ -438,7 +438,7 @@ DEPRECATED static int pauseatexit(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->pauseatexit(argc,argv);
 }
-int GldCmdarg::pauseatexit(int argc, const char *argv[])
+int GldCmdarg::pauseatexit(int , const char *[])
 {
 	global_pauseatexit = !global_pauseatexit;
 	return 0;
@@ -448,7 +448,7 @@ DEPRECATED static int compile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->compile(argc,argv);
 }
-int GldCmdarg::compile(int argc, const char *argv[])
+int GldCmdarg::compile(int , const char *[])
 {
 	global_compileonly = !global_compileonly;
 	return 0;
@@ -459,7 +459,7 @@ DEPRECATED static int initialize(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->initialize(argc,argv);
 }
-int GldCmdarg::initialize(int argc, const char *argv[])
+int GldCmdarg::initialize(int , const char *[])
 {
 	global_initializeonly = !global_initializeonly;
 	return 0;
@@ -469,7 +469,7 @@ DEPRECATED static int license(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->license(argc,argv);
 }
-int GldCmdarg::license(int argc, const char *argv[])
+int GldCmdarg::license(int , const char *[])
 {
 	legal_license();
 	return 0;
@@ -525,7 +525,7 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->version(argc,argv);
 }
-int GldCmdarg::version(int argc, const char *argv[])
+int GldCmdarg::version(int , const char *argv[])
 {
 	if ( argv[0][9] == '=' && argv[0][10] == '-' )
 	{
@@ -682,7 +682,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	}
 }
 
-DEPRECATED static int build_info(void *main, int argc, const char *argv[])
+DEPRECATED static int build_info(void *, int argc, const char *argv[])
 {
 	enum e_format {RAW, JSON} format = RAW;
 	int parsed = 0;
@@ -781,7 +781,7 @@ DEPRECATED static int dsttest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->dsttest(argc,argv);
 }
-int GldCmdarg::dsttest(int argc, const char *argv[])
+int GldCmdarg::dsttest(int , const char *[])
 {
 	timestamp_test();
 	return 0;
@@ -791,7 +791,7 @@ DEPRECATED static int randtest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->randtest(argc,argv);
 }
-int GldCmdarg::randtest(int argc, const char *argv[])
+int GldCmdarg::randtest(int , const char *[])
 {
 	random_test();
 	return 0;
@@ -801,7 +801,7 @@ DEPRECATED static int unitstest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->unitstest(argc,argv);
 }
-int GldCmdarg::unitstest(int argc, const char *argv[])
+int GldCmdarg::unitstest(int, const char *[])
 {
 	unit_test();
 	return 0;
@@ -811,7 +811,7 @@ DEPRECATED static int scheduletest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->scheduletest(argc,argv);
 }
-int GldCmdarg::scheduletest(int argc, const char *argv[])
+int GldCmdarg::scheduletest(int, const char *[])
 {
 	schedule_test();
 	return 0;
@@ -821,7 +821,7 @@ DEPRECATED static int loadshapetest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->loadshapetest(argc,argv);
 }
-int GldCmdarg::loadshapetest(int argc, const char *argv[])
+int GldCmdarg::loadshapetest(int, const char *[])
 {
 	loadshape_test();
 	return 0;
@@ -831,7 +831,7 @@ DEPRECATED static int endusetest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->endusetest(argc,argv);
 }
-int GldCmdarg::endusetest(int argc, const char *argv[])
+int GldCmdarg::endusetest(int, const char *[])
 {
 	enduse_test();
 	return 0;
@@ -841,7 +841,7 @@ DEPRECATED static int xmlstrict(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->xmlstrict(argc,argv);
 }
-int GldCmdarg::xmlstrict(int argc, const char *argv[])
+int GldCmdarg::xmlstrict(int, const char *[])
 {
 	global_xmlstrict = !global_xmlstrict;
 	IN_MYCONTEXT output_verbose("xmlstrict is %s", global_xmlstrict?"enabled":"disabled");
@@ -852,7 +852,7 @@ DEPRECATED static int globaldump(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->globaldump(argc,argv);
 }
-int GldCmdarg::globaldump(int argc, const char *argv[])
+int GldCmdarg::globaldump(int, const char *[])
 {
 	global_dump();
 	return CMDOK;
@@ -862,7 +862,7 @@ DEPRECATED static int relax(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->relax(argc,argv);
 }
-int GldCmdarg::relax(int argc, const char *argv[])
+int GldCmdarg::relax(int, const char *[])
 {
 	global_strictnames = FALSE;
 	return 0;
@@ -872,7 +872,7 @@ DEPRECATED static int pidfile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->pidfile(argc,argv);
 }
-int GldCmdarg::pidfile(int argc, const char *argv[])
+int GldCmdarg::pidfile(int, const char *argv[])
 {
 	const char *filename = strchr(*argv,'=');
 	if (filename==NULL)
@@ -886,7 +886,7 @@ DEPRECATED static int kml(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->kml(argc,argv);
 }
-int GldCmdarg::kml(int argc, const char *argv[])
+int GldCmdarg::kml(int, const char *argv[])
 {
 	const char *filename = strchr(*argv,'=');
 	if (filename)
@@ -900,7 +900,7 @@ DEPRECATED static int avlbalance(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->avlbalance(argc,argv);
 }
-int GldCmdarg::avlbalance(int argc, const char *argv[])
+int GldCmdarg::avlbalance(int, const char *[])
 {
 	global_no_balance = !global_no_balance;
 	return 0;
@@ -1076,7 +1076,7 @@ DEPRECATED static int modlist(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->modlist(argc,argv);
 }
-int GldCmdarg::modlist(int arvc, const char *argv[])
+int GldCmdarg::modlist(int, const char *[])
 {
 	module_list();
 	return 1;
@@ -1181,7 +1181,7 @@ DEPRECATED static int globals(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->globals(argc,argv);
 }
-int GldCmdarg::globals(int argc, const char *argv[])
+int GldCmdarg::globals(int, const char *argv[])
 {
 	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	const char *list[65536];
@@ -1494,7 +1494,7 @@ DEPRECATED static int _stream(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->_stream(argc,argv);
 }
-int GldCmdarg::_stream(int argc, const char *argv[])
+int GldCmdarg::_stream(int, const char *[])
 {
 	global_streaming_io_enabled = !global_streaming_io_enabled;
 	return 0;
@@ -1504,7 +1504,7 @@ DEPRECATED static int server(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->server(argc,argv);
 }
-int GldCmdarg::server(int argc, const char *argv[])
+int GldCmdarg::server(int, const char *[])
 {
 	strcpy(global_environment,"server");
 	return 0;
@@ -1514,7 +1514,7 @@ DEPRECATED static int clearmap(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->clearmap(argc,argv);
 }
-int GldCmdarg::clearmap(int argc, const char *argv[])
+int GldCmdarg::clearmap(int, const char *[])
 {
 	sched_clear();
 	return 0;
@@ -1524,7 +1524,7 @@ DEPRECATED static int pstatus(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->pstatus(argc,argv);
 }
-int GldCmdarg::pstatus(int argc, const char *argv[])
+int GldCmdarg::pstatus(int, const char *[])
 {
 	sched_init(1);
 	sched_print(0);
@@ -1605,7 +1605,7 @@ DEPRECATED static int plist(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->plist(argc,argv);
 }
-int GldCmdarg::plist(int argc, const char *argv[])
+int GldCmdarg::plist(int, const char *[])
 {
 	sched_init(1);
 	sched_print(0);
@@ -1616,7 +1616,7 @@ DEPRECATED static int pcontrol(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->pcontrol(argc,argv);
 }
-int GldCmdarg::pcontrol(int argc, const char *argv[])
+int GldCmdarg::pcontrol(int, const char *[])
 {
 	sched_init(1);
 	sched_controller();
@@ -1708,7 +1708,7 @@ DEPRECATED static int slavenode(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->slavenode(argc,argv);
 }
-int GldCmdarg::slavenode(int argc, const char *argv[])
+int GldCmdarg::slavenode(int, const char *[])
 {
 	exec_slave_node();
 	return CMDOK;
@@ -1898,7 +1898,7 @@ DEPRECATED static int locktest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->locktest(argc,argv);
 }
-int GldCmdarg::locktest(int argc, const char *argv[])
+int GldCmdarg::locktest(int, const char *[])
 {
 	test_lock();
 	return CMDOK;
@@ -1986,7 +1986,7 @@ DEPRECATED static int printenv(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->printenv(argc,argv);
 }
-int GldCmdarg::printenv(int argc, const char *argv[])
+int GldCmdarg::printenv(int, const char *[])
 {
 	return my_instance->subcommand("printenv") == 0 ? 0 : CMDERR;
 }
@@ -1995,7 +1995,7 @@ DEPRECATED static int formats(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->formats(argc,argv);
 }
-int GldCmdarg::formats(int argc, const char *argv[])
+int GldCmdarg::formats(int, const char *[])
 {
 	cout << "{" << endl;
 
@@ -2028,7 +2028,7 @@ DEPRECATED static int origin(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->origin(argc,argv);
 }
-int GldCmdarg::origin(int argc, const char *argv[])
+int GldCmdarg::origin(int, const char *[])
 {
 	FILE *fp;
 	char originfile[1024];
@@ -2065,7 +2065,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 	return 1;
 }
 
-DEPRECATED static int cite(void *main, int argc, const char *argv[])
+DEPRECATED static int cite(void *, int, const char *[])
 {
 	FILE *fp;
 	char originfile[1024];
@@ -2123,20 +2123,20 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 	return 0;
 }
 
-DEPRECATED static int depends(void *main, int argc, const char *argv[])
+DEPRECATED static int depends(void *, int, const char *argv[])
 {
 	const char *format = strchr(argv[0],'=');
 	fprintf(stdout,"%s",my_instance->get_loader()->get_depends(format?format+1:NULL).c_str());
 	return 0;
 }
 
-DEPRECATED static int rusage(void *main, int argc, const char *argv[])
+DEPRECATED static int rusage(void *, int, const char *[])
 {
 	global_rusage_rate = 1;
 	return 0;
 }
 
-DEPRECATED static int nprocs(void *main, int argc, const char *argv[])
+DEPRECATED static int nprocs(void *, int, const char *[])
 {
     fprintf(stdout,"%d\n",processor_count());
     return 0;
@@ -2249,7 +2249,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
 	{"threadcount", "T",	threadcount,	"<n>", "Set the maximum number of threads allowed" },
 	{"job",			NULL,	job,			"...", "Start a job"},
-    {"nprocs",      NULL,   nprocs,         "Display the number of processors available to run jobs"},
+    {"nprocs",      NULL,   nprocs,         NULL, "Display the number of processors available to run jobs"},
 
 	{NULL,NULL,NULL,NULL, "System options"},
 	{"avlbalance",	NULL,	avlbalance,		NULL, "Toggles automatic balancing of object index" },
@@ -2304,7 +2304,7 @@ DEPRECATED static int help(void *main,int argc, const char *argv[])
 	return ((GldMain*)main)->get_cmdarg()->help(argc,argv);
 }
 
-int GldCmdarg::help(int argc, const char *argv[])
+int GldCmdarg::help(int, const char *[])
 {
 	int i;
 	int old = global_suppress_repeat_messages;
