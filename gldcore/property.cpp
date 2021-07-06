@@ -18,31 +18,31 @@ double complex_get_part(void *x, const char *name);
 
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
 PROPERTYSPEC property_type[_PT_LAST] = {
-	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
-	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,initial_from_double,NULL,NULL,convert_to_double,{TCOPS(double)},},
+	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void,NULL,NULL,NULL,NULL,{TCNONE},NULL,NULL},
+	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,initial_from_double,NULL,NULL,convert_to_double,{TCOPS(double)},NULL,NULL},
 	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,NULL,convert_to_complex,{TCOPS(double)},complex_get_part,complex_set_part},
-	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,NULL,convert_to_enumeration,{TCOPS(uint64)},},
-	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,NULL,convert_to_set,{TCOPS(uint64)},},
-	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,NULL,convert_to_int16,{TCOPS(uint16)},},
-	{"int32", "integer", "0", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,NULL,convert_to_int32,{TCOPS(uint32)},},
-	{"int64", "integer", "0", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,NULL,convert_to_int64,{TCOPS(uint64)},},
-	{"char8", "string", "", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,NULL,convert_to_char8,{TCOPS(string)},},
-	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,NULL,convert_to_char32,{TCOPS(string)},},
-	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,NULL,convert_to_char256,{TCOPS(string)},},
-	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,NULL,convert_to_char1024,{TCOPS(string)},},
+	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,NULL,convert_to_enumeration,{TCOPS(uint64)},NULL,NULL,},
+	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,NULL,convert_to_set,{TCOPS(uint64)},NULL,NULL,},
+	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,NULL,convert_to_int16,{TCOPS(uint16)},NULL,NULL,},
+	{"int32", "integer", "0", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,NULL,convert_to_int32,{TCOPS(uint32)},NULL,NULL,},
+	{"int64", "integer", "0", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,NULL,convert_to_int64,{TCOPS(uint64)},NULL,NULL,},
+	{"char8", "string", "", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,NULL,convert_to_char8,{TCOPS(string)},NULL,NULL,},
+	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,NULL,convert_to_char32,{TCOPS(string)},NULL,NULL,},
+	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,NULL,convert_to_char256,{TCOPS(string)},NULL,NULL,},
+	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,NULL,convert_to_char1024,{TCOPS(string)},NULL,NULL,},
 	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,NULL,convert_to_object,{TCOPB(object)},object_get_part,object_set_part},
-	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated},
-	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,NULL,convert_to_boolean,{TCOPB(bool)},},
+	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated,NULL,NULL,NULL,NULL,{TCNONE},NULL,NULL},
+	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,NULL,convert_to_boolean,{TCOPB(bool)},NULL,NULL,},
 	{"timestamp", "string", "0", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,NULL,convert_to_timestamp_stub,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
 	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,NULL,double_array_create,NULL,NULL,{TCNONE},double_array_get_part,NULL},
 	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,NULL,complex_array_create,NULL,NULL,{TCNONE},complex_array_get_part,NULL},
-	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real},
-	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float},
-	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, initial_from_loadshape,loadshape_create,NULL,convert_to_double,{TCOPS(double)},},
+	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real,NULL,NULL,NULL,NULL,{TCNONE},NULL,NULL},
+	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float,NULL,NULL,NULL,NULL,{TCNONE},NULL,NULL},
+	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, initial_from_loadshape,loadshape_create,NULL,convert_to_double,{TCOPS(double)},NULL,NULL,},
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, initial_from_enduse,enduse_create,NULL,convert_to_double,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, initial_from_randomvar,randomvar_create,NULL,convert_to_double,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
-	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},},
+	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method,NULL,NULL,NULL,{TCNONE},NULL,NULL},
+	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},NULL,NULL,},
 	{"python", "string", "None", sizeof(PyObject**), PSZ_DYNAMIC, convert_from_python, convert_to_python, initial_from_python, python_create,NULL,convert_to_python,{TCNONE},python_get_part,NULL},
 };
 
@@ -652,7 +652,7 @@ int string_create(void *ptr)
 	}
 }
 
-int convert_to_string(const char *s, void *data, PROPERTY *p)
+int convert_to_string(const char *s, void *data, PROPERTY *)
 {
 	STRING *str = (STRING*)data;
 	**str = s;
@@ -660,7 +660,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 	return len;
 }
 
-int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
+int convert_from_string(char *buffer, int len, void *data, PROPERTY *)
 {
 	STRING *str = (STRING*)data;
 	int n = snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
