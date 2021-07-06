@@ -20,7 +20,7 @@ int sock_created = 0;
 
 #define MSGALLOCSZ 1024
 
-void printcontent(char *data, size_t len){
+void printcontent(char *, size_t ){
 	// needed for debugging, but only when things are really not cooperating. -mh
 #if 0
 	size_t i = 0;
@@ -277,7 +277,7 @@ int instance_add_linkage(instance *inst, linkage *lnk)
 	}
 }
 
-int instance_master_wait_mmap(instance *inst){
+int instance_master_wait_mmap(instance *){
 #ifdef WIN32
 	int status = 0;
 	DWORD rc;
@@ -399,7 +399,7 @@ void instance_master_done_mmap(instance *inst){
 #endif
 }
 
-void instance_master_done_shmem(instance *inst)
+void instance_master_done_shmem(instance *)
 {
 	;	// send
 }
