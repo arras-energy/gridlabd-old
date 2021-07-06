@@ -17,14 +17,14 @@
 	- <property_type>
  */
 #define TCNONE \
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL},\
-	{TCOP_NOP,"",NULL}
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0},\
+	{TCOP_NOP,"",NULL,0}
 
 /*	Define: TCOPB
 
@@ -35,14 +35,14 @@
 	- <property_type>
  */
 #define TCOPB(X) \
-	{TCOP_EQ,"==",compare_tc_##X##_eq}, \
-	{TCOP_NOP,"",NULL}, \
-	{TCOP_NOP,"",NULL}, \
-	{TCOP_NE,"!=",compare_tc_##X##_ne}, \
-	{TCOP_NOP,"",NULL}, \
-	{TCOP_NOP,"",NULL}, \
-	{TCOP_NOP,"",NULL}, \
-	{TCOP_NOP,"",NULL}
+	{TCOP_EQ,"==",compare_tc_##X##_eq,0}, \
+	{TCOP_NOP,"",NULL,0}, \
+	{TCOP_NOP,"",NULL,0}, \
+	{TCOP_NE,"!=",compare_tc_##X##_ne,0}, \
+	{TCOP_NOP,"",NULL,0}, \
+	{TCOP_NOP,"",NULL,0}, \
+	{TCOP_NOP,"",NULL,0}, \
+	{TCOP_NOP,"",NULL,0}
 
 /*	Define: TCOPS
 
@@ -53,12 +53,12 @@
 	- <property_type>
  */
 #define TCOPS(X) \
-	{TCOP_EQ,"==",compare_tc_##X##_eq}, \
-	{TCOP_LE,"<=",compare_tc_##X##_le}, \
-	{TCOP_GE,">=",compare_tc_##X##_ge}, \
-	{TCOP_NE,"!=",compare_tc_##X##_ne}, \
-	{TCOP_LT,"<",compare_tc_##X##_lt}, \
-	{TCOP_GT,">",compare_tc_##X##_gt}, \
+	{TCOP_EQ,"==",compare_tc_##X##_eq,0}, \
+	{TCOP_LE,"<=",compare_tc_##X##_le,0}, \
+	{TCOP_GE,">=",compare_tc_##X##_ge,0}, \
+	{TCOP_NE,"!=",compare_tc_##X##_ne,0}, \
+	{TCOP_LT,"<",compare_tc_##X##_lt,0}, \
+	{TCOP_GT,">",compare_tc_##X##_gt,0}, \
 	{TCOP_IN,"inside",compare_tc_##X##_in,1}, \
 	{TCOP_NI,"outside",compare_tc_##X##_ni,1}
 
