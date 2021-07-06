@@ -110,14 +110,15 @@ struct PyModuleDef gridlabd_module_def = {
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,
+    0,0,0,0,
 };
 
-static PyObject *gridlabd_title(PyObject *self, PyObject *args)
+static PyObject *gridlabd_title(PyObject *, PyObject *)
 {
     return Py_BuildValue("s", PACKAGE_NAME);
 }
 
-static PyObject *gridlabd_version(PyObject *self, PyObject *args)
+static PyObject *gridlabd_version(PyObject *, PyObject *)
 {
     return Py_BuildValue("{s:i,s:i,s:i,s:i,s:s}", 
         "major", global_version_major, 
@@ -127,7 +128,7 @@ static PyObject *gridlabd_version(PyObject *self, PyObject *args)
         "branch", global_version_branch);
 }
 
-static PyObject *gridlabd_copyright(PyObject *self, PyObject *args)
+static PyObject *gridlabd_copyright(PyObject *, PyObject *)
 {
     return Py_BuildValue("s",
         PACKAGE_NAME " " PACKAGE_VERSION "\n"
@@ -138,7 +139,7 @@ static PyObject *gridlabd_copyright(PyObject *self, PyObject *args)
          "For additional information, see http://www.gridlabd.us/.\n");
 }
 
-static PyObject *gridlabd_credits(PyObject *self, PyObject *args)
+static PyObject *gridlabd_credits(PyObject *, PyObject *)
 {
     return Py_BuildValue("s",
         PACKAGE_NAME " " PACKAGE_VERSION "\n"
@@ -147,7 +148,7 @@ static PyObject *gridlabd_credits(PyObject *self, PyObject *args)
         "For additional information, see http://www.gridlabd.us/.\n");
 }
 
-static PyObject *gridlabd_license(PyObject *self, PyObject *args)
+static PyObject *gridlabd_license(PyObject *, PyObject *)
 {
     return Py_BuildValue("s",
         PACKAGE_NAME " " PACKAGE_VERSION "\n"
@@ -201,7 +202,7 @@ static PyObject *gridlabd_license(PyObject *self, PyObject *args)
         );
 }
 
-static PyObject *gridlabd_output(PyObject *self, PyObject *args)
+static PyObject *gridlabd_output(PyObject *, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
@@ -215,7 +216,7 @@ static PyObject *gridlabd_output(PyObject *self, PyObject *args)
 
 }
 
-static PyObject *gridlabd_debug(PyObject *self, PyObject *args)
+static PyObject *gridlabd_debug(PyObject *, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
@@ -228,7 +229,7 @@ static PyObject *gridlabd_debug(PyObject *self, PyObject *args)
     }
 }
 
-static PyObject *gridlabd_warning(PyObject *self, PyObject *args)
+static PyObject *gridlabd_warning(PyObject *, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
@@ -241,7 +242,7 @@ static PyObject *gridlabd_warning(PyObject *self, PyObject *args)
     }
 }
 
-static PyObject *gridlabd_error(PyObject *self, PyObject *args)
+static PyObject *gridlabd_error(PyObject *, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
@@ -450,7 +451,7 @@ static int return_code = 0;
 #endif
 static pthread_t main_thread;
 
-static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
+static PyObject *gridlabd_reset(PyObject *, PyObject *)
 {
     return gridlabd_exception("reset not implemented yet");
 }
@@ -460,7 +461,7 @@ static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
 //
 // Returns: (long) argument number
 //
-static PyObject *gridlabd_command(PyObject *self, PyObject *args)
+static PyObject *gridlabd_command(PyObject *, PyObject *args)
 {
     if ( gridlabd_module_status > GMS_COMMAND )
     {
@@ -510,7 +511,7 @@ static void cleanup_glm(void)
         unlink(glmname);
     }    
 }
-static PyObject *gridlabd_add(PyObject *self, PyObject *args)
+static PyObject *gridlabd_add(PyObject *, PyObject *args)
 {
     if ( gridlabd_module_status > GMS_STARTED )
     {
@@ -681,7 +682,7 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
 //
 // Returns: (long) 0 on success, non-zero on failure
 //
-static PyObject *gridlabd_start(PyObject *self, PyObject *args)
+static PyObject *gridlabd_start(PyObject *, PyObject *args)
 {
     if ( gridlabd_module_status < GMS_COMMAND )
     {
@@ -765,7 +766,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 //
 // Returns: (long) exit code
 //
-static PyObject *gridlabd_wait(PyObject *self, PyObject *args)
+static PyObject *gridlabd_wait(PyObject *, PyObject *)
 {
     if ( gridlabd_module_status != GMS_RUNNING )
     {
@@ -781,7 +782,7 @@ static PyObject *gridlabd_wait(PyObject *self, PyObject *args)
 //
 // Returns: (long) 0
 //
-static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
+static PyObject *gridlabd_cancel(PyObject *, PyObject *)
 {
     if ( gridlabd_module_status != GMS_RUNNING )
     {
@@ -804,7 +805,7 @@ static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
 //
 // Returns: (long) global_clock
 //
-static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
+static PyObject *gridlabd_pause(PyObject *, PyObject *)
 {
     if ( gridlabd_module_status != GMS_RUNNING )
     {
@@ -827,7 +828,7 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
 //
 // Returns: (long) global_clock
 //
-static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
+static PyObject *gridlabd_pauseat(PyObject *, PyObject *args)
 {
     if ( gridlabd_module_status != GMS_RUNNING )
     {
@@ -861,7 +862,7 @@ static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
 // 
 // Returns: (long) 0
 //
-static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
+static PyObject *gridlabd_resume(PyObject *, PyObject *)
 {
     if ( gridlabd_module_status != GMS_RUNNING )
     {
@@ -884,7 +885,7 @@ static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
 //
 // Returns: (long) bytes written
 //
-static PyObject *gridlabd_save(PyObject *self, PyObject *args)
+static PyObject *gridlabd_save(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -919,7 +920,7 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
 //
 // Returns: (long) list of item names, empty if none found
 //
-static PyObject *gridlabd_get(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get(PyObject *, PyObject *args)
 {
     char *type;
     PyObject *data = NULL;
@@ -1025,7 +1026,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
 //
 // Returns: (str) value
 //
-static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_global(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -1052,7 +1053,7 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
 //
 // Returns: (str) old_value
 //
-static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
+static PyObject *gridlabd_set_global(PyObject *, PyObject *args)
 {
     char *name;
     char *value;
@@ -1090,7 +1091,7 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
 //
 // Returns: (str) value
 //
-static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_value(PyObject *, PyObject *args)
 {
     char *name;
     char *property;
@@ -1121,7 +1122,7 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
 //
 // Returns: (str) old_value
 //
-static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
+static PyObject *gridlabd_set_value(PyObject *, PyObject *args)
 {
     char *name;
     char *property;
@@ -1183,7 +1184,7 @@ static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 //
 // Returns: (dict) class data
 //
-static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_class(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -1303,7 +1304,7 @@ static int get_property_value(OBJECT *obj, PROPERTY *prop, char *buffer, size_t 
 //
 // Returns: (dict) object data
 //
-static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_object(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -1405,7 +1406,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
 //
 // Returns: (dict) tranform data
 //
-static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_transform(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -1421,7 +1422,7 @@ static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
 //
 // Returns: (dict) schedule data
 //
-static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_schedule(PyObject *, PyObject *args)
 {
     char *name;
     restore_environ();
@@ -1465,13 +1466,13 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
 // >>> gridlabd.get_property(obj,name)
 // 
 // Returns: (gld_property) property accessor
-static PyObject *gridlabd_get_property(PyObject *self, PyObject *args)
+static PyObject *gridlabd_get_property(PyObject *, PyObject *)
 {
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject *gridlabd_load(PyObject *self, PyObject *args)
+static PyObject *gridlabd_load(PyObject *, PyObject *args)
 {
     char *file;
     if ( ! PyArg_ParseTuple(args,"s", &file) )
@@ -1494,7 +1495,7 @@ static PyObject *gridlabd_load(PyObject *self, PyObject *args)
 //
 // Returns: float or complex
 //
-static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
+static PyObject *gridlabd_convert_unit(PyObject *, PyObject *args)
 {
     char *value, *from, *to;
     double real;
@@ -1557,11 +1558,11 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
 //
 // Returns: float or complex
 //
-int external_callback(void *data,void *args)
+int external_callback(void *,void *)
 {
     return -1;
 }
-static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args)
+static PyObject *gridlabd_add_callback(PyObject *, PyObject *args)
 {
     const char *name;
     PyObject *call;
@@ -1580,7 +1581,7 @@ static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args)
 //
 // >>> gridlabd.pstatus(id)
 //
-static PyObject *getinfo(int id, PROCINFO &info)
+static PyObject *getinfo(int, PROCINFO &info)
 {
     char timestamp[64];
     const char *statuskey[] = {"INIT","RUNNING","PAUSED","DONE","LOCKED"};
@@ -1601,7 +1602,7 @@ static PyObject *getinfo(int id, PROCINFO &info)
     PyDict_SetItemString(data,"model",(const char*)info.model);
     return data;
 }
-static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args)
+static PyObject *gridlabd_pstatus(PyObject *, PyObject *args)
 {
     int id;
     PyObject *obj;
@@ -2036,7 +2037,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
         return 0;
     }
 }
-static int python_import_file(const char *file)
+static int python_import_file(const char *)
 {
     // TODO
     return false;
@@ -2044,7 +2045,7 @@ static int python_import_file(const char *file)
 static bool get_callback(
     PyObject *mod,
     const char *file,
-    const char *name, 
+    const char *,//name, 
     const char *def, 
     PyObject **list)
 {
@@ -2083,7 +2084,7 @@ int python_module_setvar(const char *varname, const char *value)
     return strlen(value);
 }
 
-MODULE *python_module_load(const char *file, int argc, const char *argv[])
+MODULE *python_module_load(const char *file, int , const char *[])
 {
     char filename[1024];
     char pathname[1024];
@@ -2170,7 +2171,7 @@ MODULE *python_module_load(const char *file, int argc, const char *argv[])
 // 
 // Links the specified module to the gridlabd core
 //
-static PyObject *gridlabd_module(PyObject *self, PyObject *args)
+static PyObject *gridlabd_module(PyObject *, PyObject *args)
 {
     char *name = NULL;
     restore_environ();
