@@ -295,7 +295,7 @@ int saveglm(const char *filename,FILE *fp)
 	return count;
 }
 
-int savexml_strict(const char *filename,FILE *fp)
+int savexml_strict(const char *,FILE *fp)
 {
 	unsigned int count = 0;
 	char buffer[1024];
@@ -509,7 +509,7 @@ int savejson(const char *filename, FILE *fp)
 	return json.write_output(fp);
 }
 
-int saveomd(const char *filename, FILE *fp)
+int saveomd(const char *, FILE *fp)
 {
 	int len = 0;
 	len += fprintf(fp,"{\n");
