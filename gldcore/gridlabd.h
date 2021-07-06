@@ -1895,7 +1895,7 @@ public: // manipulation
 
 	// Method: split
 	// This function is not implemented yet
-	inline size_t split(gld_string *&list, const char *delim=" ") 
+	inline size_t split(gld_string *&, const char *) // list, delim=" "
 	{
 		// TODO
 		if ( is_null() ) return 0;
@@ -1904,7 +1904,7 @@ public: // manipulation
 
 	// Method: merge
 	// This function is not implemented yet
-	inline gld_string merge(gld_string *&list, size_t n, const char *delim=" ")
+	inline gld_string merge(gld_string *&, size_t, const char *) // list, n, delim=" "
 	{
 		// TODO
 		return gld_string();
@@ -2759,7 +2759,7 @@ public:
 public:
 
 	// Operator: operator=
-	inline gld_object &operator=(gld_object&o) { exception("copy constructor is forbidden on gld_object"); return *this;};
+	inline gld_object &operator=(gld_object&) { exception("copy constructor is forbidden on gld_object"); return *this;};
 
 public: 
 
