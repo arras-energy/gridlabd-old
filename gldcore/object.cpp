@@ -85,7 +85,7 @@ int object_get_oflags(KEYWORD **extflags){
 }
 
 PROPERTY *object_flag_property(){
-	static PROPERTY flags = {0, "flags", PT_set, 1, 8, PA_PUBLIC, NULL, (void*)-4, NULL, oflags, NULL};
+	static PROPERTY flags = {0, "flags", PT_set, 1, 8, PA_PUBLIC, NULL, (void*)-4, NULL, oflags, NULL, NULL, 0, 0, NULL, 0, NULL,};
 	
 	return &flags;
 }
@@ -315,7 +315,7 @@ HEADERDATA headerdata[] = {
 	HDATAX(event.commit,"string",header_event_commit_to_string,0)
 	HDATAX(event.finalize,"string",header_event_finalize_to_string,0)
 	HDATA(flags,"int64")
-	{NULL} // sentinal
+	{NULL,NULL,NULL,NULL,0} // sentinal
 };
 #undef HDATA
 
@@ -2337,7 +2337,7 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 /** Save an object to the buffer provided
     @return the number of bytes written to the buffer, 0 on error, with errno set
  **/
-static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
+static size_t object_save_x(char *temp, size_t, OBJECT *obj, CLASS *oclass)
 {
 	char buffer[1024];
 	PROPERTY *prop;
@@ -2761,7 +2761,7 @@ int object_saveall_xml_old(FILE *fp){ /**< the stream to write to */
 	return count;	
 }
 
-int convert_from_latitude(double v, char *buffer, size_t bufsize)
+int convert_from_latitude(double v, char *buffer, size_t)
 {
 	double d = floor(fabs(v));
 	double r = fabs(v) - d;
@@ -2775,7 +2775,7 @@ int convert_from_latitude(double v, char *buffer, size_t bufsize)
 		return sprintf(buffer, "%.0f%c%.0f:%.2f", d, ns, m, s);
 }
 
-int convert_from_longitude(double v, char *buffer, size_t bufsize){
+int convert_from_longitude(double v, char *buffer, size_t ){
 	double d = floor(fabs(v));
 	double r = fabs(v)-d;
 	double m = floor(r*60);
@@ -2985,7 +2985,7 @@ static OBJECTTREE *findin_tree(OBJECTNAME name)
 /*	Deletes a name from the tree
 	WARNING: removing a tree entry does NOT free() its object!
  */
-void object_tree_delete(OBJECT *obj, OBJECTNAME name)
+void object_tree_delete(OBJECT *, OBJECTNAME name)
 {
 	HASH h = hash(name);
 	OBJECTTREE *item, *last = NULL;
@@ -3247,7 +3247,7 @@ int object_close_namespace()
 /** Makes the namespace active
     @return 1 on success, 0 on failure
  **/
-int object_select_namespace(const char *space)
+int object_select_namespace(const char *)
 {
 	output_error("namespace selection not yet supported");
 	return 0;
@@ -3497,7 +3497,7 @@ double object_get_part(void *x, const char *name)
 	return QNAN;
 }
 
-int object_set_part(void *x, const char *name, const char *value)
+int object_set_part(void *, const char *, const char *)
 {
 	return 0;
 }
@@ -3539,7 +3539,7 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 	return true;
 }
 
-OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
+OBJECT *object_find_by_addr(void *addr, PROPERTY *)
 {
 	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
 	{
