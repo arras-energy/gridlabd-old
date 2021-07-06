@@ -1139,7 +1139,7 @@ int module_cmdargs(int argc, const char **argv)
 	return 0;
 }
 
-int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build)
+int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short )
 {
 	MODULE *mod;
 	for (mod=first_module; mod!=NULL; mod=mod->next)
@@ -2441,7 +2441,7 @@ BOOL WINAPI sched_signal(DWORD type)
 	if ( type==CTRL_C_EVENT )
 	{
 #else
-void sched_signal(int sig)
+void sched_signal(int)
 {
 #endif
 		/* purge input stream */
