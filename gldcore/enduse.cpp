@@ -439,7 +439,7 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 	return t2;
 }
 
-int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+int initial_from_enduse(char *string,int,void *data, PROPERTY *)
 {
 /*
 	loadshape *shape;
@@ -477,29 +477,30 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefi
 {
 	enduse *my=NULL; // temporary enduse structure used for mapping variables
 	int result = 0;
-	struct s_map_enduse{
+	struct s_map_enduse
+	{
 		PROPERTYTYPE type;
 		const char *name;
 		char *addr;
 		const char *description;
 		int64_t flags;
 	}*p, prop_list[]={
-		{PT_complex, "energy[kVAh]", (char *)PADDR_X(energy,my), "the total energy consumed since the last meter reading"},
-		{PT_complex, "power[kVA]", (char *)PADDR_X(total,my), "the total power consumption of the load"},
-		{PT_complex, "peak_demand[kVA]", (char *)PADDR_X(demand,my), "the peak power consumption since the last meter reading"},
-		{PT_double, "heatgain[Btu/h]", (char *)PADDR_X(heatgain,my), "the heat transferred from the enduse to the parent"},
-		{PT_double, "cumulative_heatgain[Btu]", (char *)PADDR_X(cumulative_heatgain,my), "the cumulative heatgain from the enduse to the parent"},
-		{PT_double, "heatgain_fraction[pu]", (char *)PADDR_X(heatgain_fraction,my), "the fraction of the heat that goes to the parent"},
-		{PT_double, "current_fraction[pu]", (char *)PADDR_X(current_fraction,my),"the fraction of total power that is constant current"},
-		{PT_double, "impedance_fraction[pu]", (char *)PADDR_X(impedance_fraction,my), "the fraction of total power that is constant impedance"},
-		{PT_double, "power_fraction[pu]", (char *)PADDR_X(power_fraction,my), "the fraction of the total power that is constant power"},
-		{PT_double, "power_factor", (char *)PADDR_X(power_factor,my), "the power factor of the load"},
-		{PT_complex, "constant_power[kVA]", (char *)PADDR_X(power,my), "the constant power portion of the total load"},
-		{PT_complex, "constant_current[kVA]", (char *)PADDR_X(current,my), "the constant current portion of the total load"},
-		{PT_complex, "constant_admittance[kVA]", (char *)PADDR_X(admittance,my), "the constant admittance portion of the total load"},
-		{PT_double, "voltage_factor[pu]", (char *)PADDR_X(voltage_factor,my), "the voltage change factor"},
-		{PT_double, "breaker_amps[A]", (char *)PADDR_X(breaker_amps,my), "the rated breaker amperage"},
-		{PT_set, "configuration", (char *)PADDR_X(config,my), "the load configuration options"},
+		{PT_complex, "energy[kVAh]", (char *)PADDR_X(energy,my), "the total energy consumed since the last meter reading",0},
+		{PT_complex, "power[kVA]", (char *)PADDR_X(total,my), "the total power consumption of the load",0},
+		{PT_complex, "peak_demand[kVA]", (char *)PADDR_X(demand,my), "the peak power consumption since the last meter reading",0},
+		{PT_double, "heatgain[Btu/h]", (char *)PADDR_X(heatgain,my), "the heat transferred from the enduse to the parent",0},
+		{PT_double, "cumulative_heatgain[Btu]", (char *)PADDR_X(cumulative_heatgain,my), "the cumulative heatgain from the enduse to the parent",0},
+		{PT_double, "heatgain_fraction[pu]", (char *)PADDR_X(heatgain_fraction,my), "the fraction of the heat that goes to the parent",0},
+		{PT_double, "current_fraction[pu]", (char *)PADDR_X(current_fraction,my),"the fraction of total power that is constant current",0},
+		{PT_double, "impedance_fraction[pu]", (char *)PADDR_X(impedance_fraction,my), "the fraction of total power that is constant impedance",0},
+		{PT_double, "power_fraction[pu]", (char *)PADDR_X(power_fraction,my), "the fraction of the total power that is constant power",0},
+		{PT_double, "power_factor", (char *)PADDR_X(power_factor,my), "the power factor of the load",0},
+		{PT_complex, "constant_power[kVA]", (char *)PADDR_X(power,my), "the constant power portion of the total load",0},
+		{PT_complex, "constant_current[kVA]", (char *)PADDR_X(current,my), "the constant current portion of the total load",0},
+		{PT_complex, "constant_admittance[kVA]", (char *)PADDR_X(admittance,my), "the constant admittance portion of the total load",0},
+		{PT_double, "voltage_factor[pu]", (char *)PADDR_X(voltage_factor,my), "the voltage change factor",0},
+		{PT_double, "breaker_amps[A]", (char *)PADDR_X(breaker_amps,my), "the rated breaker amperage",0},
+		{PT_set, "configuration", (char *)PADDR_X(config,my), "the load configuration options",0},
 			{PT_KEYWORD, "IS110", NULL, NULL, (set)EUC_IS110},
 			{PT_KEYWORD, "IS220", NULL, NULL, (set)EUC_IS220},
 	}, *last=NULL;
@@ -606,9 +607,9 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 	{
 		UNIT *unit = unit_find("kVA");
 		PROPERTY eus[] = {
-			{NULL,"total",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->total)-(char*)e),NULL,NULL,NULL,eus+1},
-			{NULL,"energy",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->energy)-(char*)e),NULL,NULL,NULL,eus+2},
-			{NULL,"demand",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->demand)-(char*)e),NULL,NULL,NULL,NULL},
+			{NULL,"total",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->total)-(char*)e),NULL,NULL,NULL,eus+1,0,0,0,false,NULL},
+			{NULL,"energy",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->energy)-(char*)e),NULL,NULL,NULL,eus+2,0,0,0,false,NULL},
+			{NULL,"demand",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->demand)-(char*)e),NULL,NULL,NULL,NULL,0,0,0,false,NULL},
 		};
 		return convert_to_struct(string,data,(PROPERTY*)&eus);
 	}
