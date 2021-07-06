@@ -138,7 +138,7 @@ static void *server_routine(void *arg)
  **/
 #define DEFAULT_PORTNUM 6267
 static pthread_t thread;
-STATUS server_startup(int argc, const char *argv[])
+STATUS server_startup(int, const char *[])
 {
 	static int started = 0;
 	int enable = 1;
@@ -1130,7 +1130,7 @@ int http_find_request(HTTPCNX *http,char *uri)
 /** Process a bulk modify request
     @returns non-zero on success, 0 on failure (errno set)
  **/
-int http_modify_request(HTTPCNX *http, char *uri)
+int http_modify_request(HTTPCNX *, char *uri)
 {
 	char *p = uri;
 	while ( p != NULL && *p != '\0' ) 
@@ -1876,7 +1876,7 @@ int http_control_request(HTTPCNX *http, char *action)
 /** Process an incoming main loop control request
     @returns non-zero on success, 0 on failure (errno set)
  **/
-int http_open_request(HTTPCNX *http, char *action)
+int http_open_request(HTTPCNX *, char *action)
 {
 	if ( loadall(action) )
 		return 1;
