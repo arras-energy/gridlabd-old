@@ -26,7 +26,7 @@ CLEAN_TARGETS += $(BIN)gridlabd.bin
 $(GLDCORE_SOURCE)%.cpp: $(GLDCORE_SOURCE)gldcore.h $(GLDCORE_SOURCE)gridlabd.h
 
 $(GLDCORE_BUILD)%.o: $(GLDCORE_SOURCE)%.cpp
-	$(INFO) "  CPP $@"
+	$(INFO) "  C++ $@"
 	$(ECHO)$(CXX) $(GLDCORE_CFLAGS) -I$(<D) -c $< -o $@ 
 
 $(BIN)gridlabd: $(GLDCORE_SOURCE)gridlabd $(BIN)gridlabd.bin
