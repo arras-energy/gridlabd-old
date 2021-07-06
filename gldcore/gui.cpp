@@ -1220,7 +1220,7 @@ size_t GldGui::glm_write_all(FILE *fp)
 /**************************************************************************/
 /* LOAD OPERATIONS */
 /**************************************************************************/
-STATUS GldGui::startup(int argc, const char *argv[])
+STATUS GldGui::startup(int, const char *[])
 {
 	static int started = 0;
 	char cmd[2048];
