@@ -142,7 +142,7 @@ static pthread_t check_version_thread_id;
 #define CV_NEWPATCH 0x0010
 #define CV_NEWBUILD 0x0020
 
-void *check_version_proc(void *ptr)
+void *check_version_proc(void *)
 {
 	int patch, build;
 	const char *url = "https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/versions.txt";
