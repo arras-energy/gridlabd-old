@@ -20,12 +20,12 @@ static PyMethodDef python_property_methods[] =
     { "wlock", (PyCFunction)python_property_wlock, METH_NOARGS, "Lock the property for writing"},
     { "unlock", (PyCFunction)python_property_unlock, METH_NOARGS, "Unlock the property"},
     { "convert_unit", (PyCFunction)python_property_convert_unit, METH_VARARGS, "Convert a property to a new unit"},
-    { NULL } // sentinel for iterators
+    { NULL, 0,0,0, } // sentinel for iterators
 };
 
 static PyMemberDef python_property_members[] = 
 {
-    { NULL } // sentinel for iterators
+    { NULL, 0,0,0,0 } // sentinel for iterators
 };
 
 static const char *python_property_doc = PACKAGE ".property" LF
@@ -71,6 +71,17 @@ PyTypeObject python_property_type =
     python_property_create,          // tp_init 
     0,                               // tp_alloc 
     python_property_new,             // tp_new 
+    0,                               // tp_free
+    0,                               // tp_is_gc
+    0,                               // tp_bases
+    0,                               // tp_mro
+    0,                               // tp_catch
+    0,                               // tp_subclasses
+    0,                               // tp_weaklist
+    0,                               // tp_del
+    0,                               // tp_version_tag
+    0,                               // tp_finalize
+    0,                               // tp_vectorcall
 };
 
 /// @returns Python object type definition
@@ -199,7 +210,7 @@ int python_property_check (
 }
 
 /// Get the description
-PyObject *python_property_get_description(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_description(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->prop->description )
@@ -209,7 +220,7 @@ PyObject *python_property_get_description(PyObject *self, PyObject *args, PyObje
 }
 
 /// Get the property value
-PyObject *python_property_get_initial(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_initial(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     void *addr = property_addr(pyprop->obj,pyprop->prop);
@@ -229,20 +240,20 @@ PyObject *python_property_get_initial(PyObject *self, PyObject *args, PyObject *
     return PyUnicode_FromFormat("%s",buffer);
 }
 
-static PyObject *set_to_python(set items, PROPERTY *prop)
+static PyObject *set_to_python(set items, PROPERTY *)
 {
     // TODO change this to a python set
     return PyLong_FromLong((int64)items);
 }
 
-static PyObject *enumeration_to_python(enumeration item, PROPERTY *prop)
+static PyObject *enumeration_to_python(enumeration item, PROPERTY *)
 {
     // TODO change this to a python enumeration
     return PyLong_FromLong((int64)item);
 }
 
 /// Get the property value
-PyObject *python_property_get_value(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_value(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     void *addr = property_addr(pyprop->obj,pyprop->prop);
@@ -331,7 +342,7 @@ PyObject *python_property_get_value(PyObject *self, PyObject *args, PyObject *kw
 }
 
 /// Set the property value
-PyObject *python_property_set_value(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_set_value(PyObject *self, PyObject *args, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     void *addr = property_addr(pyprop->obj,pyprop->prop);
@@ -614,7 +625,7 @@ PyObject *python_property_set_value(PyObject *self, PyObject *args, PyObject *kw
     }
 }
 
-PyObject *python_property_rlock(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_rlock(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     ::rlock(&pyprop->obj->lock);
@@ -622,7 +633,7 @@ PyObject *python_property_rlock(PyObject *self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-PyObject *python_property_wlock(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_wlock(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     ::wlock(&pyprop->obj->lock);
@@ -630,7 +641,7 @@ PyObject *python_property_wlock(PyObject *self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-PyObject *python_property_unlock(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_unlock(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->unlock ) 
@@ -641,7 +652,7 @@ PyObject *python_property_unlock(PyObject *self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-PyObject *python_property_get_object(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_object(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->obj->name )
@@ -654,7 +665,7 @@ PyObject *python_property_get_object(PyObject *self, PyObject *args, PyObject *k
     }
 }
 
-PyObject *python_property_set_object(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_set_object(PyObject *self, PyObject *args, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     PyObject *value = NULL;
@@ -681,13 +692,13 @@ PyObject *python_property_set_object(PyObject *self, PyObject *args, PyObject *k
     Py_RETURN_NONE;
 }
 
-PyObject *python_property_get_name(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_name(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     return PyUnicode_FromFormat("%s",pyprop->prop->name);
 }
 
-PyObject *python_property_set_name(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_set_name(PyObject *self, PyObject *args, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     PyObject *value = NULL;
@@ -706,7 +717,7 @@ PyObject *python_property_set_name(PyObject *self, PyObject *args, PyObject *kwd
     Py_RETURN_NONE;
 }
 
-PyObject *python_property_get_unit(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_get_unit(PyObject *self, PyObject *, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->prop->unit == NULL )
@@ -745,7 +756,7 @@ PyObject *python_property_compare(PyObject *obj1, PyObject *obj2, int op)
     return result;
 }
 
-PyObject *python_property_convert_unit(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_convert_unit(PyObject *self, PyObject *args, PyObject *)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->prop->unit == NULL )
