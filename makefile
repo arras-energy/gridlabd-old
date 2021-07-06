@@ -49,7 +49,7 @@ all: build
 #
 # Check version of make
 #
-ifndef GNUMAKE
+ifneq ($(shell make --version | head -n 1 | cut -f1 -d' '),GNU)
 $(error GNU Make is required)
 endif
 
