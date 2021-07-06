@@ -217,7 +217,7 @@ static void prep_stream(){
 	return;
 }
 
-int output_init(int argc,const char *argv[])
+int output_init(int,const char *[])
 {
 	atexit(output_cleanup);
 	return 1;
