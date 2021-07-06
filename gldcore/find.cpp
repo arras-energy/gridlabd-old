@@ -884,7 +884,7 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 		&& TERM(integer(HERE,&M)) && LITERAL(":")
 		&& TERM(integer(HERE,&S)) && (LITERAL("'")||LITERAL("\"")))
 	{
-		DATETIME dt = {(unsigned short)Y,(unsigned short)m,(unsigned short)d,(unsigned short)H,(unsigned short)M,(unsigned short)S,0};
+		DATETIME dt = {(unsigned short)Y,(unsigned short)m,(unsigned short)d,(unsigned short)H,(unsigned short)M,(unsigned short)S,0,0,"",0,0,0,0};
 		TIMESTAMP tt = mkdatetime(&dt);
 		if (tt!=TS_INVALID) {*t=(int64)tt*TS_SECOND; ACCEPT; DONE;}
 	}
