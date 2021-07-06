@@ -630,7 +630,8 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 /** Computes the GMT time of a DST event
 	Offset indicates the time offset to include
  **/
-TIMESTAMP compute_dstevent(int year, SPEC *spec, time_t offset ) {
+TIMESTAMP compute_dstevent(int year, SPEC *spec, time_t) 
+{
 	TIMESTAMP t = TS_INVALID;
 	int y, m, d, ndays = 0, day1;
 
@@ -848,7 +849,7 @@ const char *tz_dst(const char *tzspec ) {
 
 /** Apply a timezone spec to the current tz rules
  **/
-void set_tzspec(int year, const char *tzname, SPEC *pStart, SPEC *pEnd ) 
+void set_tzspec(int year, const char *, SPEC *pStart, SPEC *pEnd ) 
 {
 	size_t y;
 
@@ -1230,7 +1231,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	{
 		S = (unsigned short)s;
 		unsigned int ns = (s-S)*1e9;
-		DATETIME dt = {Y,m,d,H,M,S,ns,0};
+		DATETIME dt = {Y,m,d,H,M,S,ns,0,"",0,0,0,0};
 		dt.tzoffset = (tzh*60+tzm)*60;
 		return mkdatetime(&dt);
 	}
@@ -1239,7 +1240,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	if (sscanf(value,"%hu-%hu-%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use GMT if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0}; /* use GMT if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1247,7 +1248,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_ISO && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1255,7 +1256,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_US && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&m,&d,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1263,7 +1264,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_EURO && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&d,&m,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
