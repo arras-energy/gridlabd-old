@@ -28,7 +28,7 @@ int kml_write(const char *fmt,...)
 	return len;
 }
 
-int kml_document(FILE *fp)
+int kml_document(void)
 {
 	CLASS *oclass, *openclass=NULL;
 	MODULE *mod;
@@ -123,7 +123,7 @@ int kml_output(FILE *fp)
 	kml = fp;
 	kml_write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	kml_write("<kml xmlns=\"http://earth.google.com/kml/2.2\">\n");
-	kml_document(fp);
+	kml_document();
 	kml_write("</kml>\n");
 	return 0;
 }
