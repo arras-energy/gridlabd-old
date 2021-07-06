@@ -781,7 +781,7 @@ static unsigned long long hashcode(const char *str)
 }
 
 /** main validation routine */
-int validate(void *main, int argc, const char *argv[])
+int validate(void *, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
