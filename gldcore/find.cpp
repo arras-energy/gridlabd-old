@@ -520,7 +520,7 @@ int compare_string_ge(void *a, FINDVALUE b)
 	return *(char **)a != NULL && strcmp(*(char**)a,b.string)>=0;
 }
 
-int compare_pointer_li(void *a, FINDVALUE b) 
+int compare_pointer_li(void *, FINDVALUE ) 
 {
 	return 0;
 }
@@ -570,7 +570,7 @@ int compare_integer64_li(void *a, FINDVALUE b)
 	return 0;
 }
 
-int compare_pointer_nl(void *a, FINDVALUE b) 
+int compare_pointer_nl(void *, FINDVALUE ) 
 {
 	return 1;
 }
@@ -648,7 +648,7 @@ void findlist_clear(FINDLIST *list)
 	DELALL(*list);
 }
 
-void findlist_nop(FINDLIST *list, OBJECT *obj)
+void findlist_nop(FINDLIST *, OBJECT *)
 {
 	return;
 }
@@ -884,7 +884,7 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 		&& TERM(integer(HERE,&M)) && LITERAL(":")
 		&& TERM(integer(HERE,&S)) && (LITERAL("'")||LITERAL("\"")))
 	{
-		DATETIME dt = {(unsigned short)Y,(unsigned short)m,(unsigned short)d,(unsigned short)H,(unsigned short)M,(unsigned short)S};
+		DATETIME dt = {(unsigned short)Y,(unsigned short)m,(unsigned short)d,(unsigned short)H,(unsigned short)M,(unsigned short)S,0};
 		TIMESTAMP tt = mkdatetime(&dt);
 		if (tt!=TS_INVALID) {*t=(int64)tt*TS_SECOND; ACCEPT; DONE;}
 	}
