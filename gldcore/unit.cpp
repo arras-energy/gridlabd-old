@@ -330,10 +330,10 @@ int unit_derived(const char *name,const char *derivation)
 				double val;
 				if (sscanf(term,"%lf",&val) == 1){
 					if (nextOp =='+' || nextOp == '-'){ /* bias operation */
-						UNIT bias = {"", 0, 0, 0, 0, 0, 0, 0, val, unit_precision(term)};
+						UNIT bias = {"", 0, 0, 0, 0, 0, 0, 0, val, unit_precision(term),NULL};
 						local = bias;
 					} else { /* scale operation */
-						UNIT offset = {"", 0, 0, 0, 0, 0, 0, val, 0, unit_precision(term)};
+						UNIT offset = {"", 0, 0, 0, 0, 0, 0, val, 0, unit_precision(term),NULL};
 						local = offset;
 					}
 					pUnit = &local;
@@ -737,17 +737,17 @@ int unit_test(void)
 #define PI 3.141592635
 #endif
 	TEST test[] = {
-		{{1, "ratio"},	{1, "unit"}},
-		{{1, "%"},		{0.01, "unit"}},
-		{{1, "pu"},		{1, "1/unit"}},
-		{{1, "/%"},		{1, "1/%"}},
+		{{1, "ratio"},	{1, "unit"},0},
+		{{1, "%"},		{0.01, "unit"},0},
+		{{1, "pu"},		{1, "1/unit"},0},
+		{{1, "/%"},		{1, "1/%"},0},
 
-		{{PI, "unit"},	{3.141592635, "unit"}},
-		{{2*PI, "rad"},	{1, "unit"}},
-		{{360, "deg"},	{1, "unit"}},
-		{{400, "grad"},	{1, "unit"}},
-		{{4, "quad"},	{1, "unit"}},
-		{{4*PI, "sr"},	{1, "unit"}},
+		{{PI, "unit"},	{3.141592635, "unit"},0},
+		{{2*PI, "rad"},	{1, "unit"},0},
+		{{360, "deg"},	{1, "unit"},0},
+		{{400, "grad"},	{1, "unit"},0},
+		{{4, "quad"},	{1, "unit"},0},
+		{{4*PI, "sr"},	{1, "unit"},0},
 
 		{{1, "R"},		{5.0/9.0, "K"}, 	0.001},
 		{{0, "degC"},	{273.14, "K"}, 		0.001},
@@ -756,92 +756,104 @@ int unit_test(void)
 		{{32, "degF"},	{0.0, "degC"}, 		0.01},
 		{{20, "degC"},	{68.0, "degF"}, 	0.01},
 		{{77, "degF"},	{25.0, "degC"}, 	0.01},
-		{{1, "kg"},		{1000, "g"}},
-		{{1, "N"},		{1, "m*kg/s^2"}},
-		{{1, "J"},		{1, "N*m"}},
+		{{1, "kg"},		{1000, "g"},0},
+		{{1, "N"},		{1, "m*kg/s^2"},0},
+		{{1, "J"},		{1, "N*m"},0},
 		
-		{{1, "min"},	{60,"s"}},
-		{{1, "h"},		{60,"min"}},
-		{{1, "day"},	{24,"h"}},
-		{{1, "yr"},		{365,"day"}},
-		{{1, "syr"},	{365.24,"day"}},
+		{{1, "min"},	{60,"s"},0},
+		{{1, "h"},		{60,"min"},0},
+		{{1, "day"},	{24,"h"},0},
+		{{1, "yr"},		{365,"day"},0},
+		{{1, "syr"},	{365.24,"day"},0},
 
-		{{1, "cm"},		{0.01, "m"}},
-		{{1, "mm"},		{0.1, "cm"}},
-		{{1, "km"},		{1000,"m"}},
-		{{1, "in"},		{2.54, "cm"}},
-		{{1, "ft"},		{12, "in"}},
-		{{1, "yd"},		{3, "ft"}},
-		{{1, "mile"},	{5280, "ft"}},
+		{{1, "cm"},		{0.01, "m"},0},
+		{{1, "mm"},		{0.1, "cm"},0},
+		{{1, "km"},		{1000,"m"},0},
+		{{1, "in"},		{2.54, "cm"},0},
+		{{1, "ft"},		{12, "in"},0},
+		{{1, "yd"},		{3, "ft"},0},
+		{{1, "mile"},	{5280, "ft"},0},
 
-		{{1, "sf"},		{1,"ft^2"}},
-		{{1, "sy"},		{1,"yd^2"}},
+		{{1, "sf"},		{1,"ft^2"},0},
+		{{1, "sy"},		{1,"yd^2"},0},
 
-		{{1, "cf"},		{1,"ft^3"}},
-		{{1, "cy"},		{1,"yd^3"}},
-		{{1, "l"},		{0.001,"m^3"}},
-		{{1, "gal"},	{3.785412, "l"}},
+		{{1, "cf"},		{1,"ft^3"},0},
+		{{1, "cy"},		{1,"yd^3"},0},
+		{{1, "l"},		{0.001,"m^3"},0},
+		{{1, "gal"},	{3.785412, "l"},0},
 
-		{{2.2046, "lb"},{1, "kg"}},
-		{{1, "tonne"},	{1000, "kg"}},
+		{{2.2046, "lb"},{1, "kg"},0},
+		{{1, "tonne"},	{1000, "kg"},0},
 		
-		{{1, "mph"},	{1, "mile/h"}},
-		{{1, "fps"},	{1, "ft/s"}},
-		{{1, "fpm"},	{1, "ft/min"}},
-		{{1, "gps"},	{1, "gal/s"}},
-		{{1, "gpm"},	{1, "gal/min"}},
-		{{1, "gph"},	{1, "gal/h"}},
-		{{1, "cfm"},	{1, "ft^3/min"}},
-		{{1, "ach"},	{1, "1/h"}},
+		{{1, "mph"},	{1, "mile/h"},0},
+		{{1, "fps"},	{1, "ft/s"},0},
+		{{1, "fpm"},	{1, "ft/min"},0},
+		{{1, "gps"},	{1, "gal/s"},0},
+		{{1, "gpm"},	{1, "gal/min"},0},
+		{{1, "gph"},	{1, "gal/h"},0},
+		{{1, "cfm"},	{1, "ft^3/min"},0},
+		{{1, "ach"},	{1, "1/h"},0},
 		
-		{{1, "Hz"},		{1, "1/s"}},
+		{{1, "Hz"},		{1, "1/s"},0},
 		
-		{{1, "W"},		{1, "J/s"}},
-		{{1, "kW"},		{1000, "W"}},
-		{{1, "MW"},		{1000, "kW"}},
-		{{1, "Wh"},		{1, "W*h"}},
-		{{1, "kWh"},	{1000, "Wh"}},
-		{{1, "MWh"},	{1000, "kWh"}},
-		{{1, "Btu"},	{0.293, "Wh"}},
-		{{1, "kBtu"},	{1000, "Btu"}},
-		{{1, "MBtu"},	{1000, "kBtu"}},
-		{{1, "ton"},	{12000, "Btu/h"}},
-		{{1, "tons"},	{1, "ton*s"}},
-		{{1, "tonh"},	{1, "ton*h"}},
-		{{1, "hp"},		{746, "W"}},
-		{{1, "W"},		{1, "V*A"}},
-		{{1, "C"},		{1, "A*s"}},
-		{{1, "F"},		{1, "C/V"}},
-		{{1, "Ohm"},	{1,"V/A"}},
-		{{1, "H"},		{1,"Ohm*s"}},
+		{{1, "W"},		{1, "J/s"},0},
+		{{1, "kW"},		{1000, "W"},0},
+		{{1, "MW"},		{1000, "kW"},0},
+		{{1, "Wh"},		{1, "W*h"},0},
+		{{1, "kWh"},	{1000, "Wh"},0},
+		{{1, "MWh"},	{1000, "kWh"},0},
+		{{1, "Btu"},	{0.293, "Wh"},0},
+		{{1, "kBtu"},	{1000, "Btu"},0},
+		{{1, "MBtu"},	{1000, "kBtu"},0},
+		{{1, "ton"},	{12000, "Btu/h"},0},
+		{{1, "tons"},	{1, "ton*s"},0},
+		{{1, "tonh"},	{1, "ton*h"},0},
+		{{1, "hp"},		{746, "W"},0},
+		{{1, "W"},		{1, "V*A"},0},
+		{{1, "C"},		{1, "A*s"},0},
+		{{1, "F"},		{1, "C/V"},0},
+		{{1, "Ohm"},	{1,"V/A"},0},
+		{{1, "H"},		{1,"Ohm*s"},0},
 	};
 	size_t n, failed = 0, succeeded = 0;
 	output_test("\nBEGIN: units tests");
-	for (n = 0; n < sizeof(test)/sizeof(test[0]); n++){
+	for ( n = 0 ; n < sizeof(test)/sizeof(test[0]) ; n++ )
+	{
 		double v = test[n].from.value;
 		if (test[n].precision == 0)
+		{
 			test[n].precision = 1e-4;
+		}
 
 		/* forward test */
-		if (!unit_convert(test[n].from.unit, test[n].to.unit, &v)) {
+		if ( ! unit_convert(test[n].from.unit, test[n].to.unit, &v) ) 
+		{
 			output_test("FAILED: conversion from %s to %s not possible", test[n].from.unit,test[n].to.unit);
 			failed++;
-		} else if (fabs(v-test[n].to.value) > test[n].precision) {
+		} 
+		else if ( fabs(v-test[n].to.value) > test[n].precision ) 
+		{
 			output_test("FAILED: incorrect unit conversion %g %s -> %g %s (got %g %s instead)", 
 				test[n].from.value,test[n].from.unit,
 				test[n].to.value,test[n].to.unit,
 				v, test[n].to.unit);
 			failed++;
-		} else if (!unit_convert(test[n].to.unit,test[n].from.unit, &v)) { 	/* reverse test */
+		} 
+		else if ( ! unit_convert(test[n].to.unit,test[n].from.unit, &v) ) 
+		{ 	/* reverse test */
 			output_test("FAILED: conversion from %s to %s not possible", test[n].to.unit, test[n].from.unit);
 			failed++;
-		} else if (fabs(v - test[n].from.value) > test[n].precision) {
+		} 
+		else if ( fabs(v - test[n].from.value) > test[n].precision ) 
+		{
 			output_test("FAILED: incorrect unit conversion %g %s -> %g %s (got %g %s instead)", 
 				test[n].to.value,test[n].to.unit,
 				test[n].from.value,test[n].from.unit,
 				v, test[n].from.unit);
 			failed++;
-		} else {
+		} 
+		else 
+		{
 			output_test("SUCCESS: %g %s = %g %s", 				
 					test[n].from.value, test[n].from.unit,
 					test[n].to.value, test[n].to.unit);
