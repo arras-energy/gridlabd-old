@@ -193,8 +193,8 @@ static PROPERTY *class_find_property_rec(CLASS *oclass,
 
 }
 
-static PROPERTY *find_header_property(CLASS *oclass, 
-                                      const PROPERTYNAME name)
+static PROPERTY *find_header_property(CLASS *, 
+                                      const PROPERTYNAME )
 {
 	PROPERTY *prop = NULL;
 	// TODO: handle header properties
@@ -1391,7 +1391,7 @@ LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name)
 }
 
 /* this is not supported */
-int class_define_type(CLASS *oclass, DELEGATEDTYPE *delegation, ...)
+int class_define_type(CLASS *, DELEGATEDTYPE *, ...)
 {
 	output_error("delegated types not supported using class_define_type (use class_define_map instead)");
 	/*	TROUBLESHOOT
