@@ -84,7 +84,7 @@ int linkage_create_reader(instance *inst, char *fromobj, char *fromvar, char *to
     Updates the instance cache for a master->slave linkage.
 	@returns 1 on success, 0 on failure
  **/
-STATUS linkage_master_to_slave(char *buffer, linkage *lnk)
+STATUS linkage_master_to_slave(char *, linkage *lnk)
 {
 	int rv = 0;
 	int size = 0;
@@ -127,7 +127,7 @@ STATUS linkage_master_to_slave(char *buffer, linkage *lnk)
     Updates the instance cache for a master<-slave linkage.
 	@returns 1 on success, 0 on failure
  **/
-STATUS linkage_slave_to_master(char *buffer, linkage *lnk)
+STATUS linkage_slave_to_master(char *, linkage *lnk)
 {
 	int rv = 0;
 	int size = (int)property_minimum_buffersize(lnk->target.prop);
@@ -168,7 +168,7 @@ STATUS linkage_slave_to_master(char *buffer, linkage *lnk)
 	Initialize a linkage
 	@returns SUCCESS or FAILED
  **/
-STATUS linkage_init(instance *inst, linkage *lnk)
+STATUS linkage_init(instance *, linkage *lnk)
 {
 	/* find local object */
 	lnk->target.obj = object_find_name(lnk->local.obj);
