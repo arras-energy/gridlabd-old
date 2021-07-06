@@ -16,7 +16,7 @@
 
 // SET_MYCONTEXT(DMC_MATLAB) // used only if IN_MYCONTEXT is present in this module
 
-STATUS matlab_startup(int argc, const char *argv[])
+STATUS matlab_startup(int , const char *[])
 {
 	if (system("matlab -r gl")==0)
 		return SUCCESS;
@@ -24,17 +24,17 @@ STATUS matlab_startup(int argc, const char *argv[])
 		return FAILED;
 }
 
-extern "C" MODULE *load_java_module(const char *file, /**< module filename, searches \p PATH */
-									  int argc, /**< count of arguments in \p argv */
-									  const char *argv[]) /**< arguments passed from the command line */
+extern "C" MODULE *load_java_module(const char *, /**< module filename, searches \p PATH */
+									  int , /**< count of arguments in \p argv */
+									  const char *[]) /**< arguments passed from the command line */
 {
 	output_error("support for Java modules is implemented somewhere else ~ please review the documentation");
 	return NULL;
 }
 
-extern "C" MODULE *load_python_module(const char *file, /**< module filename, searches \p PATH */
-									  int argc, /**< count of arguments in \p argv */
-									  const char *argv[]) /**< arguments passed from the command line */
+extern "C" MODULE *load_python_module(const char *, /**< module filename, searches \p PATH */
+									  int , /**< count of arguments in \p argv */
+									  const char *[]) /**< arguments passed from the command line */
 {
 	/** @todo add support for Python modules (ticket #120) */
 	output_error("support for Python modules is not implemented yet");
