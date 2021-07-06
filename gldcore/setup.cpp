@@ -187,7 +187,7 @@ SETUPGROUP group[] = {
 };
 #endif
 
-int setup(void *main, int argc, const char *argv[])
+int setup(void *, int, const char *[])
 {
 #ifdef HAVE_CURSES
 	if ( !loadall(NULL) )
