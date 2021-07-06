@@ -565,6 +565,6 @@ size_t stream(FILE *fileptr,int opts)
 	}
 }
 
-#define stream_type(T) extern "C" size_t stream_##T(void *ptr, size_t len, PROPERTY *prop) { return stream((T*)ptr,len); }
+#define stream_type(T) extern "C" size_t stream_##T(void *ptr, size_t len, PROPERTY *) { return stream((T*)ptr,len); }
 #include "stream_type.h"
 #undef stream_type
