@@ -1264,7 +1264,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_EURO && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&d,&m,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst,"",0,0,0,0}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
