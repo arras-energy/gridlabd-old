@@ -201,11 +201,11 @@ int schedule_compile_block(SCHEDULE *sch, const char *blockname, const char *blo
 			char pattern[256];
 			char table[60];
 		} matcher[] = {
-			{"minute",0,59},
-			{"hour",0,23},
-			{"day",1,31},
-			{"month",1,12},
-			{"weekday",0,8},
+			{"minute",0,59,"",""},
+			{"hour",0,23,"",""},
+			{"day",1,31,"",""},
+			{"month",1,12,"",""},
+			{"weekday",0,8,"",""},
 		}, *match;
 		unsigned int calendar;
 		double value=1.0; /* default value is 1.0 */
@@ -1367,7 +1367,7 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 		fprintf(fp,"\nYears:");
 		for (y=1970; y<2039; y++)
 		{
-			DATETIME dt = {(unsigned short)y,0,1,0,0,0};
+			DATETIME dt = {(unsigned short)y,0,1,0,0,0,0,0,"",0,0,0,0};
 			TIMESTAMP ts = mkdatetime(&dt);
 			SCHEDULEINDEX ndx = schedule_index(sch,ts);
 			if (GET_CALENDAR(ndx)==calendar)
@@ -1391,13 +1391,13 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 			{
 				int hour;
 				char wd[] = "SMTWTFSH";
-				DATETIME dt = {(unsigned short)year,(unsigned short)month,(unsigned short)day,0,0,0,0,0,""};
+				DATETIME dt = {(unsigned short)year,(unsigned short)month,(unsigned short)day,0,0,0,0,0,"",0,0,0,0};
 				TIMESTAMP ts = mkdatetime(&dt);
 				local_datetime(ts,&dt);
 				fprintf(fp,"      %c %2d",wd[dt.weekday],day+1);
 				for (hour=0; hour<24; hour++)
 				{
-					DATETIME dt = {(unsigned short)year,(unsigned short)(month+1),(unsigned short)(day+1),(unsigned short)hour,0,0};
+					DATETIME dt = {(unsigned short)year,(unsigned short)(month+1),(unsigned short)(day+1),(unsigned short)hour,0,0,0,0,"",0,0,0,0};
 					TIMESTAMP ts = mkdatetime(&dt);
 					SCHEDULEINDEX ndx = schedule_index(sch,ts);
 					unsigned int dtn = schedule_dtnext(sch,ndx);
