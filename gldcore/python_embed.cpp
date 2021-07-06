@@ -434,7 +434,7 @@ bool python_parser(const char *line, void *context)
 }
 
 // Function: convert_from_double
-DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *)
 {
     PyObject *obj = PyObject_Str(*(PyObject**)data);
     int len = PyUnicode_GetLength(obj);
@@ -451,7 +451,7 @@ DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY 
 }
 
 // Function: convert_to_python
-DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop)
+DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *)
 {
     PyObject **pObj = (PyObject **)data;
     Py_DECREF(*pObj);
@@ -473,7 +473,7 @@ DEPRECATED int python_create(void *ptr)
     return 1;
 }
 
-double python_get_part(void *c, const char *name)
+double python_get_part(void *, const char *)
 {
     // TODO dict, list, and complex parts to double
     return QNAN;
