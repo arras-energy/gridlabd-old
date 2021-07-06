@@ -24,10 +24,10 @@ typedef unsigned int uint32;
 #endif
 
 // we're not really using these yet... -MH
-int convert_from_real(char *a, int b, void *c, PROPERTY *d){return 0;}
-int convert_to_real(const char *a, void *b, PROPERTY *c){return 0;}
-int convert_from_float(char *a, int b, void *c, PROPERTY *d){return 0;}
-int convert_to_float(const char *a, void *b, PROPERTY *c){return 0;}
+int convert_from_real(char *, int, void *, PROPERTY *){return 0;}
+int convert_to_real(const char *, void *, PROPERTY *){return 0;}
+int convert_from_float(char *, int , void *, PROPERTY *){return 0;}
+int convert_to_float(const char *, void *, PROPERTY *){return 0;}
 
 /** Convert from a \e void
 	This conversion does not change the data
@@ -35,8 +35,8 @@ int convert_to_float(const char *a, void *b, PROPERTY *c){return 0;}
  **/
 int convert_from_void(char *buffer, /**< a pointer to the string buffer */
 					  int size, /**< the size of the string buffer */
-					  void *data, /**< a pointer to the data that is not changed */
-					  PROPERTY *prop) /**< a pointer to keywords that are supported */
+					  void *, /**< a pointer to the data that is not changed */
+					  PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	if ( size < 7 )
 	{
@@ -49,9 +49,9 @@ int convert_from_void(char *buffer, /**< a pointer to the string buffer */
 	This conversion ignores the data
 	@return always 1, indicated data was successfully ignored
  **/
-int convert_to_void(const char *buffer, /**< a pointer to the string buffer that is ignored */
-					  void *data, /**< a pointer to the data that is not changed */
-					  PROPERTY *prop) /**< a pointer to keywords that are supported */
+int convert_to_void(const char *, /**< a pointer to the string buffer that is ignored */
+					  void *, /**< a pointer to the data that is not changed */
+					  PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	return 1;
 }
@@ -634,7 +634,7 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_int16(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	int count = sprintf(temp,"%hd",*(short*)data);
@@ -656,7 +656,7 @@ int convert_from_int16(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_int16(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	return sscanf(buffer,"%hd",(short*)data);
 }
@@ -668,7 +668,7 @@ int convert_to_int16(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_int32(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	int count = sprintf(temp,"%d",*(int*)data);
@@ -690,7 +690,7 @@ int convert_from_int32(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_int32(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	return sscanf(buffer,"%d",(int*)data);
 }
@@ -702,7 +702,7 @@ int convert_to_int32(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_int64(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	int count = sprintf(temp,"%lld",*(int64*)data);
@@ -724,7 +724,7 @@ int convert_from_int64(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_int64(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	return sscanf(buffer,"%lld",(long long *)data);
 }
@@ -736,7 +736,7 @@ int convert_to_int64(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_char8(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	const char *format = "%s";
@@ -765,7 +765,7 @@ int convert_from_char8(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_char8(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char c=((char*)buffer)[0];
 	switch (c) {
@@ -785,7 +785,7 @@ int convert_to_char8(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_char32(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	const char *format = "%s";
@@ -814,7 +814,7 @@ int convert_from_char32(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_char32(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char c=((char*)buffer)[0];
 	switch (c) {
@@ -834,7 +834,7 @@ int convert_to_char32(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_char256(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
 	const char *format = "%s";
@@ -863,7 +863,7 @@ int convert_from_char256(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_char256(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char c=((char*)buffer)[0];
 	switch (c) {
@@ -883,7 +883,7 @@ int convert_to_char256(const char *buffer, /**< a pointer to the string buffer *
 int convert_from_char1024(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char temp[4097];
 	const char *format = "%s";
@@ -906,7 +906,7 @@ int convert_from_char1024(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_char1024(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char c=((char*)buffer)[0];
 	switch (c) {
@@ -926,7 +926,7 @@ int convert_to_char1024(const char *buffer, /**< a pointer to the string buffer 
 int convert_from_object(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	OBJECT *obj = (data ? *(OBJECT**)data : NULL);
 	char temp[256];
@@ -975,7 +975,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_object(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	char cname[MAXCLASSNAMELEN];
 	OBJECTNUM id;
@@ -1021,7 +1021,7 @@ int convert_to_object(const char *buffer, /**< a pointer to the string buffer */
 int convert_from_delegated(char *buffer, /**< pointer to the string buffer */
 						int size, /**< size of the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	DELEGATEDVALUE *value = (DELEGATEDVALUE*)data;
 	if ( value == NULL || value->type == NULL || value->type->to_string == NULL ) 
@@ -1040,7 +1040,7 @@ int convert_from_delegated(char *buffer, /**< pointer to the string buffer */
  **/
 int convert_to_delegated(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
-					    PROPERTY *prop) /**< a pointer to keywords that are supported */
+					    PROPERTY *) /**< a pointer to keywords that are supported */
 {
 	DELEGATEDVALUE *value = (DELEGATEDVALUE*)data;
 	if ( value == NULL || value->type == NULL || value->type->from_string == NULL )
@@ -1084,7 +1084,7 @@ int convert_from_boolean(char *buffer, int size, void *data, PROPERTY *prop)
 	@return 1 on success, 0 on failure, -1 if conversion was incomplete
  **/
 /* booleans are handled internally as 1-byte uchar's. -MH */
-int convert_to_boolean(const char *buffer, void *data, PROPERTY *prop)
+int convert_to_boolean(const char *buffer, void *data, PROPERTY *)
 {
 	char str[32];
 	if ( sscanf(buffer,"%31[A-Za-z]",str) == 1 )
@@ -1117,13 +1117,13 @@ int convert_to_boolean(const char *buffer, void *data, PROPERTY *prop)
 	}
 }
 
-int convert_from_timestamp_stub(char *buffer, int size, void *data, PROPERTY *prop)
+int convert_from_timestamp_stub(char *buffer, int size, void *data, PROPERTY *)
 {
 	TIMESTAMP ts = *(int64 *)data;
 	return convert_from_timestamp(ts, buffer, size);
 }
 
-int convert_to_timestamp_stub(const char *buffer, void *data, PROPERTY *prop)
+int convert_to_timestamp_stub(const char *buffer, void *data, PROPERTY *)
 {
 	TIMESTAMP ts = convert_to_timestamp(buffer);
 	*(int64 *)data = ts;
