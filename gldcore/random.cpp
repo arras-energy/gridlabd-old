@@ -261,7 +261,7 @@ double randunit_pos(unsigned int *state)
 	\f[ \varphi\left(a\right) = 1.0 \f]
 	
  **/
-double random_degenerate(unsigned int *state, double a)
+double random_degenerate(unsigned int *, double a)
 {
 	/* returns a, i.e., Dirac delta function */
 	double aa = fabs(a);
@@ -700,7 +700,7 @@ double _random_value(RANDOMTYPE type, unsigned int *state, va_list ptr)
 
 /** Convert a random distribution to a string spec
  **/
-int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int size)
+int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int)
 {
 	switch ( type ) {
 	case RT_DEGENERATE:/* ... double value */
@@ -1137,7 +1137,7 @@ static randomvar *randomvar_list = NULL;
 static unsigned int n_randomvars = 0;
 clock_t randomvar_synctime = 0;
 
-int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
+int convert_to_randomvar(const char *string, void *data, PROPERTY *)
 {
 	//output_verbose("convert_to_randomvar(string='%-.64s...', ...)",string);
 	randomvar *var = (randomvar*)data;
@@ -1335,13 +1335,13 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 	return 1;
 }
 
-int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
+int convert_from_randomvar(char *string,int,void *data, PROPERTY *)
 {
 	randomvar *var = (randomvar*)data;
 	return sprintf(string,"%lf",var->value);
 }
 
-int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
+int initial_from_randomvar(char *string, int size, void *data, PROPERTY *)
 {
 	randomvar *var = (randomvar*)data;
 	char buffer[1024];
