@@ -464,7 +464,7 @@ int GldLoader::mkdirs(const char *path)
 	return rc;
 }
 
-STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
+STATUS GldLoader::compile_code(CLASS *oclass, int64 )
 {
 	char include_file_str[1024];
 	char buffer[256];
@@ -1124,7 +1124,7 @@ int GldLoader::white(PARSER)
 	return len;
 }
 
-int GldLoader::pattern(PARSER, const char *pattern, char *result, int size)
+int GldLoader::pattern(PARSER, const char *pattern, char *result, int )
 {
 	char format[64];
 	START;
@@ -1720,7 +1720,7 @@ static int op_prec[] = {0, 0, 0, 3, 2, 2, 2, 1, 1};
 	op_stk[++op_i] = (T);							\
 	++rpn_sz;
 
-int GldLoader::expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj)
+int GldLoader::expression(PARSER, double *pValue, UNIT **, OBJECT *obj)
 {
 	double val_q[128], tVal;
 	char tname[128]; /* type name for this.prop */
@@ -3058,7 +3058,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 	return 0;
 }
 
-int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
+int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *, int )
 {
 	const char *fname = NULL;
 	const char *ftype = NULL;
@@ -3128,7 +3128,7 @@ int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsi
 	DONE;
 }
 
-int GldLoader::class_explicit_declaration(PARSER, char *type, int size)//, bool *is_static)
+int GldLoader::class_explicit_declaration(PARSER, char *type, int )//, bool *is_static)
 {
 	START;
 	if WHITE ACCEPT;
@@ -3821,7 +3821,7 @@ int GldLoader::transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, 
 	DONE;
 }
 
-int GldLoader::filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from)
+int GldLoader::filter_transform(PARSER, TRANSFORMSOURCE *, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -3851,7 +3851,7 @@ int GldLoader::filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, 
 	DONE;
 }
 
-int GldLoader::external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from)
+int GldLoader::external_transform(PARSER, TRANSFORMSOURCE *, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -7200,7 +7200,7 @@ int readfile(char *fname, char *specs, char* line, int size)
 }
 
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
-int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
+int GldLoader::process_macro(char *line, int size, char *, int linenum)
 {
 	char *var, *val, *save;
 	char buffer[1024];
