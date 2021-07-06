@@ -41,7 +41,7 @@ size_t stream(FILE *fp, int flags);
 char* stream_context();
 #endif
 
-#define stream_type(T) size_t stream_##T(void*,size_t,PROPERTY*p)
+#define stream_type(T) size_t stream_##T(void*,size_t,PROPERTY*)
 #include "stream_type.h"
 #undef stream_type
 
