@@ -115,7 +115,7 @@ int GldJsonWriter::write(const char *fmt,...)
 #define FIRST(N,F,V) (len += write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
 #define TUPLE(N,F,V) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
 
-int GldJsonWriter::write_modules(FILE *fp)
+int GldJsonWriter::write_modules(void)
 {
 	int len = 0;
 	MODULE *mod;
@@ -135,7 +135,7 @@ int GldJsonWriter::write_modules(FILE *fp)
 	return len;
 }
 
-int GldJsonWriter::write_properties(FILE *fp)
+int GldJsonWriter::write_properties(void)
 {
 	int len = 0;
 	PROPERTYTYPE ptype;
@@ -182,7 +182,7 @@ int GldJsonWriter::write_properties(FILE *fp)
 }
 
 
-int GldJsonWriter::write_classes(FILE *fp)
+int GldJsonWriter::write_classes(void)
 {
 	int len = 0;
 
@@ -300,7 +300,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 	return len;
 }
 
-int GldJsonWriter::write_globals(FILE *fp)
+int GldJsonWriter::write_globals(void)
 {
 	int len = 0;
 	GLOBALVAR *var;
@@ -402,7 +402,7 @@ static const char *escape(const char *text, char *buffer, size_t len)
 	*p = '\0';
 	return buffer;
 }
-int GldJsonWriter::write_schedules(FILE *fp) 
+int GldJsonWriter::write_schedules(void) 
 {
 	int len = 0;
 	SCHEDULE *sch;
@@ -426,7 +426,7 @@ int GldJsonWriter::write_schedules(FILE *fp)
 	return len;
 }
 
-int GldJsonWriter::write_objects(FILE *fp)
+int GldJsonWriter::write_objects(void)
 {
 	int len = 0;
 	OBJECT *obj;
@@ -614,7 +614,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	return len;
 }
 
-int GldJsonWriter::write_filters(FILE *fp)
+int GldJsonWriter::write_filters(void)
 {
 	int len = 0;
 	TRANSFERFUNCTION *tf = transfer_function_getfirst();
@@ -650,28 +650,28 @@ int GldJsonWriter::write_output(FILE *fp)
 	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
 	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
 	{
-		len += write_modules(fp);
+		len += write_modules();
 	}
 	if ( (global_filesave_options&FSO_PROPERTIES) == FSO_PROPERTIES )
 	{
-		len += write_properties(fp);
+		len += write_properties();
 	}
 	if ( (global_filesave_options&FSO_CLASSES) == FSO_CLASSES )
 	{
-		len += write_classes(fp);
+		len += write_classes();
 	}
 	if ( (global_filesave_options&FSO_GLOBALS) == FSO_GLOBALS )
 	{
-		len += write_globals(fp);
+		len += write_globals();
 	}
 	if ( (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
 	{
-		len += write_schedules(fp);
+		len += write_schedules();
 	}
-	len += write_filters(fp);
+	len += write_filters();
 	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
 	{
-		len += write_objects(fp);
+		len += write_objects();
 	}
 	len += write("\n}\n");
 	IN_MYCONTEXT output_debug("GldJsonWriter::output() wrote %d bytes",len);
@@ -726,7 +726,7 @@ int GldJsonWriter::dump()
 	return len > 0;
 }
 
-int json_to_glm(const char *jsonfile, char *glmfile)
+int json_to_glm(const char *, char *)
 {
 	// TODO: convert JSON file to GLM
 	return 0;
