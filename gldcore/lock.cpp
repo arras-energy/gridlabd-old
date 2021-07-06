@@ -133,7 +133,7 @@ void check_lock(LOCKVAR *lock, bool write, bool unlock)
 }
 #else
 #define check_lock(X,Y,Z)
-void register_lock(LOCKVAR *lock)
+void register_lock(LOCKVAR *)
 {
 	// do nothing
 }
