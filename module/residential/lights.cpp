@@ -110,7 +110,7 @@ int lights::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("lights::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("lights::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -119,13 +119,13 @@ int lights::init(OBJECT *parent)
 
 	// check the load configuration before initializing the parent class
 	if(shape.load > 1.0)
-		gl_warning("lighting load %f exceeds installed capacity", shape.load);
+		warning("lighting load %f exceeds installed capacity", shape.load);
 		/* TROUBLESHOOT
 			The lighting load cannot exceed the installed capacity.  
 			Use a lighting load that is less than or equal to 1.0 and try again.
 		 */
 	else if (shape.load < 0.0)
-		gl_warning("lights load %f is negative", shape.load);
+		warning("lights load %f is negative", shape.load);
 		/* TROUBLESHOOT
 			The lighting load cannot be negative.
 			Use a positive lighting load and try again.
@@ -134,19 +134,19 @@ int lights::init(OBJECT *parent)
 	if (load.power_factor==0)
 	{
 		load.power_factor = power_factor[type];
-		gl_warning("No value was given for power factor. Defaulting to power factor 1.00 and incandescent light type.");
+		warning("No value was given for power factor. Defaulting to power factor 1.00 and incandescent light type.");
 	}
 	if (load.voltage_factor==0) 
 	{
 		load.voltage_factor = 1.0;
-		gl_warning("No value was given for voltage factor.  Defaulting to voltage factor 1.00");
+		warning("No value was given for voltage factor.  Defaulting to voltage factor 1.00");
 	}
 	if ( (load.power_fraction + load.current_fraction + load.impedance_fraction) == 0.0)
 	{
 		load.power_fraction = power_fraction[type][2];
 		load.current_fraction = power_fraction[type][1];
 		load.impedance_fraction = power_fraction[type][0];
-		gl_warning("No value was given for power fraction. Defaulting to incandescent light type and corresponding power fraction 1,0,0.");
+		warning("No value was given for power fraction. Defaulting to incandescent light type and corresponding power fraction 1,0,0.");
 	}
 	// check for the right kind of loadshape schedule 
 	if (shape.type!=MT_ANALOG && shape.type != MT_UNKNOWN)
@@ -171,7 +171,7 @@ int lights::init(OBJECT *parent)
 
 		if(floor_area == NULL)
 		{
-			gl_error("lights parent must publish \'floor_area\' to work properly if no installed_power is given ~ default 2500 sf");
+			error("lights parent must publish \'floor_area\' to work properly if no installed_power is given ~ default 2500 sf");
 			/* TROUBLESHOOT
 				The lights did not reference a parent object that publishes a floor are, so 2500 sf was assumed.
 				Change the parent reference and try again.
@@ -222,10 +222,10 @@ TIMESTAMP lights::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	if(shape.type == MT_UNKNOWN){ /* manual power calculation*/
 		if(shape.load < 0){
-			gl_warning("lights shape demand is negative, capping to 0");
+			warning("lights shape demand is negative, capping to 0");
 			shape.load = 0.0;
 		} else if (shape.load > 1.0){
-			gl_warning("lights shape demand exceeds installed lighting power, capping to 100%%");
+			warning("lights shape demand exceeds installed lighting power, capping to 100%%");
 			shape.load = 1.0;
 		}
 		load.power = shape.params.analog.power * shape.load;

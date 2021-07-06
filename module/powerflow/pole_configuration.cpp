@@ -1,5 +1,5 @@
-// powerflow/pole_configuration.cpp
-// Copyright (C) 2018 Stanford University
+// module/powerflow/pole_configuration.cpp
+// Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #include "powerflow.h"
 using namespace std;
@@ -18,12 +18,12 @@ KEYWORD pole_configuration::kw_ciz[_CIZ_SIZE] = {
 	{"MODERATE", pole_configuration::CIZ_MODERATE, kw_ciz+3},
 	{"INTERMEDIATE", pole_configuration::CIZ_INTERMEDIATE, kw_ciz+4},
 	{"HIGH",pole_configuration::CIZ_HIGH, kw_ciz+5},
-	{"EXTREME",pole_configuration::CIZ_EXTREME, NULL},	
+	{"EXTREME",pole_configuration::CIZ_EXTREME, NULL},
 };
 static double pole_degredation_rate_data[pole_configuration::_CIZ_SIZE][pole_configuration::_PTM_SIZE] = {
 	// specifies pole degradation rate in inches per year for each climate impact zone
 	// Treatment methods:
-	//  none, 		creosote,   penta,		cca 
+	//  none, 		creosote,   penta,		cca
 	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_NONE
 	{	0.00 ,		0.00 ,		0.00 ,		0.035 	}, // CIZ_LOW
 	{	0.00 ,		0.00 ,		0.00 ,		0.040 	}, // CIZ_MODERATE
@@ -41,7 +41,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 			throw "unable to register class pole_configuration";
 		else
 			oclass->trl = TRL_PROVEN;
-        
+
         if(gl_publish_variable(oclass,
 			PT_enumeration,"pole_type", PADDR(pole_type), PT_DESCRIPTION, "material from which pole is made",
 				PT_KEYWORD, "WOOD", (enumeration)PT_WOOD,
@@ -66,12 +66,15 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 			PT_double, "top_diameter[in]", PADDR(top_diameter), PT_DESCRIPTION, "diameter of pole at top",
 			PT_double, "fiber_strength[psi]", PADDR(fiber_strength), PT_DESCRIPTION, "pole structural strength",
 			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "pole repair time",
-			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
+			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.",
 			PT_enumeration, "treatment_method", PADDR(treatment_method), PT_DESCRIPTION, "pole degradation prevention treatment",
 				PT_KEYWORD, "NONE", (enumeration)PTM_NONE,
 				PT_KEYWORD, "CREOSOTE", (enumeration)PTM_CREOSOTE,
 				PT_KEYWORD, "PENTA", (enumeration)PTM_PENTA,
 				PT_KEYWORD, "CCA", (enumeration)PTM_CCA,
+            PT_double, "material_density[lb/cf]", PADDR(material_density),
+                PT_DEFAULT, "35 lb/cf",
+                PT_DESCRIPTION, "pole material density",
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
         GLOBALVAR *var = gl_global_create("powerflow::climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
         if ( ! var )
@@ -89,9 +92,9 @@ int pole_configuration::create(void)
     design_ice_thickness = 0.25;
     design_wind_loading = 4.0;
     design_temperature = 15.0;
-	
+
 	// defaults from chart 2 - grade C overload capacity factors
-	overload_factor_vertical = 1.9; 
+	overload_factor_vertical = 1.9;
 	overload_factor_transverse_general = 1.75;
 	overload_factor_transverse_crossing = 2.2;
 	overload_factor_transverse_wire = 1.65;
@@ -147,7 +150,7 @@ int pole_configuration::init(OBJECT *parent)
     {
         exception("repair time must be positive (or negative to use global pole::repair_time");
     }
-	return 1;	
+	return 1;
 }
 
 double pole_configuration::get_pole_diameter(double height)

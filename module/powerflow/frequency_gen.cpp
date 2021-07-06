@@ -406,7 +406,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 								if (index==(Num_Resp_Eqs-1))
 								{
-									gl_warning("Failed to process frequency deviation at time %lld",t0);
+									warning("Failed to process frequency deviation at time %lld",t0);
 									/*  TROUBLESHOOT
 									The equations buffer for the frequency object must be full, so the response to a new power change could
 									not be included.  This needs to be increased via Num_Resp_Eqs, or provoke less changes.  It may also be
@@ -493,7 +493,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 							if (index==(Num_Resp_Eqs-1))
 							{
-								gl_warning("Failed to process frequency deviation at time %lld",t0);
+								warning("Failed to process frequency deviation at time %lld",t0);
 								//Define above
 							}
 						}//End empty find
@@ -558,7 +558,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 							if (index==(Num_Resp_Eqs-1))
 							{
-								gl_warning("Failed to process frequency deviation at time %lld",t0);
+								warning("Failed to process frequency deviation at time %lld",t0);
 								//Define above
 							}
 						}//End empty find
@@ -617,7 +617,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 							if (index==(Num_Resp_Eqs-1))
 							{
-								gl_warning("Failed to process frequency deviation at time %lld",t0);
+								warning("Failed to process frequency deviation at time %lld",t0);
 								//Define above
 							}
 						}//End empty find
@@ -686,7 +686,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 										if (index==(Num_Resp_Eqs-1))
 										{
-											gl_warning("Failed to process frequency deviation at time %lld",t0);
+											warning("Failed to process frequency deviation at time %lld",t0);
 											//Define above
 										}
 									}//End empty list traversion
@@ -748,7 +748,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 									if (index==(Num_Resp_Eqs-1))
 									{
-										gl_warning("Failed to process frequency deviation at time %lld",t0);
+										warning("Failed to process frequency deviation at time %lld",t0);
 										//Define above
 									}
 								}//end equation list traversion
@@ -814,7 +814,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 										if (index==(Num_Resp_Eqs-1))
 										{
-											gl_warning("Failed to process frequency deviation at time %lld",t0);
+											warning("Failed to process frequency deviation at time %lld",t0);
 											//Define above
 										}
 									}//End empty list traversion
@@ -877,7 +877,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 
 									if (index==(Num_Resp_Eqs-1))
 									{
-										gl_warning("Failed to process frequency deviation at time %lld",t0);
+										warning("Failed to process frequency deviation at time %lld",t0);
 										//Define above
 									}
 								}//end equation list traversion

@@ -92,7 +92,7 @@ int g_assert::create(void)
 
 int g_assert::init(OBJECT *parent)
 {
-	gl_verbose("group = '%s'", get_group());
+	verbose("group = '%s'", get_group());
 
 	target_list = new std::list<gld_property>;
 	if ( strcmp(get_group(),"") == 0 )
@@ -127,7 +127,7 @@ int g_assert::init(OBJECT *parent)
 		}
 		if ( target_list->size() == 0 )
 		{
-			gl_warning("group '%s' contains no objects",get_group());
+			warning("group '%s' contains no objects",get_group());
 		}
 	}
 	return 1;
@@ -138,7 +138,7 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 	// determine the relation status
 	if ( status==AS_NONE ) 
 	{
-		gl_verbose("%s: assert test is not being run", get_name());
+		verbose("%s: assert test is not being run", get_name());
 		return TS_NEVER;
 	}
 	else if ( t1 < start )
@@ -162,7 +162,7 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				gld_property relation_prop(my(),"relation");
 				gld_keyword *pKeyword = relation_prop.find_keyword(relation);
 				char buf[1024];
-				gl_error("%s: assert failed on %s'%s.%s.%s' '%s' '%s' '%s' '%s'", get_name(), status==AS_TRUE?"":"NOT ",
+				error("%s: assert failed on %s'%s.%s.%s' '%s' '%s' '%s' '%s'", get_name(), status==AS_TRUE?"":"NOT ",
 					obj?get_object(obj)->get_name():"global variable", get_target(), get_part(), target_prop->to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
 				return TS_INVALID;
 			}
@@ -170,14 +170,14 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 			if ( started == TS_NEVER ) 
 			{
 				started = t1;
-				gl_verbose("%s: assert %s started at %lld with hold for %g s", 
+				verbose("%s: assert %s started at %lld with hold for %g s", 
 					get_name(), obj?get_object(obj)->get_name():"global variable",
 					t1, hold);
 			}
 		}
 		else
 		{
-			gl_verbose("%s: assert passed on %s", get_name(), obj?get_object(obj)->get_name():"global variable");
+			verbose("%s: assert passed on %s", get_name(), obj?get_object(obj)->get_name():"global variable");
 		}
 	}
 

@@ -84,7 +84,7 @@ int residential_enduse::init(OBJECT *parent)
 		if ( attach )
 			pCircuit = (*attach)(parent, &load, load.breaker_amps, (load.config&EUC_IS220)!=0);
 		else
-			gl_warning("%s (%s:%d) parent %s (%s:%d) does not export attach_enduse function so voltage response cannot be modeled", get_name(), get_oclass()->get_name(), get_id(), pParent->get_name(), pParent->get_oclass()->get_name(), pParent->get_id());
+			warning("%s (%s:%d) parent %s (%s:%d) does not export attach_enduse function so voltage response cannot be modeled", get_name(), get_oclass()->get_name(), get_id(), pParent->get_name(), pParent->get_oclass()->get_name(), pParent->get_id());
 			/* TROUBLESHOOT
 				Enduses must have a voltage source from a parent object that exports an attach_enduse function.  
 				The residential_enduse object references a parent object that does not conform with this requirement.
@@ -95,7 +95,7 @@ int residential_enduse::init(OBJECT *parent)
 	if (load.shape!=NULL) {
 		if (load.shape->schedule==NULL)
 		{
-			gl_verbose("%s (%s:%d) schedule is not specified so the load may be inactive", get_name(), get_oclass()->get_name(), get_id());
+			verbose("%s (%s:%d) schedule is not specified so the load may be inactive", get_name(), get_oclass()->get_name(), get_id());
 			/* TROUBLESHOOT
 				The residential_enduse object requires a schedule that defines how
 				the load behaves.  Omitting this schedule effectively shuts the enduse
@@ -113,9 +113,9 @@ int residential_enduse::isa(CLASSNAME classname){
 
 TIMESTAMP residential_enduse::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	gl_debug("%s shape load = %8g", get_name(), gl_get_loadshape_value(&shape));
+	debug("%s shape load = %8g", get_name(), gl_get_loadshape_value(&shape));
 	if (load.voltage_factor>1.2 || load.voltage_factor<0.8)
-		gl_verbose("%s voltage is out of normal +/- 20%% range of nominal (vf=%.2f)", get_name(), load.voltage_factor);
+		verbose("%s voltage is out of normal +/- 20%% range of nominal (vf=%.2f)", get_name(), load.voltage_factor);
 		/* TROUBLESHOOT
 		   The voltage on the enduse circuit is outside the expected range for that enduse.
 		   This is usually caused by an impropely configure circuit (e.g., 110V on 220V or vice versa).
