@@ -230,7 +230,7 @@ Specifies the price sensitivity.
 The following implements a 3,000 sf single-family home in the Northwest valleys region with 90% constant impedance at unity power factor, and 10% constant power at power factor ~0.89:
 
 ~~~
-object rasa {
+object rbsa {
   filename "NWV_SFHOME.csv";
   floor_area 10 ksf;
   composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
