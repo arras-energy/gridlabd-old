@@ -170,7 +170,7 @@ endif
 ifndef CFLAGS
 CFLAGS = -W -O2 -g
 endif
-CFLAGS += -fPIC
+CFLAGS += -fPIC -D$(SYSTEM)
 
 # default link flags
 ifndef LDFLAGS
