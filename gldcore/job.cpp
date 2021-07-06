@@ -313,7 +313,7 @@ static size_t process_dir(const char *path)
 }
 
 /** main validation routine */
-int job(void *main, int argc, const char *argv[])
+int job(void *, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
