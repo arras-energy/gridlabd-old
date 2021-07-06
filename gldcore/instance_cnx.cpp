@@ -10,7 +10,7 @@ SET_MYCONTEXT(DMC_INSTANCE)
 extern pthread_cond_t inst_sock_signal;
 extern int sock_created;
 
-STATUS instance_cnx_mmap(instance *inst){
+STATUS instance_cnx_mmap(instance *){
 #ifdef WIN32
 		char cachename[2048];
 		char eventname[64];
@@ -100,7 +100,7 @@ STATUS instance_cnx_mmap(instance *inst){
 #endif
 }
 
-STATUS instance_cnx_shmem(instance *inst){
+STATUS instance_cnx_shmem(instance *){
 	return FAILED;
 }
 
