@@ -160,6 +160,7 @@ DEPRECATED static KEYWORD dmc_keys[] = {
 		{"VERSION", 	DMC_VERSION, 		dmc_keys+50},
 		{"XCORE", 		DMC_XCORE, 			dmc_keys+51},
 		{"MAIN",		DMC_MAIN,			dmc_keys+52},
+		{"PYTHON",      DMC_PYTHON,         dmc_keys+53},
 		{"CMDARG",		DMC_CMDARG,			NULL},
 };
 DEPRECATED static KEYWORD vtc_keys[] = {

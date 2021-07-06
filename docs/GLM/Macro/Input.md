@@ -10,9 +10,18 @@ GLM:
 
 # Description
 
-The `#input` macro allows a non-GLM file to be input inline using [[/GLM/Command/Automatic import conversion.md]] with options, e.g., 
+The `#input` macro allows a non-GLM file to be input inline using [[/Command/Automatic import conversion]] with options.
 
-# Example
+## CSV converters 
+Input: `csv`
+
+Output: `glm`
+
+From: `ami`, `scada`, `onpoint-weather`, `table`
+
+Type: `ceus`, `rbsa`, `climate`, `object`
+
+# Example 1
 
 The following example converts the file `data.csv` to `house.glm` using the converter `csv-ami2glm-house.py` with the `heating_setpoint` property set to `72 degF`:
 
@@ -27,7 +36,9 @@ object meter {
 }
 ~~~~
 
+
 # See also
 
-* [[/Command/Automatic import conversion.md]]
+* [[/Command/Automatic import conversion]]
+* [[/Converters/Import/Csv_files]]
 * [[/GLM/Macro/Include]]
