@@ -443,7 +443,7 @@ void instance_slave_done(void)
     Create main slave control loop to maintain sync with master.
 	Anything that is dependant on objects being loaded happens here.
  **/
-void *instance_slaveproc(void *ptr)
+void *instance_slaveproc(void *)
 {
 	linkage *lnk;
 	STATUS rv = SUCCESS;
