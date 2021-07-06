@@ -317,9 +317,9 @@ public:
 	void set_name(const char *v) { name = v; }; 
 	inline const char *get_name(void) const { return name; };
 	void copy_name(const char *v) { char *s=(char*)malloc(strlen(v)+1); strcpy(s,v); name=(const char*)s; };
-	inline const size_t get_rows(void) const { return n; };
-	inline const size_t get_cols(void) const { return m; };
-	inline const size_t get_max(void) const { return max; };
+	inline size_t get_rows(void) const { return n; };
+	inline size_t get_cols(void) const { return m; };
+	inline size_t get_max(void) const { return max; };
 	void set_max(const size_t size) 
 	{
 		if ( size<=max ) exception(".set_max(%u): cannot shrink double_array",size);
