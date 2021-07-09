@@ -247,12 +247,12 @@ BUILDINFO += -DBUILD_NAME='"$(shell cd $(SOURCE) && git remote | head -n 1)"'
 BUILDINFO += -DBUILD_URL='"$(shell cd $(SOURCE) && git remote -v | head -n 1 | cut -f1 -d' ' | cut -f2 | sed -e 's/\.git//')"'
 BUILDINFO += -DBUILD_ID='"$(shell cd $(SOURCE) && git log -n 1 | sed -n '1s/^commit //p')"'
 else
-BUILDINFO += -DBUILD_NAME='"local"'
-BUILDINFO += -DBUILD_URL='"file:://$PWD"'
+BUILDINFO += -DBUILD_NAME='"$(shell echo \$USER)"'
+BUILDINFO += -DBUILD_URL='"$(shell hostname)://$(PWD)"'
 BUILDINFO += -DBUILD_ID='"local"'	
 endif
 BUILDINFO += -DBUILD_OPTIONS='""'
-BUILDINFO += -DBUILD_STATUS='""'
+BUILDINFO += -DBUILD_STATUS='"$(shell git status -b --porcelain | sed s'/"//g' | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")"'
 
 # subfolder makefiles to include
 BIN=$(PREFIX)bin/
@@ -260,8 +260,18 @@ ETC=$(PREFIX)share/
 LIB=$(PREFIX)lib/
 DOC=$(PREFIX)doc/
 INC=$(PREFIX)include/
-INCLUDE = $(shell $(SOURCE)utilities/configure $(SOURCE)$(MAKEFILE))
-include $(INCLUDE)
+
+INCLUDE=$(SOURCE)makefile.inc
+config: 
+	$(SOURCE)utilities/configure $(SOURCE)$(MAKEFILE) $(INCLUDE)
+
+-include $(INCLUDE)
+ifeq ($(BUILD_DEPENDS),)
+$(info   CFG $(INCLUDE))
+MAKEFILE_INC = $(shell $(SOURCE)utilities/configure $(SOURCE)$(MAKEFILE) $(INCLUDE))
+include $(MAKEFILE_INC)
+endif
+
 PREFIX_TARGETS += $(BIN_TARGETS) $(ETC_TARGETS) $(LIB_TARGETS) $(DOC_TARGETS) $(INC_TARGETS)
 
 ####################################################
@@ -380,7 +390,9 @@ install: prefix $(INSTALL_TARGETS)
 	$(error install target not implemented)
 	$(INFO) $(INSTALL) ok
 
-clean: 
+clean:
+	$(ECHO)$(RM) $(INCLUDE)
+	$(ECHO)$(RM) -r .depends 
 	$(ECHO)$(RM) $(CLEAN_TARGETS)
 	$(INFO) $(PREFIX) clean
 	$(ECHO)rmdir $(shell echo $(BUILD_FOLDERS) | tr ' ' '\n' | sort -u -r) $(PREFIX_FOLDERS)

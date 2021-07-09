@@ -6,15 +6,16 @@
 if [ "$1" == "-i" ]; then
 	shift 1
 	FILES=$*
+elif [ "$1" == "-d" ]; then
+	FILES="$*":
 else
 	FILES=
 fi
 for F in "$*"; do
-	LIST=$(grep '#include ".*\.h"' < $F | cut -f2 -d'"' | sort -u)
+	LIST=$(g++ -E $F 2>/dev/null | grep '^# ' | cut -f2 -d'"' | sort -u | grep "^${F%/*}/" )
 	for G in $LIST; do
-		INC="${F%/*}/$G"
-		if [ "$INC" != "$F" ]; then
-			FILES+="$INC "
+		if [ "$G" != "$F" ]; then
+			FILES+=" $G"
 		fi
 	done
 done

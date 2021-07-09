@@ -6,13 +6,18 @@
 PATHNAME=$1
 SOURCE=${PATHNAME%/*}
 FILENAME=${PATHNAME##*/}
-INCLUDE=${SOURCE:-.}/makefile.inc
+if [ "$2" == "" ]; then
+	INCLUDE=${SOURCE:-.}/makefile.inc
+else
+	INCLUDE="$2"
+fi
 test "$SOURCE" == "$FILENAME" && SOURCE=.
 echo "# gridlabd make configuration" > $INCLUDE
 # echo "# COMMAND = $0 $* " >> $INCLUDE
 # echo "# UPDATED = $(date)" >> $INCLUDE
 # echo "# SOURCE = $SOURCE" >> $INCLUDE
 # echo "# FILENAME = $FILENAME" >> $INCLUDE
+echo "BUILD_DEPENDS = \$(BUILD).depends/" >> $INCLUDE
 for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 	FOLDER=${MAKEFILE%/*}
 	if [ "$MAKEFILE" != "$PATHNAME" ]; then
@@ -33,9 +38,15 @@ for MAKEFILE in $(find ${SOURCE:-.} -name $FILENAME -print); do
 		echo "${NAME}OBJECTS = " >> $INCLUDE
 		echo "${NAME}PARAMS = " >> $INCLUDE
 		echo "include $MAKEFILE" >> $INCLUDE
-		echo "BUILD_FOLDERS += \${BUILD}$name" >> $INCLUDE
+		echo "BUILD_FOLDERS += \$(BUILD)${name}" >> $INCLUDE
 		echo "CLEAN_TARGETS += \$(${NAME}OBJECTS)" >> $INCLUDE
+		echo "\$(shell mkdir -p \$(BUILD_DEPENDS)/${name})" >> $INCLUDE
+		echo "" >> $INCLUDE
+		for CPP in ${FOLDER/$PWD\//}/*.cpp; do
+			echo "\$(BUILD_DEPENDS)${CPP}: $(utilities/depends -i $CPP)" >> $INCLUDE
+			echo "	touch \$@" >> $INCLUDE
+			echo "" >> $INCLUDE
+		done
 	fi
 done
-
 echo $INCLUDE
