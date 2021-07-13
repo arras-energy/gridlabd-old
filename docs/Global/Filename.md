@@ -12,5 +12,4 @@ The `filename` global expands to the filename of the current file being processe
 
 # See Also
 
-* [[/Global/Linenum]]
 * [[/Global/Modelname]]
