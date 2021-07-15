@@ -1,4 +1,5 @@
 #!/bin/bash
+cd docs
 LIST=$(find User\ manual -print | sort)
 echo "# Table of Contents"
 for ITEM in ${LIST// /_}; do
