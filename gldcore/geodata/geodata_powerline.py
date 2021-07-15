@@ -357,7 +357,7 @@ def linesag(data):
                 p0 = [line['latitude'],line['longitude']]
                 d0 = 0.0
                 z0 = elevation + line['pole_height']
-                sag = z0 - elevation
+                sag = line['pole_height']
                 result[id] = sag
 
             else: # end of a line segment
@@ -365,13 +365,13 @@ def linesag(data):
                 p1 = [line['latitude'],line['longitude']]
                 d1 = get_distance(p0,p1)
                 z1 = elevation + line['pole_height']
-                sag = z1 - elevation
+                sag = line['pole_height']
                 result[id] = sag
 
                 # compute linesag at waypoints
                 for n,l in ld.items():
                     p = [l['latitude'],l['longitude']]
-                    d_hori = get_distance(p0,p)
+                    d_hori = get_distance(p0,p1)
                     try:
                         elevation = l['elevation']
                     except:
@@ -379,6 +379,7 @@ def linesag(data):
                     sag = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
                         power_flow,global_horizontal_irradiance,ground_reflectance,
                         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+                    # the line sag is defined as the distance between the interested point on the line and the ground
                     sag = sag - elevation
                     result[n] = round(sag,OPTIONS["precision"]["linesag"])
 
@@ -414,10 +415,23 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     span = sqrt(d_hori*d_hori + d_vert*d_vert)
     rts = cable['rated_tensile_strength']
     unit_weight = cable['unit_weight']
-    # if d_vert > 30:
-    #     k_init = min(k_init, 3.0*unit_weight*span*span/(2*d_vert*rts))
+    diameter = cable['diameter']
+    air_mass, k_f, air_viscosity = get_air_properties(air_temperature)
+    # calculate the line heading and the angle between line heading and wind direction
+    try:
+        line_angle = line['heading']
+    except:
+        line_angle = 180*atan2(p1[0]-p0[0],p1[1]-p0[1])/np.pi
+    phi = (wind_direction - line_angle)*np.pi/180
+    # calculate the new line sag at loaded condition
+    ice_unit_weight = ice_density*np.pi*ice_thickness*(diameter+ice_thickness)*g
+    wind_unit_weight = 0.5*air_mass*(wind_speed*sin(phi))**2 *(diameter+2*ice_thickness)
+    total_unit_weight = sqrt(wind_unit_weight**2+(unit_weight+ice_unit_weight)**2)
+    if d_vert/d_hori > 0.1:
+        k_init = min(k_init, total_unit_weight*d_hori*d_hori/(2*d_vert*rts))
     H_init = rts*k_init
     sag_init = unit_weight*span*span/(8*H_init)
+    # for Q_I
     P_rated = power_flow
     Vll_rated = cable['voltage_rating']
     Irms =  P_rated/(sqrt(3)*Vll_rated)
@@ -425,22 +439,15 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     coeff_Al = cable['resistivity']
     Q_I_coeff_first = Irms*Irms*R_20C*coeff_Al
     Q_I_coeff_constant = Irms*Irms*R_20C*(1-coeff_Al*(20.0+273.0))
+    # for Q_S
     k_a = 1.0 - cable['reflectivity'] # solar radiation absorption coefficient
     GHI = global_horizontal_irradiance # unit: W/m2
     k_g = ground_reflectance # ground reflect
-    diameter = cable['diameter']
     Q_S_constant = k_a*(diameter+2*ice_thickness)*(1+k_g)*GHI
-
-    try:
-        line_angle = line['heading']
-    except:
-        line_angle = 180*atan2(p1[0]-p0[0],p1[1]-p0[1])/np.pi
-
-    phi = (wind_direction - line_angle)*np.pi/180
+    # for Q_C
     k_angle = 1.194 - cos(phi) + 0.194*cos(2*phi) + 0.368*sin(2*phi)
-    air_mass, k_f, air_viscosity = get_air_properties(air_temperature)
     Nre = wind_speed * (diameter + 2*ice_thickness) * air_mass / air_viscosity
-    if wind_speed < 0.81:
+    if wind_speed < 0.82:
         Q_C_coeff_first = k_angle*(1.01+1.35*Nre**0.52)*k_f
         Q_C_constant = -k_angle*(1.01+1.35*Nre**0.52)*k_f*(air_temperature+273.0)
     else:
@@ -448,18 +455,14 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         Q_C_constant = -k_angle*0.754*(Nre**0.6)*k_f*(air_temperature+273.0)
     # for Q_R
     k_e = cable['emissivity']
-    Q_R_constant = -5.6704e-8*k_e*(diameter+2.0*ice_thickness)*(air_temperature+273.0)**4
-    Q_R_coeff_fourth = 5.6704e-8*k_e*(diameter+2.0*ice_thickness)
+    Q_R_constant = -5.6704e-8*k_e*(diameter+2.0*ice_thickness)*np.pi*(air_temperature+273.0)**4
+    Q_R_coeff_fourth = 5.6704e-8*k_e*(diameter+2.0*ice_thickness)*np.pi
     # for new conductor temp under loading
     coef_sag = [-Q_R_coeff_fourth,0.0,0.0,Q_I_coeff_first-Q_C_coeff_first,Q_I_coeff_constant+Q_S_constant-Q_C_constant-Q_R_constant]
     r = np.roots(coef_sag)
     r = r[~np.iscomplex(r)]
     temp_load = np.absolute(r[r > 0.0]) # unit: K
     temp_load = temp_load - 273.0 # unit: DegC
-    # calculate the new line sag at loaded condition
-    ice_unit_weight = ice_density*np.pi*ice_thickness*(diameter+ice_thickness)*g
-    wind_unit_weight = 0.5*air_mass*(wind_speed*sin(phi))**2 *(diameter+2*ice_thickness)
-    total_unit_weight = sqrt(wind_unit_weight**2+(unit_weight+ice_unit_weight)**2)
 
     area = cable['conductor_crosssection_area']
     elasticity = cable['elasticity']
@@ -471,18 +474,20 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     r = np.roots(coef_H)
     r = r[~np.iscomplex(r)]
     H_load = np.absolute(r[r > 0.0])
-    #
+
     sag_load = total_unit_weight*span*span/(8*H_load)
     sag_angle = atan(wind_unit_weight/(ice_unit_weight+unit_weight))
     C_catenary = H_load / (ice_unit_weight+unit_weight)
     if z0 > z1:
-        d0_hori = d_hori*(1+d_vert/(4*sag_load))/2
+        d0_hori = d_hori/2 + H_load*d_vert/(total_unit_weight*d_hori)
+        d1_hori = d_hori - d0_hori
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         dt = get_distance(p0,p1)
         sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
         sag_elevation = z0 - sag0_cosh*cos(sag_angle)
     else:
-        d0_hori = d_hori*(1-d_vert/(4*sag_load))/2
+        d0_hori = d_hori/2 - H_load*d_vert/(total_unit_weight*d_hori)
+        d1_hori = d_hori - d0_hori
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         dt = get_distance(p0,p1)
         sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
