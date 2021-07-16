@@ -793,7 +793,7 @@ GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype,
 	return item;
 }
 
-int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
+int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool deferred)
 {
 	OBJECT *obj;
 	char classname[65];
@@ -873,6 +873,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		}
 		if ( obj == NULL )
 		{
+			if ( deferred ) return SUCCESS;
 			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
 				format_object(item->by).c_str(), item->id);
 			return FAILED;
@@ -890,6 +891,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if ( obj == NULL )
 		{
+			if ( deferred ) return SUCCESS;
 			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
 				format_object(item->by).c_str(), item->id);
 			return FAILED;
@@ -901,6 +903,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 	}
 	else
 	{
+		if ( deferred ) return SUCCESS;
 		syntax_error(filename,item->line,"'%s' not found", item->id);
 		return FAILED;
 	}
@@ -912,7 +915,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 	return SUCCESS;
 }
 
-int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
+int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferred)
 {
 	char oname[65];
 	char pname[65];
@@ -956,6 +959,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 			}
 			if ( ref == NULL )
 			{
+				if ( deferred ) return SUCCESS;
 				syntax_error(filename,item->line,"transform reference not found");
 				return FAILED;
 			}
@@ -995,7 +999,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 	return FAILED;
 }
 
-STATUS GldLoader::resolve_list(UNRESOLVED *item)
+STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 {
 	UNRESOLVED *next;
 	const char *filename = NULL;
@@ -1017,14 +1021,14 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item)
 		// handle different reference types
 		switch (item->ptype) {
 		case PT_object:
-			if (resolve_object(item, filename)==FAILED)
+			if (resolve_object(item, filename, deferred)==FAILED)
 				return FAILED;
 			break;
 		case PT_double:
 		case PT_complex:
 		case PT_loadshape:
 		case PT_enduse:
-			if (resolve_double(item, filename)==FAILED)
+			if (resolve_double(item, filename, deferred)==FAILED)
 				return FAILED;
 			break;
 		default:
@@ -1040,9 +1044,9 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item)
 	return SUCCESS;
 }
 
-STATUS GldLoader::load_resolve_all(void)
+STATUS GldLoader::load_resolve_all(bool deferred)
 {
-	STATUS result = resolve_list(first_unresolved);
+	STATUS result = resolve_list(first_unresolved,deferred);
 	first_unresolved = NULL;
 	return result;
 }
@@ -8152,7 +8156,7 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 			output_error("%s doesn't appear to be a GLM file", file);
 		goto Failed;
 	}
-	else if ((status=load_resolve_all())==FAILED)
+	else if ((status=load_resolve_all(true))==FAILED)
 		goto Failed;
 
 	/* establish ranks */

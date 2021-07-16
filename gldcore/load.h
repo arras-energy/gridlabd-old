@@ -235,10 +235,12 @@ private:
 	OBJECT *get_next_unlinked(CLASS *oclass);
 	void free_index(void);	
 	UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
-	int resolve_object(UNRESOLVED *item, const char *filename);
-	int resolve_double(UNRESOLVED *item, const char *context);
-	STATUS resolve_list(UNRESOLVED *item);
-	STATUS load_resolve_all(void);
+	int resolve_object(UNRESOLVED *item, const char *filename, bool deferred);
+	int resolve_double(UNRESOLVED *item, const char *context, bool deferred);
+	STATUS resolve_list(UNRESOLVED *item, bool deferred);
+public:
+	STATUS load_resolve_all(bool deferred=false);
+private:
 	void start_parse(int &mm, int &m, int &n, int &l, int linenum);
 	void syntax_error_here(const char *p);
 	int white(PARSER);
