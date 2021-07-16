@@ -381,6 +381,8 @@ private:
 	void set_last_term(const char *p);
 	void save_last_term(const char *p);
 	const char *get_last_term(void);
+private:
+	void inc_linenum() { linenum++; global_loader_linenum = linenum; };
 };
 
 #endif

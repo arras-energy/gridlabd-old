@@ -2972,7 +2972,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 		char c1 = _p[0];
 		char c2 = _p[1];
 		if (c1=='\n')
-			linenum++;
+			inc_linenum();
 		if (size==0)
 		{
 			syntax_error(filename,linenum,"insufficient buffer space to load code");
@@ -5262,7 +5262,7 @@ int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 	int _n = 0;
 	while ( _p[_n]!='}' )
 	{
-		if (_p[_n]=='\n') linenum++;
+		if (_p[_n]=='\n') inc_linenum();
 		*p++ = _p[_n++];
 		if ( p>entity->gnuplot+sizeof(entity->gnuplot) )
 		{
@@ -5622,7 +5622,7 @@ int GldLoader::C_code_block(PARSER, char *buffer, int size)
 		case '}': if (!ignore_curly) n_curly--; break;
 		case '/': if (_p[1]=='*') skip=1, in_comment=1; else if (_p[1]=='/') skip=1, in_linecomment=1; break;
 		case '*': if (_p[1]=='/' && in_comment) skip=1, in_comment=0; break;
-		case '\n': in_linecomment=0; linenum++; break;
+		case '\n': in_linecomment=0; inc_linenum(); break;
 		default: break;
 		}
 		*d++ = *_p;
@@ -6420,7 +6420,7 @@ int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 
 		/* comments must have preceding whitespace in macros */
 		char *c = ( ( line[0] != '#' ) ? strstr(line,"//") : strstr(line, " " "//") );
-		linenum++;
+		inc_linenum();
 		if ( c != NULL )
 		{
 			/* truncate at comment */
@@ -6841,9 +6841,13 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
 	add_depend(incname,ff);
+	char1024 parent_file;
+	strcpy(parent_file,global_loader_filename);
+	int32 parent_line = global_loader_linenum;
+	strcpy(global_loader_filename,incname);
 
 	old_linenum = linenum;
-	linenum = 1;
+	global_loader_linenum = linenum = 1;
 
 	if(fstat(fileno(fp), &stat) == 0){
 		if(stat.st_mtime > modtime){
@@ -6890,6 +6894,8 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 
 	linenum = old_linenum;
 	fclose(fp);
+	strcpy(global_loader_filename,parent_file);
+	global_loader_linenum = parent_line;
 	return count;
 }
 
@@ -8098,6 +8104,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(global_loader_filename,filename);
+	global_loader_linenum = 1;
 
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
@@ -8167,8 +8175,9 @@ Failed:
 Done:
 	//free(buffer);
 	free_index();
-	linenum=1; // parser starts at one
+	global_loader_linenum = linenum = 1; // parser starts at one
 	if (fp!=NULL) fclose(fp);
+	strcpy(global_loader_filename,"");
 	return status;
 }
 
