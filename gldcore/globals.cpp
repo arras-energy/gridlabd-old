@@ -357,6 +357,8 @@ DEPRECATED static struct s_varmap {
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
     {"echo", PT_bool, &global_echo, PA_PUBLIC, "echo subcommands"},
+    {"filename",PT_char1024, &global_loader_filename, PA_REFERENCE, "current filename processed by loader"},
+    // {"linenum",PT_int32, &global_loader_linenum, PA_REFERENCE,"current line number processed by loaded"},
 	/* add new global variables here */
 };
 
@@ -1322,7 +1324,7 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
@@ -1352,7 +1354,7 @@ DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
@@ -1362,11 +1364,11 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
 		return NULL;
 	}
-	strncpy(buffer,var,size);
-	char *dir = strrchr(buffer,'/');
+	char *dir = strrchr(var,'/');
 	if ( dir != NULL )
 	{
 		*dir = '\0';
+		strncpy(buffer,var,size);
 	}
 	else
 	{
@@ -1377,7 +1379,7 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
