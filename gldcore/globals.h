@@ -682,6 +682,12 @@ GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after si
 /* Variable: global_echo */
 GLOBAL bool global_echo INIT(FALSE); /**< echo subcommands */
 
+/* Variable: global_loader_filename */
+GLOBAL char1024 global_loader_filename INIT("");
+
+/* Variable: global_loader_linenum */
+GLOBAL int32 global_loader_linenum INIT(0);
+
 /* Variable: global_json_complex_format */
 #define JCF_STRING  0x0000
 #define JCF_LIST    0x0001
