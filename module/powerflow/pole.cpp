@@ -488,7 +488,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
         }
 
         // M = a * V^2 + b * V + c
-        pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
+        pole_stress_polynomial_a = pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind;
         pole_stress_polynomial_b = 0.0;
         pole_stress_polynomial_c = wire_tension;
 
