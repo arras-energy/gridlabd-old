@@ -1,0 +1,13 @@
+#set suppress_repeat_messages=FALSE
+
+#print filename = ${filename}
+
+#print FILENAME = ${FILENAME $filename}
+#print FILEPATH = ${FILEPATH $filename}
+#print FILETYPE = ${FILETYPE $filename}
+
+#ifexist ../loader_variables_include.glm
+#include "../loader_variables_include.glm"
+#else
+#include "./loader_variables_include.glm"
+#endif
