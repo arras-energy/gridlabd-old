@@ -793,7 +793,7 @@ GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype,
 	return item;
 }
 
-int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
+int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool deferred)
 {
 	OBJECT *obj;
 	char classname[65];
@@ -873,6 +873,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		}
 		if ( obj == NULL )
 		{
+			if ( deferred ) return SUCCESS;
 			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
 				format_object(item->by).c_str(), item->id);
 			return FAILED;
@@ -890,6 +891,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if ( obj == NULL )
 		{
+			if ( deferred ) return SUCCESS;
 			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
 				format_object(item->by).c_str(), item->id);
 			return FAILED;
@@ -901,6 +903,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 	}
 	else
 	{
+		if ( deferred ) return SUCCESS;
 		syntax_error(filename,item->line,"'%s' not found", item->id);
 		return FAILED;
 	}
@@ -912,7 +915,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 	return SUCCESS;
 }
 
-int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
+int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferred)
 {
 	char oname[65];
 	char pname[65];
@@ -956,6 +959,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 			}
 			if ( ref == NULL )
 			{
+				if ( deferred ) return SUCCESS;
 				syntax_error(filename,item->line,"transform reference not found");
 				return FAILED;
 			}
@@ -995,7 +999,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 	return FAILED;
 }
 
-STATUS GldLoader::resolve_list(UNRESOLVED *item)
+STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 {
 	UNRESOLVED *next;
 	const char *filename = NULL;
@@ -1017,14 +1021,14 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item)
 		// handle different reference types
 		switch (item->ptype) {
 		case PT_object:
-			if (resolve_object(item, filename)==FAILED)
+			if (resolve_object(item, filename, deferred)==FAILED)
 				return FAILED;
 			break;
 		case PT_double:
 		case PT_complex:
 		case PT_loadshape:
 		case PT_enduse:
-			if (resolve_double(item, filename)==FAILED)
+			if (resolve_double(item, filename, deferred)==FAILED)
 				return FAILED;
 			break;
 		default:
@@ -1040,9 +1044,9 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item)
 	return SUCCESS;
 }
 
-STATUS GldLoader::load_resolve_all(void)
+STATUS GldLoader::load_resolve_all(bool deferred)
 {
-	STATUS result = resolve_list(first_unresolved);
+	STATUS result = resolve_list(first_unresolved,deferred);
 	first_unresolved = NULL;
 	return result;
 }
@@ -2968,7 +2972,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 		char c1 = _p[0];
 		char c2 = _p[1];
 		if (c1=='\n')
-			linenum++;
+			inc_linenum();
 		if (size==0)
 		{
 			syntax_error(filename,linenum,"insufficient buffer space to load code");
@@ -5258,7 +5262,7 @@ int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 	int _n = 0;
 	while ( _p[_n]!='}' )
 	{
-		if (_p[_n]=='\n') linenum++;
+		if (_p[_n]=='\n') inc_linenum();
 		*p++ = _p[_n++];
 		if ( p>entity->gnuplot+sizeof(entity->gnuplot) )
 		{
@@ -5618,7 +5622,7 @@ int GldLoader::C_code_block(PARSER, char *buffer, int size)
 		case '}': if (!ignore_curly) n_curly--; break;
 		case '/': if (_p[1]=='*') skip=1, in_comment=1; else if (_p[1]=='/') skip=1, in_linecomment=1; break;
 		case '*': if (_p[1]=='/' && in_comment) skip=1, in_comment=0; break;
-		case '\n': in_linecomment=0; linenum++; break;
+		case '\n': in_linecomment=0; inc_linenum(); break;
 		default: break;
 		}
 		*d++ = *_p;
@@ -6416,7 +6420,7 @@ int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 
 		/* comments must have preceding whitespace in macros */
 		char *c = ( ( line[0] != '#' ) ? strstr(line,"//") : strstr(line, " " "//") );
-		linenum++;
+		inc_linenum();
 		if ( c != NULL )
 		{
 			/* truncate at comment */
@@ -6837,9 +6841,13 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
 	add_depend(incname,ff);
+	char1024 parent_file;
+	strcpy(parent_file,global_loader_filename);
+	int32 parent_line = global_loader_linenum;
+	strcpy(global_loader_filename,incname);
 
 	old_linenum = linenum;
-	linenum = 1;
+	global_loader_linenum = linenum = 1;
 
 	if(fstat(fileno(fp), &stat) == 0){
 		if(stat.st_mtime > modtime){
@@ -6886,6 +6894,8 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 
 	linenum = old_linenum;
 	fclose(fp);
+	strcpy(global_loader_filename,parent_file);
+	global_loader_linenum = parent_line;
 	return count;
 }
 
@@ -8094,6 +8104,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(global_loader_filename,filename);
+	global_loader_linenum = 1;
 
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
@@ -8144,7 +8156,7 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 			output_error("%s doesn't appear to be a GLM file", file);
 		goto Failed;
 	}
-	else if ((status=load_resolve_all())==FAILED)
+	else if ((status=load_resolve_all(true))==FAILED)
 		goto Failed;
 
 	/* establish ranks */
@@ -8163,8 +8175,9 @@ Failed:
 Done:
 	//free(buffer);
 	free_index();
-	linenum=1; // parser starts at one
+	global_loader_linenum = linenum = 1; // parser starts at one
 	if (fp!=NULL) fclose(fp);
+	strcpy(global_loader_filename,"");
 	return status;
 }
 
