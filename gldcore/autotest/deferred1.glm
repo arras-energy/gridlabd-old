@@ -1,0 +1,10 @@
+class test
+{
+	double x;
+}
+
+object test
+{
+	name test1;
+	parent test2;
+}

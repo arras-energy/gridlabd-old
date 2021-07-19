@@ -140,11 +140,22 @@ GldMain::GldMain(int argc, const char *argv[])
 	IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 
 	/* process command line arguments */
-	if (cmdarg.load(argc,argv)==FAILED)
+	if ( cmdarg.load(argc,argv) == FAILED )
 	{
 		output_fatal("shutdown after command line rejected");
 		/*	TROUBLESHOOT
 			The command line is not valid and the system did not
+			complete its startup procedure.  Correct the problem
+			with the command line and try again.
+		 */
+		exec.mls_done();
+		return;
+	}
+	if ( loader.load_resolve_all() == FAILED )
+	{
+		output_fatal("shutdown after command loader name resolution failed");
+		/*	TROUBLESHOOT
+			The loaded files are not valid and the system did not
 			complete its startup procedure.  Correct the problem
 			with the command line and try again.
 		 */
