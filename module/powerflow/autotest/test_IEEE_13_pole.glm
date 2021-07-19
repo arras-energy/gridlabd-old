@@ -36,7 +36,7 @@ object climate {
 object multi_recorder
 {
 	file "test_IEEE13_pole_output.csv";
-	property weather:wind_speed, n633:wind_pressure, n633:resisting_moment, n633:total_moment, n633:pole_status, n633:tilt_angle, n633:pole_stress;
+	property weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_angle, p633:pole_stress;
 	interval -1; 
 }
 object pole_configuration 
@@ -420,11 +420,14 @@ object overhead_line { //632633 {
 }
 
 // Create node objects
-object pole { //633 {
+object node { //633 {
      name n633;
      phases "ABCN";
-     configuration WOOD-SOUTHERN-PINE-45/4;
-     weather weather;
+     object pole {
+     	name p633;
+	     configuration WOOD-SOUTHERN-PINE-45/4;
+	     weather weather;
+	    };
      voltage_A 2401.7771;
      voltage_B -1200.8886-2080.000j;
      voltage_C -1200.8886+2080.000j;
