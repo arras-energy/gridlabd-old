@@ -1,0 +1,5 @@
+#ifexist ../deferred1.glm
+#define DIR=..
+#endif
+
+#gridlabd ${DIR:-.}/deferred1.glm ${DIR:-.}/deferred2.glm 
