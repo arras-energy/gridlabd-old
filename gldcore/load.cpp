@@ -6480,7 +6480,10 @@ GldLoader::FORLOOPSTATE GldLoader::for_set_state(GldLoader::FORLOOPSTATE n)
 	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
 	FORLOOPSTATE m = forloopstate;
 	forloopstate = n;
-	if ( forloop_verbose ) output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	if ( forloop_verbose ) 
+	{
+		IN_MYCONTEXT output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	}
 	return m;
 }
 
@@ -6500,7 +6503,10 @@ bool GldLoader::for_open(const char *var, const char *range)
 	}
 	forloop = strdup(range);
 	forvar = strdup(var);
-	if ( forloop_verbose ) output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);
+	if ( forloop_verbose ) 
+	{
+		IN_MYCONTEXT output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);
+	}
 	for_set_state(FOR_BODY);
 	return true;
 }
@@ -6512,7 +6518,10 @@ const char * GldLoader::for_setvar(void)
 	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
 	if ( value != NULL )
 	{
-		if ( forloop_verbose ) output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		}
 		bool old = global_strictnames;
 		global_strictnames = false;
 		global_setvar(forvar,value);
@@ -6520,7 +6529,10 @@ const char * GldLoader::for_setvar(void)
 	}
 	else
 	{
-		if ( forloop_verbose ) output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+		}
 	}
 	return value;
 }
@@ -6530,13 +6542,19 @@ bool GldLoader::for_capture(const char *line)
 {
 	if ( strncmp(line,"#done",5) == 0 )
 	{
-		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		}
 		for_set_state(FOR_REPLAY);
 		return false;
 	}
 	else
 	{
-		if ( forloop_verbose ) output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		}
 		forbuffer.push_back(std::string(line));
 		forbufferline = forbuffer.end();
 		return true;
@@ -6549,7 +6567,10 @@ const char *GldLoader::for_replay(void)
 	// need to get first/next value in list
 	if ( forbufferline == forbuffer.end() )
 	{
-		if ( forloop_verbose ) output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		}
 		forvalue = for_setvar();
 		forbufferline = forbuffer.begin();
 	}
@@ -6557,7 +6578,7 @@ const char *GldLoader::for_replay(void)
 	// no values left
 	if ( forvalue == NULL )
 	{
-		output_verbose("forloop in var '%s' replay complete", forvar, forloop);
+		IN_MYCONTEXT output_verbose("forloop in var '%s' replay complete", forvar, forloop);
 		if ( forloop ) free(forloop);
 		lastfor = NULL;
 		if ( forvar ) free(forvar);
@@ -6571,7 +6592,10 @@ const char *GldLoader::for_replay(void)
 	{
 		// get next line
 		const char *line = (forbufferline++)->c_str();
-		if ( forloop_verbose ) output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		if ( forloop_verbose ) 
+		{
+			IN_MYCONTEXT output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		}
 		return line;
 	}
 }
@@ -7582,7 +7606,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			global_setvar(varname,oldvalue,NULL);
 		}
-		output_verbose("loading converted file '%s'...", glmname);
+		IN_MYCONTEXT output_verbose("loading converted file '%s'...", glmname);
 		strcpy(line,"\n");
 		return loadall_glm(glmname);
 	}
@@ -7699,7 +7723,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 		strcpy(value, strip_right_white(term+1));
-		output_verbose("%s(%d): %s", filename, linenum, value);
+		IN_MYCONTEXT output_verbose("%s(%d): %s", filename, linenum, value);
 		strcpy(line,"\n");
 		return TRUE;
 	}
@@ -7788,7 +7812,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		char command_line[4096];
 		snprintf(command_line,sizeof(command_line)-1,"%s/gridlabd-%s",global_execdir,command);
-		output_verbose("executing system(%s)", command_line);
+		IN_MYCONTEXT output_verbose("executing system(%s)", command_line);
 		global_return_code = my_instance->subcommand("%s",command_line);
 		if( global_return_code != 0 )
 		{
@@ -8261,7 +8285,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		{
 			output_warning("-o option filename missing");
 		}
-		output_verbose("changing output to '%s'", to);
+		IN_MYCONTEXT output_verbose("changing output to '%s'", to);
 	}
 	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
 	if ( rc != 0 )
@@ -8269,7 +8293,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		output_error("%s: return code %d",converter_path,rc);
 		return false;
 	}
-	output_verbose("GldLoader::load_import(from='%s', to='%s', len=%d) -> OK load_options='%s'",from,to,len,load_options);
+	IN_MYCONTEXT output_verbose("GldLoader::load_import(from='%s', to='%s', len=%d) -> OK load_options='%s'",from,to,len,load_options);
 	return true;
 }
 
