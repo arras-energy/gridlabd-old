@@ -214,7 +214,8 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
     {
         if ( equipment_is_line )
         {
-            // TODO
+            verbose("%s recalculation flag set",my()->parent->name);
+            verbose("TODO: %s line moment not implemented yet",my()->parent->name);
         }
         else
         {
@@ -232,7 +233,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("y = %g ft.lb",y);
             double moment = sqrt(x*x+y*y);
             verbose("moment = %g deg",moment);
-            mount->set_equipment_moment(moment);
+            mount->set_equipment_moment(mount->get_equipment_momen()+moment);
         }
     }
     else
