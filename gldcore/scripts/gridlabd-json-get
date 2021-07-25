@@ -33,7 +33,7 @@ keys = []
 keys_only = False
 
 if len(sys.argv) > 1 and sys.argv[1] in ['-h','--help','help'] :
-    print("Syntax: gridlabd json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] [-i|--input FILENAME] [-o|--output] FILENAME");
+    print("Syntax: gridlabd json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] [-i|--input INTPUT] [-o|--output OUTPUT]");
     quit(0);
 try:
     if len(sys.argv) > 1 :
