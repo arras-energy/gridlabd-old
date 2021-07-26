@@ -126,6 +126,21 @@ object triplex_meter
 #endif
 ~~~
 
+File `sensitivity_template.py`:
+
+~~~
+import pandas
+total = 0
+for num in range(15):
+  base = pandas.read_csv(f"triplex_load:{num}_base.csv")
+  test = pandas.read_csv(f"triplex_load:{num}_test.csv")
+  total += (test['measured_real_energy_delta']-base['measured_real_energy_delta']).sum().round(-3)/1000
+
+print(f"Change: {total} kWh/y")
+~~~
+
+The `tape` module option `csv_header_type NAME` formats the CSV files with name headers that are compatible with `pandas.read_csv()`.  The `PASS` variable is used to identify whether the simulation is running a base case or a test case.  The `#on_exit` macro is used to run post processing.  In the base (when `PASS` is not defined), the command runs the test case.  In the second case, the command run the template's python script to load and compare the CSV files and compute the sensitivity.
+
 ## Configuring templates
 
 Often templates use variables to allow users to control the behavior of the template.  These variable can be set using a configuration file in GLM or CSV format.  For example, the clock template can use a GLM configuration file as follows:
