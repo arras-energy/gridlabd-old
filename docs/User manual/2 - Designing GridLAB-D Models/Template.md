@@ -14,7 +14,7 @@ Public templates can be downloaded from the GridLAB-D template repository on Git
 
 # Examples
 
-The following example illustrates how a template can be used to automatically attach meters and houses to network load objects.  
+For the following examples, we will use the following network model, which includes 5 single-phase load busses.
 
 File `network.glm`:
 
@@ -29,11 +29,39 @@ object triplex_load:..5
 #done
 ~~~
 
-File `houses.glm`:
+## Weather template
+
+The following example illustrates how to create a template for loading weather data.
+
+~~~
+#weather get "CA-SanFrancisco_Intl_Ap.tmy3"
+#input "CA-SanFrancisco_Intl_Ap.tmy3"
+~~~
+
+## Clock template
+
+The following example illustrates how to create a template for setting the simulation clock.
+
+File `clock_template.glm`:
+
+~~~
+clock 
+{
+  timezone "PST+8PDT";
+  starttime "2021-01-01 00:00:00 PST";
+  stoptime "2022-01-01 00:00:00 PST";
+}
+~~~
+
+## Object template
+
+The following example illustrates how a template can be used to automatically attach single-phase meters and houses to load objects in the network model.  
+
+File `house_template.glm`:
 
 ~~~
 module residential
-#for LOAD in ${FIND class=load}
+#for LOAD in ${FIND class=triplex_load}
 object triplex_meter
 {
   parent ${LOAD};
@@ -45,3 +73,6 @@ object triplex_meter
 }
 #done
 ~~~
+
+The `#for LOAD in ${FIND class=triplex_load}` searches the model for all the `triplex_meter` object and loops through them assigning the objects' names sequentially to the `LOAD` variable. The `@` prefix in the `triplex_meter` object `nominal_voltage` and `phases` properties copy the same properties of the `triplex_load` object.
+
