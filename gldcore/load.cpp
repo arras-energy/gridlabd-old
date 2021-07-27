@@ -6589,9 +6589,9 @@ const char *GldLoader::for_replay(void)
 	{
 		output_verbose("forloop in var '%s' replay complete", forvar, forloop);
 		if ( forloop ) free(forloop);
-		lastfor = NULL;
+		lastfor = forloop = NULL;
 		if ( forvar ) free(forvar);
-		forvalue = NULL;
+		forvalue = forvar = NULL;
 		forbuffer.clear();
 		forbufferline = forbuffer.end();
 		for_set_state(FOR_NONE);
