@@ -1,2 +1,2 @@
 datetime,meter,tariff,billing_days,energy,demand,charges
-2020-01-28 00:00:00-08:00,meter_1,E1,27,419.2,0,110.64
+2020-01-26 00:00:00-08:00,meter_1,E1,25,388.2,0,102.45
