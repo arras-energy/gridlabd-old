@@ -17,6 +17,8 @@ clock
 
 #include "${LIBRARY_PATH:-.}/pgande_res_200301.glm"
 
+#set dateformat=ISO8601
+
 #include using(ID=1,TARIFF=E1) "${LIBRARY_PATH:-.}/house.glm"
 // #include using(ID=2,TARIFF=EM) "${LIBRARY_PATH:-.}/house.glm"
 // #include using(ID=3,TARIFF=ES) "${LIBRARY_PATH:-.}/house.glm"

@@ -85,7 +85,7 @@ def compute_bill(gridlabd,**kwargs):
 
 	# output billing record only if charges are non-zero
 	if charges > 0:
-		csvwriter.writerow([clock,meter_name,tariff_name,int(billing_days),round(usage,1),0,round(charges,2)])
+		csvwriter.writerow([clock.strftime('%Y-%m-%d'),meter_name,tariff_name,int(billing_days),round(usage,1),0,round(charges,2)])
 		csvfile.flush()
 
 	# update billing data
