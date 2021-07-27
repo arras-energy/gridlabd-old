@@ -1,11 +1,4 @@
-# file...... test_IEEE13_pole_output.csv
-# date...... Mon Jul 19 12:29:19 2021
-# user...... david
-# host...... (null)
-# trigger... (none)
-# interval.. -1
-# limit..... 0
-# timestamp,weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_angle, p633:pole_stress
+timestamp,weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_angle, p633:pole_stress
 2020-07-01 00:00:00 EDT,+0,+75909.6,+0,OK,+0,+0
 2020-07-01 01:00:00 EDT,+1,+75909.6,+0,OK,+0,+0
 2020-07-01 03:00:00 EDT,+1.5,+75909.6,+0,OK,+0,+0

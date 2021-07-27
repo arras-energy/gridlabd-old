@@ -1,8 +1,17 @@
 // $Id: IEEE13-pole
 // SLAC National Accelerator Laboratory
 
+#define OUTPUT=${FILENAME $modelname}_output.csv
+
+#ifexist "../${OUTPUT}"
+#define DIR=..
+#endif
+
 #set iteration_limit=100
-module tape; 
+module tape
+{
+	csv_header_type NAME;
+}
 module reliability{
 	report_event_log false;
 }
@@ -24,18 +33,17 @@ object fault_check
     output_filename "fault_check.txt";
     reliability_mode TRUE;
 }
-//#weather get CA-Chino_Airport.tmy3
 object climate {
 	name weather;
 	object player {
 		property wind_speed; 
-		file "test_IEEE_13_pole_wind.player";
+		file "${DIR:-.}/test_IEEE_13_pole_wind.player";
 	};
 }
 
 object multi_recorder
 {
-	file "test_IEEE13_pole_output.csv";
+	file ${OUTPUT};
 	property weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_angle, p633:pole_stress;
 	interval -1; 
 }
@@ -670,3 +678,7 @@ object regulator {
 	 to n630;
 	 configuration regconfig6506321;
 }
+
+#ifdef DIR 
+#on_exit 0 diff ${OUTPUT} ../${OUTPUT}
+#endif
