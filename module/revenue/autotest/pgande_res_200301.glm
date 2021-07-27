@@ -7,8 +7,9 @@ module revenue
 	// program_credit_months [4,10];
 	// summer_season_months [6,7,8,9];
 	// winter_season_months [1,2,3,4,5,10,11,12];
-	billing_module "test_billing";
-	billing_library "${TESTDIR:-.}";
+	billing_module "${BILLING_MODULE}";
+	billing_library "${LIBRARY_PATH:-.}";
+	billing_function "${BILLING_FUNCTION}";
 };
 
 class pgande_residential_tariff{
@@ -24,7 +25,7 @@ class pgande_residential_tariff{
 }
 
 object pgande_residential_tariff {
-	name "E1";
+	name "E1-alt";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
 	energy_charge_base 0.24373 $/kWh;

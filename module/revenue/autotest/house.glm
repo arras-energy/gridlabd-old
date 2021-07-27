@@ -1,22 +1,21 @@
 
 object triplex_meter
 {
-	name "meter${ID}";
+	name "meter_${ID}";
 	phases AS;
 	nominal_voltage 120 V;
 }
 
 object house
 {
-	parent "meter${ID}";
+	parent "meter_${ID}";
 	//heating_system_type "RESISTANCE";
-
 }
 
 object billing 
 {
-	name "bill${ID}";
-	meter "meter${ID}";
+	name "bill_${ID}";
+	meter "meter_${ID}";
 	tariff "${TARIFF}";
 	baseline_demand 8.2 kWh/day;
 }
@@ -25,10 +24,11 @@ module tape
 {
 	csv_header_type NAME;
 }
+
 object recorder
 {
-	parent "bill${ID}";
-	file "billing${ID}.csv";
+	parent "bill_${ID}";
+	file "${FILENAME $modelname}_bill_${ID}.csv";
 	property "billing_days,energy_charges,total_charges,total_bill";
 	interval -1;
 }

@@ -1,10 +1,12 @@
 // Test PG&E billing model
 
-//#option verbose
-//#option debug
-#set savefile=test_billingjan.json
-#set force_compile=TRUE
-#set verbose=TRUE
+#define BILLING_MODULE=test_billing.py
+#define BILLING_FUNCTION=compute_bill
+
+#ifexist "../${BILLING_MODULE}"
+// this is only defined when the billing module is not local
+#define LIBRARY_PATH=..
+#endif
 
 clock
 {
@@ -15,20 +17,15 @@ clock
 
 module powerflow;
 module residential;
-module revenue;
 
-module pgande_billing;
+#include "${LIBRARY_PATH:-.}/pgande_res_200301.glm"
 
-#ifexist "../house.glm"
-#define TESTDIR=..
-#else
-#define TESTDIR=.
+#include using(ID=1,TARIFF=E1) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=2,TARIFF=EM) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=3,TARIFF=ES) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=4,TARIFF=ESR) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=5,TARIFF=ET) "${LIBRARY_PATH:-.}/house.glm"
+
+#ifdef LIBRARY_PATH
+#on_exit 0 diff ${LIBRARY_PATH}/billing.csv billing.csv
 #endif
-
-#include "${TESTDIR}/pgande_res_200301.glm"
-
-#include using(ID=1,TARIFF=E1) "${TESTDIR}/house.glm"
-// #include using(ID=2,TARIFF=EM) "${TESTDIR}/house.glm"
-// #include using(ID=3,TARIFF=ES) "${TESTDIR}/house.glm"
-// #include using(ID=4,TARIFF=ESR) "${TESTDIR}/house.glm"
-// #include using(ID=5,TARIFF=ET) "${TESTDIR}/house.glm"
