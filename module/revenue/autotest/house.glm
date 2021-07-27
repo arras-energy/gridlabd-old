@@ -23,6 +23,7 @@ object billing
 	meter "meter_${ID}";
 	tariff "${TARIFF}";
 	baseline_demand 8.2 kWh/day;
+	bill_day 28;
 	object recorder
 	{
 		file "${FILENAME $modelname}_bill_${ID}.csv";
