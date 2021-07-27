@@ -233,7 +233,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("y = %g ft.lb",y);
             double moment = sqrt(x*x+y*y);
             verbose("moment = %g deg",moment);
-            mount->set_equipment_moment(mount->get_equipment_momen()+moment);
+            mount->set_equipment_moment(mount->get_equipment_moment()+moment);
         }
     }
     else
