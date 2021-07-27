@@ -26,5 +26,5 @@ clock
 // #include using(ID=5,TARIFF=ET) "${LIBRARY_PATH:-.}/house.glm"
 
 #ifdef LIBRARY_PATH
-#on_exit 0 diff ${LIBRARY_PATH}/billing.csv billing.csv
+#on_exit 0 diff -w ${LIBRARY_PATH}/billing.csv billing.csv
 #endif
