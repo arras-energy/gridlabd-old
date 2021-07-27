@@ -15,9 +15,6 @@ clock
 	stoptime "2020-01-31 00:00:00 PST";
 }
 
-module powerflow;
-module residential;
-
 #include "${LIBRARY_PATH:-.}/pgande_res_200301.glm"
 
 #include using(ID=1,TARIFF=E1) "${LIBRARY_PATH:-.}/house.glm"
