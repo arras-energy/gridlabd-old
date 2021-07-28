@@ -4100,6 +4100,7 @@ int GldLoader::json_block(PARSER, OBJECT *obj, const char *propname)
 int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
+	char parentname[64];
 	static char propval[65536*10];
 	double dval;
 	complex cval;
@@ -4228,12 +4229,41 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					syntax_error(filename,linenum,"unable to get value of inherit property '%s'", propname);
 					REJECT;
 				}
-				if ( object_set_value_by_name(obj,propname,value)<=0 )
+				else if ( object_set_value_by_name(obj,propname,value) <= 0 )
 				{
 					syntax_error(filename,linenum,"unable to set value of inherit property '%s'", propname);
 					REJECT;
 				}
-				// DPC 3/28/20: is SAVE/ACCEPT needed here?
+				else
+				{
+					SAVETERM;
+					ACCEPT;
+				}
+			}
+			else if ( prop != NULL && LITERAL("@") && TERM(name(HERE,parentname,sizeof(parentname))) )
+			{
+				OBJECT *parent = object_find_name(parentname);
+				char value[1024];
+				if ( parent == NULL )
+				{
+					syntax_error(filename,linenum,"cannot inherit from unknown object '%s'",parentname);
+					REJECT;
+				}
+				else if ( ! object_get_value_by_name(parent,propname,value,sizeof(value)) )
+				{
+					syntax_error(filename,linenum,"unable to get value of inherit property '%s' from object '%s'", propname,parentname);
+					REJECT;
+				}
+				else if ( object_set_value_by_name(obj,propname,value) <= 0 )
+				{
+					syntax_error(filename,linenum,"unable to set value of inherit property '%s'", propname);
+					REJECT;
+				}
+				else
+				{
+					SAVETERM;
+					ACCEPT;
+				}
 			}
 			else if ( prop != NULL && prop->ptype == PT_complex
 				&& MARK && TERM(complex_unit(HERE,&cval,&unit)))
@@ -4243,7 +4273,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
-				else if (object_set_complex_by_name(obj,propname,cval)==0)
+				else if ( object_set_complex_by_name(obj,propname,cval) == 0 )
 				{
 					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
@@ -4262,7 +4292,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
-				else if (object_set_double_by_name(obj,propname,dval)==0)
+				else if ( object_set_double_by_name(obj,propname,dval) == 0 )
 				{
 					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj).c_str(), dval);
 					REJECT;
@@ -6559,9 +6589,9 @@ const char *GldLoader::for_replay(void)
 	{
 		output_verbose("forloop in var '%s' replay complete", forvar, forloop);
 		if ( forloop ) free(forloop);
-		lastfor = NULL;
+		lastfor = forloop = NULL;
 		if ( forvar ) free(forvar);
-		forvalue = NULL;
+		forvalue = forvar = NULL;
 		forbuffer.clear();
 		forbufferline = forbuffer.end();
 		for_set_state(FOR_NONE);
