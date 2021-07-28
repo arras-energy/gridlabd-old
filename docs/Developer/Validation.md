@@ -42,9 +42,13 @@ A number of conventions have evolved in validation testing as a result of these 
 
 Some tests need to use very complex models, but most tests should be as simple as possible.
 
-## Use fast test
+## Use fast tests
 
 Minimize the testing time. There is no need to run a 1 year simulation when a 1 day simulation will suffice.
+
+## Test for edge cases and invalid inputs
+
+Don't just test for what works. Also test for what unusual and what doesn't work.  Make sure you test for strange cases that give unintuitive results, and for bad inputs such out of range values, incompatible units, or utter nonsense. Be creative.
 
 ## Check the results
 
