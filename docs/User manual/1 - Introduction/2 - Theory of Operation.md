@@ -56,26 +56,27 @@ There are a number of internal synchronization events that take place while the 
 
 **Before precommit**:
 
-    - *Link*: links are updated first
+- *Link*: links are updated first
 
-    - *Instance*: slave instances are resumed 
+- *Instance*: slave instances are resumed 
     
-    - *Random*: random variables are updated 
+- *Random*: random variables are updated 
     
-    - *Schedule*: schedules are update 
+- *Schedule*: schedules are update 
     
-    - *Loadshape*: loadshapes are updated 
+- *Loadshape*: loadshapes are updated 
     
-    - *Transforms*: schedule transforms are updated 
+- *Transforms*: schedule transforms are updated 
     
-    - *Enduse*: enduses are updated
+- *Enduse*: enduses are updated
     
-    - *Heartbeat*: heartbeat signals are sent
+- *Heartbeat*: heartbeat signals are sent
 
 **Before commit**:
 
-    - *Transforms*: non-schedule transforms are updated
-    - *Instance*: slave instances are waited on
+- *Transforms*: non-schedule transforms are updated
+
+- *Instance*: slave instances are waited on
 
 **After commit**:
 
