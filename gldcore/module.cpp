@@ -1732,7 +1732,7 @@ struct thread_affinity_policy policy;
 
 static unsigned short n_procs=0; /* number of processors in map */
 
-#define MAPNAME "gridlabd-pmap-3" /* TODO: change the pmap number each time the structure changes */
+#define MAPNAME "gridlabd-pmap-4" /* TODO: change the pmap number each time the structure changes */
 typedef struct s_gldprocinfo {
 	LOCKVAR lock;		/* field lock */
 	pid_t pid;			/* process id */
@@ -1742,6 +1742,7 @@ typedef struct s_gldprocinfo {
 	enumeration status;		/* current status */
 	char1024 model;			/* model name */
 	time_t start;			/* wall time of start */
+	int port;				/* server port */
 } GLDPROCINFO;
 static GLDPROCINFO *process_map = NULL; /* global process map */
 
@@ -1872,8 +1873,8 @@ void sched_pkill(pid_t pid, int signal)
 	}
 }
 
-static char HEADING_R[] = "PROC PID   RUNTIME    STATE   CLOCK                   MODEL" ;
-static char HEADING_P[] = "PROC PID   PROGRESS   STATE   CLOCK                   MODEL" ;
+static char HEADING_R[] = "PROC PID   PORT  RUNTIME    STATE   CLOCK                   MODEL" ;
+static char HEADING_P[] = "PROC PID   PORT  PROGRESS   STATE   CLOCK                   MODEL" ;
 int sched_getinfo(int n,char *buf, size_t sz)
 {
 	const char *status = NULL;
@@ -1999,7 +2000,7 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %10s %-7s %-23s %s", n, process_map[n].pid, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
 		sz = snprintf(buf,sz,"%4d   -", n);
@@ -2022,6 +2023,7 @@ STATUS sched_getinfo(int n,PROCINFO *pinfo)
 	pinfo->status = process_map[n].status;
 	strcpy(pinfo->model,process_map[n].model);
 	pinfo->start = process_map[n].start;
+	pinfo->port = process_map[n].port;
 	sched_unlock(n);
 	return SUCCESS;
 }
