@@ -22,10 +22,16 @@ object to {
     value delay(from:value);
 }
 
-module tape;
+module tape
+{
+    csv_header_type NAME;
+}
 object multi_recorder {
-    file output.csv;
+    file ${modelname/.glm/.csv};
     interval -1;
     property "from:value,to:value";
-#warning no assert in autotest
 }
+
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff -w ../${modelname/.glm/.csv} ${modelname/.glm/.csv}
+#endif
