@@ -601,19 +601,67 @@ Where the relative times (summing to 24 hours) will be repeated 31 times in a cy
 
 ### Schedules
 
-TODO:
+Some properties of object change on a regular schedule, e.g., hourly, daily, weekly, monthly, or anually.  Schedules can be created using a syntax based on the original Unix `crontab` semantics.  For example, you can create a schedule where the value is `0` the first half hour of each day and `1` the second half of each hour:
 
-### Transforms
+~~~
+schedule example {
+    0-29 * * * * 0;
+    30-59 * * * * 1;
+}
+~~~
 
-TODO:
+Object properties can then refer to this schedule using the following syntax:
 
-### Loadshapes
+~~~
+class test
+{
+    double x;
+}
+object test
+{
+    x example;
+}
+~~~
 
-TODO:
+You can also apply a linear transformation to the schedule value:
 
-### Links
+~~~
+object test
+{
+    x example*1.5+2.1;
+}
+~~~
 
-TODO:
+### Transforms and Filters
+
+Some properties can be linked to other properties through transforms.  To use a transform, first you must define a filter, e.g., a discrete delay filter that samples every 5 minutes with a 10 second time skew using a bit quantization and clamped to the range (-2.5,+2.5):
+
+~~~
+filter delay(z,5min,10s,resolution=8,minimum=-2.5,maximum=2.5) = 1/z;
+~~~
+
+We can then connect the input and output of the filter using the following syntax:
+
+~~~
+class from
+{
+    randomvar value;
+}
+class to
+{
+    double value;
+}
+object from
+{
+    name from;
+    value "type:normal(0,1); min:-3.0; max:+3.0; refresh:1min";
+}
+object to
+{
+    name to;
+    value delay(from:value);
+}
+~~~
 
 ## Generating output
 
