@@ -42,6 +42,13 @@ PYTHON_MINOR_REQ = 9
 DARWIN_MAJOR_REQ = 18
 LINUX_MAJOR_REQ = 5
 
+# set/clear defaults
+ARFLAGS =
+CCFLAGS =
+LDFLAGS =
+SOFLAGS =
+
+
 # default target
 all: build
 	@echo Run 'make install' to install $(PACKAGE_NAME) $(VERSION)
@@ -180,7 +187,7 @@ endif
 # default archive flags
 ifndef ARFLAGS
 ifeq ($(SYSTEM),Darwin)
-ARFLAGS = -dynamiclib
+ARFLAGS = -shared
 else
 ARFLAGS = -shared
 endif
