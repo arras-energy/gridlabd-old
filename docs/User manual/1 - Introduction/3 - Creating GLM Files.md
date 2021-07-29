@@ -148,9 +148,97 @@ If the properties `svalue`, `evalue`, and `dvalue` are already defined as specif
 
 # Runtime Classes
 
-If a class block is defined, and that class is not already implemented by an existing module, then you may define class behavior for each of the supported behaviors in GridLAB-D. Such classes are called runtime classes and are only be supported if you have installed MinGW on your system. Use of the compiler is automatic and does not need to be explicitly configured. However, if you have installed GridLAB-D in an unusually location, you may have to set the global variable INCLUDE to indicate where the rt/gridlabd.h file is located. You may also want to add the location of any files that the #include macros are expected to find.
+If a class block is defined, and that class is not already implemented by an existing module, then you may define class behavior for each of the supported behaviors in GridLAB-D. Such classes are called runtime classes can be written in Python or C++. 
 
-The supported behaviors for runtime classes include:
+Use of the Python and C++ compilers is automatic and does not need to be explicitly configured. However, if you have installed GridLAB-D in an unusual location, you may have to set the global variable `INCLUDE` to tell C++ where the `rt/gridlabd.h` file is located, and the `pythonpath` global variable to tell Python where to find the Python module. You may also want to add the location of any files that the `#include <file.h>` macros are expected to find.
+
+## Python Runtime Classes
+
+There are two elements to creating a Python runtime class.  First, you must create and load your Python module, e.g.
+
+File `example.py`:
+
+~~~
+import sys
+import random
+def example_sync(name,time):
+    x0 = float(gridlabd.get_value(name,'x'))
+    x1 = x0 + random.uniform(0,1)
+    gridlabd.set_value(name,'x',str(x1))
+    result = time + 3600
+    print(f"{__name__}.example_sync(name='{name}',time={time}): x = {x1}, result = {result}",file=sys.stderr)
+    return int(result)
+~~~
+
+Then you must link your module to the runtime class, e.g.,
+
+File `example.glm`:
+
+~~~
+clock
+{
+    starttime "2020-01-01 00:00:00";
+    stoptime "2020-01-02 00:00:00";
+}
+module example;
+class example
+{
+    on_sync "python:example.example_sync";
+    double x;
+}
+object example
+{
+    x 0.0;
+}
+~~~
+
+Running this yields the following result
+
+~~~
+% gridlabd example.glm
+example.example_sync(name='example:0',time=1577865600): x = 0.8056947368062789, result = 1577869200
+example.example_sync(name='example:0',time=1577869200): x = 1.4092846363477993, result = 1577872800
+example.example_sync(name='example:0',time=1577872800): x = 2.300014263598458, result = 1577876400
+...
+example.example_sync(name='example:0',time=1577944800): x = 13.19907449956815, result = 1577948400
+example.example_sync(name='example:0',time=1577948400): x = 13.886053306757786, result = 1577952000
+example.example_sync(name='example:0',time=1577952000): x = 13.887313687673041, result = 1577955600
+~~~
+
+The following Python event handlers are supported
+
+- Module level
+  - `on_create()`
+  - `on_init(timestamp)`
+  - `on_precommit(timestamp)`
+  - `on_presync(timestamp)`
+  - `on_sync(timestamp)`
+  - `on_postsync(timestamp)`
+  - `on_commit(timestamp)`
+  - `on_finalize(timestamp)`
+  - `on_term(timestamp)`
+- Class level
+  - `on_init(name,timestamp)`
+  - `on_precommit(name,timestamp)`
+  - `on_presync(name,timestamp)`
+  - `on_sync(name,timestamp)`
+  - `on_postsync(name,timestamp)`
+  - `on_commit(name,timestamp)`
+  - `on_finalize(name,timestamp)`
+- Object level
+  - `on_init(name,timestamp)`
+  - `on_precommit(name,timestamp)`
+  - `on_presync(name,timestamp)`
+  - `on_sync(name,timestamp)`
+  - `on_postsync(name,timestamp)`
+  - `on_commit(name,timestamp)`
+  - `on_finalize(name,timestamp)`
+
+In addition, the `script` directive support python calls.
+
+## C++ Runtime Classes
+
+The supported C++ behaviors for runtime classes include:
 
 - `create (object <parent>) { ... return [SUCCESS|FAILED];};` is used to define the object creation behavior other than the default behavior (which is to set the entire object's memory buffer to 0). Usually parent is not defined at this point. Object creation functions are called when the object's memory is allocated, while initialization isn't performed until after all objects have been created and the parent/child hierarchy established.
 
