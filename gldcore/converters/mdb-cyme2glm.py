@@ -21,29 +21,51 @@ def convert(input_file,output_file=None,options={}):
 			openfido.params[name] = value
 		else:
 			openfido.error(f"'{name}' is not a valid mdb-cyme2glm converter parameter")
-	openfido.debug(f"input_file = {input_file}")
-	openfido.debug(f"output_file = {output_file}")
-	openfido.debug(f"config = {config}")
-	openfido.debug(f"params = {params}")
+	# openfido.debug(f"input_file = {input_file}")
+	# openfido.debug(f"output_file = {output_file}")
+	# openfido.debug(f"config = {config}")
+	# openfido.debug(f"params = {params}")
 
 	input_path = os.path.realpath(input_file)
 	input_folder = os.path.dirname(input_path)
 	input_name = os.path.basename(input_path)
-	openfido.debug(f"input_folder = {input_folder}")
-	openfido.debug(f"input_name = {input_name}")
+	# openfido.debug(f"input_folder = {input_folder}")
+	# openfido.debug(f"input_name = {input_name}")
 
 	output_path = os.path.realpath(output_file)
 	output_folder = os.path.dirname(output_path)
 	output_name = os.path.basename(output_path)
-	openfido.debug(f"output_folder = {output_folder}")
-	openfido.debug(f"output_name = {output_name}")
-
-	openfido.run("cyme-extract",
+	# openfido.debug(f"output_folder = {output_folder}")
+	# openfido.debug(f"output_name = {output_name}")
+	openfido.run(["cyme-extract",
 		input_folder = input_folder,
 		output_folder = output_folder,
 		extract = "non-empty",
 		files = input_name,
 		glmname = output_name,
 		outputs = "glm",
-		postproc = "write_glm",
-		)
+		postproc = "write_glm"])
+
+
+
+
+# [input_name, output_name,
+# 		extract = "non-empty",
+# 		files = input_name,
+# 		glmname = output_name,
+# 		outputs = "glm",
+# 		postproc = "write_glm"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
