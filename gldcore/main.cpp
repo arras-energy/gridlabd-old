@@ -739,7 +739,7 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP )
 		{
 			// fprintf(stderr,"poll() hangup\n"); fflush(stderr);
-			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			IN_MYCONTEXT output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
 			break;
 		}
 		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR )
@@ -819,7 +819,7 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 		}
 		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP )
 		{
-			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			IN_MYCONTEXT output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
 			break;
 		}
 		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR )
@@ -867,7 +867,7 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	else
 	{
-		output_verbose("running subcommand '%s'",command);
+		IN_MYCONTEXT output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
         if ( global_echo )
@@ -884,7 +884,7 @@ int GldMain::subcommand(const char *format, ...)
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
 		}
-		output_verbose("subcommand '%s' -> status = %d",command,rc);
+		IN_MYCONTEXT output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
 	free(command);
 	return rc;
