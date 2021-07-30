@@ -65,6 +65,7 @@ struct s_procinfo {
 	enumeration status;		/* current status */
 	char1024 model;			/* model name */
 	time_t start;			/* wall time of start */
+	int port;				/* server port */
 };
 typedef struct s_procinfo PROCINFO;
 

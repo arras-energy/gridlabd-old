@@ -2249,7 +2249,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
 	{"threadcount", "T",	threadcount,	"<n>", "Set the maximum number of threads allowed" },
 	{"job",			NULL,	job,			"...", "Start a job"},
-    {"nprocs",      NULL,   nprocs,         "Display the number of processors available to run jobs"},
+    {"nprocs",      NULL,   nprocs,         NULL, "Display the number of processors available to run jobs"},
 
 	{NULL,NULL,NULL,NULL, "System options"},
 	{"avlbalance",	NULL,	avlbalance,		NULL, "Toggles automatic balancing of object index" },
