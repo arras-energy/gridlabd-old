@@ -19,7 +19,7 @@ python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.m
 system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
 library = gridlabd.__file__
 
-class Application(Tk):
+class Editor(Tk):
 
     def __init__(self):
         Tk.__init__(self)
@@ -394,5 +394,5 @@ class OutputView(Text):
         self.update()
 
 if __name__ == "__main__":
-    root = Application()
+    root = Editor()
     root.mainloop()

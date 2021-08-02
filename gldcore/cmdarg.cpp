@@ -247,7 +247,7 @@ DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 STATUS GldCmdarg::no_cmdargs(void)
 {
-	system("/usr/local/bin/python3 /usr/local/share/gridlabd/main.py &");
+	system("/usr/local/bin/python3 /usr/local/share/gridlabd/editor.py &");
 	return SUCCESS;
 }
 
