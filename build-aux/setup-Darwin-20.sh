@@ -11,7 +11,7 @@ brew install autoconf automake libtool gnu-sed gawk
 [ ! -e /usr/local/bin/libtoolize ] && ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
 
 # install python3
-brew install python3
+brew install python3 python-tk
 
 # docs generators
 brew install mono

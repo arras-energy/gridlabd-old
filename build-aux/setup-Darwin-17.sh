@@ -14,7 +14,7 @@ brew install mono
 brew install naturaldocs
 
 # python3
-brew install python3 mdbtools
+brew install python3 mdbtools python-tk
 pip3 install matplotlib pandas numpy networkx Pillow
 
 # influxdb
