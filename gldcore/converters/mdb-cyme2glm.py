@@ -13,14 +13,34 @@ def convert(input_file,output_file=None,options={}):
 		output_file (str)	output GLM file name
 		options (dict)		options to change config and model options
 	"""
-
+	# openfido_config import
+	try: 
+	    import openfido_config as config
+	except:
+	    # default config
+	    class config:
+	        """Configuration options
+	        """
+	        verbose = False # print more messages as work is done
+	        quiet = False # print fewer messages as work is done
+	        orgname = "openfido" # default repo for workflows and pipelines
+	        branch = "main" # default branch to use when downloading workflows and pipelines
+	        cache = "/usr/local/share/openfido" # additional path for downloaded modules
+	        apiurl = "https://api.github.com"
+	        rawurl = "https://raw.githubusercontent.com"
+	        giturl = "https://github.com"
+	        traceback_file = "/dev/stderr"
+	        pass
 	for name, value in options.items():
-		if name in openfido.config.keys():
-			openfido.config[name] = value
-		elif name in openfido.params.keys():
-			openfido.params[name] = value
+		if hasattr(config, name):
+			exec(f"config.{name} = '{value}'")
+			print(1111)
+		# elif name in openfido.params.keys():
+		# 	openfido.params[name] = value
+		# 	print(2222)
 		else:
-			openfido.error(f"'{name}' is not a valid mdb-cyme2glm converter parameter")
+			raise Exception(f"'{name}' is not a valid mdb-cyme2glm converter configuration")
+			# openfido.error(f"'{name}' is not a valid mdb-cyme2glm converter parameter")
 	# openfido.debug(f"input_file = {input_file}")
 	# openfido.debug(f"output_file = {output_file}")
 	# openfido.debug(f"config = {config}")
@@ -35,27 +55,15 @@ def convert(input_file,output_file=None,options={}):
 	output_path = os.path.realpath(output_file)
 	output_folder = os.path.dirname(output_path)
 	output_name = os.path.basename(output_path)
+
 	# openfido.debug(f"output_folder = {output_folder}")
 	# openfido.debug(f"output_name = {output_name}")
-	openfido.run(["cyme-extract",
-		input_folder = input_folder,
-		output_folder = output_folder,
-		extract = "non-empty",
-		files = input_name,
-		glmname = output_name,
-		outputs = "glm",
-		postproc = "write_glm"])
-
-
-
-
-# [input_name, output_name,
-# 		extract = "non-empty",
-# 		files = input_name,
-# 		glmname = output_name,
-# 		outputs = "glm",
-# 		postproc = "write_glm"]
-
+	openfido.run(["cyme-extract",f"{input_name}",f"{output_name}",
+		f"input_folder={input_folder}",
+		f"output_folder={output_folder}",
+		f"extract=non-empty",
+		f"outputs=glm",
+		f"postproc=write_glm.py"],config)
 
 
 
