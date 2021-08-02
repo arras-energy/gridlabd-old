@@ -176,7 +176,10 @@ class Editor(Tk):
             self.library = library
             self.outputview.append_text(f"Library {self.library} added")
 
-    def model_weather(self,event=None):
+    def model_weather_manager(self,event=None):
+        os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/weather.py")
+
+    def model_weather_choose(self,event=None):
         weather = filedialog.askopenfilename(
             initialfile = self.weather,
             defaultextension = ".tmy3",
@@ -185,7 +188,6 @@ class Editor(Tk):
         if weather:
             self.weather = weather
             self.outputview.append_text(f"Weather {self.weather} added")
-
     def about(self):
         messagebox.showinfo(title, f"Version: {version}-{build}\nSource: {branch}\nLibrary: {library}\n\nSystem: {system}\nPython: {python}")
 
@@ -242,8 +244,11 @@ class MenuBar(Menu):
         main.bind("<Meta_L><l>",main.model_library)
         self.model.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
         main.bind("<Meta_L><t>",main.model_template)
-        self.model.add_command(label="Weather", command=main.model_weather, accelerator="Command-E",)
-        main.bind("<Meta_L><e>",main.model_weather)
+
+        self.model_weather = Menu(self,tearoff=False)
+        self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
+        self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
+        self.model.add_cascade(label="Weather", menu=self.model_weather)
         self.add_cascade(label="Model", menu=self.model) 
 
         help = Menu(self, tearoff=False)  
