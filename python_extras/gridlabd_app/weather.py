@@ -10,7 +10,7 @@ import subprocess
 
 def command(text):
     subcommand = ["gridlabd","weather"]
-    subcommand.extend(text.split())
+    subcommand.extend(text)
     result = subprocess.run(subcommand,capture_output=True)
     if result.returncode == 0:
         return result.stdout.decode('utf-8').split('\n')
@@ -51,10 +51,12 @@ class IndexView(ttk.Treeview):
     def __init__(self,main):
         ttk.Treeview.__init__(self)
         self.main = main
+        self.bind("<Double-1>",self.on_select)
+        self.index = {}
 
         self.heading('#0',text="Remote files")
         usa = self.insert('',END,text="US")
-        files = command("index")
+        files = command(["index"])
         states = []
         for file in files:
             state = file[0:2]
@@ -63,9 +65,19 @@ class IndexView(ttk.Treeview):
         items = {}
         for state in states:
             items[state] = self.insert(usa,END,text=state)
-        for file in command("index"):
+        for file in files:
             state = file[0:2]
-            self.insert(items[state],END,text=file[3:].replace("_"," ").split(".")[0])
+            tag = self.insert(items[state],END,text=file[3:].replace("_"," ").split(".")[0])
+            self.index[tag] = file
+
+    def on_select(self,event):
+        tag = self.selection()[0]
+        file = self.index[tag]
+        if file:
+            command(["get",file])
+            self.main.update()
+        else:
+            print(self.selection)
 
 class ListView(ttk.Treeview):
 
@@ -74,7 +86,7 @@ class ListView(ttk.Treeview):
         self.main = main
 
         self.heading('#0',text="Local files")
-        for item in command("list"):
+        for item in command(["list"]):
             self.insert('',END,text=item)
 
 
