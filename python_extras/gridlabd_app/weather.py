@@ -133,6 +133,7 @@ class ListView(ttk.Treeview):
             popup.add_command(label="Copy name",command=self.copy_name)
             popup.add_separator()
             popup.add_command(label="Delete",command=self.delete_item)
+            popup.add_command(label="Delete all",command=self.delete_all)
             try:
                 popup.tk_popup(event.x_root,event.y_root,0)
             finally:
@@ -151,6 +152,13 @@ class ListView(ttk.Treeview):
         file = self.item(tag,'text')
         if file:
             self.main.command(["delete",file])
+            self.reload()
+
+    def delete_all(self):
+        ans = messagebox.askokcancel("Delete all?","Are you sure you want to delete all weather data?")
+        print("ans =",ans)
+        if ans == True:
+            self.main.command(["delete"])
             self.reload()
 
     def reload(self):

@@ -22,6 +22,7 @@ branch = gridlabd.version()["branch"]
 python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} ({sys.version_info.releaselevel})"
 system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
 library = gridlabd.__file__
+show_splash = False
 
 try:
     from tkinter import *
@@ -179,6 +180,17 @@ class Editor(Tk):
             self.outputview.append_text(f"\nSimulation done\n")
         self.outputview.append_text(f"Elapsed time: {toc-tic:.2g} seconds\n")
 
+    def model_clock(self,event=None):
+        msg = Tk()
+        msg.title("Clock")
+        table = ttk.Treeview(msg,columns=['value'],show='tree')
+        table.insert('',END,text='Time zone',values=[self.model['globals']['timezone_locale']['value']])
+        table.insert('',END,text='Start time',values=[self.model['globals']['starttime']['value']])
+        table.insert('',END,text='Stop time',values=[self.model['globals']['stoptime']['value']])
+        table.column('#0',width=100)
+        table.column('value',width=500,stretch=YES)
+        table.grid(row=0, column=0)
+
     def model_template(self,event=None):
         template = filedialog.askopenfilename(
             initialfile = self.template,
@@ -238,51 +250,57 @@ class MenuBar(Menu):
     def __init__(self, main):
         Menu.__init__(self, main)
 
-        self.file = Menu(self, tearoff=False)
-        self.file.add_command(label="New", underline=0, command=main.file_new, accelerator="Command-N")  
+        self.file_menu = Menu(self, tearoff=False)
+        self.file_menu.add_command(label="New", underline=0, command=main.file_new, accelerator="Command-N")  
         main.bind("<Meta_L><n>",main.file_new)
-        self.file.add_command(label="Open", command=main.file_open, accelerator="Command-O")
+        self.file_menu.add_command(label="Open", command=main.file_open, accelerator="Command-O")
         main.bind("<Meta_L><o>",main.file_open)
-        self.file.add_separator()
-        self.file.add_command(label="Save", command=main.file_save, accelerator="Command-S")  
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Save", command=main.file_save, accelerator="Command-S")  
         main.bind("<Meta_L><s>",main.file_save)
-        self.file.add_command(label="Save as", command=main.file_saveas, accelerator="Command-A")    
+        self.file_menu.add_command(label="Save as", command=main.file_saveas, accelerator="Command-A")    
         main.bind("<Meta_L><a>",main.file_saveas)
-        self.file.add_command(label="Close", command=main.file_new, accelerator="Command-W")    
+        self.file_menu.add_command(label="Close", command=main.file_new, accelerator="Command-W")    
         main.bind("<Meta_L><w>",main.file_new)
-        self.file.add_separator()
-        self.file.add_command(label="Quit", underline=1, command=main.file_exit, accelerator="Command-Q")
-        self.add_cascade(label="File", menu=self.file)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Quit", underline=1, command=main.file_exit, accelerator="Command-Q")
+        self.add_cascade(label="File", menu=self.file_menu)
         
-        self.edit = Menu(self, tearoff=False)  
-        self.edit.add_command(label="Undo", accelerator="Command-Z")  
-        self.edit.add_command(label="Redo", accelerator="Command-Y")  
-        self.edit.add_separator()     
-        self.edit.add_command(label="Cut", accelerator="Command-X")  
-        self.edit.add_command(label="Copy", accelerator="Command-C")  
-        self.edit.add_command(label="Paste", accelerator="Command-V")  
-        self.add_cascade(label="Edit", menu=self.edit) 
+        self.edit_menu = Menu(self, tearoff=False)  
+        self.edit_menu.add_command(label="Undo", accelerator="Command-Z")  
+        self.edit_menu.add_command(label="Redo", accelerator="Command-Y")  
+        self.edit_menu.add_separator()     
+        self.edit_menu.add_command(label="Cut", accelerator="Command-X")  
+        self.edit_menu.add_command(label="Copy", accelerator="Command-C")  
+        self.edit_menu.add_command(label="Paste", accelerator="Command-V")  
+        self.add_cascade(label="Edit", menu=self.edit_menu) 
 
-        self.model = Menu(self, tearoff=False)
-        self.model.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
+        self.model_menu = Menu(self, tearoff=False)
+
+        self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
         main.bind("<Meta_L><b>",main.model_build)
-        self.edit.add_separator()     
-        self.model.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
+        main.bind("<Meta_L><k>",main.model_clock)
+
+        self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
         main.bind("<Meta_L><l>",main.model_library)
-        self.model.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
+        
+        self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
         main.bind("<Meta_L><t>",main.model_template)
 
         self.model_weather = Menu(self,tearoff=False)
         self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
         self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
-        self.model.add_cascade(label="Weather", menu=self.model_weather)
-        self.add_cascade(label="Model", menu=self.model) 
+        self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
+        self.add_cascade(label="Model", menu=self.model_menu) 
 
-        help = Menu(self, tearoff=False)  
-        help.add_command(label="About", command=main.about)
-        help.add_command(label="License", command=main.license)
-        help.add_command(label="Documentation", command=main.documentation)
-        self.add_cascade(label="Help", menu=help)  
+        self.help_menu = Menu(self, tearoff=False)  
+        self.help_menu.add_command(label="About", command=main.about)
+        self.help_menu.add_command(label="License", command=main.license)
+        self.help_menu.add_command(label="Documentation", command=main.documentation)
+        self.add_cascade(label="Help", menu=self.help_menu)  
 
         main.config(menu=self)
 
@@ -428,4 +446,8 @@ class OutputView(Text):
 
 if __name__ == "__main__":
     root = Editor()
+    if show_splash:
+        messagebox.showinfo(title,
+            f"""{title}\n{version}-{build} ({branch}) {system}\n{__doc__}
+            """)
     root.mainloop()
