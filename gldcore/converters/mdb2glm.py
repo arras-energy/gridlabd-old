@@ -29,13 +29,11 @@ if not opts :
     help()
     sys.exit(1)
 for opt, arg in opts:
-    print("opt, arg: ", [opt, arg])
     if opt in ("-h","--help"):
         help()
         sys.exit(0)
     elif opt in ("-i", "--ifile"):
         input_name = arg.strip()
-        print("input_name: ", input_name)
     elif opt in ("-o", "--ofile"):
         output_name = arg.strip()
     elif opt in ("-t","--type"):
@@ -49,16 +47,12 @@ if input_type is None:
     sys.exit(1)
 
 modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm.py")
-print("sys.argv[0]: ", sys.argv[0])
-print("modname: ", modname)
 if os.path.exists(modname):
     util.spec_from_file_location(input_type, modname)
     mod = importlib.import_module(f"mdb-{input_type}2glm")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
     mod.convert(input_name,output_name,options)
-
 else:
-
     print(f"ERROR [mdb2glm]: type '{input_type}' is not valid -- {modname} not found");
     sys.exit(2)
