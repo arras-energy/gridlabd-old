@@ -26,6 +26,7 @@ class Weather(Tk):
     def __init__(self):
         Tk.__init__(self)
 
+        self.title("GridLAB-D Weather")
         self.configure()
 
         self.style = ttk.Style(self)
