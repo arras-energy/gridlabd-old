@@ -2,14 +2,18 @@
 See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, documentation, and tutorials.
 
 """
+
 import sys, os
 import timeit
-from tkinter import *
-from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
-import gridlabd
 import json
-import webbrowser
 import subprocess
+import webbrowser
+
+try:
+    import gridlabd
+except:
+    print("ERROR: GridLAB-D is not installed for this python environment")
+    quit(-1)
 
 title = gridlabd.__title__
 version = gridlabd.__version__.split('-')[0]
@@ -18,6 +22,16 @@ branch = gridlabd.version()["branch"]
 python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} ({sys.version_info.releaselevel})"
 system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
 library = gridlabd.__file__
+
+try:
+    from tkinter import *
+    from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
+except Exception as err:
+    if system == 'Darwin':
+        print(f"ERROR: {err}. Did you remember to run 'brew install python-tk'?",file=sys.stderr)
+    else:
+        print(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
+    quit(-1)
 
 class Editor(Tk):
 
