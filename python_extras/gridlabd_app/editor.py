@@ -87,6 +87,15 @@ class Editor(Tk):
         return
 
     def load_model(self):
+        if self.filename.endswith(".glm"):
+            self.outputview.append_text(f"Compiling {self.filename}...\n")
+            result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
+            self.outputview.append_text(result.stderr.decode("utf-8"))
+            self.outputview.append_text(result.stdout.decode("utf-8"))
+            if result.returncode != 0:
+                return
+            else:
+                self.filename = self.filename.replace('.glm','.json')
         with open(self.filename,"r") as f: self.model = json.load(f)
         if not "application" in self.model.keys() or self.model["application"] != gridlabd.__name__:
             messagebox.showerror(self.filename,f"file does not contain a valid {gridlabd.__title__} model")
@@ -202,6 +211,10 @@ class Editor(Tk):
         if weather:
             self.weather = weather
             self.outputview.append_text(f"Weather {self.weather} added")
+
+    #
+    # Help
+    #
     def about(self):
         messagebox.showinfo(title, f"Version: {version}-{build}\nSource: {branch}\nLibrary: {library}\n\nSystem: {system}\nPython: {python}")
 
@@ -278,7 +291,8 @@ class MenuBar(Menu):
         self.main = main
 
     def key_event(self,event):
-        print("Key event: ",event)
+        # print("Key event: ",event)
+        return
 
 class ModelTree(ttk.Treeview):
 

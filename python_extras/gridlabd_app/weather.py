@@ -65,7 +65,7 @@ class IndexView(ttk.Treeview):
         self.bind("<Button-2>",self.show_popup)
         self.index = {}
 
-        self.heading('#0',text="Remote files")
+        self.heading('#0',text="Remote archive")
         usa = self.insert('',END,text="US")
         files = self.main.command(["index"])
         states = []
@@ -75,7 +75,8 @@ class IndexView(ttk.Treeview):
                 states.append(state)
         items = {}
         for state in states:
-            items[state] = self.insert(usa,END,text=state)
+            tag = items[state] = self.insert(usa,END,text=state)
+            self.index[tag] = f"^{state}"
         for file in files:
             state = file[0:2]
             tag = self.insert(items[state],END,text=file[3:].replace("_"," ").split(".")[0])
@@ -87,7 +88,7 @@ class IndexView(ttk.Treeview):
             self.selection_set(iid)
             popup = Menu(self,tearoff=0);
             popup.add_command(label="Download",command=self.download_file)
-            popup.add_command(label="Remote...",command=self.edit_remote)
+            popup.add_command(label="Remote settings...",command=self.edit_remote)
             try:
                 popup.tk_popup(event.x_root,event.y_root,0)
             finally:
