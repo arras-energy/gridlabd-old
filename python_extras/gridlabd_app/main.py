@@ -47,7 +47,7 @@ class Application(Tk):
         self.sidebar_width = 200
         self.modelview_layout = dict(x=0, y=0, width=self.sidebar_width, height=self.winfo_screenheight()-self.output_height)
         self.dataview_layout = dict(x=self.sidebar_width, y=0, width=int(self.winfo_screenwidth()/2-self.sidebar_width), height=self.winfo_screenheight()-self.output_height)
-        self.outputview_layout = dict(x=0, y=int(self.winfo_screenwidth()/2-self.sidebar_width), width=int(self.winfo_screenwidth()/2), height=self.output_height)
+        self.outputview_layout = dict(x=0, y=int(self.winfo_screenheight()-self.output_height), width=int(self.winfo_screenwidth()/2), height=self.output_height)
 
         self.set_title()
         self.geometry(f'{int(self.winfo_screenwidth()/2)}x{self.winfo_screenheight()}')
@@ -305,6 +305,7 @@ class DataView(ttk.Treeview):
 
     def __init__(self,main):
         columns = ['Property','Value','Description']
+        widths = {'Property':100,'Value':200,'Description':main.dataview_layout['width']-306}
         ttk.Treeview.__init__(self,main,style='gridlabd.Treeview',
             height = main.dataview_layout['height'],
             columns = columns,
@@ -312,6 +313,7 @@ class DataView(ttk.Treeview):
         self['show'] = 'headings'
         for item in columns:
             self.heading(item,text=item)
+            self.column(item,width=widths[item])
         self.bind("<Double-1>",self.on_doubleclick)
         self.target = None
         self.main = main
