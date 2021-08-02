@@ -146,7 +146,7 @@ def main(argv):
             if not icon:
                 warning(f"object '{name}' has no known icon (class '{oclass})'")
                 icon = folium.Icon(color=color)
-            elif pos:
+            if pos:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
         obj.add_to(cluster)
     if mouseposition:
