@@ -34,10 +34,6 @@ def convert(input_file,output_file=None,options={}):
 	for name, value in options.items():
 		if hasattr(config, name):
 			exec(f"config.{name} = '{value}'")
-			print(1111)
-		# elif name in openfido.params.keys():
-		# 	openfido.params[name] = value
-		# 	print(2222)
 		else:
 			raise Exception(f"'{name}' is not a valid mdb-cyme2glm converter configuration")
 			# openfido.error(f"'{name}' is not a valid mdb-cyme2glm converter parameter")
