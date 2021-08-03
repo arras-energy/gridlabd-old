@@ -9,6 +9,12 @@ import json
 import subprocess
 import webbrowser
 
+result = subprocess.run("/usr/local/bin/gridlabd --version=install".split(),capture_output=True)
+if not result:
+    print("ERROR: GridLAB-D is not installed on this system")
+    quit(-1)
+install_path = result.stdout.decode("utf-8").strip()
+
 try:
     import gridlabd
 except:
@@ -33,6 +39,80 @@ except Exception as err:
     else:
         print(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
+
+class MenuBar(Menu):
+
+    def __init__(self, main):
+        Menu.__init__(self, main)
+
+        def nothing(self):
+            return
+
+        self.file_menu = Menu(self, tearoff=False)
+        self.file_menu.add_command(label="New", underline=0, command=main.file_new, accelerator="Command-N")  
+        main.bind("<Meta_L><n>",main.file_new)
+        self.file_menu.add_command(label="Open", command=main.file_open, accelerator="Command-O")
+        main.bind("<Meta_L><o>",main.file_open)
+        self.file_menu.add_command(label="Import", command=main.file_import, accelerator="Shift-Command-O")
+        main.bind("<Meta_L><O>",main.file_import)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Close", command=main.file_new, accelerator="Command-W")    
+        main.bind("<Meta_L><w>",main.file_close)
+        self.file_menu.add_command(label="Save", command=main.file_save, accelerator="Command-S")  
+        main.bind("<Meta_L><s>",main.file_save)
+        self.file_menu.add_command(label="Save as", command=main.file_saveas, accelerator="Command-A")    
+        main.bind("<Meta_L><a>",main.file_saveas)
+        self.file_menu.add_command(label="Export", command=main.file_new, accelerator="Shift-Command-S")    
+        main.bind("<Meta_L><S>",main.file_new)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Quit", underline=1, command=main.file_exit, accelerator="Command-Q")
+        self.add_cascade(label="File", menu=self.file_menu)
+        
+        self.edit_menu = Menu(self, tearoff=False)  
+        self.edit_menu.add_command(label="Undo", accelerator="Command-Z")  
+        self.edit_menu.add_command(label="Redo", accelerator="Command-Y")  
+        self.edit_menu.add_separator()     
+        self.edit_menu.add_command(label="Cut", accelerator="Command-X")  
+        self.edit_menu.add_command(label="Copy", accelerator="Command-C")  
+        self.edit_menu.add_command(label="Paste", accelerator="Command-V")  
+        self.add_cascade(label="Edit", menu=self.edit_menu) 
+
+        self.model_menu = Menu(self, tearoff=False)
+
+        self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
+        main.bind("<Meta_L><b>",main.model_build)
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
+        main.bind("<Meta_L><k>",main.model_clock)
+
+        self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
+        main.bind("<Meta_L><l>",main.model_library)
+        
+        self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
+        main.bind("<Meta_L><t>",main.model_template)
+
+        self.model_weather = Menu(self,tearoff=False)
+        self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
+        self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
+        self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
+        self.add_cascade(label="Model", menu=self.model_menu) 
+
+        self.help_menu = Menu(self, tearoff=False)  
+        self.help_menu.add_command(label="About", command=main.about)
+        self.help_menu.add_command(label="License", command=main.license)
+        self.help_menu.add_command(label="Documentation", command=main.documentation)
+        self.add_cascade(label="Help", menu=self.help_menu)  
+
+        main.config(menu=self)
+
+        main.bind_all("<Key>",self.key_event)
+
+        self.main = main
+
+    def key_event(self,event):
+        # print("Key event: ",event)
+        return
 
 class Editor(Tk):
 
@@ -137,6 +217,17 @@ class Editor(Tk):
             )
         self.load_model()
 
+    def file_import(self,event=None):
+        inputname = filedialog.askopenfilename()
+        inputext = os.path.split(inputname)[-1]
+        import_dialog = ImportDialog(self,inputname=inputname)
+        if import_dialog.outputname:
+            self.filename = import_dialog.outputname
+            self.load_model()
+
+    def file_close(self,event=None):
+        return
+
     def file_save(self,event=None):
         self.save_model()
 
@@ -156,6 +247,9 @@ class Editor(Tk):
             )
         self.save_model()
         self.update()
+
+    def file_export(self,event=None):
+        return
 
     def file_exit(self,event=None):
         self.quit()
@@ -241,76 +335,6 @@ class Editor(Tk):
 
     def documentation(self):
         webbrowser.open(f"https://docs.gridlabd.us/",new=2)
-
-def nothing(self):
-    return
-
-class MenuBar(Menu):
-
-    def __init__(self, main):
-        Menu.__init__(self, main)
-
-        self.file_menu = Menu(self, tearoff=False)
-        self.file_menu.add_command(label="New", underline=0, command=main.file_new, accelerator="Command-N")  
-        main.bind("<Meta_L><n>",main.file_new)
-        self.file_menu.add_command(label="Open", command=main.file_open, accelerator="Command-O")
-        main.bind("<Meta_L><o>",main.file_open)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Save", command=main.file_save, accelerator="Command-S")  
-        main.bind("<Meta_L><s>",main.file_save)
-        self.file_menu.add_command(label="Save as", command=main.file_saveas, accelerator="Command-A")    
-        main.bind("<Meta_L><a>",main.file_saveas)
-        self.file_menu.add_command(label="Close", command=main.file_new, accelerator="Command-W")    
-        main.bind("<Meta_L><w>",main.file_new)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Quit", underline=1, command=main.file_exit, accelerator="Command-Q")
-        self.add_cascade(label="File", menu=self.file_menu)
-        
-        self.edit_menu = Menu(self, tearoff=False)  
-        self.edit_menu.add_command(label="Undo", accelerator="Command-Z")  
-        self.edit_menu.add_command(label="Redo", accelerator="Command-Y")  
-        self.edit_menu.add_separator()     
-        self.edit_menu.add_command(label="Cut", accelerator="Command-X")  
-        self.edit_menu.add_command(label="Copy", accelerator="Command-C")  
-        self.edit_menu.add_command(label="Paste", accelerator="Command-V")  
-        self.add_cascade(label="Edit", menu=self.edit_menu) 
-
-        self.model_menu = Menu(self, tearoff=False)
-
-        self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
-        main.bind("<Meta_L><b>",main.model_build)
-        self.model_menu.add_separator()     
-        
-        self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
-        main.bind("<Meta_L><k>",main.model_clock)
-
-        self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
-        main.bind("<Meta_L><l>",main.model_library)
-        
-        self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
-        main.bind("<Meta_L><t>",main.model_template)
-
-        self.model_weather = Menu(self,tearoff=False)
-        self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
-        self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
-        self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
-        self.add_cascade(label="Model", menu=self.model_menu) 
-
-        self.help_menu = Menu(self, tearoff=False)  
-        self.help_menu.add_command(label="About", command=main.about)
-        self.help_menu.add_command(label="License", command=main.license)
-        self.help_menu.add_command(label="Documentation", command=main.documentation)
-        self.add_cascade(label="Help", menu=self.help_menu)  
-
-        main.config(menu=self)
-
-        main.bind_all("<Key>",self.key_event)
-
-        self.main = main
-
-    def key_event(self,event):
-        # print("Key event: ",event)
-        return
 
 class ModelTree(ttk.Treeview):
 
@@ -443,6 +467,62 @@ class OutputView(Text):
     def append_text(self,text):
         self.insert(END,text)
         self.update()
+
+class ImportDialog(simpledialog.Dialog):
+
+    def __init__(self,parent,inputname,outputname=None):
+        Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.transient(parent)
+        self.title("Import options")
+
+        self.inputname = inputname
+        inputext = os.path.splitext(inputname)[1]
+        if outputname:
+            outputext = os.path.splitext(outputname)[1]
+            self.outputname = outputname
+        else:
+            outputext = ".glm"
+            outputname = inputname.replace(inputext,outputext)
+        self.outputname = outputname
+        self.inputtype = "(select one)"
+        self.outputtype = "(select one)"
+
+        config = subprocess.run(f"/usr/local/bin/python3 {install_path}/share/gridlabd/{inputext[1:]}2{outputext[1:]}.py --config".split())
+        if not config or config.returncode != 0:
+            raise Exception("unable to get converter configuration options")
+        try:
+            from_options = config.stdout["from"]
+            Label(self,text=f"Input {self.inputname.split('/')[-1]} type:").grid(row=0,column=0)
+            OptionMenu(self,self.inputtype,*from_options).grid(row=0,column=1)
+        except Exception as err:
+            print("ERROR:",err,file=sys.stderr)
+            self.inputtype = None
+        try:
+            to_options = config.stdout["type"]
+            Label(self,text=f"Output {self.outputname.split('/')[-1]} type:").grid(row=1,column=0)
+            OptionMenu(self,self.outputtype,*to_options).grid(row=1,column=1)
+        except Exception as err:
+            print("ERROR:",err,file=sys.stderr)
+            self.outputtype = None
+
+        Label(self,text=f"Convert {inputname.split('/')[-1]} to {outputname.split('/')[-1]}?").grid(row=2)
+        Button(self, text="OK", width=10, command=self.ok, default=ACTIVE).grid(row=3,column=0)
+        Button(self, text="Cancel", width=10, command=self.cancel).grid(row=3,column=1)
+        self.bind("&lt;Return>", self.ok)
+        self.bind("&lt;Escape>", self.cancel)        
+        self.grab_set()
+        self.wait_window(self)
+
+class ExportDialog(simpledialog.Dialog):
+
+    def __init__(self,parent,inputname,outputname=None):
+        Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.transient(parent)
+        self.title("Import options")
+        self.grab_set()
+        self.wait_window(self)
 
 if __name__ == "__main__":
     root = Editor()
