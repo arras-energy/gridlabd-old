@@ -30,6 +30,20 @@ system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
 library = gridlabd.__file__
 show_splash = False
 
+preferences = {
+    "Save output filename" : {
+        "value" : "output.txt",
+        "description" : "File name to save output on exit",
+        },
+    "Save output" : {
+        "value" : True,
+        "description" : "Enable saving output on exit",
+        },
+    "Reopen last file" : {
+        "value" : True,
+        "description" : "Enable reopening last file on initial open",
+        },
+}
 try:
     from tkinter import *
     from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
@@ -39,6 +53,23 @@ except Exception as err:
     else:
         print(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
+
+if sys.platform == "darwin":
+    try:
+        from Foundation import NSBundle
+    except:
+        import pip
+        pip.main(["install","pyobjc"])
+        from Foundation import NSBundle
+    bundle = NSBundle.mainBundle()
+    if bundle:
+        info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
+        # print(info,file=sys.stderr)
+        if info and info['CFBundleName'] == 'Python':
+            info['CFBundleName'] = "HiPAS GridLAB-D"
+            info['CFBundleShortVersionString'] = f"{version}"
+            info['CFBundleVersion'] = f"{build} {branch}"
+            info['NSHumanReadableCopyright'] = gridlabd.copyright().split("\n\n")[1]
 
 class MenuBar(Menu):
 
@@ -64,8 +95,10 @@ class MenuBar(Menu):
         main.bind("<Meta_L><a>",main.file_saveas)
         self.file_menu.add_command(label="Export", command=main.file_new, accelerator="Shift-Command-S")    
         main.bind("<Meta_L><S>",main.file_new)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Quit", underline=1, command=main.file_exit, accelerator="Command-Q")
+        if sys.platform != "darwin":
+            self.file_menu.add_separator()
+            self.file_menu.add_command(label="Exit",command=main.file_exit, accelerator="Command-Q")
+            main.bind("<Meta_L><q>",main.file_exit)
         self.add_cascade(label="File", menu=self.file_menu)
         
         self.edit_menu = Menu(self, tearoff=False)  
@@ -74,7 +107,10 @@ class MenuBar(Menu):
         self.edit_menu.add_separator()     
         self.edit_menu.add_command(label="Cut", accelerator="Command-X")  
         self.edit_menu.add_command(label="Copy", accelerator="Command-C")  
-        self.edit_menu.add_command(label="Paste", accelerator="Command-V")  
+        self.edit_menu.add_command(label="Paste", accelerator="Command-V")
+        if sys.platform != "darwin":
+            self.edit_menu.add_separator()     
+            self.edit_menu.add_command(label="Preferences", accelerator="Command-,")
         self.add_cascade(label="Edit", menu=self.edit_menu) 
 
         self.model_menu = Menu(self, tearoff=False)
@@ -91,17 +127,30 @@ class MenuBar(Menu):
         
         self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
         main.bind("<Meta_L><t>",main.model_template)
+        self.add_cascade(label="Model", menu=self.model_menu) 
 
         self.model_weather = Menu(self,tearoff=False)
         self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
         self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
         self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
-        self.add_cascade(label="Model", menu=self.model_menu) 
 
-        self.help_menu = Menu(self, tearoff=False)  
-        self.help_menu.add_command(label="About", command=main.about)
-        self.help_menu.add_command(label="License", command=main.license)
-        self.help_menu.add_command(label="Documentation", command=main.documentation)
+        self.view_menu = Menu(self,tearoff=False)
+        self.add_cascade(label="View", menu=self.view_menu)
+
+        self.view_menu_elements = Menu(self,tearoff=False)
+        main.view_module = BooleanVar()
+        self.view_menu_elements.add_checkbutton(label = "Module", onvalue = True, offvalue = False, variable = main.view_module, command = main.on_view_elements)
+        main.view_class = BooleanVar()
+        self.view_menu_elements.add_checkbutton(label="Class", onvalue=True, offvalue=False, variable=main.view_class, command = main.on_view_elements)
+        main.view_group = BooleanVar()
+        self.view_menu_elements.add_checkbutton(label="Group", onvalue=True, offvalue=False, variable=main.view_group, command = main.on_view_elements)
+        self.view_menu.add_cascade(label="Elements",menu=self.view_menu_elements)
+
+        self.help_menu = Menu(self, tearoff=False)
+        if sys.platform != "darwin":
+            self.help_menu.add_command(label="About", command=main.help_about)
+        self.help_menu.add_command(label="License", command=main.help_license)
+        self.help_menu.add_command(label="Documentation", command=main.help_documentation)
         self.add_cascade(label="Help", menu=self.help_menu)  
 
         main.config(menu=self)
@@ -164,8 +213,14 @@ class Editor(Tk):
             self.load_model()
             self.update()
 
-    def layout(self):
-        return
+        if sys.platform == "darwin":
+            self.createcommand('::tk::mac::ShowPreferences',self.preferences)
+            self.createcommand('::tk::mac::standardAboutPanel',self.help_about)
+            self.createcommand('::tk::mac::Quit',self.file_exit)
+            self.bind("<Meta_L><,>",self.preferences)
+
+    def preferences(self):
+        PreferencesDialog(self,preferences)
 
     def load_model(self):
         if self.filename.endswith(".glm"):
@@ -196,10 +251,13 @@ class Editor(Tk):
         with open(self.filename,"w") as f: json.dump(self.model,f,indent=4)
 
     def set_title(self,text=None):
-        if not text:
-            self.title(f"{gridlabd.__title__} {gridlabd.__version__}")
-        else:
-            self.title(f"{gridlabd.__title__} {gridlabd.__version__} - {os.path.basename(text)}")            
+        title = gridlabd.__title__
+        if text:
+            title = gridlabd.__title__ + " -- " + os.path.basename(text)
+        self.title(title)
+
+    def on_view_elements(self,event=None):
+        self.treeview.set_model()
 
     #
     # File menu
@@ -282,7 +340,12 @@ class Editor(Tk):
         return
 
     def file_exit(self,event=None):
-        self.quit()
+
+        # save outputview to output save file
+        if preferences["Save output"]["value"]:
+            with open(preferences["Save output filename"]["value"],"w") as f:
+                f.write(self.outputview.get(1.0,"end-1c"))
+        self.destroy()
 
     #
     # Model menu
@@ -336,7 +399,7 @@ class Editor(Tk):
             self.outputview.append_text(f"Library {self.library} added")
 
     def model_weather_manager(self,event=None):
-        os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/weather.py")
+        os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/weather.py &")
 
     def model_weather_choose(self,event=None):
         weather = filedialog.askopenfilename(
@@ -351,10 +414,10 @@ class Editor(Tk):
     #
     # Help
     #
-    def about(self):
+    def help_about(self):
         messagebox.showinfo(title, f"Version: {version}-{build}\nSource: {branch}\nLibrary: {library}\n\nSystem: {system}\nPython: {python}")
 
-    def license(self):
+    def help_license(self):
         title = gridlabd.__title__
         license = gridlabd.license()
         msg = Tk()
@@ -363,7 +426,7 @@ class Editor(Tk):
         txt.grid(row=0, column=0)
         msg.mainloop()
 
-    def documentation(self):
+    def help_documentation(self):
         webbrowser.open(f"https://docs.gridlabd.us/",new=2)
 
 class ModelTree(ttk.Treeview):
@@ -377,7 +440,7 @@ class ModelTree(ttk.Treeview):
         self.set_model()
 
     def clear_model(self):
-        self.heading('#0',text='(none)')
+        self.heading('#0',text='Element')
         for item in self.get_children():
             self.delete(item)
 
@@ -393,9 +456,22 @@ class ModelTree(ttk.Treeview):
     def show_objects_by_name(self):
         self.heading('#0',text='Objects by name')
         basename = os.path.basename(self.main.model['globals']['modelname']['value'])
-        item = self.insert('',END,text=basename)
+        root = self.insert('',END,text=basename)
+        class_root = root
+        if self.main.view_module.get():
+            modules = {}
+            for name in sorted(self.main.model['modules'].keys(),key=str.lower):
+                modules[name] = self.insert(root,END,text=name)
+        if self.main.view_class.get():
+            classes = {}
+            for name in sorted(self.main.model['classes'].keys(),key=str.lower):
+                classes[name] = self.insert(root,END,text=name)
         for name in sorted(self.main.model['objects'].keys(),key=str.lower):
-            self.insert(item,END,text=name)
+            if self.main.view_class.get():
+                oclass = self.main.model['objects'][name]['class']
+                self.insert(classes[oclass],END,text=name)
+            else:
+                self.insert(root,END,text=name)
 
     def on_select(self,event):
         tag = self.selection()[0]
@@ -497,6 +573,27 @@ class OutputView(Text):
     def append_text(self,text):
         self.insert(END,text)
         self.update()
+
+class PreferencesDialog(simpledialog.Dialog):
+
+    def __init__(self,parent,preferences):
+        Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.transient(parent)
+        self.title("Preferences")
+
+        tree = ttk.Treeview(self,columns=["value","description"])
+        tree.grid(row=0,column=1)
+        for name,value in preferences.items():
+            item = tree.insert('',END,text=name,values=[str(value["value"]),value["description"]])
+
+        Button(self, text="Save", width=10, command=self.on_save, default=DISABLED).grid(row=3,column=1,padx=10,pady=10)
+        self.grab_set()
+        self.wait_window(self)
+
+    def on_save(self):
+        global preferences
+        self.destroy()
 
 class ImportDialog(simpledialog.Dialog):
 

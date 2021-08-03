@@ -11,6 +11,14 @@ import subprocess
 dialog_width = 600
 dialog_height = 400
 
+if sys.platform == "darwin":
+    from Foundation import NSBundle
+    bundle = NSBundle.mainBundle()
+    if bundle:
+        info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
+        if info and info['CFBundleName'] == 'Python':
+            info['CFBundleName'] = "Weather"
+
 class Weather(Tk):
 
     def __init__(self):
