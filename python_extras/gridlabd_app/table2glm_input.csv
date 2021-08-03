@@ -1,2 +1,2 @@
 class,name ,wind_speed,temperature
-climate,weather,4 m/s,95 degF
+climate.climate,weather,4 m/s,95 degF

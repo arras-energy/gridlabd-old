@@ -177,9 +177,17 @@ class Editor(Tk):
                 return
             else:
                 self.filename = self.filename.replace('.glm','.json')
-        with open(self.filename,"r") as f: self.model = json.load(f)
-        if not "application" in self.model.keys() or self.model["application"] != gridlabd.__name__:
+        with open(self.filename,"r") as f: 
+            try:
+                self.model = json.load(f)
+            except Exception as errmsg:
+                messagebox.showerror(self.filename,f"file does not contain a valid JSON data")
+                return
+        if not self.model \
+                or not "application" in self.model.keys() \
+                or self.model["application"] != gridlabd.__name__:
             messagebox.showerror(self.filename,f"file does not contain a valid {gridlabd.__title__} model")
+            return
         else:
             self.set_title(self.filename)
             self.treeview.set_model()
@@ -219,11 +227,33 @@ class Editor(Tk):
 
     def file_import(self,event=None):
         inputname = filedialog.askopenfilename()
-        inputext = os.path.split(inputname)[-1]
+        if not inputname:
+            return
         import_dialog = ImportDialog(self,inputname=inputname)
-        if import_dialog.outputname:
+        if import_dialog.result == True:
             self.filename = import_dialog.outputname
-            self.load_model()
+            inputext = os.path.splitext(inputname)[1][1:]
+            outputext = os.path.splitext(import_dialog.outputname)[1][1:]
+            if import_dialog.inputtype: 
+                inputtype = f"{inputext}-{import_dialog.inputtype}"
+            else: 
+                inputtype = inputext
+            if import_dialog.outputtype:
+                outputtype = f"{outputext}-{import_dialog.outputtype}"
+            else:
+                outputtype = outputext
+            command =  f"gridlabd convert -i {inputname} -o {import_dialog.outputname} -f {inputtype} -t {outputtype}"
+            self.outputview.append_text(f"Running {command}...\n")
+            result = subprocess.run(command.split(),capture_output=True)
+            if result:
+                self.outputview.append_text(result.stdout)
+                self.outputview.append_text(result.stderr)
+            else:
+                self.outputview.append_text("ERROR: command failed")
+            if result and result.returncode == 0:
+                self.load_model()
+            else:
+                messagebox.showerror(result.stderr)
 
     def file_close(self,event=None):
         return
@@ -485,34 +515,59 @@ class ImportDialog(simpledialog.Dialog):
             outputext = ".glm"
             outputname = inputname.replace(inputext,outputext)
         self.outputname = outputname
-        self.inputtype = "(select one)"
-        self.outputtype = "(select one)"
+        self.inputtype = None
+        self.outputtype = None
+        self.result = None
 
-        config = subprocess.run(f"/usr/local/bin/python3 {install_path}/share/gridlabd/{inputext[1:]}2{outputext[1:]}.py --config".split())
+        config = subprocess.run(f"/usr/local/bin/python3 {install_path}/share/gridlabd/{inputext[1:]}2{outputext[1:]}.py --config".split(),capture_output=True)
+        Label(self,text=f"Input {self.inputname.split('/')[-1]} type:").grid(row=0,column=0)
+        Label(self,text=f"Output {self.outputname.split('/')[-1]} type:").grid(row=1,column=0)
         if not config or config.returncode != 0:
             raise Exception("unable to get converter configuration options")
+        else:
+            options = json.loads(config.stdout.decode('utf-8'))
         try:
-            from_options = config.stdout["from"]
-            Label(self,text=f"Input {self.inputname.split('/')[-1]} type:").grid(row=0,column=0)
-            OptionMenu(self,self.inputtype,*from_options).grid(row=0,column=1)
+            from_options = options["from"]
+            self.inputtype = StringVar()
+            self.inputtype.set(from_options[0])
+            item = OptionMenu(self,self.inputtype,*from_options)
+            item.grid(row=0,column=1)
         except Exception as err:
+            Label(self,text="None").grid(row=0,column=1)
             print("ERROR:",err,file=sys.stderr)
             self.inputtype = None
         try:
-            to_options = config.stdout["type"]
-            Label(self,text=f"Output {self.outputname.split('/')[-1]} type:").grid(row=1,column=0)
-            OptionMenu(self,self.outputtype,*to_options).grid(row=1,column=1)
+            to_options = options["type"]
+            self.outputtype = StringVar()
+            self.outputtype.set(to_options[0])
+            item = OptionMenu(self,self.outputtype,*to_options)
+            item.grid(row=1,column=1)
         except Exception as err:
+            Label(self,text="None").grid(row=1,column=1)
             print("ERROR:",err,file=sys.stderr)
             self.outputtype = None
 
         Label(self,text=f"Convert {inputname.split('/')[-1]} to {outputname.split('/')[-1]}?").grid(row=2)
-        Button(self, text="OK", width=10, command=self.ok, default=ACTIVE).grid(row=3,column=0)
-        Button(self, text="Cancel", width=10, command=self.cancel).grid(row=3,column=1)
-        self.bind("&lt;Return>", self.ok)
-        self.bind("&lt;Escape>", self.cancel)        
+        Button(self, text="Cancel", width=10, command=self.on_cancel).grid(row=3,column=0,padx=10,pady=10)
+        Button(self, text="OK", width=10, command=self.on_ok, default=ACTIVE).grid(row=3,column=1,padx=10,pady=10)
+
+        self.bind("&lt;Return>", self.on_ok)
+        self.bind("&lt;Escape>", self.on_cancel)        
         self.grab_set()
         self.wait_window(self)
+
+    def on_ok(self,event=None):
+        self.result = True
+        self.inputtype = str(self.inputtype.get())
+        self.outputtype = str(self.outputtype.get())
+        self.destroy()
+
+    def on_cancel(self,event=None):
+        self.result = False
+        self.inputtype = None
+        self.outputtype = None
+        self.destroy()
+    
 
 class ExportDialog(simpledialog.Dialog):
 
