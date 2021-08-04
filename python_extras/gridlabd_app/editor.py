@@ -9,16 +9,22 @@ import json
 import subprocess
 import webbrowser
 
+def stdout(*msg,file=sys.stdout):
+    print(*msg,file=file)
+
+def stderr(*msg,file=sys.stderr):
+    print(*msg,file=file)
+
 result = subprocess.run("/usr/local/bin/gridlabd --version=install".split(),capture_output=True)
 if not result:
-    print("ERROR: GridLAB-D is not installed on this system")
+    stderr("ERROR: GridLAB-D is not installed on this system")
     quit(-1)
 install_path = result.stdout.decode("utf-8").strip()
 
 try:
     import gridlabd
 except:
-    print("ERROR: GridLAB-D is not installed for this python environment")
+    stderr("ERROR: GridLAB-D is not installed for this python environment")
     quit(-1)
 
 title = gridlabd.__title__
@@ -31,7 +37,7 @@ library = gridlabd.__file__
 
 preferences = {
     "Show welcome dialog" : {
-        "value" : True,
+        "value" : False, # TODO: this should be True 
         "description" : "Show welcome dialog",
         },
     "Save output filename" : {
@@ -60,9 +66,9 @@ try:
     from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
 except Exception as err:
     if system == 'Darwin':
-        print(f"ERROR: {err}. Did you remember to run 'brew install python-tk'?",file=sys.stderr)
+        stderr(f"ERROR: {err}. Did you remember to run 'brew install python-tk'?",file=sys.stderr)
     else:
-        print(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
+        stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
 
 if sys.platform == "darwin":
@@ -75,7 +81,7 @@ if sys.platform == "darwin":
     bundle = NSBundle.mainBundle()
     if bundle:
         info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
-        # print(info,file=sys.stderr)
+        # stderr(info,file=sys.stderr)
         if info and info['CFBundleName'] == 'Python':
             info['CFBundleName'] = "HiPAS GridLAB-D"
             info['CFBundleShortVersionString'] = f"{version}"
@@ -113,15 +119,23 @@ class MenuBar(Menu):
         self.add_cascade(label="File", menu=self.file_menu)
         
         self.edit_menu = Menu(self, tearoff=False)  
-        self.edit_menu.add_command(label="Undo", accelerator="Command-Z")  
-        self.edit_menu.add_command(label="Redo", accelerator="Command-Y")  
+        self.edit_menu.add_command(label="Undo", accelerator="Command-Z", command=main.undo)  
+        main.bind("<Meta_L><z>",main.redo)
+        self.edit_menu.add_command(label="Redo", accelerator="Command-Y", command=main.redo)  
+        main.bind("<Meta_L><y>",main.redo)
         self.edit_menu.add_separator()     
-        self.edit_menu.add_command(label="Cut", accelerator="Command-X")  
-        self.edit_menu.add_command(label="Copy", accelerator="Command-C")  
-        self.edit_menu.add_command(label="Paste", accelerator="Command-V")
+        self.edit_menu.add_command(label="Cut", accelerator="Command-X", command=main.cut)  
+        main.bind("<Meta_L><x>",main.cut)
+        self.edit_menu.add_command(label="Copy", accelerator="Command-C", command=main.copy)  
+        main.bind("<Meta_L><c>",main.copy)
+        self.edit_menu.add_command(label="Paste", accelerator="Command-V", command=main.paste)
+        main.bind("<Meta_L><v>",main.paste)
+        self.edit_menu.add_command(label="Paste special", accelerator="Shift-Command-V", command=main.paste_special)
+        main.bind("<Meta_L><V>",main.copy)
         if sys.platform != "darwin":
             self.edit_menu.add_separator()     
-            self.edit_menu.add_command(label="Preferences", accelerator="Command-,")
+            self.edit_menu.add_command(label="Preferences", accelerator="Command-,", command=main.preferences)
+            main.bind("<Meta_L><,>",main.preferences)
         self.add_cascade(label="Edit", menu=self.edit_menu) 
 
         self.model_menu = Menu(self, tearoff=False)
@@ -172,7 +186,7 @@ class MenuBar(Menu):
         self.main = main
 
     def key_event(self,event):
-        # print("Key event: ",event)
+        # stderr("Key event: ",event)
         return
 
 class Editor(Tk):
@@ -196,8 +210,8 @@ class Editor(Tk):
         self.template = None
         self.weather = None
         self.library = None
-        self.viewtype = 'objects' # 'objects','classes','modules','globals','schedules','filters'
-        self.viewstyle = 'name' # 'name'
+        # self.viewtype = 'objects' # 'objects','classes','modules','globals','schedules','filters'
+        # self.viewstyle = 'name' # 'name'
 
         self.output_height = 300
         self.sidebar_width = 200
@@ -231,15 +245,24 @@ class Editor(Tk):
             self.createcommand('::tk::mac::Quit',self.file_exit)
             self.bind("<Meta_L><,>",self.preferences)
 
+    def output(self,msg,end='\n'):
+        self.outputview.append_text(msg+end)
+
+    def warning(self,msg,end='\n'):
+        self.outputview.append_text("WARNING: +"+msg+end)
+
+    def error(self,msg,end='\n'):
+        self.outputview.append_text("ERROR: "+msg+end)
+
     def preferences(self):
         PreferencesDialog(self,preferences)
 
     def load_model(self):
         if self.filename.endswith(".glm"):
-            self.outputview.append_text(f"Compiling {self.filename}...\n")
+            self.output(f"Compiling {self.filename}...\n")
             result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
-            self.outputview.append_text(result.stderr.decode("utf-8"))
-            self.outputview.append_text(result.stdout.decode("utf-8"))
+            self.output(result.stderr.decode("utf-8"))
+            self.output(result.stdout.decode("utf-8"))
             if result.returncode != 0:
                 return
             else:
@@ -313,13 +336,13 @@ class Editor(Tk):
             else:
                 outputtype = outputext
             command =  f"gridlabd convert -i {inputname} -o {import_dialog.outputname} -f {inputtype} -t {outputtype}"
-            self.outputview.append_text(f"Running {command}...\n")
+            self.output(f"Running {command}...\n")
             result = subprocess.run(command.split(),capture_output=True)
             if result:
-                self.outputview.append_text(result.stdout)
-                self.outputview.append_text(result.stderr)
+                self.output(result.stdout)
+                self.output(result.stderr)
             else:
-                self.outputview.append_text("ERROR: command failed")
+                self.error("command failed")
             if result and result.returncode == 0:
                 self.load_model()
             else:
@@ -360,10 +383,39 @@ class Editor(Tk):
         self.destroy()
 
     #
+    # Edit menu
+    #
+
+    def undo(self,event=None):
+        return
+
+    def redo(self,event=None):
+        return
+
+    def cut(self,event=None):
+        return
+
+    def copy(self,event=None):
+        focus = self.focus_get()
+        item = focus.get_selected()
+        # item[0] is self.filename
+        text = self.model
+        for ref in item["context"]:
+            text = text[ref]
+        self.clipboard_clear()
+        self.clipboard_append(json.dumps(text,indent=4))
+
+    def paste(self,event=None):
+        return
+
+    def paste_special(self,event=None):
+        return
+
+    #
     # Model menu
     #
     def model_build(self,event=None):
-        self.outputview.append_text(f"\nStarting {os.path.split(self.filename)[1]}...\n")
+        self.output(f"\nStarting {os.path.split(self.filename)[1]}...\n")
         tic = timeit.default_timer()
         command = ["gridlabd",self.filename]
         if self.template:
@@ -371,13 +423,13 @@ class Editor(Tk):
         command.extend(["-D","show_progress=FALSE"])
         result = subprocess.run(command,capture_output=True)
         toc = timeit.default_timer()
-        self.outputview.append_text(result.stderr)
-        self.outputview.append_text(result.stdout)
+        self.output(result.stderr)
+        self.output(result.stdout)
         if result.returncode:
-            self.outputview.append_text(f"\nSimulation error code {result.returncode}!\n")
+            self.error(f"\nreturn code {result.returncode}!\n")
         else:
-            self.outputview.append_text(f"\nSimulation done\n")
-        self.outputview.append_text(f"Elapsed time: {toc-tic:.2g} seconds\n")
+            self.output(f"\nSimulation done\n")
+        self.output(f"Elapsed time: {toc-tic:.2g} seconds\n")
 
     def model_clock(self,event=None):
         msg = Tk()
@@ -398,7 +450,7 @@ class Editor(Tk):
             )
         if template:
             self.template = template
-            self.outputview.append_text(f"Template {self.template} added")
+            self.output(f"Template {self.template} added")
 
     def model_library(self,event=None):
         library = filedialog.askopenfilename(
@@ -408,7 +460,7 @@ class Editor(Tk):
             )
         if library:
             self.library = library
-            self.outputview.append_text(f"Library {self.library} added")
+            self.output(f"Library {self.library} added")
 
     def model_weather_manager(self,event=None):
         os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/weather.py &")
@@ -421,7 +473,7 @@ class Editor(Tk):
             )
         if weather:
             self.weather = weather
-            self.outputview.append_text(f"Weather {self.weather} added")
+            self.output(f"Weather {self.weather} added")
 
     #
     # Help
@@ -459,6 +511,8 @@ class ModelTree(ttk.Treeview):
     def set_model(self):
         """styles in ['name','rank','class','parent']"""
         self.clear_model()
+        if self.main.model:
+            self.show_objects_by_name()
         self.main.update()
 
     def show_objects_by_name(self):
@@ -475,19 +529,33 @@ class ModelTree(ttk.Treeview):
                 self.insert(classes[oclass],END,text=name)
             else:
                 self.insert(root,END,text=name)
-        if self.main.view_class.get() and not preferense["Show unused classes"]["value"]:
+        if self.main.view_class.get() and not preferences["Show unused classes"]["value"]:
             for name in self.get_children(root):
                 if not self.get_children(name):
                     self.delete(name)
 
     def on_select(self,event):
+        item = self.get_selected()
+        if item:
+            name = item['context'][-1]
+            basename = os.path.basename(self.main.model['globals']['modelname']['value'])
+            if name == basename:
+                self.main.dataview.show_globals()
+            elif name in self.main.model['objects'].keys():
+                self.main.dataview.show_object(name)
+
+    def get_selected(self):
         tag = self.selection()[0]
-        name = self.item(tag,'text')
-        basename = os.path.basename(self.main.model['globals']['modelname']['value'])
-        if name == basename:
-            self.main.dataview.show_globals()
-        else:
-            self.main.dataview.show_object(name)
+        if tag:
+            name = self.item(tag,'text')
+            for spec in self.main.model.keys():
+                if type(self.main.model[spec]) is dict and name in self.main.model[spec].keys():
+                    return {
+                        "file" : self.main.filename,
+                        "context" : [spec,name],
+                        "value" : self.main.model[spec][name],
+                        }
+            return {"file":name,"context":['globals'],"values":self.main.model['globals']}
 
 class DataView(ttk.Treeview):
 
@@ -565,6 +633,15 @@ class DataView(ttk.Treeview):
             edit = simpledialog.askstring(title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
             obj[propname] = edit
             self.set(name,"#2",edit)
+
+    def get_selected(self):
+        tag = self.selection()[0]
+        if tag:
+            return {
+                "file" : self.main.filename,
+                "context" : self.item(tag,'text').split('/'),
+                "value" : self.item(tag,'value')[1],
+                }
 
 class OutputView(Text):
 
@@ -645,7 +722,7 @@ class ImportDialog(simpledialog.Dialog):
             item.grid(row=0,column=1)
         except Exception as err:
             Label(self,text="None").grid(row=0,column=1)
-            print("ERROR:",err,file=sys.stderr)
+            stderr("ERROR:",err,file=sys.stderr)
             self.inputtype = None
         try:
             to_options = options["type"]
@@ -655,7 +732,7 @@ class ImportDialog(simpledialog.Dialog):
             item.grid(row=1,column=1)
         except Exception as err:
             Label(self,text="None").grid(row=1,column=1)
-            print("ERROR:",err,file=sys.stderr)
+            stderr("ERROR:",err,file=sys.stderr)
             self.outputtype = None
 
         Label(self,text=f"Convert {inputname.split('/')[-1]} to {outputname.split('/')[-1]}?").grid(row=2)
