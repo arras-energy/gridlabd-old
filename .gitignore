@@ -177,3 +177,4 @@ gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
 python_extras/gridlabd_app/example1_capacitor1.csv
 python_extras/gridlabd_app/example1.glm
+python_extras/gridlabd_app/output.txt

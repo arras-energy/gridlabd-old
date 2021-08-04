@@ -28,9 +28,12 @@ branch = gridlabd.version()["branch"]
 python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} ({sys.version_info.releaselevel})"
 system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
 library = gridlabd.__file__
-show_splash = False
 
 preferences = {
+    "Show welcome dialog" : {
+        "value" : True,
+        "description" : "Show welcome dialog",
+        },
     "Save output filename" : {
         "value" : "output.txt",
         "description" : "File name to save output on exit",
@@ -43,7 +46,15 @@ preferences = {
         "value" : True,
         "description" : "Enable reopening last file on initial open",
         },
-}
+    "Show unused classes" : {
+        "value" : False,
+        "description" : "Enable display of unused classes in elements list",
+        },
+    "Show classes" : {
+        "value" : True,
+        "description" : "Enable display of classes in elements list",
+        }
+    }
 try:
     from tkinter import *
     from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
@@ -138,12 +149,13 @@ class MenuBar(Menu):
         self.add_cascade(label="View", menu=self.view_menu)
 
         self.view_menu_elements = Menu(self,tearoff=False)
-        main.view_module = BooleanVar()
-        self.view_menu_elements.add_checkbutton(label = "Module", onvalue = True, offvalue = False, variable = main.view_module, command = main.on_view_elements)
+        # main.view_module = BooleanVar()
+        # self.view_menu_elements.add_checkbutton(label = "Module", onvalue = True, offvalue = False, variable = main.view_module, command = main.on_view_elements)
         main.view_class = BooleanVar()
+        main.view_class.set(preferences["Show classes"]["value"])
         self.view_menu_elements.add_checkbutton(label="Class", onvalue=True, offvalue=False, variable=main.view_class, command = main.on_view_elements)
-        main.view_group = BooleanVar()
-        self.view_menu_elements.add_checkbutton(label="Group", onvalue=True, offvalue=False, variable=main.view_group, command = main.on_view_elements)
+        # main.view_group = BooleanVar()
+        # self.view_menu_elements.add_checkbutton(label="Group", onvalue=True, offvalue=False, variable=main.view_group, command = main.on_view_elements)
         self.view_menu.add_cascade(label="Elements",menu=self.view_menu_elements)
 
         self.help_menu = Menu(self, tearoff=False)
@@ -447,21 +459,12 @@ class ModelTree(ttk.Treeview):
     def set_model(self):
         """styles in ['name','rank','class','parent']"""
         self.clear_model()
-        if self.main.model and self.main.viewtype == 'objects' \
-                and 'objects' in self.main.model.keys():
-            if self.main.viewstyle == 'name':
-                self.show_objects_by_name()
         self.main.update()
 
     def show_objects_by_name(self):
         self.heading('#0',text='Objects by name')
         basename = os.path.basename(self.main.model['globals']['modelname']['value'])
         root = self.insert('',END,text=basename)
-        class_root = root
-        if self.main.view_module.get():
-            modules = {}
-            for name in sorted(self.main.model['modules'].keys(),key=str.lower):
-                modules[name] = self.insert(root,END,text=name)
         if self.main.view_class.get():
             classes = {}
             for name in sorted(self.main.model['classes'].keys(),key=str.lower):
@@ -472,6 +475,10 @@ class ModelTree(ttk.Treeview):
                 self.insert(classes[oclass],END,text=name)
             else:
                 self.insert(root,END,text=name)
+        if self.main.view_class.get() and not preferense["Show unused classes"]["value"]:
+            for name in self.get_children(root):
+                if not self.get_children(name):
+                    self.delete(name)
 
     def on_select(self,event):
         tag = self.selection()[0]
@@ -583,8 +590,15 @@ class PreferencesDialog(simpledialog.Dialog):
         self.title("Preferences")
 
         tree = ttk.Treeview(self,columns=["value","description"])
+        tree.heading("#0",text="Setting")
+        tree.column("#0",width=150)
+        tree.heading("value",text="Value")
+        tree.column("value",width=200)
+        tree.heading("description",text="Description")
+        tree.column("description",width=450)
         tree.grid(row=0,column=1)
-        for name,value in preferences.items():
+        for name in sorted(preferences.keys()):
+            value = preferences[name]
             item = tree.insert('',END,text=name,values=[str(value["value"]),value["description"]])
 
         Button(self, text="Save", width=10, command=self.on_save, default=DISABLED).grid(row=3,column=1,padx=10,pady=10)
@@ -678,8 +692,8 @@ class ExportDialog(simpledialog.Dialog):
 
 if __name__ == "__main__":
     root = Editor()
-    if show_splash:
-        messagebox.showinfo(title,
+    if preferences["Show welcome dialog"]["value"]:
+        messagebox.showinfo("Welcome",
             f"""{title}\n{version}-{build} ({branch}) {system}\n{__doc__}
             """)
     root.mainloop()
