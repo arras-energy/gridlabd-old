@@ -22,7 +22,9 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
 				else : 
 					class_index=headers.index("class")
-
+				if "." in class_name:
+					class_spec = class_name.split(".")
+					p_config_out.write(f"module {class_spec[0]};\n")
 				if not row[class_index] : 
 					p_config_out.write(f"object {options['class']} ")
 					class_name = options['class']
