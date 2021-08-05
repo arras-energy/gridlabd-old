@@ -142,6 +142,12 @@ class MenuBar(Menu):
 
         self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
         main.bind("<Meta_L><b>",main.model_build)
+
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Run", command=main.model_build, accelerator="Command-R",)
+        main.bind("<Meta_L><r>",main.model_build)
+        
         self.model_menu.add_separator()     
         
         self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
@@ -168,6 +174,10 @@ class MenuBar(Menu):
         self.model_weather.add_command(label="Choose...", command=main.model_weather_choose)
         self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
         
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Settings...", command=main.model_build)
+
         self.add_cascade(label="Model", menu=self.model_menu)
 
         self.view_menu = Menu(self,tearoff=False)
