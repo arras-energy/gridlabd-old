@@ -17,7 +17,7 @@ except:
     stderr("ERROR: GridLAB-D is not installed for this python environment")
     quit(-1)
 
-title = "Weather"
+title = "Template"
 version = gridlabd.__version__.split('-')[0]
 build = gridlabd.version()["build"]
 branch = gridlabd.version()["branch"] 
@@ -36,12 +36,12 @@ if sys.platform == "darwin":
             info['CFBundleVersion'] = f"{build} {branch}"
             info['NSHumanReadableCopyright'] = gridlabd.copyright().split("\n\n")[1]
 
-class Weather(Tk):
+class Template(Tk):
 
     def __init__(self):
         Tk.__init__(self)
 
-        self.title("GridLAB-D Weather")
+        self.title("GridLAB-D Template")
         self.configure()
         self.focus()
 
@@ -68,7 +68,7 @@ class Weather(Tk):
         self.message.pack(padx=5,pady=5,side=BOTTOM, fill=X)
 
     def command(self,text):
-        subcommand = ["gridlabd","weather"]
+        subcommand = ["gridlabd","template"]
         subcommand.extend(text)
         self.config(cursor="wait")
         self.update()
@@ -78,7 +78,7 @@ class Weather(Tk):
         if result.returncode == 0:
             return result.stdout.decode('utf-8').split('\n')
         else:
-            messagebox.showerror(f"Weather error",result.stderr)
+            messagebox.showerror(f"Template error",result.stderr)
             return []
 
 class IndexView(ttk.Treeview):
@@ -180,7 +180,7 @@ class ListView(ttk.Treeview):
             self.reload()
 
     def delete_all(self):
-        ans = messagebox.askokcancel("Delete all?","Are you sure you want to delete all weather data?")
+        ans = messagebox.askokcancel("Delete all?","Are you sure you want to delete all template data?")
         print("ans =",ans)
         if ans == True:
             self.main.command(["delete"])
@@ -210,6 +210,6 @@ class ListView(ttk.Treeview):
             table.grid(row=0, column=0)
 
 if __name__ == "__main__":
-    root = Weather()
+    root = Template()
     root.mainloop()
     quit(0)

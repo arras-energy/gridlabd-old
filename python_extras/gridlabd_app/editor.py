@@ -115,7 +115,7 @@ if sys.platform == "darwin":
         info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
         # stderr(info,file=sys.stderr)
         if info and info['CFBundleName'] == 'Python':
-            info['CFBundleName'] = "HiPAS GridLAB-D"
+            info['CFBundleName'] = "GridLAB-D"
             info['CFBundleShortVersionString'] = f"{version}"
             info['CFBundleVersion'] = f"{build} {branch}"
             info['NSHumanReadableCopyright'] = gridlabd.copyright().split("\n\n")[1]
@@ -184,9 +184,32 @@ class MenuBar(Menu):
         self.model_menu = Menu(self, tearoff=False)
         self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
         main.bind("<Meta_L><b>",main.model_build)
+
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Run", command=main.model_build, accelerator="Command-R",)
+        main.bind("<Meta_L><r>",main.model_build)
+        
         self.model_menu.add_separator()     
         self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
         main.bind("<Meta_L><k>",main.model_clock)
+
+        self.model_menu.add_command(label="Configure", command=main.model_configure, accelerator="Command-D")
+        main.bind("<Meta_L><d>",main.model_configure)
+
+        self.model_menu.add_command(label="Modify", command=main.model_modify, accelerator="Command-M")
+        main.bind("<Meta_L><m>",main.model_modify)
+
+        self.model_library = Menu(self,tearoff=False)
+        self.model_library.add_command(label="Manager...", command=main.model_library_manager)
+        self.model_library.add_command(label="Choose...", command=main.model_library_choose)
+        self.model_menu.add_cascade(label="Library", menu=self.model_library)
+
+        self.model_template = Menu(self,tearoff=False)
+        self.model_template.add_command(label="Manager...", command=main.model_template_manager)
+        self.model_template.add_command(label="Choose...", command=main.model_template_choose)
+        self.model_menu.add_cascade(label="Template", menu=self.model_template)
+
         self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
         main.bind("<Meta_L><l>",main.model_library)
         self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
@@ -196,8 +219,14 @@ class MenuBar(Menu):
         # Model weather menu
         self.model_weather = Menu(self,tearoff=False)
         self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
-        self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
+        self.model_weather.add_command(label="Choose...", command=main.model_weather_choose)
         self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
+        
+        self.model_menu.add_separator()     
+        
+        self.model_menu.add_command(label="Settings...", command=main.model_build)
+
+        self.add_cascade(label="Model", menu=self.model_menu)
 
         # View menu
         self.view_menu = Menu(self,tearoff=False)
@@ -250,11 +279,14 @@ class Editor(Tk):
             padding = 3,
             )
 
-        self.filename = None
-        self.model = None
-        self.template = None
+        self.clock = None
+        self.configuration = None
         self.weather = None
         self.library = None
+        self.filename = None
+        self.model = None
+        self.modify = None
+        self.template = None
         # self.viewtype = 'objects' # 'objects','classes','modules','globals','schedules','filters'
         # self.viewstyle = 'name' # 'name'
 
@@ -494,21 +526,39 @@ class Editor(Tk):
         table.column('value',width=500,stretch=YES)
         table.grid(row=0, column=0)
 
-    def model_template(self,event=None):
+    def model_configure(self,event=None):
+        messagebox.showerror(f"Configure",f"Configuration is not available")
+
+    def model_modify(self,event=None):
+        messagebox.showerror(f"Configure",f"Modify is not available")
+
+    def model_template_manager(self,event=None):
+        os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/template.py &")
+
+    def model_template_choose(self,event=None):
+        initialdir = "/usr/local/share/gridlabd/template"
+        if not os.path.exists(initialdir):
+            self.model_template_manager
         template = filedialog.askopenfilename(
             initialfile = self.template,
             defaultextension = ".glm",
-            initialdir = "/usr/local/share/gridlabd/template",
+            initialdir = initialdir,
             )
         if template:
             self.template = template
             self.output(f"Template {self.template} added")
 
-    def model_library(self,event=None):
+    def model_library_manager(self,event=None):
+        os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/library.py &")
+
+    def model_library_choose(self,event=None):
+        initialdir = "/usr/local/share/gridlabd/library"
+        if not os.path.exists(initialdir):
+            self.model_library_manager
         library = filedialog.askopenfilename(
             initialfile = self.library,
             defaultextension = ".glm",
-            initialdir = "/usr/local/share/gridlabd/library",
+            initialdir = initialdir,
             )
         if library:
             self.library = library
@@ -518,10 +568,13 @@ class Editor(Tk):
         os.system("/usr/local/bin/python3 /usr/local/share/gridlabd/weather.py &")
 
     def model_weather_choose(self,event=None):
+        initialdir = "/usr/local/share/gridlabd/weather"
+        if not os.path.exists(initialdir):
+            self.model_weather_manager
         weather = filedialog.askopenfilename(
             initialfile = self.weather,
             defaultextension = ".tmy3",
-            initialdir = "/usr/local/share/gridlabd/weather",
+            initialdir = initialdir,
             )
         if weather:
             self.weather = weather
@@ -557,12 +610,19 @@ class ModelTree(ttk.Treeview):
             height = main.modelview_layout['height'],
             )
         self.main = main
+        self.configure = self.insert('',END,text="Configure")
+        self.clock = self.insert('',END,text="Clock")
+        self.library = self.insert('',END,text="Library")
+        self.model = self.insert('',END,text="Model")
+        self.modify = self.insert('',END,text="Modify")
+        self.template = self.insert('',END,text="Template")
+
         self.bind("<ButtonRelease-1>",self.on_select)
         self.set_model()
 
     def clear_tree(self):
         self.heading('#0',text='Element')
-        for item in self.get_children():
+        for item in self.get_children(self.model):
             self.delete(item)
 
     def set_model(self):
@@ -575,7 +635,7 @@ class ModelTree(ttk.Treeview):
     def show_objects_by_name(self):
         self.heading('#0',text='Objects by name')
         basename = os.path.basename(self.main.model['globals']['modelname']['value'])
-        root = self.insert('',END,text=basename)
+        root = self.model
         if self.main.view_class.get():
             classes = {}
             for name in sorted(self.main.model['classes'].keys(),key=str.lower):
