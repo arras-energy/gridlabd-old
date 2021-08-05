@@ -146,6 +146,7 @@ mph=1 mile/h
 fps=1 ft/s
 fpm=1 ft/min
 mps=1 m/s
+knot=1.151 mph
 
 ; Flow rates
 gps=1 gal/s
