@@ -210,12 +210,6 @@ class MenuBar(Menu):
         self.model_template.add_command(label="Choose...", command=main.model_template_choose)
         self.model_menu.add_cascade(label="Template", menu=self.model_template)
 
-        self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
-        main.bind("<Meta_L><l>",main.model_library)
-        self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
-        main.bind("<Meta_L><t>",main.model_template)
-        self.add_cascade(label="Model", menu=self.model_menu) 
-
         # Model weather menu
         self.model_weather = Menu(self,tearoff=False)
         self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
