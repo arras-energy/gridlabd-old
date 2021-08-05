@@ -3,64 +3,41 @@ See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, doc
 
 """
 
+#
+# Required modules
+#
 import sys, os
 import timeit
 import json
 import subprocess
 import webbrowser
 
+#
+# Console output
+#
 def stdout(*msg,file=sys.stdout):
     print(*msg,file=file)
 
 def stderr(*msg,file=sys.stderr):
     print(*msg,file=file)
 
+#
+# GridLAB-D link
+#
 result = subprocess.run("/usr/local/bin/gridlabd --version=install".split(),capture_output=True)
 if not result:
     stderr("ERROR: GridLAB-D is not installed on this system")
     quit(-1)
 install_path = result.stdout.decode("utf-8").strip()
-
 try:
     import gridlabd
 except:
     stderr("ERROR: GridLAB-D is not installed for this python environment")
     quit(-1)
 
-title = gridlabd.__title__
-version = gridlabd.__version__.split('-')[0]
-build = gridlabd.version()["build"]
-branch = gridlabd.version()["branch"] 
-python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} ({sys.version_info.releaselevel})"
-system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
-library = gridlabd.__file__
-
-preferences = {
-    "Show welcome dialog" : {
-        "value" : False, # TODO: this should be True 
-        "description" : "Show welcome dialog",
-        },
-    "Save output filename" : {
-        "value" : "output.txt",
-        "description" : "File name to save output on exit",
-        },
-    "Save output" : {
-        "value" : True,
-        "description" : "Enable saving output on exit",
-        },
-    "Reopen last file" : {
-        "value" : True,
-        "description" : "Enable reopening last file on initial open",
-        },
-    "Show unused classes" : {
-        "value" : False,
-        "description" : "Enable display of unused classes in elements list",
-        },
-    "Show classes" : {
-        "value" : True,
-        "description" : "Enable display of classes in elements list",
-        }
-    }
+#
+# Tkinter module
+#
 try:
     from tkinter import *
     from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
@@ -71,6 +48,61 @@ except Exception as err:
         stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
 
+#
+# Global variables
+#
+title = gridlabd.__title__
+version = gridlabd.__version__.split('-')[0]
+build = gridlabd.version()["build"]
+branch = gridlabd.version()["branch"] 
+python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} ({sys.version_info.releaselevel})"
+system = f"{os.uname().sysname} {os.uname().release} ({os.uname().machine})"
+library = gridlabd.__file__
+
+# 
+# Load/initialize preferences
+#
+try:
+    with open("gridlabd-preferences.conf","r") as f:
+        preferences = json.load(f)
+except:
+    preferences = {
+        "Show welcome dialog" : {
+            "value" : False, # TODO: this should be True 
+            "description" : "Show welcome dialog",
+            },
+        "Save output filename" : {
+            "value" : "output.txt",
+            "description" : "File name to save output on exit",
+            },
+        "Save output" : {
+            "value" : True,
+            "description" : "Enable saving output on exit",
+            },
+        "Reopen last file" : {
+            "value" : True,
+            "description" : "Enable reopening last file on initial open",
+            },
+        "Show unused classes" : {
+            "value" : False,
+            "description" : "Enable display of unused classes in elements list",
+            },
+        "Show classes" : {
+            "value" : True,
+            "description" : "Enable display of classes in elements list",
+            }
+        }
+
+#
+# Last run info
+#
+application_data = {
+    "recent_files" : ["example1.json"],
+}
+
+#
+# Platform specifics
+#
 if sys.platform == "darwin":
     try:
         from Foundation import NSBundle
@@ -88,6 +120,9 @@ if sys.platform == "darwin":
             info['CFBundleVersion'] = f"{build} {branch}"
             info['NSHumanReadableCopyright'] = gridlabd.copyright().split("\n\n")[1]
 
+#
+# Menu
+#
 class MenuBar(Menu):
 
     def __init__(self, main):
@@ -96,10 +131,16 @@ class MenuBar(Menu):
         def nothing(self):
             return
 
+        # File menu
         self.file_menu = Menu(self, tearoff=False)
         self.file_menu.add_command(label="New", underline=0, command=main.file_new, accelerator="Command-N")  
         main.bind("<Meta_L><n>",main.file_new)
         self.file_menu.add_command(label="Open", command=main.file_open, accelerator="Command-O")
+        main.bind("<Meta_L><o>",main.file_open)
+        self.file_menu_recent = Menu(self, tearoff=False)
+        for file in application_data["recent_files"]:
+            self.file_menu_recent.add_command(label=file)
+        self.file_menu.add_cascade(label="Open recent",menu=self.file_menu_recent)
         main.bind("<Meta_L><o>",main.file_open)
         self.file_menu.add_command(label="Import", command=main.file_import, accelerator="Shift-Command-O")
         main.bind("<Meta_L><O>",main.file_import)
@@ -118,6 +159,7 @@ class MenuBar(Menu):
             main.bind("<Meta_L><q>",main.file_exit)
         self.add_cascade(label="File", menu=self.file_menu)
         
+        # Edit menu
         self.edit_menu = Menu(self, tearoff=False)  
         self.edit_menu.add_command(label="Undo", accelerator="Command-Z", command=main.undo)  
         main.bind("<Meta_L><z>",main.redo)
@@ -138,30 +180,28 @@ class MenuBar(Menu):
             main.bind("<Meta_L><,>",main.preferences)
         self.add_cascade(label="Edit", menu=self.edit_menu) 
 
+        # Model menu
         self.model_menu = Menu(self, tearoff=False)
-
         self.model_menu.add_command(label="Build", command=main.model_build, accelerator="Command-B",)
         main.bind("<Meta_L><b>",main.model_build)
         self.model_menu.add_separator()     
-        
         self.model_menu.add_command(label="Clock", command=main.model_clock, accelerator="Command-K")
         main.bind("<Meta_L><k>",main.model_clock)
-
         self.model_menu.add_command(label="Library", command=main.model_library, accelerator="Command-L",)
         main.bind("<Meta_L><l>",main.model_library)
-        
         self.model_menu.add_command(label="Template", command=main.model_template, accelerator="Command-T",)
         main.bind("<Meta_L><t>",main.model_template)
         self.add_cascade(label="Model", menu=self.model_menu) 
 
+        # Model weather menu
         self.model_weather = Menu(self,tearoff=False)
         self.model_weather.add_command(label="Manager...", command=main.model_weather_manager)
         self.model_weather.add_command(label="Choose...", command=main.model_weather_choose,)
         self.model_menu.add_cascade(label="Weather", menu=self.model_weather)
 
+        # View menu
         self.view_menu = Menu(self,tearoff=False)
         self.add_cascade(label="View", menu=self.view_menu)
-
         self.view_menu_elements = Menu(self,tearoff=False)
         # main.view_module = BooleanVar()
         # self.view_menu_elements.add_checkbutton(label = "Module", onvalue = True, offvalue = False, variable = main.view_module, command = main.on_view_elements)
@@ -172,11 +212,13 @@ class MenuBar(Menu):
         # self.view_menu_elements.add_checkbutton(label="Group", onvalue=True, offvalue=False, variable=main.view_group, command = main.on_view_elements)
         self.view_menu.add_cascade(label="Elements",menu=self.view_menu_elements)
 
+        # Help menu
         self.help_menu = Menu(self, tearoff=False)
         if sys.platform != "darwin":
             self.help_menu.add_command(label="About", command=main.help_about)
         self.help_menu.add_command(label="License", command=main.help_license)
         self.help_menu.add_command(label="Documentation", command=main.help_documentation)
+        self.help_menu.add_command(label="Report issue", command=main.help_reportissue)
         self.add_cascade(label="Help", menu=self.help_menu)  
 
         main.config(menu=self)
@@ -189,6 +231,9 @@ class MenuBar(Menu):
         # stderr("Key event: ",event)
         return
 
+#
+# Main editor
+#
 class Editor(Tk):
 
     def __init__(self):
@@ -245,6 +290,11 @@ class Editor(Tk):
             self.createcommand('::tk::mac::Quit',self.file_exit)
             self.bind("<Meta_L><,>",self.preferences)
 
+        if application_data['recent_files']:
+            self.filename = application_data['recent_files'][0]
+            self.load_model()
+
+
     def output(self,msg,end='\n'):
         self.outputview.append_text(msg+end)
 
@@ -258,6 +308,8 @@ class Editor(Tk):
         PreferencesDialog(self,preferences)
 
     def load_model(self):
+        if not self.filename:
+            return
         if self.filename.endswith(".glm"):
             self.output(f"Compiling {self.filename}...\n")
             result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
@@ -493,6 +545,11 @@ class Editor(Tk):
     def help_documentation(self):
         webbrowser.open(f"https://docs.gridlabd.us/",new=2)
 
+    def help_reportissue(self):
+        webbrowser.open(f"https://issues.gridlabd.us/new/choose",new=2)
+#
+# Editor model tree
+#
 class ModelTree(ttk.Treeview):
 
     def __init__(self,main):
@@ -503,14 +560,14 @@ class ModelTree(ttk.Treeview):
         self.bind("<ButtonRelease-1>",self.on_select)
         self.set_model()
 
-    def clear_model(self):
+    def clear_tree(self):
         self.heading('#0',text='Element')
         for item in self.get_children():
             self.delete(item)
 
     def set_model(self):
         """styles in ['name','rank','class','parent']"""
-        self.clear_model()
+        self.clear_tree()
         if self.main.model:
             self.show_objects_by_name()
         self.main.update()
@@ -535,14 +592,18 @@ class ModelTree(ttk.Treeview):
                     self.delete(name)
 
     def on_select(self,event):
-        item = self.get_selected()
-        if item:
-            name = item['context'][-1]
-            basename = os.path.basename(self.main.model['globals']['modelname']['value'])
-            if name == basename:
-                self.main.dataview.show_globals()
-            elif name in self.main.model['objects'].keys():
-                self.main.dataview.show_object(name)
+        if self.main.model:
+            item = self.get_selected()
+            if item:
+                context = item['context']
+                if not context: # globals of selected filename
+                    self.main.dataview.show_globals()
+                elif len(context) > 1 and context[-2] == 'classes':
+                    name = context[-1]
+                    self.main.dataview.show_class(name)
+                elif len(context) > 1 and context[-2] == 'objects':
+                    name = context[-1]
+                    self.main.dataview.show_object(name)
 
     def get_selected(self):
         tag = self.selection()[0]
@@ -555,13 +616,13 @@ class ModelTree(ttk.Treeview):
                         "context" : [spec,name],
                         "value" : self.main.model[spec][name],
                         }
-            return {"file":name,"context":['globals'],"values":self.main.model['globals']}
+            return {"file":name,"context":[],"values":self.main.model}
 
 class DataView(ttk.Treeview):
 
     def __init__(self,main):
         columns = ['Property','Value','Description']
-        widths = {'Property':100,'Value':200,'Description':main.dataview_layout['width']-306}
+        widths = {'Property':150,'Value':250,'Description':main.dataview_layout['width']-306}
         ttk.Treeview.__init__(self,main,style='gridlabd.Treeview',
             height = main.dataview_layout['height'],
             columns = columns,
@@ -574,13 +635,13 @@ class DataView(ttk.Treeview):
         self.target = None
         self.main = main
 
-    def clear_model(self):
+    def clear_table(self):
         self.heading('#0',text='(none)')
         for item in self.get_children():
             self.delete(item)
 
     def show_globals(self):
-        self.clear_model()
+        self.clear_table()
         self.object = None
         for name,data in self.main.model['globals'].items():
             if 'description' in data.keys():
@@ -592,8 +653,34 @@ class DataView(ttk.Treeview):
                 values=[name,data['value'],description])
         self.main.update()
 
+    def show_class(self,name):
+        self.clear_table()
+        self.object = name
+        obj = self.main.model['classes'][name]
+        for prop,specs in obj.items():
+            if not type(specs) is dict:
+                continue
+            value = specs["type"]
+            options = []
+            if "access" in specs.keys():
+                options.append(specs['access'])
+            if "flags" in specs.keys():
+                options.append(specs['flags'])
+            if "default" in specs.keys():
+                options.append(f"default \"{specs['default']}\"")
+            options = ", ".join(options)
+            if "descriptions" in specs.keys():
+                description = specs["description"]
+                description += f" ({options})"
+            else:
+                description = options
+            self.insert('',END,prop,
+                text=f"objects/{name}/{prop}",
+                values=[prop,value,description])
+        self.main.update()
+
     def show_object(self,name):
-        self.clear_model()
+        self.clear_table()
         self.object = name
         obj = self.main.model['objects'][name]
         for prop,value in obj.items():
@@ -629,10 +716,15 @@ class DataView(ttk.Treeview):
                 messagebox.showerror(f"Property set error",f"Property {propname} cannot be changed")
                 return
             obj = self.main.model['objects'][objname]
+            oclass = self.main.model['classes'][obj['class']]
             value = obj[propname]
-            edit = simpledialog.askstring(title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
+            ptype = oclass[propname]['type']
+            if ptype in ask_dialogs.keys():
+                edit = ask_dialogs[ptype](title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
+            else:
+                edit = simpledialog.askstring(title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
             obj[propname] = edit
-            self.set(name,"#2",edit)
+            self.set(propname,"#2",edit)
 
     def get_selected(self):
         tag = self.selection()[0]
@@ -643,6 +735,29 @@ class DataView(ttk.Treeview):
                 "value" : self.item(tag,'value')[1],
                 }
 
+#
+# Property editing dialogs
+#
+class AskSetDialog(simpledialog.Dialog):
+
+    def __init__(self,parent,title,prompt,text):
+        Toplevel.__init__(self, parent)
+        self.parent = parent
+        self.transient(parent)
+        self.title(title)
+        Label(text=prompt).pack(side=TOP)
+        Text(text=text).pack(side=TOP)
+        Button(text="Save").pack(side=TOP)
+        self.grab_set()
+        self.wait_window(self)
+
+ask_dialogs = {
+    "set" : AskSetDialog,
+}
+
+#
+# Editor output view
+#
 class OutputView(Text):
 
     def __init__(self,main):
@@ -658,6 +773,9 @@ class OutputView(Text):
         self.insert(END,text)
         self.update()
 
+#
+# Preferences dialog
+#
 class PreferencesDialog(simpledialog.Dialog):
 
     def __init__(self,parent,preferences):
@@ -678,14 +796,54 @@ class PreferencesDialog(simpledialog.Dialog):
             value = preferences[name]
             item = tree.insert('',END,text=name,values=[str(value["value"]),value["description"]])
 
+        self.tree = tree
+
         Button(self, text="Save", width=10, command=self.on_save, default=DISABLED).grid(row=3,column=1,padx=10,pady=10)
+
+        self.bind("<Double-1>",self.on_doubleclick)
+
         self.grab_set()
         self.wait_window(self)
 
+    def on_doubleclick(self,event=None):
+        item = self.tree.selection()[0]
+        name = self.tree.item(item)['text']
+        pref = preferences[name]
+        value = pref['value']
+        description = pref['description']
+        ptype = type(value)
+        if ptype is bool:
+            ask = messagebox.askquestion
+            if value:
+                kwds = dict(default="yes")
+            else:
+                kwds = dict(default="no")
+            def answer(value): return bool(value=="yes")
+        elif ptype is float:
+            ask = simpliedialog.askfloat
+            kwds = dict(initialvalue=value)
+            def answer(value): return float(value)
+        elif ptype is int:
+            ask = simpledialog.askinteger
+            kwds = dict(initialvalue=value)
+            def answer(value): return int(value)
+        else:
+            ask = simpledialog.askstring
+            kwds = dict(initialvalue=value)
+            def answer(value): return str(value)
+        value = answer(ask(name,description,**kwds))
+        preferences[name]['value'] = value
+        self.tree.item(item,values=[preferences[name]['value'],preferences[name]['description']])
+        self.update()
+
     def on_save(self):
-        global preferences
+        with open("gridlabd-preferences.conf","w") as f:
+            json.dump(preferences,f,indent=4)
         self.destroy()
 
+#
+# File import dialog
+#
 class ImportDialog(simpledialog.Dialog):
 
     def __init__(self,parent,inputname,outputname=None):
@@ -756,7 +914,9 @@ class ImportDialog(simpledialog.Dialog):
         self.outputtype = None
         self.destroy()
     
-
+#
+# File export dialog
+#
 class ExportDialog(simpledialog.Dialog):
 
     def __init__(self,parent,inputname,outputname=None):
@@ -767,6 +927,9 @@ class ExportDialog(simpledialog.Dialog):
         self.grab_set()
         self.wait_window(self)
 
+#
+# Main app startup
+#
 if __name__ == "__main__":
     root = Editor()
     if preferences["Show welcome dialog"]["value"]:
