@@ -612,7 +612,20 @@ class ModelTree(ttk.Treeview):
         self.template = self.insert('',END,text="Template")
 
         self.bind("<ButtonRelease-1>",self.on_select)
+        self.bind("<Button-2>",self.show_popup)
         self.set_model()
+
+    def show_popup(self,event):
+        iid = self.identify_row(event.y)
+        if iid:
+            self.selection_set(iid)
+            popup = Menu(self,tearoff=0);
+            popup.add_command(label="Copy",command=self.main.copy)
+            popup.add_command(label="Paste",command=self.main.paste)
+            try:
+                popup.tk_popup(event.x_root,event.y_root,0)
+            finally:
+                popup.grab_release()
 
     def clear_tree(self):
         self.heading('#0',text='Element')
@@ -748,37 +761,43 @@ class DataView(ttk.Treeview):
                 values=[prop,value,description])
         self.main.update()
 
+    def edit_global(self,item,info):
+        varname = info[1]
+        var = self.main.model['globals'][varname]
+        if var['access'] != 'PUBLIC':
+            messagebox.showerror(f"Global set error",f"Global {varname} cannot be changed")
+            return
+        value = var['value']
+        edit = simpledialog.askstring(title=f"Model global",prompt=f"Enter new value for global '{varname}'",initialvalue=value)
+        var['value'] = edit
+        self.set(item,"#2",edit)
+
+    def edit_object(self,item,info):
+        objname = info[1]
+        propname = info[2]
+        if propname in ['id','class']:
+            messagebox.showerror(f"Property set error",f"Property {propname} cannot be changed")
+            return
+        obj = self.main.model['objects'][objname]
+        oclass = self.main.model['classes'][obj['class']]
+        value = obj[propname]
+        ptype = oclass[propname]['type']
+        if ptype in ask_dialogs.keys():
+            edit = ask_dialogs[ptype](title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
+        else:
+            edit = simpledialog.askstring(title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
+        obj[propname] = edit
+        self.set(propname,"#2",edit)
+
     def on_doubleclick(self,event):
         item = self.selection()[0]
         info = self.item(item)['text'].split('/')
         if not info:
             return
         elif info[0] == 'globals':
-            varname = info[1]
-            var = self.main.model['globals'][varname]
-            if var['access'] != 'PUBLIC':
-                messagebox.showerror(f"Global set error",f"Global {varname} cannot be changed")
-                return
-            value = var['value']
-            edit = simpledialog.askstring(title=f"Model global",prompt=f"Enter new value for global '{varname}'",initialvalue=value)
-            var['value'] = edit
-            self.set(item,"#2",edit)
+            self.edit_global(item,info)
         elif info[0] == 'objects':
-            objname = info[1]
-            propname = info[2]
-            if propname in ['id','class']:
-                messagebox.showerror(f"Property set error",f"Property {propname} cannot be changed")
-                return
-            obj = self.main.model['objects'][objname]
-            oclass = self.main.model['classes'][obj['class']]
-            value = obj[propname]
-            ptype = oclass[propname]['type']
-            if ptype in ask_dialogs.keys():
-                edit = ask_dialogs[ptype](title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
-            else:
-                edit = simpledialog.askstring(title=f"Object {objname}",prompt=f"Enter new value for property '{propname}'",initialvalue=value)
-            obj[propname] = edit
-            self.set(propname,"#2",edit)
+            self.edit_object(item,info)
 
     def get_selected(self):
         tag = self.selection()[0]
