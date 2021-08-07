@@ -452,6 +452,7 @@ OPTIONS = {
         "double_precision" : 10,
         "force_ascii" : True,
         "date_unit" : "s",
+        "indent" : 0,
     },
     "filter" : "",
     "select" : "",
@@ -987,10 +988,10 @@ def write_json(data):
     with open(OUTPUT,"w") as fh:
         global OPTIONS
         if len(specs) == 1:
-            print(data.to_json(orient=OPTIONS['json']["orient"]),file=fh)
+            print(data.to_json(**OPTIONS['json']),file=fh)
         else:
             try:
-                print(data[specs[1].split(",")].to_json(orient=OPTIONS['json_orient']),file=fh)
+                print(data[specs[1].split(",")].to_json(**OPTIONS['json']),file=fh)
             except KeyError as err:
                 error("write_json(): invalid field specified",E_INVALID)
 
