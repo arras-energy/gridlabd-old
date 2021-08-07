@@ -448,7 +448,7 @@ OPTIONS = {
     "resolution_id" : False,
     "json" : {
         "orient" : "index",
-        "data_format" : "iso",
+        "date_format" : "iso",
         "double_precision" : 10,
         "force_ascii" : True,
         "date_unit" : "s",
