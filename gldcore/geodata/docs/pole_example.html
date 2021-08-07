@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_03433430f6964101a7804060a73db5ba {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_03433430f6964101a7804060a73db5ba" ></div>
+        
+</body>
+<script>    
+    
+            var map_03433430f6964101a7804060a73db5ba = L.map(
+                "map_03433430f6964101a7804060a73db5ba",
+                {
+                    center: [37.404604297297304, -122.24385940540543],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c531b9e29aac486fb7891a1267aad9a9 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            map_03433430f6964101a7804060a73db5ba.fitBounds(
+                [[37.388064, -122.288443], [37.415045, -122.205647]],
+                {}
+            );
+        
+    
+            var marker_d0b9d64f4a2e40dba95f811a88d81653 = L.marker(
+                [37.415045, -122.205647],
+                {"name": "pole:1"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_b0bf29ec6e044cd28e7c4c94f5f802d8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_d0b9d64f4a2e40dba95f811a88d81653.setIcon(icon_b0bf29ec6e044cd28e7c4c94f5f802d8);
+        
+    
+        var popup_16e2a7db1c5642f49d83f65e1d8ef153 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_da461c73e616453c85edc98a7401a7a3 = $(`<div id="html_da461c73e616453c85edc98a7401a7a3" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:1</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>1</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.415045</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.205647</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>237C53389D4202C557105C414426339B</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_16e2a7db1c5642f49d83f65e1d8ef153.setContent(html_da461c73e616453c85edc98a7401a7a3);
+        
+
+        marker_d0b9d64f4a2e40dba95f811a88d81653.bindPopup(popup_16e2a7db1c5642f49d83f65e1d8ef153)
+        ;
+
+        
+    
+    
+            var marker_6d05deb5bc974830b7ba4e2ce44b1fd0 = L.marker(
+                [37.414698, -122.208487],
+                {"name": "pole:2"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_d7e78a18ba554607942b00ecbf0ae469 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6d05deb5bc974830b7ba4e2ce44b1fd0.setIcon(icon_d7e78a18ba554607942b00ecbf0ae469);
+        
+    
+        var popup_0b7fe60493324febb4904de113a5d946 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a234f3ba5b204c81b42780139a75308d = $(`<div id="html_a234f3ba5b204c81b42780139a75308d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:2</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>2</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414698</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.208487</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>32006A27521F45CC6C6D57E4275E639B</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0b7fe60493324febb4904de113a5d946.setContent(html_a234f3ba5b204c81b42780139a75308d);
+        
+
+        marker_6d05deb5bc974830b7ba4e2ce44b1fd0.bindPopup(popup_0b7fe60493324febb4904de113a5d946)
+        ;
+
+        
+    
+    
+            var marker_a3ea89564b344ebaa36c92f67575aa46 = L.marker(
+                [37.414454, -122.210443],
+                {"name": "pole:3"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_5326deea80c240c692c86460580d01db = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_a3ea89564b344ebaa36c92f67575aa46.setIcon(icon_5326deea80c240c692c86460580d01db);
+        
+    
+        var popup_b3e80fb3967f461db7642ac5feafcb9f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f949035bbad44b5aa5cd6458d04b101d = $(`<div id="html_f949035bbad44b5aa5cd6458d04b101d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:3</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>3</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414454</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.210443</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3D4C54B4F62D22A5934E6D0648FD578</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_b3e80fb3967f461db7642ac5feafcb9f.setContent(html_f949035bbad44b5aa5cd6458d04b101d);
+        
+
+        marker_a3ea89564b344ebaa36c92f67575aa46.bindPopup(popup_b3e80fb3967f461db7642ac5feafcb9f)
+        ;
+
+        
+    
+    
+            var marker_84b559d50ca04e3c909a9922a42354e3 = L.marker(
+                [37.414223, -122.212314],
+                {"name": "pole:4"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_3a8f915aa9664a888445bb3d25e5c908 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_84b559d50ca04e3c909a9922a42354e3.setIcon(icon_3a8f915aa9664a888445bb3d25e5c908);
+        
+    
+        var popup_4c36aa3a1ecf4668b5ee4dd566e17f9b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_15ffcdebe88e420597ca6f41c3917ee1 = $(`<div id="html_15ffcdebe88e420597ca6f41c3917ee1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:4</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>4</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414223</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.212314</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>59D1555A7B59B1222457AD976558867C</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_4c36aa3a1ecf4668b5ee4dd566e17f9b.setContent(html_15ffcdebe88e420597ca6f41c3917ee1);
+        
+
+        marker_84b559d50ca04e3c909a9922a42354e3.bindPopup(popup_4c36aa3a1ecf4668b5ee4dd566e17f9b)
+        ;
+
+        
+    
+    
+            var marker_4285b596906e45f3943f35cb014dbac4 = L.marker(
+                [37.413981, -122.214272],
+                {"name": "pole:5"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_b66f7eb5d76745fe8187df66af1d6182 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_4285b596906e45f3943f35cb014dbac4.setIcon(icon_b66f7eb5d76745fe8187df66af1d6182);
+        
+    
+        var popup_6c6650e78f2a4d5c9a804b6e1eb430e9 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e97aed3124614c789f20cab365dc5e60 = $(`<div id="html_e97aed3124614c789f20cab365dc5e60" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:5</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>5</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413981</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.214272</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6C0D36A1796335C8296B04820DF35598</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6c6650e78f2a4d5c9a804b6e1eb430e9.setContent(html_e97aed3124614c789f20cab365dc5e60);
+        
+
+        marker_4285b596906e45f3943f35cb014dbac4.bindPopup(popup_6c6650e78f2a4d5c9a804b6e1eb430e9)
+        ;
+
+        
+    
+    
+            var marker_c1a4d25168994e51a58c1ea9661bcb4a = L.marker(
+                [37.413697, -122.216568],
+                {"name": "pole:6"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_0c1f8539edf34b939545d3dd2ea923a7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_c1a4d25168994e51a58c1ea9661bcb4a.setIcon(icon_0c1f8539edf34b939545d3dd2ea923a7);
+        
+    
+        var popup_cecedacf82f040c58742008fe4e89680 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_35985ec1bef34e71808ae384d7abd196 = $(`<div id="html_35985ec1bef34e71808ae384d7abd196" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:6</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>6</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413697</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.216568</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>231AD5A7A4143B5D5DD8C3FF413D99CD</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cecedacf82f040c58742008fe4e89680.setContent(html_35985ec1bef34e71808ae384d7abd196);
+        
+
+        marker_c1a4d25168994e51a58c1ea9661bcb4a.bindPopup(popup_cecedacf82f040c58742008fe4e89680)
+        ;
+
+        
+    
+    
+            var marker_010478145958466497503812a56f8562 = L.marker(
+                [37.413485, -122.218268],
+                {"name": "pole:7"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_dc047d19ef594b5b84dc45f36ed1fd0c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_010478145958466497503812a56f8562.setIcon(icon_dc047d19ef594b5b84dc45f36ed1fd0c);
+        
+    
+        var popup_64f159445b0e42c3ae6a6c7e5c757de8 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_89c5b2eb1e3c49dd96ba593bb9402f89 = $(`<div id="html_89c5b2eb1e3c49dd96ba593bb9402f89" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:7</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>7</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413485</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.218268</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>5899FF247BCC530E31D0F74D2CFE27F8</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_64f159445b0e42c3ae6a6c7e5c757de8.setContent(html_89c5b2eb1e3c49dd96ba593bb9402f89);
+        
+
+        marker_010478145958466497503812a56f8562.bindPopup(popup_64f159445b0e42c3ae6a6c7e5c757de8)
+        ;
+
+        
+    
+    
+            var marker_8811b285599644068cafd34a6bb19fe4 = L.marker(
+                [37.413211, -122.220481],
+                {"name": "pole:8"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_5ce13f434144478b82532e9f95760b75 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_8811b285599644068cafd34a6bb19fe4.setIcon(icon_5ce13f434144478b82532e9f95760b75);
+        
+    
+        var popup_df1fb1e8cb214553a2bc0fee11c0a73f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a41bde1c84ac48329cb4a4bb301b9861 = $(`<div id="html_a41bde1c84ac48329cb4a4bb301b9861" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:8</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>8</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413211</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.220481</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2033FD4E99596A324828BDBEA2BC801A</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_df1fb1e8cb214553a2bc0fee11c0a73f.setContent(html_a41bde1c84ac48329cb4a4bb301b9861);
+        
+
+        marker_8811b285599644068cafd34a6bb19fe4.bindPopup(popup_df1fb1e8cb214553a2bc0fee11c0a73f)
+        ;
+
+        
+    
+    
+            var marker_a1b6cec7e51a4bb09549a5fd9aaa882b = L.marker(
+                [37.412976, -122.222324],
+                {"name": "pole:9"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_ad660d27f690406fbb529a4c8f5e78df = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_a1b6cec7e51a4bb09549a5fd9aaa882b.setIcon(icon_ad660d27f690406fbb529a4c8f5e78df);
+        
+    
+        var popup_7f78d2bd96564726ad288d4308ca4e50 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a967ae0a06134d1e94905869ec6745e7 = $(`<div id="html_a967ae0a06134d1e94905869ec6745e7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:9</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>9</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412976</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.222324</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>36F0712CCE39B6DB3E7E4F50FA9E3A2D</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_7f78d2bd96564726ad288d4308ca4e50.setContent(html_a967ae0a06134d1e94905869ec6745e7);
+        
+
+        marker_a1b6cec7e51a4bb09549a5fd9aaa882b.bindPopup(popup_7f78d2bd96564726ad288d4308ca4e50)
+        ;
+
+        
+    
+    
+            var marker_8624c66437374d299e3f5ff747c50ae5 = L.marker(
+                [37.412705, -122.224561],
+                {"name": "pole:10"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_04602089461241ec832064bd829283b7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_8624c66437374d299e3f5ff747c50ae5.setIcon(icon_04602089461241ec832064bd829283b7);
+        
+    
+        var popup_ef0299942d6645098ee6a7dc3052ccbd = L.popup({"maxWidth": "100%"});
+
+        
+            var html_66b689684a3d4eb68e4f9df2eb57e982 = $(`<div id="html_66b689684a3d4eb68e4f9df2eb57e982" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:10</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>10</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412705</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.224561</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>78ABEDEC6A4FDC764CCAE4C7750EF85F</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ef0299942d6645098ee6a7dc3052ccbd.setContent(html_66b689684a3d4eb68e4f9df2eb57e982);
+        
+
+        marker_8624c66437374d299e3f5ff747c50ae5.bindPopup(popup_ef0299942d6645098ee6a7dc3052ccbd)
+        ;
+
+        
+    
+    
+            var marker_6960fd08119242318fa83b10d3468300 = L.marker(
+                [37.412359, -122.227361],
+                {"name": "pole:11"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_1fbf33d479af40a488a6867bd239b39f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6960fd08119242318fa83b10d3468300.setIcon(icon_1fbf33d479af40a488a6867bd239b39f);
+        
+    
+        var popup_46c86d7488d7473c88efa445e4b32ce8 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5e158459a638469ab5bf81702b0e1303 = $(`<div id="html_5e158459a638469ab5bf81702b0e1303" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:11</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>11</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412359</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.227361</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7D8489B4FCD354431AC301AC8649C87</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_46c86d7488d7473c88efa445e4b32ce8.setContent(html_5e158459a638469ab5bf81702b0e1303);
+        
+
+        marker_6960fd08119242318fa83b10d3468300.bindPopup(popup_46c86d7488d7473c88efa445e4b32ce8)
+        ;
+
+        
+    
+    
+            var marker_798825c86dbe4689b43e7b104cd7e0a4 = L.marker(
+                [37.412113, -122.229405],
+                {"name": "pole:12"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_a47137c1d8cb4cc3b20fd598981732f4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_798825c86dbe4689b43e7b104cd7e0a4.setIcon(icon_a47137c1d8cb4cc3b20fd598981732f4);
+        
+    
+        var popup_2e86a5621f75433d9f9659a9c0f1f69b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_4f5dd7dba4f747c8875c75544e9df5ad = $(`<div id="html_4f5dd7dba4f747c8875c75544e9df5ad" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:12</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>12</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412113</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.229405</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>69E7AAC016B1826CEB21D8E7F53023C</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_2e86a5621f75433d9f9659a9c0f1f69b.setContent(html_4f5dd7dba4f747c8875c75544e9df5ad);
+        
+
+        marker_798825c86dbe4689b43e7b104cd7e0a4.bindPopup(popup_2e86a5621f75433d9f9659a9c0f1f69b)
+        ;
+
+        
+    
+    
+            var marker_515c759f4b034da9888a4c17c857d808 = L.marker(
+                [37.411812, -122.23184],
+                {"name": "pole:13"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_ee83090a3ac4495381a594d46531f2fc = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_515c759f4b034da9888a4c17c857d808.setIcon(icon_ee83090a3ac4495381a594d46531f2fc);
+        
+    
+        var popup_c03398df4fd7470cb637e5a357a88802 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_4f3106075a3440ffb2857f4f0654f7d1 = $(`<div id="html_4f3106075a3440ffb2857f4f0654f7d1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:13</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>13</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.411812</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.231840</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7C328E587E32A255D2C1E6052DB95A</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_c03398df4fd7470cb637e5a357a88802.setContent(html_4f3106075a3440ffb2857f4f0654f7d1);
+        
+
+        marker_515c759f4b034da9888a4c17c857d808.bindPopup(popup_c03398df4fd7470cb637e5a357a88802)
+        ;
+
+        
+    
+    
+            var marker_4ae11ae7698c4324b61e801d43d676d5 = L.marker(
+                [37.409952, -122.235412],
+                {"name": "pole:14"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_9b64a152b4df4c3a9b11b253a9d12295 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_4ae11ae7698c4324b61e801d43d676d5.setIcon(icon_9b64a152b4df4c3a9b11b253a9d12295);
+        
+    
+        var popup_0114ad7998f04e5187d0ddcff90a781c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_8f0ce1a335824ee0a6d003ff0380668a = $(`<div id="html_8f0ce1a335824ee0a6d003ff0380668a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:14</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>14</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409952</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.235412</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7DC146DD555F24C43762A660B53362AA</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0114ad7998f04e5187d0ddcff90a781c.setContent(html_8f0ce1a335824ee0a6d003ff0380668a);
+        
+
+        marker_4ae11ae7698c4324b61e801d43d676d5.bindPopup(popup_0114ad7998f04e5187d0ddcff90a781c)
+        ;
+
+        
+    
+    
+            var marker_5f674db4b1ed46ac9374ddd2c40c4195 = L.marker(
+                [37.409121, -122.237713],
+                {"name": "pole:15"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_f749be7287d24c75a5ba478c2dfe0f4a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_5f674db4b1ed46ac9374ddd2c40c4195.setIcon(icon_f749be7287d24c75a5ba478c2dfe0f4a);
+        
+    
+        var popup_33a5872c1a934be4aacd1583cd05f6ec = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b3ff851b14c14b0f91d22815eef34f9a = $(`<div id="html_b3ff851b14c14b0f91d22815eef34f9a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:15</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>15</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409121</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.237713</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>380EC1A57BA4274D1DC30ED6F985952F</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_33a5872c1a934be4aacd1583cd05f6ec.setContent(html_b3ff851b14c14b0f91d22815eef34f9a);
+        
+
+        marker_5f674db4b1ed46ac9374ddd2c40c4195.bindPopup(popup_33a5872c1a934be4aacd1583cd05f6ec)
+        ;
+
+        
+    
+    
+            var marker_24c9d271b7d44faaaac536a94c79a13d = L.marker(
+                [37.407893, -122.241074],
+                {"name": "pole:16"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_173c7f1937204e929fd59db9f230dfc0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_24c9d271b7d44faaaac536a94c79a13d.setIcon(icon_173c7f1937204e929fd59db9f230dfc0);
+        
+    
+        var popup_2d96ed14ff074708a909c9df53217937 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_9b053003faa84022a93ee2c303055199 = $(`<div id="html_9b053003faa84022a93ee2c303055199" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:16</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>16</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407893</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.241074</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>172AAF75F2BD1D553208628E7F3CCB4C</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_2d96ed14ff074708a909c9df53217937.setContent(html_9b053003faa84022a93ee2c303055199);
+        
+
+        marker_24c9d271b7d44faaaac536a94c79a13d.bindPopup(popup_2d96ed14ff074708a909c9df53217937)
+        ;
+
+        
+    
+    
+            var marker_df65633cf8314641b7c0587320865de2 = L.marker(
+                [37.40715, -122.24311],
+                {"name": "pole:17"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_444e813be7c64baaaa201b8e565ed033 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_df65633cf8314641b7c0587320865de2.setIcon(icon_444e813be7c64baaaa201b8e565ed033);
+        
+    
+        var popup_5b359ded146b4b39bc39d9436cd78e9c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_06d3018864294e38a49df5eba7772aed = $(`<div id="html_06d3018864294e38a49df5eba7772aed" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:17</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>17</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407150</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.243110</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3B659E38226497DB22D18C3CBC2D5A3F</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_5b359ded146b4b39bc39d9436cd78e9c.setContent(html_06d3018864294e38a49df5eba7772aed);
+        
+
+        marker_df65633cf8314641b7c0587320865de2.bindPopup(popup_5b359ded146b4b39bc39d9436cd78e9c)
+        ;
+
+        
+    
+    
+            var marker_1a5a8a03111042309d02c151e7eb4428 = L.marker(
+                [37.406444, -122.245025],
+                {"name": "pole:18"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_dc09a486a4bb4c69bba4ddcc7530fad3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_1a5a8a03111042309d02c151e7eb4428.setIcon(icon_dc09a486a4bb4c69bba4ddcc7530fad3);
+        
+    
+        var popup_1a28dea4126740a2944a6a562d653df7 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cfbe8fef6d8b4a7ab54947fa618dff81 = $(`<div id="html_cfbe8fef6d8b4a7ab54947fa618dff81" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:18</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>18</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.406444</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245025</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>74C8521447562E3B74A2F1B97B8FC917</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_1a28dea4126740a2944a6a562d653df7.setContent(html_cfbe8fef6d8b4a7ab54947fa618dff81);
+        
+
+        marker_1a5a8a03111042309d02c151e7eb4428.bindPopup(popup_1a28dea4126740a2944a6a562d653df7)
+        ;
+
+        
+    
+    
+            var marker_6455fa2253f842deb445ddb470cda525 = L.marker(
+                [37.405623, -122.24443],
+                {"name": "pole:19"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_84b165cbcbea4c0c811af81ee9b03f92 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6455fa2253f842deb445ddb470cda525.setIcon(icon_84b165cbcbea4c0c811af81ee9b03f92);
+        
+    
+        var popup_9975018b5ed14befac449e24950854e7 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_522740d9c68d410fbce5f897a6d85e69 = $(`<div id="html_522740d9c68d410fbce5f897a6d85e69" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:19</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>19</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.405623</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244430</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>269F329B7E459CDFED8FD8DEA15968</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_9975018b5ed14befac449e24950854e7.setContent(html_522740d9c68d410fbce5f897a6d85e69);
+        
+
+        marker_6455fa2253f842deb445ddb470cda525.bindPopup(popup_9975018b5ed14befac449e24950854e7)
+        ;
+
+        
+    
+    
+            var marker_f2914f909dde42079b6df82437593c41 = L.marker(
+                [37.404558, -122.244176],
+                {"name": "pole:20"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_454c9b26e8a848e7bebb20d5e74c62f3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_f2914f909dde42079b6df82437593c41.setIcon(icon_454c9b26e8a848e7bebb20d5e74c62f3);
+        
+    
+        var popup_e85e9c59798d4398935b6031c38667d3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b66337c05e724b7588f7ea95e69da44e = $(`<div id="html_b66337c05e724b7588f7ea95e69da44e" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:20</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>20</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.404558</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244176</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4999DEEB464ACFAA771AD30B36256D6B</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e85e9c59798d4398935b6031c38667d3.setContent(html_b66337c05e724b7588f7ea95e69da44e);
+        
+
+        marker_f2914f909dde42079b6df82437593c41.bindPopup(popup_e85e9c59798d4398935b6031c38667d3)
+        ;
+
+        
+    
+    
+            var marker_05c0ccf591e14f01bd5317c0c47cb0f7 = L.marker(
+                [37.403389, -122.244289],
+                {"name": "pole:21"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_091c9aca8a804fceacae2164f320be8f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_05c0ccf591e14f01bd5317c0c47cb0f7.setIcon(icon_091c9aca8a804fceacae2164f320be8f);
+        
+    
+        var popup_83d7d496433c4530ac40eb8a422d46a3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b7ccf3d9c5b240b79f9e813cebb83223 = $(`<div id="html_b7ccf3d9c5b240b79f9e813cebb83223" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:21</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>21</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.403389</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244289</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>64C0135C53A1D64230C4F111519BBDDE</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_83d7d496433c4530ac40eb8a422d46a3.setContent(html_b7ccf3d9c5b240b79f9e813cebb83223);
+        
+
+        marker_05c0ccf591e14f01bd5317c0c47cb0f7.bindPopup(popup_83d7d496433c4530ac40eb8a422d46a3)
+        ;
+
+        
+    
+    
+            var marker_0eec4a17535c49a49c7de7ae6af02832 = L.marker(
+                [37.402489, -122.244677],
+                {"name": "pole:22"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_b3eec27f3a934bb5a32b0a85fc9f5c47 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_0eec4a17535c49a49c7de7ae6af02832.setIcon(icon_b3eec27f3a934bb5a32b0a85fc9f5c47);
+        
+    
+        var popup_69d824c708e94da2b1f8f964789b1f4d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3ef85cdb8bc34faf9b515eceba146317 = $(`<div id="html_3ef85cdb8bc34faf9b515eceba146317" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:22</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>22</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.402489</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244677</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>B8E66FAA3CC1162786AD4795987D278</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_69d824c708e94da2b1f8f964789b1f4d.setContent(html_3ef85cdb8bc34faf9b515eceba146317);
+        
+
+        marker_0eec4a17535c49a49c7de7ae6af02832.bindPopup(popup_69d824c708e94da2b1f8f964789b1f4d)
+        ;
+
+        
+    
+    
+            var marker_ca139b4a0d59420583c75280cd5434ed = L.marker(
+                [37.401361, -122.245664],
+                {"name": "pole:23"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_1d575f6aa7a940c5b6435ca8db76affd = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_ca139b4a0d59420583c75280cd5434ed.setIcon(icon_1d575f6aa7a940c5b6435ca8db76affd);
+        
+    
+        var popup_41f8463c465043a8b3948d754734fe13 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ed315c71ee20486089140add95923df5 = $(`<div id="html_ed315c71ee20486089140add95923df5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:23</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>23</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.401361</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245664</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>355163891C2B97357FE2163B0181CB44</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_41f8463c465043a8b3948d754734fe13.setContent(html_ed315c71ee20486089140add95923df5);
+        
+
+        marker_ca139b4a0d59420583c75280cd5434ed.bindPopup(popup_41f8463c465043a8b3948d754734fe13)
+        ;
+
+        
+    
+    
+            var marker_a41da1c72fda4cf4a04c5ed52b574d46 = L.marker(
+                [37.399867, -122.249266],
+                {"name": "pole:24"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_c94dbd9f493a4068be2a7e5c1d4c6f6a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_a41da1c72fda4cf4a04c5ed52b574d46.setIcon(icon_c94dbd9f493a4068be2a7e5c1d4c6f6a);
+        
+    
+        var popup_bcb1f6848e6f4ad2a5fc1658fd3ac8d7 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6725b4f9523341a5baeb6621daed6022 = $(`<div id="html_6725b4f9523341a5baeb6621daed6022" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:24</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>24</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399867</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.249266</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1830166793B2B10931B90E0BD7298672</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_bcb1f6848e6f4ad2a5fc1658fd3ac8d7.setContent(html_6725b4f9523341a5baeb6621daed6022);
+        
+
+        marker_a41da1c72fda4cf4a04c5ed52b574d46.bindPopup(popup_bcb1f6848e6f4ad2a5fc1658fd3ac8d7)
+        ;
+
+        
+    
+    
+            var marker_168fdd0d51dd45ab85b2fac5edb29c82 = L.marker(
+                [37.399663, -122.251133],
+                {"name": "pole:25"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_070b590bb278437a86c261f9980601a0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_168fdd0d51dd45ab85b2fac5edb29c82.setIcon(icon_070b590bb278437a86c261f9980601a0);
+        
+    
+        var popup_5dd42c7234d04732897e2d51614c2071 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_dab005301cc143ca8fc2fb65cc9c0db8 = $(`<div id="html_dab005301cc143ca8fc2fb65cc9c0db8" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:25</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>25</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399663</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.251133</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>180274EB016579DD46D3ADD9AAF941F9</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_5dd42c7234d04732897e2d51614c2071.setContent(html_dab005301cc143ca8fc2fb65cc9c0db8);
+        
+
+        marker_168fdd0d51dd45ab85b2fac5edb29c82.bindPopup(popup_5dd42c7234d04732897e2d51614c2071)
+        ;
+
+        
+    
+    
+            var marker_2b9db931ec1d4718a33ee456a1b6ed40 = L.marker(
+                [37.39937, -122.256274],
+                {"name": "pole:26"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_f9e9fca36c674b388a3703743d4e3715 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_2b9db931ec1d4718a33ee456a1b6ed40.setIcon(icon_f9e9fca36c674b388a3703743d4e3715);
+        
+    
+        var popup_02b0aa47963643918f3d9b30744ab05a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b92e61efa49943f2b7dff4abca12fb58 = $(`<div id="html_b92e61efa49943f2b7dff4abca12fb58" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:26</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>26</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399370</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.256274</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4F3ECAAE9FD83B04177DA90D87FCEA15</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_02b0aa47963643918f3d9b30744ab05a.setContent(html_b92e61efa49943f2b7dff4abca12fb58);
+        
+
+        marker_2b9db931ec1d4718a33ee456a1b6ed40.bindPopup(popup_02b0aa47963643918f3d9b30744ab05a)
+        ;
+
+        
+    
+    
+            var marker_1f11d670e4cf417fb3068c18e621643f = L.marker(
+                [37.399277, -122.257945],
+                {"name": "pole:27"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_233efedd593141b481841a43e46803bb = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_1f11d670e4cf417fb3068c18e621643f.setIcon(icon_233efedd593141b481841a43e46803bb);
+        
+    
+        var popup_6672726642db44fab124106e61864367 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_edca88b379e04d34922dfab9fd2d12d4 = $(`<div id="html_edca88b379e04d34922dfab9fd2d12d4" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:27</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>27</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399277</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.257945</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3E48E4462F3FFC9E7D3D53D96760C5EB</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6672726642db44fab124106e61864367.setContent(html_edca88b379e04d34922dfab9fd2d12d4);
+        
+
+        marker_1f11d670e4cf417fb3068c18e621643f.bindPopup(popup_6672726642db44fab124106e61864367)
+        ;
+
+        
+    
+    
+            var marker_2ff7161175c147b1a55b2a10e13e6bc3 = L.marker(
+                [37.398817, -122.264486],
+                {"name": "pole:28"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_04f46dbcf7a9489daa5db6998cb0d7b7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_2ff7161175c147b1a55b2a10e13e6bc3.setIcon(icon_04f46dbcf7a9489daa5db6998cb0d7b7);
+        
+    
+        var popup_b26842f8d04b4084892a0b59f14ff519 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6bd85f8320ac4819a16c0a94fb0437f0 = $(`<div id="html_6bd85f8320ac4819a16c0a94fb0437f0" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:28</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>28</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398817</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.264486</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>434DC4EB16C79AB64897B35BC4EC59B9</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_b26842f8d04b4084892a0b59f14ff519.setContent(html_6bd85f8320ac4819a16c0a94fb0437f0);
+        
+
+        marker_2ff7161175c147b1a55b2a10e13e6bc3.bindPopup(popup_b26842f8d04b4084892a0b59f14ff519)
+        ;
+
+        
+    
+    
+            var marker_0420aca83fd74f318fa10f95ee42c022 = L.marker(
+                [37.398709, -122.2661],
+                {"name": "pole:29"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_5be9b2ec7f564268adb313dff08aeed5 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_0420aca83fd74f318fa10f95ee42c022.setIcon(icon_5be9b2ec7f564268adb313dff08aeed5);
+        
+    
+        var popup_e4c0d812fbac4151a529f9235ec90092 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c3ad890508a0432fac4c9e9a03d38686 = $(`<div id="html_c3ad890508a0432fac4c9e9a03d38686" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:29</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>29</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398709</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.266100</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>23007199FE6B27814C0762D27153C7F7</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e4c0d812fbac4151a529f9235ec90092.setContent(html_c3ad890508a0432fac4c9e9a03d38686);
+        
+
+        marker_0420aca83fd74f318fa10f95ee42c022.bindPopup(popup_e4c0d812fbac4151a529f9235ec90092)
+        ;
+
+        
+    
+    
+            var marker_fcf6a29e97734affbb49ad1f946936ab = L.marker(
+                [37.398606, -122.267569],
+                {"name": "pole:30"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_d3bc0af1a4884b11a9f7f7b8e1a6b165 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_fcf6a29e97734affbb49ad1f946936ab.setIcon(icon_d3bc0af1a4884b11a9f7f7b8e1a6b165);
+        
+    
+        var popup_c2e6be297fe64070b9826d9bd571b64b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0d169cbb6e6c459492312f59cf509893 = $(`<div id="html_0d169cbb6e6c459492312f59cf509893" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:30</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>30</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398606</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.267569</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2068B812920978004B7A3E9B7758CCA7</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_c2e6be297fe64070b9826d9bd571b64b.setContent(html_0d169cbb6e6c459492312f59cf509893);
+        
+
+        marker_fcf6a29e97734affbb49ad1f946936ab.bindPopup(popup_c2e6be297fe64070b9826d9bd571b64b)
+        ;
+
+        
+    
+    
+            var marker_45051d1ae98e42069d8004d6f7f40e83 = L.marker(
+                [37.394484, -122.270625],
+                {"name": "pole:31"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_27ed722dcddc41a485d974b2c6fff4a6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_45051d1ae98e42069d8004d6f7f40e83.setIcon(icon_27ed722dcddc41a485d974b2c6fff4a6);
+        
+    
+        var popup_1d8c200aec894014b57a3165f81a7d14 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0a94a7a836f045bfad6d2d50f07d70ea = $(`<div id="html_0a94a7a836f045bfad6d2d50f07d70ea" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:31</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>31</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.394484</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.270625</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>680AD46176FA2F1E3D76314BA10FA6F7</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_1d8c200aec894014b57a3165f81a7d14.setContent(html_0a94a7a836f045bfad6d2d50f07d70ea);
+        
+
+        marker_45051d1ae98e42069d8004d6f7f40e83.bindPopup(popup_1d8c200aec894014b57a3165f81a7d14)
+        ;
+
+        
+    
+    
+            var marker_86a059f93b624c459710cd3143d2843b = L.marker(
+                [37.393065, -122.271802],
+                {"name": "pole:32"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_3d91bf09c73a48f1a506e09bd0541140 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_86a059f93b624c459710cd3143d2843b.setIcon(icon_3d91bf09c73a48f1a506e09bd0541140);
+        
+    
+        var popup_cb7c46cdfdc04926b4aef53b714a8ac1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_270c8cb21b8f404a868008ce4530f3e5 = $(`<div id="html_270c8cb21b8f404a868008ce4530f3e5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:32</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>32</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.393065</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.271802</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>68AE733914D88C0F39440B822198F5D2</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cb7c46cdfdc04926b4aef53b714a8ac1.setContent(html_270c8cb21b8f404a868008ce4530f3e5);
+        
+
+        marker_86a059f93b624c459710cd3143d2843b.bindPopup(popup_cb7c46cdfdc04926b4aef53b714a8ac1)
+        ;
+
+        
+    
+    
+            var marker_d9b4b92230a347cab6708bd1b21bdfdf = L.marker(
+                [37.392485, -122.274458],
+                {"name": "pole:33"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_c01bff735c384aa18cb1303431a5def0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_d9b4b92230a347cab6708bd1b21bdfdf.setIcon(icon_c01bff735c384aa18cb1303431a5def0);
+        
+    
+        var popup_3268fc7be1ac46b5bfcdfb3e13b390ad = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f4accfad40744e308c5de9654d388d2b = $(`<div id="html_f4accfad40744e308c5de9654d388d2b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:33</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>33</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392485</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.274458</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>19EFCBD6AADDC2CA2B4AFAF42123B1EB</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_3268fc7be1ac46b5bfcdfb3e13b390ad.setContent(html_f4accfad40744e308c5de9654d388d2b);
+        
+
+        marker_d9b4b92230a347cab6708bd1b21bdfdf.bindPopup(popup_3268fc7be1ac46b5bfcdfb3e13b390ad)
+        ;
+
+        
+    
+    
+            var marker_a346d5aebb654134bdf57717ed88e7e2 = L.marker(
+                [37.391898, -122.277174],
+                {"name": "pole:34"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_c45a76fbb1ce4f21bb45fd4048adc814 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_a346d5aebb654134bdf57717ed88e7e2.setIcon(icon_c45a76fbb1ce4f21bb45fd4048adc814);
+        
+    
+        var popup_35b91ae004fb44aa9f2e68fa8e703775 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_01731c424b9f416b8ceb8d91a9bf1736 = $(`<div id="html_01731c424b9f416b8ceb8d91a9bf1736" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:34</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>34</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391898</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.277174</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>26F667CA427421B176E201115F7D4287</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_35b91ae004fb44aa9f2e68fa8e703775.setContent(html_01731c424b9f416b8ceb8d91a9bf1736);
+        
+
+        marker_a346d5aebb654134bdf57717ed88e7e2.bindPopup(popup_35b91ae004fb44aa9f2e68fa8e703775)
+        ;
+
+        
+    
+    
+            var marker_bb9538c24e4f4dee851163578eab6f83 = L.marker(
+                [37.391605, -122.278597],
+                {"name": "pole:35"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_9970a73338e64d239561fe070b9b6dfa = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_bb9538c24e4f4dee851163578eab6f83.setIcon(icon_9970a73338e64d239561fe070b9b6dfa);
+        
+    
+        var popup_10448b14dd3d43d6965c46aebc9c7148 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_67652974b203437a9c7a6deff6a96f1f = $(`<div id="html_67652974b203437a9c7a6deff6a96f1f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:35</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>35</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391605</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.278597</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>797CAB2D6853FDCAAE5B5ECDAC663A0</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_10448b14dd3d43d6965c46aebc9c7148.setContent(html_67652974b203437a9c7a6deff6a96f1f);
+        
+
+        marker_bb9538c24e4f4dee851163578eab6f83.bindPopup(popup_10448b14dd3d43d6965c46aebc9c7148)
+        ;
+
+        
+    
+    
+            var marker_8c958cafe9e14dcc97679a8f7f2e78fc = L.marker(
+                [37.39171, -122.281385],
+                {"name": "pole:36"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_b1ac1dcb229d41c594f61b793c6ea867 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_8c958cafe9e14dcc97679a8f7f2e78fc.setIcon(icon_b1ac1dcb229d41c594f61b793c6ea867);
+        
+    
+        var popup_cdf3cb47e429464fb78a5cb6d6da5855 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e6ce66966b3e4e9897f652f05165559d = $(`<div id="html_e6ce66966b3e4e9897f652f05165559d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:36</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>36</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391710</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.281385</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>376E4BD02CC03BA81C31AFCF5ECF59F6</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cdf3cb47e429464fb78a5cb6d6da5855.setContent(html_e6ce66966b3e4e9897f652f05165559d);
+        
+
+        marker_8c958cafe9e14dcc97679a8f7f2e78fc.bindPopup(popup_cdf3cb47e429464fb78a5cb6d6da5855)
+        ;
+
+        
+    
+    
+            var marker_9c46af1b89d24000864b2584c3e3fd16 = L.marker(
+                [37.388064, -122.288443],
+                {"name": "pole:37"}
+            ).addTo(map_03433430f6964101a7804060a73db5ba);
+        
+    
+            var icon_17c98bb0aef9461bae461726774ce1a8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_9c46af1b89d24000864b2584c3e3fd16.setIcon(icon_17c98bb0aef9461bae461726774ce1a8);
+        
+    
+        var popup_c66513c06f8a4e8dab0155f0e569a7d1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_37db8fda694f4985aa145bacc67053f6 = $(`<div id="html_37db8fda694f4985aa145bacc67053f6" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>pole:37</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>37</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Pole.md">pole</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.388064</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.288443</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6B64A1D7C4752476376513FA1A717064</TD></TR> <TR><TH>Status</TH><TD>&nbsp;</TD><TD>OK</TD></TR> <TR><TH>Tilt&nbsp;Angle</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Tilt&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Weather</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Configuration</TH><TD>&nbsp;</TD><TD>default</TD></TR> <TR><TH>Install&nbsp;Year</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>24 h</TD></TR> <TR><TH>Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wind&nbsp;Direction</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH>Wind&nbsp;Gusts</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Pole&nbsp;Stress</TH><TD>&nbsp;</TD><TD>0 pu</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;A</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;B</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Stress&nbsp;Polynomial&nbsp;C</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Susceptibility</TH><TD>&nbsp;</TD><TD>0 pu*s/m</TD></TR> <TR><TH>Total&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Resisting&nbsp;Moment</TH><TD>&nbsp;</TD><TD>61722.3 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Pole&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>895.107 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Equipment&nbsp;Moment&nbsp;Nowind</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Critical&nbsp;Wind&nbsp;Speed</TH><TD>&nbsp;</TD><TD>0 m/s</TD></TR> <TR><TH>Wire&nbsp;Moment</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Wire&nbsp;Tension</TH><TD>&nbsp;</TD><TD>0 ft*lb</TD></TR> <TR><TH>Guy&nbsp;Height</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_c66513c06f8a4e8dab0155f0e569a7d1.setContent(html_37db8fda694f4985aa145bacc67053f6);
+        
+
+        marker_9c46af1b89d24000864b2584c3e3fd16.bindPopup(popup_c66513c06f8a4e8dab0155f0e569a7d1)
+        ;
+
+        
+    
+    
+            var mouse_position_9bc9dd4d526e44048f14a75a260665c6 = new L.Control.MousePosition(
+                {"autoStart": true, "emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomright", "prefix": "", "separator": " : "}
+            );
+            mouse_position_9bc9dd4d526e44048f14a75a260665c6.options["latFormatter"] =
+                undefined;
+            mouse_position_9bc9dd4d526e44048f14a75a260665c6.options["lngFormatter"] =
+                undefined;
+            map_03433430f6964101a7804060a73db5ba.addControl(mouse_position_9bc9dd4d526e44048f14a75a260665c6);
+        
+    
+            L.Control.geocoder(
+                {"collapsed": false, "defaultMarkGeocode": true, "position": "topright"}
+            ).on('markgeocode', function(e) {
+                map_03433430f6964101a7804060a73db5ba.setView(e.geocode.center, 11);
+            }).addTo(map_03433430f6964101a7804060a73db5ba);
+
+        
+</script>
