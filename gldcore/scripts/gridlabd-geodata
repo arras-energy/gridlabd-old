@@ -1017,7 +1017,7 @@ def write_glm(data):
             if not modify:
                 print(f"object {row['class']}",file=fh)
                 print("{",file=fh)
-                print("\tname \"{row['name']}\";",file=fh)
+                print(f"\tname \"{row['name']}\";",file=fh)
             for prop, value in row.items():
                 if prop in [CONFIG['column_names']['ID'],"class","name"]:
                     continue
