@@ -1,0 +1,3 @@
+class simple {}
+#input "positions.csv" -f table -t object -C simple
+#output "example.html" --show

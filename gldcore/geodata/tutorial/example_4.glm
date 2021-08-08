@@ -1,0 +1,17 @@
+module powerflow;
+#input "pole_example.csv" -f table -t object -C node -M powerflow -p phases=ABC -p nominal_voltage=12.47kV
+#output "${modelname/.glm/.html}" --cluster --show
+#for NODE in ${FIND class=node}
+#ifdef LAST
+object link
+{
+	from ${LAST};
+	to ${NODE};
+	phases ABC;
+	nominal_voltage 12.47kV;
+}
+#set LAST=${NODE}
+#else
+#define LAST=${NODE}
+#endif
+#done

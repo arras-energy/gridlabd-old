@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_b3260f7619f84dbbb29816e3e72fcce1 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_b3260f7619f84dbbb29816e3e72fcce1" ></div>
+        
+</body>
+<script>    
+    
+            var map_b3260f7619f84dbbb29816e3e72fcce1 = L.map(
+                "map_b3260f7619f84dbbb29816e3e72fcce1",
+                {
+                    center: [37.404604297297304, -122.24385940540543],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_8bb2699dcabd486d8890edfbfe2a538b = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            map_b3260f7619f84dbbb29816e3e72fcce1.fitBounds(
+                [[37.388064, -122.288443], [37.415045, -122.205647]],
+                {}
+            );
+        
+    
+            var marker_f4f2dc96115b4ff290f850bc5b6e089a = L.marker(
+                [37.415045, -122.205647],
+                {"name": "node:0"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_14d3bf5c8af54aab90a3477ae8a5c0f4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_f4f2dc96115b4ff290f850bc5b6e089a.setIcon(icon_14d3bf5c8af54aab90a3477ae8a5c0f4);
+        
+    
+        var popup_0c0039adec6f4c5496ae8c40639998f0 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_043ec4876412429fb456ca9836dd1ec4 = $(`<div id="html_043ec4876412429fb456ca9836dd1ec4" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:0</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.415045</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.205647</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2CEC581B6A0615E727828D3C4EA63D63</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>SWING</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0c0039adec6f4c5496ae8c40639998f0.setContent(html_043ec4876412429fb456ca9836dd1ec4);
+        
+
+        marker_f4f2dc96115b4ff290f850bc5b6e089a.bindPopup(popup_0c0039adec6f4c5496ae8c40639998f0)
+        ;
+
+        
+    
+    
+            var marker_a8a0e1826b7d40a98f3aa1ec46908d3c = L.marker(
+                [37.414698, -122.208487],
+                {"name": "node:1"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_8d77b54de07f41a38b2a3254c2cda222 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_a8a0e1826b7d40a98f3aa1ec46908d3c.setIcon(icon_8d77b54de07f41a38b2a3254c2cda222);
+        
+    
+        var popup_e09344c6e66b48d4b39cfcac4cee3312 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6ace7cbc25c24654b7c811087369e693 = $(`<div id="html_6ace7cbc25c24654b7c811087369e693" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:1</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>1</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414698</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.208487</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6374D1B9CC89E74F55D27B990B9D2CB3</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e09344c6e66b48d4b39cfcac4cee3312.setContent(html_6ace7cbc25c24654b7c811087369e693);
+        
+
+        marker_a8a0e1826b7d40a98f3aa1ec46908d3c.bindPopup(popup_e09344c6e66b48d4b39cfcac4cee3312)
+        ;
+
+        
+    
+    
+            var marker_3ef3952184bf470fa41f1cca8c7663b5 = L.marker(
+                [37.414454, -122.210443],
+                {"name": "node:2"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_50023c45cfe5499b9bd98e953a35055e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_3ef3952184bf470fa41f1cca8c7663b5.setIcon(icon_50023c45cfe5499b9bd98e953a35055e);
+        
+    
+        var popup_18a9c8f6dab042cda43e485f329bd376 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_56ff335bd3a3480a9c0f2114bfc5862a = $(`<div id="html_56ff335bd3a3480a9c0f2114bfc5862a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:2</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>2</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414454</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.210443</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3D760470F0BFF0DA744ED308229955EC</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_18a9c8f6dab042cda43e485f329bd376.setContent(html_56ff335bd3a3480a9c0f2114bfc5862a);
+        
+
+        marker_3ef3952184bf470fa41f1cca8c7663b5.bindPopup(popup_18a9c8f6dab042cda43e485f329bd376)
+        ;
+
+        
+    
+    
+            var marker_5ae86a3297c842029cf964e75ee26d5b = L.marker(
+                [37.414223, -122.212314],
+                {"name": "node:3"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_3c4fe0e4c43e494e919d27353f4654d4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_5ae86a3297c842029cf964e75ee26d5b.setIcon(icon_3c4fe0e4c43e494e919d27353f4654d4);
+        
+    
+        var popup_ba3b2db82426423c8163c1c4af3aa33a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_4ed30d57669b4fb4851caf8932617b8b = $(`<div id="html_4ed30d57669b4fb4851caf8932617b8b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:3</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>3</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414223</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.212314</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>77D9EB3AA26140C937298AB8BA856420</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ba3b2db82426423c8163c1c4af3aa33a.setContent(html_4ed30d57669b4fb4851caf8932617b8b);
+        
+
+        marker_5ae86a3297c842029cf964e75ee26d5b.bindPopup(popup_ba3b2db82426423c8163c1c4af3aa33a)
+        ;
+
+        
+    
+    
+            var marker_ad0c403015914237a520a54cfe913806 = L.marker(
+                [37.413981, -122.214272],
+                {"name": "node:4"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_43c1bf602701457d9483a1d29a18108d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_ad0c403015914237a520a54cfe913806.setIcon(icon_43c1bf602701457d9483a1d29a18108d);
+        
+    
+        var popup_274a9a8123344893b5d12573695a130d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b52c432ca0de4518a5a5534b7c03f499 = $(`<div id="html_b52c432ca0de4518a5a5534b7c03f499" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:4</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>4</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413981</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.214272</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6A62E62BF99A3C344C8B5508B44186C5</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_274a9a8123344893b5d12573695a130d.setContent(html_b52c432ca0de4518a5a5534b7c03f499);
+        
+
+        marker_ad0c403015914237a520a54cfe913806.bindPopup(popup_274a9a8123344893b5d12573695a130d)
+        ;
+
+        
+    
+    
+            var marker_f9f29e808019403aaf8d3d37972ee565 = L.marker(
+                [37.413697, -122.216568],
+                {"name": "node:5"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_4089e84bcb48439bb9392f7ca5cb8a4d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_f9f29e808019403aaf8d3d37972ee565.setIcon(icon_4089e84bcb48439bb9392f7ca5cb8a4d);
+        
+    
+        var popup_a965c3e9decc408eb5e55d0481f27629 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fac962892aa341df8f11799400f6af89 = $(`<div id="html_fac962892aa341df8f11799400f6af89" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:5</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>5</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413697</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.216568</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>67FA19DF559A3FD7EA625F4560FD51</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_a965c3e9decc408eb5e55d0481f27629.setContent(html_fac962892aa341df8f11799400f6af89);
+        
+
+        marker_f9f29e808019403aaf8d3d37972ee565.bindPopup(popup_a965c3e9decc408eb5e55d0481f27629)
+        ;
+
+        
+    
+    
+            var marker_ca796148ef4342adaeac3948ef777dcb = L.marker(
+                [37.413485, -122.218268],
+                {"name": "node:6"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_6ace73f18f824d4b99a7b5225c1acb17 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_ca796148ef4342adaeac3948ef777dcb.setIcon(icon_6ace73f18f824d4b99a7b5225c1acb17);
+        
+    
+        var popup_9ba5593e92234514bf6b3e830db8eafc = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cb6bb5aa1535481d9afa1ce577cf29e4 = $(`<div id="html_cb6bb5aa1535481d9afa1ce577cf29e4" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:6</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>6</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413485</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.218268</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3766BF1CAFA13E2B383914AF228CCF36</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_9ba5593e92234514bf6b3e830db8eafc.setContent(html_cb6bb5aa1535481d9afa1ce577cf29e4);
+        
+
+        marker_ca796148ef4342adaeac3948ef777dcb.bindPopup(popup_9ba5593e92234514bf6b3e830db8eafc)
+        ;
+
+        
+    
+    
+            var marker_6ab46b4bce2e4056aeb761a544ec104a = L.marker(
+                [37.413211, -122.220481],
+                {"name": "node:7"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_38b39b130fae483eada23234f103a5d1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_6ab46b4bce2e4056aeb761a544ec104a.setIcon(icon_38b39b130fae483eada23234f103a5d1);
+        
+    
+        var popup_6d41246d654c41eb981c8b637d94a390 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_1097f5ce2b654d1cb917bdc69843f0d0 = $(`<div id="html_1097f5ce2b654d1cb917bdc69843f0d0" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:7</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>7</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413211</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.220481</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6C9AFA092EEBD8AD760205BBCD4DBC5C</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6d41246d654c41eb981c8b637d94a390.setContent(html_1097f5ce2b654d1cb917bdc69843f0d0);
+        
+
+        marker_6ab46b4bce2e4056aeb761a544ec104a.bindPopup(popup_6d41246d654c41eb981c8b637d94a390)
+        ;
+
+        
+    
+    
+            var marker_3268729a1264416ab7a6c47230c211ac = L.marker(
+                [37.412976, -122.222324],
+                {"name": "node:8"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_78ba57553dbe49dba547ff7a725869ea = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_3268729a1264416ab7a6c47230c211ac.setIcon(icon_78ba57553dbe49dba547ff7a725869ea);
+        
+    
+        var popup_4d55c5a7458246428474d88341d6e45a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e8be873648664a54a47cc95a0d006851 = $(`<div id="html_e8be873648664a54a47cc95a0d006851" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:8</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>8</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412976</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.222324</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2FD072033941A84C2E52722079578BDF</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_4d55c5a7458246428474d88341d6e45a.setContent(html_e8be873648664a54a47cc95a0d006851);
+        
+
+        marker_3268729a1264416ab7a6c47230c211ac.bindPopup(popup_4d55c5a7458246428474d88341d6e45a)
+        ;
+
+        
+    
+    
+            var marker_010891b2405c4450950847ee826a91d2 = L.marker(
+                [37.412705, -122.224561],
+                {"name": "node:9"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_70e49266df7f42cfbab2aee4d086c81f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_010891b2405c4450950847ee826a91d2.setIcon(icon_70e49266df7f42cfbab2aee4d086c81f);
+        
+    
+        var popup_2d27ca92c0ef4001a396c63e55fad304 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_44501250cdac4ff5b2f007de41d0a08b = $(`<div id="html_44501250cdac4ff5b2f007de41d0a08b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:9</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>9</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412705</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.224561</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7F333514ECE780B567954B26DD574104</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_2d27ca92c0ef4001a396c63e55fad304.setContent(html_44501250cdac4ff5b2f007de41d0a08b);
+        
+
+        marker_010891b2405c4450950847ee826a91d2.bindPopup(popup_2d27ca92c0ef4001a396c63e55fad304)
+        ;
+
+        
+    
+    
+            var marker_f24900691f4643b9bdf6eb03914ebae8 = L.marker(
+                [37.412359, -122.227361],
+                {"name": "node:10"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_bbcc11f7fe2d4fddb79080ac2efc6695 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_f24900691f4643b9bdf6eb03914ebae8.setIcon(icon_bbcc11f7fe2d4fddb79080ac2efc6695);
+        
+    
+        var popup_62ad513297ab41e4ae25a75a5ed390b3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_9ba2e45759c040f6be7cebb592ff6744 = $(`<div id="html_9ba2e45759c040f6be7cebb592ff6744" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:10</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>10</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412359</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.227361</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3D0813934244FB783545E137234A2772</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_62ad513297ab41e4ae25a75a5ed390b3.setContent(html_9ba2e45759c040f6be7cebb592ff6744);
+        
+
+        marker_f24900691f4643b9bdf6eb03914ebae8.bindPopup(popup_62ad513297ab41e4ae25a75a5ed390b3)
+        ;
+
+        
+    
+    
+            var marker_7afce3be73b448f0bf4b07fbac920d4f = L.marker(
+                [37.412113, -122.229405],
+                {"name": "node:11"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_b4a27d8d89aa4425aee68fdce0180a4c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_7afce3be73b448f0bf4b07fbac920d4f.setIcon(icon_b4a27d8d89aa4425aee68fdce0180a4c);
+        
+    
+        var popup_de0409137e57425684d732a5895f908e = L.popup({"maxWidth": "100%"});
+
+        
+            var html_2a257e2b191343d890347be5a7e39db1 = $(`<div id="html_2a257e2b191343d890347be5a7e39db1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:11</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>11</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412113</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.229405</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>5DAE37CAFB8E69BF77F49300C5249CE</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_de0409137e57425684d732a5895f908e.setContent(html_2a257e2b191343d890347be5a7e39db1);
+        
+
+        marker_7afce3be73b448f0bf4b07fbac920d4f.bindPopup(popup_de0409137e57425684d732a5895f908e)
+        ;
+
+        
+    
+    
+            var marker_a6110a74f6d9449ca64aa0910cd33cbc = L.marker(
+                [37.411812, -122.23184],
+                {"name": "node:12"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_060a121d8b3248fe8c6e0f2f4d97b87b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_a6110a74f6d9449ca64aa0910cd33cbc.setIcon(icon_060a121d8b3248fe8c6e0f2f4d97b87b);
+        
+    
+        var popup_a4225ce773584051b8eff7a610b07ff1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_519cf471d2064b6ab6ca6892a86f372c = $(`<div id="html_519cf471d2064b6ab6ca6892a86f372c" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:12</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>12</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.411812</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.231840</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>150BEB6AE5D37CEB7B7A4E733BF5C416</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_a4225ce773584051b8eff7a610b07ff1.setContent(html_519cf471d2064b6ab6ca6892a86f372c);
+        
+
+        marker_a6110a74f6d9449ca64aa0910cd33cbc.bindPopup(popup_a4225ce773584051b8eff7a610b07ff1)
+        ;
+
+        
+    
+    
+            var marker_e2626923827d4a23b18cbe4161f1475c = L.marker(
+                [37.409952, -122.235412],
+                {"name": "node:13"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_1875d172d3804799a7b7cd91f706d215 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_e2626923827d4a23b18cbe4161f1475c.setIcon(icon_1875d172d3804799a7b7cd91f706d215);
+        
+    
+        var popup_69d761439c9243b0b4ae1cb84ab8e6e7 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_79efce5e4ce74f0eb97a410f23746ae9 = $(`<div id="html_79efce5e4ce74f0eb97a410f23746ae9" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:13</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>13</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409952</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.235412</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1C4564A4AF7FBFBE9D6F3977F045BD8</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_69d761439c9243b0b4ae1cb84ab8e6e7.setContent(html_79efce5e4ce74f0eb97a410f23746ae9);
+        
+
+        marker_e2626923827d4a23b18cbe4161f1475c.bindPopup(popup_69d761439c9243b0b4ae1cb84ab8e6e7)
+        ;
+
+        
+    
+    
+            var marker_f9b9bf630f83428eae3aaa79a04fe214 = L.marker(
+                [37.409121, -122.237713],
+                {"name": "node:14"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_a89951b6c2904e34be4b8ac1f9c2fce9 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_f9b9bf630f83428eae3aaa79a04fe214.setIcon(icon_a89951b6c2904e34be4b8ac1f9c2fce9);
+        
+    
+        var popup_5fed804d56ad4655bc305bf3b2b94430 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c564e8eb06a446e6b2d8330d81071515 = $(`<div id="html_c564e8eb06a446e6b2d8330d81071515" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:14</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>14</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409121</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.237713</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>40F0651CF875834567D33409C1D7D273</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_5fed804d56ad4655bc305bf3b2b94430.setContent(html_c564e8eb06a446e6b2d8330d81071515);
+        
+
+        marker_f9b9bf630f83428eae3aaa79a04fe214.bindPopup(popup_5fed804d56ad4655bc305bf3b2b94430)
+        ;
+
+        
+    
+    
+            var marker_082826d9b07747bc954c71b708ffe3b2 = L.marker(
+                [37.407893, -122.241074],
+                {"name": "node:15"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_9689a7896d1c4c039eb393f1c4edb637 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_082826d9b07747bc954c71b708ffe3b2.setIcon(icon_9689a7896d1c4c039eb393f1c4edb637);
+        
+    
+        var popup_017ab37df1434296ae891b47c5cce920 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0b216761ed8f4e919a831a64d723f6ed = $(`<div id="html_0b216761ed8f4e919a831a64d723f6ed" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:15</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>15</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407893</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.241074</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>468AE48D9FA5D1B32866E8454A18DFD4</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_017ab37df1434296ae891b47c5cce920.setContent(html_0b216761ed8f4e919a831a64d723f6ed);
+        
+
+        marker_082826d9b07747bc954c71b708ffe3b2.bindPopup(popup_017ab37df1434296ae891b47c5cce920)
+        ;
+
+        
+    
+    
+            var marker_561265e826b1414a9b359fb2581b1eb7 = L.marker(
+                [37.40715, -122.24311],
+                {"name": "node:16"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_29e3b2fe63ef4550bae88d19bd84a41b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_561265e826b1414a9b359fb2581b1eb7.setIcon(icon_29e3b2fe63ef4550bae88d19bd84a41b);
+        
+    
+        var popup_9c639e37470948669b0b5bd5d1ba9e24 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5fda11996dda4fffbeb22e0c34e68951 = $(`<div id="html_5fda11996dda4fffbeb22e0c34e68951" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:16</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>16</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407150</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.243110</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3B66F12AB217FA3422295EE0A830F304</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_9c639e37470948669b0b5bd5d1ba9e24.setContent(html_5fda11996dda4fffbeb22e0c34e68951);
+        
+
+        marker_561265e826b1414a9b359fb2581b1eb7.bindPopup(popup_9c639e37470948669b0b5bd5d1ba9e24)
+        ;
+
+        
+    
+    
+            var marker_9c525746e50c4a4ca5ee591a6fbcc62e = L.marker(
+                [37.406444, -122.245025],
+                {"name": "node:17"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_f46957caff084eeca8efbc7757475b2f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_9c525746e50c4a4ca5ee591a6fbcc62e.setIcon(icon_f46957caff084eeca8efbc7757475b2f);
+        
+    
+        var popup_14b31d2358ec4220a3c67f79941ab389 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_59650d20c500405b99d00cf2d2bb69a0 = $(`<div id="html_59650d20c500405b99d00cf2d2bb69a0" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:17</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>17</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.406444</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245025</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>39E85FD8BF694C7157336C58B408D668</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_14b31d2358ec4220a3c67f79941ab389.setContent(html_59650d20c500405b99d00cf2d2bb69a0);
+        
+
+        marker_9c525746e50c4a4ca5ee591a6fbcc62e.bindPopup(popup_14b31d2358ec4220a3c67f79941ab389)
+        ;
+
+        
+    
+    
+            var marker_6136120499074471b3d1e7079e62bd17 = L.marker(
+                [37.405623, -122.24443],
+                {"name": "node:18"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_69b3606c232441979343cefbe69098f8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_6136120499074471b3d1e7079e62bd17.setIcon(icon_69b3606c232441979343cefbe69098f8);
+        
+    
+        var popup_510c6fa6c5164b4bb134d3cc61ab4186 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f613d1f1f4d742ef80d943fde61962ba = $(`<div id="html_f613d1f1f4d742ef80d943fde61962ba" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:18</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>18</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.405623</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244430</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2732D602B80392E613CA638FC946B25F</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_510c6fa6c5164b4bb134d3cc61ab4186.setContent(html_f613d1f1f4d742ef80d943fde61962ba);
+        
+
+        marker_6136120499074471b3d1e7079e62bd17.bindPopup(popup_510c6fa6c5164b4bb134d3cc61ab4186)
+        ;
+
+        
+    
+    
+            var marker_bfb52cc663374adf9510065618c4a93e = L.marker(
+                [37.404558, -122.244176],
+                {"name": "node:19"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_39fef76faba04820ae5d045978a92b6f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_bfb52cc663374adf9510065618c4a93e.setIcon(icon_39fef76faba04820ae5d045978a92b6f);
+        
+    
+        var popup_ab8538c0d7724cc49f5b560b0cff70ca = L.popup({"maxWidth": "100%"});
+
+        
+            var html_318d2784a1f6452d834d918eabf3723a = $(`<div id="html_318d2784a1f6452d834d918eabf3723a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:19</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>19</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.404558</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244176</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>58222753D883BD9B30F9991F573400E9</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ab8538c0d7724cc49f5b560b0cff70ca.setContent(html_318d2784a1f6452d834d918eabf3723a);
+        
+
+        marker_bfb52cc663374adf9510065618c4a93e.bindPopup(popup_ab8538c0d7724cc49f5b560b0cff70ca)
+        ;
+
+        
+    
+    
+            var marker_36d63e4935314056829e0fb25ad96819 = L.marker(
+                [37.403389, -122.244289],
+                {"name": "node:20"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_cde821deadb140799fd3387ead09e7d9 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_36d63e4935314056829e0fb25ad96819.setIcon(icon_cde821deadb140799fd3387ead09e7d9);
+        
+    
+        var popup_41fa6fa9d4c9476cb5197a88c49a4363 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_16b618fb72ca4dacaedaebe7ce6d2396 = $(`<div id="html_16b618fb72ca4dacaedaebe7ce6d2396" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:20</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>20</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.403389</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244289</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1DB5F10986E304F36001C358B819B456</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_41fa6fa9d4c9476cb5197a88c49a4363.setContent(html_16b618fb72ca4dacaedaebe7ce6d2396);
+        
+
+        marker_36d63e4935314056829e0fb25ad96819.bindPopup(popup_41fa6fa9d4c9476cb5197a88c49a4363)
+        ;
+
+        
+    
+    
+            var marker_2d01144b08a946e08cbc8156909a7fe8 = L.marker(
+                [37.402489, -122.244677],
+                {"name": "node:21"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_5aa61196d23a45ed9c0994ea6d56c920 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_2d01144b08a946e08cbc8156909a7fe8.setIcon(icon_5aa61196d23a45ed9c0994ea6d56c920);
+        
+    
+        var popup_e2dc0ca691aa4907af61b28dd20243df = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f5645b276f3941b182ad88f7aed33982 = $(`<div id="html_f5645b276f3941b182ad88f7aed33982" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:21</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>21</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.402489</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244677</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>11D1CD356500ADF41BAEB91223E9D4EA</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e2dc0ca691aa4907af61b28dd20243df.setContent(html_f5645b276f3941b182ad88f7aed33982);
+        
+
+        marker_2d01144b08a946e08cbc8156909a7fe8.bindPopup(popup_e2dc0ca691aa4907af61b28dd20243df)
+        ;
+
+        
+    
+    
+            var marker_301e6f2b52df45d9b26d8851b1c9368c = L.marker(
+                [37.401361, -122.245664],
+                {"name": "node:22"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_ebe3eadceeaa4865b158f6c1d0cc27e7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_301e6f2b52df45d9b26d8851b1c9368c.setIcon(icon_ebe3eadceeaa4865b158f6c1d0cc27e7);
+        
+    
+        var popup_d1c31acb6d6745169a6d3b81f34a4260 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0e29be2805d9484ab0adfa02cc84018a = $(`<div id="html_0e29be2805d9484ab0adfa02cc84018a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:22</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>22</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.401361</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245664</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1563678D3CBFE548548DC13172ABDC80</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_d1c31acb6d6745169a6d3b81f34a4260.setContent(html_0e29be2805d9484ab0adfa02cc84018a);
+        
+
+        marker_301e6f2b52df45d9b26d8851b1c9368c.bindPopup(popup_d1c31acb6d6745169a6d3b81f34a4260)
+        ;
+
+        
+    
+    
+            var marker_6046f0b82fec424585a2570f8b8195fb = L.marker(
+                [37.399867, -122.249266],
+                {"name": "node:23"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_b5e54faa047e4acab18110bf8b1f80f8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_6046f0b82fec424585a2570f8b8195fb.setIcon(icon_b5e54faa047e4acab18110bf8b1f80f8);
+        
+    
+        var popup_bb9ab60898df4d63bc8a2c3d336310df = L.popup({"maxWidth": "100%"});
+
+        
+            var html_677a4cdd748c431daf161f33f4159aea = $(`<div id="html_677a4cdd748c431daf161f33f4159aea" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:23</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>23</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399867</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.249266</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>48E82E26C96F641624FDD4E2423E3098</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_bb9ab60898df4d63bc8a2c3d336310df.setContent(html_677a4cdd748c431daf161f33f4159aea);
+        
+
+        marker_6046f0b82fec424585a2570f8b8195fb.bindPopup(popup_bb9ab60898df4d63bc8a2c3d336310df)
+        ;
+
+        
+    
+    
+            var marker_c916a27b6ccc4392acd9084ef0434e1a = L.marker(
+                [37.399663, -122.251133],
+                {"name": "node:24"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_2c2abcf7338a4fa99a32bc17e13514c2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_c916a27b6ccc4392acd9084ef0434e1a.setIcon(icon_2c2abcf7338a4fa99a32bc17e13514c2);
+        
+    
+        var popup_7c99ba82291440e586367eb08d169c1d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cd3dc46c76694664b5c0c9739e9d2a47 = $(`<div id="html_cd3dc46c76694664b5c0c9739e9d2a47" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:24</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>24</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399663</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.251133</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>604C47D0C302A36C5227E6BDF3BE91C7</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_7c99ba82291440e586367eb08d169c1d.setContent(html_cd3dc46c76694664b5c0c9739e9d2a47);
+        
+
+        marker_c916a27b6ccc4392acd9084ef0434e1a.bindPopup(popup_7c99ba82291440e586367eb08d169c1d)
+        ;
+
+        
+    
+    
+            var marker_52facc86a7c6419f856c5f9d1e392b9d = L.marker(
+                [37.39937, -122.256274],
+                {"name": "node:25"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_424afeb4a24141b0a34144bfd7adc7dc = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_52facc86a7c6419f856c5f9d1e392b9d.setIcon(icon_424afeb4a24141b0a34144bfd7adc7dc);
+        
+    
+        var popup_79f686e8051b4b899a4ecfa09878de21 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_60746207abc542b6bf3df1ad015fd767 = $(`<div id="html_60746207abc542b6bf3df1ad015fd767" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:25</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>25</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399370</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.256274</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>B33EA42EE94F94216CC706DD4385FC8</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_79f686e8051b4b899a4ecfa09878de21.setContent(html_60746207abc542b6bf3df1ad015fd767);
+        
+
+        marker_52facc86a7c6419f856c5f9d1e392b9d.bindPopup(popup_79f686e8051b4b899a4ecfa09878de21)
+        ;
+
+        
+    
+    
+            var marker_c9027d6ff3ae46868389c8afd8140f36 = L.marker(
+                [37.399277, -122.257945],
+                {"name": "node:26"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_de515298e2d64f37be1f2873c94ebafe = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_c9027d6ff3ae46868389c8afd8140f36.setIcon(icon_de515298e2d64f37be1f2873c94ebafe);
+        
+    
+        var popup_fc58d73cc4db4688b42ebbc6ea554760 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_87fc2dbb777f49f3a3da2459574c14e9 = $(`<div id="html_87fc2dbb777f49f3a3da2459574c14e9" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:26</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>26</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399277</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.257945</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>42971A025875106E2CFF3952A50F235B</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_fc58d73cc4db4688b42ebbc6ea554760.setContent(html_87fc2dbb777f49f3a3da2459574c14e9);
+        
+
+        marker_c9027d6ff3ae46868389c8afd8140f36.bindPopup(popup_fc58d73cc4db4688b42ebbc6ea554760)
+        ;
+
+        
+    
+    
+            var marker_aed121d81efe4411bec32cb38aded41e = L.marker(
+                [37.398817, -122.264486],
+                {"name": "node:27"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_4a63f6664cbb4caf9a7e502a006a7e6e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_aed121d81efe4411bec32cb38aded41e.setIcon(icon_4a63f6664cbb4caf9a7e502a006a7e6e);
+        
+    
+        var popup_8a93500a9a3141b7b745e1a3161ba866 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_37e226c189c540d4b18aa91a4ed7f574 = $(`<div id="html_37e226c189c540d4b18aa91a4ed7f574" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:27</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>27</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398817</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.264486</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>24D24E113BB840B543B777BC97BDD8BE</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_8a93500a9a3141b7b745e1a3161ba866.setContent(html_37e226c189c540d4b18aa91a4ed7f574);
+        
+
+        marker_aed121d81efe4411bec32cb38aded41e.bindPopup(popup_8a93500a9a3141b7b745e1a3161ba866)
+        ;
+
+        
+    
+    
+            var marker_31efd34204f44ebc9a2df054fa84fe57 = L.marker(
+                [37.398709, -122.2661],
+                {"name": "node:28"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_aea1dccf52704026bd67583af0c05f25 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_31efd34204f44ebc9a2df054fa84fe57.setIcon(icon_aea1dccf52704026bd67583af0c05f25);
+        
+    
+        var popup_8eafc8095d5b4c46b055588a7ee38eb3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_50922d045cb1448595fd334ab329bc50 = $(`<div id="html_50922d045cb1448595fd334ab329bc50" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:28</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>28</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398709</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.266100</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>210061477B46A6CC53F1EF9B12EBFA5</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_8eafc8095d5b4c46b055588a7ee38eb3.setContent(html_50922d045cb1448595fd334ab329bc50);
+        
+
+        marker_31efd34204f44ebc9a2df054fa84fe57.bindPopup(popup_8eafc8095d5b4c46b055588a7ee38eb3)
+        ;
+
+        
+    
+    
+            var marker_a748a2a06ff34146aebc2eedcbb8a549 = L.marker(
+                [37.398606, -122.267569],
+                {"name": "node:29"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_f47fb75b65a14e6d9ae247d63fa741aa = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_a748a2a06ff34146aebc2eedcbb8a549.setIcon(icon_f47fb75b65a14e6d9ae247d63fa741aa);
+        
+    
+        var popup_236fc7bc01074712834d101befc1ad42 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_330bf71eaf584baca2668db3cde4cc8f = $(`<div id="html_330bf71eaf584baca2668db3cde4cc8f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:29</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>29</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398606</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.267569</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>AC2AB8AF0717078B915C10688BDE5F</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_236fc7bc01074712834d101befc1ad42.setContent(html_330bf71eaf584baca2668db3cde4cc8f);
+        
+
+        marker_a748a2a06ff34146aebc2eedcbb8a549.bindPopup(popup_236fc7bc01074712834d101befc1ad42)
+        ;
+
+        
+    
+    
+            var marker_43211b8e98d042bd9ec6ea74ce873e6f = L.marker(
+                [37.394484, -122.270625],
+                {"name": "node:30"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_e609245c3db5496291844760b7e90af4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_43211b8e98d042bd9ec6ea74ce873e6f.setIcon(icon_e609245c3db5496291844760b7e90af4);
+        
+    
+        var popup_53d2fcf4e2e945f3ab14362e4514cbef = L.popup({"maxWidth": "100%"});
+
+        
+            var html_9a90f39667c548f7887fea1d0edb1076 = $(`<div id="html_9a90f39667c548f7887fea1d0edb1076" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:30</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>30</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.394484</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.270625</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>47600CAC32FE9CED1786F361358AD3F5</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_53d2fcf4e2e945f3ab14362e4514cbef.setContent(html_9a90f39667c548f7887fea1d0edb1076);
+        
+
+        marker_43211b8e98d042bd9ec6ea74ce873e6f.bindPopup(popup_53d2fcf4e2e945f3ab14362e4514cbef)
+        ;
+
+        
+    
+    
+            var marker_8ec00159187a4ea8bad36f618503b200 = L.marker(
+                [37.393065, -122.271802],
+                {"name": "node:31"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_c6b7fe81405c49018436c5b69b1f67e9 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_8ec00159187a4ea8bad36f618503b200.setIcon(icon_c6b7fe81405c49018436c5b69b1f67e9);
+        
+    
+        var popup_337d025d8a9c43729fc90bdeccf48c86 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_45a1c10af61a438182ffa8aa8d6aa898 = $(`<div id="html_45a1c10af61a438182ffa8aa8d6aa898" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:31</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>31</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.393065</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.271802</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1D542318DEB6A55E17E960D5A243D5B0</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_337d025d8a9c43729fc90bdeccf48c86.setContent(html_45a1c10af61a438182ffa8aa8d6aa898);
+        
+
+        marker_8ec00159187a4ea8bad36f618503b200.bindPopup(popup_337d025d8a9c43729fc90bdeccf48c86)
+        ;
+
+        
+    
+    
+            var marker_17703ecf92124f55af504620347ba89a = L.marker(
+                [37.392485, -122.274458],
+                {"name": "node:32"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_42418b1d7e6c4c479f9df7552d8f9669 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_17703ecf92124f55af504620347ba89a.setIcon(icon_42418b1d7e6c4c479f9df7552d8f9669);
+        
+    
+        var popup_8e7777fe91614c5d9fad5087fdf66276 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0b06f17473c245899adf1bc0dac45664 = $(`<div id="html_0b06f17473c245899adf1bc0dac45664" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:32</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>32</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392485</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.274458</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4725D835BA803C8F56D4CF254775DB3</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_8e7777fe91614c5d9fad5087fdf66276.setContent(html_0b06f17473c245899adf1bc0dac45664);
+        
+
+        marker_17703ecf92124f55af504620347ba89a.bindPopup(popup_8e7777fe91614c5d9fad5087fdf66276)
+        ;
+
+        
+    
+    
+            var marker_a3a6807923a9460d8a3e9778bdc8f363 = L.marker(
+                [37.391898, -122.277174],
+                {"name": "node:33"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_ca62ceb404434787a795cf70fdec4f96 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_a3a6807923a9460d8a3e9778bdc8f363.setIcon(icon_ca62ceb404434787a795cf70fdec4f96);
+        
+    
+        var popup_924b849a1c7449fd990336565fe8106d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6001302f7654449d876251de442183d5 = $(`<div id="html_6001302f7654449d876251de442183d5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:33</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>33</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391898</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.277174</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>42B2DC9384E523E1508118A562690243</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_924b849a1c7449fd990336565fe8106d.setContent(html_6001302f7654449d876251de442183d5);
+        
+
+        marker_a3a6807923a9460d8a3e9778bdc8f363.bindPopup(popup_924b849a1c7449fd990336565fe8106d)
+        ;
+
+        
+    
+    
+            var marker_c614e9c3ec00490eb611ec9ad94a6179 = L.marker(
+                [37.391605, -122.278597],
+                {"name": "node:34"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_c67fe2ed8e59497eb6d7f9b8c685ad51 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_c614e9c3ec00490eb611ec9ad94a6179.setIcon(icon_c67fe2ed8e59497eb6d7f9b8c685ad51);
+        
+    
+        var popup_1456a35e3bd146fdbcd060a1b588ccaa = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a02125009d2f4047ad0cef32e59390da = $(`<div id="html_a02125009d2f4047ad0cef32e59390da" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:34</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>34</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391605</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.278597</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6DD49DD08A200A681604F1C32729A998</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_1456a35e3bd146fdbcd060a1b588ccaa.setContent(html_a02125009d2f4047ad0cef32e59390da);
+        
+
+        marker_c614e9c3ec00490eb611ec9ad94a6179.bindPopup(popup_1456a35e3bd146fdbcd060a1b588ccaa)
+        ;
+
+        
+    
+    
+            var marker_0c89bfa128a847438ebfb4eae17ddbbb = L.marker(
+                [37.39171, -122.281385],
+                {"name": "node:35"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_7063009fb8b54f279ad8ce416c497293 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_0c89bfa128a847438ebfb4eae17ddbbb.setIcon(icon_7063009fb8b54f279ad8ce416c497293);
+        
+    
+        var popup_78cf9ede965a4d46aceb0b229313251c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c4eee776802b48d5987df0a85d1b36b8 = $(`<div id="html_c4eee776802b48d5987df0a85d1b36b8" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:35</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>35</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391710</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.281385</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>5961B04587B7D62C7D71251AA627288</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_78cf9ede965a4d46aceb0b229313251c.setContent(html_c4eee776802b48d5987df0a85d1b36b8);
+        
+
+        marker_0c89bfa128a847438ebfb4eae17ddbbb.bindPopup(popup_78cf9ede965a4d46aceb0b229313251c)
+        ;
+
+        
+    
+    
+            var marker_920e5b3032244fd3b310cce750b5d179 = L.marker(
+                [37.388064, -122.288443],
+                {"name": "node:36"}
+            ).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+        
+    
+            var icon_2b701712101143649f5c9b6cf33d6464 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "circle", "iconColor": "white", "markerColor": "green", "prefix": "fa"}
+            );
+            marker_920e5b3032244fd3b310cce750b5d179.setIcon(icon_2b701712101143649f5c9b6cf33d6464);
+        
+    
+        var popup_617a0e1e54fb4ace91fb04a68a896019 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ea339bfc25de452b844f77682ffd3b0e = $(`<div id="html_ea339bfc25de452b844f77682ffd3b0e" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>node:36</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>36</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/Powerflow/Node.md">node</A></TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.388064</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.288443</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>538E9663C182C6EF6E547C938FAF076C</TD></TR> <TR><TH>Bustype</TH><TD>&nbsp;</TD><TD>PQ</TD></TR> <TR><TH>Busflags</TH><TD>&nbsp;</TD><TD>HASSOURCE</TD></TR> <TR><TH>Reference&nbsp;Bus</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Maximum&nbsp;Voltage&nbsp;Error</TH><TD>&nbsp;</TD><TD>0.01247 V</TD></TR> <TR><TH>Voltage&nbsp;A</TH><TD>&nbsp;</TD><TD>12470+0j V</TD></TR> <TR><TH>Voltage&nbsp;B</TH><TD>&nbsp;</TD><TD>-6235-10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;C</TH><TD>&nbsp;</TD><TD>-6235+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Ab</TH><TD>&nbsp;</TD><TD>18705+10799.3j V</TD></TR> <TR><TH>Voltage&nbsp;Bc</TH><TD>&nbsp;</TD><TD>0-21598.7j V</TD></TR> <TR><TH>Voltage&nbsp;Ca</TH><TD>&nbsp;</TD><TD>-18705+10799.3j V</TD></TR> <TR><TH>Mean&nbsp;Repair&nbsp;Time</TH><TD>&nbsp;</TD><TD>0 s</TD></TR> <TR><TH>Frequency&nbsp;Measure&nbsp;Type</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Sfm&nbsp;Tf</TH><TD>&nbsp;</TD><TD>0.01 s</TD></TR> <TR><TH>Pll&nbsp;Kp</TH><TD>&nbsp;</TD><TD>10 pu</TD></TR> <TR><TH>Pll&nbsp;Ki</TH><TD>&nbsp;</TD><TD>100 pu</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;A</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;A</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;B</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;B</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Angle&nbsp;C</TH><TD>&nbsp;</TD><TD>0 rad</TD></TR> <TR><TH>Measured&nbsp;Frequency&nbsp;C</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Measured&nbsp;Frequency</TH><TD>&nbsp;</TD><TD>60 Hz</TD></TR> <TR><TH>Service&nbsp;Status</TH><TD>&nbsp;</TD><TD>IN_SERVICE</TD></TR> <TR><TH>Service&nbsp;Status&nbsp;Double</TH><TD>&nbsp;</TD><TD>-1</TD></TR> <TR><TH>Previous&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>-1 min</TD></TR> <TR><TH>Current&nbsp;Uptime</TH><TD>&nbsp;</TD><TD>0 min</TD></TR> <TR><TH>Norton&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Generator&nbsp;Dynamic</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Enable</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>59.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>60.5 Hz</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Low&nbsp;Trip</TH><TD>&nbsp;</TD><TD>0.8 pu</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;High&nbsp;Trip</TH><TD>&nbsp;</TD><TD>1.2 pu</TD></TR> <TR><TH>Gfa&nbsp;Reconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>300 s</TD></TR> <TR><TH>Gfa&nbsp;Freq&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Volt&nbsp;Disconnect&nbsp;Time</TH><TD>&nbsp;</TD><TD>0.2 s</TD></TR> <TR><TH>Gfa&nbsp;Status</TH><TD>&nbsp;</TD><TD>TRUE</TD></TR> <TR><TH>Gfa&nbsp;Trip&nbsp;Method</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH>Topological&nbsp;Parent</TH><TD>&nbsp;</TD><TD></TD></TR> <TR><TH>Phases</TH><TD>&nbsp;</TD><TD>ABC</TD></TR> <TR><TH>Nominal&nbsp;Voltage</TH><TD>&nbsp;</TD><TD>12470 V</TD></TR> <TR><TH>Violation&nbsp;Detected</TH><TD>&nbsp;</TD><TD>NONE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_617a0e1e54fb4ace91fb04a68a896019.setContent(html_ea339bfc25de452b844f77682ffd3b0e);
+        
+
+        marker_920e5b3032244fd3b310cce750b5d179.bindPopup(popup_617a0e1e54fb4ace91fb04a68a896019)
+        ;
+
+        
+    
+    
+            var mouse_position_bfc535c737994c1f9a63309fb76a5e07 = new L.Control.MousePosition(
+                {"autoStart": true, "emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomright", "prefix": "", "separator": " : "}
+            );
+            mouse_position_bfc535c737994c1f9a63309fb76a5e07.options["latFormatter"] =
+                undefined;
+            mouse_position_bfc535c737994c1f9a63309fb76a5e07.options["lngFormatter"] =
+                undefined;
+            map_b3260f7619f84dbbb29816e3e72fcce1.addControl(mouse_position_bfc535c737994c1f9a63309fb76a5e07);
+        
+    
+            L.Control.geocoder(
+                {"collapsed": false, "defaultMarkGeocode": true, "position": "topright"}
+            ).on('markgeocode', function(e) {
+                map_b3260f7619f84dbbb29816e3e72fcce1.setView(e.geocode.center, 11);
+            }).addTo(map_b3260f7619f84dbbb29816e3e72fcce1);
+
+        
+</script>

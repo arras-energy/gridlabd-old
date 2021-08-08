@@ -1,0 +1,223 @@
+module powerflow;
+object node {
+	latitude 37.415045141688054;
+	longitude "-122.2056472090359";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.414698020593065;
+	longitude "-122.20848749028133";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.414454093051745;
+	longitude "-122.21044282065421";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.4142229470058;
+	longitude "-122.21231366144505";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41398114830695;
+	longitude "-122.21427167402398";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41369674090812;
+	longitude "-122.21656764493814";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.413484766152116;
+	longitude "-122.21826816545857";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.413211008919944;
+	longitude "-122.22048098789332";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41297559820373;
+	longitude "-122.22232366549139";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41270503474598;
+	longitude "-122.22456062781153";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41235883992205;
+	longitude "-122.22736085401982";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41211277432232;
+	longitude "-122.2294046972871";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.41181238145044;
+	longitude "-122.2318401430745";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.40995247538199;
+	longitude "-122.23541150437455";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.40912057241348;
+	longitude "-122.2377130888813";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.40789338104315;
+	longitude "-122.24107380619942";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.407149938388855;
+	longitude "-122.24310961753775";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.406444430121574;
+	longitude "-122.24502537152217";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.40562303785719;
+	longitude "-122.24443024849117";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.40455757305511;
+	longitude "-122.24417593344417";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.403388518198085;
+	longitude "-122.24428886555295";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.4024888290699;
+	longitude "-122.24467711530833";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.401360606833215;
+	longitude "-122.24566416822258";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39986734896868;
+	longitude "-122.24926604404577";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39966304364653;
+	longitude "-122.25113326423049";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39937036342071;
+	longitude "-122.25627439962648";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39927723765627;
+	longitude "-122.25794544805741";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39881734255347;
+	longitude "-122.26448590652335";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.3987093390758;
+	longitude "-122.26609958926933";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39860603125615;
+	longitude "-122.26756943948794";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39448377651167;
+	longitude "-122.27062538813342";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.393064766804834;
+	longitude "-122.27180166237235";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39248478874903;
+	longitude "-122.27445763837264";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39189776185741;
+	longitude "-122.27717370878581";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.391605029396494;
+	longitude "-122.27859725674931";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.39170991228087;
+	longitude "-122.28138524342816";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}
+object node {
+	latitude 37.388063971857704;
+	longitude "-122.28844288884694";
+	phases "ABC";
+	nominal_voltage "12.47kV";
+}

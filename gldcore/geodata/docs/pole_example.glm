@@ -1,7 +1,0 @@
-module powerflow;
-object pole_configuration
-{
-	name default;
-}
-#input "pole_example.csv" -f table -t object -o /tmp/poles.glm -M powerflow -C pole -p configuration=default
-#output "/tmp/poles.html" --cluster --show
