@@ -138,11 +138,11 @@ def main(argv):
             to_obj = data['objects'][to_name]
             lat1 = float(to_obj['latitude'])
             lon1 = float(to_obj['longitude'])
+            pos0 = (lat0,lon0)
+            pos1 = (lat1,lon1)
             if pos0 != pos1:
-                pos0 = (lat0,lon0)
-                pos1 = (lat1,lon1)
                 if "phases" in tag.keys():
-                    weigth = len(tag['phases'])*2
+                    weight = len(tag['phases'])*2
                     if tag['class'].startswith('underground'):
                         opacity = 0.3
                     else:
@@ -153,11 +153,12 @@ def main(argv):
                     if "map_opacity" in tag.keys():
                         opacity = tag["map_opacity"]
                     if "map_weight" in tag.keys():
-                        weigth = tag["map_weight"]
+                        weight = tag["map_weight"]
                 obj = folium.PolyLine([pos0,pos1],color=color,weight=weight,opacity=opacity,popup=popup,name=name)
             else:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
-        except: # apparently not a link, so it's a node or other object
+        except Exception as err: # apparently not a link, so it's a node or other object
+            #print(f"DEBUG: {err}",file=sys.stderr)
             if not icon:
                 warning(f"object '{name}' has no known icon (class '{oclass})'")
                 icon = folium.Icon(color=color)
