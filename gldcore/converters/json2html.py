@@ -97,11 +97,15 @@ def main(argv):
     lats = numpy.array(lats)
     lons = numpy.array(lons)
 
-    if zoomlevel == 'auto':
-        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
-        map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
-    else:
-        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
+    try:
+        if zoomlevel == 'auto':
+            map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
+            map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
+        else:
+            map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
+    except:
+        map = folium.Map(tiles=tiles,zoom_start=zoomlevel)
+        pass
     try:
         if cluster_ok:
             cluster = MarkerCluster().add_to(map)
