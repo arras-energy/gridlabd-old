@@ -1,17 +1,15 @@
-module powerflow;
-#input "pole_example.csv" -f table -t object -C node -M powerflow -p phases=ABC -p nominal_voltage=12.47kV
-#output "${modelname/.glm/.html}" --cluster --show
-#for NODE in ${FIND class=node}
-#ifdef LAST
-object link
+// gldcore/geodata/tutorial/example_4.glm
+//
+// This example shows how to use address data to find lan/lon values
+// and show the resulting map.
+//
+class industrial { char1024 address; }
+object industrial
 {
-	from ${LAST};
-	to ${NODE};
-	phases ABC;
-	nominal_voltage 12.47kV;
+	name "Building_54";
+	address "2575 Sand Hill Rd., Menlo Park, CA";
 }
-#set LAST=${NODE}
-#else
-#define LAST=${NODE}
-#endif
-#done
+#write /tmp/address.csv industrial:address
+#geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
+#include "/tmp/latlon.glm"
+#output "example.html" --cluster --show
