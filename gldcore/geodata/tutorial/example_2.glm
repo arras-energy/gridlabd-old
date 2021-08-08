@@ -8,5 +8,5 @@ object pole_configuration
 {
 	name "default";
 }
-#input "pole_example.csv" -f table -t object -C pole -M powerflow -p configuration=default
+#input "positions.csv" -f table -t object -M powerflow -C pole -p configuration=default
 #output "example.html" --cluster --show
