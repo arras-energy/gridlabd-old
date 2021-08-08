@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_a5f8113277364299a9fa50702120d166 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_a5f8113277364299a9fa50702120d166" ></div>
+        
+</body>
+<script>    
+    
+            var map_a5f8113277364299a9fa50702120d166 = L.map(
+                "map_a5f8113277364299a9fa50702120d166",
+                {
+                    center: [37.40350554973822, -122.24710507853405],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_6eccf57c3fad4965bc5978f36d020037 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            map_a5f8113277364299a9fa50702120d166.fitBounds(
+                [[37.38806, -122.28844], [37.41505, -122.20565]],
+                {}
+            );
+        
+    
+            var marker_9edddba104c94434aec8c316f851e640 = L.marker(
+                [37.41498, -122.20621],
+                {"name": "vegetation:2"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_f756366ae9174520b7efa59aa7a28507 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_9edddba104c94434aec8c316f851e640.setIcon(icon_f756366ae9174520b7efa59aa7a28507);
+        
+    
+        var popup_7fbc2a778b8441919d1668d80583387c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e35993e96fcc45bf81bd6690309e5f1f = $(`<div id="html_e35993e96fcc45bf81bd6690309e5f1f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:2</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>1</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414980</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.206210</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>64C954436CBE0416772360F04038C084</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>90 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.74</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>12.6 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>74 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_7fbc2a778b8441919d1668d80583387c.setContent(html_e35993e96fcc45bf81bd6690309e5f1f);
+        
+
+        marker_9edddba104c94434aec8c316f851e640.bindPopup(popup_7fbc2a778b8441919d1668d80583387c)
+        ;
+
+        
+    
+    
+            var marker_6720ccca43ae4033b1aec49d8f5701b8 = L.marker(
+                [37.41491, -122.20677],
+                {"name": "vegetation:3"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_eaa1c30329264298ba358b9f98adaae6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_6720ccca43ae4033b1aec49d8f5701b8.setIcon(icon_eaa1c30329264298ba358b9f98adaae6);
+        
+    
+        var popup_ace23dbf861f4f27bf2b6d2c36691216 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_000ebf8b042f453da992202c3106d622 = $(`<div id="html_000ebf8b042f453da992202c3106d622" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:3</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>2</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414910</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.206770</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>56E035027ED6557927E7DE57DABBC6D7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>90 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.72</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>12.2 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>72 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ace23dbf861f4f27bf2b6d2c36691216.setContent(html_000ebf8b042f453da992202c3106d622);
+        
+
+        marker_6720ccca43ae4033b1aec49d8f5701b8.bindPopup(popup_ace23dbf861f4f27bf2b6d2c36691216)
+        ;
+
+        
+    
+    
+            var marker_a9d858ef34ca4a469f249ea40c842b21 = L.marker(
+                [37.41484, -122.20733],
+                {"name": "vegetation:4"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_2ebafa759b274515b4af3770c7137c9a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_a9d858ef34ca4a469f249ea40c842b21.setIcon(icon_2ebafa759b274515b4af3770c7137c9a);
+        
+    
+        var popup_f5b2a84acf6c4641bb6042afaa1d4281 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_62156968b3fd4b82bc01f4cf7319c256 = $(`<div id="html_62156968b3fd4b82bc01f4cf7319c256" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:4</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>3</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414840</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.207330</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4CF27D37323338F51BCE43CBE551E80</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>92 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.3</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>12.8 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>30 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_f5b2a84acf6c4641bb6042afaa1d4281.setContent(html_62156968b3fd4b82bc01f4cf7319c256);
+        
+
+        marker_a9d858ef34ca4a469f249ea40c842b21.bindPopup(popup_f5b2a84acf6c4641bb6042afaa1d4281)
+        ;
+
+        
+    
+    
+            var marker_91db7f813bcb445093c92aebe5054734 = L.marker(
+                [37.41408, -122.21343],
+                {"name": "vegetation:17"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_6fc24d061c3e491ab334a8d2cb7de711 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_91db7f813bcb445093c92aebe5054734.setIcon(icon_6fc24d061c3e491ab334a8d2cb7de711);
+        
+    
+        var popup_bc0696364eab4ec18584e771992e3b8d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fb81bfbb92bd4fc1bedb37973d3d887c = $(`<div id="html_fb81bfbb92bd4fc1bedb37973d3d887c" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:17</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>16</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414080</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.213430</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1C00FBAC45EA913643028BFBDD2E84A7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>105 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.66</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>11.8 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>66 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_bc0696364eab4ec18584e771992e3b8d.setContent(html_fb81bfbb92bd4fc1bedb37973d3d887c);
+        
+
+        marker_91db7f813bcb445093c92aebe5054734.bindPopup(popup_bc0696364eab4ec18584e771992e3b8d)
+        ;
+
+        
+    
+    
+            var marker_89bf93da516f4bddbfaed285c4c239fd = L.marker(
+                [37.41401, -122.21399],
+                {"name": "vegetation:18"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_3fa0c9a8493c4872b951e5fab802458e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_89bf93da516f4bddbfaed285c4c239fd.setIcon(icon_3fa0c9a8493c4872b951e5fab802458e);
+        
+    
+        var popup_2d24f81537564f1a84520094b0796a0c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_58c7e25519144d5f8a5354f704ccb60b = $(`<div id="html_58c7e25519144d5f8a5354f704ccb60b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:18</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>17</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414010</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.213990</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2379A7B01B087B9623988332EC0FEFE</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>101 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.65</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>15.7 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>65 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_2d24f81537564f1a84520094b0796a0c.setContent(html_58c7e25519144d5f8a5354f704ccb60b);
+        
+
+        marker_89bf93da516f4bddbfaed285c4c239fd.bindPopup(popup_2d24f81537564f1a84520094b0796a0c)
+        ;
+
+        
+    
+    
+            var marker_2625de5fee3d497682a7b407cb0a7e4e = L.marker(
+                [37.41391, -122.21483],
+                {"name": "vegetation:20"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_d2fbd6705e964622b91fce13798498b4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_2625de5fee3d497682a7b407cb0a7e4e.setIcon(icon_d2fbd6705e964622b91fce13798498b4);
+        
+    
+        var popup_6e3fe1c5589040fe8bedcb5a05d6fcc3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_2fcac958485b4f0aa023080e88d86f61 = $(`<div id="html_2fcac958485b4f0aa023080e88d86f61" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:20</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>19</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413910</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.214830</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6D3FE4937148B7F31A597BCEC4293FD7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>95 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.52</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>19 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>15.6 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>52 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6e3fe1c5589040fe8bedcb5a05d6fcc3.setContent(html_2fcac958485b4f0aa023080e88d86f61);
+        
+
+        marker_2625de5fee3d497682a7b407cb0a7e4e.bindPopup(popup_6e3fe1c5589040fe8bedcb5a05d6fcc3)
+        ;
+
+        
+    
+    
+            var marker_a8a14836ce4b4ed596bcd2c45847312f = L.marker(
+                [37.41384, -122.21539],
+                {"name": "vegetation:21"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_fadfd38480d44fc98c6b516b043c7187 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_a8a14836ce4b4ed596bcd2c45847312f.setIcon(icon_fadfd38480d44fc98c6b516b043c7187);
+        
+    
+        var popup_68e1595b4006496aa41266605b034818 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_d39f108f88e14925ad3caf3263d0dee7 = $(`<div id="html_d39f108f88e14925ad3caf3263d0dee7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:21</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>20</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413840</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.215390</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7EC870EC9D9734FD8A37109FFA2F921</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>92 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.38</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>14.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>38 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_68e1595b4006496aa41266605b034818.setContent(html_d39f108f88e14925ad3caf3263d0dee7);
+        
+
+        marker_a8a14836ce4b4ed596bcd2c45847312f.bindPopup(popup_68e1595b4006496aa41266605b034818)
+        ;
+
+        
+    
+    
+            var marker_0ba186fdcb17446fb7d2e05e2a812cad = L.marker(
+                [37.41327, -122.21995],
+                {"name": "vegetation:31"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_34bd6ab843dd49deb05bdedf5cea1068 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_0ba186fdcb17446fb7d2e05e2a812cad.setIcon(icon_34bd6ab843dd49deb05bdedf5cea1068);
+        
+    
+        var popup_f77847c0f1424d12b4662f289fea69df = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5b9586cd8b7043d1a3a862433549112f = $(`<div id="html_5b9586cd8b7043d1a3a862433549112f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:31</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>30</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413270</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.219950</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>9CDF1BA69D322E24CA95CBC0D612D6B</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>89 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.54</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>12.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>54 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_f77847c0f1424d12b4662f289fea69df.setContent(html_5b9586cd8b7043d1a3a862433549112f);
+        
+
+        marker_0ba186fdcb17446fb7d2e05e2a812cad.bindPopup(popup_f77847c0f1424d12b4662f289fea69df)
+        ;
+
+        
+    
+    
+            var marker_09db6e68950f46079ccd457bd6aec2cc = L.marker(
+                [37.41314, -122.22104],
+                {"name": "vegetation:33"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_39f7e3611dfa41889869119ce37ffbd9 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_09db6e68950f46079ccd457bd6aec2cc.setIcon(icon_39f7e3611dfa41889869119ce37ffbd9);
+        
+    
+        var popup_eb570e2e1a2d4405a5d483b9b760b992 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e81f1e3363094e50a11ba33b4345d1b3 = $(`<div id="html_e81f1e3363094e50a11ba33b4345d1b3" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:33</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>32</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413140</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.221040</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>79719EB425575A7E769BC56DA9990E85</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>90 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.74</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>10.7 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>74 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_eb570e2e1a2d4405a5d483b9b760b992.setContent(html_e81f1e3363094e50a11ba33b4345d1b3);
+        
+
+        marker_09db6e68950f46079ccd457bd6aec2cc.bindPopup(popup_eb570e2e1a2d4405a5d483b9b760b992)
+        ;
+
+        
+    
+    
+            var marker_63b3f404c62e42b3a4bc7bd7d1f0cfe5 = L.marker(
+                [37.41307, -122.2216],
+                {"name": "vegetation:34"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_332c0e90ecb04b7a829710d45b898be1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_63b3f404c62e42b3a4bc7bd7d1f0cfe5.setIcon(icon_332c0e90ecb04b7a829710d45b898be1);
+        
+    
+        var popup_d8bef3f5863a4fcabd79257d4c0a8ad2 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b774ccea3b1e4ae6910434f488b9824f = $(`<div id="html_b774ccea3b1e4ae6910434f488b9824f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:34</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>33</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413070</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.221600</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3DC7602B448D2855C565E366D2A76C2</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>83 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.71</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>13.2 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>71 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_d8bef3f5863a4fcabd79257d4c0a8ad2.setContent(html_b774ccea3b1e4ae6910434f488b9824f);
+        
+
+        marker_63b3f404c62e42b3a4bc7bd7d1f0cfe5.bindPopup(popup_d8bef3f5863a4fcabd79257d4c0a8ad2)
+        ;
+
+        
+    
+    
+            var marker_a11831c31c064cb296f009e537859a7d = L.marker(
+                [37.39981, -122.24983],
+                {"name": "vegetation:109"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_e880d3b02d9743ffac834d823657ffef = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_a11831c31c064cb296f009e537859a7d.setIcon(icon_e880d3b02d9743ffac834d823657ffef);
+        
+    
+        var popup_beb220216e924c2f9661d180687c0b75 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e0949f7248c041c188d30f7e221d91de = $(`<div id="html_e0949f7248c041c188d30f7e221d91de" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:109</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>108</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399810</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.249830</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>65675AD2C571782A344BABC6A30FA05A</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>130 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>0 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.43</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>10 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>6.4 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>43 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_beb220216e924c2f9661d180687c0b75.setContent(html_e0949f7248c041c188d30f7e221d91de);
+        
+
+        marker_a11831c31c064cb296f009e537859a7d.bindPopup(popup_beb220216e924c2f9661d180687c0b75)
+        ;
+
+        
+    
+    
+            var marker_78f77a030eaf4b29ab5cd282c0f62776 = L.marker(
+                [37.39974, -122.25039],
+                {"name": "vegetation:110"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_f1983a8730454ee59311309114ba64e4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_78f77a030eaf4b29ab5cd282c0f62776.setIcon(icon_f1983a8730454ee59311309114ba64e4);
+        
+    
+        var popup_74abb93cea844ae8a9234b0f9a4c4526 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_7553fcc626864641ad5f28c8856f68c7 = $(`<div id="html_7553fcc626864641ad5f28c8856f68c7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:110</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>109</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399740</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.250390</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1DAFB16E49E88A3825984B390382704D</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>149 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>0 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.49</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>8 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>49 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_74abb93cea844ae8a9234b0f9a4c4526.setContent(html_7553fcc626864641ad5f28c8856f68c7);
+        
+
+        marker_78f77a030eaf4b29ab5cd282c0f62776.bindPopup(popup_74abb93cea844ae8a9234b0f9a4c4526)
+        ;
+
+        
+    
+    
+            var marker_879c8ab9320046da9b79d7059eeaacd3 = L.marker(
+                [37.39947, -122.25452],
+                {"name": "vegetation:118"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_ee77664d403e40a88d579e94b6a5f61c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_879c8ab9320046da9b79d7059eeaacd3.setIcon(icon_ee77664d403e40a88d579e94b6a5f61c);
+        
+    
+        var popup_2dc8993fdfe04605aafd5841bcc4a427 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3174612ef7264b09b4f679520d858fb6 = $(`<div id="html_3174612ef7264b09b4f679520d858fb6" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:118</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>117</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399470</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.254520</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>34F40C246A55B9761CB46F6700073E7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>219 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.73</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>11 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>10.1 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>73 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_2dc8993fdfe04605aafd5841bcc4a427.setContent(html_3174612ef7264b09b4f679520d858fb6);
+        
+
+        marker_879c8ab9320046da9b79d7059eeaacd3.bindPopup(popup_2dc8993fdfe04605aafd5841bcc4a427)
+        ;
+
+        
+    
+    
+            var marker_c3015e1a0754426c903b74ea86629cca = L.marker(
+                [37.39931, -122.2574],
+                {"name": "vegetation:124"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_ded01cd2bea34e6aa470343d0d38fef2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_c3015e1a0754426c903b74ea86629cca.setIcon(icon_ded01cd2bea34e6aa470343d0d38fef2);
+        
+    
+        var popup_833ceeb700f14b6b93b4863fccb634dd = L.popup({"maxWidth": "100%"});
+
+        
+            var html_733ad2b4f8a440d9a029d822f998b6e1 = $(`<div id="html_733ad2b4f8a440d9a029d822f998b6e1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:124</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>123</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399310</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.257400</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7F186FD0CBFBAC8D46A83C1CB2103A7C</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>284 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.32</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>10 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>8.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>32 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_833ceeb700f14b6b93b4863fccb634dd.setContent(html_733ad2b4f8a440d9a029d822f998b6e1);
+        
+
+        marker_c3015e1a0754426c903b74ea86629cca.bindPopup(popup_833ceeb700f14b6b93b4863fccb634dd)
+        ;
+
+        
+    
+    
+            var marker_6423272b4b894988b3ccafd7b19c9216 = L.marker(
+                [37.39884, -122.26415],
+                {"name": "vegetation:136"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_8cf8551575964d83baa3890eaf9c82ac = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_6423272b4b894988b3ccafd7b19c9216.setIcon(icon_8cf8551575964d83baa3890eaf9c82ac);
+        
+    
+        var popup_aeae133b9116497a9ffe9325f177ca68 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_63da06cd73a645f59e13e07433b83d94 = $(`<div id="html_63da06cd73a645f59e13e07433b83d94" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:136</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>135</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398840</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.264150</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>18A48111384AA6CD7F5B65DD76700837</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>325 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.82</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>19 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>15.1 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>82 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_aeae133b9116497a9ffe9325f177ca68.setContent(html_63da06cd73a645f59e13e07433b83d94);
+        
+
+        marker_6423272b4b894988b3ccafd7b19c9216.bindPopup(popup_aeae133b9116497a9ffe9325f177ca68)
+        ;
+
+        
+    
+    
+            var marker_76ae3663086247598cea481e58ef082a = L.marker(
+                [37.39882, -122.26449],
+                {"name": "tower10"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_78e1c10b5a3f4243923ca5a96f511ed0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_76ae3663086247598cea481e58ef082a.setIcon(icon_78e1c10b5a3f4243923ca5a96f511ed0);
+        
+    
+        var popup_9729d03b277945a2936d90b6e666835f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_247508e7cb8e49a3a658e6ad3f40f970 = $(`<div id="html_247508e7cb8e49a3a658e6ad3f40f970" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower10</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>136</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398820</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.264490</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>76AA53787926A72B3EE82096E3659AB8</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>331 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.79</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>79 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_9729d03b277945a2936d90b6e666835f.setContent(html_247508e7cb8e49a3a658e6ad3f40f970);
+        
+
+        marker_76ae3663086247598cea481e58ef082a.bindPopup(popup_9729d03b277945a2936d90b6e666835f)
+        ;
+
+        
+    
+    
+            var marker_e5cb3b62f5214a5392f620d52de1b65a = L.marker(
+                [37.39878, -122.26505],
+                {"name": "vegetation:138"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_190c65dfe4da43ec90b271e4e18a35a6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_e5cb3b62f5214a5392f620d52de1b65a.setIcon(icon_190c65dfe4da43ec90b271e4e18a35a6);
+        
+    
+        var popup_f908b0ab64314d81a8d7854a43c407a4 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_57e48e4d0f84464ebbf8570554de7186 = $(`<div id="html_57e48e4d0f84464ebbf8570554de7186" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:138</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>137</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398780</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.265050</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>737EEA88CAF7B0E52C9B0E914EF0AB34</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>344 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.68</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>19 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>6.4 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>68 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_f908b0ab64314d81a8d7854a43c407a4.setContent(html_57e48e4d0f84464ebbf8570554de7186);
+        
+
+        marker_e5cb3b62f5214a5392f620d52de1b65a.bindPopup(popup_f908b0ab64314d81a8d7854a43c407a4)
+        ;
+
+        
+    
+    
+            var marker_f2c2720e24694d7fa682c5bc85c7309d = L.marker(
+                [37.39874, -122.26562],
+                {"name": "vegetation:139"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_ebd36d39b2474b39a92963346fcfa63e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_f2c2720e24694d7fa682c5bc85c7309d.setIcon(icon_ebd36d39b2474b39a92963346fcfa63e);
+        
+    
+        var popup_cb9fc36234324b99b32cd333e417f5e2 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ea1e7033a2e946108a1df6ff8bb86271 = $(`<div id="html_ea1e7033a2e946108a1df6ff8bb86271" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:139</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>138</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398740</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.265620</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>60023053D879FBEF550DFC9890585292</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>351 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.58</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>12 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>6.2 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>58 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cb9fc36234324b99b32cd333e417f5e2.setContent(html_ea1e7033a2e946108a1df6ff8bb86271);
+        
+
+        marker_f2c2720e24694d7fa682c5bc85c7309d.bindPopup(popup_cb9fc36234324b99b32cd333e417f5e2)
+        ;
+
+        
+    
+    
+            var marker_48b162e16af64c02826c64565bb51b2f = L.marker(
+                [37.39867, -122.26666],
+                {"name": "vegetation:141"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_4e7657ce259647a38b46a3de172a67b4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_48b162e16af64c02826c64565bb51b2f.setIcon(icon_4e7657ce259647a38b46a3de172a67b4);
+        
+    
+        var popup_85fb2002ee654973ad5be1760f59d1ed = L.popup({"maxWidth": "100%"});
+
+        
+            var html_8c11c856ade54fcabb84b2569344243a = $(`<div id="html_8c11c856ade54fcabb84b2569344243a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:141</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>140</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398670</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.266660</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7E75EF4760C8417F7859AE53D9F982FD</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>352 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.55</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>13 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>8.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>55 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_85fb2002ee654973ad5be1760f59d1ed.setContent(html_8c11c856ade54fcabb84b2569344243a);
+        
+
+        marker_48b162e16af64c02826c64565bb51b2f.bindPopup(popup_85fb2002ee654973ad5be1760f59d1ed)
+        ;
+
+        
+    
+    
+            var marker_8f3849c179884dc48ee0bd0c2cae1081 = L.marker(
+                [37.39863, -122.26723],
+                {"name": "vegetation:142"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_d168925995c3454c9d5329312fa54f30 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_8f3849c179884dc48ee0bd0c2cae1081.setIcon(icon_d168925995c3454c9d5329312fa54f30);
+        
+    
+        var popup_db7d3bcbc52d42b8ad26d49d2b50d45f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_2827a8ab2a234eeab7be3f9e6d6b82d5 = $(`<div id="html_2827a8ab2a234eeab7be3f9e6d6b82d5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:142</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>141</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398630</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.267230</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>365AB19596B34BCC56AA9E27A4BC7960</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>347 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.6</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>11.3 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>60 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_db7d3bcbc52d42b8ad26d49d2b50d45f.setContent(html_2827a8ab2a234eeab7be3f9e6d6b82d5);
+        
+
+        marker_8f3849c179884dc48ee0bd0c2cae1081.bindPopup(popup_db7d3bcbc52d42b8ad26d49d2b50d45f)
+        ;
+
+        
+    
+    
+            var marker_59195d6bb09446f28392c12af2bc3ad6 = L.marker(
+                [37.39335, -122.27156],
+                {"name": "vegetation:157"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_bfd411bda1d94202b2ff74e5327f1602 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_59195d6bb09446f28392c12af2bc3ad6.setIcon(icon_bfd411bda1d94202b2ff74e5327f1602);
+        
+    
+        var popup_5210e1b3c5954d13bdd5d78fc7ada6f1 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_4d4acb7e783a4cf4adc961430d16c4f5 = $(`<div id="html_4d4acb7e783a4cf4adc961430d16c4f5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:157</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>156</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.393350</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.271560</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3283901AF49C3F0736EAD4D1CB2319A</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>448 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.68</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>22 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>16.1 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>68 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_5210e1b3c5954d13bdd5d78fc7ada6f1.setContent(html_4d4acb7e783a4cf4adc961430d16c4f5);
+        
+
+        marker_59195d6bb09446f28392c12af2bc3ad6.bindPopup(popup_5210e1b3c5954d13bdd5d78fc7ada6f1)
+        ;
+
+        
+    
+    
+            var marker_0507f22f008b4ec9a481c84a524f8907 = L.marker(
+                [37.39306, -122.2718],
+                {"name": "tower6"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_a56003e45e174ff683e1be4d3bd4c089 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_0507f22f008b4ec9a481c84a524f8907.setIcon(icon_a56003e45e174ff683e1be4d3bd4c089);
+        
+    
+        var popup_22c16112bd104d97961dce14b9362f40 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_707e85a5c49d445e9e1329500a726545 = $(`<div id="html_707e85a5c49d445e9e1329500a726545" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower6</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>157</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.393060</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.271800</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>494F6C42C34DDD5C59A08428F83AF5F9</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>448 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.79</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>27 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>79 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_22c16112bd104d97961dce14b9362f40.setContent(html_707e85a5c49d445e9e1329500a726545);
+        
+
+        marker_0507f22f008b4ec9a481c84a524f8907.bindPopup(popup_22c16112bd104d97961dce14b9362f40)
+        ;
+
+        
+    
+    
+            var marker_3f7d6bd9b5c14ad992ba710ae0b8523f = L.marker(
+                [37.39294, -122.27235],
+                {"name": "vegetation:159"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_eb94d8136f954ccbb05b51e006d0ab86 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_3f7d6bd9b5c14ad992ba710ae0b8523f.setIcon(icon_eb94d8136f954ccbb05b51e006d0ab86);
+        
+    
+        var popup_dd6ba39f94fd4c839d5987f4769259b0 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c232f48f2f304c6abe893e7d3da9ef90 = $(`<div id="html_c232f48f2f304c6abe893e7d3da9ef90" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:159</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>158</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392940</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.272350</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>422A4476557B09271BAA46D7777E2A7B</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>450 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.79</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>25 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>20.6 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>79 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_dd6ba39f94fd4c839d5987f4769259b0.setContent(html_c232f48f2f304c6abe893e7d3da9ef90);
+        
+
+        marker_3f7d6bd9b5c14ad992ba710ae0b8523f.bindPopup(popup_dd6ba39f94fd4c839d5987f4769259b0)
+        ;
+
+        
+    
+    
+            var marker_db76651f21c642f3bacb009f2899c761 = L.marker(
+                [37.39282, -122.27289],
+                {"name": "vegetation:160"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_50b6fab7a11f481299a309558ac6f505 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_db76651f21c642f3bacb009f2899c761.setIcon(icon_50b6fab7a11f481299a309558ac6f505);
+        
+    
+        var popup_261a752659394261b912d50dae0acf86 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3d034d881e9a4a56b24f6cf22ba31f37 = $(`<div id="html_3d034d881e9a4a56b24f6cf22ba31f37" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:160</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>159</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392820</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.272890</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>19844F040E369B624238B6F5773F5DEE</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>461 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.83</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>33 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>83 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_261a752659394261b912d50dae0acf86.setContent(html_3d034d881e9a4a56b24f6cf22ba31f37);
+        
+
+        marker_db76651f21c642f3bacb009f2899c761.bindPopup(popup_261a752659394261b912d50dae0acf86)
+        ;
+
+        
+    
+    
+            var marker_c4531318dfb343189ab688dccc78e3af = L.marker(
+                [37.3927, -122.27344],
+                {"name": "vegetation:161"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_6746522aa6a548949b8f326060851940 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_c4531318dfb343189ab688dccc78e3af.setIcon(icon_6746522aa6a548949b8f326060851940);
+        
+    
+        var popup_8bbcc22c8fa045259a6f277825213d5b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fab79c3680fe484c92e97f5ddae25dd5 = $(`<div id="html_fab79c3680fe484c92e97f5ddae25dd5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:161</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>160</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392700</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.273440</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2F55841C48C7BEE51746902FD1A639BA</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>477 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>2 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.85</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>35 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>11.4 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>85 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_8bbcc22c8fa045259a6f277825213d5b.setContent(html_fab79c3680fe484c92e97f5ddae25dd5);
+        
+
+        marker_c4531318dfb343189ab688dccc78e3af.bindPopup(popup_8bbcc22c8fa045259a6f277825213d5b)
+        ;
+
+        
+    
+    
+            var marker_bce9a3763bbf4830bbf60be9083b1b07 = L.marker(
+                [37.39258, -122.27398],
+                {"name": "vegetation:162"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_556d070560a047ceb1137c70f57bae2a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_bce9a3763bbf4830bbf60be9083b1b07.setIcon(icon_556d070560a047ceb1137c70f57bae2a);
+        
+    
+        var popup_12c68c1200974bc6a2abeced9884f939 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_6fbb22edb2c14f70acf12a57156bfb06 = $(`<div id="html_6fbb22edb2c14f70acf12a57156bfb06" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:162</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>161</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392580</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.273980</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>37174E95F477059D2907778D37C4F43F</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>495 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.87</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>33 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>9.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>87 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_12c68c1200974bc6a2abeced9884f939.setContent(html_6fbb22edb2c14f70acf12a57156bfb06);
+        
+
+        marker_bce9a3763bbf4830bbf60be9083b1b07.bindPopup(popup_12c68c1200974bc6a2abeced9884f939)
+        ;
+
+        
+    
+    
+            var marker_9e6fd8ab4cc949bfb6133cc1a2175c66 = L.marker(
+                [37.39248, -122.27446],
+                {"name": "tower5"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_c498f5be735b4ec9bcb6ff084b929eca = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_9e6fd8ab4cc949bfb6133cc1a2175c66.setIcon(icon_c498f5be735b4ec9bcb6ff084b929eca);
+        
+    
+        var popup_595e95dcb03b40598dacfc7c00ca27e4 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_7d964ecc3ef24a01891e3758af6b5cc1 = $(`<div id="html_7d964ecc3ef24a01891e3758af6b5cc1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower5</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>162</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392480</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.274460</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>774FD40A994BA4F1363070E7CCC4D6A2</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>505 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.81</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>25 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>81 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_595e95dcb03b40598dacfc7c00ca27e4.setContent(html_7d964ecc3ef24a01891e3758af6b5cc1);
+        
+
+        marker_9e6fd8ab4cc949bfb6133cc1a2175c66.bindPopup(popup_595e95dcb03b40598dacfc7c00ca27e4)
+        ;
+
+        
+    
+    
+            var marker_eba80f60178b4836a6e0f48986624d97 = L.marker(
+                [37.39225, -122.27555],
+                {"name": "vegetation:165"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_43ae1c35d7254b93818798493039dd17 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_eba80f60178b4836a6e0f48986624d97.setIcon(icon_43ae1c35d7254b93818798493039dd17);
+        
+    
+        var popup_c3e5be70e9754963a7fd03191fe6c56b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5e8b775764f645318db8a2251f495cdc = $(`<div id="html_5e8b775764f645318db8a2251f495cdc" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:165</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>164</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392250</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.275550</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>54B4D678EA915FFC67396663EC1BFA25</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>520 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.73</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>13.8 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>73 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_c3e5be70e9754963a7fd03191fe6c56b.setContent(html_5e8b775764f645318db8a2251f495cdc);
+        
+
+        marker_eba80f60178b4836a6e0f48986624d97.bindPopup(popup_c3e5be70e9754963a7fd03191fe6c56b)
+        ;
+
+        
+    
+    
+            var marker_c731eaaad9b04379b20f49a2c8a17ecf = L.marker(
+                [37.39213, -122.2761],
+                {"name": "vegetation:166"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_b305179864f249e8867b49f6e1db19cc = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_c731eaaad9b04379b20f49a2c8a17ecf.setIcon(icon_b305179864f249e8867b49f6e1db19cc);
+        
+    
+        var popup_fd88c687f8264ce49541ba0cb1a69a67 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ddf3131cacfd4fc3bf1581477e18485f = $(`<div id="html_ddf3131cacfd4fc3bf1581477e18485f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:166</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>165</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392130</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.276100</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1FA8039E55478A4C2E0459995E2642BA</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>541 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.77</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>8.9 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>77 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_fd88c687f8264ce49541ba0cb1a69a67.setContent(html_ddf3131cacfd4fc3bf1581477e18485f);
+        
+
+        marker_c731eaaad9b04379b20f49a2c8a17ecf.bindPopup(popup_fd88c687f8264ce49541ba0cb1a69a67)
+        ;
+
+        
+    
+    
+            var marker_ad2efa27bc7545c5aabf4a31e5f3c117 = L.marker(
+                [37.39201, -122.27665],
+                {"name": "vegetation:167"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_72bf7d3edda44958b39527b87a8b61d0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_ad2efa27bc7545c5aabf4a31e5f3c117.setIcon(icon_72bf7d3edda44958b39527b87a8b61d0);
+        
+    
+        var popup_6e8f603d55ac40b28cdf400fb0f6d461 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a0fe32de962a4c868d2458407b44e4da = $(`<div id="html_a0fe32de962a4c868d2458407b44e4da" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:167</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>166</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392010</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.276650</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6ADF95DFE4DEA8802C1FBA7CC2B526CC</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>563 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.81</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>23 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>10 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>81 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6e8f603d55ac40b28cdf400fb0f6d461.setContent(html_a0fe32de962a4c868d2458407b44e4da);
+        
+
+        marker_ad2efa27bc7545c5aabf4a31e5f3c117.bindPopup(popup_6e8f603d55ac40b28cdf400fb0f6d461)
+        ;
+
+        
+    
+    
+            var marker_8f80e33f8e3c437d99664cfc9d600479 = L.marker(
+                [37.3919, -122.27717],
+                {"name": "tower4"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_a1e402033d5c4d04a4f96ae43d530b5c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_8f80e33f8e3c437d99664cfc9d600479.setIcon(icon_a1e402033d5c4d04a4f96ae43d530b5c);
+        
+    
+        var popup_25d79f078da74a17aa0d4853c846f3da = L.popup({"maxWidth": "100%"});
+
+        
+            var html_708420a49d6448398b682599ed68f4d5 = $(`<div id="html_708420a49d6448398b682599ed68f4d5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower4</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>167</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391900</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.277170</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>194058EF29BF6F37C33476B03BD1F20</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>578 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.84</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>23 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>84 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_25d79f078da74a17aa0d4853c846f3da.setContent(html_708420a49d6448398b682599ed68f4d5);
+        
+
+        marker_8f80e33f8e3c437d99664cfc9d600479.bindPopup(popup_25d79f078da74a17aa0d4853c846f3da)
+        ;
+
+        
+    
+    
+            var marker_620e1db0e17a45a79a341fc30e6fe533 = L.marker(
+                [37.39179, -122.27772],
+                {"name": "vegetation:169"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_10fcaf53259b4ccd8862cdf9e79f2a4c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_620e1db0e17a45a79a341fc30e6fe533.setIcon(icon_10fcaf53259b4ccd8862cdf9e79f2a4c);
+        
+    
+        var popup_5ccf10866754490ea77aed69fa77f131 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_525d7e67231348d3ab83b5f825bcb9bc = $(`<div id="html_525d7e67231348d3ab83b5f825bcb9bc" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:169</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>168</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391790</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.277720</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>53C0C50E124C30A62C9D1026BDCC8F90</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>591 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.84</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>24 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>13.4 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>84 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_5ccf10866754490ea77aed69fa77f131.setContent(html_525d7e67231348d3ab83b5f825bcb9bc);
+        
+
+        marker_620e1db0e17a45a79a341fc30e6fe533.bindPopup(popup_5ccf10866754490ea77aed69fa77f131)
+        ;
+
+        
+    
+    
+            var marker_b5113d3c948847c7a6b5093fc0cdb72b = L.marker(
+                [37.39168, -122.27827],
+                {"name": "vegetation:170"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_03ebc038d8bd49a5b200a6176689375f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_b5113d3c948847c7a6b5093fc0cdb72b.setIcon(icon_03ebc038d8bd49a5b200a6176689375f);
+        
+    
+        var popup_0909d4e1566f4d5ca20d81e9f85455d5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b0fd29a76d81405f87861177e093f94e = $(`<div id="html_b0fd29a76d81405f87861177e093f94e" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:170</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>169</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391680</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.278270</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6E5845757B47CF8E12B89D008ED22AC0</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>607 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.81</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>26 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>15.2 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>81 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0909d4e1566f4d5ca20d81e9f85455d5.setContent(html_b0fd29a76d81405f87861177e093f94e);
+        
+
+        marker_b5113d3c948847c7a6b5093fc0cdb72b.bindPopup(popup_0909d4e1566f4d5ca20d81e9f85455d5)
+        ;
+
+        
+    
+    
+            var marker_7593edbec775459591ceba04dbce93ce = L.marker(
+                [37.39165, -122.27973],
+                {"name": "vegetation:173"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_585fecb5a71345dca4a74c0860c71a59 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_7593edbec775459591ceba04dbce93ce.setIcon(icon_585fecb5a71345dca4a74c0860c71a59);
+        
+    
+        var popup_ecf762e2c6e34c719ddeadf8979bb09e = L.popup({"maxWidth": "100%"});
+
+        
+            var html_1e530baa8fc34ce581308e1e83d0c966 = $(`<div id="html_1e530baa8fc34ce581308e1e83d0c966" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:173</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>172</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391650</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.279730</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>E255AB9BC51403E8B6AF141A43639E</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>630 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.51</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>13 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>7.1 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>51 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ecf762e2c6e34c719ddeadf8979bb09e.setContent(html_1e530baa8fc34ce581308e1e83d0c966);
+        
+
+        marker_7593edbec775459591ceba04dbce93ce.bindPopup(popup_ecf762e2c6e34c719ddeadf8979bb09e)
+        ;
+
+        
+    
+    
+            var marker_0ba8880fde1747f59704eb5b8eca10b0 = L.marker(
+                [37.39167, -122.2803],
+                {"name": "vegetation:174"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_18fdb72769734e819c8eda5cef73b4ed = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_0ba8880fde1747f59704eb5b8eca10b0.setIcon(icon_18fdb72769734e819c8eda5cef73b4ed);
+        
+    
+        var popup_ef032bdb3e514b3f92aeedf74279547a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_18fa9eddaa384035851df2b0d8eded04 = $(`<div id="html_18fa9eddaa384035851df2b0d8eded04" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:174</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>173</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391670</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.280300</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>202F5907ACC08AD35BB33EDD28F67FEB</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>643 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.54</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>13 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>-1.7 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>54 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ef032bdb3e514b3f92aeedf74279547a.setContent(html_18fa9eddaa384035851df2b0d8eded04);
+        
+
+        marker_0ba8880fde1747f59704eb5b8eca10b0.bindPopup(popup_ef032bdb3e514b3f92aeedf74279547a)
+        ;
+
+        
+    
+    
+            var marker_9ec03667bae243438819e1117e083503 = L.marker(
+                [37.39169, -122.28086],
+                {"name": "vegetation:175"}
+            ).addTo(map_a5f8113277364299a9fa50702120d166);
+        
+    
+            var icon_0a0ad37f29854807b87dd1df9e85e690 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "gray", "prefix": "glyphicon"}
+            );
+            marker_9ec03667bae243438819e1117e083503.setIcon(icon_0a0ad37f29854807b87dd1df9e85e690);
+        
+    
+        var popup_e4511e60aa2340069db87d12695669ab = L.popup({"maxWidth": "100%"});
+
+        
+            var html_920eec95dc1843b29a82f50e08e28af3 = $(`<div id="html_920eec95dc1843b29a82f50e08e28af3" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>vegetation:175</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>174</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>vegetation</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391690</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.280860</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6AB7D5D0660B617EF55214B3CD09985</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>643 ft</TD></TR> <TR><TH>Base</TH><TD>&nbsp;</TD><TD>1 m</TD></TR> <TR><TH>Cover</TH><TD>&nbsp;</TD><TD>0.61</TD></TR> <TR><TH>Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Linesag</TH><TD>&nbsp;</TD><TD>5.5 m</TD></TR> <TR><TH>Contact</TH><TD>&nbsp;</TD><TD>61 %</TD></TR> <TR><TH>Hidden</TH><TD>&nbsp;</TD><TD>FALSE</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e4511e60aa2340069db87d12695669ab.setContent(html_920eec95dc1843b29a82f50e08e28af3);
+        
+
+        marker_9ec03667bae243438819e1117e083503.bindPopup(popup_e4511e60aa2340069db87d12695669ab)
+        ;
+
+        
+    
+    
+            var mouse_position_883d9daaded446ef9d0aab5e0950f0c5 = new L.Control.MousePosition(
+                {"autoStart": true, "emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomright", "prefix": "", "separator": " : "}
+            );
+            mouse_position_883d9daaded446ef9d0aab5e0950f0c5.options["latFormatter"] =
+                undefined;
+            mouse_position_883d9daaded446ef9d0aab5e0950f0c5.options["lngFormatter"] =
+                undefined;
+            map_a5f8113277364299a9fa50702120d166.addControl(mouse_position_883d9daaded446ef9d0aab5e0950f0c5);
+        
+    
+            L.Control.geocoder(
+                {"collapsed": false, "defaultMarkGeocode": true, "position": "topright"}
+            ).on('markgeocode', function(e) {
+                map_a5f8113277364299a9fa50702120d166.setView(e.geocode.center, 11);
+            }).addTo(map_a5f8113277364299a9fa50702120d166);
+
+        
+</script>

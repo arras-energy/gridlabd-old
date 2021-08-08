@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_5d6195ca975141baa963eddebfbae9cf {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_5d6195ca975141baa963eddebfbae9cf" ></div>
+        
+</body>
+<script>    
+    
+            var map_5d6195ca975141baa963eddebfbae9cf = L.map(
+                "map_5d6195ca975141baa963eddebfbae9cf",
+                {
+                    center: [37.41546, -122.20118],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_8363e652607c4e719eb45578103420fc = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_5d6195ca975141baa963eddebfbae9cf);
+        
+    
+            map_5d6195ca975141baa963eddebfbae9cf.fitBounds(
+                [[37.41546, -122.20118], [37.41546, -122.20118]],
+                {}
+            );
+        
+    
+            var marker_6097a54e4ca64f5487ad287e8e25d166 = L.marker(
+                [37.41546, -122.20118],
+                {"name": "Building_54"}
+            ).addTo(map_5d6195ca975141baa963eddebfbae9cf);
+        
+    
+            var icon_c3473f32b82849e499d7a02f14042d42 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "industry", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6097a54e4ca64f5487ad287e8e25d166.setIcon(icon_c3473f32b82849e499d7a02f14042d42);
+        
+    
+        var popup_850288954bca4bd3b622d588d0397ec5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ace0d6d8330f40f1a3799f7cf960ec23 = $(`<div id="html_ace0d6d8330f40f1a3799f7cf960ec23" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>Building_54</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>industrial</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.415460</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.201180</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>65D9B19926C22FC47EA942960F5CD0F1</TD></TR> <TR><TH>Address</TH><TD>&nbsp;</TD><TD>2575 Sand Hill Rd., Menlo Park, CA</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_850288954bca4bd3b622d588d0397ec5.setContent(html_ace0d6d8330f40f1a3799f7cf960ec23);
+        
+
+        marker_6097a54e4ca64f5487ad287e8e25d166.bindPopup(popup_850288954bca4bd3b622d588d0397ec5)
+        ;
+
+        
+    
+    
+            var mouse_position_6a4aca6953574f5eba245e75893542a0 = new L.Control.MousePosition(
+                {"autoStart": true, "emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomright", "prefix": "", "separator": " : "}
+            );
+            mouse_position_6a4aca6953574f5eba245e75893542a0.options["latFormatter"] =
+                undefined;
+            mouse_position_6a4aca6953574f5eba245e75893542a0.options["lngFormatter"] =
+                undefined;
+            map_5d6195ca975141baa963eddebfbae9cf.addControl(mouse_position_6a4aca6953574f5eba245e75893542a0);
+        
+    
+            L.Control.geocoder(
+                {"collapsed": false, "defaultMarkGeocode": true, "position": "topright"}
+            ).on('markgeocode', function(e) {
+                map_5d6195ca975141baa963eddebfbae9cf.setView(e.geocode.center, 11);
+            }).addTo(map_5d6195ca975141baa963eddebfbae9cf);
+
+        
+</script>

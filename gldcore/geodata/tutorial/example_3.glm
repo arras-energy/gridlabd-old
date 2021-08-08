@@ -1,8 +1,8 @@
-# gldcore/geodata/tutorial/example_3.glm
-#
-# This example shows how to import lat/lon values into powerflow node objects, 
-# generate lines between them, and show the resulting map.
-#
+// gldcore/geodata/tutorial/example_3.glm
+//
+// This example shows how to import lat/lon values into powerflow node objects, 
+// generate lines between them, and show the resulting map.
+//
 #input "pole_example.csv" -f table -t object -C node -M powerflow -p phases=ABC -p nominal_voltage=12.47kV
 #for NODE in ${FIND class=node}
 	#ifdef LAST

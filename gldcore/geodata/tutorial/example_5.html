@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_ccce059b50b547e68865706cdc92aafc {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_ccce059b50b547e68865706cdc92aafc" ></div>
+        
+</body>
+<script>    
+    
+            var map_ccce059b50b547e68865706cdc92aafc = L.map(
+                "map_ccce059b50b547e68865706cdc92aafc",
+                {
+                    center: [37.404604054054055, -122.24385945945946],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c3502d8eb04d4a1f8b5d6d046c7b6fe6 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            map_ccce059b50b547e68865706cdc92aafc.fitBounds(
+                [[37.38806, -122.28844], [37.41505, -122.20565]],
+                {}
+            );
+        
+    
+            var marker_525de9005c6140a99772a0bd050e51b4 = L.marker(
+                [37.41505, -122.20565],
+                {"name": "tower37"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_946603bfcb554fc88dcb1539ea93741a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_525de9005c6140a99772a0bd050e51b4.setIcon(icon_946603bfcb554fc88dcb1539ea93741a);
+        
+    
+        var popup_d04a6779eab240748783350583c973a4 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0e3f85b816874420a832417f9f2f3f22 = $(`<div id="html_0e3f85b816874420a832417f9f2f3f22" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower37</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>0</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.415050</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.205650</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2B14D596B58A92E27DBDAC2FC4A9CAC3</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>88 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>0 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>0 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_d04a6779eab240748783350583c973a4.setContent(html_0e3f85b816874420a832417f9f2f3f22);
+        
+
+        marker_525de9005c6140a99772a0bd050e51b4.bindPopup(popup_d04a6779eab240748783350583c973a4)
+        ;
+
+        
+    
+    
+            var marker_fe6eb508db214b05914d999c2b8d6d20 = L.marker(
+                [37.4147, -122.20849],
+                {"name": "tower36"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_3a5159dc99c14b01bcf58c6a2bfac321 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_fe6eb508db214b05914d999c2b8d6d20.setIcon(icon_3a5159dc99c14b01bcf58c6a2bfac321);
+        
+    
+        var popup_cc2301a5ec3c46f89727a0730584d235 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_73537754f6fe4c598ac57ddd2f763ada = $(`<div id="html_73537754f6fe4c598ac57ddd2f763ada" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower36</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>1</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414700</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.208490</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4301969A85BD3BCF5223521CD8C9ACE7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>100 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>254 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cc2301a5ec3c46f89727a0730584d235.setContent(html_73537754f6fe4c598ac57ddd2f763ada);
+        
+
+        marker_fe6eb508db214b05914d999c2b8d6d20.bindPopup(popup_cc2301a5ec3c46f89727a0730584d235)
+        ;
+
+        
+    
+    
+            var marker_da8dfd00adc74fdc8ab2f8438ae083e8 = L.marker(
+                [37.41445, -122.21044],
+                {"name": "tower35"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_28c2f236cc4641639b32c8c306fea497 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_da8dfd00adc74fdc8ab2f8438ae083e8.setIcon(icon_28c2f236cc4641639b32c8c306fea497);
+        
+    
+        var popup_bbe9feec20d84983a81e1bc29833a8a3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_90d62b97083d44a492c8a4b0335956ca = $(`<div id="html_90d62b97083d44a492c8a4b0335956ca" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower35</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>2</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414450</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.210440</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3B4B665E55DF7DAA4FF70628C32990A0</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>111 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>428 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>262.7 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_bbe9feec20d84983a81e1bc29833a8a3.setContent(html_90d62b97083d44a492c8a4b0335956ca);
+        
+
+        marker_da8dfd00adc74fdc8ab2f8438ae083e8.bindPopup(popup_bbe9feec20d84983a81e1bc29833a8a3)
+        ;
+
+        
+    
+    
+            var marker_ddec9523956a43f38e85555d3893e574 = L.marker(
+                [37.41422, -122.21231],
+                {"name": "tower34"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_096c962b4a53450c8314c024e5fb9954 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_ddec9523956a43f38e85555d3893e574.setIcon(icon_096c962b4a53450c8314c024e5fb9954);
+        
+    
+        var popup_0700f245af904e059a70871983ab1777 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_7d3c435efd734ecfbeb648d7771c1de9 = $(`<div id="html_7d3c435efd734ecfbeb648d7771c1de9" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower34</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>3</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.414220</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.212310</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>4DC0934F7029730734C3EA9AC9E1B655</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>110 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>595 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0700f245af904e059a70871983ab1777.setContent(html_7d3c435efd734ecfbeb648d7771c1de9);
+        
+
+        marker_ddec9523956a43f38e85555d3893e574.bindPopup(popup_0700f245af904e059a70871983ab1777)
+        ;
+
+        
+    
+    
+            var marker_2df8562991b6480a936592025f3af997 = L.marker(
+                [37.41398, -122.21427],
+                {"name": "tower33"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_b11ed8b209ec4a9588ad6f9fc185b8ae = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_2df8562991b6480a936592025f3af997.setIcon(icon_b11ed8b209ec4a9588ad6f9fc185b8ae);
+        
+    
+        var popup_8fe872a063e046cbb326199e0a8e195c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_30c98f7620504cc593447cd4f986e328 = $(`<div id="html_30c98f7620504cc593447cd4f986e328" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower33</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>4</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413980</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.214270</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6FF60CA84680168A7AD596B248A16D39</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>98 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>771 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_8fe872a063e046cbb326199e0a8e195c.setContent(html_30c98f7620504cc593447cd4f986e328);
+        
+
+        marker_2df8562991b6480a936592025f3af997.bindPopup(popup_8fe872a063e046cbb326199e0a8e195c)
+        ;
+
+        
+    
+    
+            var marker_35d368ffc3f043be8fc9afbf3a9b54d8 = L.marker(
+                [37.4137, -122.21657],
+                {"name": "tower32"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_0929bef4919e4c3cbfe1724fbf58c9ad = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_35d368ffc3f043be8fc9afbf3a9b54d8.setIcon(icon_0929bef4919e4c3cbfe1724fbf58c9ad);
+        
+    
+        var popup_0c2f630e064048739e68b49bb28d0d9e = L.popup({"maxWidth": "100%"});
+
+        
+            var html_18071afb9a9a46f787eace22d7f432a7 = $(`<div id="html_18071afb9a9a46f787eace22d7f432a7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower32</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>5</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413700</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.216570</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3FE3AF9D5A5331881599037B63E31445</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>91 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>976 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_0c2f630e064048739e68b49bb28d0d9e.setContent(html_18071afb9a9a46f787eace22d7f432a7);
+        
+
+        marker_35d368ffc3f043be8fc9afbf3a9b54d8.bindPopup(popup_0c2f630e064048739e68b49bb28d0d9e)
+        ;
+
+        
+    
+    
+            var marker_13b8fcbb29d443eca03037c5845f1393 = L.marker(
+                [37.41348, -122.21827],
+                {"name": "tower31"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_b7485dcd5acb4bb0a6b4cdbdbf2883a3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_13b8fcbb29d443eca03037c5845f1393.setIcon(icon_b7485dcd5acb4bb0a6b4cdbdbf2883a3);
+        
+    
+        var popup_7562db9a783c4509a458e430f868dae6 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3bf5d6fb929b42c282fcd0ceaecde9ab = $(`<div id="html_3bf5d6fb929b42c282fcd0ceaecde9ab" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower31</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>6</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413480</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.218270</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>62326AF84CDDB47011F06C34C3BB0398</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>77 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>1128 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>262.6 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_7562db9a783c4509a458e430f868dae6.setContent(html_3bf5d6fb929b42c282fcd0ceaecde9ab);
+        
+
+        marker_13b8fcbb29d443eca03037c5845f1393.bindPopup(popup_7562db9a783c4509a458e430f868dae6)
+        ;
+
+        
+    
+    
+            var marker_e6fe10ef28cb40c7a03f88ba3e03f0b9 = L.marker(
+                [37.41321, -122.22048],
+                {"name": "tower30"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_e9ce2130586f4300aaf8e5dce5d7d148 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_e6fe10ef28cb40c7a03f88ba3e03f0b9.setIcon(icon_e9ce2130586f4300aaf8e5dce5d7d148);
+        
+    
+        var popup_e71d2da8226d4a1190829b1db828e2f9 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_c8d8f4ac6b57447d803281d01b5d52be = $(`<div id="html_c8d8f4ac6b57447d803281d01b5d52be" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower30</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>7</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.413210</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.220480</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>7E2214168B70ADE529FBF041E79C54E7</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>91 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>1326 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e71d2da8226d4a1190829b1db828e2f9.setContent(html_c8d8f4ac6b57447d803281d01b5d52be);
+        
+
+        marker_e6fe10ef28cb40c7a03f88ba3e03f0b9.bindPopup(popup_e71d2da8226d4a1190829b1db828e2f9)
+        ;
+
+        
+    
+    
+            var marker_99f97f4f41b141eea1fc67ff15560063 = L.marker(
+                [37.41298, -122.22232],
+                {"name": "tower29"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_b82da901f1a648bf98bdf6c2471eedc2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_99f97f4f41b141eea1fc67ff15560063.setIcon(icon_b82da901f1a648bf98bdf6c2471eedc2);
+        
+    
+        var popup_706abff07e184404a47158dc27d59936 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_90867438ebf94da1b08d7991bf4cf0c6 = $(`<div id="html_90867438ebf94da1b08d7991bf4cf0c6" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower29</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>8</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412980</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.222320</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>27E199E0FEC3DB8874979E26E8E38CBA</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>80 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>1490 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>262.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_706abff07e184404a47158dc27d59936.setContent(html_90867438ebf94da1b08d7991bf4cf0c6);
+        
+
+        marker_99f97f4f41b141eea1fc67ff15560063.bindPopup(popup_706abff07e184404a47158dc27d59936)
+        ;
+
+        
+    
+    
+            var marker_1419cb85b39048f4a4d2d1f9ff59d332 = L.marker(
+                [37.41271, -122.22456],
+                {"name": "tower28"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_e89b8efb72724c50ba4d61682774f79b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_1419cb85b39048f4a4d2d1f9ff59d332.setIcon(icon_e89b8efb72724c50ba4d61682774f79b);
+        
+    
+        var popup_bcc7dd35a12f4ac28ece6ddbc402b2f7 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_13ba8589161246c797b6ca72ac936956 = $(`<div id="html_13ba8589161246c797b6ca72ac936956" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower28</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>9</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412710</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.224560</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>6736448DF9270A0FA0E597B250DFF9F</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>79 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>1690 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_bcc7dd35a12f4ac28ece6ddbc402b2f7.setContent(html_13ba8589161246c797b6ca72ac936956);
+        
+
+        marker_1419cb85b39048f4a4d2d1f9ff59d332.bindPopup(popup_bcc7dd35a12f4ac28ece6ddbc402b2f7)
+        ;
+
+        
+    
+    
+            var marker_a0173ee57b4b415ba5142fca28cf7213 = L.marker(
+                [37.41236, -122.22736],
+                {"name": "tower27"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_e4354a980b88452e8de4f2345af1e3b5 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_a0173ee57b4b415ba5142fca28cf7213.setIcon(icon_e4354a980b88452e8de4f2345af1e3b5);
+        
+    
+        var popup_80f08bbb294e4d9a89418bf253c1efde = L.popup({"maxWidth": "100%"});
+
+        
+            var html_dbe9e36da26844c3b1191f70009349be = $(`<div id="html_dbe9e36da26844c3b1191f70009349be" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower27</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>10</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412360</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.227360</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>5D5D62E95334B34A41477F4E0BAFF5</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>96 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>1941 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>262.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_80f08bbb294e4d9a89418bf253c1efde.setContent(html_dbe9e36da26844c3b1191f70009349be);
+        
+
+        marker_a0173ee57b4b415ba5142fca28cf7213.bindPopup(popup_80f08bbb294e4d9a89418bf253c1efde)
+        ;
+
+        
+    
+    
+            var marker_6c815afe2ac74001a872fccedfde4ef8 = L.marker(
+                [37.41211, -122.2294],
+                {"name": "tower26"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_ccd7237bea1d410c9927930c8e7a5d32 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6c815afe2ac74001a872fccedfde4ef8.setIcon(icon_ccd7237bea1d410c9927930c8e7a5d32);
+        
+    
+        var popup_ce29b131b66b467594af331bcb9a7fee = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e46895e2fd2e44c98efd6a1a02c7446d = $(`<div id="html_e46895e2fd2e44c98efd6a1a02c7446d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower26</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>11</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.412110</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.229400</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1A01A7F33A18EED241B9981FC115E381</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>82 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>19 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>2123 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_ce29b131b66b467594af331bcb9a7fee.setContent(html_e46895e2fd2e44c98efd6a1a02c7446d);
+        
+
+        marker_6c815afe2ac74001a872fccedfde4ef8.bindPopup(popup_ce29b131b66b467594af331bcb9a7fee)
+        ;
+
+        
+    
+    
+            var marker_cd74688ef6944def92911b31d2d08a21 = L.marker(
+                [37.41181, -122.23184],
+                {"name": "tower25"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_8ff92269ba154ba19f3d04e3a393ca68 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_cd74688ef6944def92911b31d2d08a21.setIcon(icon_8ff92269ba154ba19f3d04e3a393ca68);
+        
+    
+        var popup_d73812ce8c994d0caf714677e1a207ae = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cf971f25c7ce45cab0d59db70e4d83a5 = $(`<div id="html_cf971f25c7ce45cab0d59db70e4d83a5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower25</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>12</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.411810</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.231840</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>34200D6BA7399CD43C001B10CA73AE5F</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>103 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>2341 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_d73812ce8c994d0caf714677e1a207ae.setContent(html_cf971f25c7ce45cab0d59db70e4d83a5);
+        
+
+        marker_cd74688ef6944def92911b31d2d08a21.bindPopup(popup_d73812ce8c994d0caf714677e1a207ae)
+        ;
+
+        
+    
+    
+            var marker_9ce69c89d7c044f792373c2c6dcead4e = L.marker(
+                [37.40995, -122.23541],
+                {"name": "tower24"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_56ad29063aa348959339a8e33e68e3e0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_9ce69c89d7c044f792373c2c6dcead4e.setIcon(icon_56ad29063aa348959339a8e33e68e3e0);
+        
+    
+        var popup_f4b6545723b545c18e75b200fe0a3a51 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_833b4296a3a74558aad3e4c4fe240af5 = $(`<div id="html_833b4296a3a74558aad3e4c4fe240af5" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower24</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>13</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409950</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.235410</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>78C7D23FCCC962B272959AEE9F2EE0F9</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>129 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>2718 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>242.5 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_f4b6545723b545c18e75b200fe0a3a51.setContent(html_833b4296a3a74558aad3e4c4fe240af5);
+        
+
+        marker_9ce69c89d7c044f792373c2c6dcead4e.bindPopup(popup_f4b6545723b545c18e75b200fe0a3a51)
+        ;
+
+        
+    
+    
+            var marker_dc9f62ec48154f1a8fcf1fb1d8a43fc9 = L.marker(
+                [37.40912, -122.23771],
+                {"name": "tower23"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_b60c1da84eb44d829760a8b174be5dc3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_dc9f62ec48154f1a8fcf1fb1d8a43fc9.setIcon(icon_b60c1da84eb44d829760a8b174be5dc3);
+        
+    
+        var popup_e799138ed4d14856a2a0dade19ef2d4b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b5026133f0a64e68a24f61a07ea6d58e = $(`<div id="html_b5026133f0a64e68a24f61a07ea6d58e" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower23</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>14</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.409120</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.237710</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>367E9D6EF67DCDF26CEFF1E55A529267</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>109 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>2941 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>250.2 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_e799138ed4d14856a2a0dade19ef2d4b.setContent(html_b5026133f0a64e68a24f61a07ea6d58e);
+        
+
+        marker_dc9f62ec48154f1a8fcf1fb1d8a43fc9.bindPopup(popup_e799138ed4d14856a2a0dade19ef2d4b)
+        ;
+
+        
+    
+    
+            var marker_b6606bb04db443abafc73e865078b32a = L.marker(
+                [37.40789, -122.24107],
+                {"name": "tower22"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_575b8bbdcfc24e1899c750e462da5d62 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_b6606bb04db443abafc73e865078b32a.setIcon(icon_575b8bbdcfc24e1899c750e462da5d62);
+        
+    
+        var popup_a84faeaac58b403fbd8e7a2e4c480403 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3695f0be60ec45629155a3c817e612e1 = $(`<div id="html_3695f0be60ec45629155a3c817e612e1" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower22</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>15</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407890</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.241070</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1953704872474C9476DAB5D72F40F02D</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>108 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>3268 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>249.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_a84faeaac58b403fbd8e7a2e4c480403.setContent(html_3695f0be60ec45629155a3c817e612e1);
+        
+
+        marker_b6606bb04db443abafc73e865078b32a.bindPopup(popup_a84faeaac58b403fbd8e7a2e4c480403)
+        ;
+
+        
+    
+    
+            var marker_8a994a3f854243388754e92713b3d769 = L.marker(
+                [37.40715, -122.24311],
+                {"name": "tower21"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_3aa958f8348842688ffc9fb6ece6ec7d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_8a994a3f854243388754e92713b3d769.setIcon(icon_3aa958f8348842688ffc9fb6ece6ec7d);
+        
+    
+        var popup_df88fcbc3b1148c2ad2ccbae4df8f8e8 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_339dbf8a76494da0bf321ea48b9ff89e = $(`<div id="html_339dbf8a76494da0bf321ea48b9ff89e" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower21</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>16</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.407150</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.243110</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>704C64950827C3923A1B39F46A5DAD6</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>115 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>3466 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>250.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_df88fcbc3b1148c2ad2ccbae4df8f8e8.setContent(html_339dbf8a76494da0bf321ea48b9ff89e);
+        
+
+        marker_8a994a3f854243388754e92713b3d769.bindPopup(popup_df88fcbc3b1148c2ad2ccbae4df8f8e8)
+        ;
+
+        
+    
+    
+            var marker_01b8bc87b1004c62a01a570e332b42b4 = L.marker(
+                [37.40644, -122.24503],
+                {"name": "tower20"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_cfdfed46bf9048d8a83b0d5604fa50ae = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_01b8bc87b1004c62a01a570e332b42b4.setIcon(icon_cfdfed46bf9048d8a83b0d5604fa50ae);
+        
+    
+        var popup_795221a7a56a49bfbe5c18038474d75d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_be0adaa3a48b407c8dc9a91596c08833 = $(`<div id="html_be0adaa3a48b407c8dc9a91596c08833" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower20</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>17</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.406440</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245030</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>5233B5AB5CF9BE5E7552BB4B5F5912E5</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>124 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>3653 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>249.7 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_795221a7a56a49bfbe5c18038474d75d.setContent(html_be0adaa3a48b407c8dc9a91596c08833);
+        
+
+        marker_01b8bc87b1004c62a01a570e332b42b4.bindPopup(popup_795221a7a56a49bfbe5c18038474d75d)
+        ;
+
+        
+    
+    
+            var marker_e785b303f8d34a149c6c8676d1e789b1 = L.marker(
+                [37.40562, -122.24443],
+                {"name": "tower19"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_69bb81886b9144ddb556f2eceb24da65 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_e785b303f8d34a149c6c8676d1e789b1.setIcon(icon_69bb81886b9144ddb556f2eceb24da65);
+        
+    
+        var popup_de1072020c094151a6e268709c5c2f78 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_d90ae0a5d6234e93b94e7492596b0ad4 = $(`<div id="html_d90ae0a5d6234e93b94e7492596b0ad4" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower19</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>18</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.405620</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244430</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2C97C4EA4F88AE895292F8E050F85475</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>127 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>3759 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>143.8 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_de1072020c094151a6e268709c5c2f78.setContent(html_d90ae0a5d6234e93b94e7492596b0ad4);
+        
+
+        marker_e785b303f8d34a149c6c8676d1e789b1.bindPopup(popup_de1072020c094151a6e268709c5c2f78)
+        ;
+
+        
+    
+    
+            var marker_98ea7711525e48c1a620dd01e880a3d9 = L.marker(
+                [37.40456, -122.24418],
+                {"name": "tower18"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_8afa578d52ba42a1abba8cf3bebb8478 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_98ea7711525e48c1a620dd01e880a3d9.setIcon(icon_8afa578d52ba42a1abba8cf3bebb8478);
+        
+    
+        var popup_eef6f727fee04a1dba73216b3125f21d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_b8ebb4666db74c27956d8fe307f44843 = $(`<div id="html_b8ebb4666db74c27956d8fe307f44843" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower18</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>19</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.404560</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244180</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>14DE2CA1F35C69985649BFAAF16722F8</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>123 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>3878 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>166.7 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_eef6f727fee04a1dba73216b3125f21d.setContent(html_b8ebb4666db74c27956d8fe307f44843);
+        
+
+        marker_98ea7711525e48c1a620dd01e880a3d9.bindPopup(popup_eef6f727fee04a1dba73216b3125f21d)
+        ;
+
+        
+    
+    
+            var marker_6284c4559b5d4218b7e0d2a75ba5803b = L.marker(
+                [37.40339, -122.24429],
+                {"name": "tower17"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_6e2da592ab034fc0aec04dde35647984 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6284c4559b5d4218b7e0d2a75ba5803b.setIcon(icon_6e2da592ab034fc0aec04dde35647984);
+        
+    
+        var popup_a8b5ba2ccef44077aa3091eb505bceba = L.popup({"maxWidth": "100%"});
+
+        
+            var html_450b264091a441728cf7cb3526331afa = $(`<div id="html_450b264091a441728cf7cb3526331afa" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower17</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>20</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.403390</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244290</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>784F05D240F5C0897D99C79CA30BEFD6</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>117 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>4009 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>185.4 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_a8b5ba2ccef44077aa3091eb505bceba.setContent(html_450b264091a441728cf7cb3526331afa);
+        
+
+        marker_6284c4559b5d4218b7e0d2a75ba5803b.bindPopup(popup_a8b5ba2ccef44077aa3091eb505bceba)
+        ;
+
+        
+    
+    
+            var marker_7eb5fac803b64306b44530397b927ab1 = L.marker(
+                [37.40249, -122.24468],
+                {"name": "tower16"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_0e04c734f05746fe8283bd3b0221c79b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_7eb5fac803b64306b44530397b927ab1.setIcon(icon_0e04c734f05746fe8283bd3b0221c79b);
+        
+    
+        var popup_cfe9e2a0f49348828623e15905bb4efa = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f7ef702e752d4f71a39e3fd3bd8ea943 = $(`<div id="html_f7ef702e752d4f71a39e3fd3bd8ea943" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower16</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>21</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.402490</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.244680</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>44E9C7E8E6C296F9979E6A1F4F41047</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>110 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>20 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>4115 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>203.4 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_cfe9e2a0f49348828623e15905bb4efa.setContent(html_f7ef702e752d4f71a39e3fd3bd8ea943);
+        
+
+        marker_7eb5fac803b64306b44530397b927ab1.bindPopup(popup_cfe9e2a0f49348828623e15905bb4efa)
+        ;
+
+        
+    
+    
+            var marker_86a11ca7ec7d49a7afa1329da2f6cdf3 = L.marker(
+                [37.40136, -122.24566],
+                {"name": "tower15"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_853fb66655fa4951b9fe5f9495e623bb = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_86a11ca7ec7d49a7afa1329da2f6cdf3.setIcon(icon_853fb66655fa4951b9fe5f9495e623bb);
+        
+    
+        var popup_9cb39efc1df5439b8e18ea003979a670 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_cdb6b49310ba4ecb94da8e5d61c1e64f = $(`<div id="html_cdb6b49310ba4ecb94da8e5d61c1e64f" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower15</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>22</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.401360</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.245660</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>19F91ADCDA6C54111253C98B42AFF0DE</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>106 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>22 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>4267 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>220.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_9cb39efc1df5439b8e18ea003979a670.setContent(html_cdb6b49310ba4ecb94da8e5d61c1e64f);
+        
+
+        marker_86a11ca7ec7d49a7afa1329da2f6cdf3.bindPopup(popup_9cb39efc1df5439b8e18ea003979a670)
+        ;
+
+        
+    
+    
+            var marker_9feccc27fc6547db825b36697ba11708 = L.marker(
+                [37.39987, -122.24927],
+                {"name": "tower14"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_629fcc0d142d403389e4259675f6828d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_9feccc27fc6547db825b36697ba11708.setIcon(icon_629fcc0d142d403389e4259675f6828d);
+        
+    
+        var popup_25fef0ed609e4631989dc9c6a9fa31b2 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_87d40cef16f64982a60c0627f9a0a434 = $(`<div id="html_87d40cef16f64982a60c0627f9a0a434" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower14</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>23</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399870</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.249270</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3C3716A35E062A1CD019A7E25021835</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>116 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>4627 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>247.6 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_25fef0ed609e4631989dc9c6a9fa31b2.setContent(html_87d40cef16f64982a60c0627f9a0a434);
+        
+
+        marker_9feccc27fc6547db825b36697ba11708.bindPopup(popup_25fef0ed609e4631989dc9c6a9fa31b2)
+        ;
+
+        
+    
+    
+            var marker_152210b43efc4690b75991fa549ffe93 = L.marker(
+                [37.39966, -122.25113],
+                {"name": "tower13"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_d4a302ad020044af8fd884dc16187480 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_152210b43efc4690b75991fa549ffe93.setIcon(icon_d4a302ad020044af8fd884dc16187480);
+        
+    
+        var popup_28166784d9c643918aa6a0f0c651ed2a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ce52c565744d44b291603ab8d921532b = $(`<div id="html_ce52c565744d44b291603ab8d921532b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower13</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>24</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399660</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.251130</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2E613CAE20642EE439975C75C96F4D61</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>167 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>4793 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>263.6 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_28166784d9c643918aa6a0f0c651ed2a.setContent(html_ce52c565744d44b291603ab8d921532b);
+        
+
+        marker_152210b43efc4690b75991fa549ffe93.bindPopup(popup_28166784d9c643918aa6a0f0c651ed2a)
+        ;
+
+        
+    
+    
+            var marker_bf2a342304844c9db908be82ab693c69 = L.marker(
+                [37.39937, -122.25627],
+                {"name": "tower12"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_594f5d9e2ae24f58816cd3cf88e56f07 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_bf2a342304844c9db908be82ab693c69.setIcon(icon_594f5d9e2ae24f58816cd3cf88e56f07);
+        
+    
+        var popup_880444519bed45818c4868fa439a7d0d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ec1cde1add084b0d89582eb87cdfcff8 = $(`<div id="html_ec1cde1add084b0d89582eb87cdfcff8" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower12</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>25</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399370</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.256270</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2C267A2FF4652FE1254D8DA4E99E7494</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>267 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>22 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>5248 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>266.8 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_880444519bed45818c4868fa439a7d0d.setContent(html_ec1cde1add084b0d89582eb87cdfcff8);
+        
+
+        marker_bf2a342304844c9db908be82ab693c69.bindPopup(popup_880444519bed45818c4868fa439a7d0d)
+        ;
+
+        
+    
+    
+            var marker_6d5d66b4af4844c7bb96ff2cdd527a60 = L.marker(
+                [37.39928, -122.25795],
+                {"name": "tower11"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_128717cc90dd49bb993719a345e52e4a = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_6d5d66b4af4844c7bb96ff2cdd527a60.setIcon(icon_128717cc90dd49bb993719a345e52e4a);
+        
+    
+        var popup_09969172660149e1a9659de4455234a5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_65263a8adb88494eaf8f912d50127f5a = $(`<div id="html_65263a8adb88494eaf8f912d50127f5a" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower11</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>26</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.399280</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.257950</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>1A4533DE4E81974371E7DCA320615383</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>285 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>5397 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>266.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_09969172660149e1a9659de4455234a5.setContent(html_65263a8adb88494eaf8f912d50127f5a);
+        
+
+        marker_6d5d66b4af4844c7bb96ff2cdd527a60.bindPopup(popup_09969172660149e1a9659de4455234a5)
+        ;
+
+        
+    
+    
+            var marker_845a3525c53c4adc91c4c481a926ad37 = L.marker(
+                [37.39882, -122.26449],
+                {"name": "tower10"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_b8df488d07064e20ac3f967ed33e235c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_845a3525c53c4adc91c4c481a926ad37.setIcon(icon_b8df488d07064e20ac3f967ed33e235c);
+        
+    
+        var popup_a191609207c84fff81b8634366ccf89d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_045894c52e5d4411b89e195593056ffa = $(`<div id="html_045894c52e5d4411b89e195593056ffa" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower10</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>27</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398820</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.264490</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>BC33E144C27AFED360DE5D9BDCD8F17</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>331 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>5977 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>266 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_a191609207c84fff81b8634366ccf89d.setContent(html_045894c52e5d4411b89e195593056ffa);
+        
+
+        marker_845a3525c53c4adc91c4c481a926ad37.bindPopup(popup_a191609207c84fff81b8634366ccf89d)
+        ;
+
+        
+    
+    
+            var marker_d69b28da44bc48ec81d1b02f7dedf950 = L.marker(
+                [37.39871, -122.2661],
+                {"name": "tower9"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_23f9e1e7a3d64dbf9692a113a62c2816 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_d69b28da44bc48ec81d1b02f7dedf950.setIcon(icon_23f9e1e7a3d64dbf9692a113a62c2816);
+        
+    
+        var popup_fa5fa31a5537449090c2139170e3f5de = L.popup({"maxWidth": "100%"});
+
+        
+            var html_44e85510870a4ae49a855d1d3181312b = $(`<div id="html_44e85510870a4ae49a855d1d3181312b" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower9</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>28</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398710</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.266100</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>10C35D97C64A00442DC8932FFDE7444</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>352 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>15 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>6119 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>266.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_fa5fa31a5537449090c2139170e3f5de.setContent(html_44e85510870a4ae49a855d1d3181312b);
+        
+
+        marker_d69b28da44bc48ec81d1b02f7dedf950.bindPopup(popup_fa5fa31a5537449090c2139170e3f5de)
+        ;
+
+        
+    
+    
+            var marker_2262f25222a64fb2b81200dab8e12fdb = L.marker(
+                [37.39861, -122.26757],
+                {"name": "tower8"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_99b7e3762ea14dffb6bb05cd2be23086 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_2262f25222a64fb2b81200dab8e12fdb.setIcon(icon_99b7e3762ea14dffb6bb05cd2be23086);
+        
+    
+        var popup_952c82cb925640f7aa45fb0b04bd035b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_ad6dcba1f8a2410694833636dcbb9fe7 = $(`<div id="html_ad6dcba1f8a2410694833636dcbb9fe7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower8</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>29</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.398610</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.267570</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>42F771D5F5681F6B2C21F1A8B92D5DD5</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>341 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>18 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>6250 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>266.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_952c82cb925640f7aa45fb0b04bd035b.setContent(html_ad6dcba1f8a2410694833636dcbb9fe7);
+        
+
+        marker_2262f25222a64fb2b81200dab8e12fdb.bindPopup(popup_952c82cb925640f7aa45fb0b04bd035b)
+        ;
+
+        
+    
+    
+            var marker_1b590c3f941d490981176ab78db035ee = L.marker(
+                [37.39448, -122.27063],
+                {"name": "tower7"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_e694615360c4409e9b23f2edc8ab2b2f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_1b590c3f941d490981176ab78db035ee.setIcon(icon_e694615360c4409e9b23f2edc8ab2b2f);
+        
+    
+        var popup_422a82e024d045c3bba3c6a5c03a895f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fcec6435a1224495bd978e2bb3288383 = $(`<div id="html_fcec6435a1224495bd978e2bb3288383" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower7</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>30</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.394480</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.270630</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>706E33B5765F0AB95998627FF33F26DA</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>444 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>6783 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>216.5 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_422a82e024d045c3bba3c6a5c03a895f.setContent(html_fcec6435a1224495bd978e2bb3288383);
+        
+
+        marker_1b590c3f941d490981176ab78db035ee.bindPopup(popup_422a82e024d045c3bba3c6a5c03a895f)
+        ;
+
+        
+    
+    
+            var marker_1e4c9f54d8c44bda884f40e43273f9e3 = L.marker(
+                [37.39306, -122.2718],
+                {"name": "tower6"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_d7c102a6b27a4b979cb737d24e948d87 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_1e4c9f54d8c44bda884f40e43273f9e3.setIcon(icon_d7c102a6b27a4b979cb737d24e948d87);
+        
+    
+        var popup_24d485c990a3410db4584e45cabf977d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f1d14a06dbab4c3abf38028ebf75afa7 = $(`<div id="html_f1d14a06dbab4c3abf38028ebf75afa7" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower6</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>31</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.393060</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.271800</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>42B864DD68E7FA71688AC7D6FDC9165B</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>448 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>6971 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>219.5 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_24d485c990a3410db4584e45cabf977d.setContent(html_f1d14a06dbab4c3abf38028ebf75afa7);
+        
+
+        marker_1e4c9f54d8c44bda884f40e43273f9e3.bindPopup(popup_24d485c990a3410db4584e45cabf977d)
+        ;
+
+        
+    
+    
+            var marker_db9cb8557f4d4a968372ce7a86309f4a = L.marker(
+                [37.39248, -122.27446],
+                {"name": "tower5"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_93c1d6bf0b0a48cdbfea9ee7fc95fef8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_db9cb8557f4d4a968372ce7a86309f4a.setIcon(icon_93c1d6bf0b0a48cdbfea9ee7fc95fef8);
+        
+    
+        var popup_83aa673a192a4087a3ae954956b51fce = L.popup({"maxWidth": "100%"});
+
+        
+            var html_05d8ac2ac3cf4cae9d3e4ffa601f666d = $(`<div id="html_05d8ac2ac3cf4cae9d3e4ffa601f666d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower5</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>32</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.392480</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.274460</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>712A7B208A2CCDBB7E36627FA0A66A6F</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>505 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>17 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>7215 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>257.7 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_83aa673a192a4087a3ae954956b51fce.setContent(html_05d8ac2ac3cf4cae9d3e4ffa601f666d);
+        
+
+        marker_db9cb8557f4d4a968372ce7a86309f4a.bindPopup(popup_83aa673a192a4087a3ae954956b51fce)
+        ;
+
+        
+    
+    
+            var marker_da92bb2dd2b8402ebee1bca1bc5e9a8e = L.marker(
+                [37.3919, -122.27717],
+                {"name": "tower4"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_de970b579c43499c843e6e55a7505b16 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_da92bb2dd2b8402ebee1bca1bc5e9a8e.setIcon(icon_de970b579c43499c843e6e55a7505b16);
+        
+    
+        var popup_99ce1927a9b34afdb83f8f61be1692b6 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_381acbedde6743939706936acfbe55e0 = $(`<div id="html_381acbedde6743939706936acfbe55e0" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower4</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>33</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391900</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.277170</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>3A39A453D69AE00C1C5A30A2C9C5D86F</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>578 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>21 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>7463 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>257.9 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_99ce1927a9b34afdb83f8f61be1692b6.setContent(html_381acbedde6743939706936acfbe55e0);
+        
+
+        marker_da92bb2dd2b8402ebee1bca1bc5e9a8e.bindPopup(popup_99ce1927a9b34afdb83f8f61be1692b6)
+        ;
+
+        
+    
+    
+            var marker_ebdf4144adf94d2fb94d96d783fa667e = L.marker(
+                [37.39161, -122.2786],
+                {"name": "tower3"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_fe76b40d947443269f03a791b8c34e40 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_ebdf4144adf94d2fb94d96d783fa667e.setIcon(icon_fe76b40d947443269f03a791b8c34e40);
+        
+    
+        var popup_aaed685b3f7641689f4e28e5b84220a0 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_aca09e39ec3c4dd7ac79fd93d98ece70 = $(`<div id="html_aca09e39ec3c4dd7ac79fd93d98ece70" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower3</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>34</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391610</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.278600</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>2CB4893C07D1D63D523C6F1D14B7DDFB</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>615 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>23 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>7593 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>258.5 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_aaed685b3f7641689f4e28e5b84220a0.setContent(html_aca09e39ec3c4dd7ac79fd93d98ece70);
+        
+
+        marker_ebdf4144adf94d2fb94d96d783fa667e.bindPopup(popup_aaed685b3f7641689f4e28e5b84220a0)
+        ;
+
+        
+    
+    
+            var marker_f2720579abb64870bc92e5ac06680414 = L.marker(
+                [37.39171, -122.28139],
+                {"name": "tower2"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_bbd76d789b76401db650611e1fa02097 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_f2720579abb64870bc92e5ac06680414.setIcon(icon_bbd76d789b76401db650611e1fa02097);
+        
+    
+        var popup_1df9c06be176447a9ac1862b83cb70ac = L.popup({"maxWidth": "100%"});
+
+        
+            var html_1d1f2143c1d743d78c8bdf5bb8ebaf16 = $(`<div id="html_1d1f2143c1d743d78c8bdf5bb8ebaf16" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower2</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>35</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.391710</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.281390</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>191B5B0288A718AD5A3393CED33BEBB</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>642 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>16 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>7840 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>272.1 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_1df9c06be176447a9ac1862b83cb70ac.setContent(html_1d1f2143c1d743d78c8bdf5bb8ebaf16);
+        
+
+        marker_f2720579abb64870bc92e5ac06680414.bindPopup(popup_1df9c06be176447a9ac1862b83cb70ac)
+        ;
+
+        
+    
+    
+            var marker_9955d1c321714d8abbca0cd06e02030f = L.marker(
+                [37.38806, -122.28844],
+                {"name": "tower1"}
+            ).addTo(map_ccce059b50b547e68865706cdc92aafc);
+        
+    
+            var icon_948611e500754e6d978fb1b5e77f4b50 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "fa-flash", "iconColor": "white", "markerColor": "gray", "prefix": "fa"}
+            );
+            marker_9955d1c321714d8abbca0cd06e02030f.setIcon(icon_948611e500754e6d978fb1b5e77f4b50);
+        
+    
+        var popup_6eaa9d64386e4ac69e37a4a93131468f = L.popup({"maxWidth": "100%"});
+
+        
+            var html_69ce4aece13f45ae8d6cb1e1142ef20d = $(`<div id="html_69ce4aece13f45ae8d6cb1e1142ef20d" style="width: 100.0%; height: 100.0%;"><STYLE>#box{overflow:scroll;height:20em}</STYLE><DIV ID="box"><TABLE><CAPTION>tower1</CAPTION> <TR><TH><HR/></TH><TD><HR/></TD></TR><TR><TH>Id</TH><TD>&nbsp;</TD><TD>36</TD></TR> <TR><TH>Class</TH><TD>&nbsp;</TD><TD>pole</TD></TR> <TR><TH>Latitude</TH><TD>&nbsp;</TD><TD>37.388060</TD></TR> <TR><TH>Longitude</TH><TD>&nbsp;</TD><TD>-122.288440</TD></TR> <TR><TH>Guid</TH><TD>&nbsp;</TD><TD>57E5EF773635A0D2480666A6D254F1E2</TD></TR> <TR><TH>Elevation</TH><TD>&nbsp;</TD><TD>634 ft</TD></TR> <TR><TH>Pole&nbsp;Height</TH><TD>&nbsp;</TD><TD>23 m</TD></TR> <TR><TH>Distance</TH><TD>&nbsp;</TD><TD>8583 ft</TD></TR> <TR><TH>Heading</TH><TD>&nbsp;</TD><TD>242.6 deg</TD></TR> <TR><TH><HR/></TH><TD><HR/></TD></TR></TABLE></DIV> </div>`)[0];
+            popup_6eaa9d64386e4ac69e37a4a93131468f.setContent(html_69ce4aece13f45ae8d6cb1e1142ef20d);
+        
+
+        marker_9955d1c321714d8abbca0cd06e02030f.bindPopup(popup_6eaa9d64386e4ac69e37a4a93131468f)
+        ;
+
+        
+    
+    
+            var mouse_position_21311faab51f4959a5c7afc135f81445 = new L.Control.MousePosition(
+                {"autoStart": true, "emptyString": "Unavailable", "lngFirst": false, "numDigits": 5, "position": "bottomright", "prefix": "", "separator": " : "}
+            );
+            mouse_position_21311faab51f4959a5c7afc135f81445.options["latFormatter"] =
+                undefined;
+            mouse_position_21311faab51f4959a5c7afc135f81445.options["lngFormatter"] =
+                undefined;
+            map_ccce059b50b547e68865706cdc92aafc.addControl(mouse_position_21311faab51f4959a5c7afc135f81445);
+        
+    
+            L.Control.geocoder(
+                {"collapsed": false, "defaultMarkGeocode": true, "position": "topright"}
+            ).on('markgeocode', function(e) {
+                map_ccce059b50b547e68865706cdc92aafc.setView(e.geocode.center, 11);
+            }).addTo(map_ccce059b50b547e68865706cdc92aafc);
+
+        
+</script>
