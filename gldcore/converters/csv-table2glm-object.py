@@ -36,7 +36,7 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 			if i == 0 : 
 				headers = row
 				if "class" in headers and classname:
-					warning("class data overrides command line class '{classname}'")
+					warning(f"class data overrides command line class '{classname}'")
 					classname = None
 			else : 
 				if not classname:
