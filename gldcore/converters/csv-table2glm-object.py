@@ -53,7 +53,7 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 				for j,value in enumerate (row) : 
 					if j!=class_index and headers[j] : 
 						if not value and headers[j].strip()=="name" : 
-							p_config_out.write(f"\t{headers[j].strip()} {classname}:{j};\n")
+							p_config_out.write(f"\t{headers[j].strip()} {classname}:{i};\n")
 						else : 
 							if value : 
 								if re.findall('^\d+',value) or value.startswith('(') or '([0-9]*\ [*a-zA-Z+]*){0,1}?' in value and ',' not in value: 
