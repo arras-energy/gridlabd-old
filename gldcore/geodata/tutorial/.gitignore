@@ -1,4 +1,4 @@
-example_*.html
-example_*.json
+example*.html
+example*.json
 positions.glm
 poles.glm
