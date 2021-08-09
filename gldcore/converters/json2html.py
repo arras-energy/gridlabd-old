@@ -1,4 +1,14 @@
-"""Convert GLM to HTML Folium interactive map"""
+"""Convert GLM to HTML Folium interactive map
+
+Object properties that affect map generation:
+
+  hidden
+  map_color
+  map_weight (link only)
+  map_opacity (link only)
+
+If defined in the object will be created (if hidden not TRUE) using these properties.
+"""
 import os, sys, getopt
 import json 
 import folium
