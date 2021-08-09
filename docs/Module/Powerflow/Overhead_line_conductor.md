@@ -86,7 +86,7 @@ Emergency winter amp rating
   double rating.winter.emergency[A];
 ~~~
 
-Cable weight per linear foot
+Cable weight per lineal foot
 
 ### `strength`
 
