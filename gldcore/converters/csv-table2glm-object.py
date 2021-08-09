@@ -35,25 +35,28 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 		for i, row in enumerate(configurations):
 			if i == 0 : 
 				headers = row
-				if "class" in headers and classname:
-					warning(f"class data overrides command line class '{classname}'")
-					classname = None
-			else : 
-				if not classname:
-					if not "class" in headers:
-						error("missing required class specification in either data ('class' field) or command line (-C <class>)")
-					else : 
-						class_index = headers.index("class")
-						classname = row[class_index]
+				if "class" in headers:
+					if classname:
+						warning(f"class data overrides option 'class={classname}'")
+					class_index = headers.index("class")
 				else:
 					class_index = None
+			else : 
+				if type(class_index) is int:
+					oclass = row[class_index]
+				else:
+					oclass = None
+				if not oclass:
+					if not classname:
+						error("missing required class specification in either data ('class' field) or options (class='<class>')")
+					oclass = classname
 
-				p_config_out.write(f"object {classname} ")
+				p_config_out.write(f"object {oclass} ")
 				p_config_out.write("{\n")
 				for j,value in enumerate (row) : 
 					if j!=class_index and headers[j] : 
 						if not value and headers[j].strip()=="name" : 
-							p_config_out.write(f"\t{headers[j].strip()} {classname}:{i};\n")
+							p_config_out.write(f"\t{headers[j].strip()} {oclass}:{i};\n")
 						else : 
 							if value : 
 								if re.findall('^\d+',value) or value.startswith('(') or '([0-9]*\ [*a-zA-Z+]*){0,1}?' in value and ',' not in value: 
