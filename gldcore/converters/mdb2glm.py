@@ -1,4 +1,4 @@
-import json 
+import json, inspect
 import os 
 import sys, getopt
 from datetime import datetime 
@@ -26,7 +26,9 @@ input_name = None
 output_name = None
 input_type = None
 options = {}
-
+curframe = inspect.currentframe()
+calframe = inspect.getouterframes(curframe, 2)
+print("daddy: ", sys._getframe(1).f_code.co_name)
 try : 
     opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:p:c",["help","ifile=","ofile=","type=","param=","config"])
 except getopt.GetoptError:
@@ -36,6 +38,9 @@ except getopt.GetoptError:
 if not opts : 
     help()
     sys.exit(1)
+print("opt: ", opts)
+print("arg: ", args)
+
 for opt, arg in opts:
     if opt in ("-h","--help"):
         help()
