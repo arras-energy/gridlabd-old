@@ -1,7 +1,0 @@
-// /usr/local/opt/gridlabd/4.2.25-210803-develop_add_model_browser/share/gridlabd/csv-table2glm-object.py /Users/dchassin/Documents/github/slacgismo/gridlabd/python_extras/gridlabd_app/table2glm_input.csv /Users/dchassin/Documents/github/slacgismo/gridlabd/python_extras/gridlabd_app/table2glm_input.glm {} 
-module climate;
-object climate.climate { 
-	name "weather";
-	wind_speed 4 m/s;
-	temperature 95 degF;
-}
