@@ -5,8 +5,16 @@ from datetime import datetime
 import importlib, copy
 from importlib import util
 
+config = {
+    "input" : "mdb",
+    "output" : "glm",
+    "type" : ["cyme"],
+    "options" : {},
+}
+
 def help():
     print('Syntax: mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type> -p <name>=<value> ...]')
+    print('  -c|--config    : [OPTIONAL] print converter configuration')
     print('  -i|--ifile     : [REQUIRED] mdb input file name.')
     print('  -o|--ofile     : [REQUIRED] glm output file name.')
     print('  -t|--type      : [REQUIRED] specify input type')
@@ -20,7 +28,7 @@ input_type = None
 options = {}
 
 try : 
-    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:p:",["help","ifile=","ofile=","type=","param="])
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:p:c",["help","ifile=","ofile=","type=","param=","config"])
 except getopt.GetoptError:
     print("ERROR [mdb2glm]: command line options not valid")
     sys.exit(2)
@@ -31,6 +39,9 @@ if not opts :
 for opt, arg in opts:
     if opt in ("-h","--help"):
         help()
+        sys.exit(0)
+    elif opt in ("-c","--config"):
+        print(json.dumps(config))
         sys.exit(0)
     elif opt in ("-i", "--ifile"):
         input_name = arg.strip()
