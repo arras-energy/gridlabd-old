@@ -39,7 +39,9 @@ except:
 # Tkinter module
 #
 try:
+    import tkinter as tk
     from tkinter import *
+    from tkinter.font import Font
     from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
 except Exception as err:
     if system == 'Darwin':
@@ -48,9 +50,27 @@ except Exception as err:
         stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
 
-def TODO(msg="function not implemented yet"):
-    stderr(f"TODO: {msg}")
-    messagebox.showerror("TODO",msg)
+def TODO(msg="function not implemented yet",context=None):
+    if not context:
+        context = sys._getframe(1).f_code.co_name
+    root.output(f"TODO [{context}]: {msg}")
+
+class TkErrorCatcher:
+    def __init__(self,func,subst,widget):
+        self.func = func
+        self.subst = subst
+        self.widget = widget
+
+    def __call__(self, *args):
+        try:
+            if self.subst:
+                args = self.subst(*args)
+            return self.func(*args)
+        except SystemExit as msg:
+            raise
+        except Exception as err:
+            root.exception()
+tk.CallWrapper = TkErrorCatcher
 
 #
 # Global variables
@@ -71,7 +91,7 @@ try:
         preferences = json.load(f)
 except:
     preferences = {
-        "Show welcome dialog" : {
+        "Welcome dialog enabled" : {
             "value" : False, # TODO: this should be True 
             "description" : "Show welcome dialog",
             },
@@ -87,15 +107,20 @@ except:
             "value" : True,
             "description" : "Enable reopening last file on initial open",
             },
-        "Show unused classes" : {
+        "Unused classes display enabled" : {
             "value" : False,
             "description" : "Enable display of unused classes in elements list",
             },
-        "Show classes" : {
+        "Class display enabled" : {
             "value" : True,
             "description" : "Enable display of classes in elements list",
-            }
+            },
+        "Traceback enabled" : {
+            "value" : True,
+            "description" : "Enable output of exception traceback data",
+            },
         }
+
 
 #
 # Last run info
@@ -117,7 +142,6 @@ if sys.platform == "darwin":
     bundle = NSBundle.mainBundle()
     if bundle:
         info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
-        # stderr(info,file=sys.stderr)
         if info and info['CFBundleName'] == 'Python':
             info['CFBundleName'] = "GridLAB-D"
             info['CFBundleShortVersionString'] = f"{version}"
@@ -264,7 +288,7 @@ class MenuBar(Menu):
         # main.view_module = BooleanVar()
         # self.view_menu_elements.add_checkbutton(label = "Module", onvalue = True, offvalue = False, variable = main.view_module, command = main.on_view_elements)
         main.view_class = BooleanVar()
-        main.view_class.set(preferences["Show classes"]["value"])
+        main.view_class.set(preferences["Class display enabled"]["value"])
         self.view_menu_elements.add_checkbutton(label="Class", onvalue=True, offvalue=False, variable=main.view_class, command = main.on_view_elements)
         # main.view_group = BooleanVar()
         # self.view_menu_elements.add_checkbutton(label="Group", onvalue=True, offvalue=False, variable=main.view_group, command = main.on_view_elements)
@@ -321,9 +345,9 @@ class Editor(Tk):
 
         self.output_height = 300
         self.sidebar_width = 200
-        self.modelview_layout = dict(x=0, y=0, width=self.sidebar_width, height=self.winfo_screenheight()-self.output_height)
+        self.modelview_layout = dict(x=0, y=0, width=self.sidebar_width, height=self.winfo_screenheight()-50-self.output_height)
         self.dataview_layout = dict(x=self.sidebar_width, y=0, width=int(self.winfo_screenwidth()/2-self.sidebar_width), height=self.winfo_screenheight()-self.output_height)
-        self.outputview_layout = dict(x=0, y=int(self.winfo_screenheight()-self.output_height), width=int(self.winfo_screenwidth()/2), height=self.output_height)
+        self.outputview_layout = dict(x=0, y=int(self.winfo_screenheight()-50-self.output_height), width=int(self.winfo_screenwidth()/2), height=self.output_height)
 
         self.set_title()
         self.geometry(f'{int(self.winfo_screenwidth()/2)}x{self.winfo_screenheight()}')
@@ -357,13 +381,23 @@ class Editor(Tk):
 
 
     def output(self,msg,end='\n'):
-        self.outputview.append_text(msg+end)
+        self.outputview.append_text(msg,end=end)
 
     def warning(self,msg,end='\n'):
-        self.outputview.append_text("WARNING: +"+msg+end)
+        self.outputview.append_text("WARNING: +"+msg,end=end)
 
     def error(self,msg,end='\n'):
-        self.outputview.append_text("ERROR: "+msg+end)
+        self.outputview.append_text("ERROR: "+msg,end=end)
+
+    def exception(self,err=None,end='\n'):
+        if not err:
+            import traceback
+            e_type,e_value,e_trace = sys.exc_info()
+            text = f"EXCEPTION [{e_type.__name__}]: {e_value}"
+            tag = '\n'.join(traceback.format_exception(e_type,e_value,e_trace))
+            self.outputview.append_text(text,tag=tag)
+        else:
+            self.outputview.append_text(f"EXCEPTION: {err}",end=end)
 
     def preferences(self):
         PreferencesDialog(self,preferences)
@@ -812,7 +846,6 @@ class ModelTree(ttk.Treeview):
 
     def get_label(self,tag):
         if tag not in self.tags.keys():
-            stderr(f"Modelview:get_label(self,tag='{tag}'): tag is not in Modelview.tags list")
             raise Exception(f"Model component '{tag}' not recognized")
         return self.tags[tag]["label"]
 
@@ -833,7 +866,6 @@ class ModelTree(ttk.Treeview):
             idlist = self.get_selected()
             if len(idlist) == 1:
                 iid = idlist[0]
-                stderr("iid:",iid)
                 item = self.item_index[iid]
                 itype = item["type"]
                 if itype == "object":
@@ -992,20 +1024,55 @@ ask_dialogs = {
 #
 # Editor output view
 #
-class OutputView(Text):
+class OutputView(Frame):
 
-    def __init__(self,main):
-        Text.__init__(self,main,
-            height = main.outputview_layout['height'],
+    def __init__(self,main,*args,**kwargs):
+        
+        super().__init__(height = main.outputview_layout['height'],
             width = main.outputview_layout['width'],
-            )
-        scroll = Scrollbar(self)
-        self.configure(yscrollcommand=scroll.set)
+            *args,**kwargs)
+        
+        self.grid_propagate(False)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.text = Text(self,font = Font(family="Courier",size=12),wrap=NONE)
+        self.text.grid(row=0,column=0,sticky="nsew",padx=2,pady=2)
+        
+        yscroll = ttk.Scrollbar(self,orient="vertical",command=self.text.yview)
+        yscroll.grid(row=0,column=1, sticky="nsew")
+        self.text["yscrollcommand"] = yscroll.set
+        
+        xscroll = ttk.Scrollbar(self,orient="horizontal",command=self.text.xview)
+        yscroll.grid(row=1,column=0, sticky="nsew")
+        self.text["xscrollcommand"] = xscroll.set
+        
+        self.tags = {}
+        self.text.tag_config("blue",foreground="blue")
+        self.text.tag_bind("blue","<Button-1>",self.on_click)
+        self.text.tag_config("red",foreground="red")
+        self.text.tag_bind("red","<Button-1>",self.on_click)
+
         self.append_text(f"{title} {version}-{build} ({branch}) {system}\n{__doc__}")
 
-    def append_text(self,text):
-        self.insert(END,text)
-        self.update()
+    def on_click(self,event):
+        pos = event.widget.index("@%s,%s"%(event.x,event.y))
+        line = int(float(str(pos)))
+        if self.tags[line]["end"]:
+            self.tags[line]["end"]
+            self.text.delete(f"{line+1}.0",self.tags[line]["end"])
+        else:
+            self.text.insert(f"{line+1}.0",self.tags[line]["text"])
+            self.tags[line]["end"] = f"{line+1}.0+{len(self.tags[line]['text'])}c"
+
+    def append_text(self,text,end='\n',tag=None,color="red"):
+        if not tag:
+            self.text.insert(END,text+end)
+        else:
+            line = int(float(str(self.text.index(END)))-1)
+            self.text.insert(END,text+end,color)
+            self.tags[line] = {"text":tag,"end":None}
+        self.text.see(END)
+        self.text.update()
 
 #
 # Preferences dialog
@@ -1114,7 +1181,7 @@ class ImportDialog(simpledialog.Dialog):
             item.grid(row=0,column=1)
         except Exception as err:
             Label(self,text="None").grid(row=0,column=1)
-            stderr("ERROR:",err,file=sys.stderr)
+            root.exception(err)
             self.inputtype = None
         try:
             to_options = options["type"]
@@ -1124,7 +1191,7 @@ class ImportDialog(simpledialog.Dialog):
             item.grid(row=1,column=1)
         except Exception as err:
             Label(self,text="None").grid(row=1,column=1)
-            stderr("ERROR:",err,file=sys.stderr)
+            root.exception(err)
             self.outputtype = None
 
         Label(self,text=f"Convert {inputname.split('/')[-1]} to {outputname.split('/')[-1]}?").grid(row=2)
@@ -1166,7 +1233,7 @@ class ExportDialog(simpledialog.Dialog):
 #
 if __name__ == "__main__":
     root = Editor()
-    if preferences["Show welcome dialog"]["value"]:
+    if preferences["Welcome dialog enabled"]["value"]:
         messagebox.showinfo("Welcome",
             f"""{title}\n{version}-{build} ({branch}) {system}\n{__doc__}
             """)
