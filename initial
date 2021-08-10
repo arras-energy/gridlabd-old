@@ -1,0 +1,35 @@
+#!/usr/bin/make -f
+#
+# This file is used to create the initial make configuration
+#
+# Command syntax:
+#
+#   $ ./initial
+#
+# or
+#
+#   $ make -f initial
+#
+# Usual follow-up command
+#
+#   $ make system
+#
+# Note: if you run this makefile after the build is configured,
+# then if will run exactly as the configured makefile, i.e.,
+#
+#   $ make -f initial system
+#
+# is the same as
+#
+#   $ ./initial system
+
+-include Makefile
+
+ifndef PACKAGE
+configure:
+	autoreconf -isf
+	./configure
+
+clean:
+	. utilities/cleanwc
+endif

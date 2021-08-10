@@ -48,6 +48,10 @@ except Exception as err:
         stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
     quit(-1)
 
+def TODO(msg="function not implemented yet"):
+    stderr(f"TODO: {msg}")
+    messagebox.showerror("TODO",msg)
+
 #
 # Global variables
 #
@@ -161,9 +165,6 @@ class MenuBar(Menu):
 
     def __init__(self, main):
         Menu.__init__(self, main)
-
-        def nothing(self):
-            return
 
         # File menu
         self.file_menu = Menu(self, tearoff=False)
@@ -372,23 +373,17 @@ class Editor(Tk):
             filename = self.filename
         if not filename:
             return
-        # if self.filename.endswith(".glm"):
-        #     self.output(f"Compiling {self.filename}...\n")
-        #     result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
-        #     self.output(result.stderr.decode("utf-8"))
-        #     self.output(result.stdout.decode("utf-8"))
-        #     if result.returncode != 0:
-        #         return
-        #     else:
-        #         self.filename = self.filename.replace('.glm','.json')
-        with open(filename,"r") as f: 
-            try:
-                filedata = json.load(f)
-            except Exception as errmsg:
-                messagebox.showerror(filename,f"unable to load file ({errmsg})")
-                return
-        if self.set_model(filedata):
-            self.set_title(filename)
+        try:
+            with open(filename,"r") as f: 
+                try:
+                    filedata = json.load(f)
+                except Exception as errmsg:
+                    messagebox.showerror(filename,f"unable to load file ({errmsg})")
+                    return
+            if self.set_model(filedata):
+                self.set_title(filename)
+        except Exception as msg:
+            messagebox.showerror(filename,msg)
 
     def set_model(self,filedata):
         if not filedata \
@@ -464,10 +459,10 @@ class Editor(Tk):
             if result and result.returncode == 0:
                 self.load_model()
             else:
-                messagebox.showerror(result.stderr)
+                messagebox.showerror("File import",result.stderr)
 
     def file_close(self,event=None):
-        return
+        TODO()
 
     def file_save(self,event=None):
         self.save_model()
@@ -490,7 +485,7 @@ class Editor(Tk):
         self.update()
 
     def file_export(self,event=None):
-        return
+        TODO()
 
     def file_exit(self,event=None):
 
@@ -505,13 +500,13 @@ class Editor(Tk):
     #
 
     def undo(self,event=None):
-        return
+        TODO()
 
     def redo(self,event=None):
-        return
+        TODO()
 
     def cut(self,event=None):
-        return
+        TODO()
 
     def copy(self,event=None):
         focus = self.focus_get()
@@ -524,10 +519,16 @@ class Editor(Tk):
         self.clipboard_append(json.dumps(text,indent=4))
 
     def paste(self,event=None):
-        return
+        TODO()
+
+    def insert(self,event=None):
+        TODO()
+
+    def delete(self,event=None):
+        TODO()
 
     def paste_special(self,event=None):
-        return
+        TODO()
 
     #
     # Model menu
@@ -647,6 +648,7 @@ class ModelTree(ttk.Treeview):
     tags = {
         "clock" : {
             "label" : "Clock",
+            "single" : True,
         },
         "input" : {
             "label" : "Input files",
@@ -688,11 +690,80 @@ class ModelTree(ttk.Treeview):
             "loader" : load_dict,
         },
         "python" : {
-            "label" : "Python",
+            "label" : "Python code",
+        },
+        "python_file" : {
+            "label" : "Python file",
         },
         "comment" : {
-            "label" : "Comments",
-        }
+            "label" : "Annotation",
+        },
+        #
+        # Modules
+        #
+        "assert" :
+        {
+            "label" : "Validators",
+            "loader" : load_dict,
+        },
+        "climate" :
+        {
+            "label" : "Weather",
+            "loader" : load_dict,
+        },
+        "commercial" : {
+            "label" : "Offices",
+            "loader" : load_dict,
+        },
+        "generators" : {
+            "label" : "Generation",
+            "loader" : load_dict,
+        },
+        "industrial" : {
+            "label" : "Industry",
+            "loader" : load_dict,
+        },
+        "influxdb" : {
+            "label" : "Influx Database",
+            "loader" : load_dict,
+        },
+        "market" : {
+            "label" : "Retail market",
+            "loader" : load_dict,
+        },
+        "optimize" : {
+            "label" : "Optimizers",
+            "loader" : load_dict,
+        },
+        "mysql" : {
+            "label" : "MySQL Database",
+            "loader" : load_dict,
+        },
+        "reliability" : {
+            "label" : "Reliability",
+            "loader" : load_dict,            
+        },
+        "resilience" : {
+            "label" : "Resilience",
+            "loader" : load_dict,            
+        },
+        "powerflow" : {
+            "label" : "Network",
+            "loader" : load_dict,
+        },
+        "residential" : {
+            "label" : "Residences",
+            "loader" : load_dict,
+        },
+        "revenue" : {
+            "label" : "Tariffs",
+            "loader" : load_dict,
+        },
+        "tape" :
+        {
+            "label" : "CSV Files",
+            "loader" : load_dict,
+        },
     }
 
     def __init__(self,main):
@@ -706,15 +777,25 @@ class ModelTree(ttk.Treeview):
 
     def show_popup(self,event):
         iid = self.identify_row(event.y)
+        popup = Menu(self,tearoff=0);
+        insert = Menu(self,tearoff=0);
+        for item,values in self.tags.items():
+            state = None
+            if self.main.model and "single" in values.keys() and values["single"] \
+                    and item in list(map(lambda x: x["type"],self.main.model)):
+                state = DISABLED
+            insert.add_command(label=values["label"],command=self.main.insert,state=state)
+        popup.add_cascade(label="Insert",menu=insert)
         if iid:
             self.selection_set(iid)
-            popup = Menu(self,tearoff=0);
             popup.add_command(label="Copy",command=self.main.copy)
+            popup.add_command(label="Cut",command=self.main.cut)
             popup.add_command(label="Paste",command=self.main.paste)
-            try:
-                popup.tk_popup(event.x_root,event.y_root,0)
-            finally:
-                popup.grab_release()
+            popup.add_command(label="Delete",command=self.main.delete)
+        try:
+            popup.tk_popup(event.x_root,event.y_root,0)
+        finally:
+            popup.grab_release()
 
     def clear_tree(self):
         self.heading('#0',text='Element')
@@ -731,8 +812,8 @@ class ModelTree(ttk.Treeview):
 
     def get_label(self,tag):
         if tag not in self.tags.keys():
-            stderr(f"Modelview:get_labels(self,tag='{tag}'): tag is not in Modelview.tags list")
-            return f"[{tag}]"
+            stderr(f"Modelview:get_label(self,tag='{tag}'): tag is not in Modelview.tags list")
+            raise Exception(f"Model component '{tag}' not recognized")
         return self.tags[tag]["label"]
 
     def insert_model(self,root=""):
@@ -746,7 +827,7 @@ class ModelTree(ttk.Treeview):
         if "loader" in self.tags[itype]:
             self.tags[itype]["loader"](self,iid,item["values"])
             self.item_index[iid] = item
- 
+
     def on_select(self,event):
         if self.main.model:
             idlist = self.get_selected()
