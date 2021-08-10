@@ -3,11 +3,25 @@
 	"version" : "0.0.0",
 	"data" : [
 		{
+			"type" : "comment",
+			"values" : [
+				"Development test file",
+				"Do not use for autotesting"
+			]
+		},
+		{
 			"type" : "clock",
 			"values" : {
 				"timezone" : "PST+8PDT",
 				"starttime" : "2020-01-01 00:00:00 PST",
 				"stoptime" : "2021-01-01 00:00:00 PST"
+			}
+		},
+		{
+			"type" : "module",
+			"values" : {
+				"powerflow" : {},
+				"climate" : {}
 			}
 		},
 		{
@@ -19,14 +33,6 @@
 					"type" : "object"
 				},
 				"CA-San_Francisco_Intl_Ap.tmy3" : {}
-			}
-		},
-		{
-			"type" : "output",
-			"values" : {
-				"example_output.html" : {
-					"show" : true
-				}
 			}
 		},
 		{
@@ -77,13 +83,6 @@
 			"values" : {}
 		},
 		{
-			"type" : "module",
-			"values" : {
-				"powerflow" : {},
-				"climate" : {}
-			}
-		},
-		{
 			"type" : "object",
 			"values" : {
 				"config_1" :  {
@@ -105,13 +104,6 @@
 			}
 		},
 		{
-			"type" : "comment",
-			"values" : [
-				"Development test file",
-				"Do not use for autotesting"
-			]
-		},
-		{
 			"type" : "python",
 			"values" : [
 				"import sys\nprint(sys.version)",
@@ -119,10 +111,17 @@
 			]
 		},
 		{
+			"type" : "output",
+			"values" : {
+				"example_output.html" : {
+					"show" : true
+				}
+			}
+		},
+		{
 			"type" : "comment",
 			"values" : [
-				"Development test file",
-				"Do not use for autotesting"
+				"End of test file"
 			]
 		}
 	]
