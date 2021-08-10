@@ -17,7 +17,7 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 			if i == 0 : 
 				headers = row
 			else : 
-				if not row[0] and not options : 
+				if "class" not in headers and not options: 
 					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
 				if not row[0] : 
 					class_name = options['class']
@@ -29,12 +29,12 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 				p_config_out.write(f"object {class_name} ")
 				p_config_out.write("{ \n")
 				for j,value in enumerate (row) : 
-					if j>0 : 
+					if j!=class_index and headers[j] : 
 						if not value and headers[j].strip()=="name" : 
 							p_config_out.write("\t" + headers[j].strip() + " " + class_name +"_" + str(i) + ";\n")
 						else : 
 							if value : 
-								if re.findall('^\d+',value) or value.startswith('(') or ' ' in value: 
+								if re.findall('^\d+',value) or value.startswith('(') or '([0-9]*\ [*a-zA-Z+]*){0,1}?' in value and ',' not in value: 
 									p_config_out.write("\t" + headers[j].strip() + " " + value + ";\n")
 								else : 
 									p_config_out.write("\t" + headers[j].strip() + " " + "\"" +value + "\"" + ";\n")
