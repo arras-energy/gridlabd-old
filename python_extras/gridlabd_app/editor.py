@@ -97,7 +97,7 @@ except:
 # Last run info
 #
 application_data = {
-    "recent_files" : ["example1.json"],
+    "recent_files" : ["example.gld"],
 }
 
 #
@@ -367,32 +367,38 @@ class Editor(Tk):
     def preferences(self):
         PreferencesDialog(self,preferences)
 
-    def load_model(self):
-        if not self.filename:
+    def load_model(self,filename=None):
+        if not filename:
+            filename = self.filename
+        if not filename:
             return
-        if self.filename.endswith(".glm"):
-            self.output(f"Compiling {self.filename}...\n")
-            result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
-            self.output(result.stderr.decode("utf-8"))
-            self.output(result.stdout.decode("utf-8"))
-            if result.returncode != 0:
-                return
-            else:
-                self.filename = self.filename.replace('.glm','.json')
-        with open(self.filename,"r") as f: 
+        # if self.filename.endswith(".glm"):
+        #     self.output(f"Compiling {self.filename}...\n")
+        #     result = subprocess.run(["gridlabd","-C",self.filename,"-o",self.filename.replace('.glm','.json')],capture_output=True)
+        #     self.output(result.stderr.decode("utf-8"))
+        #     self.output(result.stdout.decode("utf-8"))
+        #     if result.returncode != 0:
+        #         return
+        #     else:
+        #         self.filename = self.filename.replace('.glm','.json')
+        with open(filename,"r") as f: 
             try:
-                self.model = json.load(f)
+                filedata = json.load(f)
             except Exception as errmsg:
-                messagebox.showerror(self.filename,f"file does not contain a valid JSON data")
+                messagebox.showerror(filename,f"unable to load file ({errmsg})")
                 return
-        if not self.model \
-                or not "application" in self.model.keys() \
-                or self.model["application"] != gridlabd.__name__:
-            messagebox.showerror(self.filename,f"file does not contain a valid {gridlabd.__title__} model")
-            return
-        else:
-            self.set_title(self.filename)
-            self.treeview.set_model()
+        if self.set_model(filedata):
+            self.set_title(filename)
+
+    def set_model(self,filedata):
+        if not filedata \
+                or not "application" in filedata.keys() \
+                or filedata["application"] != "gridlabd-editor":
+            messagebox.showerror(filename,f"file does not contain a valid {gridlabd.__title__} data file")
+            return False
+        self.model = filedata["data"]
+        self.treeview.update_model()
+        return True
 
     def save_model(self):
         with open(self.filename,"w") as f: json.dump(self.model,f,indent=4)
@@ -404,7 +410,7 @@ class Editor(Tk):
         self.title(title)
 
     def on_view_elements(self,event=None):
-        self.treeview.set_model()
+        self.treeview.update_model()
 
     #
     # File menu
@@ -420,15 +426,15 @@ class Editor(Tk):
             defaultextension = os.path.splitext(self.filename)[1]
             initialdir = os.path.dirname(self.filename)
         else:
-            initialfile = "untitled.json"
-            defaultextension = ".json"
+            initialfile = None
+            defaultextension = ".gld"
             initialdir = os.getcwd()
-        self.filename = filedialog.askopenfilename(
+        filename = filedialog.askopenfilename(
             initialfile = initialfile,
             defaultextension = defaultextension,
             initialdir = initialdir,
             )
-        self.load_model()
+        self.load_model(filename)
 
     def file_import(self,event=None):
         inputname = filedialog.askopenfilename()
@@ -633,21 +639,70 @@ class Editor(Tk):
 #
 class ModelTree(ttk.Treeview):
 
+    def load_dict(self,parent,elements):
+        for key,values in elements.items():
+            iid = self.insert(parent,END,text=key)
+            self.item_index[iid] = values
+
+    tags = {
+        "clock" : {
+            "label" : "Clock",
+        },
+        "input" : {
+            "label" : "Input files",
+            "loader" : load_dict,
+        },
+        "output" : {
+            "label" : "Output files",
+            "loader" : load_dict,
+        },
+        "globals" : {
+            "label" : "Global variables",
+        },
+        "include" : {
+            "label" : "Include files",
+            "loader" : load_dict,
+        },
+        "filter" : {
+            "label" : "Filters",
+            "loader" : load_dict,
+        },
+        "schedule" : {
+            "label" : "Schedules",
+            "loader" : load_dict,
+        },
+        "class" : {
+            "label" : "Classes",
+            "loader" : load_dict,
+        },
+        "template" : {
+            "label" : "Templates",
+            "loader" : load_dict,
+        },
+        "module" : {
+            "label" : "Modules",
+            "loader" : load_dict,
+        },
+        "object" : {
+            "label" : "Objects",
+            "loader" : load_dict,
+        },
+        "python" : {
+            "label" : "Python",
+        },
+        "comment" : {
+            "label" : "Comments",
+        }
+    }
+
     def __init__(self,main):
         ttk.Treeview.__init__(self,main,style='gridlabd.Treeview',
             height = main.modelview_layout['height'],
             )
         self.main = main
-        self.configure = self.insert('',END,text="Configure")
-        self.clock = self.insert('',END,text="Clock")
-        self.library = self.insert('',END,text="Library")
-        self.model = self.insert('',END,text="Model")
-        self.modify = self.insert('',END,text="Modify")
-        self.template = self.insert('',END,text="Template")
-
         self.bind("<ButtonRelease-1>",self.on_select)
         self.bind("<Button-2>",self.show_popup)
-        self.set_model()
+        self.update_model()
 
     def show_popup(self,event):
         iid = self.identify_row(event.y)
@@ -663,61 +718,52 @@ class ModelTree(ttk.Treeview):
 
     def clear_tree(self):
         self.heading('#0',text='Element')
-        for item in self.get_children(self.model):
+        for item in self.get_children(""):
             self.delete(item)
+        self.item_index = {}
 
-    def set_model(self):
+    def update_model(self):
         """styles in ['name','rank','class','parent']"""
         self.clear_tree()
         if self.main.model:
-            self.show_objects_by_name()
+            self.insert_model()
         self.main.update()
 
-    def show_objects_by_name(self):
-        self.heading('#0',text='Objects by name')
-        basename = os.path.basename(self.main.model['globals']['modelname']['value'])
-        root = self.model
-        if self.main.view_class.get():
-            classes = {}
-            for name in sorted(self.main.model['classes'].keys(),key=str.lower):
-                classes[name] = self.insert(root,END,text=name)
-        for name in sorted(self.main.model['objects'].keys(),key=str.lower):
-            if self.main.view_class.get():
-                oclass = self.main.model['objects'][name]['class']
-                self.insert(classes[oclass],END,text=name)
-            else:
-                self.insert(root,END,text=name)
-        if self.main.view_class.get() and not preferences["Show unused classes"]["value"]:
-            for name in self.get_children(root):
-                if not self.get_children(name):
-                    self.delete(name)
+    def get_label(self,tag):
+        if tag not in self.tags.keys():
+            stderr(f"Modelview:get_labels(self,tag='{tag}'): tag is not in Modelview.tags list")
+            return f"[{tag}]"
+        return self.tags[tag]["label"]
 
+    def insert_model(self,root=""):
+        self.heading('#0',text='Model Components')
+        for item in self.main.model:
+            iid = self.insert(root,END,text=self.get_label(item["type"]))
+            self.load_values(iid,item)
+
+    def load_values(self,iid,item):
+        itype = item["type"]
+        if "loader" in self.tags[itype]:
+            self.tags[itype]["loader"](self,iid,item["values"])
+            self.item_index[iid] = item
+ 
     def on_select(self,event):
         if self.main.model:
-            item = self.get_selected()
-            if item:
-                context = item['context']
-                if not context: # globals of selected filename
-                    self.main.dataview.show_globals()
-                elif len(context) > 1 and context[-2] == 'classes':
-                    name = context[-1]
-                    self.main.dataview.show_class(name)
-                elif len(context) > 1 and context[-2] == 'objects':
-                    name = context[-1]
+            idlist = self.get_selected()
+            if len(idlist) == 1:
+                iid = idlist[0]
+                stderr("iid:",iid)
+                item = self.item_index[iid]
+                itype = item["type"]
+                if itype == "object":
+                    name = self.item.get(iid,'text')
                     self.main.dataview.show_object(name)
 
     def get_selected(self):
-        tag = self.selection()[0]
-        if tag:
-            name = self.item(tag,'text')
-            for spec in self.main.model.keys():
-                if type(self.main.model[spec]) is dict and name in self.main.model[spec].keys():
-                    return {
-                        "file" : self.main.filename,
-                        "context" : [spec,name],
-                        "value" : self.main.model[spec][name],
-                        }
-            return {"file":name,"context":[],"values":self.main.model}
+        result = []
+        for iid in self.selection():
+            result.append(self.item_index[iid])
+        return result
 
 class DataView(ttk.Treeview):
 

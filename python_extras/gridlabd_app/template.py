@@ -91,21 +91,14 @@ class IndexView(ttk.Treeview):
         self.index = {}
 
         self.heading('#0',text="Remote archive")
-        usa = self.insert('',END,text="US")
-        files = self.main.command(["index"])
-        states = []
-        for file in files:
-            state = file[0:2]
-            if not state in states:
-                states.append(state)
-        items = {}
-        for state in states:
-            tag = items[state] = self.insert(usa,END,text=state)
-            self.index[tag] = f"^{state}"
-        for file in files:
-            state = file[0:2]
-            tag = self.insert(items[state],END,text=file[3:].replace("_"," ").split(".")[0])
-            self.index[tag] = file
+        organization = self.main.command(["config","get","ORGANIZATION"])[0].split("/")
+        location = ''
+        for name in organization:
+            location = self.insert(location,END,text=name)
+        templates = self.main.command(["index"])
+        for template in templates:
+            tag = self.insert(location,END,text=template)
+            self.index[tag] = template
 
     def show_popup(self,event):
         iid = self.identify_row(event.y)
@@ -154,7 +147,7 @@ class ListView(ttk.Treeview):
         if iid:
             self.selection_set(iid)
             popup = Menu(self,tearoff=0);
-            popup.add_command(label="Show info",command=self.show_info)
+            # popup.add_command(label="Show info",command=self.show_info)
             popup.add_command(label="Copy name",command=self.copy_name)
             popup.add_separator()
             popup.add_command(label="Delete",command=self.delete_item)

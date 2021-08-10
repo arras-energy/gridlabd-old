@@ -1,0 +1,129 @@
+{
+	"application" : "gridlabd-editor",
+	"version" : "0.0.0",
+	"data" : [
+		{
+			"type" : "clock",
+			"values" : {
+				"timezone" : "PST+8PDT",
+				"starttime" : "2020-01-01 00:00:00 PST",
+				"stoptime" : "2021-01-01 00:00:00 PST"
+			}
+		},
+		{
+			"type" : "input",
+			"values" : {
+				"table2glm_input.csv" : {
+					"outputfile" : "table2glm_input.glm",
+					"format" : "table",
+					"type" : "object"
+				},
+				"CA-San_Francisco_Intl_Ap.tmy3" : {}
+			}
+		},
+		{
+			"type" : "output",
+			"values" : {
+				"example_output.html" : {
+					"show" : true
+				}
+			}
+		},
+		{
+			"type" : "globals",
+			"values" : {
+				"TEST" : {
+					"type" : "bool",
+					"value" : "TRUE"
+				},
+				"REAL" : {
+					"type" : "double",
+					"value" : "1.23",
+					"unit" : null
+				},
+				"PERCENT" : {
+					"type" : "double",
+					"value" : "1.23",
+					"unit" : "%"
+				},
+				"STRING" : {
+					"type" : "char32",
+					"value" : "test"
+				}
+			}
+		},
+		{
+			"type" : "include",
+			"values" : {
+				"house.glm" : {
+					"NAME" : "House 1"
+				}
+			}
+		},
+		{
+			"type" : "filter",
+			"values" : {}
+		},
+		{
+			"type" : "schedule",
+			"values" : {}
+		},
+		{
+			"type" : "class",
+			"values" :  {}
+		},
+		{
+			"type" : "template",
+			"values" : {}
+		},
+		{
+			"type" : "module",
+			"values" : {
+				"powerflow" : {},
+				"climate" : {}
+			}
+		},
+		{
+			"type" : "object",
+			"values" : {
+				"config_1" :  {
+					"class" : "powerflow.pole_configuration"
+				},
+				"object_1" : {
+					"class" : "pole",
+					"configuration" : "config_1"
+				},
+				"object_2" : {
+					"class" : "pole",
+					"configuration" : "config_1"
+				},
+				"line_1_2" : {
+					"class" : "line",
+					"from" : "object_1",
+					"to" : "object_2"
+				}
+			}
+		},
+		{
+			"type" : "comment",
+			"values" : [
+				"Development test file",
+				"Do not use for autotesting"
+			]
+		},
+		{
+			"type" : "python",
+			"values" : [
+				"import sys\nprint(sys.version)",
+				"import os\nprint(os.uname())"
+			]
+		},
+		{
+			"type" : "comment",
+			"values" : [
+				"Development test file",
+				"Do not use for autotesting"
+			]
+		}
+	]
+}
