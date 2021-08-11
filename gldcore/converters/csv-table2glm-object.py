@@ -1,12 +1,19 @@
-"""Convert Anticipation data sheet in CSV to an pole vulnerability GLM template parameter set
+"""Convert generable CSV table into a list of GLM objects
+
+Valid options:
+
+  class:   specifies the default class to use when class is not specified in the table
 """
 import csv
 import re
 import sys, getopt
 
 def error(msg):
-    print(f'ERROR   {msg}')
+    print(f'ERROR [converters/csv-table2glm-object]: {msg}',file=sys.stderr)
     sys.exit(1)
+
+def warning(msg):
+    print(f'WARNING [converters/csv-table2glm-object]: {msg}',file=sys.stderr)
 
 def convert (p_configuration_in, p_configuration_out, options={} ) : 
 	with open(p_configuration_in, "r", newline='') as csvfile:
@@ -16,6 +23,12 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 		for i, row in enumerate(configurations):
 			if i == 0 : 
 				headers = row
+				if "class" in headers:
+					if classname:
+						warning(f"class data overrides option 'class={classname}'")
+					class_index = headers.index("class")
+				else:
+					class_index = None
 			else : 
 				if "class" not in headers and not options: 
 					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
@@ -31,12 +44,14 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 				for j,value in enumerate (row) : 
 					if j!=class_index and headers[j] : 
 						if not value and headers[j].strip()=="name" : 
-							p_config_out.write("\t" + headers[j].strip() + " " + class_name +"_" + str(i) + ";\n")
+							p_config_out.write(f"\t{headers[j].strip()} {oclass}:{i};\n")
 						else : 
 							if value : 
 								if re.findall('^\d+',value) or value.startswith('(') or '([0-9]*\ [*a-zA-Z+]*){0,1}?' in value and ',' not in value: 
 									p_config_out.write("\t" + headers[j].strip() + " " + value + ";\n")
 								else : 
 									p_config_out.write("\t" + headers[j].strip() + " " + "\"" +value + "\"" + ";\n")
+				for prop,value in options.items():
+					p_config_out.write(f"\t{prop} \"{value}\";\n") 
 				p_config_out.write("}\n")
 		p_config_out.close()
