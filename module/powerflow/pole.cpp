@@ -340,12 +340,16 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         wind_gusts = wind_gusts_ref->get_double();
     }
 
+    height = config->pole_length - config->pole_depth - guy_height;
+    double diameter = config->ground_diameter 
+        - height/(config->pole_length - config->pole_depth)
+            *(config->ground_diameter-config->top_diameter);
     double t0_year = 1970 + (int)(t0/86400/365.24);
 	double age = t0_year - install_year;
     if ( age > 0 && config->degradation_rate > 0 )
 	{
 		if ( age > 0 )
-			current_hollow_diameter = 2.0 * age * config->degradation_rate;
+			current_hollow_diameter = 2.0 * age * config->degradation_rate * (diameter/config->ground_diameter);
 		else
 			current_hollow_diameter = 0.0; // ignore future installation years
         verbose("current_hollow_diameter = %g in",current_hollow_diameter);
@@ -358,10 +362,11 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 
     // update resisting moment
     // TODO: check constants and unit conversion of diameters
+
     resisting_moment = 0.008186 // constant * pi^3
         * config->strength_factor_250b_wood
         * config->fiber_strength
-        * (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
+        * (( diameter * diameter * diameter)
             - (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
     verbose("resisting moment %.0f ft*lb",resisting_moment);
 
