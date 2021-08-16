@@ -167,11 +167,12 @@ void pole::reset_commit_accumulators()
 	equipment_moment_nowind = 0.0;
 	wire_load_nowind = 0.0;
 	wire_moment_nowind = 0.0;
+    pole_moment = 0.0;
 }
 
 void pole::reset_sync_accumulators()
 {
-    pole_moment = 0.0;
+    // pole_moment = 0.0;
     equipment_moment = 0.0;
     wire_moment = 0.0;
     wire_tension = 0.0;
@@ -362,13 +363,12 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 
     // update resisting moment
     // TODO: check constants and unit conversion of diameters
-
     resisting_moment = 0.008186 // constant * pi^3
         * config->strength_factor_250b_wood
         * config->fiber_strength
         * (( diameter * diameter * diameter)
             - (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
-    verbose("resisting moment %.0f ft*lb",resisting_moment);
+    verbose("updated resisting moment %.0f ft*lb",resisting_moment);
 
     if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
 	{
@@ -382,7 +382,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         recalc = true;
         verbose("setting pole recalculation flag");
 	}
-	else if ( pole_status == PS_OK && last_wind_speed != wind_speed )
+	else if ( pole_status == PS_OK && (last_wind_speed != wind_speed || critical_wind_speed == 0.0))
 	{
         if ( resisting_moment < 0 )
         {
@@ -400,13 +400,15 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
             const double DD = (D0-D1) / 2;
             const double H = height;
             const double rho = config->material_density;
-            pole_moment += 0.125 * rho * PI * (H*H) * (D0*D0 - DD*DD) * sin(tilt_angle/180*PI);
+            // pole_moment += 0.125 * rho * PI * (H*H) * (D0*D0 - DD*DD) * sin(tilt_angle/180*PI);
+            pole_moment += 0.125 * rho * PI * (H*H) * ((D0*D0+D1*D1+2*D0*D1)/6 + D1*D1/3) * sin(tilt_angle/180*PI);
         }
         verbose("pole_moment = %g ft.lb (tilt moment)",pole_moment);
 
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
         wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
         pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
+                                      height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
         verbose("wind_pressure = %g psi",wind_pressure); // TODO: units?
@@ -454,7 +456,7 @@ TIMESTAMP pole::sync(TIMESTAMP t0)
 	return TS_NEVER;
 }
 
-TIMESTAMP pole::postsync(TIMESTAMP t0)
+TIMESTAMP pole::postsync(TIMESTAMP t0) ////
 {
     //  - pole          calculate total moment and failure status
     if ( recalc )
@@ -473,7 +475,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 			susceptibility = 0.0;
         verbose("susceptibility = %g ft.lb.s/m",susceptibility);
 
-        if ( resisting_moment > 0.0 )
+        if ( resisting_moment > 0.0 ) ////
         {
             pole_stress = total_moment/resisting_moment;
         }
@@ -481,7 +483,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
         {
             pole_stress = INFINITY;
         }
-        verbose("pole_stress = %g %%",pole_stress);
+        verbose("pole_stress = %g %%",pole_stress*100);
 
         pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
         verbose("pole_status = %d",pole_status);
@@ -498,9 +500,9 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
         pole_stress_polynomial_c = wire_tension;
 
         TIMESTAMP next_event = pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER;
-        verbose("next_event = %lld", next_event);
+        verbose("next_event = %lld", next_event); //// should return repair time
         recalc = false;
-        return stop_on_pole_failure ? TS_INVALID : next_event;
+        return stop_on_pole_failure && pole_status == PS_FAILED ? TS_INVALID : next_event;
 	}
     else
     {
