@@ -469,8 +469,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 			etcpath = "/usr/local/share/gridlabd";
 		}
 		snprintf(pathname,sizeof(pathname),"%s/library/%s",getenv("GLD_ETC"),argv[1]);
-		loadall(pathname);
-		return 1;
+		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
 	}
 	else
 	{

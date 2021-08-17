@@ -8103,6 +8103,17 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
+	else if ( strncmp(line, "#meta", 5) == 0 )
+	{
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
+	if ( rc != 127 )
+	{
+		strcpy(line,"\n");
+		return rc==0;
+	}
 	else
 	{
 		char tmp[1024], *p;
@@ -8115,24 +8126,9 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 				break;
 			}
 		}
+		syntax_error(filename,linenum,"%s macro is not recognized",tmp);
 		strcpy(line,"\n");
-		if ( strcmp(tmp,"meta") == 0 && strcmp(tmp,"") == 0 ) // only an error if not "#" or #meta"
-		{
-			int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
-			if ( rc != 127 )
-			{
-				return rc==0 ? TRUE : FALSE;
-			}
-			else
-			{
-				syntax_error(filename,linenum,"%s macro is not recognized",tmp);
-				return FALSE;
-			}
-		}
-		else // "#" and #meta" are ignored
-		{
-			return TRUE;
-		}
+		return FALSE;
 	}
 }
 
