@@ -245,7 +245,7 @@ function info()
 				echo "	{"
 				echo "		\"datadir\" : \"$DATADIR/$f\","
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#meta library LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library $KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo "		\"$KEY\" : ${VALUE:-None},"
 				done
 				echo "		\"organization\" : \"$ORGANIZATION\""
@@ -267,7 +267,7 @@ function info()
 				fi
 				echo -n "$DATADIR/$f,$ORGANIZATION"
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#meta library LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library $KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo -n ",${VALUE:-\"\"}"
 				done
 				echo ""
