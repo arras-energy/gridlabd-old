@@ -52,13 +52,13 @@ function config()
 			echo "	\"DATADIR\" : \"$DATADIR\","
 			echo "}"
 		elif [ "$FORMAT" == "glm" ]; then
-			echo "#define LIBRARY_GITHUB=$GITHUB"
-			echo "#define LIBRARY_ORGANIZATION=$ORGANIZATION"
-			echo "#define LIBRARY_GITUSER=$GITUSER"
-			echo "#define LIBRARY_GITREPO=$GITREPO"
-			echo "#define LIBRARY_GITBRANCH=$GITBRANCH"
-			echo "#define LIBRARY_CACHEDIR=$CACHEDIR"
-			echo "#define LIBRARY_DATADIR=$DATADIR"
+			echo "#meta library GITHUB=$GITHUB"
+			echo "#meta library ORGANIZATION=$ORGANIZATION"
+			echo "#meta library GITUSER=$GITUSER"
+			echo "#meta library GITREPO=$GITREPO"
+			echo "#meta library GITBRANCH=$GITBRANCH"
+			echo "#meta library CACHEDIR=$CACHEDIR"
+			echo "#meta library DATADIR=$DATADIR"
 		elif [ "$FORMAT" == "csv" ]; then
 			echo "name,value"
 			echo "GITHUB,\"$GITHUB\""
@@ -178,7 +178,7 @@ function index()
 		LIST=$(grep "$1" $INDEX)
 	fi
 	if [ "$FORMAT" == "glm" ]; then
-		echo "#define LIBRARY_INDEX=$LIST"
+		echo "#meta library INDEX=$LIST"
 	elif [ "$FORMAT" == "csv" ]; then
 		echo "filename,pathname"
 		for f in $LIST; do
@@ -245,7 +245,7 @@ function info()
 				echo "	{"
 				echo "		\"datadir\" : \"$DATADIR/$f\","
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo "		\"$KEY\" : ${VALUE:-None},"
 				done
 				echo "		\"organization\" : \"$ORGANIZATION\""
@@ -267,7 +267,7 @@ function info()
 				fi
 				echo -n "$DATADIR/$f,$ORGANIZATION"
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo -n ",${VALUE:-\"\"}"
 				done
 				echo ""
@@ -300,7 +300,7 @@ function copy()
 	EXT=${TO##*.}
 	# convert automatically (TODO such that only objects are saved)
 	TMP=/tmp/tmp-$$
-	sed -e '1,$s/^#define LIBRARY_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
+	sed -e '1,$s/^#meta library Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
 	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT || exit 6
 	cat $TMP.$EXT > $TO || exit 7
 	rm -f $TMP.*
