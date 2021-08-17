@@ -45,4 +45,5 @@
 *.xls binary
 *.xlsx binary
 *.mdb binary
+*.tif binary
 .circleci/config.yml merge=ours

@@ -1,19 +1,68 @@
-// this model should fail because the pole 2 tilt is too large
-module powerflow;
-module climate;
-
-#set suppress_repeat_messages=FALSE
 
 clock {
 	starttime '2020-01-01 00:00:00';
 	stoptime '2021-01-01 00:00:00';
 }
 
+///////////////////////////////////////
+// network model
+///////////////////////////////////////
+
+module powerflow
+{
+	stop_on_pole_failure TRUE;
+}
+object node
+{
+    name node1;
+    phases ABC;
+    nominal_voltage 12470;
+}
+object node {
+    name node2;
+    phases ABC;
+    nominal_voltage 12470;
+}
+object overhead_line_conductor {
+	name conductor1;
+	diameter 0.5 in;
+}
+object line_spacing {
+	name spacing1;
+	distance_AE 30;
+	distance_BE 35;
+	distance_CE 40;
+}
+object line_configuration {
+	name linetype1;
+	spacing spacing1;
+	conductor_A conductor1;
+	conductor_B conductor1;
+	conductor_C conductor1;
+}
+object overhead_line {
+    name oh_node1_node2;
+	phases ABC;
+	from node1;
+	to node2;
+	length 500 ft;
+	configuration linetype1;
+}
+
+///////////////////////////////////////
+// weather model
+///////////////////////////////////////
+
+module climate;
 #weather get CA-Chino_Airport.tmy3
 object climate {
 	name weather;
 	tmyfile "CA-Chino_Airport.tmy3";
 }
+
+///////////////////////////////////////
+// pole model
+///////////////////////////////////////
 
 object pole_configuration {
 	name "WOOD-C-45/5";
@@ -24,55 +73,38 @@ object pole_configuration {
 	top_diameter (19/3.14);
 	fiber_strength 8000 psi;
 	repair_time 1 h;
+	degradation_rate 0.2;
 }
 
 object pole {
-	name pole1;
-	weather weather;
-	configuration "WOOD-C-45/5"; 
-	phases ABC;
-	nominal_voltage 12470;
-	tilt_angle 5 deg;
-	tilt_direction 270;
-	install_year 1990;
-}
+    name pole1;
+    weather weather;
+    configuration "WOOD-C-45/5";
+    tilt_angle 20 deg;
+    tilt_direction 180;
+    install_year 1990;
+    object pole_mount
+    {
+        equipment oh_node1_node2;
+    };
+};
 
-object line_spacing {
-	name spacing1;
-	distance_AE 30;
-	distance_BE 35;
-	distance_CE 40;
-}
-
-object overhead_line_conductor {
-	name conductor1;
-	diameter 0.5 in;
-}
-object line_configuration {
-	name linetype1;
-	spacing spacing1;
-	conductor_A conductor1;
-	conductor_B conductor1;
-	conductor_C conductor1;
-}
-
-object overhead_line {
-	phases ABC;
-	from pole1;
-	to pole2;
-	length 500 ft;
-	configuration linetype1;
-}
 object pole {
 	name pole2;
 	weather weather;
-	configuration "WOOD-C-45/5"; 
-	phases ABC;
-	nominal_voltage 12470;
-	tilt_angle 9 deg;
+	configuration "WOOD-C-45/5";
+	tilt_angle 8 deg;
 	tilt_direction 270;
 	install_year 2000;
+    object pole_mount
+    {
+        equipment oh_node1_node2;
+    };
 }
+
+///////////////////////////////////////
+// recorder model
+///////////////////////////////////////
 
 module tape;
 object multi_recorder {

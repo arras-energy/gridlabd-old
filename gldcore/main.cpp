@@ -1,6 +1,6 @@
 /** main.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	
+
 	@file main.c
 	@author David P. Chassin
  @{
@@ -15,11 +15,11 @@ SET_MYCONTEXT(DMC_MAIN)
 
 /** Implements a pause on exit capability for Windows consoles
  **/
-void GldMain::pause_at_exit(void) 
+void GldMain::pause_at_exit(void)
 {
 	if (global_pauseatexit)
 	{
-		int rc = 
+		int rc =
 #if defined WIN32
 		system("pause");
 #else
@@ -50,7 +50,7 @@ int main
 		if ( my_instance == NULL )
 		{
 			output_error("unable to create new instance");
-			return_code = XC_SHFAILED;	
+			return_code = XC_SHFAILED;
 		}
 		else
 		{
@@ -87,8 +87,8 @@ int main
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc, const char *argv[])
-: 	globals(this), 
-	exec(this), 
+: 	globals(this),
+	exec(this),
 	cmdarg(this),
 	gui(this),
 	loader(this)
@@ -106,7 +106,7 @@ GldMain::GldMain(int argc, const char *argv[])
 
 	exec.clock(); /* initialize the wall clock */
 	realtime_starttime(); /* mark start */
-	
+
 	/* set the process info */
 	global_process_id = getpid();
 	atexit(pause_at_exit);
@@ -131,7 +131,7 @@ GldMain::GldMain(int argc, const char *argv[])
 	{
 		exec.mls_done();
 		return;
-	}		
+	}
 
 	/* set thread count equal to processor count if not passed on command-line */
 	if (global_threadcount == 0)
@@ -140,11 +140,22 @@ GldMain::GldMain(int argc, const char *argv[])
 	IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 
 	/* process command line arguments */
-	if (cmdarg.load(argc,argv)==FAILED)
+	if ( cmdarg.load(argc,argv) == FAILED )
 	{
 		output_fatal("shutdown after command line rejected");
 		/*	TROUBLESHOOT
 			The command line is not valid and the system did not
+			complete its startup procedure.  Correct the problem
+			with the command line and try again.
+		 */
+		exec.mls_done();
+		return;
+	}
+	if ( loader.load_resolve_all() == FAILED )
+	{
+		output_fatal("shutdown after command loader name resolution failed");
+		/*	TROUBLESHOOT
+			The loaded files are not valid and the system did not
 			complete its startup procedure.  Correct the problem
 			with the command line and try again.
 		 */
@@ -183,7 +194,7 @@ GldMain::GldMain(int argc, const char *argv[])
 		return;
 	}
 #endif
-	
+
 	return;
 }
 
@@ -192,7 +203,7 @@ GldMain::~GldMain(void)
 #ifndef HAVE_PYTHON
 	python_embed_term();
 #endif
-	
+
 	// TODO: add general destruction calls
 	object_destroy_all();
 
@@ -384,10 +395,11 @@ int GldMain::run_on_exit(int return_code)
 
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
-		if ( cmd->get_exitcode() == return_code 
-			|| ( return_code != 0 && cmd->get_exitcode() == -1 ) 
+		if ( cmd->get_exitcode() == return_code
+			|| ( return_code != 0 && cmd->get_exitcode() == -1 )
 			)
 		{
+		    output_flushall();
 			new_return_code = cmd->run() >> 8;
 			if ( new_return_code != 0 )
 			{
@@ -404,6 +416,7 @@ int GldMain::run_on_exit(int return_code)
 
 	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
 	{
+	    output_flushall();
 		new_return_code = (*call)(return_code);
 		if ( new_return_code != 0 )
 		{
@@ -422,11 +435,11 @@ Done:
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", new_return_code);
 	// simulation   handler   exitcode
-	// ---------   ---------  --------- 
+	// ---------   ---------  ---------
 	//      0          0          0
 	//      0          Y          Y
 	//      X          0          0
-	//      X          Y          Y       
+	//      X          Y          Y
 	return new_return_code;
 }
 
@@ -443,7 +456,7 @@ Done:
 extern char **environ;
 
 /*	Function: popens
-	
+
 	Runs a program and connects its stdout and stderr to the FILEs. Only the
 	pipes for which file handles are provided are connected.
 
@@ -458,12 +471,12 @@ struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **
 
 	// open dummy pipes to protect from accidental use of stdin, stdout, and stderr
 	int t1[2], t2[2];
-	pipe(t1); 
+	pipe(t1);
 	pipe(t2);
 
 	// create new pipes
 		int readpipe[2] = {-1,-1}, writepipe[2] = {-1,-1}, errorpipe[2] = {-1,-1};
-	if ( ( input && pipe(writepipe) < 0 ) || ( output && pipe(readpipe) < 0 ) || ( error && pipe(errorpipe) < 0 ) ) 
+	if ( ( input && pipe(writepipe) < 0 ) || ( output && pipe(readpipe) < 0 ) || ( error && pipe(errorpipe) < 0 ) )
 	{
 		output_debug("gldcore/main.cpp:popens(const char *program='%s', FILE **output=%p, FILE **error=%p): %s",program,output,error,
 			"pipe() failed");
@@ -518,16 +531,16 @@ struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **
 			}
 		}
 		close(CHILD_READ);
-		if ( output && CHILD_WRITE > 1 ) 
-		{ 
+		if ( output && CHILD_WRITE > 1 )
+		{
 			if ( dup2(CHILD_WRITE,1) < 0 )
 			{
 				output_error("unable to prepare child write end of parent input pipe (errno %d, %s, fd=%d)", errno, strerror(errno), CHILD_WRITE);
 			}
 		}
 		close(CHILD_WRITE);
-		if ( error && CHILD_ERROR > 2 ) 
-		{ 
+		if ( error && CHILD_ERROR > 2 )
+		{
 			if ( dup2(CHILD_ERROR,2) < 0 )
 			{
 				output_error("unable to prepare child write end of parent error pipe (errno %d, %s, fd=%d)", errno, strerror(errno), CHILD_ERROR);
@@ -540,7 +553,7 @@ struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **
 		argv[n++] = strdup("/bin/bash");
 		argv[n++] = strdup("-c");
 		argv[n++] = command;
-		// char *next = NULL, *last = NULL; 
+		// char *next = NULL, *last = NULL;
 		// while ( (next=strtok_r(next?NULL:command," ",&last)) != NULL && n < maxargs-5 )
 		// {
 		// 	argv[n++] = next;
@@ -611,7 +624,7 @@ struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **
 
 /*	Function: pcloses
 	Waits for the process associated with the stream to terminate and closes its pipes.
- 
+
  	Returns:
  	-1  	if stream is not associated with a `popen3' command, if already closed, or waitpid returns an error.
  	status	if ok
@@ -676,7 +689,7 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 			// fprintf(stderr,"poll() output line received\n"); fflush(stderr);
 			if ( pipes->child_output )
 			{
-				while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL ) 
+				while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL )
 				{
 					if ( output_stream )
 					{
@@ -690,7 +703,7 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 			// fprintf(stderr,"poll() error line received\n"); fflush(stderr);
 			if ( pipes->child_error )
 			{
-				while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL ) 
+				while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL )
 				{
 					if ( error_stream )
 					{
@@ -726,7 +739,7 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP )
 		{
 			// fprintf(stderr,"poll() hangup\n"); fflush(stderr);
-			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			IN_MYCONTEXT output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
 			break;
 		}
 		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR )
@@ -775,8 +788,8 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 	while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 && len < output_size-1)
 	{
 		if ( pipes->child_output && len < output_size-1 && polldata[0].revents&POLLIN )
-		{ 
-			while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL ) 
+		{
+			while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL )
 			{
 				len += snprintf(output_buffer+len,output_size-len-1,"%s",line);
 			}
@@ -791,7 +804,7 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 		}
 		if ( pipes->child_error && error_stream && polldata[1].revents&POLLIN )
 		{
-			while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL ) 
+			while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL )
 			{
 				fprintf(error_stream,"%s",line);
 			}
@@ -806,7 +819,7 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 		}
 		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP )
 		{
-			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			IN_MYCONTEXT output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
 			break;
 		}
 		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR )
@@ -847,23 +860,31 @@ int GldMain::subcommand(const char *format, ...)
 	FILE *output = NULL, *error = NULL;
 	int rc = 0;
 	struct s_pipes * pipes = popens(command, NULL, &output, &error);
-	if ( pipes == NULL ) 
+	if ( pipes == NULL )
 	{
 		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s' (%s)",format,command,strerror(errno));
 		rc = -1;
 	}
 	else
 	{
-		output_verbose("running subcommand '%s'",command);
+		IN_MYCONTEXT output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
+        if ( global_echo )
+        {
+            int len = strlen(global_execdir);
+            if ( strncmp(command,global_execdir,len) == 0 )
+                fprintf(output_stream,"# %s",command+len+10);
+            else
+            fprintf(output_stream,"# %s",command);            
+        }
 		ppolls(pipes,NULL,output_stream,error_stream);
 		rc = pcloses(pipes);
 		if ( rc > 0 )
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
 		}
-		output_verbose("subcommand '%s' -> status = %d",command,rc);
+		IN_MYCONTEXT output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
 	free(command);
 	return rc;

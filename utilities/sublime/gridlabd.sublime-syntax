@@ -29,7 +29,7 @@ contexts:
       scope: keyword.directive.glm
 
   names:
-    - match: '\b[A-Za-z_]+[A-Za-z_-:.]\b'
+    - match: '\b[A-Za-z_]+[-A-Za-z_:.]\b'
       scope: constant.name.glm
 
   numbers:

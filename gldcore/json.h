@@ -41,6 +41,7 @@ private:
 	int write_globals(FILE *fp);
 	int write_objects(FILE *fp);
 	int write_schedules(FILE *fp);
+	int write_filters(FILE *fp);
 	int write(const char *fmt,...);
 };
 

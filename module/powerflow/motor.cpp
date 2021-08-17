@@ -650,7 +650,7 @@ SIMULATIONMODE motor::inter_deltaupdate(unsigned int64 delta_time, unsigned long
 		{
 			// if deltaTime is not small enough we will run into problems
 			if (deltaTime > 0.0003) {
-				gl_warning("Delta time for the SPIM model needs to be lower than 0.0003 seconds");
+				warning("Delta time for the SPIM model needs to be lower than 0.0003 seconds");
 			}
 
 			if(curr_delta_time == last_cycle) { // if time did not advance, load old values
@@ -732,7 +732,7 @@ SIMULATIONMODE motor::inter_deltaupdate(unsigned int64 delta_time, unsigned long
 			//This is where other three-phase code would go (predictor step?)
 			// if deltaTime is not small enough we will run into problems
 			if (deltaTime > 0.0005) {
-				gl_warning("Delta time for the TPIM model needs to be lower than 0.0005 seconds");
+				warning("Delta time for the TPIM model needs to be lower than 0.0005 seconds");
 			}
 
 			if(curr_delta_time == last_cycle) { // if time did not advance, load old values

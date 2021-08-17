@@ -1,2 +1,3 @@
 #!/bin/bash
-svn status --no-ignore | grep '^[?I]' | cut -c 8- | xargs rm -rfv
+NFILES=$(git clean -dxf | wc -l)
+echo $NFILES files deleted

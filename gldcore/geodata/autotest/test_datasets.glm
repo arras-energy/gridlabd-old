@@ -1,0 +1,5 @@
+#ifexist "../unittest.sh"
+#define DIR=..
+#endif
+
+#exec ${DIR:-.}/unittest.sh

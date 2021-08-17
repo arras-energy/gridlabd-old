@@ -11,6 +11,8 @@
 #include "python_embed.h"
 #include "python_property.h"
 
+SET_MYCONTEXT(DMC_PYTHON)
+
 static PyObject *gridlabd_exception(const char *format, ...);
 
 static PyObject *gridlabd_title(PyObject *self, PyObject *args);
@@ -272,11 +274,13 @@ class Callback
 public:
     inline Callback(const char *str) 
     { 
-        output_debug("entering python:%s...",str); name = str; 
+        IN_MYCONTEXT output_debug("entering python:%s...",str); 
+        name = str; 
     };
     inline ~Callback(void) 
     { 
-        output_debug("exiting python:%s...",name); name = NULL; 
+        IN_MYCONTEXT output_debug("exiting python:%s...",name); 
+        name = NULL; 
     };
     static inline bool is_active(void) 
     { 
@@ -746,7 +750,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         int code = *(int*)gridlabd_main(NULL);
-        output_debug("gridlabd_main(NULL) returned code %d",code);
+        IN_MYCONTEXT output_debug("gridlabd_main(NULL) returned code %d",code);
         return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
 #endif
     }
@@ -1676,7 +1680,7 @@ extern "C" bool on_init(void)
         }
         else
         {
-            output_warning("python on_init() is not callable");
+            IN_MYCONTEXT output_warning("python on_init() is not callable");
         }
     }
     return true;
@@ -1722,10 +1726,10 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_precommit() is not callable");
+            IN_MYCONTEXT output_warning("python on_precommit() is not callable");
         }
     }
-    output_debug("python on_precommit returns t=%lld",t1);
+    IN_MYCONTEXT output_debug("python on_precommit returns t=%lld",t1);
     return t1;
 }
 extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
@@ -1769,7 +1773,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_presync() is not callable");
+            IN_MYCONTEXT output_warning("python on_presync() is not callable");
         }
     }
     return t1;
@@ -1815,7 +1819,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_sync() is not callable");
+            IN_MYCONTEXT output_warning("python on_sync() is not callable");
         }
     }
     return t1;
@@ -1861,7 +1865,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_postsync() is not callable");
+            IN_MYCONTEXT output_warning("python on_postsync() is not callable");
         }
     }
     return t1;
@@ -1895,7 +1899,7 @@ extern "C" bool on_commit(TIMESTAMP t)
         }
         else
         {
-            output_warning("python on_commit() is not callable");
+            IN_MYCONTEXT output_warning("python on_commit() is not callable");
         }
     }
     return true;
@@ -1921,13 +1925,13 @@ extern "C" void on_term(void)
             }
             if ( result != Py_None ) 
             {
-                output_warning("python on_term() return an unexpected type (expected None)");
+                IN_MYCONTEXT output_warning("python on_term() return an unexpected type (expected None)");
             }
             Py_DECREF(result);
         }
         else
         {
-            output_warning("python on_term() is not callable");
+            IN_MYCONTEXT output_warning("python on_term() is not callable");
         }
     }
     return;
@@ -2017,7 +2021,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 Py_DECREF(result);
             }
-            output_debug("python_event(obj='%s',function='%s') -> *p_retval = %lld",objname,function,*p_retval);
+            IN_MYCONTEXT output_debug("python_event(obj='%s',function='%s') -> *p_retval = %lld",objname,function,*p_retval);
             return 1;
         }    
         else 
@@ -2084,14 +2088,14 @@ MODULE *python_module_load(const char *file, int argc, const char *argv[])
     char filename[1024];
     char pathname[1024];
     snprintf(filename,sizeof(filename)-1,"%s.py",file);
-    output_verbose("looking for module '%s'",filename);
+    IN_MYCONTEXT output_verbose("looking for module '%s'",filename);
     if ( ! find_file(filename,global_pythonpath,4,pathname,sizeof(pathname)) )
     {
-        output_debug("python module '%s' not found",filename);
+        IN_MYCONTEXT output_debug("python module '%s' not found",filename);
         errno = ENOENT;
         return NULL;
     }
-    output_verbose("loading module '%s'",filename);
+    IN_MYCONTEXT output_verbose("loading module '%s'",filename);
     extern PyObject *python_embed_import(const char *module, const char *path);
     PyObject *mod = python_embed_import(file,global_pythonpath);
 

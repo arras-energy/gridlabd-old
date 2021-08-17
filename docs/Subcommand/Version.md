@@ -5,10 +5,10 @@
 Shell:
 
 ~~~
-	bash$ gridlabd version 
+	bash$ gridlabd version
 	bash$ gridlabd version help
 	bash$ gridlabd version check [-v|-q]
-	bash$ gridlabd version list <PATTERN>
+	bash$ gridlabd version list [-l] <PATTERN>
 	bash$ gridlabd version show
 	bash$ gridlabd version set [<PATTERN>]
 	bash$ gridlabd version source
@@ -55,10 +55,10 @@ The `help` command displays the available command options.
 ## `list`
 
 ~~~
-	gridlabd version list [<pattern>]
+	gridlabd version list [-l] [<pattern>]
 ~~~
 
-The `list` command displays the available versions that can be made available to all users on the system.
+The `list` command displays the available versions that can be made available to all users on the system. The `-l` option causes the output to be in long form and include version size on disk.
 
 ## `set`
 

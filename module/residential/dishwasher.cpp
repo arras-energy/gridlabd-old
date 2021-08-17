@@ -176,7 +176,7 @@ int dishwasher::create()
 	last_t = 0;
 	
 
-	gl_warning("explicit %s model is experimental and has not been validated", THISOBJECTHDR->oclass->name);
+	warning("explicit %s model is experimental and has not been validated", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The dishwasher explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -193,7 +193,7 @@ int dishwasher::init(OBJECT *parent)
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
-			gl_verbose("dishwasher::init(): deferring initialization on %s", gl_name(parent, objname, 255));
+			verbose("dishwasher::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
 		}
 	}
@@ -308,7 +308,7 @@ int dishwasher::init(OBJECT *parent)
 	/* schedule checks */
 	switch(shape.type){
 		case MT_UNKNOWN:
-			gl_warning("This device, %s, is considered very experimental and has not been validated.", get_name());
+			warning("This device, %s, is considered very experimental and has not been validated.", get_name());
 			break;
 		case MT_ANALOG:
 			if(shape.params.analog.energy == 0.0){
