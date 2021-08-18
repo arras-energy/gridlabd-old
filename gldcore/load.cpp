@@ -8547,8 +8547,11 @@ ParserLocation::ParserLocation(const char *file, int line)
 }
 ParserLocation::~ParserLocation(void)
 {
-	// printf("~ParserLocation() '%s:%d' --> '%s:%d'\n",(const char*)global_loader_filename,global_loader_linenum,previous->get_filename(),previous->get_linenum());
-	strcpy(global_loader_filename,previous->get_filename());
-	global_loader_linenum = previous->get_linenum();
+	// printf("~ParserLocation() '%s:%d' --> '%s:%d'\n",(const char*)global_loader_filename,global_loader_linenum,previous->get_old_filename(),previous->get_old_linenum());
+	if ( previous )
+	{
+		strcpy(global_loader_filename,previous->get_old_filename());
+		global_loader_linenum = previous->get_old_linenum();
+	}
 	loader->set_parserlocation(previous);
 }
