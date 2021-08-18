@@ -3,6 +3,7 @@
 """
 
 import sys, os
+sys.path.append("/usr/local/bin")
 import openfido
 
 def convert(input_file,output_file=None,options={}):

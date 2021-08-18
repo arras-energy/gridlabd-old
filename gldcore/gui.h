@@ -169,7 +169,7 @@ DEPRECATED GUIENTITY *gui_create_entity();
 DEPRECATED void gui_set_html_stream(void *ref,GUISTREAMFN stream);
 
 // Function: gui_set_srcref
-DEPRECATED void gui_set_srcref(GUIENTITY *entity, char *filename, int linenum);
+DEPRECATED void gui_set_srcref(GUIENTITY *entity, const char *filename, int linenum);
 
 // Function: gui_set_type
 DEPRECATED void gui_set_type(GUIENTITY *entity, GUIENTITYTYPE type);
@@ -333,7 +333,7 @@ public:
 	void set_html_stream(void *ref,GUISTREAMFN stream);
 
 	// Method: set_srcref
-	void set_srcref(GUIENTITY *entity, char *filename, int linenum);
+	void set_srcref(GUIENTITY *entity, const char *filename, int linenum);
 
 	// Method: set_type
 	void set_type(GUIENTITY *entity, GUIENTITYTYPE type);

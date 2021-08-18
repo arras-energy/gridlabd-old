@@ -17,7 +17,7 @@ DEPRECATED void gui_set_html_stream(void *ref,GUISTREAMFN stream)
 {
 	return my_instance->get_gui()->set_html_stream(ref,stream);
 }
-DEPRECATED void gui_set_srcref(GUIENTITY *entity, char *filename, int linenum)
+DEPRECATED void gui_set_srcref(GUIENTITY *entity, const char *filename, int linenum)
 {
 	return my_instance->get_gui()->set_srcref(entity,filename,linenum);
 }
@@ -312,7 +312,7 @@ int GldGui::is_action(GUIENTITY *entity)
 }
 
 /* SET OPERATIONS */
-void GldGui::set_srcref(GUIENTITY *entity, char *filename, int linenum)
+void GldGui::set_srcref(GUIENTITY *entity, const char *filename, int linenum)
 {
 	snprintf(entity->srcref,sizeof(entity->srcref)-1,"%s(%d)", filename, linenum);
 }
