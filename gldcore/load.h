@@ -43,6 +43,8 @@ DEPRECATED MODULE *load_get_current_module(void);
 
 #define PARSER const char *_p
 
+class ParserLocation;
+
 // Class: GldLoader
 // Implements the GLM parser
 class GldLoader
@@ -162,9 +164,7 @@ private:
 
 	int include_fail;
 	time_t modtime;
-
-	char filename[1024];
-	unsigned int linenum;
+	ParserLocation *pos;
 
 	std::string code_block;
 	std::string global_block;
@@ -177,9 +177,6 @@ private:
 	int outlinenum;
 	char *outfilename;
 
-	// OBJECT **object_index;
-	// char *object_linked;
-	// unsigned int object_index_size;
 	INDEXMAP indexmap;
 
 	UNRESOLVED *first_unresolved;
@@ -214,7 +211,8 @@ private:
 
 private:
 
-	void syntax_error(const char *filename, const int linenum, const char *format, ...);
+	void syntax_error(const char *format, ...);
+	void syntax_error(const char *filename, int linenum, const char *format, ...);
 	std::string format_object(OBJECT *obj);
 	char *strip_right_white(char *b);
 	std::string forward_slashes(const char *a);
@@ -234,12 +232,14 @@ private:
 	OBJECT *load_get_index(OBJECTNUM id);
 	OBJECT *get_next_unlinked(CLASS *oclass);
 	void free_index(void);	
-	UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
+	UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, const char *id, const char *file, unsigned int line, int flags);
 	int resolve_object(UNRESOLVED *item, const char *filename, bool deferred);
 	int resolve_double(UNRESOLVED *item, const char *context, bool deferred);
 	STATUS resolve_list(UNRESOLVED *item, bool deferred);
 public:
 	STATUS load_resolve_all(bool deferred=false);
+	inline ParserLocation *get_parserlocation(void) { return pos; };
+	inline void set_parserlocation(ParserLocation *p) { pos = p; };
 private:
 	void start_parse(int &mm, int &m, int &n, int &l, int linenum);
 	void syntax_error_here(const char *p);
@@ -367,7 +367,7 @@ private:
 	inline const LANGUAGE *get_language(void) { return language; };
 	int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size);
 	int include_file(char *incname, char *buffer, int size, int _linenum);
-	int process_macro(char *line, int size, char *_filename, int linenum);
+	int process_macro(char *line, int size, const char *_filename, int linenum);
 	static void kill_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
@@ -381,8 +381,29 @@ private:
 	void set_last_term(const char *p);
 	void save_last_term(const char *p);
 	const char *get_last_term(void);
+};
+
+class ParserLocation
+{
 private:
-	void inc_linenum() { linenum++; global_loader_linenum = linenum; };
+	static class GldLoader *loader;
+public:
+	static inline void set_loader(class GldLoader *p) { loader = p; };
+private:
+	char old_filename[1024];
+	int old_linenum;
+	ParserLocation *previous;
+public:
+	ParserLocation(const char *file, int line);
+	~ParserLocation(void);
+	inline const char *get_old_filename() { return old_filename; };
+	inline int get_old_linenum() { return old_linenum; };
+	inline const char *get_filename() { return global_loader_filename; };
+	inline int get_linenum() { return global_loader_linenum; };
+	inline void set_filename(const char *filename) { strcpy(global_loader_filename,filename); }
+	inline void set_linenum(int n) { global_loader_linenum = n; };
+	inline void inc_linenum() { global_loader_linenum++; };
+	inline void add_linenum(int n) { global_loader_linenum += n; };
 };
 
 #endif
