@@ -35,8 +35,6 @@ except getopt.GetoptError:
 if not opts : 
     help()
     sys.exit(1)
-print("opt: ", opts)
-print("arg: ", args)
 
 for opt, arg in opts:
     if opt in ("-h","--help"):
