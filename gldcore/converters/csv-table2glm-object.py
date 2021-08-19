@@ -16,22 +16,10 @@ def warning(msg):
     print(f'WARNING [converters/csv-table2glm-object]: {msg}',file=sys.stderr)
 
 def convert (p_configuration_in, p_configuration_out, options={} ) : 
-	if "module" in options.keys():
-		modulename = options["module"]
-		del options["module"]
-	else:
-		modulename = None
-	if "class" in options.keys():
-		classname = options["class"]
-		del options["class"]
-	else:
-		classname = None
-	with open(p_configuration_in, newline='') as csvfile:
+	with open(p_configuration_in, "r", newline='') as csvfile:
 		configurations = csv.reader(csvfile, delimiter=',')
 		p_config_out = open(p_configuration_out, "w")
-		if modulename:
-			for module in modulename.split(","):
-				p_config_out.write(f"module {module};\n")
+		p_config_out.write(f"// {__file__} {p_configuration_in} {p_configuration_out} {options} \n")
 		for i, row in enumerate(configurations):
 			if i == 0 : 
 				headers = row
@@ -42,17 +30,17 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 				else:
 					class_index = None
 			else : 
-				if type(class_index) is int:
-					oclass = row[class_index]
-				else:
-					oclass = None
-				if not oclass:
-					if not classname:
-						error("missing required class specification in either data ('class' field) or options (class='<class>')")
-					oclass = classname
-
-				p_config_out.write(f"object {oclass} ")
-				p_config_out.write("{\n")
+				if "class" not in headers and not options: 
+					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
+				if not row[0] : 
+					class_name = options['class']
+				else: 
+					class_name = row[0]
+				if "." in class_name:
+					class_spec = class_name.split(".")
+					p_config_out.write(f"module {class_spec[0]};\n")
+				p_config_out.write(f"object {class_name} ")
+				p_config_out.write("{ \n")
 				for j,value in enumerate (row) : 
 					if j!=class_index and headers[j] : 
 						if not value and headers[j].strip()=="name" : 
