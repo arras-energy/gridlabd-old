@@ -13,6 +13,8 @@ GLM:
     rating.summer.emergency "<decimal> A";
     rating.winter.continuous "<decimal> A";
     rating.winter.emergency "<decimal> A";
+    weight "<decimal> lb/ft";
+    strength "<decimal> lb";
   }
 ~~~
 
@@ -77,6 +79,22 @@ Continuous winter amp rating
 ~~~
 
 Emergency winter amp rating
+
+### `weight`
+
+~~~
+  double rating.winter.emergency[A];
+~~~
+
+Cable weight per lineal foot
+
+### `strength`
+
+~~~
+  double rating.winter.emergency[A];
+~~~
+
+Cable strength
 
 # Example
 
