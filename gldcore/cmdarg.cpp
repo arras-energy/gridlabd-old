@@ -251,7 +251,7 @@ STATUS GldCmdarg::no_cmdargs(void)
 	char guipath[1024];
 	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
-		char command[1024];
+		char command[2048];
 		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
 		system(command);
 		return SUCCESS;
