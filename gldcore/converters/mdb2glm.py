@@ -63,7 +63,12 @@ if os.path.exists(modname):
     mod = importlib.import_module(f"mdb-{input_type}2glm")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
-    mod.convert(input_name,output_name,options)
+    try:
+        mod.convert(input_name,output_name,options)
+    except:
+        import traceback
+        print(f"ERROR [mdb2glm]: {traceback.print_exc()}")
+        sys.exit(3)
 else:
     print(f"ERROR [mdb2glm]: type '{input_type}' is not valid -- {modname} not found");
     sys.exit(2)
