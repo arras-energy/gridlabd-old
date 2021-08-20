@@ -1,4 +1,4 @@
 // modifications to IEEE-13.mdb model to make it solve
-modify _645.phases "BC";
-modify _684.phases "AC";
-modify _692.phases "ABC";
+modify ND_645.phases "BC";
+modify ND_684.phases "AC";
+modify ND_692.phases "ABC";
