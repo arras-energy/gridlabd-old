@@ -13,7 +13,7 @@ clock
 module powerflow;
 module climate;
 
-#input "${DIR:-.}/table2glm_input.csv" -f "table" -t "object"
+#input "${DIR:-.}/table2glm_input.csv" -f "table" -t "object" -C "powerflow.node"
 
 object assert {
 	parent "weather";
