@@ -10,14 +10,14 @@
 // Git information
 // 
 #define GIT_PROJECT=https://github.com/openfido/cyme-extract
-#define GIT_COMMIT=03658e6ee3bed135fa50e6c4a5d9f413a6d04cba
+#define GIT_COMMIT=a645b53f78880f3469f8f1c835da7b9ab25de767
 #define GIT_BRANCH=main
 
 // 
 // GLM creation context
 // 
 #define GLM_PATHNAME=/Users/fxie2/github/gridlabd/gldcore/converters/autotest/IEEE-123-cyme.glm
-#define GLM_CREATED=2021-08-20T06:13:39.527968
+#define GLM_CREATED=2021-08-20T06:28:54.314606
 #define GLM_USER=fxie2
 #define GLM_WORKDIR=/Users/fxie2/github/gridlabd/gldcore/converters/autotest/test_mdb_cyme2glm_ieee123
 #define GLM_LANG=en_US.UTF-8
@@ -37,7 +37,6 @@
 // 
 #define SOLUTIONDUMP=no
 #define GLM_NOMINAL_VOLTAGE=2.40178 kV
-#include "config.glm"
 
 // 
 // Modules
