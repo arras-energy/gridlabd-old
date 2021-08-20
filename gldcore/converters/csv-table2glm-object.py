@@ -18,8 +18,10 @@ def warning(msg):
 def convert (p_configuration_in, p_configuration_out, options={} ) : 
 	with open(p_configuration_in, "r", newline='') as csvfile:
 		configurations = csv.reader(csvfile, delimiter=',')
-		p_config_out = open(p_configuration_out, "w")
-		p_config_out.write(f"// {__file__} {p_configuration_in} {p_configuration_out} {options} \n")
+		p_config_out = open(p_configuration_out, "a")
+		p_config_out.truncate(0)
+		p_config_out.write("// Objects \n")
+		module_list = []		
 		for i, row in enumerate(configurations):
 			if i == 0 : 
 				headers = row
@@ -32,13 +34,17 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 			else : 
 				if "class" not in headers and not options: 
 					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
-				if not row[0] : 
+				else : 
+					class_index=headers.index("class")
+				if not row[class_index] : 
 					class_name = options['class']
-				else: 
-					class_name = row[0]
-				if "." in class_name:
-					class_spec = class_name.split(".")
-					p_config_out.write(f"module {class_spec[0]};\n")
+				if row[class_index] : 
+					class_name = row[class_index]
+				if "." in class_name :
+					class_spec = class_name.split(".")[0]
+					if class_spec not in module_list: 
+						p_config_out.write(f"module {class_spec};\n")
+						module_list.append(class_spec)
 				p_config_out.write(f"object {class_name} ")
 				p_config_out.write("{ \n")
 				for j,value in enumerate (row) : 

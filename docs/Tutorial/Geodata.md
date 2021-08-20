@@ -22,11 +22,21 @@ The following command checks that the version of GridLAB-D supports the
 
 </div>
 
-<div class="cell code" execution_count="1">
+<div class="cell code" execution_count="87">
 
 ``` python
-bash% gridlabd --version='-ge 4.2.21'
+bash% gridlabd --version='-ge 4.2.26'
+bash% gridlabd requirements
 ```
+
+<div class="output stream stdout">
+
+    DEPRECATION: Configuring installation scheme with distutils config files is deprecated and will no longer work in the near future. If you are using a Homebrew or Linuxbrew Python, please see discussion at https://github.com/Homebrew/homebrew-core/issues/76621
+    Requirement already satisfied: matplotlib_inline in /usr/local/lib/python3.9/site-packages (0.1.2)
+    Requirement already satisfied: traitlets in /usr/local/lib/python3.9/site-packages (from matplotlib_inline) (5.0.5)
+    Requirement already satisfied: ipython-genutils in /usr/local/lib/python3.9/site-packages (from traitlets->matplotlib_inline) (0.2.0)
+
+</div>
 
 </div>
 
@@ -71,7 +81,7 @@ entity with the approximate location of SLAC's main gate.
 
 </div>
 
-<div class="cell code" execution_count="2">
+<div class="cell code" execution_count="86">
 
 ``` python
 bash% gridlabd geodata create 37.415,-122.20
@@ -101,9 +111,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.21
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -147,10 +166,18 @@ bash% gridlabd geodata create path_example.csv | head -n 4
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,configuration,pole_height
-    0,37.41505,-122.20565,flat3,18.0
-    1,37.4147,-122.20849,sideT,20.0
-    2,37.41445,-122.21044,sideT,21.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -179,10 +206,18 @@ bash% head -n 4 path_example.csv | cut -f1-2 -d, | gridlabd geodata create
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41505,-122.20565
-    1,37.4147,-122.20849
-    2,37.41445,-122.21044
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -203,9 +238,18 @@ bash% gridlabd geodata create name=obj1+latitude=37.4205+longitude=-122.2046 nam
 
 <div class="output stream stdout">
 
-    id,name,latitude,longitude
-    0,obj1,37.4205,-122.2046
-    1,obj2,37.5205,-122.3046
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -226,9 +270,18 @@ bash% gridlabd geodata create --input_delimiter=',' 'name=obj1,latitude=37.4205,
 
 <div class="output stream stdout">
 
-    id,name,latitude,longitude
-    0,obj1,37.4205,-122.2046
-    1,obj2,37.5205,-122.3046
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -274,10 +327,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -p 4
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.2
-    2,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -298,10 +359,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --pre
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.2
-    2,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -322,9 +391,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RA
 
 <div class="output stream stdout">
 
-    37.41,-122.2
-    37.42,-122.2
-    37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -353,7 +431,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RA
 
 <div class="output stream stdout">
 
-    37.41,-122.2;37.42,-122.2;37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -401,6 +490,23 @@ the `set` option
 bash% gridlabd geodata config set name local_value -w
 ```
 
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+
+</div>
+
 </div>
 
 <div class="cell markdown">
@@ -416,6 +522,23 @@ suppressed using the `-w` or `--warn` option, e.g.,
 ``` python
 bash% gridlabd geodata config set name local_value -w
 ```
+
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+
+</div>
 
 </div>
 
@@ -433,7 +556,18 @@ bash% gridlabd geodata config get name
 
 <div class="output stream stdout">
 
-    local_value
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -453,14 +587,18 @@ bash% gridlabd geodata config show
 
 <div class="output stream stdout">
 
-    geodata_url='http://geodata.gridlabd.us/'
-    output_format='CSV'
-    path_join='outer'
-    column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
-    uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
-    name='local_value'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -481,15 +619,30 @@ bash% gridlabd geodata config show
 
 <div class="output stream stdout">
 
-    geodata_url='http://geodata.gridlabd.us/'
-    output_format='CSV'
-    path_join='outer'
-    column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
-    uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
-    name='local_value'
-    user.name='user_value'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -510,16 +663,30 @@ bash% gridlabd geodata config show
 
 <div class="output stream stdout">
 
-    geodata_url='http://geodata.gridlabd.us/'
-    output_format='CSV'
-    path_join='outer'
-    column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
-    uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
-    name='local_value'
-    user.name='user_value'
-    system.name='system_value'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -540,15 +707,30 @@ bash% gridlabd geodata config show
 
 <div class="output stream stdout">
 
-    geodata_url='http://geodata.gridlabd.us/'
-    output_format='CSV'
-    path_join='outer'
-    column_names='{'ID': 'id', 'UUID': 'uuid', 'LAT': 'latitude', 'LON': 'longitude', 'DIST': 'distance', 'HEAD': 'heading', 'LOC': 'location', 'POS': 'position'}'
-    uuid_type='4'
-    vegetation.username='name@example.com'
-    vegetation.password='password5839'
-    user.name='user_value'
-    system.name='system_value'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -566,6 +748,12 @@ To remove all the local configuration values, simply delete the
 ``` python
 bash% rm geodata.conf
 ```
+
+<div class="output stream stdout">
+
+    rm: geodata.conf: No such file or directory
+
+</div>
 
 </div>
 
@@ -588,10 +776,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f CS
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.2
-    2,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -611,7 +807,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JS
 
 <div class="output stream stdout">
 
-    {"0":{"latitude":37.41,"longitude":-122.2},"1":{"latitude":37.42,"longitude":-122.2},"2":{"latitude":37.42,"longitude":-122.21}}
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -633,7 +840,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JS
 
 <div class="output stream stdout">
 
-    {"schema":{"fields":[{"name":"id","type":"integer"},{"name":"latitude","type":"number"},{"name":"longitude","type":"number"}],"primaryKey":["id"],"pandas_version":"0.20.0"},"data":[{"id":0,"latitude":37.41,"longitude":-122.2},{"id":1,"latitude":37.42,"longitude":-122.2},{"id":2,"latitude":37.42,"longitude":-122.21}]}
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -662,9 +880,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RA
 
 <div class="output stream stdout">
 
-    37.41 -122.2
-    37.42 -122.2
-    37.42 -122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -684,11 +911,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
 
 <div class="output stream stdout">
 
-        latitude  longitude
-    id                     
-    0      37.41    -122.20
-    1      37.42    -122.20
-    2      37.42    -122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -708,9 +942,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RA
 
 <div class="output stream stdout">
 
-    -122.2,37.41
-    -122.2,37.42
-    -122.21,37.42
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -734,10 +977,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k id
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.2
-    2,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -757,10 +1008,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k lo
 
 <div class="output stream stdout">
 
-    location,latitude,longitude,id
-    9q9hg629j97y,37.41,-122.2,0
-    9q9hgk0em9ef,37.42,-122.2,1
-    9q9hgh17k9e4,37.42,-122.21,2
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -782,10 +1041,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k po
 
 <div class="output stream stdout">
 
-    position,latitude,longitude,id,distance,heading
-    0,37.41,-122.2,0,0.0,
-    1112,37.42,-122.2,1,1112.0,0.0
-    1995,37.42,-122.21,2,1995.0,270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -805,10 +1072,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k la
 
 <div class="output stream stdout">
 
-    latitude,longitude,id
-    37.41,-122.2,0
-    37.42,-122.2,1
-    37.42,-122.21,2
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -881,18 +1156,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 25
 
 <div class="output stream stdout">
 
-              latitude  longitude   id  distance  heading
-    position                                             
-    0         37.41000 -122.20000  0.0       0.0      NaN
-    250       37.41225 -122.20000  NaN     250.0      0.0
-    500       37.41450 -122.20000  NaN     500.0      0.0
-    750       37.41674 -122.20000  NaN     750.0      0.0
-    1000      37.41899 -122.20000  NaN    1000.0      0.0
-    1112      37.42000 -122.20000  1.0    1112.0      0.0
-    1362      37.42000 -122.20283  NaN    1362.0    270.0
-    1612      37.42000 -122.20566  NaN    1612.0    270.0
-    1862      37.42000 -122.20849  NaN    1862.0    270.0
-    1995      37.42000 -122.21000  2.0    1995.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -912,18 +1187,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --res
 
 <div class="output stream stdout">
 
-              latitude  longitude   id  distance  heading
-    position                                             
-    0         37.41000 -122.20000  0.0       0.0      NaN
-    250       37.41225 -122.20000  NaN     250.0      0.0
-    500       37.41450 -122.20000  NaN     500.0      0.0
-    750       37.41674 -122.20000  NaN     750.0      0.0
-    1000      37.41899 -122.20000  NaN    1000.0      0.0
-    1112      37.42000 -122.20000  1.0    1112.0      0.0
-    1362      37.42000 -122.20283  NaN    1362.0    270.0
-    1612      37.42000 -122.20566  NaN    1612.0    270.0
-    1862      37.42000 -122.20849  NaN    1862.0    270.0
-    1995      37.42000 -122.21000  2.0    1995.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -955,18 +1230,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
 
 <div class="output stream stdout">
 
-              latitude  longitude     id  distance  heading
-    position                                               
-    0         37.41000 -122.20000  0.000       0.0      NaN
-    250       37.41225 -122.20000  0.125     250.0      0.0
-    500       37.41450 -122.20000  0.251     500.0      0.0
-    750       37.41674 -122.20000  0.376     750.0      0.0
-    1000      37.41899 -122.20000  0.501    1000.0      0.0
-    1112      37.42000 -122.20000  0.557    1112.0      0.0
-    1362      37.42000 -122.20283  0.683    1362.0    270.0
-    1612      37.42000 -122.20566  0.808    1612.0    270.0
-    1862      37.42000 -122.20849  0.933    1862.0    270.0
-    1995      37.42000 -122.21000  1.000    1995.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -993,18 +1268,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
 
 <div class="output stream stdout">
 
-              latitude  longitude       id  distance  heading
-    position                                                 
-    0         37.41000 -122.20000  0.00000       0.0      NaN
-    250       37.41225 -122.20000  0.12531     250.0      0.0
-    500       37.41450 -122.20000  0.25063     500.0      0.0
-    750       37.41674 -122.20000  0.37594     750.0      0.0
-    1000      37.41899 -122.20000  0.50125    1000.0      0.0
-    1112      37.42000 -122.20000  0.55739    1112.0      0.0
-    1362      37.42000 -122.20283  0.68271    1362.0    270.0
-    1612      37.42000 -122.20566  0.80802    1612.0    270.0
-    1862      37.42000 -122.20849  0.93333    1862.0    270.0
-    1995      37.42000 -122.21000  1.00000    1995.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1027,18 +1302,30 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 25
 
 <div class="output stream stdout">
 
-                  position  latitude  longitude   id  distance  heading
-    location                                                           
-    9q9hg629j97y         0  37.41000 -122.20000  0.0       0.0      NaN
-    9q9hg68wjsgu       250  37.41225 -122.20000  NaN     250.0      0.0
-    9q9hg70em87c       500  37.41450 -122.20000  NaN     500.0      0.0
-    9q9hg788m9gu       750  37.41674 -122.20000  NaN     750.0      0.0
-    9q9hg7btmt7c      1000  37.41899 -122.20000  NaN    1000.0      0.0
-    9q9hgk0em9ef      1112  37.42000 -122.20000  1.0    1112.0      0.0
-    9q9hghne79td      1362  37.42000 -122.20283  NaN    1362.0    270.0
-    9q9hghhe39x6      1612  37.42000 -122.20566  NaN    1612.0    270.0
-    9q9hgh47rc94      1862  37.42000 -122.20849  NaN    1862.0    270.0
-    9q9hgh17k9e4      1995  37.42000 -122.21000  2.0    1995.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1062,10 +1349,19 @@ bash% cat /tmp/test.csv
 
 <div class="output stream stdout">
 
-    id,latitude,longitude
-    0,37.41,-122.2
-    1,37.42,-122.2
-    2,37.42,-122.21
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    cat: /tmp/test.csv: No such file or directory
 
 </div>
 
@@ -1084,6 +1380,23 @@ automatically created from the latitude and longitude fields, e.g.,
 ``` python
 bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.gdf -f GDF
 ```
+
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+
+</div>
 
 </div>
 
@@ -1141,11 +1454,18 @@ bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-        latitude  longitude  distance
-    id                               
-    0      37.41    -122.20       0.0
-    1      37.42    -122.20    1112.0
-    2      37.42    -122.21    1995.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1166,11 +1486,18 @@ bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-        latitude  longitude  distance
-    id                               
-    0      37.41    -122.20       0.0
-    1      37.42    -122.20       0.0
-    2      37.42    -122.21       0.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1192,11 +1519,18 @@ bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-        latitude  longitude  distance
-    id                               
-    0      37.41    -122.20       0.0
-    1      37.42    -122.20    3648.0
-    2      37.42    -122.21    6545.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1217,11 +1551,18 @@ bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-        latitude  longitude  distance
-    id                               
-    0      37.41    -122.20       0.0
-    1      37.42    -122.20       1.0
-    2      37.42    -122.21       2.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1241,11 +1582,18 @@ bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-        latitude  longitude  distance
-    id                               
-    0      37.41    -122.20      0.00
-    1      37.42    -122.20      1.11
-    2      37.42    -122.21      2.00
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1266,18 +1614,18 @@ bash% gridlabd geodata -D distance merge 37.410,-122.20 37.420,-122.20 37.420,-1
 
 <div class="output stream stdout">
 
-              latitude  longitude   id  distance  heading
-    position                                             
-    0         37.41000 -122.20000  0.0       0.0      NaN
-    250       37.41225 -122.20000  NaN     250.0      0.0
-    500       37.41450 -122.20000  NaN     500.0      0.0
-    750       37.41674 -122.20000  NaN     750.0      0.0
-    1000      37.41899 -122.20000  NaN    1000.0      0.0
-    1112      37.42000 -122.20000  1.0       0.0      0.0
-    1362      37.42000 -122.20283  NaN     250.0    270.0
-    1612      37.42000 -122.20566  NaN     500.0    270.0
-    1862      37.42000 -122.20849  NaN     750.0    270.0
-    1995      37.42000 -122.21000  2.0       0.0    270.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1302,8 +1650,18 @@ bash% gridlabd geodata merge -D address 37.420,-122.20
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,address
-    0,37.42,-122.2,"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States"
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1323,8 +1681,18 @@ bash% gridlabd geodata merge -D address --reverse "2575 Sand Hill Rd, Menlo Park
 
 <div class="output stream stdout">
 
-    id,index,address,longitude,latitude
-    0,0,"2575 Sand Hill Rd, Menlo Park CA 94025",-122.20457,37.42046
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1391,11 +1759,18 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
 
 <div class="output stream stdout">
 
-        latitude  longitude  elevation
-    id                                
-    0      37.41    -122.20       58.0
-    1      37.42    -122.20       76.0
-    2      37.42    -122.21      105.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1416,11 +1791,18 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
 
 <div class="output stream stdout">
 
-        latitude  longitude  elevation
-    id                                
-    0      37.41    -122.20      190.0
-    1      37.42    -122.20      249.0
-    2      37.42    -122.21      344.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1442,11 +1824,18 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
 
 <div class="output stream stdout">
 
-        latitude  longitude  elevation
-    id                                
-    0      37.41    -122.20     190.29
-    1      37.42    -122.20     249.34
-    2      37.42    -122.21     344.49
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1467,18 +1856,18 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
 
 <div class="output stream stdout">
 
-              latitude  longitude   id  distance  heading  elevation
-    position                                                        
-    0         37.41000 -122.20000  0.0       0.0      NaN       58.0
-    250       37.41225 -122.20000  NaN     250.0      0.0       63.0
-    500       37.41450 -122.20000  NaN     500.0      0.0       75.0
-    750       37.41674 -122.20000  NaN     750.0      0.0       76.0
-    1000      37.41899 -122.20000  NaN    1000.0      0.0       96.0
-    1112      37.42000 -122.20000  1.0    1112.0      0.0       76.0
-    1362      37.42000 -122.20283  NaN    1362.0    270.0       85.0
-    1612      37.42000 -122.20566  NaN    1612.0    270.0       92.0
-    1862      37.42000 -122.20849  NaN    1862.0    270.0      104.0
-    1995      37.42000 -122.21000  2.0    1995.0    270.0      105.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1503,6 +1892,35 @@ following command:
 bash% gridlabd geodata config set -w vegetation.username name@example.com
 bash% gridlabd geodata config set vegetation.password password5839
 ```
+
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+
+</div>
 
 </div>
 
@@ -1530,11 +1948,18 @@ bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,
 
 <div class="output stream stdout">
 
-        latitude  longitude  base  cover  height
-    id                                          
-    0      37.41    -122.20   2.0   0.17    11.0
-    1      37.42    -122.20   1.0   0.18    15.0
-    2      37.42    -122.21   2.0   0.01     0.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1555,11 +1980,18 @@ bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,
 
 <div class="output stream stdout">
 
-        latitude  longitude  base  cover  height
-    id                                          
-    0      37.41    -122.20   2.0   0.17    11.0
-    1      37.42    -122.20   1.0   0.18    15.0
-    2      37.42    -122.21   2.0   0.01     0.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1586,9 +2018,18 @@ bash% gridlabd geodata merge -D utility 37.420,-122.20 -f TABLE
 
 <div class="output stream stdout">
 
-        latitude  longitude             NAME
-    id                                      
-    0      37.42     -122.2  PACIFIC GAS ...
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1614,9 +2055,18 @@ bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR
 
 <div class="output stream stdout">
 
-        latitude  longitude  WINTR_PEAK  SUMMR_PEAK  CUSTOMERS    YEAR
-    id                                                                
-    0      37.42     -122.2     12624.0     17263.0  5471786.0  2018.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1636,6 +2086,23 @@ specified, e.g.,
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
 ```
 
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+
+</div>
+
 </div>
 
 <div class="cell markdown">
@@ -1654,7 +2121,7 @@ Image("/tmp/utility.png")
 
 <div class="output execute_result" execution_count="62">
 
-bash% [](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
+    <IPython.core.display.Image object>
 
 </div>
 
@@ -1705,7 +2172,18 @@ bash% gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/A
 
 <div class="output stream stdout">
 
-    ERROR [geodata/powerline]: 'height'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1793,8 +2271,18 @@ bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag # mi
 
 <div class="output stream stdout">
 
-    WARNING [geodata/powerline]: cable_type not specified
-    ERROR [geodata/powerline]: 'height'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1808,8 +2296,18 @@ bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --ca
 
 <div class="output stream stdout">
 
-    WARNING [geodata/powerline]: cable_type='My cabletype' not found
-    ERROR [geodata/powerline]: 'height'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1833,16 +2331,18 @@ bash% gridlabd geodata help | head -n 10
 
 <div class="output stream stdout">
 
-    Help on module __main__:
-    
-    NAME
-        __main__ - Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
-    
-    DESCRIPTION
-        The geodata command gathers and joins geographic data. The geodata subcommand
-        uses directives that are documented in the DIRECTIVES section below.
-        
-        In general geodata is used to acquire geographic information at a location or
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -1856,16 +2356,18 @@ bash% gridlabd geodata help distance | head -n 10
 
 <div class="output stream stdout">
 
-    Help on module geodata_distance:
-    
-    NAME
-        geodata_distance - GridLAB-D Geodata Distance Package
-    
-    DESCRIPTION
-        The distance package computes the shortest distance between consecutive
-        positions.
-        
-        OPTIONS
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -2029,7 +2531,19 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 --badoption -s || echo 
 
 <div class="output stream stdout">
 
-    Exit code 4
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Exit code 1
 
 </div>
 
@@ -2055,10 +2569,18 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w -
 
 <div class="output stream stdout">
 
-                  latitude  longitude  id  distance
-    location                                       
-    9q94rzdk9gyt      37.0     -122.0   0       0.0
-    9qc0pvdq1cqt      38.0     -122.0   1  111195.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -2079,7 +2601,18 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location --wa
 
 <div class="output stream stdout">
 
-    ERROR [geodata/distance]: using index 'location' cannot be used with '--resolution=100.0' option
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -2107,7 +2640,18 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs
 
 <div class="output stream stdout">
 
-    ERROR [geodata/distance]: unit 'furlongs' is not recognized
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
@@ -2538,8 +3082,20 @@ bash% gridlabd json-get objects Building_53 </tmp/example.json | awk '/latitude|
 
 <div class="output stream stdout">
 
-        "latitude": "37.415460",
-        "longitude": "-122.201180",
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    ERROR    [INIT] : GldMain::subcommand(format='%s/gridlabd-%s',...): command '/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
+    ' returns code 1
         "address": "2575 Sand Hill Rd., Menlo Park, CA",
 
 </div>
@@ -2567,57 +3123,30 @@ bash% gridlabd geodata merge -D elevation path_example.csv -r 250 \
 
 <div class="output stream stdout">
 
-          position  latitude  longitude configuration  pole_height  distance  heading  elevation
-    id                                                                                          
-    0.0          0  37.41505 -122.20565         flat3         18.0       0.0      NaN       88.0
-    NaN        250  37.41471 -122.20845           NaN          NaN     250.0    263.0      100.0
-    1.0        254  37.41470 -122.20849         sideT         20.0       0.0    263.0      100.0
-    2.0        428  37.41445 -122.21044         sideT         21.0       0.0    262.7      111.0
-    3.0        595  37.41422 -122.21231         sideT         18.0       0.0    263.0      110.0
-    4.0        771  37.41398 -122.21427         sideT         20.0       0.0    263.0       98.0
-    5.0        976  37.41370 -122.21657         sideT         18.0       0.0    263.1       91.0
-    6.0       1128  37.41348 -122.21827         sideT         21.0       0.0    262.6       77.0
-    7.0       1326  37.41321 -122.22048         sideT         18.0       0.0    263.0       91.0
-    8.0       1490  37.41298 -122.22232         sideT         16.0       0.0    262.9       80.0
-    9.0       1690  37.41271 -122.22456         sideT         21.0       0.0    263.1       79.0
-    NaN       1940  37.41236 -122.22736           NaN          NaN     250.0    262.9       96.0
-    10.0      1941  37.41236 -122.22736         sideT         18.0       0.0    262.9       96.0
-    11.0      2123  37.41211 -122.22940         sideT         19.0       0.0    263.0       82.0
-    12.0      2341  37.41181 -122.23184         3pole         15.0       0.0    263.0      103.0
-    NaN       2591  37.41058 -122.23421           NaN          NaN     250.0    242.5       83.0
-    13.0      2718  37.40995 -122.23541         3pole         16.0       0.0    242.5      129.0
-    14.0      2941  37.40912 -122.23771         2pole         15.0       0.0    250.2      109.0
-    NaN       3191  37.40818 -122.24028           NaN          NaN     250.0    249.9       89.0
-    15.0      3268  37.40789 -122.24107         2pole         17.0       0.0    249.9      108.0
-    16.0      3466  37.40715 -122.24311         2pole         15.0       0.0    250.1      115.0
-    17.0      3653  37.40644 -122.24503         3pole         17.0       0.0    249.7      124.0
-    18.0      3759  37.40562 -122.24443         vert3         17.0       0.0    143.8      127.0
-    19.0      3878  37.40456 -122.24418         vert3         20.0       0.0    166.7      123.0
-    20.0      4009  37.40339 -122.24429         vert3         20.0       0.0    185.4      117.0
-    21.0      4115  37.40249 -122.24468         vert3         20.0       0.0    203.4      110.0
-    22.0      4267  37.40136 -122.24566         vert3         22.0       0.0    220.9      106.0
-    NaN       4517  37.40032 -122.24817           NaN          NaN     250.0    247.6      106.0
-    23.0      4627  37.39987 -122.24927         3pole         16.0       0.0    247.6      116.0
-    24.0      4793  37.39966 -122.25113         2pole         18.0       0.0    263.6      167.0
-    NaN       5043  37.39950 -122.25395           NaN          NaN     250.0    266.8      206.0
-    25.0      5248  37.39937 -122.25627         2pole         22.0       0.0    266.8      267.0
-    26.0      5397  37.39928 -122.25795         3pole         15.0       0.0    266.9      285.0
-    NaN       5647  37.39908 -122.26077           NaN          NaN     250.0    266.0      205.0
-    NaN       5897  37.39888 -122.26359           NaN          NaN     500.0    266.0      308.0
-    27.0      5977  37.39882 -122.26449         3pole         18.0       0.0    266.0      331.0
-    28.0      6119  37.39871 -122.26610         2pole         15.0       0.0    266.1      352.0
-    29.0      6250  37.39861 -122.26757         3pole         18.0       0.0    266.1      341.0
-    NaN       6500  37.39667 -122.26901           NaN          NaN     250.0    216.5      343.0
-    NaN       6750  37.39473 -122.27044           NaN          NaN     500.0    216.5      439.0
-    30.0      6783  37.39448 -122.27063         3pole         21.0       0.0    216.5      444.0
-    31.0      6971  37.39306 -122.27180         3pole         21.0       0.0    219.5      448.0
-    32.0      7215  37.39248 -122.27446         2pole         17.0       0.0    257.7      505.0
-    33.0      7463  37.39190 -122.27717         2pole         21.0       0.0    257.9      578.0
-    34.0      7593  37.39161 -122.27860         2pole         23.0       0.0    258.5      615.0
-    35.0      7840  37.39171 -122.28139         3pole         16.0       0.0    272.1      642.0
-    NaN       8090  37.39048 -122.28376           NaN          NaN     250.0    242.6      548.0
-    NaN       8340  37.38926 -122.28613           NaN          NaN     500.0    242.6      544.0
-    36.0      8583  37.38806 -122.28844         tower         23.0       0.0    242.6      634.0
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.25-210808-develop_add_model_browser/bin/gridlabd-geodata", line 358, in <module>
+        import matplotlib.pyplot as plt
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 2336, in <module>
+        switch_backend(rcParams["backend"])
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 276, in switch_backend
+        class backend_mod(matplotlib.backend_bases._Backend):
+      File "/usr/local/lib/python3.9/site-packages/matplotlib/pyplot.py", line 277, in backend_mod
+        locals().update(vars(importlib.import_module(backend_name)))
+      File "/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+        return _bootstrap._gcd_import(name[level:], package, level)
+    ModuleNotFoundError: No module named 'matplotlib_inline'
 
 </div>
 
