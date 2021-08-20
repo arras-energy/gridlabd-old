@@ -20,35 +20,6 @@ def stderr(*msg,file=sys.stderr):
     print(*msg,file=file)
 
 #
-# Tkinter module
-#
-try:
-    import tkinter as tk
-    from tkinter import *
-    from tkinter.font import Font
-    from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
-except Exception as err:
-    if system == 'Darwin':
-        stderr(f"ERROR: {err}. Did you remember to run 'brew install python-tk'?",file=sys.stderr)
-    else:
-        stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
-    quit(-1)
-
-try:
-    from PIL import Image, ImageTk
-except Exception as err:
-    if system == 'Darwin':
-        stderr(f"ERROR: {err}. Did you remember to run 'brew install pillow'?",file=sys.stderr)
-    else:
-        stderr(f"ERROR: {err}. Did you remember to install pillow support?",file=sys.stderr)
-    quit(-1)
-
-def TODO(msg="function not implemented yet",context=None):
-    if not context:
-        context = sys._getframe(1).f_code.co_name
-    root.output(f"TODO [{context}]: {msg}")
-
-#
 # GridLAB-D link
 #
 result = subprocess.run("/usr/local/bin/gridlabd --version=json".split(),capture_output=True)
@@ -61,6 +32,42 @@ version = info['version']
 build = info['build_number']
 branch = info['branch']
 system = info['system']
+
+#
+# No GUI on linux yet
+#
+if os.uname().sysname == "Linux":
+    stdout(f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}")
+    quit(0)    
+
+#
+# Tkinter module
+#
+try:
+    import tkinter as tk
+    from tkinter import *
+    from tkinter.font import Font
+    from tkinter import Menu, messagebox, filedialog, simpledialog, ttk
+except Exception as err:
+    if os.uname().sysname == 'Darwin':
+        stderr(f"ERROR: {err}. Did you remember to run 'brew install python-tk'?",file=sys.stderr)
+    else:
+        stderr(f"ERROR: {err}. Did you remember to install tkinter support?",file=sys.stderr)
+    quit(-1)
+
+try:
+    from PIL import Image, ImageTk
+except Exception as err:
+    if os.uname().sysname == 'Darwin':
+        stderr(f"ERROR: {err}. Did you remember to run 'brew install pillow'?",file=sys.stderr)
+    else:
+        stderr(f"ERROR: {err}. Did you remember to install pillow support?",file=sys.stderr)
+    quit(-1)
+
+def TODO(msg="function not implemented yet",context=None):
+    if not context:
+        context = sys._getframe(1).f_code.co_name
+    root.output(f"TODO [{context}]: {msg}")
 
 #
 # Platform specifics
@@ -95,5 +102,4 @@ if __name__ == "__main__":
     except Exception as err:
         print("EXCEPTION:",err)
     messagebox.showinfo("Welcome",
-        f"""HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}
-        """)
+        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}")
