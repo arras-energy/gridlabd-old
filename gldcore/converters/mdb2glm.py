@@ -55,7 +55,7 @@ for opt, arg in opts:
 
 if input_type is None:
     print("ERROR [mdb2glm]: conversion type not specified (-t <type> option is missing)")
-    sys.exit(3)
+    sys.exit(1)
 
 modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm.py")
 if os.path.exists(modname):
@@ -66,4 +66,4 @@ if os.path.exists(modname):
     mod.convert(input_name,output_name,options)
 else:
     print(f"ERROR [mdb2glm]: type '{input_type}' is not valid -- {modname} not found");
-    sys.exit(4)
+    sys.exit(2)
