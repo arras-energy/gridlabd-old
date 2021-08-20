@@ -37,8 +37,8 @@ system = info['system']
 # No GUI on linux yet
 #
 if os.uname().sysname == "Linux":
-    stdout(f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}".replace("\n\n","\n"))
-    quit(0)    
+    stderr("ERROR: no GUI support on linux systems")
+    quit(1)    
 
 #
 # Tkinter module
