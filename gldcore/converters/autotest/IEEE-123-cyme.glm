@@ -17,7 +17,7 @@
 // GLM creation context
 // 
 #define GLM_PATHNAME=/Users/fxie2/github/gridlabd/gldcore/converters/autotest/IEEE-123-cyme.glm
-#define GLM_CREATED=2021-08-20T16:49:57.469930
+#define GLM_CREATED=2021-08-20T17:00:15.013963
 #define GLM_USER=fxie2
 #define GLM_WORKDIR=/Users/fxie2/github/gridlabd/gldcore/converters/autotest/test_mdb_cyme2glm_ieee123
 #define GLM_LANG=en_US.UTF-8
