@@ -247,8 +247,9 @@ DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 STATUS GldCmdarg::no_cmdargs(void)
 {
+	char guiname[1024] = "gridlabd-editor.py";
 	char guipath[1024];
-	if ( find_file("gridlabd-editor.py",NULL,X_OK,guipath,sizeof(guipath)) )
+	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
 		char command[1024];
 		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
@@ -257,7 +258,7 @@ STATUS GldCmdarg::no_cmdargs(void)
 	}
 	else
 	{
-		output_error("gridlabd-editor not found");
+		output_error("%s not found",guiname);
 		return FAILED;
 	}
 }
