@@ -1,6 +1,7 @@
 #library get wood_pole.glm
 #system ls -l /usr/local/share/gridlabd/library/US/CA/SLAC
-#option library US/CA/SLAC/wood_pole.glm
+#include "${GLD_ETC}/library/US/CA/SLAC/wood_pole.glm"
+//#option library US/CA/SLAC/wood_pole.glm
 
 class test {
 	object lib;
