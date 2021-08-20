@@ -8094,6 +8094,11 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			return FALSE;
 		}
 	}
+	else if ( strncmp(line, "#meta", 5) == 0 )
+	{
+		strcpy(line,"\n");
+		return TRUE;
+	}
 	int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
 	if ( rc != 127 )
 	{

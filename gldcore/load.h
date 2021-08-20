@@ -371,7 +371,9 @@ private:
 	static void kill_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
+public:
 	STATUS loadall_glm(const char *file);
+private:
 	TECHNOLOGYREADINESSLEVEL calculate_trl(void);
 	bool load_import(const char *from, char *to, int len);
 	STATUS load_python(const char *filename);
