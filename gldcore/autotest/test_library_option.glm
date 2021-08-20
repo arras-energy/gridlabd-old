@@ -12,6 +12,6 @@ object test {
 	object assert{
 		target lib;
 		relation "==";
-		value "WOOD-C-45/5"
+		value "WOOD-C-45/5";
 	};
 }
