@@ -1,5 +1,5 @@
-#library config set CACHEDIR ${PWD}
-#library config set DATADIR ${PWD}
+#library config set CACHEDIR /tmp
+#library config set DATADIR /tmp
 #library get wood_pole.glm
 #option library wood_pole.glm
 
