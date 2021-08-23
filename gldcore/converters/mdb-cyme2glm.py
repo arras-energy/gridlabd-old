@@ -55,14 +55,17 @@ def convert(input_file,output_file=None,options={}):
 
 	# openfido.debug(f"output_folder = {output_folder}")
 	# openfido.debug(f"output_name = {output_name}")
-	print(444444)
-	openfido.run(["cyme-extract",f"{input_name}",f"{output_name}",
-		f"input_folder={input_folder}",
-		f"output_folder={output_folder}",
-		f"extract=non-empty",
-		f"outputs=glm",
-		f"postproc=write_glm.py"],config)
-
+	try:
+		openfido.run(["cyme-extract",f"{input_name}",f"{output_name}",
+			f"input_folder={input_folder}",
+			f"output_folder={output_folder}",
+			f"extract=non-empty",
+			f"outputs=glm",
+			f"postproc=write_glm.py"],config)
+    except:
+        import traceback
+        print(f"ERROR [mdb-cyme2glm]: {traceback.print_exc()}")
+        sys.exit(10)
 
 
 
