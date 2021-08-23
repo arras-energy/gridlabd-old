@@ -5,7 +5,7 @@
 #define DIR=..
 #endif
 
-#option redirect output:/tmp/gridlabd.out
+#option redirect output:test_geodata.txt
 
 // geodata create
 #geodata create 37.4205,-122.2046
@@ -42,7 +42,7 @@
 // TODO: this doesn't work on github actions because of a host-based file sync problem
 //       keep_progress is set under these circumstances so we use this to avoid this check
 #if ${github_actions:-no}==no
-#ifexist "${DIR:-.}/test_geodata.txt"
-#on_exit 0 diff ${DIR:-.}/test_geodata.txt /tmp/gridlabd.out >/dev/stderr
+#ifexist "../test_geodata.txt"
+#on_exit 0 diff ../test_geodata.txt test_geodata.txt >/dev/stderr
 #endif
 #endif
