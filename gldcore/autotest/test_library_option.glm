@@ -1,5 +1,6 @@
+#library config set CACHEDIR ${PWD}
+#library config set DATADIR ${PWD}
 #library get wood_pole.glm
-#system ls -l /usr/local/share/gridlabd/library/${country}/${region}/${organization}
 #option library wood_pole.glm
 
 class test {
