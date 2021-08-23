@@ -174,3 +174,4 @@ gldcore/converters/autotest/table2glm_input_noname.glm
 gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
+geodata.conf
