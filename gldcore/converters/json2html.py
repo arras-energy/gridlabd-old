@@ -4,6 +4,7 @@ import json
 import folium
 from folium.plugins import MarkerCluster
 import numpy
+from math import isnan
 
 os.putenv(f'PYTHONPATH',sys.argv[0].replace('/json2html.py',''))
 from json2html_config import *
@@ -87,9 +88,10 @@ def main(argv):
         try:
             lat = float(values['latitude'])
             lon = float(values['longitude'])
-            lats.append(lat)
-            lons.append(lon)
-            tags.append([(lat,lon),name,values])
+            if not isnan(lat) and not isnan(lon):
+                lats.append(lat)
+                lons.append(lon)
+                tags.append([(lat,lon),name,values])
         except:
             if "from" in values.keys() and "to" in values.keys():
                 tags.append([None,name,values])
@@ -97,7 +99,10 @@ def main(argv):
     lats = numpy.array(lats)
     lons = numpy.array(lons)
 
-    if zoomlevel == 'auto':
+    if len(lats) == 0 or len(lons) == 0:
+        warning(f"'{filename_json}' contains no objects with latitude/longitude data")
+        map = folium.Map(tiles=tiles)
+    elif zoomlevel == 'auto':
         map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
         map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
     else:
@@ -112,6 +117,7 @@ def main(argv):
         cluster = map
         pass
     for pos, name, tag in tags:
+        obj = None
         popup = get_popup(name,tag)
         oclass = tag['class']
         color = get_color(tag)
@@ -148,7 +154,8 @@ def main(argv):
                 icon = folium.Icon(color=color)
             if pos:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
-        obj.add_to(cluster)
+        if obj:
+            obj.add_to(cluster)
     if mouseposition:
         folium.plugins.MousePosition(auto_start=True,position=mouseposition).add_to(map)
     if search:
