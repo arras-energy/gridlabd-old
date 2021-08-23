@@ -62,10 +62,10 @@ def convert(input_file,output_file=None,options={}):
 			f"extract=non-empty",
 			f"outputs=glm",
 			f"postproc=write_glm.py"],config)
-    except:
-        import traceback
-        print(f"ERROR [mdb-cyme2glm]: {traceback.print_exc()}")
-        sys.exit(10)
+	except:
+		import traceback
+		print(f"ERROR [mdb-cyme2glm]: {traceback.print_exc()}")
+		sys.exit(10)
 
 
 
