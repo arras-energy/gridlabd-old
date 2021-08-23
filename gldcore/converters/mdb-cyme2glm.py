@@ -55,6 +55,7 @@ def convert(input_file,output_file=None,options={}):
 
 	# openfido.debug(f"output_folder = {output_folder}")
 	# openfido.debug(f"output_name = {output_name}")
+	print(444444)
 	openfido.run(["cyme-extract",f"{input_name}",f"{output_name}",
 		f"input_folder={input_folder}",
 		f"output_folder={output_folder}",
