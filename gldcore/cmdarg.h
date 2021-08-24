@@ -158,6 +158,7 @@ public:
 	int initialize(int argc, const char *argv[]);
 	int kml(int argc, const char *argv[]);
 	int libinfo(int argc, const char *argv[]);
+	int library(int argc, const char *argv[]);
 	int license(int argc, const char *argv[]);
 	int loadshapetest(int argc, const char *argv[]);
 	int local_daemon(int argc, const char *argv[]);
