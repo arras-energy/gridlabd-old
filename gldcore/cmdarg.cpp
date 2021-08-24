@@ -454,6 +454,29 @@ int GldCmdarg::compile(int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int library(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->library(argc,argv);	
+}
+int GldCmdarg::library(int argc, const char *argv[])
+{
+	if ( argc > 1 )
+	{
+		char pathname[1024];
+		const char *etcpath = getenv("GLD_ETC");
+		if ( etcpath == NULL )
+		{
+			etcpath = "/usr/local/share/gridlabd";
+		}
+		snprintf(pathname,sizeof(pathname),"%s/library/%s",getenv("GLD_ETC"),argv[1]);
+		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
+	}
+	else
+	{
+		output_fatal("missing library filename");
+		return CMDERR;
+	}
+}
 
 DEPRECATED static int initialize(void *main, int argc, const char *argv[])
 {
@@ -2257,6 +2280,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
 	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
+	{"library",     "l",    library,        "<filename>", "Loads a library GLM file"},
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },

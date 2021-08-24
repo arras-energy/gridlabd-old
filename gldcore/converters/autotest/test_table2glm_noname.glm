@@ -1,5 +1,9 @@
 module assert;
 
+#ifexist "../table2glm_input_noname.csv"
+#define DIR=..
+#endif
+
 clock 
 {
 	starttime "2019-01-01 00:00:00";
@@ -9,16 +13,21 @@ clock
 module powerflow;
 module climate;
 
-#input "../table2glm_input_noname.csv" -f "table" -t "object"
+global double wind_speed[m/s] 4;
+global double temperature[degF] 95;
 
+#input "${DIR:-.}/table2glm_input_noname.csv" -f "table" -t "object"
+
+#for OBJ in ${FIND class=climate} 
 object assert {
-	parent "climate_1";
+	parent ${OBJ};
 	target "wind_speed";
 	value 4 m/s;
 }
 
 object assert {
-	parent "climate_1";
+	parent ${OBJ};
 	target "temperature";
 	value 95 degF;
 }
+#done

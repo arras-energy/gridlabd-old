@@ -7,7 +7,7 @@ id,latitude,longitude
 1,37.5205,-122.3046
 # geodata create 37.4205,-122.2046 37.5205,-122.3046 -r 1000
 position,latitude,longitude,id,distance,heading
-0,37.4205,-122.2046,0.0,0.0,
+0,37.4205,-122.2046,0.0,0.0,0.0
 1000,37.42754,-122.21164,,1000.0,315.0
 2000,37.43459,-122.21869,,2000.0,315.0
 3000,37.44163,-122.22573,,3000.0,315.0
@@ -25,7 +25,7 @@ position,latitude,longitude,id,distance,heading
 14196,37.5205,-122.3046,1.0,14196.0,315.0
 # geodata create 37.4205,-122.2046 37.5205,-122.3046 -k position
 position,latitude,longitude,id,distance,heading
-0,37.4205,-122.2046,0,0.0,
+0,37.4205,-122.2046,0,0.0,0.0
 14196,37.5205,-122.3046,1,14196.0,315.0
 # geodata create 37.4205,-122.2046 37.5205,-122.3046 -k location
 location,latitude,longitude,id
@@ -73,7 +73,7 @@ id,latitude,longitude,distance
 1,37.5205,-122.3046,14196.0
 # geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -r 1000
 position,latitude,longitude,id,distance,heading
-0,37.4205,-122.2046,0.0,0.0,
+0,37.4205,-122.2046,0.0,0.0,0.0
 1000,37.42754,-122.21164,,1000.0,315.0
 2000,37.43459,-122.21869,,2000.0,315.0
 3000,37.44163,-122.22573,,3001.0,315.0
@@ -91,7 +91,7 @@ position,latitude,longitude,id,distance,heading
 14196,37.5205,-122.3046,1.0,14196.0,315.0
 # geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -k position
 position,latitude,longitude,id,distance,heading
-0,37.4205,-122.2046,0,0.0,
+0,37.4205,-122.2046,0,0.0,0.0
 14196,37.5205,-122.3046,1,14196.0,315.0
 # geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -k location
 location,latitude,longitude,id,distance
@@ -101,7 +101,7 @@ location,latitude,longitude,id,distance
 latitude,longitude,id,distance
 37.4205,-122.2046,0,0.0
 37.5205,-122.3046,1,14196.0
-# geodata merge -D distance ../path_example.csv
+# geodata merge -D distance ./path_example.csv
 id,latitude,longitude,configuration,pole_height,distance
 0,37.41505,-122.20565,flat3,18.0,0.0
 1,37.4147,-122.20849,sideT,20.0,254.0
@@ -140,9 +140,9 @@ id,latitude,longitude,configuration,pole_height,distance
 34,37.39161,-122.2786,2pole,23.0,7593.0
 35,37.39171,-122.28139,3pole,16.0,7839.0
 36,37.38806,-122.28844,tower,23.0,8583.0
-# geodata merge -D distance ../path_example.csv -r 100
+# geodata merge -D distance ./path_example.csv -r 100
 position,latitude,longitude,configuration,pole_height,id,distance,heading
-0,37.41505,-122.20565,flat3,18.0,0.0,0.0,
+0,37.41505,-122.20565,flat3,18.0,0.0,0.0,0.0
 100,37.41491,-122.20677,,,,100.0,263.0
 200,37.41477,-122.20789,,,,200.0,263.0
 254,37.4147,-122.20849,sideT,20.0,1.0,254.0,263.0
@@ -247,9 +247,9 @@ position,latitude,longitude,configuration,pole_height,id,distance,heading
 8440,37.38876,-122.28708,,,,8440.0,242.6
 8540,37.38827,-122.28803,,,,8540.0,242.6
 8583,37.38806,-122.28844,tower,23.0,36.0,8584.0,242.6
-# geodata merge -D distance ../path_example.csv -k position
+# geodata merge -D distance ./path_example.csv -k position
 position,latitude,longitude,configuration,pole_height,id,distance,heading
-0,37.41505,-122.20565,flat3,18.0,0,0.0,
+0,37.41505,-122.20565,flat3,18.0,0,0.0,0.0
 254,37.4147,-122.20849,sideT,20.0,1,254.0,263.0
 428,37.41445,-122.21044,sideT,21.0,2,428.0,262.7
 595,37.41422,-122.21231,sideT,18.0,3,595.0,263.0
@@ -286,7 +286,7 @@ position,latitude,longitude,configuration,pole_height,id,distance,heading
 7593,37.39161,-122.2786,2pole,23.0,34,7593.0,258.5
 7840,37.39171,-122.28139,3pole,16.0,35,7840.0,272.1
 8583,37.38806,-122.28844,tower,23.0,36,8583.0,242.6
-# geodata merge -D distance ../path_example.csv -k location
+# geodata merge -D distance ./path_example.csv -k location
 location,latitude,longitude,configuration,pole_height,id,distance
 9q9hg5hw3yyf,37.41505,-122.20565,flat3,18.0,0,0.0
 9q9hg54krv95,37.4147,-122.20849,sideT,20.0,1,254.0
@@ -325,7 +325,7 @@ location,latitude,longitude,configuration,pole_height,id,distance
 9q9h9qzmyj73,37.39161,-122.2786,2pole,23.0,34,7593.0
 9q9h9qvqmpfy,37.39171,-122.28139,3pole,16.0,35,7840.0
 9q9h9q230zd1,37.38806,-122.28844,tower,23.0,36,8583.0
-# geodata merge -D distance ../path_example.csv -k latitude,longitude
+# geodata merge -D distance ./path_example.csv -k latitude,longitude
 latitude,longitude,configuration,pole_height,id,distance
 37.41505,-122.20565,flat3,18.0,0,0.0
 37.4147,-122.20849,sideT,20.0,1,254.0

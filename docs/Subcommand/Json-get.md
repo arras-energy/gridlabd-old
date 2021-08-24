@@ -5,13 +5,15 @@
 GLM:
 
 ~~~
-#json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] <INPUT >OUTPUT 
+#json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-c|--csv] [-i|--input INPUT]
+ [-o|--output OUTPUT]
 ~~~
 
 Shell:
 
 ~~~
-$ gridlabd json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] [<INPUT] [>OUTPUT] 
+$ gridlabd json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] [-i|--input INPUT]
+ [-o|--output OUTPUT] 
 ~~~
 
 # Description
