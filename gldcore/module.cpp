@@ -2063,10 +2063,10 @@ void sched_print(int flags, const char* format) /* flag=0 for single listing, fl
 	}
 	else if ( process_map != NULL )
 	{
-		if ( strcmp(format,"json") == 0 )
-		{
-			unsigned int n;
-			printf("{\n");
+		if ( format != NULL && strcmp(format,"json") == 0 )
+ 		{
+ 			unsigned int n;
+ 			printf("{\n");
 			for ( n=0 ; n<n_procs ; n++ )
 			{
 				PROCINFO pinfo;
