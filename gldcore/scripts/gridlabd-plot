@@ -1,0 +1,246 @@
+#!/usr/local/bin/python3
+"""GridLAB-D plot subcommand
+
+SYNOPSIS
+
+Shell:
+    $ gridlabd plot OPTIONS
+
+GLM:
+
+    #plot OPTIONS
+
+DESCRIPTION
+
+    The 'gridlabd plot' command uses pandas and matplotlib to create PNG files from
+    CSV files.
+
+OPTIONS
+
+    -d|--debug               Enable debug output and exception traceback
+    --figure:OPTIONS[=VALUE] Specify matplotlib pyplot figure option (see matplot 
+                             figure for details)
+    -h|--help|help           Display this help information
+    -i|--input=PATH          Specify the input CSV pathname
+    -o|--output=PATH         Specify the output PNG pathname (default is input with 
+                             ".png")
+    --plot:OPTIONS[=VALUE]   Specify pandas DataFrame plot option (see pandas 
+                             DataFrame plot for details)
+    -q|--quiet               Disable error output
+    -s|--show                Show the output
+    -v|--verbose             Enable verbose output
+    -w|--warning             Disable warning output
+
+EXAMPLE
+
+The following example illustrates how to generate a plot of two fields generated
+by a recorder.
+
+    module tape
+    {
+        csv_header_type NAME;
+    }
+    clock
+    {
+        timezone "PST+8PDT";
+        starttime "2020-01-01 00:00:00 PST";
+        stoptime "2020-01-02 00:00:00 PST";
+    }
+    class test {
+        randomvar x[MW];
+        randomvar y[MWh];
+    }
+    object test
+    {
+        x "type:normal(100,10); min:0; max:200; refresh:1h";    
+        y "type:normal(100,10); min:0; max:200; refresh:1h";
+        object recorder
+        {
+            property "x,y";
+            interval -1;
+            file ${modelname/glm/csv};
+        };
+    }
+    #on_exit 0 gridlabd plot -i=${modelname/glm/csv} --plot:x=timestamp --plot:y=x,y --plot:rot=90 --plot:grid --plot:legend --figure:tight_layout=True
+"""
+
+import sys, os
+import pandas
+import json
+
+def exception(msg,code=None):
+    print(f"EXCEPTION [gridlabd-plot]: {msg}",file=sys.stderr)
+    if type(code) is int:
+        exit(code)
+
+def error(msg,code=None):
+    if not config["quiet"]:
+        print(f"ERROR [gridlabd-plot]: {msg}",file=sys.stderr)
+    if type(code) is int:
+        exit(code)
+
+def warning(msg):
+    if config["warning"]:
+        print(f"WARNING [gridlabd-plot]: {msg}",file=sys.stderr)
+
+def verbose(msg):
+    if config["verbose"]:
+        print(f"VERBOSE [gridlabd-plot]: {msg}",file=sys.stderr)
+
+def debug(msg,level=0):
+    if config["debug"] and level <= config["debug"]:
+        print(f"DEBUG [gridlabd-plot]: (level {level}) {msg}",file=sys.stderr)
+
+def output(msg,code=None):
+    print(msg,file=sys.stdout)
+    if type(code) is int:
+        exit(code)
+
+try:
+    with open(sys.argv[0].replace(".py",".conf"),"r") as f:
+        config = json.load(f)
+except:
+    config = dict(
+        workdir = os.getenv("PWD"),
+        show = False,
+        quiet = False,
+        warning = True,
+        debug = None,
+        verbose = False,
+        open_command = "open",
+        input_pathname = None,
+        output_pathname = None,
+        )
+
+os.chdir(config["workdir"])
+
+plot_options = dict(
+    x = "",
+    y = [],
+    kind = 'line',
+    subplots = False,
+    sharex = True,
+    sharey = False,
+    # layout = None,
+    # figsize = None,
+    use_index = True,
+    title = "",
+    grid = False,
+    legend = False,
+    style = None,
+    logx = False,
+    logy = False,
+    loglog = False,
+    # xticks = None,
+    # yticks = None,
+    # xlim = None,
+    # ylim = None,
+    xlabel = "",
+    ylabel = "",
+    rot = 0,
+    fontsize = None,
+    # colormap = None,
+    # colorbar = None,
+    # position = 0.5,
+    table = False,
+    yerr = None,
+    xerr = None,
+    stacked = False,
+    sort_columns = False,
+    secondary_y = False,
+    mark_right = True,
+    include_bool = False,
+    backend = None,
+    )
+figure_options = dict(
+    tight_layout = False,
+    facecolor = 'white',
+    edgecolor = 'white',
+    frameon = True,
+    # dpi = 100.0,
+    )
+
+validate = {
+    "plot:y" : lambda x: x.split(","),
+    }
+
+# if __name__ == "__main__":
+#     sys.argv = f"{sys.argv[0]} -i /Users/david/Downloads/test_line.csv -x timestamp -y p630:wind_speed -s".split()
+
+if len(sys.argv) == 1:
+    print(__doc__)
+    exit(1)
+for arg in sys.argv[1:]:
+    if arg in ["-h","--help","help"]:
+        if sys.stdout.isatty():
+            help(__name__)
+        else:
+            output(__doc__,0)
+    if "=" in arg:
+        args = arg.split("=")
+        arg = args[0]
+        arg1 = "=".join(args[1:])
+        if arg.startswith("--") and arg[2:] in validate.keys():
+            arg1 = validate[arg[2:]](arg1)
+            debug(f"validating {'='.join(args)} --> {arg1}")
+    else:
+        arg1 = None
+    if arg in ["-i","--input"] and arg1:
+        config['input_pathname'] = arg1
+    elif arg in ["-o","--output"] and arg1:
+        config['output_pathname'] = arg1
+    elif arg in ["-s","--show"]:
+        config['show'] = True
+    elif arg in ["-d","--debug"]:
+        config['debug'] = True
+    elif arg in ["-v","--verbose"]:
+        config['verbose'] = True
+    elif arg in ["-q","--quiet"]:
+        config['quiet'] = True
+    elif arg in ["-w","--warning"]:
+        config['warning'] = False
+    elif arg.startswith("--plot:"):
+        if arg1:
+            plot_options[arg[7:]] = arg1
+        else:
+            plot_options[arg[7:]] = not plot_options[arg[7:]]
+    elif arg.startswith("--figure:"):
+        if arg1:
+            figure_options[arg[9:]] = arg1
+        else:
+            figure_options[arg[9:]] = not figure_options[arg[9:]]
+    else:
+        error(f"option {arg} is not valid",1)
+
+if not config['output_pathname']:
+    config['output_pathname'] = config['input_pathname'].replace(".csv",".png")
+figure_calls = dict(
+    savefig = config['output_pathname'],
+    )
+
+if config['debug']:
+    debug("config = "+json.dumps(config,indent=4),level=1)
+    debug("plot_options = "+json.dumps(plot_options,indent=4),level=1)
+    debug("figure_options = "+json.dumps(figure_options,indent=4),level=1)
+try:
+    data = pandas.read_csv(config['input_pathname'])
+    plt = data.plot(**plot_options)
+    if plt:
+        for key, value in figure_options.items():
+            getattr(plt.figure,"set_"+key)(value)
+        # plt.figure.set_tight_layout(True)
+        # debug(f"plt.figure.{key} = {getattr(plt.figure,key)}")
+        for key, value in figure_calls.items():
+            getattr(plt.figure,key)(value)
+        if config['show']:
+            os.system(f"{config['open_command']} {config['output_pathname']}")
+    else:
+        error("nothing to plot",2)
+except:
+    e_type, e_value, e_trace = sys.exc_info()
+    if config["debug"]:
+        import traceback
+        exception("".join(traceback.format_exception(e_type,e_value,e_trace)),3)
+    else:
+        exception(e_value,3)
+
