@@ -688,6 +688,10 @@ GLOBAL char1024 global_loader_filename INIT("");
 /* Variable: global_loader_linenum */
 GLOBAL int32 global_loader_linenum INIT(0);
 
+GLOBAL char8 global_country INIT("US");
+GLOBAL char32 global_region INIT("CA");
+GLOBAL char1024 global_organization INIT("SLAC");
+
 /* Variable: global_json_complex_format */
 #define JCF_STRING  0x0000
 #define JCF_LIST    0x0001
