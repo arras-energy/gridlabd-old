@@ -168,13 +168,13 @@ void pole::reset_commit_accumulators()
 	wire_load_nowind = 0.0;
 	wire_moment_nowind = 0.0;
     pole_moment = 0.0;
+    equipment_moment = 0.0;
+    wire_moment = 0.0;
+    wire_tension = 0.0;
 }
 
 void pole::reset_sync_accumulators()
 {
-    equipment_moment = 0.0;
-    wire_moment = 0.0;
-    wire_tension = 0.0;
     wire_load = 0.0;
 }
 
@@ -407,7 +407,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
         wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
         pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
+        double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
         verbose("wind_pressure = %g psi",wind_pressure); // TODO: units?
         verbose("pole_moment_nowind = %g ft.lb.s/m",pole_moment_nowind); // TODO: units?
