@@ -420,7 +420,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         {
             double beta = (tilt_direction-wind_direction)/180*PI; // wind angle on pole
             verbose("wind_angle = %g rad",beta);
-            wind_moment = wind_pressure * height * height * (config->ground_diameter/12+2*config->top_diameter/12)/72 * config->overload_factor_transverse_general;
+            wind_moment = wind_pressure * height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
             double x = pole_moment + wind_moment*cos(beta);
             verbose("x = %g ft.lb",x);
             double y = wind_moment*sin(beta);
