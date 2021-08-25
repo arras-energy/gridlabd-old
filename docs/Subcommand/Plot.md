@@ -33,6 +33,10 @@ The following options are available:
 
 Enable debug output (if any)
 
+### `-e|--exception`
+
+Enable raising of exception instead of printing exception message and exiting with error code 3.
+
 ### `--figure:OPTIONS[=VALUE]` 
 
 Specify matplotlib pyplot figure option
