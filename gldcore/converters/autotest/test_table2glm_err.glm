@@ -1,5 +1,9 @@
 module assert;
 
+#ifexist "../table2glm_input_noclass.csv"
+#define DIR=..
+#endif
+
 clock 
 {
 	starttime "2019-01-01 00:00:00";
@@ -9,7 +13,7 @@ clock
 module powerflow;
 module climate;
 
-#input "../table2glm_input_noclass.csv" -f "table" -t "object"
+#input "${DIR:-.}/table2glm_input_noclass.csv" -f "table" -t "object"
 
 object assert {
 	parent "weather";

@@ -247,42 +247,20 @@ DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 STATUS GldCmdarg::no_cmdargs(void)
 {
-	char htmlfile[1024];
-	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile,sizeof(htmlfile)-1)!=NULL )
+	char guiname[1024] = "gridlabd-editor.py";
+	char guipath[1024];
+	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
-		char cmd[4096];
-
-		/* enter server mode and wait */
-#ifdef WIN32
-		if ( htmlfile[1]!=':' )
-		{
-			snprintf(htmlfile,sizeof(htmlfile)-1,"%s\\gridlabd.htm", global_workdir);
-		}
-		output_message("opening html page '%s'", htmlfile);
-		snprintf(cmd,sizeof(cmd)-1,"start %s file:///%s", global_browser, htmlfile);
-#elif defined(MACOSX)
-		snprintf(cmd,sizeof(cmd)-1,"open -a %s %s", global_browser, htmlfile);
-#else
-		snprintf(cmd,sizeof(cmd)-1,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
-#endif
-		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
-		if (my_instance->subcommand("%s",cmd)!=0)
-		{
-			output_error("unable to start browser");
-			return FAILED;
-		}
-		else
-		{
-			IN_MYCONTEXT output_verbose("starting interface");
-		}
-		strcpy(global_environment,"server");
-		global_mainloopstate = MLS_PAUSED;
+		char command[2048];
+		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
+		system(command);
 		return SUCCESS;
 	}
 	else
-		output_error("default html file '%s' not found (workdir='%s')", "gridlabd.htm",global_workdir);
-
-	return SUCCESS;
+	{
+		output_error("%s not found",guiname);
+		return FAILED;
+	}
 }
 
 DEPRECATED static int copyright(void *main, int argc, const char *argv[])
@@ -454,6 +432,29 @@ int GldCmdarg::compile(int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int library(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->library(argc,argv);	
+}
+int GldCmdarg::library(int argc, const char *argv[])
+{
+	if ( argc > 1 )
+	{
+		char pathname[1024];
+		const char *etcpath = getenv("GLD_ETC");
+		if ( etcpath == NULL )
+		{
+			etcpath = "/usr/local/share/gridlabd";
+		}
+		snprintf(pathname,sizeof(pathname),"%s/library/%s",getenv("GLD_ETC"),argv[1]);
+		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
+	}
+	else
+	{
+		output_fatal("missing library filename");
+		return CMDERR;
+	}
+}
 
 DEPRECATED static int initialize(void *main, int argc, const char *argv[])
 {
@@ -2257,6 +2258,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
 	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
+	{"library",     "l",    library,        "<filename>", "Loads a library GLM file"},
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },
