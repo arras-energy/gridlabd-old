@@ -121,8 +121,8 @@ plot_options = dict(
     subplots = False,
     sharex = True,
     sharey = False,
-    # layout = None,
-    # figsize = None,
+    # layout = [],
+    # figsize = [],
     use_index = True,
     title = "",
     grid = False,
@@ -157,11 +157,15 @@ figure_options = dict(
     facecolor = 'white',
     edgecolor = 'white',
     frameon = True,
-    # dpi = 100.0,
+    dpi = 100.0,
     )
 
 validate = {
     "plot:y" : lambda x: x.split(","),
+    "plot:figsize" : lambda x: list(map(int,x.split(','))),
+    "plot:fontsize" : int,
+    "plot:position" : float,
+    "figure:dpi" : float,
     }
 
 # if __name__ == "__main__":
