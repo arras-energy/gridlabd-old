@@ -69,112 +69,112 @@ import sys, os
 import pandas
 import json
 
-E_OK = 0
-E_INVALID = 1
-E_NODATA = 2
-E_EXCEPTION = 3
+def main(args):
+    E_OK = 0
+    E_INVALID = 1
+    E_NODATA = 2
+    E_EXCEPTION = 3
 
-def exception(msg,code=None):
-    """Print exception message
+    def exception(msg,code=None):
+        """Print exception message
 
-    Exception messages are printed only if the configuration parameter `exception` is false.
-    Otherwise, the exception is raised. Use the '-e|--exception' option to toggle this setting.
+        Exception messages are printed only if the configuration parameter `exception` is false.
+        Otherwise, the exception is raised. Use the '-e|--exception' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (None or str)    Exception message (None to get last exception)
-        code (None or int)   Exit code. None does not exit. Default is None)
-    """
-    if config["exception"]:
-        raise
-    if not msg:
-        e_type, e_value, e_trace = sys.exc_info()
-        if config["debug"]:
-            import traceback
-            msg = "".join(traceback.format_exception(e_type,e_value,e_trace))
-        else:
-            msg = e_value
-        code = E_EXCEPTION
-    print(f"EXCEPTION [gridlabd-plot]: {msg}",file=sys.stderr)
-    if type(code) is int:
-        exit(code)
+            msg (None or str)    Exception message (None to get last exception)
+            code (None or int)   Exit code. None does not exit. Default is None)
+        """
+        if config["exception"]:
+            raise
+        if not msg:
+            e_type, e_value, e_trace = sys.exc_info()
+            if config["debug"]:
+                import traceback
+                msg = "".join(traceback.format_exception(e_type,e_value,e_trace))
+            else:
+                msg = e_value
+            code = E_EXCEPTION
+        print(f"EXCEPTION [gridlabd-plot]: {msg}",file=sys.stderr)
+        if type(code) is int:
+            exit(code)
 
-def error(msg,code=None):
-    """Print error message
+    def error(msg,code=None):
+        """Print error message
 
-    Error messages are printed only if the configuration parameters `quiet` is false.
-    Otherwise, the error message is suppressed. Use the '-q|--quiet' option to toggle this setting.
+        Error messages are printed only if the configuration parameters `quiet` is false.
+        Otherwise, the error message is suppressed. Use the '-q|--quiet' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (str)            Error message
-        code (None or int)   Exit code. None does not exit. Default is None)
-    """
-    if not config["quiet"]:
-        print(f"ERROR [gridlabd-plot]: {msg}",file=sys.stderr)
-    if type(code) is int:
-        exit(code)
+            msg (str)            Error message
+            code (None or int)   Exit code. None does not exit. Default is None)
+        """
+        if not config["quiet"]:
+            print(f"ERROR [gridlabd-plot]: {msg}",file=sys.stderr)
+        if type(code) is int:
+            exit(code)
 
-def warning(msg):
-    """Print warning message
+    def warning(msg):
+        """Print warning message
 
-    Warning messages are printed only if the configuration parameter `warning` is true.
-    Otherwise the warning message is suppressed. Use the '-w|--warning' option to toggle this setting.
+        Warning messages are printed only if the configuration parameter `warning` is true.
+        Otherwise the warning message is suppressed. Use the '-w|--warning' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (str)   Warning message
-    """
-    if config["warning"]:
-        print(f"WARNING [gridlabd-plot]: {msg}",file=sys.stderr)
+            msg (str)   Warning message
+        """
+        if config["warning"]:
+            print(f"WARNING [gridlabd-plot]: {msg}",file=sys.stderr)
 
-def verbose(msg):
-    """Print verbose message
+    def verbose(msg):
+        """Print verbose message
 
-    Verbose messages are printed only if the configuration parameter `verbose` is true.
-    Otherwise the verbose message is suppressed. Use the '-v|--verbose' option to toggle this setting.
+        Verbose messages are printed only if the configuration parameter `verbose` is true.
+        Otherwise the verbose message is suppressed. Use the '-v|--verbose' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (str)   Verbose message
-    """
-    if config["verbose"]:
-        print(f"VERBOSE [gridlabd-plot]: {msg}",file=sys.stderr)
+            msg (str)   Verbose message
+        """
+        if config["verbose"]:
+            print(f"VERBOSE [gridlabd-plot]: {msg}",file=sys.stderr)
 
-def debug(msg,level=0):
-    """Print debug message
+    def debug(msg,level=0):
+        """Print debug message
 
-    Debug messages are printed only if the configuration parameter `debug` is an integer and the
-    value of level is less than or equal to the `debug` value. Otherwise the debug message is 
-    suppressed. Use the '-d|--debug' option to toggle this setting.
+        Debug messages are printed only if the configuration parameter `debug` is an integer and the
+        value of level is less than or equal to the `debug` value. Otherwise the debug message is 
+        suppressed. Use the '-d|--debug' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (str)     Debug message
-        level (int)   Debug message level (default is 0)
-    """
-    if config["debug"] and level <= config["debug"]:
-        print(f"DEBUG [gridlabd-plot]: (level {level}) {msg}",file=sys.stderr)
+            msg (str)     Debug message
+            level (int)   Debug message level (default is 0)
+        """
+        if config["debug"] and level <= config["debug"]:
+            print(f"DEBUG [gridlabd-plot]: (level {level}) {msg}",file=sys.stderr)
 
-def output(msg,code=None):
-    """Print output message
+    def output(msg,code=None):
+        """Print output message
 
-    Output messages are printed only if the configuration parameter `quiet` is false.
-    Otherwise the output message is suppressed. Use the '-q|--quiet' option to toggle this setting.
+        Output messages are printed only if the configuration parameter `quiet` is false.
+        Otherwise the output message is suppressed. Use the '-q|--quiet' option to toggle this setting.
 
-    PARAMETERS
+        PARAMETERS
 
-        msg (str)    Output message
-        code (int)   Exit code to use after message is output (use `None` to not exit)
-    """
-    print(msg,file=sys.stdout)
-    if type(code) is int:
-        exit(code)
+            msg (str)    Output message
+            code (int)   Exit code to use after message is output (use `None` to not exit)
+        """
+        print(msg,file=sys.stdout)
+        if type(code) is int:
+            exit(code)
 
-def main():
     global config
     try:
-        with open(sys.argv[0].replace(".py",".conf"),"r") as input_file:
+        with open(args[0].replace(".py",".conf"),"r") as input_file:
             config = json.load(input_file)
     except:
         config = dict(
@@ -246,22 +246,19 @@ def main():
         "figure:dpi" : float,
         }
 
-    if len(sys.argv) == 1:
+    if len(args) == 1:
         print(__doc__)
         exit(1)
-    for arg in sys.argv[1:]:
+    for arg in args[1:]:
         if arg in ["-h","--help","help"]:
-            if sys.stdout.isatty():
-                help(__name__)
-            else:
-                output(__doc__,E_OK)
+            output(__doc__,E_OK)
         if "=" in arg:
-            args = arg.split("=")
-            arg = args[0]
-            arg1 = "=".join(args[1:])
+            argn = arg.split("=")
+            arg = argn[0]
+            arg1 = "=".join(argn[1:])
             if arg.startswith("--") and arg[2:] in validate.keys():
                 arg1 = validate[arg[2:]](arg1)
-                debug(f"validating {'='.join(args)} --> {arg1}")
+                debug(f"validating {'='.join(argn)} --> {arg1}")
         else:
             arg1 = None
         if arg in ["-e","--exception"]:
@@ -324,4 +321,4 @@ def main():
         exception()
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
