@@ -12,6 +12,11 @@ GLM:
 
 ~~~
 #plot OPTIONS
+~~~
+
+or
+
+~~~
 #on_exit CODE gridlabd plot OPTIONS
 ~~~
 
