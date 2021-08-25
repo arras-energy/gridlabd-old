@@ -1528,7 +1528,11 @@ DEPRECATED static int pstatus(void *main, int argc, const char *argv[])
 int GldCmdarg::pstatus(int argc, const char *argv[])
 {
 	sched_init(1);
-	sched_print(0);
+	const char *opt = strchr(argv[0],'=');
+	if ( opt != NULL )
+		sched_print(0,opt+1);
+	else
+		sched_print(0);
 	return 0;
 }
 
