@@ -1,0 +1,35 @@
+module tape
+{
+    csv_header_type NAME;
+}
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2020-01-02 00:00:00 PST";
+}
+
+class test {
+    randomvar x[MW];
+    randomvar y[MWh];
+}
+
+#set randomseed=1
+object test
+{
+    x "type:normal(100,10); min:0; max:200; refresh:1h";    
+    y "type:normal(100,10); min:0; max:200; refresh:1h";
+    object recorder
+    {
+        property "x,y";
+        interval -1;
+        file ${modelname/glm/csv};
+    };
+}
+
+#on_exit 0 gridlabd plot --input=${modelname/glm/csv} --plot:x=timestamp --plot:y=x,y --plot:rot=90 --plot:grid --plot:legend --figure:tight_layout=True
+
+#ifexist ../${FILENAME $modelname}.png
+#on_exit 0 diff ../${FILENAME $modelname}.png ${FILENAME $modelname}.png
+#endif
