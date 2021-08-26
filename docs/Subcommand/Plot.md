@@ -39,7 +39,14 @@ Enable raising of exception instead of printing exception message and exiting wi
 
 ### `--figure:OPTIONS[=VALUE]` 
 
-Specify matplotlib pyplot figure option
+Specify matplotlib pyplot figure option. See [Matplotlib *figure*](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html) for details.
+
+- *figsize* (tuple): Specify figure width and height in inches. Default is `6.4,4.8`.
+- *dpi* (float): Specify plot resolution in dots per inch. Default is `100.0`.
+- *facecolor* (str): Specify the background color. Default is `white`.
+- *edgecolor* (str): Specify the border color. Default is `white`.
+- *frameon* (bool): Enable visibility of the figure frame. Default is `True`.
+- *tight_layout* (bool): Enable adjustment of the padding to fit plot elements. Default is `False`.
 
 ### `-h|--help|help`
 
@@ -63,7 +70,41 @@ Show the output
 
 ### `--plot:OPTIONS[=VALUE]`   
 
-Specify pandas DataFrame plot option
+The following [Pandas DataFrame *plot*](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.html) options are available. In addition, many [Matplotlib *plot*](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html) options may be used.
+
+- *x* (str or int): Specify the x data. Default is `None`.
+- *y* (str, int, of list of str or int): Specify the y data. Default is `None`
+- *kind* (str): specify the kind of plot, i.e., "line", "bar", "barh", "hist", "box", "kde", "density", "area", "pie", "scatter", "hexbin". Default is "line".
+- *subplots* (bool): Plot y data on separate subplots. Default is `False`.
+- *sharex* (bool): Share x axis when using `subplots`.
+- *sharey* (bool): Share y axis when using `subplots`.
+- *layout* (tuple): Specify `(rows,columns)` when using `subplots`.
+- *figsize* (tuple): Specify `(width,height)` of figure in inches.
+- *use_index* (bool): Specify the use of the row index as ticks. Default is `True`.
+- *title* (str or list of str): Specify the (sub)plot title(s). Defualt is `None`.
+- *grid* (bool): Enable plotting of the grid. Default is `False`.
+- *legend* (bool): Enable plotting of the legend. Default is `False`.
+- *style* (str): Specify the list style. Default is `-`.
+- *logx* (bool): Enable plotting *x* axis on a logarithmic scale. Default is `False`.
+- *logy* (bool): Enable plotting *y* axis on a logarithmic scale. Default is `False`.
+- *loglog* (bool): Enable plotting both axes on a logarithmic scale. Default is `False`.
+- *xticks* (sequence): Specify *x*-tick values. Default is automatic.
+- *yticks* (sequence): Specify *y*-tick values. Default is automatic.
+- *xlim* (tuple): Specify *x* limits. Default is `None`.
+- *ylim* (tuple): Specify *y* limits. Default is `None`.
+- *xlabel* (str): Specify the *x* axis label. Default is *x* field name.
+- *ylabel* (str): Specify the *y* axis label. Default is *y* field name.
+- *rot* (int): Specify the rotation for tick labels. Default is 0.
+- *fontsize* (int): Specify the tick label font size. Default is 10.
+- *position* (float): Specify the relative alignment of bars, i.e., 0 for left/bottom to 1 for top/right. Default is 0.5 (center).
+- *colormap* (str): Specify the color map to use when *colorbar* is enabled.
+- *colorbar* (bool): Enable the colorbar (only for *scatter* and *hexbin* plots).
+- *table* (bool): Enable placement of a data table below the plot. Default is `False`.
+- *stacked* (bool): Enable stacked *line*, *area* and *bar* plots. Default is `False` for *line* and *bar* plots, and `True` for *area* plots.
+- *sort_columns* (bool): Enable sorting of column names when ordering the plot. Default is `False`.
+- *secondary_y* (bool): Enable plotting of *y* values on secondary axis if multiple *y* fields are specified. Default is `False`.
+- *mark_right* (bool): Enable marking with `(right)` secondary *y*-axis fields. Default is `False`.
+- *include_bool* (bool): Enable inclusion of Boolean values in plot. Default is `False`.
 
 ### `-v|--verbose`
 
