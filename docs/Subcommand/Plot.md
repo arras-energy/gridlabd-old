@@ -43,8 +43,8 @@ Specify matplotlib pyplot figure option. See [Matplotlib *figure*](https://matpl
 
 - *figsize* (tuple): Specify figure width and height in inches. Default is `6.4,4.8`.
 - *dpi* (float): Specify plot resolution in dots per inch. Default is `100.0`.
-- *facecolor* (str): Specify the background color. Default is `white`.
-- *edgecolor* (str): Specify the border color. Default is `white`.
+- *facecolor* (str): Specify the background color. See [Matplotlib colors](https://matplotlib.org/stable/gallery/color/named_colors.html) for details. Default is `white`.
+- *edgecolor* (str): Specify the border color. See [Matplotlib colors](https://matplotlib.org/stable/gallery/color/named_colors.html) for details. Default is `white`.
 - *frameon* (bool): Enable visibility of the figure frame. Default is `True`.
 - *tight_layout* (bool): Enable adjustment of the padding to fit plot elements. Default is `False`.
 
