@@ -2,14 +2,15 @@
 
 # check environment
 if [ ${GLD_ETC:-none} == none ]; then
-    echo "ERROR: GLD_ETC is not exported from the shell environment"
-    exit 1
+    export GLD_ETC=${gridlabd --version=install}/shared/gridlabd
 fi
 
 # configurable parameters
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
-ORGANIZATION="US/CA/SLAC"
+if [ "${ORGANIZATION}" == "" ]; then
+    export ORGANIZATION="US/CA/SLAC"
+fi
 GITUSER=slacgismo
 GITREPO="gridlabd-template"
 GITBRANCH="master"
@@ -33,8 +34,8 @@ function error()
 {
     RC=$1
     shift
-    if [ "$QUIET" == "very" ]; then
-        echo "$EXECNAME [ERROR]: $*" >/dev/stderr
+    if [ "$QUIET" != "very" ]; then
+        echo "ERROR [$EXECNAME]: $*" >/dev/stderr
     fi
     exit $RC
 }
@@ -42,21 +43,21 @@ function error()
 function warning()
 {
     if [ "$QUIET" == "no" ]; then
-        echo "$EXECNAME [WARNING]: $*" >/dev/stderr
+        echo "WARNING [$EXECNAME]: $*" >/dev/stderr
     fi
 }
 
 function verbose()
 {
     if [ "$VERBOSE" == "yes" ]; then
-        echo "$EXECNAME [VERBOSE]: $*" >/dev/stderr
+        echo "VERBOSE [$EXECNAME]: $*" >/dev/stderr
     fi
 }
 
 function debug()
 {
     if [ "$DEBUG" == "yes" ]; then
-        echo "$EXECNAME [DEBUG]: $*" >/dev/stderr
+        echo "DEBUG [$EXECNAME]: $*" >/dev/stderr
     fi
 }
 
@@ -109,10 +110,11 @@ function config()
         fi
     elif [ "$1" == "reset" ]; then
         debug "resetting config"        
-        rm -f $CONFIGFILE || error 1 "unable to reset $CONFIGFILE"
+        rm -f $CONFIGFILE $INDEX || error 1 "unable to reset $CONFIGFILE"
     elif [ "$1" == "set" -a $# == 3 ]; then
-        debug "updating config: $2 = '$3'"        
+        debug "updating config: $2 = '$3'"
         echo "$2=\"$3\"" >> $CONFIGFILE
+        rm -f ${INDEX}
     elif [ "$1" == "get" -a $# == 2 ]; then
         if [ ! -r $CONFIGFILE ]; then
             value=$(config show | grep $2)
@@ -131,6 +133,7 @@ function config()
 
 function fetch_index()
 {
+    verbose "fetching index"
     if [ ! -d "$DATADIR" ]; then
         mkdir -p "$DATADIR" || error 1 "unable to create $DATADIR"
         debug "created $DATADIR"
@@ -170,6 +173,7 @@ function help()
                 -r|--repository <repo>    Change repository name of template
                 -u|--user <login>         Change user name for editing template
                 -v|--verbose              Enable verbose output
+                -x                        Extended debug output with commmand echo
             Commands:
               help [<name>]        Get the list of template subcommands or help on a template
               index <pattern>      Index of available template data matching <pattern> in archive
@@ -205,6 +209,7 @@ END
 
 function clean()
 {
+    verbose "deleting $CACHEDIR"
     rm -rf "$CACHEDIR"
     if [ -d "$CACHEDIR" ]; then
         error 1 "unable to delete $CACHEDIR"
@@ -262,6 +267,7 @@ function list()
 function get()
 {
     fetch_index
+    FOUND=0
     for TEMPLATE in $(export FORMAT=default; index $1); do
         SRCDIR="$GITFILE/$ORGANIZATION/$TEMPLATE"
         DSTDIR="$GLD_ETC/template/$ORGANIZATION/$TEMPLATE"
@@ -272,15 +278,20 @@ function get()
             verbose "no catalog found; extracting legacy template from $GITFILE/$ORGANIZATION/$TEMPLATE.zip"
             (curl -sL "$GITFILE/$ORGANIZATION/$TEMPLATE.zip" > "/tmp/$$.zip" && unzip -q -o -d "$GLD_ETC/template" "/tmp/$$") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
         else
-            verbose "downloading template from $SRCDIR/.catalog: [$CATALOG]"
+            verbose "downloading template from $SRCDIR/.catalog: $(echo $CATALOG | tr -c 'A-Za-z_.' ' ')"
             for FILE in $CATALOG; do
                 curl -sL -f "$SRCDIR/$FILE" > "$DSTDIR/$FILE" || error 2 "unable to download '$FILE'"
                 debug "catalog file $FILE ok"
             done
-            curl -sL -f "$SRCDIR/$TEMPLATE.md" > "$DSTDIR/$TEMPLATE.md" || warning "not documentation found"
+            test -f "$DSTDIR/$TEMPLATE.md" || warning "no documentation found"
             debug "documentation file $TEMPLATE.md ok"
         fi
+        FOUND=$((${FOUND}+1))
     done
+    if [ ${FOUND} -eq 0 ]; then
+        error 1 "no template(s) not found"
+    fi
+    verbose "${FOUND} templates downloaded"
 }
 
 function copy()
@@ -452,6 +463,10 @@ while [ "${1:0:1}" == "-" ]; do
         VERBOSE="yes"
         shift 1
         ;;
+    (-x)
+        set -x
+        shift 1
+        ;;
     (*)
         error 1 "option '$1' is not valid"
         ;;
@@ -469,9 +484,10 @@ INDEX=$CACHEDIR/$COMMIT_ID
 if [ $# == 0 -o "$1" == "help" ]; then
     help $2
     exit 0
-elif [ "$(type -t $1)" = "function" ]; then
+elif [ "$(type -t $1)" == "function" ]; then
     $*
     exit 0
 else
     error 1 "'$1' is not a valid template command"
 fi
+error 1 "invalid result"

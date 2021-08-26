@@ -8020,7 +8020,7 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 	{
 		int xc;
 		char cmd[1024];
-		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		if ( sscanf(line+8,"%d %1023[^\r\n]",&xc,cmd) < 2 )
 		{
 			syntax_error("#on_exit syntax error");
 			return FALSE;
