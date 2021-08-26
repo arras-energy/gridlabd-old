@@ -100,6 +100,8 @@ The following [Pandas DataFrame *plot*](https://pandas.pydata.org/pandas-docs/st
 - *colormap* (str): Specify the color map to use when *colorbar* is enabled.
 - *colorbar* (bool): Enable the colorbar (only for *scatter* and *hexbin* plots).
 - *table* (bool): Enable placement of a data table below the plot. Default is `False`.
+- *xerr* (str): Field to use for *x* error bars. Default is `None`.
+- *yerr* (str): Field to use for *y* error bars. Default is `None`.
 - *stacked* (bool): Enable stacked *line*, *area* and *bar* plots. Default is `False` for *line* and *bar* plots, and `True` for *area* plots.
 - *sort_columns* (bool): Enable sorting of column names when ordering the plot. Default is `False`.
 - *secondary_y* (bool): Enable plotting of *y* values on secondary axis if multiple *y* fields are specified. Default is `False`.
