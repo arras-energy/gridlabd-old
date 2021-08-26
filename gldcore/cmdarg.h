@@ -190,6 +190,7 @@ public:
 	int slave(int argc, const char *argv[]);
 	int slave_id(int argc, const char *argv[]);
 	int slavenode(int argc, const char *argv[]);
+	int _template(int argc, const char *argv[]);
 	int test(int argc, const char *argv[]);
 	int testall(int argc, const char *argv[]);
 	int threadcount(int argc, const char *argv[]);
