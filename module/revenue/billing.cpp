@@ -91,7 +91,7 @@ int billing::create(void)
 	python_module = python_import(billing_module,billing_library);
 	if ( python_module == NULL )
 	{
-		exception("unable to load python billing module %s",(const char*)billing_module);
+		exception("unable to load python billing module %s from library %s",(const char*)billing_module,(const char*)billing_library);
 		return 0;
 	}
 	python_data = PyDict_New();

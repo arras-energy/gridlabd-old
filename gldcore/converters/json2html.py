@@ -1,4 +1,14 @@
-"""Convert GLM to HTML Folium interactive map"""
+"""Convert GLM to HTML Folium interactive map
+
+Object properties that affect map generation:
+
+  hidden
+  map_color
+  map_weight (link only)
+  map_opacity (link only)
+
+If defined in the object will be created (if hidden not TRUE) using these properties.
+"""
 import os, sys, getopt
 import json 
 import folium
@@ -97,11 +107,15 @@ def main(argv):
     lats = numpy.array(lats)
     lons = numpy.array(lons)
 
-    if zoomlevel == 'auto':
-        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
-        map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
-    else:
-        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
+    try:
+        if zoomlevel == 'auto':
+            map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
+            map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
+        else:
+            map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
+    except:
+        map = folium.Map(tiles=tiles,zoom_start=zoomlevel)
+        pass
     try:
         if cluster_ok:
             cluster = MarkerCluster().add_to(map)
@@ -115,6 +129,8 @@ def main(argv):
         popup = get_popup(name,tag)
         oclass = tag['class']
         color = get_color(tag)
+        if "hidden" in tag.keys() and tag["hidden"] == "TRUE":
+            continue
         if icon_prefix in icons.keys():
             if oclass in icons[icon_prefix].keys():
                 icon = folium.Icon(icon=icons[icon_prefix][oclass],color=color,prefix=icon_prefix)
@@ -122,6 +138,7 @@ def main(argv):
                 icon = None
         else:
             icon = folium.Icon(color=color)
+        obj = None
         try: # attempt to handle as a link
             from_name = tag['from']
             from_obj = data['objects'][from_name]
@@ -131,24 +148,34 @@ def main(argv):
             to_obj = data['objects'][to_name]
             lat1 = float(to_obj['latitude'])
             lon1 = float(to_obj['longitude'])
-            phases = tag['phases']
-            if tag['class'].startswith('underground'):
-                opacity = 0.3
-            else:
-                opacity = 0.7
             pos0 = (lat0,lon0)
             pos1 = (lat1,lon1)
             if pos0 != pos1:
-                obj = folium.PolyLine([pos0,pos1],color=color,weight=len(phases)*2,opacity=opacity,popup=popup,name=name)
+                if "phases" in tag.keys():
+                    weight = len(tag['phases'])*2
+                    if tag['class'].startswith('underground'):
+                        opacity = 0.3
+                    else:
+                        opacity = 0.7
+                else:
+                    opacity = 0.5
+                    weight = 3
+                    if "map_opacity" in tag.keys():
+                        opacity = tag["map_opacity"]
+                    if "map_weight" in tag.keys():
+                        weight = tag["map_weight"]
+                obj = folium.PolyLine([pos0,pos1],color=color,weight=weight,opacity=opacity,popup=popup,name=name)
             else:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
-        except: # apparently not a link, so it's a node or other object
+        except Exception as err: # apparently not a link, so it's a node or other object
+            #print(f"DEBUG: {err}",file=sys.stderr)
             if not icon:
                 warning(f"object '{name}' has no known icon (class '{oclass})'")
                 icon = folium.Icon(color=color)
-            elif pos:
+            if pos:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
-        obj.add_to(cluster)
+        if obj:
+            obj.add_to(cluster)
     if mouseposition:
         folium.plugins.MousePosition(auto_start=True,position=mouseposition).add_to(map)
     if search:
@@ -189,6 +216,11 @@ def get_current_color(C,C0,C1):
         return current_colors['emergency']
 
 def get_color(tag):
+
+    # direct color assignment
+    if "map_color" in tag.keys():
+        return tag["map_color"]
+
     # try node scheme first
     try:
         VN = float(tag['nominal_voltage'].split()[0])
