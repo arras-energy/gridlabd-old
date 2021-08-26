@@ -240,7 +240,13 @@ def main(args):
 
     validate = {
         "plot:y" : lambda x: x.split(","),
+        "plot:layout" : lambda x: list(map(int,x.split(','))),
         "plot:figsize" : lambda x: list(map(int,x.split(','))),
+        "plot:xtick" : lambda x: list(map(str,x.split(','))),
+        "plot:ytick" : lambda x: list(map(str,x.split(','))),
+        "plot:xlim" : lambda x: list(map(float,x.split(','))),
+        "plot:ylim" : lambda x: list(map(float,x.split(','))),
+        "plot:secondary_y" : lambda x: list(map(str,x.split(','))),
         "plot:fontsize" : int,
         "plot:position" : float,
         "figure:dpi" : float,
