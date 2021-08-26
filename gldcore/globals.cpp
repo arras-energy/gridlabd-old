@@ -359,6 +359,9 @@ DEPRECATED static struct s_varmap {
     {"echo", PT_bool, &global_echo, PA_PUBLIC, "echo subcommands"},
     {"filename",PT_char1024, &global_loader_filename, PA_REFERENCE, "current filename processed by loader"},
     // {"linenum",PT_int32, &global_loader_linenum, PA_REFERENCE,"current line number processed by loaded"},
+    {"country", PT_char8, &global_country,PA_PUBLIC,"country code"},
+    {"region", PT_char32, &global_region,PA_PUBLIC,"region code"},
+    {"organization",PT_char32, &global_organization,PA_PUBLIC,"organization name"},
 	/* add new global variables here */
 };
 

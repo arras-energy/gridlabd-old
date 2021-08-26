@@ -8029,7 +8029,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	{
 		int xc;
 		char cmd[1024];
-		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		if ( sscanf(line+8,"%d %1023[^\r\n]",&xc,cmd) < 2 )
 		{
 			syntax_error(filename,linenum,"#on_exit syntax error");
 			return FALSE;
@@ -8102,6 +8102,11 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"read macro syntax error");
 			return FALSE;
 		}
+	}
+	else if ( strncmp(line, "#meta", 5) == 0 )
+	{
+		strcpy(line,"\n");
+		return TRUE;
 	}
 	int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
 	if ( rc != 127 )
