@@ -8,15 +8,14 @@ fi
 
 # configurable parameters
 GITHUB="https://github.com"
-GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 ORGANIZATION="US/CA/SLAC"
 GITUSER=slacgismo
 GITREPO="gridlabd-library"
 GITBRANCH="master"
-SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -rHEAD"
 DATADIR="$GLD_ETC/library/$ORGANIZATION"
 OPENURLCMD='open ${file}'
 FORMAT="default"
+VERBOSE="no"
 
 # load the configuration (if any)
 CONFIGFILE="$GLD_ETC/gridlabd-library.conf"
@@ -28,8 +27,15 @@ function error()
 {
 	RC=$1
 	shift
-	echo "ERROR: $*" >/dev/stdout
+	echo "ERROR: $*" >/dev/stderr
 	exit $RC
+}
+
+function verbose()
+{
+	if [ "$VERBSE" == "yes" ]; then
+		echo "VERBOSE: $*" > /dev/stderr
+	fi
 }
 
 function config()
@@ -38,46 +44,38 @@ function config()
 		if [ "$FORMAT" == "json" ]; then
 			echo "{"
 			echo "	\"GITHUB\" : \"$GITHUB\","
-			echo "	\"GITHUBUSERCONTENT\" : \"$GITHUBUSERCONTENT\","
 			echo "	\"ORGANIZATION\" : \"$ORGANIZATION\","
 			echo "	\"GITUSER\" : \"$GITUSER\","
 			echo "	\"GITREPO\" : \"$GITREPO\","
 			echo "	\"GITBRANCH\" : \"$GITBRANCH\","
 			echo "	\"CACHEDIR\" : \"$CACHEDIR\","
 			echo "	\"DATADIR\" : \"$DATADIR\","
-			echo "	\"SVNLSOPTIONS\" : \"$SVNLSOPTIONS\""
 			echo "}"
 		elif [ "$FORMAT" == "glm" ]; then
-			echo "#define LIBRARY_GITHUB=$GITHUB"
-			echo "#define LIBRARY_GITHUBUSERCONTENT=$GITHUBUSERCONTENT"
-			echo "#define LIBRARY_ORGANIZATION=$ORGANIZATION"
-			echo "#define LIBRARY_GITUSER=$GITUSER"
-			echo "#define LIBRARY_GITREPO=$GITREPO"
-			echo "#define LIBRARY_GITBRANCH=$GITBRANCH"
-			echo "#define LIBRARY_CACHEDIR=$CACHEDIR"
-			echo "#define LIBRARY_DATADIR=$DATADIR"
-			echo "#define LIBRARY_SVNLSOPTIONS=$SVNLSOPTIONS"
+			echo "#meta library GITHUB=$GITHUB"
+			echo "#meta library ORGANIZATION=$ORGANIZATION"
+			echo "#meta library GITUSER=$GITUSER"
+			echo "#meta library GITREPO=$GITREPO"
+			echo "#meta library GITBRANCH=$GITBRANCH"
+			echo "#meta library CACHEDIR=$CACHEDIR"
+			echo "#meta library DATADIR=$DATADIR"
 		elif [ "$FORMAT" == "csv" ]; then
 			echo "name,value"
 			echo "GITHUB,\"$GITHUB\""
-			echo "GITHUBUSERCONTENT,\"$GITHUBUSERCONTENT\""
 			echo "ORGANIZATION,\"$ORGANIZATION\""
 			echo "GITUSER,\"$GITUSER\""
 			echo "GITREPO,\"$GITREPO\""
 			echo "GITBRANCH,\"$GITBRANCH\""
 			echo "CACHEDIR,\"$CACHEDIR\""
 			echo "DATADIR,\"$DATADIR\""
-			echo "SVNLSOPTIONS,\"$SVNLSOPTIONS\""
 		else
 			echo "GITHUB=\"$GITHUB\""
-			echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
 			echo "ORGANIZATION=\"$ORGANIZATION\""
 			echo "GITUSER=\"$GITUSER\""
 			echo "GITREPO=\"$GITREPO\""
 			echo "GITBRANCH=\"$GITBRANCH\""
 			echo "CACHEDIR=\"$CACHEDIR\""
 			echo "DATADIR=\"$DATADIR\""
-			echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 		fi
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || error 1 "unable to reset $CONFIGFILE"
@@ -102,7 +100,7 @@ function config()
 # set the internal parameters
 CACHEDIR="$DATADIR/.gridlabd-library"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
-GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
+GITFILE="$GITPROJ/raw/$GITBRANCH/$ORGANIZATION"
 COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
 INDEX=$CACHEDIR/$COMMIT_ID
 
@@ -115,10 +113,11 @@ function fetch_index()
 		mkdir -p $CACHEDIR || error 1 "unable to create $CACHEDIR"
 	fi
 	if [ ! -f $INDEX ]; then
-		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION library archive from ${GITPROJ}... "
-#		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.glm$' > $INDEX || rm -f $INDEX
-		curl -sL $GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index >$INDEX
-		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "library files found"
+		verbose "Downloading $GITFILE/.index... "
+		curl -sL $GITFILE/.index >$INDEX || rm $INDEX
+		if [ -f "$INDEX" ]; then
+			verbose $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "library files found"
+		fi
 	fi
 	if [ ! -f $INDEX ]; then
 		error 1 "unable to fetch index"
@@ -135,6 +134,7 @@ function help()
 			Syntax: gridlabd [options] library <command> [...]
 			Options:
 			  -f|--format <format> Change output format (e.g., json, glm, csv, default)
+			  -v|--verbose         Provide extra output to stderr
 			Commands:
 			  help                 Get the list of library subcommands
 			  index <pattern>      Index of available library data matching <pattern> in archive
@@ -178,7 +178,7 @@ function index()
 		LIST=$(grep "$1" $INDEX)
 	fi
 	if [ "$FORMAT" == "glm" ]; then
-		echo "#define LIBRARY_INDEX=$LIST"
+		echo "#meta library INDEX=$LIST"
 	elif [ "$FORMAT" == "csv" ]; then
 		echo "filename,pathname"
 		for f in $LIST; do
@@ -219,11 +219,11 @@ function get()
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
 		if [ ! -f $DATADIR/$f ]; then
-			echo -n "Downloading $f... "
-			(curl -sL $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
+			verbose "Downloading $GITFILE/$f... "
+			(curl -sL $GITFILE/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f) || (rm -f /tmp/$$; error 1 "unable to download $f")
 		else
-			echo -n "Refreshing $f... "
-			(curl -sL $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to refresh $f")
+			verbose "Refreshing $DATADIR/$f... "
+			(curl -sL $GITFILE/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f) || (rm -f /tmp/$$; error 1 "unable to refresh $f")
 		fi
 	done
 }
@@ -245,7 +245,7 @@ function info()
 				echo "	{"
 				echo "		\"datadir\" : \"$DATADIR/$f\","
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library $KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo "		\"$KEY\" : ${VALUE:-None},"
 				done
 				echo "		\"organization\" : \"$ORGANIZATION\""
@@ -267,7 +267,7 @@ function info()
 				fi
 				echo -n "$DATADIR/$f,$ORGANIZATION"
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#meta library $KEY=" $DATADIR/$f | cut -f2 -d=`
 					echo -n ",${VALUE:-\"\"}"
 				done
 				echo ""
@@ -300,7 +300,7 @@ function copy()
 	EXT=${TO##*.}
 	# convert automatically (TODO such that only objects are saved)
 	TMP=/tmp/tmp-$$
-	sed -e '1,$s/^#define LIBRARY_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
+	sed -e '1,$s/^#meta library Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
 	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT || exit 6
 	cat $TMP.$EXT > $TO || exit 7
 	rm -f $TMP.*
@@ -395,6 +395,9 @@ function add()
 if [ "$1" == "-f" -o "$1" == "--format" ]; then
 	FORMAT=$2
 	shift 2
+elif [ "$1" == "-v" -o "$1" == "--verbose" ]; then
+	VERBOSE=yes
+	shift 1
 fi
 
 if [ $# == 0 -o "$1" == "help" ]; then

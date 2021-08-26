@@ -1,21 +1,36 @@
 
+module powerflow;
+module residential;
+module tape
+{
+	csv_header_type NAME;
+}
+
 object triplex_meter
 {
-	name "meter${ID}";
+	name "meter_${ID}";
 	phases AS;
 	nominal_voltage 120 V;
+	object house
+	{
+		name "house_${ID}";
+	};
 }
-
-object house
-{
-	parent "meter${ID}";
-}
-
 
 object billing 
 {
-	meter "meter${ID}";
+	name "bill_${ID}";
+	meter "meter_${ID}";
 	tariff "${TARIFF}";
-	baseline_demand 10.5 kWh/day;
+	baseline_demand 8.2 kWh/day;
+	bill_day 26;
+	object recorder
+	{
+		file "${FILENAME $modelname}_bill_${ID}.csv";
+		property "billing_days,energy_charges,total_charges,total_bill";
+		interval -1;
+	};
 }
+
+
 
