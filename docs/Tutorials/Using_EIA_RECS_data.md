@@ -21,6 +21,8 @@ Some the skills you will learn in this tutorial include:
 
 6.  How to plot histograms of model properties
 
+7.  Generating a GLM model from python code
+
 The principal source of data for this tutorial is the RECS 2015
 Microdata \[2\]. It contains the raw survey data from 2015. This
 microdata can be downloaded using the `eia_recs.py` module installed in
@@ -39,7 +41,7 @@ You can load the RECS microdata for the census division that contains
 the state of California using the following code:
 :::
 
-::: {.cell .code execution_count="9"}
+::: {.cell .code execution_count="1"}
 ``` python
 import eia_recs
 fips = eia_recs.Microdata.get_division("CA")
@@ -50,11 +52,7 @@ data = recs[recs["DIVISION"]==codes["division"]]
 data
 ```
 
-::: {.output .stream .stdout}
-    5686
-:::
-
-::: {.output .execute_result execution_count="9"}
+::: {.output .execute_result execution_count="1"}
 ```{=html}
 <div>
 <style scoped>
@@ -387,18 +385,17 @@ statistics for census division 9, e.g., the parameters of a log-normal
 distribution of floor area:
 :::
 
-::: {.cell .code execution_count="2"}
+::: {.cell .code execution_count="18"}
 ``` python
 import numpy
 avg = numpy.log(data["TOTSQFT_EN"]).mean()
 std =  numpy.log(data["TOTSQFT_EN"]).std()
 
 data["TOTSQFT_EN"].plot(kind="hist",bins=range(0,10000,500),grid=True)
-avg,std
 ```
 
-::: {.output .execute_result execution_count="2"}
-    (7.4068847429917275, 0.5372963497324936)
+::: {.output .execute_result execution_count="18"}
+    <AxesSubplot:ylabel='Frequency'>
 :::
 
 ::: {.output .display_data}
@@ -565,44 +562,282 @@ Image.open("eia_recs_floorarea.png")
 :::
 
 ::: {.cell .markdown}
-# Learning 2: GLM objects with correlatved distributions
+# Learning 2: GLM objects with correlated distributions
 :::
 
 ::: {.cell .markdown}
 In this section we will learn how to generate and verify a correlated
 distribution of properties from the RECS dataset, specifically the floor
 area and the thermal integrity. Because this is a discrete property, a
-discrete distribution method must be used.
+discrete correlated distribution method is used.
 :::
 
-::: {.cell .code execution_count="22"}
+::: {.cell .code execution_count="6"}
 ``` python
 import eia_recs, numpy
 fips = eia_recs.Microdata.get_division("CA")
 codes = eia_recs.Microdata.get_codes(**fips)
 recs = eia_recs.Microdata()
 data = recs[recs["DIVISION"]==codes["division"]]
-ins1 = data[data["ADQINSUL"]==1]
-ins2 = data[data["ADQINSUL"]==2]
-ins3 = data[data["ADQINSUL"]==3]
-avg1 = numpy.log(ins1["TOTSQFT_EN"]).mean()
-std1 = numpy.log(ins1["TOTSQFT_EN"]).std()
-avg2 = numpy.log(ins2["TOTSQFT_EN"]).mean()
-std2 = numpy.log(ins2["TOTSQFT_EN"]).std()
-avg3 = numpy.log(ins3["TOTSQFT_EN"]).mean()
-std3 = numpy.log(ins3["TOTSQFT_EN"]).std()
-
-ins1["TOTSQFT_EN"].plot(kind="hist",bins=range(0,10000,500),grid=True,title="Insulation levels by square footage")
-ins2["TOTSQFT_EN"].plot(kind="hist",bins=range(0,10000,500),grid=True)
-ins3["TOTSQFT_EN"].plot(kind="hist",bins=range(0,10000,500),grid=True).legend(["Low","Normal","High"])
+area = {}
+ins = []
+avg = []
+std = []
+keys = ["LITTLE","NORMAL","GOOD"]
+for n in range(1,4):
+    ins.append(data[data["ADQINSUL"]==n])
+    area[keys[n-1]] = list(ins[-1]["TOTSQFT_EN"])
+    avg.append(numpy.log(ins[-1]["TOTSQFT_EN"]).mean())
+    std.append(numpy.log(ins[-1]["TOTSQFT_EN"]).std())
+values = list(area.values())
+keys = list(area.keys())
+import sys, matplotlib.pyplot as plt
+plt.hist(area.values(),20,range=(0,10000),label=keys,stacked=True)
+plt.xlabel("Floor area (sf)")
+plt.ylabel("Number of homes")
+plt.title(f"Floor areas (N={sum(list(map(lambda x:len(x),values)))})")
+plt.grid()
+plt.legend(list(area.keys()))
+plt.show()
 ```
 
-::: {.output .execute_result execution_count="22"}
-    <matplotlib.legend.Legend at 0x11fffff70>
+::: {.output .display_data}
+![](20fdac2f9833a513eef8b2d82cc715b619293773.png)
+:::
 :::
 
+::: {.cell .markdown}
+The GLM file for a model based on this data is as follows
+:::
+
+::: {.cell .code execution_count="7"}
+``` python
+!cat eia_recs_floorarea_insulation.glm
+```
+
+::: {.output .stream .stdout}
+    // this prevents the simulation from start a clock
+    #set compileonly=TRUE
+    #set warn=FALSE
+    
+    // load the RECS data and calculate the floor area statistics
+    #begin python
+    import eia_recs, numpy
+    fips = eia_recs.Microdata.get_division("${region}")
+    codes = eia_recs.Microdata.get_codes(**fips)
+    recs = eia_recs.Microdata()
+    data = recs[recs["DIVISION"]==codes["division"]]
+    ins = []
+    avg = []
+    std = []
+    for n in range(1,4):
+        ins.append(data[data["ADQINSUL"]==n])
+        avg.append(numpy.log(ins[-1]["TOTSQFT_EN"]).mean())
+        std.append(numpy.log(ins[-1]["TOTSQFT_EN"]).std())
+    #end
+    
+    // create the same number of homes with a similar log-normal distribution
+    module residential;
+    object house:..${PYTHON len(ins[0])}
+    {
+        floor_area random.lognormal(${PYTHON avg[0]},${PYTHON std[0]});
+        thermal_integrity_level GOOD;
+    }
+    object house:..${PYTHON len(ins[1])}
+    {
+        floor_area random.lognormal(${PYTHON avg[1]},${PYTHON std[1]});
+        thermal_integrity_level NORMAL;
+    }
+    object house:..${PYTHON len(ins[2])}
+    {
+        floor_area random.lognormal(${PYTHON avg[2]},${PYTHON std[2]});
+        thermal_integrity_level LITTLE;
+    }
+    
+    // save and plot the results 
+    #set savefile=${modelname/.glm/.json}
+    #on_exit 0 python3 ${modelname/.glm/.py}
+:::
+:::
+
+::: {.cell .markdown}
+The python script is a little different because we have to plot a
+stacked histogram:
+:::
+
+::: {.cell .code execution_count="8"}
+``` python
+!cat eia_recs_floorarea_insulation.py
+```
+
+::: {.output .stream .stdout}
+    import sys, json, math
+    area = []
+    with open(sys.argv[0].replace(".py",".json"),"r") as f:
+        glm = json.load(f)
+        area = {"LITTLE":[],"NORMAL":[],"GOOD":[]}
+        for name, data in glm["objects"].items():
+            area[data["thermal_integrity_level"]].append(float(data["floor_area"].split()[0]))
+    import matplotlib.pyplot as plt
+    values = list(area.values())
+    keys = list(area.keys())
+    plt.hist(values,20,range=(0,10000),label=keys,stacked=True)
+    plt.xlabel("Floor area (sf)")
+    plt.ylabel("Number of homes")
+    plt.title(f"Floor areas (N={len(glm['objects'].keys())})")
+    plt.grid()
+    plt.legend(keys)
+    plt.savefig(sys.argv[0].replace(".py",".png"))
+:::
+:::
+
+::: {.cell .markdown}
+The result is as follows:
+:::
+
+::: {.cell .code execution_count="9"}
+``` python
+!gridlabd eia_recs_floorarea_insulation.glm
+from PIL import Image
+Image.open("eia_recs_floorarea_insulation.png")
+```
+
+::: {.output .execute_result execution_count="9"}
+![](9378fb8c73a135ecb76b893d4f70c3a5459fc5c9.png)
+:::
+:::
+
+::: {.cell .markdown}
+Another pair of properties that are usually correlated are the heating
+and cooling setpoints. In this case, the correlation is between two
+continuous variables, as shown by the following 2D histogram.
+:::
+
+::: {.cell .code execution_count="10"}
+``` python
+import eia_recs, numpy
+fips = eia_recs.Microdata.get_division("CA")
+codes = eia_recs.Microdata.get_codes(**fips)
+recs = eia_recs.Microdata()
+data = recs[recs["DIVISION"]==codes["division"]]
+th = data["TEMPHOME"]
+tc = data["TEMPHOMEAC"]
+import matplotlib.pyplot as plt
+plt.hist2d(x=tc,y=th,bins=15,range=[[65,80],[65,80]])
+plt.xlabel("Cooling setpoint (degF)")
+plt.ylabel("Heating setpoint (degF)")
+plt.title(f"Thermostat (N={len(data)})")
+plt.colorbar()
+plt.xticks(range(65,81,1))
+plt.yticks(range(65,81,1))
+plt.show()
+```
+
 ::: {.output .display_data}
-![](407cf9a97c98d62036a4ac53e19457c986bb7639.png)
+![](6ddf1d26b75c90a8a342ed2606de8154e6bb7a25.png)
+:::
+:::
+
+::: {.cell .markdown}
+In this case we will use random sampling to populate the objects in the
+model. One way this can be accomplished to is to generate the objects in
+a separate file and include the file.
+:::
+
+::: {.cell .markdown}
+The following GLM file creates a model with 1000 homes (instead of the
+original 242).
+:::
+
+::: {.cell .code execution_count="11"}
+``` python
+!cat eia_recs_floorarea_temperature.glm
+```
+
+::: {.output .stream .stdout}
+    // this prevents the simulation from start a clock
+    #set compileonly=TRUE
+    #set warn=FALSE
+    
+    // load the RECS data and calculate the floor area statistics
+    #begin python
+    import eia_recs, numpy, sys, random
+    fips = eia_recs.Microdata.get_division("${region}")
+    codes = eia_recs.Microdata.get_codes(**fips)
+    recs = eia_recs.Microdata()
+    data = recs[recs["DIVISION"]==codes["division"]]
+    th = list(data["TEMPHOME"])
+    tc = list(data["TEMPHOMEAC"])
+    with open("/tmp/objects.glm","w") as f:
+        f.write("module residential;\n")
+        for n in range(1000):
+            f.write("object house {\n")
+            m = random.randrange(len(data))
+            f.write(f"  heating_setpoint {th[m]};\n")
+            f.write(f"  cooling_setpoint {tc[m]};\n")
+            f.write("}\n")
+    #end
+    
+    // create the same number of homes with a similar log-normal distribution
+    #include "/tmp/objects.glm"
+    
+    // save and plot the results 
+    #set savefile=${modelname/.glm/.json}
+    #on_exit 0 python3 ${modelname/.glm/.py}
+:::
+:::
+
+::: {.cell .markdown}
+**Skill 7**: Dynamically generated models can be written to a temporary
+GLM file and then loaded using a `#include` statement. Care should be
+take not to use a filename that is already used. An alternative method
+is to use `modify` statements instead of `object` statements.
+:::
+
+::: {.cell .markdown}
+Here again, a familiar python script is used to analyze the result:
+:::
+
+::: {.cell .code execution_count="12"}
+``` python
+!cat eia_recs_floorarea_temperature.py
+```
+
+::: {.output .stream .stdout}
+    import sys, json, math
+    th = []
+    tc = []
+    with open(sys.argv[0].replace(".py",".json"),"r") as f:
+        glm = json.load(f)
+        for name, data in glm["objects"].items():
+            th.append(float(data["heating_setpoint"].split()[0]))
+            tc.append(float(data["cooling_setpoint"].split()[0]))
+    
+    import matplotlib.pyplot as plt
+    plt.hist2d(x=tc,y=th,bins=15,range=[[65,80],[65,80]])
+    plt.xlabel("Cooling setpoint (degF)")
+    plt.ylabel("Heating setpoint (degF)")
+    plt.title(f"Thermostat (N={len(glm['objects'].keys())})")
+    plt.colorbar()
+    plt.xticks(range(65,81,1))
+    plt.yticks(range(65,81,1))
+    plt.savefig(sys.argv[0].replace(".py",".png"))
+:::
+:::
+
+::: {.cell .markdown}
+The result is as follows:
+:::
+
+::: {.cell .code execution_count="13"}
+``` python
+!gridlabd eia_recs_floorarea_temperature.glm
+from PIL import Image
+Image.open("eia_recs_floorarea_temperature.png")
+```
+
+::: {.output .execute_result execution_count="13"}
+![](b5819a38865ce8b49924b40d5496b0c3d6322156.png)
 :::
 :::
 
