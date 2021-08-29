@@ -1,3 +1,4 @@
+
 <div class="cell markdown">
 
 The principal learning objectives of this tutorial are the following:
@@ -143,7 +144,7 @@ data["TOTSQFT_EN"].plot(kind="hist",bins=range(0,10000,500),grid=True)
 
 <div class="output display_data">
 
-![](c096bbb1ab1e56c7afda83e786c45b1ed8e313e4.png)
+bash% [](c096bbb1ab1e56c7afda83e786c45b1ed8e313e4.png)
 
 </div>
 
@@ -214,7 +215,7 @@ First, here's what the GLM file looks like
 <div class="cell code" execution_count="3">
 
 ``` python
-!cat eia_recs_floorarea.glm
+bash% cat eia_recs_floorarea.glm
 ```
 
 <div class="output stream stdout">
@@ -274,7 +275,7 @@ The python file contains the following code:
 <div class="cell code" execution_count="4">
 
 ``` python
-!cat eia_recs_floorarea.py
+bash% cat eia_recs_floorarea.py
 ```
 
 <div class="output stream stdout">
@@ -317,14 +318,14 @@ The output PNG file is generated and viewed using the following command
 <div class="cell code" execution_count="5">
 
 ``` python
-!gridlabd eia_recs_floorarea.glm
+bash% gridlabd eia_recs_floorarea.glm
 from PIL import Image
 Image.open("eia_recs_floorarea.png")
 ```
 
 <div class="output execute_result" execution_count="5">
 
-![](56ee2017acdfa22676bc4fc53f09ddb40e7dd283.png)
+bash% [](56ee2017acdfa22676bc4fc53f09ddb40e7dd283.png)
 
 </div>
 
@@ -377,7 +378,7 @@ plt.show()
 
 <div class="output display_data">
 
-![](20fdac2f9833a513eef8b2d82cc715b619293773.png)
+bash% [](20fdac2f9833a513eef8b2d82cc715b619293773.png)
 
 </div>
 
@@ -392,7 +393,7 @@ The GLM file for a model based on this data is as follows
 <div class="cell code" execution_count="7">
 
 ``` python
-!cat eia_recs_floorarea_insulation.glm
+bash% cat eia_recs_floorarea_insulation.glm
 ```
 
 <div class="output stream stdout">
@@ -453,7 +454,7 @@ stacked histogram:
 <div class="cell code" execution_count="8">
 
 ``` python
-!cat eia_recs_floorarea_insulation.py
+bash% cat eia_recs_floorarea_insulation.py
 ```
 
 <div class="output stream stdout">
@@ -489,14 +490,14 @@ The result is as follows:
 <div class="cell code" execution_count="9">
 
 ``` python
-!gridlabd eia_recs_floorarea_insulation.glm
+bash% gridlabd eia_recs_floorarea_insulation.glm
 from PIL import Image
 Image.open("eia_recs_floorarea_insulation.png")
 ```
 
 <div class="output execute_result" execution_count="9">
 
-![](9378fb8c73a135ecb76b893d4f70c3a5459fc5c9.png)
+bash% [](9378fb8c73a135ecb76b893d4f70c3a5459fc5c9.png)
 
 </div>
 
@@ -533,7 +534,7 @@ plt.show()
 
 <div class="output display_data">
 
-![](6ddf1d26b75c90a8a342ed2606de8154e6bb7a25.png)
+bash% [](6ddf1d26b75c90a8a342ed2606de8154e6bb7a25.png)
 
 </div>
 
@@ -557,7 +558,7 @@ original 242).
 <div class="cell code" execution_count="11">
 
 ``` python
-!cat eia_recs_floorarea_temperature.glm
+bash% cat eia_recs_floorarea_temperature.glm
 ```
 
 <div class="output stream stdout">
@@ -614,7 +615,7 @@ Here again, a familiar python script is used to analyze the result:
 <div class="cell code" execution_count="12">
 
 ``` python
-!cat eia_recs_floorarea_temperature.py
+bash% cat eia_recs_floorarea_temperature.py
 ```
 
 <div class="output stream stdout">
@@ -651,14 +652,14 @@ The result is as follows:
 <div class="cell code" execution_count="13">
 
 ``` python
-!gridlabd eia_recs_floorarea_temperature.glm
+bash% gridlabd eia_recs_floorarea_temperature.glm
 from PIL import Image
 Image.open("eia_recs_floorarea_temperature.png")
 ```
 
 <div class="output execute_result" execution_count="13">
 
-![](b5819a38865ce8b49924b40d5496b0c3d6322156.png)
+bash% [](b5819a38865ce8b49924b40d5496b0c3d6322156.png)
 
 </div>
 
