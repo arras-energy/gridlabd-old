@@ -79,7 +79,7 @@ layer_process = {
     "height" : process_height,
 }
 
-def apply(data, options=default_options, config=default_config, warning=print):
+def apply(data, options=default_options, config=default_config, warning=lambda x:print(x,file=sys.stderr)):
     """Get the vegetation at the locations specified in data
 
     ARGUMENTS:
