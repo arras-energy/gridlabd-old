@@ -25,6 +25,7 @@ def compute_bill(gridlabd,**kwargs):
 	data = kwargs['data']
 	bill_name = f"{classname}:{id}"
 	bill = gridlabd.get_object(bill_name)
+	print("bill: ", bill)
 	bill_name = bill["name"]
 	baseline = to_float(bill["baseline_demand"])
 	tariff = gridlabd.get_object(bill["tariff"])
