@@ -64,7 +64,7 @@ def convert(ifile,ofile,json_type) :
 		# print(data['classes'].keys())
 		
 
-	with open(ofile, "a") as fw : 
+	with open(ofile, "w") as fw : 
 		fw.write(f"// JSON to GLM Converter Output\n")
 		fw.write(f"// InputFile '{ifile}'\n")
 		fw.write(f"// CreateDate '{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}'\n")
@@ -179,44 +179,52 @@ def convert(ifile,ofile,json_type) :
 			for p_id, p_info in data['classes'].items() : 
 				header_str = ''
 				val_str = ''
-				for v_id, v_info in data['classes'][p_id].items() :
+				for v_id, v_info in p_info.items() :
 					if 'flags' in v_info and 'EXTENDED' in v_info['flags']:
 						header_str = '\n' + 'class ' + p_id + '\n{'
 						val_str = val_str + "\n" + "\t" + v_info['type'] + " " + v_id + ';'
 				if header_str : 
 					fw.write(header_str)
-					fw.write(p_info)
+					fw.write(val_str)
 					fw.write('\n}' )
 
-				# objects
-				fw.write('\n\n// OBJECTS')
-				obj_id = []
-				if data['objects'] :
-					for p_id, p_info in data['objects'].items() : 
-						obj_id.append([int(p_info['id']),p_id])
-						obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
-						id_list,ordered_obj_list= zip(*obj_id_sorted)
-					for obj_id_sorted in ordered_obj_list : 
-						classname = data['objects'][obj_id_sorted]['class']
-						classdata = data['classes'][classname]
-						# print("CLASSNAME",classname,classdata)
-						fw.write(f"\nobject {classname}")
-						fw.write("\n{")
-						fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
-						for v_id, v_info in data['objects'][obj_id_sorted].items() : 
-							if v_id not in objects_ignore and v_info:
-								# print(v_id)
-								if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
-									v_str = v_info.replace(':','_')
-								else:
-									v_str = v_info.replace('"', '\\\"')
-								if '\n' in v_info :
-									var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
-								else : 
-									val_str = f"\n\t{v_id} \"{v_str}\";"
-								fw.write(val_str)
-						fw.write("\n}")
-				fw.write('\n')
+			# schedules
+			fw.write('// SCHEDULES\n')
+			for s_id, s_info in data['schedules'].items():
+				fw.write('schedule '+s_id+'\n{\n')
+				fw.write(s_info)
+				fw.write('}\n')
+			fw.write('\n')
+
+			# objects
+			fw.write('\n\n// OBJECTS')
+			obj_id = []
+			if data['objects'] :
+				for p_id, p_info in data['objects'].items() : 
+					obj_id.append([int(p_info['id']),p_id])
+					obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
+					id_list,ordered_obj_list= zip(*obj_id_sorted)
+				for obj_id_sorted in ordered_obj_list : 
+					classname = data['objects'][obj_id_sorted]['class']
+					classdata = data['classes'][classname]
+					# print("CLASSNAME",classname,classdata)
+					fw.write(f"\nobject {classname}")
+					fw.write("\n{")
+					fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+					for v_id, v_info in data['objects'][obj_id_sorted].items() : 
+						if v_id not in objects_ignore and v_info:
+							# print(v_id)
+							if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
+								v_str = v_info.replace(':','_')
+							else:
+								v_str = v_info.replace('"', '\\\"')
+							if '\n' in v_info :
+								var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
+							else : 
+								val_str = f"\n\t{v_id} \"{v_str}\";"
+							fw.write(val_str)
+					fw.write("\n}")
+			fw.write('\n')
 
 
 if __name__ == '__main__':
