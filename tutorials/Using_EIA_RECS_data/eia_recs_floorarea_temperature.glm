@@ -1,0 +1,29 @@
+// this prevents the simulation from start a clock
+#set compileonly=TRUE
+#set warn=FALSE
+
+// load the RECS data and calculate the floor area statistics
+#begin python
+import eia_recs, numpy, sys, random
+fips = eia_recs.Microdata.get_division("${region}")
+codes = eia_recs.Microdata.get_codes(**fips)
+recs = eia_recs.Microdata()
+data = recs[recs["DIVISION"]==codes["division"]]
+th = list(data["TEMPHOME"])
+tc = list(data["TEMPHOMEAC"])
+with open("/tmp/objects.glm","w") as f:
+    f.write("module residential;\n")
+    for n in range(1000):
+        f.write("object house {\n")
+        m = random.randrange(len(data))
+        f.write(f"  heating_setpoint {th[m]};\n")
+        f.write(f"  cooling_setpoint {tc[m]};\n")
+        f.write("}\n")
+#end
+
+// create the same number of homes with a similar log-normal distribution
+#include "/tmp/objects.glm"
+
+// save and plot the results 
+#set savefile=${modelname/.glm/.json}
+#on_exit 0 python3 ${modelname/.glm/.py}
