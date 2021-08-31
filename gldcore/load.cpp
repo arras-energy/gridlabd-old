@@ -7496,8 +7496,10 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 		{
 			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
 			line+=len; size-=len;
+			const char *old_filename = pos->get_filename();
+			int old_linenum = pos->get_linenum();
 			len=(int)include_file(value,line,size,linenum);
-			add_depend(pos->get_filename(),value);
+			add_depend(old_filename,value);
 			if (len<0)
 			{
 				syntax_error("#include failed");
@@ -7508,7 +7510,7 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			}
 			else
 			{
-				len = snprintf(line,size-1,"@%s;%d\n",pos->get_filename(),pos->get_linenum());
+				len = snprintf(line,size-1,"@%s;%d\n",old_filename,old_linenum);
 				line+=len; size-=len;
 				return size>0;
 			}
@@ -7542,8 +7544,12 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			}
 
 			/* load temp file */
-			int len = (int)include_file(tmpname,line,size,linenum);
-			add_depend(pos->get_filename(),tmpname);
+			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
+			line += len; size -= len;
+			const char *old_filename = pos->get_filename();
+			int old_linenum = pos->get_linenum();
+			len = (int)include_file(tmpname,line,size,linenum);
+			add_depend(old_filename,tmpname);
 			if ( len < 0 )
 			{
 				syntax_error("unable to include load [%s] from temp file '%s'", value,tmpname);
@@ -7552,9 +7558,9 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			}
 			else
 			{
-				snprintf(line+len,size-len-1,"@%s;%d\n",pos->get_filename(),pos->get_linenum());
+				snprintf(line+len,size-len-1,"@%s;%d\n",old_filename,old_linenum);
 				if ( old_stack ) global_restore(old_stack);
-				return TRUE;
+				return len < size;
 			}
 		}
 		else if (sscanf(term, "(%[^)])", value) == 1)
