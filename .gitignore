@@ -133,7 +133,6 @@ gldcore/autotest/ceus.glm
 gldcore/autotest/ica_test.glm
 gldcore/autotest/test_output_save.csv
 gldcore/converters/autotest/IEEE-13-cyme.glm
-gldcore/converters/autotest/IEEE-123-cyme.glm
 
 # widely found generic output files
 object_profile.txt
