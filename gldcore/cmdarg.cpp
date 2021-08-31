@@ -440,7 +440,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 {
 	if ( argc > 1 )
 	{
-		char pathname[1024];
+		char pathname[2050];
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{
@@ -464,7 +464,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 {
 	if ( argc > 1 )
 	{
-		char pathname[1024];
+		char pathname[2050];
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{

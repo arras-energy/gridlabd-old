@@ -2094,7 +2094,7 @@ void sched_print(int flags, const char* format) /* flag=0 for single listing, fl
 					printf("     \"start\" : \"%s\",\n",convert_from_timestamp(process_map[n].start,buffer,sizeof(buffer))>0?buffer:"");
 					printf("     \"port\" : %d\n",process_map[n].port);
 					sched_unlock(n);
-					printf("  }%s\n",n<n_procs-1?",":"");
+					printf("  }%s\n",(int)n<(int)(n_procs-1)?",":"");
 				}
 			}
 			printf("}\n");
