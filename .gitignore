@@ -175,3 +175,5 @@ gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
 geodata.conf
+gldcore/converters/autotest/IEEE-123-cyme_database.zip
+gldcore/converters/autotest/IEEE-13-cyme_database.zip
