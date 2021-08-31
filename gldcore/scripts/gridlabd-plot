@@ -186,8 +186,8 @@ def main(args):
             verbose = False,
             exception = False,
             open_command = "open",
-            input_pathname = None,
-            output_pathname = None,
+            input_pathname = "/dev/stdin",
+            output_pathname = "/dev/stdout",
             )
 
     os.chdir(config["workdir"])
