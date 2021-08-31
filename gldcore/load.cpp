@@ -2573,8 +2573,12 @@ int GldLoader::line_spec(PARSER)
 		}
 		else
 		{
-			syntax_error("@ syntax error");
-			REJECT; DONE;
+			// TODO: fix the intermitted problem with line_spec being invalid
+			// syntax_error("@ syntax error");
+			//REJECT; DONE;
+			// in the meantime, ignore bad linespecs by ignoring the rest of the line
+			while ( *HERE != '\n' && *HERE != '\0' ) _m++;
+			ACCEPT; DONE;
 		}
 	}
 	else
