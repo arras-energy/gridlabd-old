@@ -186,7 +186,7 @@ def main(args):
             verbose = False,
             exception = False,
             open_command = "open",
-            input_pathname = None,
+            input_pathname = "/dev/stdin",
             output_pathname = None,
             )
 
@@ -300,6 +300,8 @@ def main(args):
             error(f"option {arg} is not valid",E_INVALID)
 
     if not config['output_pathname']:
+        if config['input_pathname'] == "/dev/stdin":
+            error(f"missing output filename",E_INVALID)
         config['output_pathname'] = config['input_pathname'].replace(".csv",".png")
     figure_calls = dict(
         savefig = config['output_pathname'],

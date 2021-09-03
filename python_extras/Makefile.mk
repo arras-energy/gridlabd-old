@@ -7,3 +7,5 @@ dist_pkgdata_DATA += python_extras/volt_dump/voltdump.py
 dist_pkgdata_DATA += python_extras/metar2glm.py
 dist_pkgdata_DATA += python_extras/gridlabd-editor.py
 dist_pkgdata_DATA += python_extras/gridlabd-editor.png
+dist_pkgdata_DATA += python_extras/ucar_weather.py
+dist_pkgdata_DATA += python_extras/eia_recs.py
