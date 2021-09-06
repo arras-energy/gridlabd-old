@@ -206,7 +206,14 @@ int GldJsonWriter::write_classes(FILE *fp,bool noattr)
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )
 			len += write(",");
-		len += write("\n\t\t\"%s\" : {",oclass->name);
+		if ( ! noattr || oclass->module == NULL )
+		{
+			len += write("\n\t\t\"%s\" : {",oclass->name);
+		}
+		else
+		{
+			len += write("\n\t\t\"%s.%s\" : {",oclass->module->name,oclass->name);
+		}
 		if ( ! noattr )
 		{
 			FIRST("object_size","%u",oclass->size);
