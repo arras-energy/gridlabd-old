@@ -1,0 +1,25 @@
+clock
+{
+    starttime "2020-01-01 00:00:00";
+    stoptime "2020-01-02 00:00:00";
+}
+module tree;
+class tree
+{
+    double age[yr];
+    double height[m];
+    double width[m];
+    enumeration {DECIDUOUS=1,EVERGREEN=2,DEAD=3,FALLEN=4,REMOVED=5} type;
+    string species;
+    on_init "python:tree.init";
+    on_precommit "python:tree.precommit";
+    on_presync "python:tree.presync";
+    on_sync "python:tree.sync";
+    on_postsync "python:tree.postsync";
+    on_commit "python:tree.commit";
+    on_finalize "python:tree.finalize";
+}
+object tree
+{
+    age 10 yr;
+}
