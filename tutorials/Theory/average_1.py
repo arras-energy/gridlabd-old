@@ -1,11 +1,11 @@
-
-object_list = []
-y = 0.0
-n = 0
-
 def on_init(t):
+	global object_list
 	object_list = gridlabd.get("objects")
 	gridlabd.output(f"{len(object_list)} objects found")
+	global y
+	global n
+	y = 0.0
+	n = 0
 	return True
 
 def sync(obj,t):

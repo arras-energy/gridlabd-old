@@ -1,5 +1,5 @@
 #set suppress_repeat_messages=False
-module average;
+module average_1;
 class example
 {
 	double x;
@@ -7,5 +7,5 @@ class example
 object example:..100
 {
 	x random.normal(0,1);
-	on_sync python:average.sync;
+	on_sync python:average_1.sync;
 }

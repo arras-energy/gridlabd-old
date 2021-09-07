@@ -1,0 +1,21 @@
+#set suppress_repeat_messages=False
+module average_2;
+class example
+{
+	randomvar x;
+}
+object example:..100
+{
+	x "type:normal(0,1); refresh:1h"; // (1) update the random value every hour
+	on_sync python:average_2.sync;
+}
+
+// (2) enable the simulation clock
+clock
+{
+	starttime "2020-01-01 00:00:00";
+	stoptime "2020-02-01 00:00:00";
+}
+
+// (3) generate a plot when the simulation completes successfully
+#on_exit 0 gridlabd plot -i=average_2.csv --plot:x=datetime --plot:grid --plot:y=average --figure:tight_layout=True --plot:rot=90 --plot:title="Average" --plot:ylabel="Value" --plot:xlabel="Date/Time"
