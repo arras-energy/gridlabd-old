@@ -1,3 +1,4 @@
+#set debug=1
 #ifexist "IEEE-13.glm"
 #define DIR=.
 #else
