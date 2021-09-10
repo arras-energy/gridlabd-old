@@ -657,12 +657,10 @@ int pcloses(struct s_pipes *pipes, bool wait)
 	}
 	else if ( WIFEXITED(pstat) )
 	{
-		IN_MYCONTEXT output_debug("pcloses 2222\n");
 		return WEXITSTATUS(pstat);
 	}
 	else if ( WIFSIGNALED(pstat) )
 	{
-		IN_MYCONTEXT output_debug("pcloses 3333\n");
 		return -WTERMSIG(pstat);
 	}
 	else
@@ -882,7 +880,6 @@ int GldMain::subcommand(const char *format, ...)
         }
 		ppolls(pipes,NULL,output_stream,error_stream);
 		rc = pcloses(pipes);
-		IN_MYCONTEXT output_debug("rc from subcommand 2 is %i\n", rc);
 		if ( rc > 0 )
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
