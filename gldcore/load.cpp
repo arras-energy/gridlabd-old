@@ -7015,7 +7015,6 @@ void *subcommand(void *arg)
 {
 	const char *cmd = (const char*)arg;
 	int64 rc = my_instance->subcommand("%s",cmd);
-	IN_MYCONTEXT output_debug("rc from subcommand 1 is %lli\n", rc);
 	return (void*)rc;
 }
 /** @return -1 on failure, thread_id on success **/
@@ -7629,7 +7628,6 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			}
 		}
 		char glmname[1024] = "";
-		IN_MYCONTEXT output_debug("name is %s\n", name);
 		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
 		{
 			syntax_error("load of '%s' failed",glmname);
@@ -8267,7 +8265,6 @@ TECHNOLOGYREADINESSLEVEL GldLoader::calculate_trl(void)
 /** convert a non-GLM file to GLM, if possible */
 bool GldLoader::load_import(const char *from, char *to, int len)
 {
-	IN_MYCONTEXT output_debug("from is %s\n", from);
 	const char *ext = strrchr(from,'.');
 	if ( ext == NULL )
 	{
@@ -8280,7 +8277,6 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	}
 	char converter_name[1024], converter_path[1024];
 	sprintf(converter_name,"%s2glm.py",ext);
-	IN_MYCONTEXT output_debug("converter_name is %s\n", converter_name);
 	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
@@ -8301,8 +8297,6 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	char load_options_var[64];
 	sprintf(load_options_var,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
-	IN_MYCONTEXT output_debug("load_options_var is %s\n", load_options_var);
-	IN_MYCONTEXT output_debug("load_options is %s\n", load_options);
 	char *unquoted = load_options;
 	if ( load_options[0] == '"' )
 	{
@@ -8327,11 +8321,6 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		IN_MYCONTEXT output_verbose("changing output to '%s'", to);
 	}
 	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
-	IN_MYCONTEXT output_debug("converter_path is %s\n", converter_path);
-	IN_MYCONTEXT output_debug("from is %s\n", from);
-	IN_MYCONTEXT output_debug("to is %s\n", to);
-	IN_MYCONTEXT output_debug("unquoted is %s\n", unquoted);
-	IN_MYCONTEXT output_debug("rc is %i\n", rc);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
