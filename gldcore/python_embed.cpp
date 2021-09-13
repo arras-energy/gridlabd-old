@@ -25,6 +25,8 @@ void *python_loader_init(int argc, const char **argv)
 {
     if ( main_module == NULL )
     {
+        strcat(global_pythonpath,":");
+        strcat(global_pythonpath,global_datadir);
         python_embed_init(argc,argv);
     }
     return main_module;
