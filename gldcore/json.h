@@ -33,11 +33,12 @@ public:
 	~GldJsonWriter(void);
 public:
 	int dump();
+	int dump_modules();
 	int write_output(FILE *fp);
 private:
 	int write_modules(FILE *fp);
 	int write_properties(FILE *fp);
-	int write_classes(FILE *fp);
+	int write_classes(FILE *fp,bool noattr=false);
 	int write_globals(FILE *fp);
 	int write_objects(FILE *fp);
 	int write_schedules(FILE *fp);
