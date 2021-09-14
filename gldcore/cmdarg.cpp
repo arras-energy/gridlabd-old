@@ -1066,9 +1066,17 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			*/
 			return FAILED;
 		}
-		if ( options && strcmp(options,"md") == 0 )
+		if ( options )
 		{
-			module_help_md(mod,oclass);
+			if ( strcmp(options,"md") == 0 )
+			{
+				module_help_md(mod,oclass);
+			}
+			else if ( strcmp(options,"json") == 0 )
+			{
+				GldJsonWriter writer("/dev/stdout");
+				return writer.dump_modules() > 0 ? 1 : CMDERR;
+			}
 		}
 		else if ( oclass != NULL )
 		{
