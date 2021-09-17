@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define USE_CDATA
+
 #include "solver_py.h"
 
 // #undef Py_INCREF
@@ -615,7 +617,7 @@ void ref_to_ang(void *x, void *c, bool inverse)
 // bus/branch data mapping
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
-#define DATA(S,T,X,D,C) 		{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C}
+#define DATA(S,T,X,D,C) 		{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::NONE}
 #define DATA_R(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::DOUBLE,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define DATA_X(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PDOUBLE,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define DATA_C(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PCOMPLEX,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
@@ -673,10 +675,11 @@ static struct s_map
 	e_dir dir;
 	void (*convert)(void*,void*,bool);
 	enum {
-		DOUBLE   =0, // value is at offset
-		PDOUBLE  =1, // pointer to value is at offset
-		PCOMPLEX =2, // pointer to value is converted using a method
-	} type;
+		NONE     = 0, // no value
+		DOUBLE   = 1, // value is at offset
+		PDOUBLE  = 2, // pointer to value is at offset
+		PCOMPLEX = 3, // pointer to value is converted using a method
+	} dtype;
 	bool is_ref;
 	int64 ref_offset;
 } busmap[] =
@@ -781,6 +784,8 @@ void sync_property(PyObject *data, size_t n, void *ptr, void (*convert)(void*,vo
 
 void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
+	printf("sync_property_ref(PyObject *data=0x%p, size_t n=%ld, void *ptr=0x%p, int64 offset=%lld, bool inverse=<%s>)\n",
+		data, n, ptr, offset, inverse?"true":"false");
 	double **ppx = (double**)ptr;
 	if ( ppx == NULL )
 		return;
@@ -789,6 +794,9 @@ void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool i
 		return;
 	double &x = *px;
 	PyObject *pValue = PyList_GetItem(data,n);
+	printf("  ppx=0x%p, px=0x%p", ppx, px);
+	fflush(stdout);
+	printf(", x=%lg, pValue=0x%p\n", x, pValue);
 	if ( inverse )
 	{
 		if ( pValue && PyFloat_Check(pValue) )
@@ -879,7 +887,19 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 	}
 }
 
-void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
+void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
+{
+	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
+	if ( busdata == NULL )
+	{
+	}
+	for ( size_t t = 0 ; t < python_nbustags ; t++ )
+	{
+		int m = bus_index[t];
+	}	
+}
+
+void sync_busdata_mapped(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
 {
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
 	if ( busdata == NULL )
@@ -939,7 +959,11 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 	}
 }
 
-void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
+void sync_branchdata_raw(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
+{
+}
+
+void sync_branchdata_mapped(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
 {
 	PyObject *branchdata = PyDict_GetItemString(pModel,"branchdata");
 	if ( branchdata == NULL )
@@ -1009,8 +1033,14 @@ static PyObject *sync_model(
 {
 	set_bustags(pModel);
 	set_branchtags(pModel);
-	sync_busdata(pModel,bus_count,bus,dir);
-	sync_branchdata(pModel,branch_count,branch,dir);
+#ifdef USE_CDATA
+	set_dict_value(pModel,"mapping",Py_None);
+	sync_busdata_raw(pModel,bus_count,bus,dir);
+	sync_branchdata_raw(pModel,branch_count,branch,dir);
+#else
+	sync_busdata_mapped(pModel,bus_count,bus,dir);
+	sync_branchdata_mapped(pModel,branch_count,branch,dir);
+#endif
 	return pModel;
 }
 
