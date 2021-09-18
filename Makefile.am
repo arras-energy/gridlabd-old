@@ -157,7 +157,7 @@ over: clean all
 clean-wc:
 	@echo -e "\nThis removes all unversioned files and directories in the working copy."
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
-	. utilities/cleanwc
+	. $(top_srcdir)/utilities/cleanwc
 
 install-validate: install validate
 
@@ -175,7 +175,7 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 	tar -xzf $< -C $(@D)
 	export XERCESCROOT=$(CURDIR)/$(@D)/$(XERCES_TARNAME) && \
 		cd $(@D)/$(XERCES_TARNAME) && \
-		autoreconf -isf && ./configure && make
+		(cd $(top_srcdir); autoreconf -isf) && $(top_srcdir)/configure && make
 	touch $@
 
 $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
