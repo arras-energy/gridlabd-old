@@ -31,6 +31,7 @@ import os
 srcdir = os.getenv('SRCDIR')
 if not srcdir :
 	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
+srcdir = os.path.realpath(srcdir)
 
 try:
 	from compile_options import *
@@ -46,7 +47,7 @@ compile_options.extend(['-I%s/gldcore'%srcdir,'-Igldcore','-Igldcore/rt',"-fPIC"
 
 from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
-	include_dirs = ['gldcore/link/python','gldcore'],
+	include_dirs = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python','gldcore'])),
 	extra_compile_args = compile_options,
 	libraries = ['ncurses', 'curl'],
 	sources = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python/python.cpp',

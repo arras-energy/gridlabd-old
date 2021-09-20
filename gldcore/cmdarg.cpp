@@ -588,7 +588,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 #else // LINUX
 			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
@@ -608,7 +608,22 @@ int GldCmdarg::version(int argc, const char *argv[])
 	}
 	else if ( strcmp(opt,"branch") == 0 )
 	{
+		output_message("%s", BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-branch") == 0 )
+	{
 		output_message("%s", BUILD_BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-repo") == 0 )
+	{
+		output_message("%s", BUILD_URL);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-commit") == 0 )
+	{
+		output_message("%s", BUILD_ID);
 		return 0;
 	}
 	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
