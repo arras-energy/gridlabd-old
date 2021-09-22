@@ -892,6 +892,14 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
 	if ( busdata == NULL )
 	{
+		busdata = PyList_New(python_nbustags);
+		PyDict_SetItemString(pModel,"busdata",busdata);
+		bus_index = new int[python_nbustags];
+		memset(bus_index,-1,python_nbustags*sizeof(int));
+		for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
+		{
+			// TODO
+		}
 	}
 	for ( size_t t = 0 ; t < python_nbustags ; t++ )
 	{
