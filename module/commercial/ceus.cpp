@@ -207,6 +207,7 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 	COMPONENT *c = (COMPONENT*)malloc(sizeof(COMPONENT));
 	memset(c,0,sizeof(COMPONENT));
 	c->fraction = 1.0;
+	c->electric = 1.0;
 	c->data = data;
 	char *buffer = strdup(composition);
 	char *item, *last = NULL;
@@ -291,6 +292,7 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 		{"O1", component->occupancy.domain.max},
 
 		{"Area", component->fraction},
+		{"Electric", component->electric},
 	};
 	size_t n;
 	for ( n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
@@ -539,7 +541,7 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 			{
 				continue;
 			}
-			double scalar = load * c->fraction / 3.0 ;
+			double scalar = load * c->fraction / 3.0 * c->electric ;
 			scalar += apply_sensitivity(c->cooling,temperature);
 			scalar += apply_sensitivity(c->heating,temperature);
 			scalar += apply_sensitivity(c->solar,solar);
