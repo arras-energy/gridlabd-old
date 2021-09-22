@@ -42,21 +42,18 @@ function version-check()
 {
 	version=$(gridlabd --version)
 	branch=$(gridlabd --version=branch)
-	local=$(gridlabd --version=number)
 	remote=$( (curl -sL "https://raw.githubusercontent.com/slacgismo/gridlabd/$branch/gldcore/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
-	if [ "$1" == "-v" ]; then
-		echo "REMOTE $remote ($branch)"
-		echo "LOCAL $local ($branch)"
-	fi
-	if [ "$remote" == "none" ]; then
-		[ "$1" != "-q" ] && error 2 "$version remote not found"
+	if [ "$remote" == "none" -o -z "$remote" ]; then
+		[ "$1" != "-q" ] && error 2 "$version ($branch) remote not found"
 		exit 2
-	elif [ "$local" != "$remote" ]; then
-		[ "$1" != "-q" ] && error 1 "$version is outdated"
-		exit 1
-	else
-		[ "$1" != "-q" ] && echo "$version is ok"
+	fi
+	[ $1 == "-v" ] && echo "REMOTE/$branch $remote"
+	if ( gridlabd --version='-ge $remote' 2>/dev/null ); then
+		echo "$version ($branch) is ok" 
 		exit 0
+	else
+		[ "$1" != "-q" ] && error 1 "$version ($branch) is outdated"
+		exit 1
 	fi
 }
 
