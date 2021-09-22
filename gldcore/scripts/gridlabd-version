@@ -4,8 +4,10 @@ EXE="$(basename $0)"
 
 function error()
 {
-	echo "$EXE: ERROR $*" > /dev/stderr
-	exit $1
+	RC=$1
+	shift 1
+	echo "ERROR [$EXE] $*" > /dev/stderr
+	exit $RC
 }
 
 case "$1" in
@@ -38,23 +40,23 @@ function version-help()
 
 function version-check()
 {
-	local=$(gridlabd --version=commit)
+	version=$(gridlabd --version)
 	branch=$(gridlabd --version=branch)
-	origin=$(git remote)
-	remote=$(git rev-parse $origin/$branch 2>/dev/null)
-	if [ "$remote" == "$origin/$branch" ]; then
-		remote=none
-	fi
+	local=$(gridlabd --version=number)
+	remote=$( (curl -sL "https://raw.githubusercontent.com/slacgismo/gridlabd/$branch/gldcore/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
 	if [ "$1" == "-v" ]; then
-		echo "REMOTE $remote"
-		echo "LOCAL $local"
+		echo "REMOTE $remote ($branch)"
+		echo "LOCAL $local ($branch)"
 	fi
 	if [ "$remote" == "none" ]; then
-		[ -z "$1" ] && error 2 "$(gridlabd --version) remote '$origin/$branch' not found"
+		[ "$1" != "-q" ] && error 2 "$version remote not found"
+		exit 2
 	elif [ "$local" != "$remote" ]; then
-		[ -z "$1" ] && error 1 "$(gridlabd --version) is outdated"
+		[ "$1" != "-q" ] && error 1 "$version is outdated"
+		exit 1
 	else
-		[ -z "$1" ] && error 0 "$(gridlabd --version) is ok"
+		[ "$1" != "-q" ] && echo "$version is ok"
+		exit 0
 	fi
 }
 
