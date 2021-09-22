@@ -48,7 +48,9 @@ function version-check()
 		exit 2
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
-	[ gridlabd --version='-ge $remote' 2>/dev/null ] && ( echo "$version ($branch) is ok" ; exit 0 ) || ( [ "$1" != "-q" ] && error 1 "$version ($branch) is outdated" ; exit 1 )
+	gridlabd --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
+	echo "$version ($branch) is ok"
+	exit 0
 }
 
 function version-source()
