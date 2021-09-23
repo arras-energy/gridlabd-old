@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 #define USE_CDATA
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <numpy/arrayobject.h>
 
 #include "solver_py.h"
 
@@ -892,11 +894,19 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
 	if ( busdata == NULL )
 	{
-		busdata = PyList_New(python_nbustags);
+		size_t nbuses = sizeof(busmap)/sizeof(busmap[0]);
+		busdata = PyDict_New();
 		PyDict_SetItemString(pModel,"busdata",busdata);
-		bus_index = new int[python_nbustags];
-		memset(bus_index,-1,python_nbustags*sizeof(int));
-		for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
+		const char *tags[] = {
+			"SAr","SAi","SBr","SBi","SCr","SCi",
+			"YAr","YAi","YBr","YBi","YCr","YCi",
+			"IAr","IAi","IBr","IBi","ICr","ICi",
+			"VAr","VAi","VBr","VBi","VCr","VCi",
+		};
+		size_t ntags = sizeof(tags)/sizeof(tags[0]);
+		npy_intp dims[] = {nbuses,ntags};
+		PyObject *array = PyArray_SimpleNew(2,dims,NPY_COMPLEX128);
+		for ( size_t m = 0 ; m < nbuses  ; m++ )
 		{
 			// TODO
 		}
@@ -969,6 +979,8 @@ void sync_busdata_mapped(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,
 
 void sync_branchdata_raw(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
 {
+	// no branch data needed
+	return;
 }
 
 void sync_branchdata_mapped(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
