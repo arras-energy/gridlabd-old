@@ -374,5 +374,5 @@ if test -x "${bindir}/gridlabd-$1"
 then :
   "${bindir}/gridlabd"-"$@"
 else $as_nop
-  "$bindir/gridlabd.bin" "$@"
+  "${bindir}/gridlabd.bin" "$@" && "${bindir}/gridlabd-version" check -w
 fi
