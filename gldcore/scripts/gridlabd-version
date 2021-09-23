@@ -40,28 +40,28 @@ function version-help()
 
 function version-check()
 {
-	version=$(gridlabd --version)
-	branch=$(gridlabd --version=git-branch)
+	version=$(${GLD_BIN}/gridlabd.bin --version)
+	branch=$(${GLD_BIN}/gridlabd.bin --version=git-branch)
 	remote=$( (curl -sL "https://raw.githubusercontent.com/slacgismo/gridlabd/$branch/gldcore/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
 	if [ "$remote" == "none" -o -z "$remote" ]; then
 		[ "$1" != "-q" ] && error 2 "$version ($branch) remote not found"
 		exit 2
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
-	gridlabd --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
+	${GLD_BIN}/gridlabd.bin --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
 	echo "$version ($branch) is ok"
 	exit 0
 }
 
 function version-source()
 {
-	open $(gridlabd git commit HEAD html_url | sed -e 's:/commit/:/tree/:')
+	open $(${GLD_BIN}/gridlabd.bin git commit HEAD html_url | sed -e 's:/commit/:/tree/:')
 }
 
 function version-save()
 {
 	if [ -f /usr/local/bin/gridlabd -a ! -L /usr/local/bin/gridlabd ]; then
-		SAVED="$(/usr/local/bin/gridlabd --version | cut -f2 -d' ')-saved_$(date '+%Y%m%d')"
+		SAVED="$(${GLD_BIN}/gridlabd.bin --version | cut -f2 -d' ')-saved_$(date '+%Y%m%d')"
 		N=0
 		TRY="$SAVED"
 		while [ -d /usr/local/opt/gridlabd/$TRY ]; do
@@ -89,7 +89,7 @@ function version-set()
 		L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
-		L="$(${0/$EXE/gridlabd} --version=name | sed -e 's/^gridlabd-//')"
+		L="$(${GLD_BIN}/gridlabd.bin --version=name | sed -e 's/^gridlabd-//')"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
