@@ -3032,7 +3032,7 @@ STATUS GldExec::exec_start(void)
 	if ( global_profiler && ! sync_isinvalid(NULL) )
 	{
 		double elapsed_sim = timestamp_to_hours(global_clock)-timestamp_to_hours(global_starttime);
-		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time();
+		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time() / CLOCKS_PER_SEC;
 		double elapsed_wall = (double)(realtime_now()-started_at+loader_time);
 		double sync_time = 0;
 		double sim_speed = object_get_count()/1000.0*elapsed_sim/elapsed_wall;
