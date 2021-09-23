@@ -3114,18 +3114,18 @@ STATUS GldExec::exec_start(void)
 			output_profile("metric,value,unit,percent_of_total,msec/object");
 			output_profile("total_objects,%d,objects,", object_get_count());
 			output_profile("parallelism,%d,threads,", global_threadcount,global_threadcount>1?"s":"");
-			output_profile("total_time,%.3f,s,100%%", elapsed_wall);
-			output_profile("_core_time,%.3f s,%.1f%%", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
-			output_profile("__compile_time,%.3f,s,%.1f%%", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__instance_time,%.3f,s,%.1f%%", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__random_variable_time,%.3f s,%.1f%%", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__schedule_time,%.3f,s,%.1f%%", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__loadshape_time,%.3f,s,%.1f%%", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__enduse_time,%.3f,s,%.1f%%", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("__transform_time,%.3f,s,%.1f%%", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("_model_time,%.3f,s/thread,%.1f%%", sync_time,sync_time/elapsed_wall*100);
+			output_profile("total_time,%.3f,s,100", elapsed_wall);
+			output_profile("core_time,%.3f,s,%.1f", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
+			output_profile("compile_time,%.3f,s,%.1f", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("instance_time,%.3f,s,%.1f", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("random_variable_time,%.3f,s,%.1f", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("schedule_time,%.3f,s,%.1f", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("loadshape_time,%.3f,s,%.1f", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("enduse_time,%.3f,s,%.1f", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("transform_time,%.3f,s,%.1f", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("model_time,%.3f,s/thread,%.1f", sync_time,sync_time/elapsed_wall*100);
 			if ( dp->t_count>0 )
-				output_profile("_deltamode_time,%.3f,s/thread,%.1f%%", delta_runtime,delta_runtime/elapsed_wall*100);	
+				output_profile("_deltamode_time,%.3f,s/thread,%.1f", delta_runtime,delta_runtime/elapsed_wall*100);	
 			output_profile("simulation_time,%.3f,days,", elapsed_sim/24);
 			output_profile("simulation_speed,%.1lf,object.hr/s", sim_speed*1000);
 			output_profile("passes_completed,%d,passes", passes);
@@ -3141,32 +3141,33 @@ STATUS GldExec::exec_start(void)
 		else if ( global_profile_output_format == POF_JSON )
 		{
 			output_profile("{");
-			output_profile("\"total_objects\" : { \"value\" : %d, \"units\" : \"objects\" },", object_get_count());
-			output_profile("\"parallelism\" : { \"value\" : %d, \"units\" : \"threads\" },", global_threadcount,global_threadcount>1?"s":"");
-			output_profile("\"total_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : 100.0},", elapsed_wall);
-			output_profile("\"_core_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
-			output_profile("\"__compile_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__instance_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__random_variable_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__schedule_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__loadshape_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__enduse_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"__transform_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-			output_profile("\"_model_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", sync_time,sync_time/elapsed_wall*100);
+			output_profile("  \"core\" : {");
+			output_profile("    \"total_objects\" : { \"value\" : %d, \"units\" : \"objects\" },", object_get_count());
+			output_profile("    \"parallelism\" : { \"value\" : %d, \"units\" : \"threads\" },", global_threadcount,global_threadcount>1?"s":"");
+			output_profile("    \"total_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : 100.0},", elapsed_wall);
+			output_profile("    \"core_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
+			output_profile("    \"compile_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"instance_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"random_variable_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"schedule_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"loadshape_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"enduse_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"transform_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"model_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", sync_time,sync_time/elapsed_wall*100);
 			if ( dp->t_count>0 )
-				output_profile("\"_deltamode_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", delta_runtime,delta_runtime/elapsed_wall*100);	
-			output_profile("\"simulation_time\" : { \"value\" : %.3f, \"units\" : \"days\"},", elapsed_sim/24);
-			output_profile("\"simulation_speed\" : { \"value\" : %.1lf, \"units\" : \"object.hr/s\"},", sim_speed*1000);
-			output_profile("\"passes_completed\" : { \"value\" : %d, \"units\" : \"passes\"},", passes);
-			output_profile("\"time_steps_completed\" : { \"value\" : %d, \"units\" : \"timesteps\"},", tsteps);
-			output_profile("\"convergence_efficiency\" : { \"value\" : %.2lf, \"units\" : \"passes/timestep\"},", (double)passes/tsteps);
+				output_profile("    \"_deltamode_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", delta_runtime,delta_runtime/elapsed_wall*100);	
+			output_profile("    \"simulation_time\" : { \"value\" : %.3f, \"units\" : \"days\"},", elapsed_sim/24);
+			output_profile("    \"simulation_speed\" : { \"value\" : %.1lf, \"units\" : \"object.hr/s\"},", sim_speed*1000);
+			output_profile("    \"passes_completed\" : { \"value\" : %d, \"units\" : \"passes\"},", passes);
+			output_profile("    \"time_steps_completed\" : { \"value\" : %d, \"units\" : \"timesteps\"},", tsteps);
+			output_profile("    \"convergence_efficiency\" : { \"value\" : %.2lf, \"units\" : \"passes/timestep\"},", (double)passes/tsteps);
 #ifndef NOLOCKS
-			output_profile("\"read_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
-			output_profile("\"write_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
+			output_profile("    \"read_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
+			output_profile("    \"write_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
 #endif
-			output_profile("\"average_timestep\" : { \"value\" : %.1lf, \"units\" : \"s/timestep\"},", (double)(global_clock-global_starttime)/tsteps);
-			output_profile("\"simulation_rate\" : { \"value\" : %.1lf, \"units\" : \"pu\"}", (double)(global_clock-global_starttime)/elapsed_wall);
-			output_profile("}");
+			output_profile("    \"average_timestep\" : { \"value\" : %.1lf, \"units\" : \"s/timestep\"},", (double)(global_clock-global_starttime)/tsteps);
+			output_profile("    \"simulation_rate\" : { \"value\" : %.1lf, \"units\" : \"pu\"}", (double)(global_clock-global_starttime)/elapsed_wall);
+			output_profile("  },");
 		}
 		else
 		{
