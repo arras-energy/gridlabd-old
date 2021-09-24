@@ -3,6 +3,9 @@ import pandas as pd
 import pprint as pp
 import datetime as dt
 
+pd.options.display.max_rows = None
+pd.options.display.max_columns = None
+
 def solve(gridlabd,**kwargs):
     """solve(gridlabd,kwargs)
     

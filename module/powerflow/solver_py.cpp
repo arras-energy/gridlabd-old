@@ -930,12 +930,12 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 		}
 		PyDict_SetItemString(pModel,"bustags",taglist);
 
-		npy_intp dims[] = {bus_count,ntags};
+		npy_intp dims[] = {ntags,bus_count};
 		busdata = PyArray_ZEROS(sizeof(dims)/sizeof(dims[0]),dims,NPY_DOUBLE,0);
 		PyDict_SetItemString(pModel,"busdata",busdata);
 	}
-#define SET_BUS(N,I,X) (*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,n,I)=X)
-#define GET_BUS(N,I,X) (X=*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,n,I))
+#define SET_BUS(N,I,X) (*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,I,n)=X)
+#define GET_BUS(N,I,X) (X=*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,I,n))
 	if ( dir == ED_INIT || dir == ED_OUT )
 	{
 		for ( size_t n = 0 ; n < bus_count  ; n++ )
