@@ -1,7 +1,7 @@
 // $Id: IEEE13-Feb27.glm
 //	Copyright (C) 2011 Battelle Memorial Institute
 
-#set iteration_limit=100000;
+#set iteration_limit=100
 
 clock {
 	timezone EST+5EDT;
@@ -12,9 +12,10 @@ clock {
 module powerflow {
 	solver_method NR;
 	line_capacitance true;
-#ifdef powerflow::solver_ml_config
-    solver_ml_config "../solver_mle.conf";
+#ifexist "../solver_py.conf"
+#define DIR=..
 #endif
+     solver_py_config "${DIR:-.}/solver_mle.conf";
 	}
 module assert;
 
