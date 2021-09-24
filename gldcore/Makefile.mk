@@ -124,8 +124,8 @@ gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 
 gldcore/gridlabd.in: gldcore/gridlabd.m4sh
-	@autoreconf -isf
 	@autom4te -l m4sh $< > $@
+	@echo "$@ updated, please run 'make reconfigure && make TARGET' again" && false
 
 gldcore/build.h: buildnum
 
