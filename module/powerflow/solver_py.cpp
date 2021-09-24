@@ -219,10 +219,22 @@ SOLVERPYTHONSTATUS solver_python_config (
 						fprintf(stderr,"solver_python_config(configname='%s'): tag '%s' value '%s' is invalid\n",configname,tag,value);
 						status = SPS_FAILED;
 					}
+					solver_python_log(1,"solver_python_config(configname='%s'): solver status = %d",configname,status);
 				}
 				else if ( strcmp(tag,"mle_data_only") == 0 )
 				{
-					python_mle_data_only = true;
+					if ( strcmp(value,"true") == 0 )
+					{
+						python_mle_data_only = true;
+					}
+					else if ( strcmp(value,"false") == 0 )
+					{
+						python_mle_data_only = false;
+					}
+					else {
+						fprintf(stderr,"solver_python_config(configname='%s'): tag '%s' value '%s' is invalid\n",configname,tag,value);
+						status = SPS_FAILED;
+					}
 					solver_python_log(1,"solver_python_config(configname='%s'): python_mle_data_only = true",configname);
 				}
 				else if ( strcmp(tag,"busdata") == 0 )
@@ -434,9 +446,15 @@ void init_learndata(void)
 	}
 }
 
+void *numpy_init()
+{
+	import_array();
+	return NULL;
+}
 int solver_python_init(void)
 {
 	errno = 0;
+	numpy_init();
 	if ( solver_py_status == SPS_INIT )
 	{
 		solver_py_status = solver_python_config();
@@ -470,21 +488,24 @@ int solver_python_init(void)
 			}
 			PyDict_SetItemString(pModel,"options",pKwargs);
 		}
-		if ( pBusdata == NULL )
+		if ( ! python_mle_data_only )
 		{
-			init_busdata();
-		}
-		if ( pBranchdata == NULL )
-		{
-			init_branchdata();
-		}
-		if ( pLearndata == NULL )
-		{
-			init_learndata();
-		}
-		if ( pSolution == NULL )
-		{
-			pSolution = PyDict_Copy(pModel);
+			if ( pBusdata == NULL )
+			{
+				init_busdata();
+			}
+			if ( pBranchdata == NULL )
+			{
+				init_branchdata();
+			}
+			if ( pLearndata == NULL )
+			{
+				init_learndata();
+			}
+			if ( pSolution == NULL )
+			{
+				pSolution = PyDict_Copy(pModel);
+			}
 		}
 		return 0;
 	}
@@ -892,13 +913,8 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
 {
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
-	PyObject *array;
 	if ( busdata == NULL )
 	{
-		busdata = PyDict_New();
-
-		// set tags
-		PyDict_SetItemString(pModel,"busdata",busdata);
 		const char *tags[] = {
 			"SAr","SAi","SBr","SBi","SCr","SCi",
 			"YAr","YAi","YBr","YBi","YCr","YCi",
@@ -912,54 +928,50 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			PyObject *tag = PyUnicode_FromString(tags[m]);
 			PyList_SetItem(taglist,m,tag);
 		}
-		PyDict_SetItemString(busdata,"tags",taglist);
+		PyDict_SetItemString(pModel,"bustags",taglist);
 
 		npy_intp dims[] = {bus_count,ntags};
-		array = PyArray_ZEROS(2,dims,NPY_DOUBLE,0);
-		PyDict_SetItemString(busdata,"data",array);
+		busdata = PyArray_ZEROS(sizeof(dims)/sizeof(dims[0]),dims,NPY_DOUBLE,0);
+		PyDict_SetItemString(pModel,"busdata",busdata);
 	}
-	else
-	{
-		array = PyDict_GetItemString(busdata,"data");
-	}
-#define SET_BUS(N,I,X) (*(npy_double*)PyArray_GETPTR2((PyArrayObject*)array,n,0)=X)
-#define GET_BUS(N,I,X) (X=*(npy_double*)PyArray_GETPTR2((PyArrayObject*)array,n,0))
+#define SET_BUS(N,I,X) (*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,n,I)=X)
+#define GET_BUS(N,I,X) (X=*(npy_double*)PyArray_GETPTR2((PyArrayObject*)busdata,n,I))
 	if ( dir == ED_INIT || dir == ED_OUT )
 	{
 		for ( size_t n = 0 ; n < bus_count  ; n++ )
 		{
-			SET_BUS(N,0,bus->S[0].r);
-			SET_BUS(N,1,bus->S[0].i);
-			SET_BUS(N,2,bus->S[1].r);
-			SET_BUS(N,3,bus->S[1].i);
-			SET_BUS(N,4,bus->S[2].r);
-			SET_BUS(N,5,bus->S[2].i);
+			SET_BUS(n,0,bus[n].S[0].r);
+			SET_BUS(n,1,bus[n].S[0].i);
+			SET_BUS(n,2,bus[n].S[1].r);
+			SET_BUS(n,3,bus[n].S[1].i);
+			SET_BUS(n,4,bus[n].S[2].r);
+			SET_BUS(n,5,bus[n].S[2].i);
 
-			SET_BUS(N,6,bus->Y[0].r);
-			SET_BUS(N,7,bus->Y[0].i);
-			SET_BUS(N,8,bus->Y[1].r);
-			SET_BUS(N,9,bus->Y[1].i);
-			SET_BUS(N,10,bus->Y[2].r);
-			SET_BUS(N,11,bus->Y[2].i);
+			SET_BUS(n,6,bus[n].Y[0].r);
+			SET_BUS(n,7,bus[n].Y[0].i);
+			SET_BUS(n,8,bus[n].Y[1].r);
+			SET_BUS(n,9,bus[n].Y[1].i);
+			SET_BUS(n,10,bus[n].Y[2].r);
+			SET_BUS(n,11,bus[n].Y[2].i);
 
-			SET_BUS(N,12,bus->I[0].r);
-			SET_BUS(N,13,bus->I[0].i);
-			SET_BUS(N,14,bus->I[1].r);
-			SET_BUS(N,15,bus->I[1].i);
-			SET_BUS(N,16,bus->I[2].r);
-			SET_BUS(N,17,bus->I[2].i);
+			SET_BUS(n,12,bus[n].I[0].r);
+			SET_BUS(n,13,bus[n].I[0].i);
+			SET_BUS(n,14,bus[n].I[1].r);
+			SET_BUS(n,15,bus[n].I[1].i);
+			SET_BUS(n,16,bus[n].I[2].r);
+			SET_BUS(n,17,bus[n].I[2].i);
 		}
 	}
 	else if ( dir == ED_IN )
 	{
 		for ( size_t n = 0 ; n < bus_count  ; n++ )
 		{
-			GET_BUS(N,18,bus->V[0].r);
-			GET_BUS(N,19,bus->V[0].i);
-			GET_BUS(N,20,bus->V[1].r);
-			GET_BUS(N,21,bus->V[1].i);
-			GET_BUS(N,22,bus->V[2].r);
-			GET_BUS(N,23,bus->V[2].i);
+			GET_BUS(n,18,bus[n].V[0].r);
+			GET_BUS(n,19,bus[n].V[0].i);
+			GET_BUS(n,20,bus[n].V[1].r);
+			GET_BUS(n,21,bus[n].V[1].i);
+			GET_BUS(n,22,bus[n].V[2].r);
+			GET_BUS(n,23,bus[n].V[2].i);
 		}
 	}
 }
@@ -1026,7 +1038,14 @@ void sync_busdata_mapped(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,
 
 void sync_branchdata_raw(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch,e_dir dir)
 {
-	// no branch data needed
+	PyObject *branchdata = PyDict_GetItemString(pModel,"branchdata");
+	if ( branchdata == NULL )
+	{
+		PyDict_SetItemString(pModel,"branchdata",Py_None);
+		Py_INCREF(Py_None);
+		PyDict_SetItemString(pModel,"branchtags",Py_None);
+		Py_INCREF(Py_None);
+	}
 	return;
 }
 
@@ -1436,12 +1455,25 @@ PyObject *sync_solution(
 	bool *bad_computations,
 	int64 iterations)
 {
-	sync_bad_computations(pSolution,bad_computations);
-	sync_iterations(pSolution,iterations);
-	sync_powerflow_values(pSolution,buscount,powerflow_values);
-	sync_powerflow_type(pSolution,powerflow_type);
-	sync_mesh_imped_values(pSolution,mesh_imped_values);
-	return pSolution;
+	if ( ! python_mle_data_only )
+	{
+		sync_bad_computations(pSolution,bad_computations);
+		sync_iterations(pSolution,iterations);
+		sync_powerflow_values(pSolution,buscount,powerflow_values);
+		sync_powerflow_type(pSolution,powerflow_type);
+		sync_mesh_imped_values(pSolution,mesh_imped_values);
+		return pSolution;
+	}
+	else if ( pBusdata )
+	{
+		Py_INCREF(pBusdata);
+		return pBusdata;
+	}
+	else
+	{
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
 }
 
 
