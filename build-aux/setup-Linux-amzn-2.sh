@@ -15,15 +15,22 @@ yum -q install ncurses-devel -y
 #yum -q install epel-release -y
 yum -q install libcurl-devel -y
 
-# python3 support needed as of 4.2
-yum -q install python37 python3-devel python3-tkinter -y
-[ -f /bin/python3 -a ! -f /usr/local/bin/python3 ] && ln -s /bin/python3 /usr/local/bin/python3
-[ -f /bin/python3-config -a ! -f /usr/local/bin/python3-config ] && echo '#!/bin/bash
-/bin/python3-config $*' > /usr/local/bin/python3-config
-chmod +x /usr/local/bin/python3-config
-[ ! -f /usr/local/include/python3.7m ] && ln -sf /usr/include/python3.7m /usr/local/include/python3.7m
-/usr/local/bin/python3 -m pip install --quiet --user matplotlib pandas mysql-connector Pillow
-chmod -R a+w /usr/local/lib64/python3.7/site-packages
+# python3.9.x support needed as of 4.2
+if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then
+	yum install openssl-devel bzip2-devel libffi-devel zlib-devel -q -y
+	cd /usr/local/src
+	curl https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz | tar xz
+	cd Python-3.9.0
+	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	make -j $(nproc)
+	make altinstall
+	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
+	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
+	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
+fi
 
 # mono
 if [ ! -f /usr/bin/mono ]; then
