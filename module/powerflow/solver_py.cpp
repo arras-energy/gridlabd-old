@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define USE_CDATA
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
@@ -33,6 +32,7 @@ static const char *module_import_name = NULL; // module name to import (python o
 static PyObject *pModule = NULL;
 static int solver_python_loglevel = 0; // -1=disable, 0 = minimal ... 9 = everything,
 static FILE *solver_python_logfh = NULL;
+static bool python_mle_data_only = false;
 static const char *python_busdata = "name,type,phases,"
 	"volt_base,mva_base,origphases,"
 	"SAr,SAi,SBr,SBi,SCr,SCi,"
@@ -219,6 +219,11 @@ SOLVERPYTHONSTATUS solver_python_config (
 						fprintf(stderr,"solver_python_config(configname='%s'): tag '%s' value '%s' is invalid\n",configname,tag,value);
 						status = SPS_FAILED;
 					}
+				}
+				else if ( strcmp(tag,"mle_data_only") == 0 )
+				{
+					python_mle_data_only = true;
+					solver_python_log(1,"solver_python_config(configname='%s'): python_mle_data_only = true",configname);
 				}
 				else if ( strcmp(tag,"busdata") == 0 )
 				{
@@ -786,8 +791,6 @@ void sync_property(PyObject *data, size_t n, void *ptr, void (*convert)(void*,vo
 
 void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
-	printf("sync_property_ref(PyObject *data=0x%p, size_t n=%ld, void *ptr=0x%p, int64 offset=%lld, bool inverse=<%s>)\n",
-		data, n, ptr, offset, inverse?"true":"false");
 	double **ppx = (double**)ptr;
 	if ( ppx == NULL )
 		return;
@@ -796,9 +799,6 @@ void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool i
 		return;
 	double &x = *px;
 	PyObject *pValue = PyList_GetItem(data,n);
-	printf("  ppx=0x%p, px=0x%p", ppx, px);
-	fflush(stdout);
-	printf(", x=%lg, pValue=0x%p\n", x, pValue);
 	if ( inverse )
 	{
 		if ( pValue && PyFloat_Check(pValue) )
@@ -892,10 +892,12 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
 {
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
+	PyObject *array;
 	if ( busdata == NULL )
 	{
-		size_t nbuses = sizeof(busmap)/sizeof(busmap[0]);
 		busdata = PyDict_New();
+
+		// set tags
 		PyDict_SetItemString(pModel,"busdata",busdata);
 		const char *tags[] = {
 			"SAr","SAi","SBr","SBi","SCr","SCi",
@@ -904,17 +906,62 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			"VAr","VAi","VBr","VBi","VCr","VCi",
 		};
 		size_t ntags = sizeof(tags)/sizeof(tags[0]);
-		npy_intp dims[] = {nbuses,ntags};
-		PyObject *array = PyArray_SimpleNew(2,dims,NPY_COMPLEX128);
-		for ( size_t m = 0 ; m < nbuses  ; m++ )
+		PyObject *taglist = PyList_New(ntags);
+		for ( size_t m = 0 ; m < ntags ; m++ )
 		{
-			// TODO
+			PyObject *tag = PyUnicode_FromString(tags[m]);
+			PyList_SetItem(taglist,m,tag);
+		}
+		PyDict_SetItemString(busdata,"tags",taglist);
+
+		npy_intp dims[] = {bus_count,ntags};
+		array = PyArray_ZEROS(2,dims,NPY_DOUBLE,0);
+		PyDict_SetItemString(busdata,"data",array);
+	}
+	else
+	{
+		array = PyDict_GetItemString(busdata,"data");
+	}
+#define SET_BUS(N,I,X) (*(npy_double*)PyArray_GETPTR2((PyArrayObject*)array,n,0)=X)
+#define GET_BUS(N,I,X) (X=*(npy_double*)PyArray_GETPTR2((PyArrayObject*)array,n,0))
+	if ( dir == ED_INIT || dir == ED_OUT )
+	{
+		for ( size_t n = 0 ; n < bus_count  ; n++ )
+		{
+			SET_BUS(N,0,bus->S[0].r);
+			SET_BUS(N,1,bus->S[0].i);
+			SET_BUS(N,2,bus->S[1].r);
+			SET_BUS(N,3,bus->S[1].i);
+			SET_BUS(N,4,bus->S[2].r);
+			SET_BUS(N,5,bus->S[2].i);
+
+			SET_BUS(N,6,bus->Y[0].r);
+			SET_BUS(N,7,bus->Y[0].i);
+			SET_BUS(N,8,bus->Y[1].r);
+			SET_BUS(N,9,bus->Y[1].i);
+			SET_BUS(N,10,bus->Y[2].r);
+			SET_BUS(N,11,bus->Y[2].i);
+
+			SET_BUS(N,12,bus->I[0].r);
+			SET_BUS(N,13,bus->I[0].i);
+			SET_BUS(N,14,bus->I[1].r);
+			SET_BUS(N,15,bus->I[1].i);
+			SET_BUS(N,16,bus->I[2].r);
+			SET_BUS(N,17,bus->I[2].i);
 		}
 	}
-	for ( size_t t = 0 ; t < python_nbustags ; t++ )
+	else if ( dir == ED_IN )
 	{
-		int m = bus_index[t];
-	}	
+		for ( size_t n = 0 ; n < bus_count  ; n++ )
+		{
+			GET_BUS(N,18,bus->V[0].r);
+			GET_BUS(N,19,bus->V[0].i);
+			GET_BUS(N,20,bus->V[1].r);
+			GET_BUS(N,21,bus->V[1].i);
+			GET_BUS(N,22,bus->V[2].r);
+			GET_BUS(N,23,bus->V[2].i);
+		}
+	}
 }
 
 void sync_busdata_mapped(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir dir)
@@ -1053,14 +1100,18 @@ static PyObject *sync_model(
 {
 	set_bustags(pModel);
 	set_branchtags(pModel);
-#ifdef USE_CDATA
-	set_dict_value(pModel,"mapping",Py_None);
-	sync_busdata_raw(pModel,bus_count,bus,dir);
-	sync_branchdata_raw(pModel,branch_count,branch,dir);
-#else
-	sync_busdata_mapped(pModel,bus_count,bus,dir);
-	sync_branchdata_mapped(pModel,branch_count,branch,dir);
-#endif
+	if ( python_mle_data_only )
+	{
+		set_dict_value(pModel,"mle_data_only",Py_True);
+		sync_busdata_raw(pModel,bus_count,bus,dir);
+		sync_branchdata_raw(pModel,branch_count,branch,dir);
+	}
+	else
+	{
+		set_dict_value(pModel,"mle_data_only",Py_False);
+		sync_busdata_mapped(pModel,bus_count,bus,dir);
+		sync_branchdata_mapped(pModel,branch_count,branch,dir);
+	}
 	return pModel;
 }
 
