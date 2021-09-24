@@ -278,7 +278,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) $(PWD)/config.status libtool > /dev/null
 
-install-exec-hook: index python-requirements python-install docs
+install-exec-hook: index python-requirements docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -315,7 +315,7 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 	@mkdir -p $(prefix)
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
-system: install
+system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
 	@if [ ! "$$(gridlabd --version=install)" == "$$($(top_srcdir)/build-aux/version.sh --install)" ]; then \
