@@ -375,6 +375,27 @@ DEPRECATED static int profile(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::profile(int argc, const char *argv[])
 {
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ != NULL )
+	{
+		if ( strcmp(opt,"text") == 0 )
+		{
+			global_profile_output_format = POF_TEXT;
+		}
+		else if ( strcmp(opt,"csv") == 0 )
+		{
+			global_profile_output_format = POF_CSV;
+		}
+		else if ( strcmp(opt,"json") == 0 )
+		{
+			global_profile_output_format = POF_JSON;
+		}
+		else
+		{
+			output_error("profiler option '%s' is not valid",opt);
+			return CMDERR;
+		}
+	}
 	global_profiler = !global_profiler;
 	return 0;
 }
@@ -588,7 +609,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 #else // LINUX
 			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
@@ -608,7 +629,22 @@ int GldCmdarg::version(int argc, const char *argv[])
 	}
 	else if ( strcmp(opt,"branch") == 0 )
 	{
+		output_message("%s", BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-branch") == 0 )
+	{
 		output_message("%s", BUILD_BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-repo") == 0 )
+	{
+		output_message("%s", BUILD_URL);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-commit") == 0 )
+	{
+		output_message("%s", BUILD_ID);
 		return 0;
 	}
 	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
@@ -1066,9 +1102,17 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			*/
 			return FAILED;
 		}
-		if ( options && strcmp(options,"md") == 0 )
+		if ( options )
 		{
-			module_help_md(mod,oclass);
+			if ( strcmp(options,"md") == 0 )
+			{
+				module_help_md(mod,oclass);
+			}
+			else if ( strcmp(options,"json") == 0 )
+			{
+				GldJsonWriter writer("/dev/stdout");
+				return writer.dump_modules() > 0 ? 1 : CMDERR;
+			}
 		}
 		else if ( oclass != NULL )
 		{

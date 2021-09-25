@@ -10,15 +10,11 @@
 // SET_MYCONTEXT(DMC_VERSION) // used only if IN_MYCONTEXT is present in this module
 
 #ifndef BRANCH
-#define BRANCH "Keeler" // update this from legal.h each time trunk is branched
+#error("gldcore/build.h was not updated properly (BUILDNUM is missing) - try deleting it and rebuilding again")
 #endif
 
 #ifndef BUILDNUM
 #error("gldcore/build.h was not updated properly (BUILDNUM is missing) - try deleting it and rebuilding again")
-#ifdef BUILD
-#undef BUILD
-#endif
-#define BUILDNUM 0
 #endif
 
 #ifndef REV_YEAR

@@ -10,6 +10,7 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
+AM_INIT_AUTOMAKE = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 
 CC = $(PTHREAD_CC)
@@ -47,43 +48,27 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
-python_requirements = $(top_srcdir)/requirements.txt
+python_requirements = requirements.txt
 
 docs_targets =
 
 # required modules
-include third_party/Makefile.mk
-include gldcore/Makefile.mk
-include python_extras/Makefile.mk
-include cloud/Makefile.mk
+include $(top_srcdir)/third_party/Makefile.mk
+include $(top_srcdir)/gldcore/Makefile.mk
+include $(top_srcdir)/python_extras/Makefile.mk
+include $(top_srcdir)/cloud/Makefile.mk
 
 # approved modules
-include modules.mk
+include $(top_srcdir)/modules.mk
 
 # custom modules (see ./customize)
-include custom.mk
+include $(top_srcdir)/custom.mk
 
 # for doxygen commands
-include aminclude.mk
+include $(top_srcdir)/aminclude.mk
 
 dist_doc_DATA += COPYRIGHT
 dist_doc_DATA += LICENSE
-
-EXTRA_DIST += $(top_srcdir)/gldcore/gridlabd.htm
-EXTRA_DIST += $(top_srcdir)/utilities/build_number
-
-# if MISSING_XERCES
-# all-local:
-# 	@echo
-# 	@echo "  Missing dependency: libxerces-c"
-# 	@echo ""
-# 	@echo "    libxerces-c was not found during configuration and is a required dependency."
-# 	@echo "    Install the libxerces-c development libraries and re-run ./configure or run"
-# 	@echo "    ./configure with the --with-xerces option.  Try './configure --help' for"
-# 	@echo "    more information."
-# 	@echo
-# 	@false
-# endif
 
 help:
 	@echo "Configuration targets:"
@@ -157,7 +142,7 @@ over: clean all
 clean-wc:
 	@echo -e "\nThis removes all unversioned files and directories in the working copy."
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
-	. utilities/cleanwc
+	. $(top_srcdir)/utilities/cleanwc
 
 install-validate: install validate
 
@@ -175,19 +160,16 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 	tar -xzf $< -C $(@D)
 	export XERCESCROOT=$(CURDIR)/$(@D)/$(XERCES_TARNAME) && \
 		cd $(@D)/$(XERCES_TARNAME) && \
-		autoreconf -isf && ./configure && make
+		(cd $(top_srcdir); autoreconf -isf) && $(top_srcdir)/configure && make
 	touch $@
 
 $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
 	test -d $@/gldcore || mkdir -p $@/gldcore
-# 	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
-	cd $(distdir) && ./configure && make install DESTDIR=$(CURDIR)/$@/gldcore
+	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/gldcore
 	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
-#	mv $@/gldcore/usr/lib/gridlabd/*.zip $@/climate-data/usr/lib/gridlabd/
 	mv $@/gldcore/usr/local/include $@/devel/usr/local/include
 	mv $@/gldcore/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
-#	cp $(scratchdir)/$(XERCES_TARNAME)/src/.libs/libxerces-c.* $@/libxerces-c/usr/lib/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
@@ -294,9 +276,9 @@ distclean-local: python-clean
 	@rm -f $(top_srcdir)/validate.txt
 
 libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status libtool > /dev/null
+	$(SHELL) $(PWD)/config.status libtool > /dev/null
 
-install-exec-hook: index python-requirements python-install docs
+install-exec-hook: index python-requirements docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -312,13 +294,14 @@ install-exec-hook: index python-requirements python-install docs
 	@echo ""
 
 python-requirements: $(python_requirements)
-	cat $(python_requirements) | python3 -m pip install -q -r /dev/stdin
+	@echo "Updating python requirements..."
+	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) | python3 -m pip install -q -r /dev/stdin
 
 reconfigure: distclean
-	autoreconf -isf && ./configure --quiet
+	autoreconf -isf && $(PWD)/configure --quiet
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
+	autoreconf -isf && $(PWD)/configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
@@ -332,10 +315,10 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 	@mkdir -p $(prefix)
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
-system: install
-	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
+system: python-install install
+	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
-	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
+	@if [ ! "$$(gridlabd --version=install)" == "$$($(top_srcdir)/build-aux/version.sh --install)" ]; then \
 		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
 	fi
 
