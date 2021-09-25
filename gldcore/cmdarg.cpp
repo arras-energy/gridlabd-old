@@ -375,6 +375,27 @@ DEPRECATED static int profile(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::profile(int argc, const char *argv[])
 {
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ != NULL )
+	{
+		if ( strcmp(opt,"text") == 0 )
+		{
+			global_profile_output_format = POF_TEXT;
+		}
+		else if ( strcmp(opt,"csv") == 0 )
+		{
+			global_profile_output_format = POF_CSV;
+		}
+		else if ( strcmp(opt,"json") == 0 )
+		{
+			global_profile_output_format = POF_JSON;
+		}
+		else
+		{
+			output_error("profiler option '%s' is not valid",opt);
+			return CMDERR;
+		}
+	}
 	global_profiler = !global_profiler;
 	return 0;
 }
