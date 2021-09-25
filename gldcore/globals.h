@@ -832,6 +832,15 @@ GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
 
 GLOBAL char1024 global_rusage_data INIT("{}");
 
+/* Type: PROFILEOUTPUTFORMAT */
+typedef enum
+{
+	POF_TEXT = 0x0000,
+	POF_CSV = 0x0001,
+	POF_JSON = 0x0002,
+} PROFILEOUTPUTFORMAT;
+GLOBAL set global_profile_output_format INIT(POF_TEXT);
+
 #undef GLOBAL
 #undef INIT
 
