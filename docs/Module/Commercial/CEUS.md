@@ -23,7 +23,7 @@
   }
   object ceus {
     filename "<file-name>";
-    floor_area "<real-value> sf>";
+    floor_area "<real-value> sf";
     composition "<enduse>:{<parameter>:<value>;...}";
     weather "<object-name>";
     total_power_A "<complex-value> VA";
@@ -69,7 +69,14 @@ The load composition determines how much power is consumed by each end-use speci
 
 In general the sum the real power fractions should be 1.0 and the sum of the reactive power fractions should be less of 0.1.
 
-The `Area` term of the fraction of the `floor_area` affected by the enduse specified.
+The `Area` term of the fraction of the `floor_area` affected by the enduse specified. The default area fraction is `1.0`. The `Electric` term specifies that fraction of the end-use that is electrified. The default is `1.0`.
+
+In addition, the composition can represent load sensitivities to temperature, price, and occupancy.  The composition parameters are
+* `Th`, `Thb`, `Thc`, `Th0`, `Th1`: the enduse heating mode temperature sensitivity slope, base, intercept, domain min and max, respectively
+* `Tc`, `Tcb`, `Tcc`, `Tc0`, `Tc1`: the enduse cooling mode sensitivity slope, base, intercept, domain min and max, respectively
+* `S`, `Sb`, `Sc`, `S0`, `S1`: the enduse solar gain sensitivity slope, base, intercept, domain min and max, respectively
+* `E`, `Eb`, `Ec`, `E0`, `E1`: the enduse price sensitivity slope, base, intercept, domain min and max, respectively
+* `Oh`, `Ob`, `Oc`, `O0`, `O1`: the enduse occupancy sensitivity slope, base, intercept, domain min and max, respectively
 
 ### `filename`
 
