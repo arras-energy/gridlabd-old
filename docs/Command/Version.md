@@ -56,6 +56,10 @@ Outputs the installation path, e.g., `/usr/local/opt/gridlabd/4.2.0-191115-maste
 
 Outputs the installation name, e.g., `gridlabd-4.2.0-191115-develop_fix_manual`.
 
+### `git-repo`, `git-branch`, `git-commit`
+
+Outputs the git repository URL, branch, and commit information, respectively.
+
 # Example
 
 The following command verifies that the version is at least 4.2:
