@@ -6,13 +6,21 @@ apt-get -q update
 apt-get -q install tzdata -y
 
 # install python 3.9
-apt-get -q install python3.9 -y
-update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1
-apt-get -q install python3.9-dev -y
-apt-get -q install python3-pip -y
-echo '#/bin/bash
-/usr/bin/python3-config $*' > /usr/local/bin/python3-config
-chmod +x /usr/local/bin/python3-config
+if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then
+	apt-get install libssl-dev bzip2-dev libffi-dev lzma-dev -q -y
+	cd /usr/local/src
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	cd Python-3.9.6
+	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	make -j $(nproc)
+	make altinstall
+	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
+	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
+	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
+fi
 
 # install python libraries by validation
 pip3 -q install --upgrade pip
