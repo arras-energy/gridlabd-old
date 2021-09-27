@@ -5,27 +5,6 @@
 apt-get -q update
 apt-get -q install tzdata -y
 
-# install python 3.9
-if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then
-	apt-get install libssl-dev bzip2-dev libffi-dev lzma-dev -q -y
-	cd /usr/local/src
-	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	cd Python-3.9.6
-	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
-	make -j $(nproc)
-	make altinstall
-	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
-	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
-	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
-	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
-	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
-fi
-
-# install python libraries by validation
-pip3 -q install --upgrade pip
-pip -q install pandas matplotlib mysql-client Pillow
-
 # install system build tools needed by gridlabd
 apt-get -q install git -y
 apt-get -q install unzip -y
@@ -38,8 +17,30 @@ apt-get -q install bison -y
 apt-get -q install libcurl4-gnutls-dev -y
 apt-get -q install libncurses5-dev -y
 apt-get -q install liblzma-dev -y
+apt-get -q install libssl-dev -y
+apt-get -q install libbz2-dev -y
+apt-get -q install libffi-dev -y
+apt-get -q install zlib1g-dev -y
 
-# doxgygen
+# install python 3.9
+if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then
+	cd /usr/local/src
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	cd Python-3.9.6
+	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	make -j $(nproc)
+	make altinstall
+	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
+	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+fi
+
+# install python libraries by validation
+/usr/local/bin/python3 pip -m install --upgrade pip
+/usr/local/bin/python3 pip -m install mysql-connector mysql-client matplotlib numpy pandas Pillow
+
+# doxggen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
 	if [ ! -d /usr/local/src/doxygen ]; then
@@ -77,5 +78,5 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 fi
 
 # converter support
-pip3 install networkx
-apt-get install mdbtools -y
+/usr/local/bin/python3 pip -m install networkx
+apt-get -q install mdbtools -y
