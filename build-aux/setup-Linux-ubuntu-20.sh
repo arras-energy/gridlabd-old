@@ -34,6 +34,7 @@ if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-
 	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
 	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+	curl -sSL https://bootstrap.pypa.io/get-pip.py | /usr/local/bin/python3
 fi
 
 # install python libraries by validation
