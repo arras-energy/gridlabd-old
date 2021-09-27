@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This file is used by autoconf to generate the version string.
 # It is assumed that this script is run from the top-level srcdir.
 EXE=$0
