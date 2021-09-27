@@ -115,7 +115,7 @@ static int recorder_open(OBJECT *obj)
 	}
 	char buffer[1024];
 	int minimum_timestep = atoi(gl_global_getvar("minimum_timestep",buffer,sizeof(buffer)-1));
-	if ( minimum_timestep > 0 && my->interval < minimum_timestep )
+	if ( minimum_timestep > 0 && my->interval > 0 && my->interval < minimum_timestep )
 	{
 		gl_warning("%s <recorder:%d> interval %d is less than minimum timestep, setting interval to %d", obj->name?obj->name:"(unnamed)", obj->id, my->interval, minimum_timestep);
 		my->interval = minimum_timestep;
