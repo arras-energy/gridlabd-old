@@ -182,7 +182,7 @@ int GldJsonWriter::write_properties(FILE *fp)
 }
 
 
-int GldJsonWriter::write_classes(FILE *fp,bool noattr)
+int GldJsonWriter::write_classes(FILE *fp)
 {
 	int len = 0;
 
@@ -206,33 +206,23 @@ int GldJsonWriter::write_classes(FILE *fp,bool noattr)
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )
 			len += write(",");
-		if ( ! noattr || oclass->module == NULL )
+		len += write("\n\t\t\"%s\" : {",oclass->name);
+		FIRST("object_size","%u",oclass->size);
+		if ( oclass->parent )
 		{
-			len += write("\n\t\t\"%s\" : {",oclass->name);
+			TUPLE("parent","%s",oclass->parent->name );
 		}
-		else
+		TUPLE("trl","%u",oclass->trl);
+		if ( oclass->module )
 		{
-			len += write("\n\t\t\"%s.%s\" : {",oclass->module->name,oclass->name);
+			TUPLE("module","%s",oclass->module->name);
 		}
-		if ( ! noattr )
-		{
-			FIRST("object_size","%u",oclass->size);
-			if ( oclass->parent )
-			{
-				TUPLE("parent","%s",oclass->parent->name );
-			}
-			TUPLE("trl","%u",oclass->trl);
-			if ( oclass->module )
-			{
-				TUPLE("module","%s",oclass->module->name);
-			}
-			TUPLE("profiler.numobjs","%u",oclass->profiler.numobjs);
-			TUPLE("profiler.clocks","%llu",oclass->profiler.clocks);
-			TUPLE("profiler.count","%u",oclass->profiler.count);
-			if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
-			if ( oclass->pmap != NULL )
-				len += write(",");
-		}
+		TUPLE("profiler.numobjs","%u",oclass->profiler.numobjs);
+		TUPLE("profiler.clocks","%llu",oclass->profiler.clocks);
+		TUPLE("profiler.count","%u",oclass->profiler.count);
+		if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
+		if ( oclass->pmap != NULL )
+			len += write(",");
 		for ( prop = oclass->pmap ; prop != NULL && prop->oclass == oclass ; prop=prop->next ) // note: do not output parent classes properties
 		{
 			KEYWORD *key;
@@ -734,18 +724,6 @@ int GldJsonWriter::dump()
 	fclose(fp);
 
 	return len > 0;
-}
-
-int GldJsonWriter::dump_modules()
-{
-	int len = 0;
-	json = stdout;
-	len += write("{\t\"application\": \"gridlabd\",\n");
-	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
-	len += write_modules(json);
-	len += write_classes(json,true);
-	len += write("\n}\n");
-	return len;
 }
 
 int json_to_glm(const char *jsonfile, char *glmfile)

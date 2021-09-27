@@ -99,7 +99,6 @@ function help()
 			         reset       Reset the current configuration
 			         set <N>=<V> Set configuration variable name <N> to value <V>
 			         get <N>     Get configuration variable name <N>
-			  metar <station>    Get realtime weather object GLM for <station>
 			END
 	fi
 }
@@ -173,11 +172,6 @@ function delete()
 		fi
 	done
 
-}
-
-function metar()
-{
-	/usr/local/bin/python3 ${GLD_ETC}/metar2glm.py $*
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then

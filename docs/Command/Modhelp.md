@@ -3,12 +3,12 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd --modhelp[=json] module[:class]                                
+bash$ gridlabd --modhelp module[:class]                                
 ~~~
 
 # Description
 
-Display structure of a class or all classes in a module. If the `=json` option is included, the output is generated in JSON format.
+Display structure of a class or all classes in a module.
 
 The comment section includes whether the property is a required input, optional, dynamic, output, or deprecated.
 

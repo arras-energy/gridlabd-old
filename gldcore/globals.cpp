@@ -200,11 +200,6 @@ DEPRECATED static KEYWORD jcf_keys[] = {
 	{"DEGREES",		JCF_DEGREES,	jcf_keys+4},
 	{"RADIANS",		JCF_RADIANS,	NULL}
 };
-DEPRECATED static KEYWORD pof_keys[] = {
-	{"TEXT",		POF_TEXT,		pof_keys+1},
-	{"CSV",         POF_CSV,        pof_keys+2},
-	{"JSON",		POF_JSON,		NULL},
-};
 
 DEPRECATED static struct s_varmap {
 	const char *name;
@@ -367,7 +362,6 @@ DEPRECATED static struct s_varmap {
     {"country", PT_char8, &global_country,PA_PUBLIC,"country code"},
     {"region", PT_char32, &global_region,PA_PUBLIC,"region code"},
     {"organization",PT_char32, &global_organization,PA_PUBLIC,"organization name"},
-    {"profile_output_format",PT_set,&global_profile_output_format,PA_PUBLIC,"profiler output data format"},
 	/* add new global variables here */
 };
 

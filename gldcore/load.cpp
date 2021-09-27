@@ -3758,7 +3758,7 @@ int GldLoader::property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT 
 			PROPERTY *prop = object_get_property(obj,pname,NULL);
 			if (prop==NULL)
 			{
-				syntax_error(filename,linenum,"property '%s' of object '%s' not found", pname,oname);
+				syntax_error(filename,linenum,"property '%s' of object '%s' not found", oname,pname);
 				REJECT;
 			}
 			else if (prop->ptype==PT_double)

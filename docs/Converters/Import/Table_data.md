@@ -16,7 +16,7 @@ climate | weather | | 	|  |  | | |  |  |  |  |  | | CA-Chino_Airport.tmy3
 
 Sample usage within GLM
 ~~~
-#input "input_file.csv" -f "table" -t "object" [-M module] [-C class] [-p property=value]
+#input "input_file.csv" -f "table" -t "object" 
 ~~~
 
 The `class` can either be defined through `options` or specified directly in the CSV. If you'd like to omit the class in the table you can specify it in the input command line instead as 

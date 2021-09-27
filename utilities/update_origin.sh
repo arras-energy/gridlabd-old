@@ -1,11 +1,5 @@
 #/bin/bash
-if [ "$(basename $0)" != "update_origin" ]; then
-    echo "ERROR [update_origin]: cannot be called as a script"
-    exit 1
-fi
-EXE=$0
-TOP=$(cd ${EXE/update_origin/..}; pwd)
-if [ -d $TOP/.git ]; then
+if [ -d .git ]; then
 
     # git info is available
     ORIGIN=$(git remote -v show | head -n 1 | cut -f1)
