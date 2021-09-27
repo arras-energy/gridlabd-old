@@ -15,12 +15,12 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	/* exported globals */
 	gl_global_create("powerflow::show_matrix_values",PT_bool,&show_matrix_values,NULL);
-	gl_global_create("powerflow::primary_voltage_ratio",PT_double,&primary_voltage_ratio,NULL);
+	gl_global_create("powerflow::primary_voltage_ratio[pu]",PT_double,&primary_voltage_ratio,NULL);
 	gl_global_create("powerflow::nominal_frequency[Hz]",PT_double,&nominal_frequency,NULL);
 	gl_global_create("powerflow::require_voltage_control", PT_bool,&require_voltage_control,NULL);
 	gl_global_create("powerflow::geographic_degree",PT_double,&geographic_degree,NULL);
-	gl_global_create("powerflow::fault_impedance",PT_complex,&fault_Z,NULL);
-	gl_global_create("powerflow::ground_impedance",PT_complex,&ground_Z,NULL);
+	gl_global_create("powerflow::fault_impedance[Ohm]",PT_complex,&fault_Z,NULL);
+	gl_global_create("powerflow::ground_impedance[Ohm]",PT_complex,&ground_Z,NULL);
 	gl_global_create("powerflow::warning_underfrequency[Hz]",PT_double,&warning_underfrequency,NULL);
 	gl_global_create("powerflow::warning_overfrequency[Hz]",PT_double,&warning_overfrequency,NULL);
 	gl_global_create("powerflow::warning_undervoltage[V]",PT_double,&warning_undervoltage,NULL);
