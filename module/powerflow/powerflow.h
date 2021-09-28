@@ -79,7 +79,7 @@ EXTERN int64 NR_delta_iteration_limit INIT(10);		/**< Newton-Raphson iteration l
 EXTERN bool FBS_swing_set INIT(false);				/**< Forward-Back Sweep swing assignment variable */
 EXTERN bool show_matrix_values INIT(false);			/**< flag to enable dumping matrix calculations as they occur */
 EXTERN double primary_voltage_ratio INIT(60.0);		/**< primary voltage ratio (@todo explain primary_voltage_ratio in powerflow (ticket #131) */
-EXTERN double nominal_frequency INIT(60.0);			/**< nomimal operating frequencty */
+EXTERN double nominal_frequency INIT(60.0);			/**< nomimal operating frequency */
 EXTERN double warning_underfrequency INIT(55.0);	/**< frequency below which a warning is posted */
 EXTERN double warning_overfrequency INIT(65.0);		/**< frequency above which a warning is posted */
 EXTERN double warning_undervoltage INIT(0.8);		/**< voltage magnitude (per unit) below which a warning is posted */
