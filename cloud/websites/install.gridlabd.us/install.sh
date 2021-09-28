@@ -8,9 +8,14 @@ case $SYSTEM in
 
     Darwin)
         
-        RELEASE=$(uname -r | cut -f1 -d.)
+        
+        VERSION_ID=$(uname -r | cut -f1 -d.)
 
         ;;
+
+    Linux)
+
+        source "/etc/os-release"
 
     *)
 
@@ -21,8 +26,8 @@ esac
 TARGET=/usr/local/opt/gridlabd
 mkdir -p $TARGET
 cd $TARGET
-curl -sL "http://install.gridlabd.us/gridlabd-$SYSTEM-$RELEASE-$LATEST-master.tarz" | tar xz
-if [ -f $TARGET/share/gridlabd/setup-$SYSTEM-$RELEASE.sh ]; then
-    . $TARGET/share/gridlabd/setup-$SYSTEM-$RELEASE.sh
+curl -sL "http://install.gridlabd.us/gridlabd-$SYSTEM-$VERSION_ID-$LATEST-master.tarz" | tar xz
+if [ -f $TARGET/share/gridlabd/setup-$SYSTEM-$VERSION_ID.sh ]; then
+    . $TARGET/share/gridlabd/setup-$SYSTEM-$VERSION_ID.sh
 fi
 /usr/local/opt/gridlabd/$LATEST-master/bin/gridlabd version set
