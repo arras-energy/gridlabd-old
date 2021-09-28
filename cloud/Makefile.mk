@@ -66,7 +66,10 @@ AWS_TARGET=$(if $(subst master,,$(shell git rev-parse --abbrev-ref HEAD)),-dev,)
 #
 gcp-deploy:
 
-#
-# Azure updates
-#
-az-deploy:
+azure-deploy:
+if HAVE_AZCLI
+	@echo "WARNING: azure-deploy is not implemented yet"
+endif
+
+release:
+	@echo "WARNING: make release not implemented yet"
