@@ -83,10 +83,14 @@ install.gridlabd.us: update-requirements
 	@aws s3 ls s3://$@
 	@echo "WARNING: make release not implemented yet"
 
-install-dev.gridlabd.us: update-requirements
+install-dev.gridlabd.us: $(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt $(top_srcdir)/cloud/websites/install.gridlabd.us/validate.tarz
 	@echo "Copying files to s3://$@..."
-	@for file in cloud/websites/install.gridlabd.us/*{html,sh,txt}; do aws s3 cp "$$file" "s3://$@"; aws s3api put-object-acl --bucket "$@" --key $$(basename $$file) --acl public-read; done
+	@for file in cloud/websites/install.gridlabd.us/*{html,sh,txt}; do ( aws s3 cp "$$file" "s3://$@" && aws s3api put-object-acl --bucket "$@" --key $$(basename $$file) --acl public-read); done
+	@aws s3 cp $(top_srcdir)/cloud/websites/install.gridlabd.us/validate.tarz "s3://$@/validate-$$($(top_srcdir)/build-aux/version.sh --version).tarz" 
+	@aws s3api put-object-acl --bucket "$@" --key validate-$$($(top_srcdir)/build-aux/version.sh --version).tarz --acl public-read
 
-update-requirements: 
-	@cat $$(find $(top_srcdir) -name requirements.txt -print) | sort -u > $(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt
+$(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt: 
+	@cat $$(find $(top_srcdir) -name requirements.txt -print) | sort -u > $@
 
+$(top_srcdir)/cloud/websites/install.gridlabd.us/validate.tarz:
+	@tar cfz $@ $$(find $(top_srcdir) -type d -name autotest -print -prune )

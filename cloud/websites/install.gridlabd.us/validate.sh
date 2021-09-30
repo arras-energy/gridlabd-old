@@ -73,7 +73,7 @@ case $SYSTEM in
 
     *)
 
-        error 3 "install not available for $SYSTEM, try manual installation instead"
+        error 3 "validation not available for $SYSTEM, try manual installation instead"
 
         ;;
 
@@ -82,10 +82,8 @@ esac
 url_ok $SOURCE/latest-$SYSTEM-$RELEASE.txt || error 4 "unable to get $SOURCE/latest-$SYSTEM-$RELEASE.txt"
 LATEST=$(curl -sL $SOURCE/latest-$SYSTEM-$RELEASE.txt)
 
-TARGET=/usr/local/opt/gridlabd
+[ ! -x /usr/local/bin/gridlabd ] && error 4 "gridlabd is not installed on this system"
+TARGET=validate-$LATEST
 mkdir -p $TARGET
 cd $TARGET
-url_run "$SOURCE/install-$SYSTEM-$RELEASE.sh" || warning "no setup found for $SYSTEM-$RELEASE"
-url_tarxz "$SOURCE/gridlabd-$SYSTEM-$RELEASE-${LATEST%-*}-master.tarz" && /usr/local/opt/gridlabd/$LATEST-master/bin/gridlabd version set
-
-[ -z "$(which gridlabd 2>/dev/null)" ] && echo "gridlabd will be in your PATH the next time you log in"
+url_tarxz "$SOURCE/validate-${LATEST%-*}.tarz" && /usr/local/bin/gridlabd -D keep_progress=TRUE --validate && error 5 "validation failed"

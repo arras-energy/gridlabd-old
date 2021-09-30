@@ -12,7 +12,7 @@ yum -q -y install cmake ncurses-devel libcurl-devel openssl-devel bzip2-devel li
 
 # Install the proper version of python3
 echo "Updating python3..."
-yum -q -y remove python3
+[ -x /usr/bin/python3 ] && yum -q -y erase python3
 PREFIX=/usr/local/opt/python3
 mkdir -p ${PREFIX%/*}	
 if [ ! -d $PREFIX ]; then
@@ -59,6 +59,6 @@ Online documentation is available at
 
 **************************************************
 ' > /etc/motd
-echo 'export PATH=/usr/local/bin:$PATH' >> /etc/bashrc
+[ -z "$(echo $PATH | grep /usr/local/bin)" ] && ( echo 'export PATH=/usr/local/bin:$PATH' >> /etc/bashrc)
 
 echo "System ready for gridlabd install"
