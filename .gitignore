@@ -96,7 +96,6 @@ m4/lt-obsolete.m4
 source/build.h
 source/config.h.in~
 gridlabd.bin
-install/
 third_party/xerces*/*
 third_party/armadillo-7.800.1.tar.gz
 third_party/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz

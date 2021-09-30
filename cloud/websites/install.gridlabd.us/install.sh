@@ -72,3 +72,5 @@ mkdir -p $TARGET
 cd $TARGET
 url_run "http://install.gridlabd.us/install-$SYSTEM-$RELEASE.sh" || echo "WARNING: no setup found for $SYSTEM-$RELEASE"
 url_tarxz "http://install.gridlabd.us/gridlabd-$SYSTEM-$RELEASE-$LATEST-master.tarz" && /usr/local/opt/gridlabd/$LATEST-master/bin/gridlabd version set
+
+[ -z "$(which gridlabd 2>/dev/null)" ] && echo "gridlabd will be in your PATH the next time you log in"

@@ -24,9 +24,16 @@
 #   $ make az-deploy
 #
 
-#
-# Cloud deployment platforms
-#
+cloud-help:
+	@echo "Valid targets:"
+	@echo "  release      release the current version to install.gridlabd.us"
+	@echo "  aws-deploy   deploy code, docs, and www to AWS"
+	@echo ""
+	@echo "Options:"
+	@echo "   SUFFIX=-dev deploy to *-dev.gridlabd.us instead of *.gridlabd.us"
+
+
+cloud-deploy: aws-deploy gcp-deploy azure-deploy
 
 cloud-deploy: aws-deploy gcp-deploy az-deploy
 
@@ -71,5 +78,9 @@ if HAVE_AZCLI
 	@echo "WARNING: azure-deploy is not implemented yet"
 endif
 
-release:
+release: update-requirements
 	@echo "WARNING: make release not implemented yet"
+
+update-requirements: 
+	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) > $(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt
+
