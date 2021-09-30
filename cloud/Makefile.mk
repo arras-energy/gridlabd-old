@@ -78,9 +78,15 @@ if HAVE_AZCLI
 	@echo "WARNING: azure-deploy is not implemented yet"
 endif
 
-release: update-requirements
+install.gridlabd.us: update-requirements
+	@echo "Uploading files to $@..."
+	@aws s3 ls s3://$@
 	@echo "WARNING: make release not implemented yet"
 
+install-dev.gridlabd.us: update-requirements
+	@echo "Copying files to s3://$@..."
+	@for file in cloud/websites/install.gridlabd.us/*{html,sh,txt}; do aws s3 cp "$$file" "s3://$@"; aws s3api put-object-acl --bucket "$@" --key $$(basename $$file) --acl public-read; done
+
 update-requirements: 
-	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) > $(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt
+	@cat $$(find $(top_srcdir) -name requirements.txt -print) | sort -u > $(top_srcdir)/cloud/websites/install.gridlabd.us/requirements.txt
 

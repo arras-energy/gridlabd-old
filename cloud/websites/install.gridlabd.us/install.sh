@@ -1,6 +1,5 @@
 #!/bin/bash
 
-LATEST=$(curl -sL http://install.gridlabd.us/latest.txt)
 SYSTEM=$(uname -s | tr A-Z a-z)
 
 function url_ok ()
@@ -66,6 +65,8 @@ case $SYSTEM in
         ;;
 
 esac
+
+LATEST=$(curl -sL http://install.gridlabd.us/latest-$SYSTEM-$RELEASE.txt)
 
 TARGET=/usr/local/opt/gridlabd
 mkdir -p $TARGET
