@@ -60,7 +60,7 @@ def runjob(jobid):
 	args = ["gridlabd",cfgfile]
 	args.extend(GLMLIST)
 	if os.path.exists(MODFILE):
-		args.extend(MODFILE)
+		args.append(MODFILE)
 	elif MODFILE != "gridlabd-modify.glm":
 		error(f"{MODFILE} does not exist")
 	verbose(f"running '{' '.join(args)}'")
