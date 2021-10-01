@@ -67,7 +67,7 @@ case $SYSTEM in
     linux)
 
         source "/etc/os-release"
-        RELEASE=$ID$VERSION
+        RELEASE=$ID$VERSION_ID
 
         ;;
 
