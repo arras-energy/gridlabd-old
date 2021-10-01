@@ -61,6 +61,7 @@ case $SYSTEM in
         
         
         RELEASE=$(uname -r | cut -f1 -d.)
+        alias nproc="sysctl -n hw.ncpu"
 
         ;;
 
@@ -85,7 +86,34 @@ LATEST=$(curl -sL $SOURCE/latest-$SYSTEM-$RELEASE.txt)
 TARGET=/usr/local/opt/gridlabd
 mkdir -p $TARGET
 cd $TARGET
-url_run "$SOURCE/install-$SYSTEM-$RELEASE.sh" || warning "no setup found for $SYSTEM-$RELEASE"
-url_tarxz "$SOURCE/gridlabd-$SYSTEM-$RELEASE-${LATEST%-*}-master.tarz" && /usr/local/opt/gridlabd/$LATEST-master/bin/gridlabd version set
+
+if ( url_run "$SOURCE/install-$SYSTEM-$RELEASE.sh" && url_tarxz "$SOURCE/gridlabd-$SYSTEM-$RELEASE-${LATEST%-*}-master.tarz" && /usr/local/opt/gridlabd/$LATEST-master/bin/gridlabd version set ); then
+    echo -n ""
+else
+    echo "fast install failed, running full build"
+    mkdir -p /usr/local/src
+    cd /usr/local/src
+    git clone https://github.com/slacgismo/gridlabd --depth 1 gridlabd
+    cd gridlabd
+    autoreconf -isf
+    ./configure
+    export MAKEFLAGS=-j$(($(nproc)*3))
+    export PYTHONSETUPFLAGS="-j $(($(nproc)*3))"
+    make system
+fi
+
+echo '
+**************************************************
+Welcome to the HiPAS GridLAB-D host.
+
+Use 'gridlabd --help' for help on using GridLAB-D
+
+Online documentation is available at
+
+  https://docs.gridlabd.us/
+
+**************************************************
+' > /etc/motd
+echo 'export PATH=/usr/local/bin:$PATH' >> /etc/bashrc
 
 [ -z "$(which gridlabd 2>/dev/null)" ] && echo "gridlabd will be in your PATH the next time you log in"

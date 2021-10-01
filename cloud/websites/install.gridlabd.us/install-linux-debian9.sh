@@ -3,6 +3,8 @@
 # Install setup for Debian 9 instance (including wls hosts)
 #
 
+[ -z "$SOURCE" ] && SOURCE=http://install.gridlabd.us
+
 # Install needed system tools
 echo "Updating system packages..."
 apt -q -y update
@@ -48,18 +50,6 @@ $PREFIX/bin/python3.9 -m pip -q install --upgrade pip
 
 # Install the required python3 packages
 echo "Updating python3 requirements..."
-curl -sL http://install.gridlabd.us/requirements.txt | /usr/local/bin/pip3 -q install -r /dev/stdin
+curl -sL $SOURCE/requirements.txt | /usr/local/bin/pip3 -q install -r /dev/stdin
 
-echo '
-**************************************************
-Welcome to the HiPAS GridLAB-D host.
-
-Use 'gridlabd --help' for help on using GridLAB-D
-
-Online documentation is available at
-
-  https://docs.gridlabd.us/
-
-**************************************************
-' > /etc/motd
-echo 'export PATH=/usr/local/bin:$PATH' >> /etc/bashrc
+echo "debian9 ystem ready for gridlabd install"
