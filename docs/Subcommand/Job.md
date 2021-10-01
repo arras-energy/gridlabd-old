@@ -26,7 +26,7 @@ The default configuration file name is `gridlabd-config.glm`.
 
 ### `-c|--configfile CONFIG`
 
-Specifies the name of the configuration file to use instead of `gridlabd-config.glm`.
+Specifies the name of the configuration file name to use instead of `gridlabd-config.glm`. The configuration file is created from the job entry in the job control file and loaded before the main GLM file is loaded.
 
 ### `-d|--debug`
 
@@ -38,7 +38,7 @@ Specifies the name of the job control file to use instead of `gridlabd-job.csv`.
 
 ### `-m|--modifyfile MODIFY`
 
-Specifies the name of the modify file to use instead of `gridlabd-modify.glm`.
+Specifies the name of the modify file to use instead of `gridlabd-modify.glm`. The modification file is loaded after the main GLM file is loaded.
 
 ### `-q|--quiet`
 
