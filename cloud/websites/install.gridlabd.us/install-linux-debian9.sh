@@ -52,4 +52,4 @@ $PREFIX/bin/python3.9 -m pip -q install --upgrade pip
 echo "Updating python3 requirements..."
 curl -sL $SOURCE/requirements.txt | /usr/local/bin/pip3 -q install -r /dev/stdin
 
-echo "debian9 ystem ready for gridlabd install"
+echo "debian9 system ready for gridlabd install"
