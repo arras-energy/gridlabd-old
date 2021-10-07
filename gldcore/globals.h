@@ -688,6 +688,10 @@ GLOBAL char1024 global_loader_filename INIT("");
 /* Variable: global_loader_linenum */
 GLOBAL int32 global_loader_linenum INIT(0);
 
+GLOBAL char8 global_country INIT("US");
+GLOBAL char32 global_region INIT("CA");
+GLOBAL char1024 global_organization INIT("SLAC");
+
 /* Variable: global_json_complex_format */
 #define JCF_STRING  0x0000
 #define JCF_LIST    0x0001
@@ -827,6 +831,15 @@ GLOBAL int64 global_rusage_rate INIT(0);
 GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
 
 GLOBAL char1024 global_rusage_data INIT("{}");
+
+/* Type: PROFILEOUTPUTFORMAT */
+typedef enum
+{
+	POF_TEXT = 0x0000,
+	POF_CSV = 0x0001,
+	POF_JSON = 0x0002,
+} PROFILEOUTPUTFORMAT;
+GLOBAL set global_profile_output_format INIT(POF_TEXT);
 
 #undef GLOBAL
 #undef INIT

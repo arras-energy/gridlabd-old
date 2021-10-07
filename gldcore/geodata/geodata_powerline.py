@@ -567,11 +567,22 @@ def apply(data, options=default_options, config=default_config, warning=print):
     CONFIG = config
 
     result = pandas.DataFrame(data)
-    result["linesag"] = linesag(data)
-    result["linesway"] = linesway(data)
-    result["linegallop"] = linegallop(data)
-    result["contact"] = contact(result)
-
+    try:
+        result["linesag"] = linesag(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINESAG and {err} is missing or invalid")
+    try:
+        result["linesway"] = linesway(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINEWAY and {err} is missing or invalid")
+    try:
+        result["linegallop"] = linegallop(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")
+    try:
+        result["contact"] = contact(result)
+    except Exception as err:
+        WARNING(f"cannot run function CONTACT and {err} is missing or invalid")
     return result
 
 # perform validation tests

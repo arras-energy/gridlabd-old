@@ -1,29 +1,30 @@
+// Test PG&E billing model
 
-//#option verbose
-//#option debug
-#set savefile=test_billing.json
-#set force_compile=TRUE
+#define BILLING_MODULE=test_billing.py
+#define BILLING_FUNCTION=compute_bill
+
+#ifexist "../${BILLING_MODULE}"
+// this is only defined when the billing module is not local
+#define LIBRARY_PATH=..
+#endif
 
 clock
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2021-01-01 00:00:00 PST";
+	stoptime "2020-01-31 00:00:00 PST";
 }
 
-module powerflow;
-module residential;
+#include "${LIBRARY_PATH:-.}/pgande_res_200301.glm"
 
-#ifexist "../house.glm"
-#define TESTDIR=..
-#else
-#define TESTDIR=.
+#set dateformat=ISO8601
+
+#include using(ID=1,TARIFF=E1) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=2,TARIFF=EM) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=3,TARIFF=ES) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=4,TARIFF=ESR) "${LIBRARY_PATH:-.}/house.glm"
+// #include using(ID=5,TARIFF=ET) "${LIBRARY_PATH:-.}/house.glm"
+
+#ifdef LIBRARY_PATH
+#on_exit 0 diff -w ${LIBRARY_PATH}/billing.csv billing.csv
 #endif
-
-#include "${TESTDIR}/pgande_res_200301.glm"
-
-#include using(ID=1,TARIFF=E1) "${TESTDIR}/house.glm"
-#include using(ID=2,TARIFF=EM) "${TESTDIR}/house.glm"
-#include using(ID=3,TARIFF=ES) "${TESTDIR}/house.glm"
-#include using(ID=4,TARIFF=ESR) "${TESTDIR}/house.glm"
-#include using(ID=5,TARIFF=ET) "${TESTDIR}/house.glm"

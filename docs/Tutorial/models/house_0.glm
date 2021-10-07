@@ -1,7 +1,0 @@
-#input "CA-San_Francisco_Intl_Ap.tmy3"
-module residential;
-object house
-{
-	parent "meter_0";
-	name "house_0";
-};

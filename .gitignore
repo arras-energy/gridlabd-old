@@ -168,6 +168,10 @@ documents/gridlabd.md
 documents/gridlabd.pdf
 openfido.err
 test_*.html
+python_extras/gridlabd_app/example1_capacitor1.csv
+python_extras/gridlabd_app/example1.glm
+python_extras/gridlabd_app/output.txt
+geodata.conf
 gldcore/converters/autotest/IEEE-123.html
 gldcore/converters/autotest/solver_nr_profile.csv
 gldcore/converters/autotest/table2glm_input_noclass.glm
@@ -175,6 +179,3 @@ gldcore/converters/autotest/table2glm_input_noname.glm
 gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
-python_extras/gridlabd_app/example1_capacitor1.csv
-python_extras/gridlabd_app/example1.glm
-python_extras/gridlabd_app/output.txt

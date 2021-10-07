@@ -1,2 +1,0 @@
-#openfido -q install filestat
-#openfido run filestat ${modelname} > filestat.csv
