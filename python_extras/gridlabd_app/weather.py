@@ -76,7 +76,7 @@ class Weather(Tk):
         self.config(cursor="")
         self.update()
         if result.returncode == 0:
-            return result.stdout.decode('utf-8').split('\n')
+            return result.stdout.decode('utf-8').strip().split('\n')
         else:
             messagebox.showerror(f"Weather error",result.stderr)
             return []
@@ -155,6 +155,7 @@ class ListView(ttk.Treeview):
             self.selection_set(iid)
             popup = Menu(self,tearoff=0);
             popup.add_command(label="Show info",command=self.show_info)
+            popup.add_command(label="Show details",command=self.show_details)
             popup.add_command(label="Copy name",command=self.copy_name)
             popup.add_separator()
             popup.add_command(label="Delete",command=self.delete_item)
@@ -208,6 +209,33 @@ class ListView(ttk.Treeview):
             table.column('#0',width=100)
             table.column('value',width=500)
             table.grid(row=0, column=0)
+
+    def show_details(self,event=None):
+        tag = self.selection()[0]
+        file = self.item(tag,'text')
+        if file:
+            info = list(map(lambda x:x.split(','),self.main.command(["info",file])))
+            spec = dict(zip(info[0],list(map(lambda x:x.replace(chr(34),''),info[1]))))
+            import pandas
+            data = pandas.read_csv(spec['Filepath'],header=1)
+            result = {}
+            result['High temperature'] = f"{int(data['Dry-bulb (C)'].max()*9/5+32+0.5)} degF"
+            result['Low temperature'] = f"{int(data['Dry-bulb (C)'].min()*9/5+32+0.5)} degF"
+            result['High humidity'] = f"{int(data['RHum (%)'].max()+0.5)}%"
+            result['Low humidity'] = f"{int(data['RHum (%)'].min()+0.5)}%"
+            result['High wind'] = f"{int(data['Wspd (m/s)'].max()*2.24+0.5)} mph"
+            result['Solar average'] = f"{int((data['GHI (W/m^2)']+data['DNI (W/m^2)']+data['DHI (W/m^2)']).sum() / (data['ETRN (W/m^2)']+data['ETR (W/m^2)']).sum()*100)}%"
+            result['Max rainfall'] = f"{int(data['Lprecip depth (mm)'].max()/25.4+0.5)} in"
+            print(f"Data: {data.columns}",file=sys.stderr)
+            msg = Tk()
+            msg.title(file)
+            table = ttk.Treeview(msg,columns=['value'],show='tree')
+            for name,value in result.items():
+                table.insert('',END,text=name,values=[value])
+            table.column('#0',width=150)
+            table.column('value',width=450)
+            table.grid(row=0, column=0)
+
 
 if __name__ == "__main__":
     root = Weather()
