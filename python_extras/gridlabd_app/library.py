@@ -76,7 +76,7 @@ class Library(Tk):
         self.config(cursor="")
         self.update()
         if result.returncode == 0:
-            return result.stdout.decode('utf-8').split('\n')
+            return result.stdout.decode('utf-8').strip().split('\n')
         else:
             messagebox.showerror(f"Library error",result.stderr)
             return []
