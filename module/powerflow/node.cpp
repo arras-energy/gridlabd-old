@@ -2084,6 +2084,9 @@ void node::NR_node_sync_fxn(OBJECT *obj)
 	//See if we've been initialized or not
 	if (NR_node_reference!=-1)
 	{
+		//Phase check/voltage zero - mostly so fuses behave properly (postsync one captures most items, but restored fuses
+		//break things here)
+		//NOTE: This movement may have implications for inrush, if deltamode gets looped back in
 		//Make sure we're a real boy - if we're not, do nothing (we'll steal mommy's or daddy's voltages in postsync)
 		if ((SubNode!=CHILD) && (SubNode!=DIFF_CHILD))
 		{
@@ -2217,7 +2220,7 @@ void node::NR_node_sync_fxn(OBJECT *obj)
 				prev_phases = NR_busdata[NR_node_reference].phases;
 			}//End Phase checks for reliability
 		}//End normal node
-
+		
 		if (SubNode==CHILD)
 		{
 			//Post our loads up to our parent
@@ -2818,6 +2821,153 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 void node::BOTH_node_postsync_fxn(OBJECT *obj)
 {
 	double curr_delta_time;
+
+	//Reliability check - sets and removes voltages (theory being previous answer better than starting at 0)
+	unsigned char phase_checks_var;
+
+	//NR-related updates for reliability and making sure "removed" objects have zero voltage
+	//Needs to be in post sync due to when fault_check fires and removes phases
+	//NOTE: This movement may have implications for inrush, if deltamode gets looped back in
+	if (solver_method == SM_NR)
+	{
+		//Make sure not unreferenced
+		if (NR_node_reference!=-1)
+		{
+			//Make sure we're a real boy - if we're not, do nothing (we'll steal mommy's or daddy's voltages in postsync)
+			if ((SubNode!=CHILD) && (SubNode!=DIFF_CHILD))
+			{
+				//Figre out what has changed
+				phase_checks_var = ((NR_busdata[NR_node_reference].phases ^ prev_phases) & 0x8F);
+
+				if (phase_checks_var != 0x00)	//Something's changed
+				{
+					//See if it is a triplex
+					if ((NR_busdata[NR_node_reference].origphases & 0x80) == 0x80)
+					{
+						//See if A, B, or C appeared, or disappeared
+						if ((NR_busdata[NR_node_reference].phases & 0x80) == 0x00)	//No phases means it was just removed
+						{
+							//Store V1 and V2
+							last_voltage[0] = voltage[0];
+							last_voltage[1] = voltage[1];
+							last_voltage[2] = voltage[2];
+
+							//Clear them out
+							voltage[0] = 0.0;
+							voltage[1] = 0.0;
+							voltage[2] = 0.0;
+						}
+						else	//Put back in service
+						{
+							//See if in-rush is enabled or not
+							if (enable_inrush_calculations == false)
+							{
+								voltage[0] = last_voltage[0];
+								voltage[1] = last_voltage[1];
+								voltage[2] = last_voltage[2];
+							}
+							else	//When restoring from inrush, a very small term is needed (or nothing happens)
+							{
+								voltage[0] = last_voltage[0] * MULTTERM;
+								voltage[1] = last_voltage[1] * MULTTERM;
+								voltage[2] = last_voltage[2] * MULTTERM;
+							}
+
+							//Default else - leave it be and just leave them to zero (more fun!)
+						}
+
+						//Recalculated V12, V1N, V2N in case a child uses them
+						voltaged[0] = voltage[0] + voltage[1];	//12
+						voltaged[1] = voltage[1] - voltage[2];	//2N
+						voltaged[2] = voltage[0] - voltage[2];	//1N -- unsure why odd
+
+					}//End triplex
+					else	//Nope
+					{
+						//Find out changes, and direction
+						if ((phase_checks_var & 0x04) == 0x04)	//Phase A change
+						{
+							//See which way
+							if ((prev_phases & 0x04) == 0x04)	//Means A just disappeared
+							{
+								last_voltage[0] = voltage[0];	//Store the last value
+								voltage[0] = 0.0;				//Put us to zero, so volt_dump is happy
+							}
+							else	//A just came back
+							{
+								if (enable_inrush_calculations == false)
+								{
+									voltage[0] = last_voltage[0];	//Read in the previous values
+								}
+								else	//When restoring from inrush, a very small term is needed (or nothing happens)
+								{
+									voltage[0] = last_voltage[0] * MULTTERM;
+								}
+
+								//Default else -- in-rush enabled, just leave as they were
+							}
+						}//End Phase A change
+
+						//Find out changes, and direction
+						if ((phase_checks_var & 0x02) == 0x02)	//Phase B change
+						{
+							//See which way
+							if ((prev_phases & 0x02) == 0x02)	//Means B just disappeared
+							{
+								last_voltage[1] = voltage[1];	//Store the last value
+								voltage[1] = 0.0;				//Put us to zero, so volt_dump is happy
+							}
+							else	//B just came back
+							{
+								if (enable_inrush_calculations == false)
+								{
+									voltage[1] = last_voltage[1];	//Read in the previous values
+								}
+								else	//When restoring from inrush, a very small term is needed (or nothing happens)
+								{
+									voltage[1] = last_voltage[1] * MULTTERM;
+								}
+
+								//Default else - in-rush enabled, we want these to be zero
+							}
+						}//End Phase B change
+
+						//Find out changes, and direction
+						if ((phase_checks_var & 0x01) == 0x01)	//Phase C change
+						{
+							//See which way
+							if ((prev_phases & 0x01) == 0x01)	//Means C just disappeared
+							{
+								last_voltage[2] = voltage[2];	//Store the last value
+								voltage[2] = 0.0;				//Put us to zero, so volt_dump is happy
+							}
+							else	//C just came back
+							{
+								if (enable_inrush_calculations == false)
+								{
+									voltage[2] = last_voltage[2];	//Read in the previous values
+								}
+								else	//When restoring from inrush, a very small term is needed (or nothing happens)
+								{
+									voltage[2] = last_voltage[2] * MULTTERM;
+								}
+
+								//Default else - in-rush enabled and want them zero
+							}
+						}//End Phase C change
+
+						//Recalculated VAB, VBC, and VCA, in case a child uses them
+						voltaged[0] = voltage[0] - voltage[1];
+						voltaged[1] = voltage[1] - voltage[2];
+						voltaged[2] = voltage[2] - voltage[0];
+					}//End not triplex
+
+					//Assign current value in
+					prev_phases = NR_busdata[NR_node_reference].phases;
+				}//End Phase checks for reliability
+			}//End normal node
+		}//End NR reference valid
+	}//End NR Check
 
 	//Update tracking variables for nodes/loads/meters
 	if ((deltatimestep_running > 0) && (enable_inrush_calculations == true))
