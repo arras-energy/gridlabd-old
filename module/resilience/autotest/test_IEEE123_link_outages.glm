@@ -10,7 +10,7 @@ clock
 }
 module reliability
 {
-	report_event_log "false";
+	report_event_log "FALSE";
 }
 module powerflow
 {
