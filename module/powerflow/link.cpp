@@ -116,6 +116,7 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 				PT_DESCRIPTION,"",
 				PT_KEYWORD, "CLOSED", (enumeration)LS_CLOSED,
 				PT_KEYWORD, "OPEN", (enumeration)LS_OPEN,
+				PT_KEYWORD, "INITIALIZE", (enumeration)LS_INIT,
 			PT_object, "from",PADDR(from),
 				PT_REQUIRED,
 				PT_DESCRIPTION,"from_node - source node",
@@ -257,7 +258,7 @@ int link_object::create(void)
 	
 	from = NULL;
 	to = NULL;
-	prev_status = LS_OPEN;	//Set different to status so it performs a calculation on the first run
+	prev_status = LS_INIT;	//Set different to status so it performs a calculation on the first run
 	power_in = 0;
 	power_out = 0;
 	power_loss = 0;
@@ -938,7 +939,7 @@ set link_object::get_flow(node **fn, node **tn) const
 }
 
 //Presync portion of NR code - functionalized for deltamode
-void link_object::NR_link_presync_fxn(void)
+void link_object::NR_link_sync_fxn(void)
 {
 	OBJECT *obj = THISOBJECTHDR;
 	int ret_value;
@@ -1741,12 +1742,28 @@ void link_object::NR_link_presync_fxn(void)
 		{
 			invratio=1.0/voltage_ratio;
 
+			//Do a phase update - but ignore switch-type devices (they are handled elsewhere)
+			if (SpecialLnk!=SWITCH)
+			{
+				//Do a phase update
+				if (status == LS_CLOSED)
+				{
+					//Assume original - theoretically, fault_check will remove any that shouldn't be here
+					NR_branchdata[NR_branch_reference].phases = NR_branchdata[NR_branch_reference].origphases;
+				}
+				else	//Flag as empty
+				{
+					NR_branchdata[NR_branch_reference].phases = 0x00;
+				}
+			}
+			//Default else - SWITCH, which is done in its own code
+
 			if (SpecialLnk==DELTAGWYE)	//Delta-Gwye implementation
 			{
 				complex tempImped;
 
 				//Pre-admittancized matrix
-				equalm(b_mat,Yto);
+				equalm(base_admittance_mat,Yto);
 
 				//Store value into YSto
 				for (jindex=0; jindex<3; jindex++)
@@ -1779,66 +1796,66 @@ void link_object::NR_link_presync_fxn(void)
 			else if (SpecialLnk==SPLITPHASE)	//Split phase
 			{
 				//Yto - same for all
-				YSto[0] = b_mat[0][0];
-				YSto[1] = b_mat[0][1];
-				YSto[3] = b_mat[1][0];
-				YSto[4] = b_mat[1][1];
+				YSto[0] = base_admittance_mat[0][0];
+				YSto[1] = base_admittance_mat[0][1];
+				YSto[3] = base_admittance_mat[1][0];
+				YSto[4] = base_admittance_mat[1][1];
 				YSto[2] = YSto[5] = YSto[6] = YSto[7] = YSto[8] = 0.0;
 
 				if (has_phase(PHASE_A))		//A connected
 				{
 					//To_Y
-					To_Y[0][0] = -b_mat[0][2];
-					To_Y[1][0] = -b_mat[1][2];
+					To_Y[0][0] = -base_admittance_mat[0][2];
+					To_Y[1][0] = -base_admittance_mat[1][2];
 					To_Y[0][1] = To_Y[0][2] = To_Y[1][1] = 0.0;
 					To_Y[1][2] = To_Y[2][0] = To_Y[2][1] = To_Y[2][2] = 0.0;
 
 					//Yfrom
-					YSfrom[0] = b_mat[2][2];
+					YSfrom[0] = base_admittance_mat[2][2];
 					YSfrom[1] = YSfrom[2] = YSfrom[3] = YSfrom[4] = 0.0;
 					YSfrom[5] = YSfrom[6] = YSfrom[7] = YSfrom[8] = 0.0;
 
 					//From_Y
-					From_Y[0][0] = -b_mat[2][0];
-					From_Y[0][1] = -b_mat[2][1];
+					From_Y[0][0] = -base_admittance_mat[2][0];
+					From_Y[0][1] = -base_admittance_mat[2][1];
 					From_Y[0][2] = From_Y[1][0] = From_Y[1][1] = 0.0;
 					From_Y[1][2] = From_Y[2][0] = From_Y[2][1] = From_Y[2][2] = 0.0;
 				}
 				else if (has_phase(PHASE_B))	//B connected
 				{
 					//To_Y
-					To_Y[0][1] = -b_mat[0][2];
-					To_Y[1][1] = -b_mat[1][2];
+					To_Y[0][1] = -base_admittance_mat[0][2];
+					To_Y[1][1] = -base_admittance_mat[1][2];
 					To_Y[0][0] = To_Y[0][2] = To_Y[1][0] = 0.0;
 					To_Y[1][2] = To_Y[2][0] = To_Y[2][1] = To_Y[2][2] = 0.0;
 
 					//Yfrom
-					YSfrom[4] = b_mat[2][2];
+					YSfrom[4] = base_admittance_mat[2][2];
 					YSfrom[0] = YSfrom[1] = YSfrom[2] = YSfrom[3] = 0.0;
 					YSfrom[5] = YSfrom[6] = YSfrom[7] = YSfrom[8] = 0.0;
 
 					//From_Y
-					From_Y[1][0] = -b_mat[2][0];
-					From_Y[1][1] = -b_mat[2][1];
+					From_Y[1][0] = -base_admittance_mat[2][0];
+					From_Y[1][1] = -base_admittance_mat[2][1];
 					From_Y[0][0] = From_Y[0][1] = From_Y[0][2] = 0.0;
 					From_Y[1][2] = From_Y[2][0] = From_Y[2][1] = From_Y[2][2] = 0.0;
 				}
 				else if (has_phase(PHASE_C))	//C connected
 				{
 					//To_Y
-					To_Y[0][2] = -b_mat[0][2];
-					To_Y[1][2] = -b_mat[1][2];
+					To_Y[0][2] = -base_admittance_mat[0][2];
+					To_Y[1][2] = -base_admittance_mat[1][2];
 					To_Y[0][0] = To_Y[0][1] = To_Y[1][0] = 0.0;
 					To_Y[1][1] = To_Y[2][0] = To_Y[2][1] = To_Y[2][2] = 0.0;
 
 					//Yfrom
-					YSfrom[8] = b_mat[2][2];
+					YSfrom[8] = base_admittance_mat[2][2];
 					YSfrom[0] = YSfrom[1] = YSfrom[2] = YSfrom[3] = 0.0;
 					YSfrom[4] = YSfrom[5] = YSfrom[6] = YSfrom[7] = 0.0;
 
 					//From_Y
-					From_Y[2][0] = -b_mat[2][0];
-					From_Y[2][1] = -b_mat[2][1];
+					From_Y[2][0] = -base_admittance_mat[2][0];
+					From_Y[2][1] = -base_admittance_mat[2][1];
 					From_Y[0][0] = From_Y[0][1] = From_Y[0][2] = 0.0;
 					From_Y[1][0] = From_Y[1][1] = From_Y[1][2] = From_Y[2][2] = 0.0;
 				}
@@ -1893,7 +1910,7 @@ void link_object::NR_link_presync_fxn(void)
 				else	//No in-rush or not WYE-WYE, just go like normal
 				{
 					//Pre-admittancized matrix
-					equalm(b_mat,Yto);
+					equalm(base_admittance_mat,Yto);
 
 					//Store value into YSto
 					for (jindex=0; jindex<3; jindex++)
@@ -2148,10 +2165,27 @@ void link_object::NR_link_presync_fxn(void)
 				//Just post the admittance straight in - line charging doesn't exist anyways
 				equalm(Y,From_Y);
 			}
+
+			//Do a phase update
+			if (status == LS_CLOSED)
+			{
+				//Assume original - theoretically, fault_check will remove any that shouldn't be here
+				NR_branchdata[NR_branch_reference].phases = NR_branchdata[NR_branch_reference].origphases;
+			}
+			else	//Flag as empty
+			{
+				NR_branchdata[NR_branch_reference].phases = 0x00;
+			}
 		}
+
+		//Force flag an update if we got here (may have already been set above)
+		NR_admit_change = true;
 		
-		//Update status variable
-		prev_status = status;
+		if (SpecialLnk != SWITCH)
+		{
+			//Update status variable
+			prev_status = status;
+		}
 	}
 }
 
@@ -2252,9 +2286,6 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 						NR_branchdata[NR_branch_reference].Yto = &From_Y[0][0];
 						NR_branchdata[NR_branch_reference].YSfrom = &From_Y[0][0];
 						NR_branchdata[NR_branch_reference].YSto = &From_Y[0][0];
-
-						//Populate the status variable while we are in here
-						NR_branchdata[NR_branch_reference].status = &status;
 					}
 					else
 					{
@@ -2312,6 +2343,9 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					}
 				}
 
+				//Link the status variable
+				NR_branchdata[NR_branch_reference].status = &status;
+
 				//Link the name
 				NR_branchdata[NR_branch_reference].name = obj->name;
 
@@ -2332,11 +2366,18 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					*/
 				}
 
-				//Populate phases property
-				NR_branchdata[NR_branch_reference].phases = 128*has_phase(PHASE_S) + 4*has_phase(PHASE_A) + 2*has_phase(PHASE_B) + has_phase(PHASE_C);
-				
 				//Populate original phases property
-				NR_branchdata[NR_branch_reference].origphases = NR_branchdata[NR_branch_reference].phases;
+				NR_branchdata[NR_branch_reference].origphases = 128*has_phase(PHASE_S) + 4*has_phase(PHASE_A) + 2*has_phase(PHASE_B) + has_phase(PHASE_C);
+				
+				//Populate phases property - check status
+				if (status == LS_CLOSED)
+				{
+					NR_branchdata[NR_branch_reference].phases = NR_branchdata[NR_branch_reference].origphases;
+				}
+				else
+				{
+					NR_branchdata[NR_branch_reference].phases = 0x00;
+				}
 
 				//Zero fault phases - presumably nothing is broken right now
 				NR_branchdata[NR_branch_reference].faultphases = 0x00;
@@ -2371,17 +2412,17 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					{
 						temp_phase = (char*)GETADDR(obj,gl_get_property(obj,"phase_A_status"));
 
-						if (*temp_phase == 0)
+						if (*temp_phase == 1)
 							working_phase |= 0x04;
 
 						temp_phase = (char*)GETADDR(obj,gl_get_property(obj,"phase_B_status"));
 
-						if (*temp_phase == 0)
+						if (*temp_phase == 1)
 							working_phase |= 0x02;
 
 						temp_phase = (char*)GETADDR(obj,gl_get_property(obj,"phase_C_status"));
 
-						if (*temp_phase == 0)
+						if (*temp_phase == 1)
 							working_phase |= 0x01;
 					}
 					else	//Not sure how we'll get here, just make normal phase
@@ -2535,6 +2576,17 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 				made it this far, you should have a swing bus defined and it should be called before any other objects.
 				Please submit your code and a bug report for this problem.
 				*/
+			}
+
+			//See if we were flagged as a special type switch, and if we're in "strictly radial" mode, and "the only one attached"
+			//Note that this may have issues with "multiple-single-phase-switches" connecting to something, but that's a very particular use case (just use mesh checking then)
+			if ((SpecialLnk == SWITCH) && (meshed_fault_checking_enabled == false) && NR_busdata[NR_branchdata[NR_branch_reference].to].Link_Table_Size == 1)
+			{
+				//Update according to our "status"
+				working_phase = ~((NR_branchdata[NR_branch_reference].phases ^ NR_branchdata[NR_branch_reference].origphases) & 0x07);
+
+				//Mask it off
+				NR_busdata[NR_branchdata[NR_branch_reference].to].phases &= working_phase;
 			}
 
 			//Figure out what type of link we are and populate accordingly
@@ -2724,10 +2776,12 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 			{
 				NR_branchdata[NR_branch_reference].ExtraDeltaModeFunc = NULL;
 			}
+
+			//Do one call of NR_link_sync_fxn (used to be NR_link_presyc_fxn) here - mainly for islanded nodes/open-switch-nodes to initialize properly
+			NR_link_sync_fxn();
 		}//End init loop
 
-		//Call the presync items that are common to deltamode implementations
-		NR_link_presync_fxn();
+		//NR_link_presync_fxn used to be here - moved to NR_link_sync_fxn (same function)
 
 		//Update time variable if necessary
 		if (prev_LTime != t0)
@@ -2827,6 +2881,14 @@ TIMESTAMP link_object::sync(TIMESTAMP t0)
 
 
 #endif
+
+	//Call NR updates for the solver
+	if (solver_method == SM_NR)
+	{
+		//Call the sync items that are common - was for deltamode.
+		//NOTE: This used to be a presync item - may have inrush implications
+		NR_link_sync_fxn();
+	}
 
 	return TS_NEVER;
 }
@@ -3447,16 +3509,16 @@ EXPORT int isa_link(OBJECT *obj, CLASSNAME classname)
 EXPORT SIMULATIONMODE interupdate_link(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos)
 {
 	link_object *my = OBJECTDATA(obj,link_object);
-	SIMULATIONMODE status = SM_ERROR;
+	SIMULATIONMODE status_ret = SM_ERROR;
 	try
 	{
-		status = my->inter_deltaupdate_link(delta_time,dt,iteration_count_val,interupdate_pos);
-		return status;
+		status_ret = my->inter_deltaupdate_link(delta_time,dt,iteration_count_val,interupdate_pos);
+		return status_ret;
 	}
 	catch (const char *msg)
 	{
 		gl_error("interupdate_link(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
-		return status;
+		return status_ret;
 	}
 }
 
@@ -3712,19 +3774,19 @@ int link_object::CurrentCalculation(int nodecall)
 							   A_mat[2][2]*tnode->voltage[2];
 
 					//Put across admittance
-					itemp[0] = b_mat[0][0]*vtemp[0]+
-							   b_mat[0][1]*vtemp[1]+
-							   b_mat[0][2]*vtemp[2];
+					itemp[0] = base_admittance_mat[0][0]*vtemp[0]+
+							   base_admittance_mat[0][1]*vtemp[1]+
+							   base_admittance_mat[0][2]*vtemp[2];
 
-					itemp[1] = b_mat[1][0]*vtemp[0]+
-							   b_mat[1][1]*vtemp[1]+
-							   b_mat[1][2]*vtemp[2];
+					itemp[1] = base_admittance_mat[1][0]*vtemp[0]+
+							   base_admittance_mat[1][1]*vtemp[1]+
+							   base_admittance_mat[1][2]*vtemp[2];
 
-					itemp[2] = b_mat[2][0]*vtemp[0]+
-							   b_mat[2][1]*vtemp[1]+
-							   b_mat[2][2]*vtemp[2];
+					itemp[2] = base_admittance_mat[2][0]*vtemp[0]+
+							   base_admittance_mat[2][1]*vtemp[1]+
+							   base_admittance_mat[2][2]*vtemp[2];
 
-					//Scale the "b_mat" value by the inverse (make it high-side impedance)
+					//Scale the "base_admittance_mat" value by the inverse (make it high-side impedance)
 					//Post values based on phases (reliability related)
 					if ((NR_branchdata[NR_branch_reference].phases & 0x04) == 0x04)	//A
 						current_in[0] = itemp[0]*invsquared;
@@ -3966,9 +4028,9 @@ int link_object::CurrentCalculation(int nodecall)
 				//Get low side current (current out) - for now, oh grand creator (me) mandates D-GWye are three phase or nothing
 				if ((NR_branchdata[NR_branch_reference].phases & 0x07) == 0x07)	//ABC
 				{
-					current_out[0] = vtemp[0] * b_mat[0][0];
-					current_out[1] = vtemp[1] * b_mat[1][1];
-					current_out[2] = vtemp[2] * b_mat[2][2];
+					current_out[0] = vtemp[0] * base_admittance_mat[0][0];
+					current_out[1] = vtemp[1] * base_admittance_mat[1][1];
+					current_out[2] = vtemp[2] * base_admittance_mat[2][2];
 
 					//Translate back to high-side
 					current_in[0] = d_mat[0][0]*current_out[0]+
@@ -4040,10 +4102,10 @@ int link_object::CurrentCalculation(int nodecall)
 			{
 				if ((NR_branchdata[NR_branch_reference].phases & 0x04) == 0x04)	//A
 				{
-					current_in[0] = itemp[0] = 
-						fnode->voltage[0]*b_mat[2][2]+
-						tnode->voltage[0]*b_mat[2][0]+
-						tnode->voltage[1]*b_mat[2][1];
+					current_in[0] = itemp[0] =
+									fnode->voltage[0]*base_admittance_mat[2][2]+
+									tnode->voltage[0]*base_admittance_mat[2][0]+
+									tnode->voltage[1]*base_admittance_mat[2][1];
 
 					//See if our nature requires a lock
 					if (flock)
@@ -4084,20 +4146,20 @@ int link_object::CurrentCalculation(int nodecall)
 					}
 
 					//calculate current out
-					current_out[0] = fnode->voltage[0]*b_mat[0][2]+
-									 tnode->voltage[0]*b_mat[0][0]+
-									 tnode->voltage[1]*b_mat[0][1];
+					current_out[0] = fnode->voltage[0]*base_admittance_mat[0][2]+
+									tnode->voltage[0]*base_admittance_mat[0][0]+
+									tnode->voltage[1]*base_admittance_mat[0][1];
 
-					current_out[1] = fnode->voltage[0]*b_mat[1][2]+
-									 tnode->voltage[0]*b_mat[1][0]+
-									 tnode->voltage[1]*b_mat[1][1];
+					current_out[1] = fnode->voltage[0]*base_admittance_mat[1][2]+
+									tnode->voltage[0]*base_admittance_mat[1][0]+
+									tnode->voltage[1]*base_admittance_mat[1][1];
 				}
 				else if ((NR_branchdata[NR_branch_reference].phases & 0x02) == 0x02)	//B
 				{
-					current_in[1] = itemp[0] = 
-						fnode->voltage[1]*b_mat[2][2] +
-						tnode->voltage[0]*b_mat[2][0] +
-						tnode->voltage[1]*b_mat[2][1];
+					current_in[1] = itemp[0] =
+									fnode->voltage[1]*base_admittance_mat[2][2] +
+									tnode->voltage[0]*base_admittance_mat[2][0] +
+									tnode->voltage[1]*base_admittance_mat[2][1];
 
 					//See if our nature requires a lock
 					if (flock)
@@ -4138,21 +4200,21 @@ int link_object::CurrentCalculation(int nodecall)
 					}
 
 					//calculate current out
-					current_out[0] = fnode->voltage[1]*b_mat[0][2] +
-									 tnode->voltage[0]*b_mat[0][0] +
-									 tnode->voltage[1]*b_mat[0][1];
+					current_out[0] = fnode->voltage[1]*base_admittance_mat[0][2] +
+									tnode->voltage[0]*base_admittance_mat[0][0] +
+									tnode->voltage[1]*base_admittance_mat[0][1];
 
-					current_out[1] = fnode->voltage[1]*b_mat[1][2] +
-									 tnode->voltage[0]*b_mat[1][0] +
-									 tnode->voltage[1]*b_mat[1][1];
+					current_out[1] = fnode->voltage[1]*base_admittance_mat[1][2] +
+									tnode->voltage[0]*base_admittance_mat[1][0] +
+									tnode->voltage[1]*base_admittance_mat[1][1];
 
 				}
 				else if ((NR_branchdata[NR_branch_reference].phases & 0x01) == 0x01)	//C
 				{
-					current_in[2] = itemp[0] = 
-						fnode->voltage[2]*b_mat[2][2] +
-						tnode->voltage[0]*b_mat[2][0] +
-						tnode->voltage[1]*b_mat[2][1];
+					current_in[2] = itemp[0] =
+									fnode->voltage[2]*base_admittance_mat[2][2] +
+									tnode->voltage[0]*base_admittance_mat[2][0] +
+									tnode->voltage[1]*base_admittance_mat[2][1];
 
 					//See if our nature requires a lock
 					if (flock)
@@ -4193,13 +4255,13 @@ int link_object::CurrentCalculation(int nodecall)
 					}
 
 					//calculate current out
-					current_out[0] = fnode->voltage[2]*b_mat[0][2]+
-									 tnode->voltage[0]*b_mat[0][0]+
-									 tnode->voltage[1]*b_mat[0][1];
+					current_out[0] = fnode->voltage[2]*base_admittance_mat[0][2]+
+									tnode->voltage[0]*base_admittance_mat[0][0]+
+									tnode->voltage[1]*base_admittance_mat[0][1];
 
-					current_out[1] = fnode->voltage[2]*b_mat[1][2]+
-									 tnode->voltage[0]*b_mat[1][0]+
-									 tnode->voltage[1]*b_mat[1][1];
+					current_out[1] = fnode->voltage[2]*base_admittance_mat[1][2]+
+									tnode->voltage[0]*base_admittance_mat[1][0]+
+									tnode->voltage[1]*base_admittance_mat[1][1];
 				}
 				else	//No phases valid
 				{
@@ -4585,8 +4647,8 @@ SIMULATIONMODE link_object::inter_deltaupdate_link(unsigned int64 delta_time, un
 
 	if (interupdate_pos == false)	//Before powerflow call
 	{
-		//Link presync stuff
-		NR_link_presync_fxn();
+		//Link sync/status update stuff
+		NR_link_sync_fxn();
 		
 		return SM_DELTA;	//Just return something other than SM_ERROR for this call
 	}
@@ -7466,6 +7528,82 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//Break out of this pesky loop
 								break;
 							}//end recloser
+							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 2)	//Switch induced fault - handle it
+							{
+								//Follows convention of safety devices above
+								//Extra coding - basically what would have happened below when it was classified as a safety device
+								//Get the switch
+								tmpobj = NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].obj;
+
+								if (tmpobj == NULL)
+								{
+									GL_THROW("An attempt to alter switch %s failed.",NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].name);
+									/*  TROUBLESHOOT
+									While attempting to set the state of a switch, an error occurred.  Please try again.  If the error persists,
+									please submit a bug report and your code via the trac website.
+									*/
+								}
+
+								funadd = (FUNCTIONADDR)(gl_get_function(tmpobj,"change_switch_state"));
+
+								//Make sure it was found
+								if (funadd == NULL)
+								{
+									GL_THROW("Unable to change switch state on %s",tmpobj->name);
+									/*  TROUBLESHOOT
+									While attempting to alter a switch state, the proper switch function was not found.
+									If the problem persists, please submit a bug report and your code to the trac website.
+									*/
+								}
+
+								//Update the switch statii
+								ext_result = ((int (*)(OBJECT *, unsigned char, bool))(*funadd))(tmpobj,phase_remove,false);
+
+								//Make sure it worked
+								if (ext_result != 1)
+								{
+									GL_THROW("An attempt to alter switch %s failed.",NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].name);
+									//defined above
+								}
+
+								//Retrieve the mean_repair_time
+								temp_double_val = get_double(tmpobj,"mean_repair_time");
+
+								//See if it worked
+								if (temp_double_val == NULL)
+								{
+									gl_warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									//Defined above
+									*repair_time = 0;
+								}
+								else	//It did map - get the value
+								{
+									*repair_time = (TIMESTAMP)(*temp_double_val);
+								}
+
+								//Store ourselves as our protective device
+								for (phaseidx=0; phaseidx < 3; phaseidx++)
+								{
+									temp_phases = 0x04 >> phaseidx;	//Figure out the phase we are on and if it is valid
+
+									if ((phase_remove & temp_phases) == temp_phases)
+									{
+										protect_locations[phaseidx] = NR_busdata[temp_node].Link_Table[temp_table_loc];	//Store ourselves
+									}
+								}
+
+								//Flag our fault phases
+								NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].faultphases |= phase_remove;
+
+								//Update our fault phases so we aren't restored
+								NR_branchdata[NR_branch_reference].faultphases |= phase_remove;
+
+								//Store the object handle
+								*protect_obj=tmpobj;
+
+								safety_hit = true;	//We hit a protective device
+								break;
+							}
 							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 5)	//Sectionalizer
 							{
 								//Get the sectionalizer

@@ -75,7 +75,7 @@ def main(args):
     E_NODATA = 2
     E_EXCEPTION = 3
 
-    def exception(msg,code=None):
+    def exception(msg=None,code=None):
         """Print exception message
 
         Exception messages are printed only if the configuration parameter `exception` is false.
@@ -186,7 +186,7 @@ def main(args):
             verbose = False,
             exception = False,
             open_command = "open",
-            input_pathname = None,
+            input_pathname = "/dev/stdin",
             output_pathname = None,
             )
 
@@ -300,6 +300,8 @@ def main(args):
             error(f"option {arg} is not valid",E_INVALID)
 
     if not config['output_pathname']:
+        if config['input_pathname'] == "/dev/stdin":
+            error(f"missing output filename",E_INVALID)
         config['output_pathname'] = config['input_pathname'].replace(".csv",".png")
     figure_calls = dict(
         savefig = config['output_pathname'],
@@ -311,6 +313,15 @@ def main(args):
         debug("figure_options = "+json.dumps(figure_options,indent=4),level=1)
     try:
         data = pandas.read_csv(config['input_pathname'])
+        if not plot_options["x"]:
+            plot_options["x"] = data.columns[0]
+            plot_options["rot"] = 90
+            plot_options["figsize"] = (10,7)
+            figure_options["tight_layout"] = True
+            figure_options["dpi"] = 200.0
+        if not plot_options["y"]:
+            plot_options["y"] = data.columns[1:].to_list()
+            plot_options["legend"] = True
         plt = data.plot(**plot_options)
         if plt:
             for key, value in figure_options.items():
