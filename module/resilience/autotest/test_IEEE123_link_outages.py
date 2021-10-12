@@ -11,7 +11,7 @@ def on_init(t):
 		data = gridlabd.get_object(obj)
 		if "from" in data.keys() and "to" in data.keys():
 			linklist.append(obj)
-	print(linklist,file=sys.stderr)
+	gridlabd.output(f"linklist={linklist}")
 	return True
 
 current_object = None
@@ -24,14 +24,14 @@ def on_precommit(t0):
 		current_object = linklist[0]
 		del linklist[0]
 		gridlabd.set_value(current_object,"status","OPEN")
-		print(f"on_precommit(t='{datetime.datetime.fromtimestamp(t0)}'): opening link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
+		gridlabd.output(f"on_precommit(t='{datetime.datetime.fromtimestamp(t0)}'): opening link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}")
 	elif current_object != None:
 		gridlabd.set_value(current_object,"status","CLOSED")
-		print(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): closing link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
+		gridlabd.output(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): closing link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}")
 		current_object = None
 	else:
 		t_next = gridlabd.NEVER
-		print(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): no link left --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
+		gridlabd.output(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): no link left --> {datetime.datetime.fromtimestamp(t_next)}")
 	return t_next
 
 def on_sync(t0):
