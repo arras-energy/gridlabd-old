@@ -825,7 +825,7 @@ object overhead_line:
 object underground_line:
 {
 	phases "ABC";
-	name "oh_60-62";
+	name "ugl_60-62";
 	from "load:60";
 	to "load:62";
 	length "250";
@@ -834,7 +834,7 @@ object underground_line:
 object underground_line:
 {
 	phases "ABC";
-	name "oh_62-63";
+	name "ugl_62-63";
 	from "load:62";
 	to "load:63";
 	length "175";
@@ -843,7 +843,7 @@ object underground_line:
 object underground_line:
 {
 	phases "ABC";
-	name "oh_63-64";
+	name "ugl_63-64";
 	from "load:63";
 	to "load:64";
 	length "350";
@@ -852,7 +852,7 @@ object underground_line:
 object underground_line:
 {
 	phases "ABC";
-	name "oh_64-65";
+	name "ugl_64-65";
 	from "load:64";
 	to "load:65";
 	length "425";
@@ -861,7 +861,7 @@ object underground_line:
 object underground_line:
 {
 	phases "ABC";
-	name "oh_65-66";
+	name "ugl_65-66";
 	from "load:65";
 	to "load:66";
 	length "325";
@@ -1345,11 +1345,11 @@ object overhead_line:
 	configuration "line_configuration:1003";
 }
 
-//Create node only objects
+// Create node only objects
 object node:3
 {
 	phases "CN";
-	name "oh_3";
+	name "no_3";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1358,7 +1358,7 @@ object node:3
 object node:8
 {
 	phases "ABCN";
-	name "oh_8";
+	name "no_8";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1367,7 +1367,7 @@ object node:8
 object node:13
 {
 	phases "ABCN";
-	name "oh_13";
+	name "no_13";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1376,7 +1376,7 @@ object node:13
 object node:14
 {
 	phases "AN";
-	name "oh_14";
+	name "no_14";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1385,7 +1385,7 @@ object node:14
 object node:1401
 {
 	phases "AN";
-	name "oh_1401";
+	name "no_1401";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1394,7 +1394,7 @@ object node:1401
 object node:15
 {
 	phases "CN";
-	name "oh_15";
+	name "no_15";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1403,7 +1403,7 @@ object node:15
 object node:18
 {
 	phases "ABCN";
-	name "oh_18";
+	name "no_18";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1412,7 +1412,7 @@ object node:18
 object node:21
 {
 	phases "ABCN";
-	name "oh_21";
+	name "no_21";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1421,7 +1421,7 @@ object node:21
 object node:23
 {
 	phases "ABCN";
-	name "oh_23";
+	name "no_23";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1430,7 +1430,7 @@ object node:23
 object node:25
 {
 	phases "ABCN";
-	name "oh_25";
+	name "no_25";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1439,7 +1439,7 @@ object node:25
 object node:26
 {
 	phases "ACN";
-	name "oh_26";
+	name "no_26";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1448,7 +1448,7 @@ object node:26
 object node:2601
 {
 	phases "ACN";
-	name "oh_2601";
+	name "no_2601";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1457,7 +1457,7 @@ object node:2601
 object node:27
 {
 	phases "ACN";
-	name "oh_27";
+	name "no_27";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1466,7 +1466,7 @@ object node:27
 object node:36
 {
 	phases "ABN";
-	name "oh_36";
+	name "no_36";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1475,7 +1475,7 @@ object node:36
 object node:40
 {
 	phases "ABCN";
-	name "oh_40";
+	name "no_40";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1484,7 +1484,7 @@ object node:40
 object node:44
 {
 	phases "ABCN";
-	name "oh_44";
+	name "no_44";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1493,7 +1493,7 @@ object node:44
 object node:54
 {
 	phases "ABCN";
-	name "oh_54";
+	name "no_54";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1502,7 +1502,7 @@ object node:54
 object node:57
 {
 	phases "ABCN";
-	name "oh_57";
+	name "no_57";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1511,7 +1511,7 @@ object node:57
 object node:61
 {
 	phases "ABCN";
-	name "oh_61";
+	name "no_61";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1520,7 +1520,7 @@ object node:61
 object node:67
 {
 	phases "ABCN";
-	name "oh_67";
+	name "no_67";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1529,7 +1529,7 @@ object node:67
 object node:6701
 {
 	phases "ABCN";
-	name "oh_6701";
+	name "no_6701";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1538,7 +1538,7 @@ object node:6701
 object node:72
 {
 	phases "ABCN";
-	name "oh_72";
+	name "no_72";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1547,7 +1547,7 @@ object node:72
 object node:78
 {
 	phases "ABCN";
-	name "oh_78";
+	name "no_78";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1556,7 +1556,7 @@ object node:78
 object node:81
 {
 	phases "ABCN";
-	name "oh_81";
+	name "no_81";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1565,7 +1565,7 @@ object node:81
 object node:89
 {
 	phases "ABCN";
-	name "oh_89";
+	name "no_89";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1574,7 +1574,7 @@ object node:89
 object node:91
 {
 	phases "ABCN";
-	name "oh_91";
+	name "no_91";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1583,7 +1583,7 @@ object node:91
 object node:93
 {
 	phases "ABCN";
-	name "oh_93";
+	name "no_93";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1592,7 +1592,7 @@ object node:93
 object node:97
 {
 	phases "ABCN";
-	name "oh_97";
+	name "no_97";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1601,7 +1601,7 @@ object node:97
 object node:101
 {
 	phases "ABCN";
-	name "oh_101";
+	name "no_101";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1610,7 +1610,7 @@ object node:101
 object node:105
 {
 	phases "ABCN";
-	name "oh_105";
+	name "no_105";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1619,7 +1619,7 @@ object node:105
 object node:108
 {
 	phases "ABCN";
-	name "oh_108";
+	name "no_108";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1628,7 +1628,7 @@ object node:108
 object node:110
 {
 	phases "AN";
-	name "oh_110";
+	name "no_110";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1637,7 +1637,7 @@ object node:110
 object node:135
 {
 	phases "ABCN";
-	name "oh_135";
+	name "no_135";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1646,7 +1646,7 @@ object node:135
 object node:149
 {
 	phases "ABCN";
-	name "oh_149";
+	name "no_149";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1655,7 +1655,7 @@ object node:149
 object node:1491
 {
 	phases "ABCN";
-	name "oh_1491";
+	name "no_1491";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1664,7 +1664,7 @@ object node:1491
 object node:150
 {
 	phases "ABCN";
-	name "oh_150";
+	name "no_150";
 	bustype "SWING";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1674,7 +1674,7 @@ object node:150
 object node:151
 {
 	phases "ABCN";
-	name "oh_151";
+	name "no_151";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1683,7 +1683,7 @@ object node:151
 object node:152
 {
 	phases "ABCN";
-	name "oh_152";
+	name "no_152";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1692,7 +1692,7 @@ object node:152
 object node:160
 {
 	phases "ABCN";
-	name "oh_160";
+	name "no_160";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1701,7 +1701,7 @@ object node:160
 object node:195
 {
 	phases "ABCN";
-	name "oh_195";
+	name "no_195";
 //	bustype "SWING";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1711,7 +1711,7 @@ object node:195
 object node:197
 {
 	phases "ABCN";
-	name "oh_197";
+	name "no_197";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1720,7 +1720,7 @@ object node:197
 object node:250
 {
 	phases "ABCN";
-	name "oh_250";
+	name "no_250";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1729,7 +1729,7 @@ object node:250
 object node:251
 {
 	phases "ABCN";
-	name "oh_251";
+	name "no_251";
 //	bustype "SWING";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1739,7 +1739,7 @@ object node:251
 object node:300
 {
 	phases "ABCN";
-	name "oh_300";
+	name "no_300";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1748,7 +1748,7 @@ object node:300
 object node:350
 {
 	phases "ABCN";
-	name "oh_350";
+	name "no_350";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1757,7 +1757,7 @@ object node:350
 object node:450
 {
 	phases "ABCN";
-	name "oh_450";
+	name "no_450";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1766,7 +1766,7 @@ object node:450
 object node:451
 {
 	phases "ABCN";
-	name "oh_451";
+	name "no_451";
 //	bustype "SWING";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1776,7 +1776,7 @@ object node:451
 object node:610
 {
 	phases "ABCN";
-	name "oh_610";
+	name "no_610";
 	voltage_A "480.000+0j";
 	voltage_B "-240.000-415.6922j";
 	voltage_C "-240.000+415.6922j";
@@ -1785,7 +1785,7 @@ object node:610
 object node:611
 {
 	phases "ABCN";
-	name "oh_611";
+	name "no_611";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
 	voltage_C "-1200.8886+2080.000j";
@@ -1795,7 +1795,7 @@ object node:611
 //Create load objects
 object load:1
 {
-	name "oh_1";
+	name "ld_1";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1805,7 +1805,7 @@ object load:1
 	}
 object load:2
 {
-	name "oh_2";
+	name "ld_2";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1815,7 +1815,7 @@ object load:2
 	}
 object load:4
 {
-	name "oh_4";
+	name "ld_4";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1825,7 +1825,7 @@ object load:4
 }
 object load:5
 {
-	name "oh_5";
+	name "ld_5";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1835,7 +1835,7 @@ object load:5
 }
 object load:6
 {
-	name "oh_6";
+	name "ld_6";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1845,7 +1845,7 @@ object load:6
 }
 object load:7
 {
-	name "oh_7";
+	name "ld_7";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1855,7 +1855,7 @@ object load:7
 	}
 object load:9
 {
-	name "oh_9";
+	name "ld_9";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1865,7 +1865,7 @@ object load:9
 }
 object load:10
 {
-	name "oh_10";
+	name "ld_10";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1875,7 +1875,7 @@ object load:10
 }
 object load:11
 {
-	name "oh_11";
+	name "ld_11";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1885,7 +1885,7 @@ object load:11
 }
 object load:12
 {
-	name "oh_12";
+	name "ld_12";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1895,7 +1895,7 @@ object load:12
 }
 object load:16
 {
-	name "oh_16";
+	name "ld_16";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1905,7 +1905,7 @@ object load:16
 }
 object load:17
 {
-	name "oh_17";
+	name "ld_17";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1915,7 +1915,7 @@ object load:17
 }
 object load:19
 {
-	name "oh_19";
+	name "ld_19";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1925,7 +1925,7 @@ object load:19
 }
 object load:20
 {
-	name "oh_20";
+	name "ld_20";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1935,7 +1935,7 @@ object load:20
 }
 object load:22
 {
-	name "oh_22";
+	name "ld_22";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1945,7 +1945,7 @@ object load:22
 }
 object load:24
 {
-	name "oh_24";
+	name "ld_24";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1955,7 +1955,7 @@ object load:24
 }
 object load:28
 {
-	name "oh_28";
+	name "ld_28";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1965,7 +1965,7 @@ object load:28
 }
 object load:29
 {
-	name "oh_29";
+	name "ld_29";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1975,7 +1975,7 @@ object load:29
 }
 object load:30
 {
-	name "oh_30";
+	name "ld_30";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1985,7 +1985,7 @@ object load:30
 }
 object load:31
 {
-	name "oh_31";
+	name "ld_31";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -1995,7 +1995,7 @@ object load:31
 }
 object load:32
 {
-	name "oh_32";
+	name "ld_32";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2005,7 +2005,7 @@ object load:32
 }
 object load:33
 {
-	name "oh_33";
+	name "ld_33";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2015,7 +2015,7 @@ object load:33
 }
 object load:34
 {
-	name "oh_34";
+	name "ld_34";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2025,7 +2025,7 @@ object load:34
 }
 object load:35
 {
-	name "oh_35";
+	name "ld_35";
 	phases "ABCD";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2035,7 +2035,7 @@ object load:35
 }
 object load:37
 {
-	name "oh_37";
+	name "ld_37";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2045,7 +2045,7 @@ object load:37
 }
 object load:38
 {
-	name "oh_38";
+	name "ld_38";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2055,7 +2055,7 @@ object load:38
 }
 object load:39
 {
-	name "oh_39";
+	name "ld_39";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2065,7 +2065,7 @@ object load:39
 }
 object load:41
 {
-	name "oh_41";
+	name "ld_41";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2075,7 +2075,7 @@ object load:41
 }
 object load:42
 {
-	name "oh_42";
+	name "ld_42";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2085,7 +2085,7 @@ object load:42
 }
 object load:43
 {
-	name "oh_43";
+	name "ld_43";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2095,7 +2095,7 @@ object load:43
 }
 object load:45
 {
-	name "oh_45";
+	name "ld_45";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2105,7 +2105,7 @@ object load:45
 }
 object load:46
 {
-	name "oh_46";
+	name "ld_46";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2115,7 +2115,7 @@ object load:46
 }
 object load:47
 {
-	name "oh_47";
+	name "ld_47";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2127,7 +2127,7 @@ object load:47
 }
 object load:48
 {
-	name "oh_48";
+	name "ld_48";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2139,7 +2139,7 @@ object load:48
 }
 object load:49
 {
-	name "oh_49";
+	name "ld_49";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2151,7 +2151,7 @@ object load:49
 }
 object load:50
 {
-	name "oh_50";
+	name "ld_50";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2161,7 +2161,7 @@ object load:50
 }
 object load:51
 {
-	name "oh_51";
+	name "ld_51";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2171,7 +2171,7 @@ object load:51
 }
 object load:52
 {
-	name "oh_52";
+	name "ld_52";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2181,7 +2181,7 @@ object load:52
 }
 object load:53
 {
-	name "oh_53";
+	name "ld_53";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2191,7 +2191,7 @@ object load:53
 }
 object load:55
 {
-	name "oh_55";
+	name "ld_55";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2201,7 +2201,7 @@ object load:55
 }
 object load:56
 {
-	name "oh_56";
+	name "ld_56";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2211,7 +2211,7 @@ object load:56
 }
 object load:58
 {
-	name "oh_58";
+	name "ld_58";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2221,7 +2221,7 @@ object load:58
 }
 object load:59
 {
-	name "oh_59";
+	name "ld_59";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2231,7 +2231,7 @@ object load:59
 }
 object load:60
 {
-	name "oh_60";
+	name "ld_60";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2241,7 +2241,7 @@ object load:60
 }
 object load:62
 {
-	name "oh_62";
+	name "ld_62";
 	phases "ABC";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2251,7 +2251,7 @@ object load:62
 }
 object load:63
 {
-	name "oh_63";
+	name "ld_63";
 	phases "ABC";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2261,7 +2261,7 @@ object load:63
 }
 object load:64
 {
-	name "oh_64";
+	name "ld_64";
 	phases "ABC";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2271,7 +2271,7 @@ object load:64
 }
 object load:65
 {
-	name "oh_65";
+	name "ld_65";
 	phases "ABCD";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2283,7 +2283,7 @@ object load:65
 }
 object load:66
 {
-	name "oh_66";
+	name "ld_66";
 	phases "ABC";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2293,7 +2293,7 @@ object load:66
 }
 object load:68
 {
-	name "oh_68";
+	name "ld_68";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2303,7 +2303,7 @@ object load:68
 }
 object load:69
 {
-	name "oh_69";
+	name "ld_69";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2313,7 +2313,7 @@ object load:69
 }
 object load:70
 {
-	name "oh_70";
+	name "ld_70";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2323,7 +2323,7 @@ object load:70
 }
 object load:71
 {
-	name "oh_71";
+	name "ld_71";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2333,7 +2333,7 @@ object load:71
 }
 object load:73
 {
-	name "oh_73";
+	name "ld_73";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2343,7 +2343,7 @@ object load:73
 }
 object load:74
 {
-	name "oh_74";
+	name "ld_74";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2353,7 +2353,7 @@ object load:74
 }
 object load:75
 {
-	name "oh_75";
+	name "ld_75";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2363,7 +2363,7 @@ object load:75
 }
 object load:76
 {
-	name "oh_76";
+	name "ld_76";
 	phases "ABCD";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2375,7 +2375,7 @@ object load:76
 }
 object load:77
 {
-	name "oh_77";
+	name "ld_77";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2385,7 +2385,7 @@ object load:77
 }
 object load:79
 {
-	name "oh_79";
+	name "ld_79";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2395,7 +2395,7 @@ object load:79
 }
 object load:80
 {
-	name "oh_80";
+	name "ld_80";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2405,7 +2405,7 @@ object load:80
 }
 object load:82
 {
-	name "oh_82";
+	name "ld_82";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2415,7 +2415,7 @@ object load:82
 }
 object load:83
 {
-	name "oh_83";
+	name "ld_83";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2428,7 +2428,7 @@ object load:83
 }
 object load:84
 {
-	name "oh_84";
+	name "ld_84";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2438,7 +2438,7 @@ object load:84
 }
 object load:85
 {
-	name "oh_85";
+	name "ld_85";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2448,7 +2448,7 @@ object load:85
 }
 object load:86
 {
-	name "oh_86";
+	name "ld_86";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2458,7 +2458,7 @@ object load:86
 }
 object load:87
 {
-	name "oh_87";
+	name "ld_87";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2468,7 +2468,7 @@ object load:87
 }
 object load:88
 {
-	name "oh_88";
+	name "ld_88";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2479,7 +2479,7 @@ object load:88
 }
 object load:90
 {
-	name "oh_90";
+	name "ld_90";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2490,7 +2490,7 @@ object load:90
 }
 object load:92
 {
-	name "oh_92";
+	name "ld_92";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2501,7 +2501,7 @@ object load:92
 }
 object load:94
 {
-	name "oh_94";
+	name "ld_94";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2511,7 +2511,7 @@ object load:94
 }
 object load:95
 {
-	name "oh_95";
+	name "ld_95";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2521,7 +2521,7 @@ object load:95
 }
 object load:96
 {
-	name "oh_96";
+	name "ld_96";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2531,7 +2531,7 @@ object load:96
 }
 object load:98
 {
-	name "oh_98";
+	name "ld_98";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2541,7 +2541,7 @@ object load:98
 }
 object load:99
 {
-	name "oh_99";
+	name "ld_99";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2551,7 +2551,7 @@ object load:99
 }
 object load:100
 {
-	name "oh_100";
+	name "ld_100";
 	phases "ABCN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2561,7 +2561,7 @@ object load:100
 }
 object load:102
 {
-	name "oh_102";
+	name "ld_102";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2571,7 +2571,7 @@ object load:102
 }
 object load:103
 {
-	name "oh_103";
+	name "ld_103";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2581,7 +2581,7 @@ object load:103
 }
 object load:104
 {
-	name "oh_104";
+	name "ld_104";
 	phases "CN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2591,7 +2591,7 @@ object load:104
 }
 object load:106
 {
-	name "oh_106";
+	name "ld_106";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2601,7 +2601,7 @@ object load:106
 }
 object load:107
 {
-	name "oh_107";
+	name "ld_107";
 	phases "BN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2611,7 +2611,7 @@ object load:107
 }
 object load:109
 {
-	name "oh_109";
+	name "ld_109";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2621,7 +2621,7 @@ object load:109
 }
 object load:111
 {
-	name "oh_111";
+	name "ld_111";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2631,7 +2631,7 @@ object load:111
 }
 object load:112
 {
-	name "oh_112";
+	name "ld_112";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2641,7 +2641,7 @@ object load:112
 }
 object load:113
 {
-	name "oh_113";
+	name "ld_113";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2651,7 +2651,7 @@ object load:113
 }
 object load:114
 {
-	name "oh_114";
+	name "ld_114";
 	phases "AN";
 	voltage_A "2401.7771";
 	voltage_B "-1200.8886-2080.000j";
@@ -2664,7 +2664,7 @@ object load:114
 object switch:13152
 {
 	phases "ABCN";
-	name "oh_13-152";
+	name "sw_13-152";
 	from "node:13";
 	to "node:152";
 	status "CLOSED";
@@ -2672,7 +2672,7 @@ object switch:13152
 object switch:18135
 {
 	phases "ABCN";
-	name "oh_18-135";
+	name "sw_18-135";
 	from "node:18";
 	to "node:135";
 	status "CLOSED";
@@ -2680,7 +2680,7 @@ object switch:18135
 object switch:60160
 {
 	phases "ABCN";
-	name "oh_60-160";
+	name "sw_60-160";
 	from "load:60";
 	to "node:160";
 	status "CLOSED";
@@ -2688,7 +2688,7 @@ object switch:60160
 object switch:61611
 {
 	phases "ABCN";
-	name "oh_61-611";
+	name "sw_61-611";
 	from "node:61";
 	to "node:611";
 	status "CLOSED";
@@ -2696,7 +2696,7 @@ object switch:61611
 object switch:97197
 {
 	phases "ABCN";
-	name "oh_97-197";
+	name "sw_97-197";
 	from "node:97";
 	to "node:197";
 	status "CLOSED";
@@ -2704,7 +2704,7 @@ object switch:97197
 object switch:1491149
 {
 	phases "ABCN";
-	name "oh_1491-149";
+	name "sw_1491-149";
 	from "node:1491";
 	to "node:149";
 	status "CLOSED";
@@ -2712,7 +2712,7 @@ object switch:1491149
 object switch:250251
 {
 	phases "ABCN";
-	name "oh_250-251";
+	name "sw_250-251";
 	from "node:250";
 	to "node:251";
 	status "OPEN";
@@ -2720,7 +2720,7 @@ object switch:250251
 object switch:450451
 {
 	phases "ABCN";
-	name "oh_450-451";
+	name "sw_450-451";
 	from "node:450";
 	to "node:451";
 	status "OPEN";
@@ -2728,7 +2728,7 @@ object switch:450451
 object switch:5494
 {
 	phases "AN";
-	name "oh_54-94";
+	name "sw_54-94";
 	from "node:54";
 	to "load:94";
 	status "OPEN";
@@ -2736,7 +2736,7 @@ object switch:5494
 object switch:151300
 {
 	phases "ABCN";
-	name "oh_151-300";
+	name "sw_151-300";
 	from "node:151";
 	to "node:300";
 	status "OPEN";
@@ -2744,7 +2744,7 @@ object switch:151300
 object switch:300350
 {
 	phases "ABCN";
-	name "oh_300-350";
+	name "sw_300-350";
 	from "node:300";
 	to "node:350";
 	status "OPEN";
@@ -2752,7 +2752,7 @@ object switch:300350
 object switch:95195
 {
 	phases "ABCN";
-	name "oh_95-195";
+	name "sw_95-195";
 	from "load:95";
 	to "node:195";
 	status "OPEN";
@@ -2772,7 +2772,7 @@ object transformer_configuration:400
 object transformer:611610
 {
 		phases "ABCN";
-		name "oh_611-610";
+		name "xf_611-610";
 		from "node:611";
 		to "node:610";
 		configuration "transformer_configuration:400";
