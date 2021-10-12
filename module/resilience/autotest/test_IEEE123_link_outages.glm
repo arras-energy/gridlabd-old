@@ -1,6 +1,7 @@
 // test_IEEE123_link_outages.glm
 #set relax_naming_rules=TRUE
 #set suppress_repeat_messages=FALSE
+#set pythonpath=..
 module test_IEEE123_link_outages;
 clock {
 	timezone "PST+8PDT";
