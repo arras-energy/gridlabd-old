@@ -734,7 +734,7 @@ object overhead_line:
 }
 object overhead_line:
 {
-	phases "ABCN";			//undefined line segment
+	phases "ABCN";		//undefined line segment
 	name "oh_51-151";
 	from "load:51";
 	to "node:151";
@@ -2762,20 +2762,20 @@ object switch:95195
 object transformer_configuration:400
 {
 	connect_type "DELTA_DELTA";
-		install_type "PADMOUNT";
-		power_rating "150";
-		primary_voltage "4160";
-		secondary_voltage "480";
-		resistance "0.0127";
-		reactance "0.0272";
+	install_type "PADMOUNT";
+	power_rating "150";
+	primary_voltage "4160";
+	secondary_voltage "480";
+	resistance "0.0127";
+	reactance "0.0272";
 }
 object transformer:611610
 {
-		phases "ABCN";
-		name "xf_611-610";
-		from "node:611";
-		to "node:610";
-		configuration "transformer_configuration:400";
+	phases "ABCN";
+	name "xf_611-610";
+	from "node:611";
+	to "node:610";
+	configuration "transformer_configuration:400";
 }
 
 // Regulators
