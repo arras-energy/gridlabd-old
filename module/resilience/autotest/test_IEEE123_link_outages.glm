@@ -275,10 +275,10 @@ object line_configuration:10011
 }
 object line_configuration:10012
 {
-	 conductor_A "underground_line_conductor:10003";
-	 conductor_B "underground_line_conductor:10003";
-	 conductor_C "underground_line_conductor:10003";
-	 spacing "line_spacing:50012";
+	conductor_A "underground_line_conductor:10003";
+	conductor_B "underground_line_conductor:10003";
+	conductor_C "underground_line_conductor:10003";
+	spacing "line_spacing:50012";
 }
 
 //Define line objects
@@ -2806,10 +2806,10 @@ object regulator_configuration:1501490
 }
 object regulator:1501491
 {
-	 phases "ABC";
-	 from "node:150";
-	 to "node:1491";
-	 configuration "regulator_configuration:1501490";
+	phases "ABC";
+	from "node:150";
+	to "node:1491";
+	configuration "regulator_configuration:1501490";
 }
 object regulator_configuration:2526010
 {
@@ -2835,10 +2835,10 @@ object regulator_configuration:2526010
 }
 object regulator:252601
 {
-	 phases "AC";
-	 from "node:25";
-	 to "node:2601";
-	 configuration "regulator_configuration:2526010";
+	phases "AC";
+	from "node:25";
+	to "node:2601";
+	configuration "regulator_configuration:2526010";
 }
 object regulator_configuration:914010
 {
@@ -2861,10 +2861,10 @@ object regulator_configuration:914010
 }
 object regulator:91401
 {
-	 phases "A";
-	 from "load:9";
-	 to "node:1401";
-	 configuration "regulator_configuration:914010";
+	phases "A";
+	from "load:9";
+	to "node:1401";
+	configuration "regulator_configuration:914010";
 }
 object regulator_configuration:16067010
 {
@@ -2893,8 +2893,8 @@ object regulator_configuration:16067010
 }
 object regulator:1606701
 {
-	 phases "ABC";
-	 from "node:160";
-	 to "node:6701";
-	 configuration "regulator_configuration:16067010";
+	phases "ABC";
+	from "node:160";
+	to "node:6701";
+	configuration "regulator_configuration:16067010";
 }
