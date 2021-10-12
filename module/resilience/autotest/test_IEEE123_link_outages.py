@@ -36,3 +36,21 @@ def on_precommit(t0):
 def on_sync(t0):
 	global t_next
 	return t_next
+
+def on_commit(t0):
+	global t_next
+	t_next = (int(t0/3600)+1)*3600
+	global current_object
+	if current_object:
+		data = gridlabd.get_object(current_object)
+		from_obj = gridlabd.get_object(data["from"])
+		gridlabd.output(str(from_obj.keys()))
+		phases = from_obj["phases"]
+		if "A" in phases:
+			VA0 = complex(from_obj["measured_real_voltage_A"].split()[0])
+		to_obj = gridlabd.get_object(data["to"])
+		gridlabd.output(f"on_commit(t={datetime.datetime.fromtimestamp(t0)}): from = {from_obj}")
+		gridlabd.output(f"on_commit(t={datetime.datetime.fromtimestamp(t0)}): to = {to_obj}")
+
+	gridlabd.output(f"on_commit(t={datetime.datetime.fromtimestamp(t0)}): --> {datetime.datetime.fromtimestamp(t_next)}")
+	return t_next
