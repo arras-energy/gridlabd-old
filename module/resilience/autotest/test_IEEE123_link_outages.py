@@ -1,6 +1,6 @@
 # test_IEEE123_link_outages.py
 
-import sys
+import sys, datetime
 
 linklist = None
 def on_init(t):
@@ -24,14 +24,14 @@ def on_precommit(t0):
 		current_object = linklist[0]
 		del linklist[0]
 		gridlabd.set_value(current_object,"status","OPEN")
-		print(f"on_precommit(t={t0}): opening object {current_object} --> {t_next}",file=sys.stderr)
+		print(f"on_precommit(t='{datetime.datetime.fromtimestamp(t0)}'): opening link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
 	elif current_object != None:
 		gridlabd.set_value(current_object,"status","CLOSED")
+		print(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): closing link {current_object} --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
 		current_object = None
-		print(f"on_precommit(t={t0}): closing object {current_object} --> {t_next}",file=sys.stderr)
 	else:
-		t1 = gridlabd.NEVER
-		print(f"on_precommit(t={t}): no objects left --> {t_next}",file=sys.stderr)
+		t_next = gridlabd.NEVER
+		print(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): no link left --> {datetime.datetime.fromtimestamp(t_next)}",file=sys.stderr)
 	return t_next
 
 def on_sync(t0):
