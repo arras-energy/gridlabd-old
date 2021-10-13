@@ -20,8 +20,8 @@ object fault_check
 {
 	name "base_fault_check_object";
 	check_mode "ONCHANGE";
-	strictly_radial "false";
-	grid_association "false";
+	strictly_radial "FALSE";
+	grid_association "FALSE";
 	output_filename "test_IEEE123_link_outages.txt";
 	reliability_mode "TRUE";
 }
