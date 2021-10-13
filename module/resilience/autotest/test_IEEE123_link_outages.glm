@@ -15,6 +15,7 @@ module reliability
 module powerflow
 {
 	solver_method "NR";
+     convergence_error_handling "COLLAPSE";
 }
 object fault_check
 {
