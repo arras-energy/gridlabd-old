@@ -23,6 +23,34 @@ DESCRIPTION
 This module downloads weather data from NSRDB and writes GLM files.  This can be done from
 the command line or using call the python API.
 
+PARAMETERS
+
+The module uses several parameters to control its behavior. 
+
+~~~
+    leap = True # include leap day in data
+    interval = 60 # sample interval, may be 30 or 60 minutes
+    utc = True # timestamps in UTC
+    name = "HiPAS GridLAB-D".replace(" ","+") # credential name
+    org = "SLAC National Accelerator Laboratory".replace(" ","+") # credential org
+    reason = "Grid modeling".replace(" ","+") # credential reason
+    email="gridlabd@gmail.com" # credential email
+    notify = False # allow notifications to email
+    verbose = False # verbose output enable
+    server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv" # NSRDB server URL
+    cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
+    attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle' # NSRDB fields to download
+    credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json" # local credential file location
+~~~
+
+You can change these options in Python scripts.
+
+~~~
+>>> import nsrdb_weather as ns
+>>> ns.interval = 30
+>>> data = ns.getyear(2014,45.62,-122.70)
+~~~
+
 CREDENTIALS
 
 You must obtain an API key from https://developer.nrel.gov/signup/.  Save the key
