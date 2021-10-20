@@ -46,6 +46,7 @@ reason = "Grid modeling".replace(" ","+")
 email="gridlabd@gmail.com"
 notify = False
 verbose = False
+server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
@@ -86,7 +87,7 @@ def getyears(years,lat,lon,concat=True):
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
     api = getkey(email)
-    url = f"https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name={name}&email={email}&affiliation={org}&mailing_list={str(notify).lower()}&reason={reason}&api_key={api}&attributes={attributes}"
+    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name={name}&email={email}&affiliation={org}&mailing_list={str(notify).lower()}&reason={reason}&api_key={api}&attributes={attributes}"
     if lat > 0: lat = f"N{lat:.2f}"
     elif lat < 0: lat = f"S{-lat:.2f}"
     else: lat = "0"
@@ -156,7 +157,10 @@ if __name__ == "__main__":
         else:
             raise Exception(msg)
     def syntax(code=0):
-        print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
+        if code == 0:
+            print(__doc__)
+        else:
+            print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
         exit(code)
     year = None
     position = None
