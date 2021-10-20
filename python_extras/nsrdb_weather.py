@@ -87,6 +87,7 @@ server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
+float_format="%.2f"
 
 def addkey(apikey=None):
     """Manage NSRDB API keys"""
@@ -185,7 +186,9 @@ def writeglm(data, glm=None, name=None, csv=None):
             f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
             f.write("\t};\n")
             f.write("}\n")
-    weather.to_csv(csv,header=False)
+        weather.to_csv(csv,header=False,float_format=float_format)
+    else:
+        weather.to_csv(csv,header=True,float_format=float_format)        
 
 if __name__ == "__main__":
     def error(msg,code=None):
