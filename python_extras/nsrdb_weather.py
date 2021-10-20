@@ -3,11 +3,12 @@
 SYNOPSIS
 
 Shell:
-    bash$ python3 nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
+    bash$ export PYTHONPATH=/usr/local/share/gridlabd
+    bash$ python3 -m nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system python3 nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
+    #system python3 ${GLD_ETC}/nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
