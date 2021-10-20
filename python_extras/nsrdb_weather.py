@@ -6,6 +6,11 @@ Shell:
     bash$ python3 nsrbd_weather.py -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
+GLM:
+    #system python3 nsrbd_weather.py -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] 
+        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    #include GLMNAME
+
 Python:
     >>> import sys
     >>> sys.path.append("/usr/local/share/gridlabd")
@@ -20,9 +25,13 @@ the command line or using call the python API.
 
 CREDENTIALS
 
-  You must obtain an API key from https://developer.nrel.gov/signup/.  Save the key
-  in the credentials file, which is by default `$HOME/.nsrdb/credentials.json`.  To add,
-  change, or delete a key, use the `addkey()` function.
+You must obtain an API key from https://developer.nrel.gov/signup/.  Save the key
+in the credentials file, which is by default `$HOME/.nsrdb/credentials.json`.  To add,
+change, or delete a key, use the `addkey()` function.
+
+EXAMPLE
+
+
 
 """
 
@@ -184,11 +193,12 @@ if __name__ == "__main__":
             position = [45.62,-122.70]
             glm = "test.glm"
             name = "test"
-            break
+            writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
+            exit(os.system(f"gridlabd {glm}"))
         else:
             error(f"option '{token}' is not valid")
     if position and year:
-        writeglm(getyears(year,position[0],position[1]),glm,name,csv)
+        writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
     else:
         syntax(1)
 
