@@ -1,8 +1,24 @@
 """NSRDB weather data tool
 
-This module downloads weather data from NSRDB and writes GLM files.
+SYNOPSIS
 
-Credentials
+Shell:
+    bash$ python3 nsrbd_weather.py -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] 
+        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+
+Python:
+    >>> import sys
+    >>> sys.path.append("/usr/local/share/gridlabd")
+    >>> import nsrdb_weather as ns
+    >>> data = ns.getyears(YEARS,LAT,LON)
+    >>> ns.writeglm(data,GLMNAME,OBJECTNAME,CSVNAME)
+
+DESCRIPTION
+
+This module downloads weather data from NSRDB and writes GLM files.  This can be done from
+the command line or using call the python API.
+
+CREDENTIALS
 
   You must obtain an API key from https://developer.nrel.gov/signup/.  Save the key
   in the credentials file, which is by default `$HOME/.nsrdb/credentials.json`.  To add,
@@ -124,7 +140,56 @@ def writeglm(data, glm=sys.stdout, name=None, csv=None):
     weather.to_csv(csv,header=False)
 
 if __name__ == "__main__":
-    test = getyears([2014,2015],45.62,-122.70)
-    writeglm(test,"test.glm","test")    
+    def error(msg,code=None):
+        if code != None:
+            print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
+            exit(code)
+        else:
+            raise Exception(msg)
+    def syntax(code=0):
+        print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
+        exit(code)
+    year = None
+    position = None
+    glm = None
+    name = None
+    csv = None
+    for arg in sys.argv[1:]:
+        args = arg.split("=")
+        if type(args) is list and len(args) > 1:
+            token = args[0]
+            value = args[1]
+        elif type(args) is list:
+            token = args[0]
+            value = None
+        else:
+            token = args
+            value = None
+        if token in ["-h","--help","help"]:
+            syntax()
+        elif token in ["-y","--year"]:
+            year = value.split(",")
+        elif token in ["-p","--position"]:
+            position = value.split(",")
+            if len(position) != 2:
+                error("position is not a tuple")
+        elif token in ["-g","--glm"]:
+            glm = value
+        elif token in ["-n","--name"]:
+            name = value
+        elif token in ["-c","--csv"]:
+            csv = value
+        elif token == "--test":
+            year = [2014,2015]
+            position = [45.62,-122.70]
+            glm = "test.glm"
+            name = "test"
+            break
+        else:
+            error(f"option '{token}' is not valid")
+    if position and year:
+        writeglm(getyears(year,position[0],position[1]),glm,name,csv)
+    else:
+        syntax(1)
 
 
