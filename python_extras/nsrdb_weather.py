@@ -31,7 +31,13 @@ change, or delete a key, use the `addkey()` function.
 
 EXAMPLE
 
-    bash$ python3 /usr/local/share/gridlabd/nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -g=test.glm -n=test
+The following command downloads only the CSV data for a location:
+
+    bash$ python3 /usr/local/share/gridlabd/nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -c=test.csv
+
+The following command downloads the CSV data and creates a GLM file with the data linked and weather object named:
+
+    bash$ python3 /usr/local/share/gridlabd/nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
 
 """
 
@@ -123,7 +129,7 @@ def getyear(year,lat,lon):
             ]
     return result
 
-def writeglm(data, glm=sys.stdout, name=None, csv=None):
+def writeglm(data, glm=None, name=None, csv=None):
     """Write weather object based on NSRDB data"""
     if not name:
         name = f"nsrdb_{data['Location ID'][0]}"
@@ -133,20 +139,21 @@ def writeglm(data, glm=sys.stdout, name=None, csv=None):
         weather = pandas.concat(data["DataFrame"])
     else:
         weather = data["DataFrame"]
-    with open(glm,"w") as f:
-        f.write("class weather\n{\n")
-        for column in weather.columns:
-            f.write(f"\tdouble {column};\n")
-        f.write("}\n")
-        weather.columns = list(map(lambda x:x.split('[')[0],weather.columns))
-        f.write("module tape;\n")
-        f.write("object weather\n{\n")
-        f.write(f"\tname \"{name}\";\n")
-        f.write("\tobject player\n\t{\n")
-        f.write(f"\t\tfile \"{csv}\";\n")
-        f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
-        f.write("\t};\n")
-        f.write("}\n")
+    if glm:
+        with open(glm,"w") as f:
+            f.write("class weather\n{\n")
+            for column in weather.columns:
+                f.write(f"\tdouble {column};\n")
+            f.write("}\n")
+            weather.columns = list(map(lambda x:x.split('[')[0],weather.columns))
+            f.write("module tape;\n")
+            f.write("object weather\n{\n")
+            f.write(f"\tname \"{name}\";\n")
+            f.write("\tobject player\n\t{\n")
+            f.write(f"\t\tfile \"{csv}\";\n")
+            f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
+            f.write("\t};\n")
+            f.write("}\n")
     weather.to_csv(csv,header=False)
 
 if __name__ == "__main__":
