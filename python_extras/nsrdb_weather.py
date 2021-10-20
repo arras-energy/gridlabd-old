@@ -31,7 +31,7 @@ change, or delete a key, use the `addkey()` function.
 
 EXAMPLE
 
-    bash$ python3 nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -g=test.glm -n=test
+    bash$ python3 /usr/local/share/gridlabd/nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -g=test.glm -n=test
 
 """
 
