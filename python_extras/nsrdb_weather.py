@@ -3,13 +3,13 @@
 SYNOPSIS
 
 Shell:
-    bash$ python3 nsrbd_weather.py -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] 
+    bash$ python3 nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system python3 nsrbd_weather.py -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] 
+    #system python3 nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
-    #include GLMNAME
+    #include "GLMNAME"
 
 Python:
     >>> import sys
@@ -31,7 +31,7 @@ change, or delete a key, use the `addkey()` function.
 
 EXAMPLE
 
-
+    bash$ python3 nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -g=test.glm -n=test
 
 """
 
