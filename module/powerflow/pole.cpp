@@ -25,6 +25,8 @@
 //
 
 #include "powerflow.h"
+#include <typeinfo>
+#include <iostream>
 using namespace std;
 
 EXPORT_CREATE(pole)
@@ -104,7 +106,6 @@ pole::pole(MODULE *mod)
             PT_double, "pole_stress_polynomial_b[ft*lb]", get_pole_stress_polynomial_b_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "constant b of the pole stress polynomial function",
-
             PT_double, "pole_stress_polynomial_c[ft*lb]", get_pole_stress_polynomial_c_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "constant c of the pole stress polynomial function",
@@ -230,7 +231,7 @@ int pole::init(OBJECT *parent)
 
     }
     verbose("repair_time = %g hr",repair_time);
-
+    verbose("weather = %s",weather);
     // weather check
     if ( weather )
     {
@@ -396,7 +397,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         {
             const double D1 = config->top_diameter/12;
             const double D0 = config->ground_diameter/12;
-            const double DD = (D0-D1) / 2;
+            // const double DD = (D0-D1) / 2;
             const double H = height;
             const double rho = config->material_density;
             // pole_moment += 0.125 * rho * PI * (H*H) * (D0*D0 - DD*DD) * sin(tilt_angle/180*PI);
