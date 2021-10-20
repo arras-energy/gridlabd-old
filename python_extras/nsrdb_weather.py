@@ -28,7 +28,6 @@ PARAMETERS
 
 The module uses several parameters to control its behavior. 
 
-~~~
     leap = True # include leap day in data
     interval = 60 # sample interval, may be 30 or 60 minutes
     utc = True # timestamps in UTC
@@ -42,15 +41,12 @@ The module uses several parameters to control its behavior.
     cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
     attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle' # NSRDB fields to download
     credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json" # local credential file location
-~~~
 
 You can change these options in Python scripts.
 
-~~~
->>> import nsrdb_weather as ns
->>> ns.interval = 30
->>> data = ns.getyear(2014,45.62,-122.70)
-~~~
+    >>> import nsrdb_weather as ns
+    >>> ns.interval = 30
+    >>> data = ns.getyear(2014,45.62,-122.70)
 
 CREDENTIALS
 
