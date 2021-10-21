@@ -9,3 +9,4 @@ dist_pkgdata_DATA += python_extras/gridlabd-editor.py
 dist_pkgdata_DATA += python_extras/gridlabd-editor.png
 dist_pkgdata_DATA += python_extras/ucar_weather.py
 dist_pkgdata_DATA += python_extras/eia_recs.py
+dist_pkgdata_DATA += python_extras/noaa_forecast.py
