@@ -3,12 +3,11 @@
 SYNOPSIS
 
 Shell:
-    bash$ export PYTHONPATH=/usr/local/share/gridlabd
-    bash$ python3 -m noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
+    bash$ gridlabd noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system python3 ${GLD_ETC}/nsrbd_weather.py -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
+    #system gridlabd noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
@@ -171,7 +170,7 @@ if __name__ == "__main__":
         if code == 0:
             print(__doc__)
         else:
-            print(f"Syntax: {os.path.basename(sys.argv[0])} -p -position=LAT,LON [-i|--interpolate=TIME|METHOD] [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
+            print(f"Syntax: {os.path.basename(sys.argv[0]).replace('.py','')} -p -position=LAT,LON [-i|--interpolate=TIME|METHOD] [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
         exit(code)
     position = None
     glm = None
@@ -198,7 +197,10 @@ if __name__ == "__main__":
             try:
                 interpolate_time = int(value)
             except:
-                interpolate_method = value
+                if value:
+                    interpolate_method = value
+                else:
+                    interpolate_time = None
         elif token in ["-g","--glm"]:
             glm = value
         elif token in ["-n","--name"]:
