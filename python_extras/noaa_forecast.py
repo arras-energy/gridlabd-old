@@ -28,8 +28,10 @@ PARAMETERS
 
 The module uses several parameters to control its behavior. 
 
-    server = "https://api.weather.gov/points/{latitude},{longitude}"
-    float_format="%.2f"
+    server = "https://api.weather.gov/points/{latitude},{longitude}" # NOAA location server (provides forecast URL)
+    user_agent = "(gridlabd.us, gridlabd@gmail.com)" # default user agent to report to NOAA
+    interpolate = None # interpolation minutes
+    float_format="%.1f" # float format to use 
 
 EXAMPLE
 
@@ -41,28 +43,34 @@ The following command downloads the CSV data and creates a GLM file with the dat
 
     bash$ python3 /usr/local/share/gridlabd/noaa_forecast.py -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
 
+SEE ALSO
+
+* [https://www.weather.gov/documentation/services-web-api]
 """
 
 import sys, os, json, requests, pandas, numpy, datetime, dateutil
 
 server = "https://api.weather.gov/points/{latitude},{longitude}"
-float_format="%.2f"
+user_agent = "(gridlabd.us, gridlabd@gmail.com)"
+interpolate = None
+float_format="%.1f"
 
 def getforecast(lat,lon):
     """Get NOAA location"""
     url = server.format(latitude=lat,longitude=lon)
-    location = json.loads(requests.get(url).content.decode("utf-8"))
-    data = json.loads(requests.get(location["properties"]["forecast"]).content.decode("utf-8"))
+    headers = {'User-agent' : user_agent}
+    location = json.loads(requests.get(url,headers=headers).content.decode("utf-8"))
+    data = json.loads(requests.get(location["properties"]["forecast"],headers=headers).content.decode("utf-8"))
     result = {
         "datetime" : [],
         "temperature[degF]" : [],
-        "wind_speed[mph]" : [],
+        "wind_speed[m/s]" : [],
         "wind_dir[deg]" : [],
     }
     for item in data["properties"]["periods"]:
         result["datetime"].append(dateutil.parser.parse(item["startTime"])+datetime.timedelta(hours=item["number"]))
-        result["temperature[degF]"].append(item["temperature"])
-        result["wind_speed[mph]"].append(item["windSpeed"].split()[0])
+        result["temperature[degF]"].append(float(item["temperature"]))
+        result["wind_speed[m/s]"].append(float(item["windSpeed"].split()[0])*0.44704)
         result["wind_dir[deg]"].append(dict(
             N=0, NNE=22.5, NE=45, ENE=67.5, E=90, ESE=112.5, SE=135, SSE=157.5,
             S=180, SSW=202.5, SW=225, WSW=247.5, W=270, WNW=292.5, NW=315, NNW=337.5,
