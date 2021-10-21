@@ -32,6 +32,14 @@ The module uses several parameters to control its behavior.
     user_agent = "(gridlabd.us, gridlabd@gmail.com)" # default user agent to report to NOAA
     date_format = "%Y-%m-%d %H:%M:%S"
     float_format="%.1f" # float format to use 
+    interpolate_time = 60
+    interpolate_method = 'quadratic'
+
+The parameters can be changed before obtained the forecast.
+
+    >>> import noaa_forecast as nf
+    >>> nf.interpolate = 5
+    >>> nf.getforecast(37.5,-122.3)
 
 EXAMPLE
 
@@ -52,7 +60,8 @@ import sys, os, json, requests, pandas, numpy, datetime, dateutil
 
 server = "https://api.weather.gov/points/{latitude},{longitude}"
 user_agent = "(gridlabd.us, gridlabd@gmail.com)"
-interpolate = None
+interpolate_time = 60
+interpolate_method = 'quadratic'
 float_format = "%.1f"
 date_format = "%Y-%m-%d %H:%M:%S"
 
@@ -76,7 +85,13 @@ def getforecast(lat,lon):
             N=0, NNE=22.5, NE=45, ENE=67.5, E=90, ESE=112.5, SE=135, SSE=157.5,
             S=180, SSW=202.5, SW=225, WSW=247.5, W=270, WNW=292.5, NW=315, NNW=337.5,
             )[item["windDirection"]])
-    return pandas.DataFrame(result).set_index("datetime")
+    df = pandas.DataFrame(result).set_index("datetime")
+    if interpolate_time:
+        starttime = df.index.min()
+        stoptime = df.index.max()
+        daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
+        df = df.join(daterange,how="outer").interpolate(interpolate_method)
+    return df
 
 def writeglm(data, glm=None, name=None, csv=None):
     """Write weather object based on NOAA forecast"""
