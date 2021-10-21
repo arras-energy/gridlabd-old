@@ -55,36 +55,45 @@ def getforecast(lat,lon):
     data = json.loads(requests.get(location["properties"]["forecast"]).content.decode("utf-8"))
     result = {
         "datetime" : [],
-        "temperature" : [],
-        "wind_speed" : []
+        "temperature[degF]" : [],
+        "wind_speed[mph]" : [],
+        "wind_dir[deg]" : [],
     }
     for item in data["properties"]["periods"]:
         result["datetime"].append(dateutil.parser.parse(item["startTime"])+datetime.timedelta(hours=item["number"]))
-        result["temperature"].append(item["temperature"])
-        result["wind_speed"].append(item["windSpeed"].split()[0])
+        result["temperature[degF]"].append(item["temperature"])
+        result["wind_speed[mph]"].append(item["windSpeed"].split()[0])
+        result["wind_dir[deg]"].append(dict(
+            N=0, NNE=22.5, NE=45, ENE=67.5, E=90, ESE=112.5, SE=135, SSE=157.5,
+            S=180, SSW=202.5, SW=225, WSW=247.5, W=270, WNW=292.5, NW=315, NNW=337.5,
+            )[item["windDirection"]])
     return pandas.DataFrame(result).set_index("datetime")
 
 def writeglm(data, glm=None, name=None, csv=None):
     """Write weather object based on NOAA forecast"""
     if glm:
+        if csv == None:
+            csv = glm.replace(".glm",".csv")
         with open(glm,"w") as f:
-            f.write("class weather\n{\n")
-            for column in weather.columns:
+            f.write("class forecast\n{\n")
+            for column in data.columns:
                 f.write(f"\tdouble {column};\n")
             f.write("}\n")
-            weather.columns = list(map(lambda x:x.split('[')[0],weather.columns))
+            data.columns = list(map(lambda x:x.split('[')[0],data.columns))
             f.write("module tape;\n")
             f.write("object forecast\n{\n")
             if name:
                 f.write(f"\tname \"{name}\";\n")
             f.write("\tobject player\n\t{\n")
             f.write(f"\t\tfile \"{csv}\";\n")
-            f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
+            f.write(f"\t\tproperty \"{','.join(data.columns)}\";\n")
             f.write("\t};\n")
             f.write("}\n")
         data.to_csv(csv,header=False,float_format=float_format)
+    elif csv:
+        data.to_csv(csv,header=True,float_format=float_format)
     else:
-        data.to_csv(csv,header=True,float_format=float_format)        
+        data.to_csv("/dev/stdout",header=True,float_format=float_format)
 
 if __name__ == "__main__":
     def error(msg,code=None):
