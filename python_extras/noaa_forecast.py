@@ -4,12 +4,12 @@ SYNOPSIS
 
 Shell:
     bash$ export PYTHONPATH=/usr/local/share/gridlabd
-    bash$ python3 -m noaa_forecast -p|-position=LAT,LON [-g|--glm=GLMNAME] 
-        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    bash$ python3 -m noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system python3 ${GLD_ETC}/nsrbd_weather.py -p|-position=LAT,LON [-g|--glm=GLMNAME] 
-        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    #system python3 ${GLD_ETC}/nsrbd_weather.py -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
 Python:
@@ -70,6 +70,7 @@ def getforecast(lat,lon):
     url = server.format(latitude=lat,longitude=lon)
     headers = {'User-agent' : user_agent}
     location = json.loads(requests.get(url,headers=headers).content.decode("utf-8"))
+
     data = json.loads(requests.get(location["properties"]["forecast"],headers=headers).content.decode("utf-8"))
     result = {
         "datetime" : [],
@@ -77,6 +78,10 @@ def getforecast(lat,lon):
         "wind_speed[m/s]" : [],
         "wind_dir[deg]" : [],
     }
+    if not "properties" in data.keys():
+        raise Exception("data does not contain required properties information")
+    if not "periods" in data["properties"]:
+        raise Exception("data does not contain required period information")
     for item in data["properties"]["periods"]:
         result["datetime"].append(dateutil.parser.parse(item["startTime"])+datetime.timedelta(hours=item["number"]))
         result["temperature[degF]"].append(float(item["temperature"]))
@@ -130,7 +135,7 @@ if __name__ == "__main__":
         if code == 0:
             print(__doc__)
         else:
-            print(f"Syntax: {os.path.basename(sys.argv[0])} -p -position=LAT,LON [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
+            print(f"Syntax: {os.path.basename(sys.argv[0])} -p -position=LAT,LON [-i|--interpolate=TIME|METHOD] [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
         exit(code)
     position = None
     glm = None
@@ -153,6 +158,11 @@ if __name__ == "__main__":
             position = value.split(",")
             if len(position) != 2:
                 error("position is not a tuple")
+        elif token in ["-i","--interpolate"]:
+            try:
+                interpolate_time = int(value)
+            except:
+                interpolate_method = value
         elif token in ["-g","--glm"]:
             glm = value
         elif token in ["-n","--name"]:
