@@ -140,6 +140,7 @@ def getforecast(lat,lon):
         stoptime = df.index.max()
         daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
         df = df.join(daterange,how="outer").interpolate(interpolate_method)
+    df.index.name = "datetime"
     return df
 
 def writeglm(data, glm=None, name=None, csv=None):
