@@ -70,6 +70,9 @@ The following command downloads the CSV data and creates a GLM file with the dat
 
     bash$ python3 /usr/local/share/gridlabd/nsrdb_weather.py -y=2014,2015 -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
 
+SEE ALSO
+
+* [https://nsrdb.nrel.gov/data-sets/api-instructions.html]
 """
 
 import sys, os, json, requests, pandas, numpy, datetime
