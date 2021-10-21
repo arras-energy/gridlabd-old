@@ -30,7 +30,7 @@ The module uses several parameters to control its behavior.
 
     server = "https://api.weather.gov/points/{latitude},{longitude}" # NOAA location server (provides forecast URL)
     user_agent = "(gridlabd.us, gridlabd@gmail.com)" # default user agent to report to NOAA
-    interpolate = None # interpolation minutes
+    date_format = "%Y-%m-%d %H:%M:%S"
     float_format="%.1f" # float format to use 
 
 EXAMPLE
@@ -53,7 +53,8 @@ import sys, os, json, requests, pandas, numpy, datetime, dateutil
 server = "https://api.weather.gov/points/{latitude},{longitude}"
 user_agent = "(gridlabd.us, gridlabd@gmail.com)"
 interpolate = None
-float_format="%.1f"
+float_format = "%.1f"
+date_format = "%Y-%m-%d %H:%M:%S"
 
 def getforecast(lat,lon):
     """Get NOAA location"""
@@ -97,11 +98,11 @@ def writeglm(data, glm=None, name=None, csv=None):
             f.write(f"\t\tproperty \"{','.join(data.columns)}\";\n")
             f.write("\t};\n")
             f.write("}\n")
-        data.to_csv(csv,header=False,float_format=float_format)
+        data.to_csv(csv,header=False,float_format=float_format,date_format=date_format)
     elif csv:
-        data.to_csv(csv,header=True,float_format=float_format)
+        data.to_csv(csv,header=True,float_format=float_format,date_format=date_format)
     else:
-        data.to_csv("/dev/stdout",header=True,float_format=float_format)
+        data.to_csv("/dev/stdout",header=True,float_format=float_format,date_format=date_format)
 
 if __name__ == "__main__":
     def error(msg,code=None):
