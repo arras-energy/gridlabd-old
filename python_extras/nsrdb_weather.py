@@ -107,9 +107,6 @@ import sys, os, json, requests, pandas, numpy, datetime
 leap = True
 interval = 60
 utc = True
-name = "HiPAS GridLAB-D".replace(" ","+")
-org = "GridLAB simulation".replace(" ","+")
-reason = "Grid modeling".replace(" ","+")
 email = None # by default this will be the first key in the credentials file
 notify = False
 interpolate_time = None
@@ -118,7 +115,7 @@ server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle,relative_humidity,surface_pressure'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
-geocode_precision = 5 
+geocode_precision = 6 
 # 1   ± 2500 km
 # 2   ± 630 km
 # 3   ± 78 km
@@ -134,6 +131,7 @@ float_format="%.1f"
 date_format="%Y-%m-%d %H:%M:%S UTC"
 
 def error(msg,code=None):
+    """Display an error message and exit if code is a number"""
     if code != None:
         print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
         exit(code)
@@ -141,6 +139,7 @@ def error(msg,code=None):
         raise Exception(msg)
 
 def syntax(code=0):
+    """Display docs (code=0) or syntax help and exit (code!=0)"""
     if code == 0:
         print(__doc__)
     else:
@@ -150,10 +149,12 @@ def syntax(code=0):
 
 verbose_enable = False
 def verbose(msg):
+    """Display a verbose message (verbose_enable must be True"""
     if verbose_enable:
         print(f"[{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
 
 def getemail():
+    """Get the default email"""
     global email
     if not email:
         keys = getkeys().keys()
@@ -234,6 +235,7 @@ def getyears(years,lat,lon,concat=True):
             error(f"unable to get data ({err})",2)
 
 def heat_index(T,RH):
+    """Compute the heat index for a temperature T (in degF) and relative humidity RH (in %)"""
     if T < 80 :
         return 0.75*T + 0.25*( 61.0+1.2*(T-68.0)+0.094*RH)
     else:
@@ -256,14 +258,8 @@ def heat_index(T,RH):
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
     api = getkey()
-    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name={name}&email={email}&affiliation={org}&mailing_list={str(notify).lower()}&reason={reason}&api_key={api}&attributes={attributes}"
-    if lat > 0: lat = f"N{lat:.2f}"
-    elif lat < 0: lat = f"S{-lat:.2f}"
-    else: lat = "0"
-    if lon > 0: lon = f"E{lon:.2f}"
-    elif lon < 0: lon = f"W{-lon:.2f}"
-    else: lon = "0"
-    cache = f"{cachedir}/nsrbd_{lat}_{lon}_{year}.csv"
+    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name=None&email={email}&affiliation=None&mailing_list={str(notify).lower()}&reason=None&api_key={api}&attributes={attributes}"
+    cache = f"{cachedir}/nsrbd_{geohash(lat,lon)}_{year}.csv"
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
@@ -306,8 +302,7 @@ def getyear(year,lat,lon):
     return result
 
 def geohash(latitude, longitude, precision=geocode_precision):
-    """
-    Encode a position given in float arguments latitude, longitude to
+    """Encode a position given in float arguments latitude, longitude to
     a geohash which will have the character count precision.
     """
     from math import log10
