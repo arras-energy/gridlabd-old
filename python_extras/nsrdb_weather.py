@@ -94,60 +94,96 @@ server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
-float_format="%.2f"
+float_format="%.1f"
+
+verbose_enable = False
+def verbose(msg):
+    if verbose_enable:
+        print(f"[{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
+
+def getemail():
+    global email
+    if not email:
+        keys = getkeys().keys()
+        if keys:
+            email = list(getkeys().keys())[0]
+        else:
+            email = None
+    return email
 
 def addkey(apikey=None):
     """Manage NSRDB API keys"""
     global email
     global credential_file
-    try:
-        keys = getkeys()
-    except:
-        keys = {}
     if not email:
-        try:
-            email = keys.keys()[0]
-        except:
-            pass
-    if apikey:
-        keys[email] = apikey
-    elif apikey in keys.keys():
-        del keys[email]
-    with open(credential_file,"w") as f:
-        json.dump(keys,f)
+        email = getemail()
+    keys = getkeys()
+    if email:
+        if apikey or not email in keys.keys():
+            keys[email] = apikey
+        elif not apikey and email in keys.keys():
+            del keys[email]
+        with open(credential_file,"w") as f:
+            json.dump(keys,f)
 
 def getkeys():
     """Get all NSRDB API keys"""
     global credential_file
-    with open(credential_file,"r") as f: 
-        return json.load(f)
+    try:
+        with open(credential_file,"r") as f: 
+            keys = json.load(f)
+    except:
+        keys = {}
+    return keys
 
-def getkey(email):
+def getkey(email=None):
     """Get a single NSRDB API key"""
     if not email:
-        try:
-            email = getkeys().keys()[0]
-        except:
-            pass
-    return getkeys()[email]
+        email = getemail()
+    if email:
+        return getkeys()[email]
+    else:
+        return None
 
 def getyears(years,lat,lon,concat=True):
     """Get NSRDB weather data for multiple years"""
-    result = {}
-    for year in years:
-        data = getyear(year,lat,lon)
-        if result:
-            for key,value in result.items():
-                result[key].extend(data[key])
+    try:
+        result = {}
+        for year in years:
+            data = getyear(year,lat,lon)
+            if result:
+                for key,value in result.items():
+                    result[key].extend(data[key])
+            else:
+                result = data
+        if concat:
+            result["DataFrame"] = pandas.concat(result["DataFrame"])
+        if interpolate_time:
+            final = []
+            if concat:
+                dflist = [result["DataFrame"]]
+            else:
+                dflist = result["DataFrame"]
+            for data in dflist:
+                verbose(f"getyears(years={years},lat={lat},lon={lon}): interpolating {interval} minute data to {interpolate_time} minutes using {interpolate_method} method")
+                starttime = data.index.min()
+                stoptime = data.index.max()
+                daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
+                final.append(data.join(daterange,how="outer",sort=True).interpolate(interpolate_method))
+            if concat:
+                result["DataFrame"] = pandas.concat(final)
+            else:
+                result["DataFrame"] = final
+        return result
+    except Exception as err:
+        if verbose_enable:
+            raise
         else:
-            result = data
-    if concat:
-        result["DataFrame"] = pandas.concat(result["DataFrame"])
-    return result
+            error(f"unable to get data ({err})",2)
 
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
-    api = getkey(email)
+    api = getkey()
     url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name={name}&email={email}&affiliation={org}&mailing_list={str(notify).lower()}&reason={reason}&api_key={api}&attributes={attributes}"
     if lat > 0: lat = f"N{lat:.2f}"
     elif lat < 0: lat = f"S{-lat:.2f}"
@@ -159,11 +195,14 @@ def getyear(year,lat,lon):
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
+        verbose(f"getyear(year={year},lat={lat},lon={lon}): reading data from {cache}")
     except:
         result = None
     if not result:
         with open(cache,"w") as fout:
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
             fout.write(requests.get(url).content.decode("utf-8"))
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): saved data to {cache}")
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
     for data in result["DataFrame"]:
@@ -182,11 +221,6 @@ def getyear(year,lat,lon):
             "wind_dir[deg]",
             "solar_altitude[deg]",
             ]
-        if interpolate_time:
-            starttime = data.index.min()
-            stoptime = data.index.max()
-            daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
-            data = data.join(daterange,how="outer").interpolate(interpolate_method)
         data.index.name = "datetime"
     return result
 
@@ -237,6 +271,8 @@ if __name__ == "__main__":
     glm = None
     name = None
     csv = None
+    if len(sys.argv) == 1:
+        syntax(1)
     for arg in sys.argv[1:]:
         args = arg.split("=")
         if type(args) is list and len(args) > 1:
@@ -255,7 +291,7 @@ if __name__ == "__main__":
         elif token in ["-p","--position"]:
             position = value.split(",")
             if len(position) != 2:
-                error("position is not a tuple")
+                error("position is not a tuple",1)
         elif token in ["-i","--interpolate"]:
             try:
                 interpolate_time = int(value)
@@ -280,34 +316,34 @@ if __name__ == "__main__":
         elif token == "--signup":
             if not value:
                 error("you must provide an email address for the new credential",1)
-            try:
-                credentials = getkeys()
-                if email in credentials.keys():
-                    error(f"you already have credentials for {value}",1)
-            except:
+            credentials = getkeys()
+            if getemail() in credentials.keys():
+                error(f"you already have credentials for {value}",1)
+            else:
                 email = value
                 addkey("PASTE_YOUR_APIKEY_HERE")
             import webbrowser
             webbrowser.open("https://developer.nrel.gov/signup/")
-            print(f"Don't forget to copy and paste the key for {email} into {credential_file}:")
-            exit(0)
+            print(f"use `gridlabd nsrdb_weather --apikey=<your-apikey>` to set your api key")
         elif token == "--apikey":
-            if not email:
-                error("you have not signed in yet",1)
+            if not getemail():
+                error(f"you have not signed up yet, use `gridlabd {os.path.basename(sys.argv[0]).replace('.py','')} --signup=<your-email>` to sign up",1)
+            key = getkey(email)
             addkey(value)
             if not value:
-                print(f"key for {email} deleted")
-            exit(0)
+                print(f"key for {email} deleted, use `gridlabd {os.path.basename(sys.argv[0]).replace('.py','')} --apikey={key}` to restore it")
         elif token == "--whoami":
-            if not email:
-                error("you have not signed in yet",1)
-            print(email)
-            exit(0)
+            if not getemail():
+                error(f"you have not signed up yet, use `gridlabd {os.path.basename(sys.argv[0]).replace('.py','')} --signup=<your-email>` to sign up",1)
+            print(email,file=sys.stdout)
+        elif token in ["-v","--verbose"]:
+            verbose_enable = not verbose_enable
         else:
             error(f"option '{token}' is not valid",1)
     if position and year:
-        writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
-    else:
-        syntax(1)
+        data = getyears(year,float(position[0]),float(position[1]))
+        if not csv and not glm:
+            csv = "/dev/stdout"
+        writeglm(data,glm,name,csv)
 
 
