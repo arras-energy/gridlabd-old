@@ -291,6 +291,13 @@ if __name__ == "__main__":
             webbrowser.open("https://developer.nrel.gov/signup/")
             print(f"Don't forget to copy and paste the key for {email} into {credential_file}:")
             exit(0)
+        elif token == "--apikey":
+            if not email:
+                error("you have not signed in yet",1)
+            addkey(value)
+            if not value:
+                print(f"key for {email} deleted")
+            exit(0)
         elif token == "--whoami":
             if not email:
                 error("you have not signed in yet",1)
