@@ -3,12 +3,18 @@
 SYNOPSIS
 
 Shell:
-    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-i|--interpolate=MINUTES|METHOD]
-        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
+        [-i|--interpolate=MINUTES|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
+        [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
+        [--test] [-v|--verbose] [-h|--help|help]
 
 GLM:
-    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-i|--interpolate=MINUTES|METHOD]
-        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
+        [-i|--interpolate=MINUTES|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
+        [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
+        [--test] [-v|--verbose] [-h|--help|help]
     #include "GLMNAME"
 
 Python:
@@ -19,8 +25,24 @@ Python:
 
 DESCRIPTION
 
-This module downloads weather data from NSRDB and writes GLM files.  This can be done from
-the command line or using call the python API.
+This module downloads weather data from NSRDB and writes GLM files.  This can
+be done from the command line or using call the python API.
+
+Downloaded weather data is for a specified location and year, which must be
+provided. The data is downloaded in either 30 or 60 intervals and cached for
+later used.  The data that is delivered from the cache can be further
+interpolated down to 1 minute.
+
+By default the data is output to /dev/stdout.  If the CSV file name is
+specified, the data will be written there.  
+
+If the GLM file name is specified, the CSV file will be formatted for
+compatibility with GridLAB-D players and the GLM file will contain a
+definition of the weather class, a weather object, and a player object to
+feed the weather data in from the CSV.  If the weather object name is not
+provided, then the name is automatically generated using a geohash code at
+about 2.5 km resolution, e.g., "weather@9q9j6".  To change the geohash
+resolution, you must change the `geocode_precision` parameter.
 
 PARAMETERS
 
@@ -39,6 +61,8 @@ The module uses several parameters to control its behavior.
     cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
     attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle' # NSRDB fields to download
     credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json" # local credential file location
+    geocode_precision = 5 # about 2.5 km geohash resolution (use for automatic naming of weather objects)
+    float_format="%.1f"
 
 You can change these options in Python scripts.
 
@@ -89,12 +113,40 @@ reason = "Grid modeling".replace(" ","+")
 email = None # by default this will be the first key in the credentials file
 notify = False
 interpolate_time = None
-interpolate_method = 'quadratic'
+interpolate_method = 'linear'
 server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
-attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle'
+attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle,relative_humidity,surface_pressure'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
+geocode_precision = 5 
+# 1   ± 2500 km
+# 2   ± 630 km
+# 3   ± 78 km
+# 4   ± 20 km
+# 5   ± 2.4 km
+# 6   ± 0.61 km
+# 7   ± 0.076 km
+# 8   ± 0.019 km
+# 9   ± 0.0024 km
+# 10  ± 0.00060 km
+# 11  ± 0.000074 km
 float_format="%.1f"
+date_format="%Y-%m-%d %H:%M:%S UTC"
+
+def error(msg,code=None):
+    if code != None:
+        print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
+        exit(code)
+    else:
+        raise Exception(msg)
+
+def syntax(code=0):
+    if code == 0:
+        print(__doc__)
+    else:
+        print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON")
+        print("\t[-i|--interpolate=MINUTES|METHOD]\n\t[-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME]\n\t[--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]\n\t[--test] [-v|--verbose] [-h|--help|help]")
+    exit(code)
 
 verbose_enable = False
 def verbose(msg):
@@ -181,6 +233,26 @@ def getyears(years,lat,lon,concat=True):
         else:
             error(f"unable to get data ({err})",2)
 
+def heat_index(T,RH):
+    if T < 80 :
+        return 0.75*T + 0.25*( 61.0+1.2*(T-68.0)+0.094*RH)
+    else:
+        HI = -42.379 \
+            + 2.04901523*T \
+            + 10.14333127*RH \
+            - 0.22475541*T*RH \
+            - 0.00683783*T*T \
+            - 0.05481717*RH*RH \
+            + 0.00122874*T*T*RH \
+            + 0.00085282*T*RH*RH \
+            - 0.00000199*T*T*RH*RH
+        if RH < 13 and T < 112:
+            return HI - ((13-RH)/4)*sqrt((17-fabs(T-95.))/17)
+        elif RH > 85 and T < 87:
+            return HI + ((RH-85)/10) * ((87-T)/5)
+        else:
+            return HI
+
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
     api = getkey()
@@ -210,24 +282,77 @@ def getyear(year,lat,lon):
         data.set_index("datetime",inplace=True)
         data.drop(columns=["Year","Day","Month","Hour","Minute"],inplace=True)
         data.columns = [
-            "solar_global[W/m^2]",
-            "solar_horizontal[W/m^2]",
-            "solar_direct[W/m^2]",
+            "solar_global[W/sf]",
+            "solar_horizontal[W/sf]",
+            "solar_direct[W/sf]",
             "clouds",
-            "dewpoint[degC]",
-            "temperature[degC]",
-            "albedo[pu]",
+            "dewpoint[degF]",
+            "temperature[degF]",
+            "ground_reflectivity[pu]",
             "wind_speed[m/s]",
-            "wind_dir[deg]",
+            "wind_dir[rad]",
             "solar_altitude[deg]",
+            "humidity[%]",
+            "pressure[mbar]",
             ]
+        data["solar_global[W/sf]"] /= 10.7639
+        data["solar_horizontal[W/sf]"] /= 10.7639
+        data["solar_direct[W/sf]"] /= 10.7639
+        data["dewpoint[degF]"] = data["dewpoint[degF]"]*9/5+32
+        data["temperature[degF]"] = data["temperature[degF]"]*9/5+32
+        data["wind_dir[rad]"] *= 3.141592635/180
+        data["heat_index[degF]"] = list(map(lambda x:heat_index(x[0],x[1]),zip(data["temperature[degF]"],data["humidity[%]"])))
         data.index.name = "datetime"
     return result
 
+def geohash(latitude, longitude, precision=geocode_precision):
+    """
+    Encode a position given in float arguments latitude, longitude to
+    a geohash which will have the character count precision.
+    """
+    from math import log10
+    __base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+    __decodemap = { }
+    for i in range(len(__base32)):
+        __decodemap[__base32[i]] = i
+    del i
+    lat_interval, lon_interval = (-90.0, 90.0), (-180.0, 180.0)
+    geohash = []
+    bits = [ 16, 8, 4, 2, 1 ]
+    bit = 0
+    ch = 0
+    even = True
+    while len(geohash) < precision:
+        if even:
+            mid = (lon_interval[0] + lon_interval[1]) / 2
+            if longitude > mid:
+                ch |= bits[bit]
+                lon_interval = (mid, lon_interval[1])
+            else:
+                lon_interval = (lon_interval[0], mid)
+        else:
+            mid = (lat_interval[0] + lat_interval[1]) / 2
+            if latitude > mid:
+                ch |= bits[bit]
+                lat_interval = (mid, lat_interval[1])
+            else:
+                lat_interval = (lat_interval[0], mid)
+        even = not even
+        if bit < 4:
+            bit += 1
+        else:
+            geohash += __base32[ch]
+            bit = 0
+            ch = 0
+    return ''.join(geohash)
+
+
 def writeglm(data, glm=None, name=None, csv=None):
     """Write weather object based on NSRDB data"""
+    lat = data['Latitude'][0]
+    lon = data['Longitude'][0]
     if not name:
-        name = f"nsrdb_{data['Location ID'][0]}"
+        name = f"weather@{geohash(lat,lon,geocode_precision)}"
     if not csv:
         csv = f"{name}.csv"
     if type(data["DataFrame"]) is list:
@@ -244,28 +369,18 @@ def writeglm(data, glm=None, name=None, csv=None):
             f.write("module tape;\n")
             f.write("object weather\n{\n")
             f.write(f"\tname \"{name}\";\n")
+            f.write(f"\tlatitude {lat};\n")
+            f.write(f"\tlongitude {lon};\n")
             f.write("\tobject player\n\t{\n")
             f.write(f"\t\tfile \"{csv}\";\n")
             f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
             f.write("\t};\n")
             f.write("}\n")
-        weather.to_csv(csv,header=False,float_format=float_format)
+        weather.to_csv(csv,header=False,float_format=float_format,date_format="%s")
     else:
-        weather.to_csv(csv,header=True,float_format=float_format)        
+        weather.to_csv(csv,header=True,float_format=float_format,date_format=date_format)        
 
 if __name__ == "__main__":
-    def error(msg,code=None):
-        if code != None:
-            print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
-            exit(code)
-        else:
-            raise Exception(msg)
-    def syntax(code=0):
-        if code == 0:
-            print(__doc__)
-        else:
-            print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSV] [--test] [-h|--help|help]")
-        exit(code)
     year = None
     position = None
     glm = None
@@ -310,7 +425,6 @@ if __name__ == "__main__":
             year = [2014,2015]
             position = [45.62,-122.70]
             glm = "test.glm"
-            name = "test"
             writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
             exit(os.system(f"gridlabd {glm}"))
         elif token == "--signup":
