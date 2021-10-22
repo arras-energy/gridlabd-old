@@ -3,12 +3,12 @@
 SYNOPSIS
 
 Shell:
-    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
-        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-i|--interpolate=MINUTES|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
-        [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
+    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-i|--interpolate=MINUTES|METHOD]
+        [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
 Python:
@@ -49,8 +49,13 @@ You can change these options in Python scripts.
 CREDENTIALS
 
 You must obtain an API key from https://developer.nrel.gov/signup/.  Save the key
-in the credentials file, which is by default `$HOME/.nsrdb/credentials.json`.  To add,
-change, or delete a key, use the `addkey()` function.
+in the credentials file, which is by default `$HOME/.nsrdb/credentials.json`.
+
+You can run this process in a semi-automated manner using the command
+
+    bash$ gridlabd nsrdb_weather --signup
+
+with which you can copy and paste a new key in the credential file.
 
 CAVEATS
 
@@ -79,11 +84,12 @@ leap = True
 interval = 60
 utc = True
 name = "HiPAS GridLAB-D".replace(" ","+")
-org = "SLAC National Accelerator Laboratory".replace(" ","+")
+org = "GridLAB simulation".replace(" ","+")
 reason = "Grid modeling".replace(" ","+")
-email="gridlabd@gmail.com"
+email = None # by default this will be the first key in the credentials file
 notify = False
-verbose = False
+interpolate_time = None
+interpolate_method = 'quadratic'
 server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
 cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle'
@@ -92,21 +98,37 @@ float_format="%.2f"
 
 def addkey(apikey=None):
     """Manage NSRDB API keys"""
-    keys = getkeys(credential_file)
+    global email
+    global credential_file
+    try:
+        keys = getkeys()
+    except:
+        keys = {}
+    if not email:
+        try:
+            email = keys.keys()[0]
+        except:
+            pass
     if apikey:
         keys[email] = apikey
     elif apikey in keys.keys():
         del keys[email]
     with open(credential_file,"w") as f:
-        f.write(keys)
+        json.dump(keys,f)
 
 def getkeys():
     """Get all NSRDB API keys"""
+    global credential_file
     with open(credential_file,"r") as f: 
         return json.load(f)
 
 def getkey(email):
     """Get a single NSRDB API key"""
+    if not email:
+        try:
+            email = getkeys().keys()[0]
+        except:
+            pass
     return getkeys()[email]
 
 def getyears(years,lat,lon,concat=True):
@@ -160,6 +182,12 @@ def getyear(year,lat,lon):
             "wind_dir[deg]",
             "solar_altitude[deg]",
             ]
+        if interpolate_time:
+            starttime = data.index.min()
+            stoptime = data.index.max()
+            daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
+            data = data.join(daterange,how="outer").interpolate(interpolate_method)
+        data.index.name = "datetime"
     return result
 
 def writeglm(data, glm=None, name=None, csv=None):
@@ -228,6 +256,14 @@ if __name__ == "__main__":
             position = value.split(",")
             if len(position) != 2:
                 error("position is not a tuple")
+        elif token in ["-i","--interpolate"]:
+            try:
+                interpolate_time = int(value)
+            except:
+                if value:
+                    interpolate_method = value
+                else:
+                    interpolate_time = None
         elif token in ["-g","--glm"]:
             glm = value
         elif token in ["-n","--name"]:
@@ -241,8 +277,27 @@ if __name__ == "__main__":
             name = "test"
             writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
             exit(os.system(f"gridlabd {glm}"))
+        elif token == "--signup":
+            if not value:
+                error("you must provide an email address for the new credential",1)
+            try:
+                credentials = getkeys()
+                if email in credentials.keys():
+                    error(f"you already have credentials for {value}",1)
+            except:
+                email = value
+                addkey("PASTE_YOUR_APIKEY_HERE")
+            import webbrowser
+            webbrowser.open("https://developer.nrel.gov/signup/")
+            print(f"Don't forget to copy and paste the key for {email} into {credential_file}:")
+            exit(0)
+        elif token == "--whoami":
+            if not email:
+                error("you have not signed in yet",1)
+            print(email)
+            exit(0)
         else:
-            error(f"option '{token}' is not valid")
+            error(f"option '{token}' is not valid",1)
     if position and year:
         writeglm(getyears(year,float(position[0]),float(position[1])),glm,name,csv)
     else:
