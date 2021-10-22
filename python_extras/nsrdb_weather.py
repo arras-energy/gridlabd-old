@@ -51,11 +51,7 @@ The module uses several parameters to control its behavior.
     leap = True # include leap day in data
     interval = 60 # sample interval, may be 30 or 60 minutes
     utc = True # timestamps in UTC
-    name = "HiPAS GridLAB-D".replace(" ","+") # credential name
-    org = "SLAC National Accelerator Laboratory".replace(" ","+") # credential org
-    reason = "Grid modeling".replace(" ","+") # credential reason
     email="gridlabd@gmail.com" # credential email
-    notify = False # allow notifications to email
     verbose = False # verbose output enable
     server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv" # NSRDB server URL
     cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
@@ -108,7 +104,6 @@ leap = True
 interval = 60
 utc = True
 email = None # by default this will be the first key in the credentials file
-notify = False
 interpolate_time = None
 interpolate_method = 'linear'
 server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
@@ -258,7 +253,7 @@ def heat_index(T,RH):
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
     api = getkey()
-    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&full_name=None&email={email}&affiliation=None&mailing_list={str(notify).lower()}&reason=None&api_key={api}&attributes={attributes}"
+    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&api_key={api}&attributes={attributes}&email={email}&full_name=None&affiliation=None&mailing_list=false&reason=None"
     cache = f"{cachedir}/nsrbd_{geohash(lat,lon)}_{year}.csv"
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
