@@ -3,18 +3,16 @@
 SYNOPSIS
 
 Shell:
-    bash$ export PYTHONPATH=/usr/local/share/gridlabd
-    bash$ python3 -m nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
+    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system python3 ${GLD_ETC}/nsrbd_weather.py -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
+    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON [-g|--glm=GLMNAME] 
         [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
 Python:
-    >>> import sys
-    >>> sys.path.append("/usr/local/share/gridlabd")
+    bash$ gridlabd python
     >>> import nsrdb_weather as ns
     >>> data = ns.getyears(YEARS,LAT,LON)
     >>> ns.writeglm(data,GLMNAME,OBJECTNAME,CSVNAME)
