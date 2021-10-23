@@ -4,14 +4,14 @@ SYNOPSIS
 
 Shell:
     bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
-        [-i|--interpolate=MINUTES|METHOD]
+        [-i|--interpolate=MINUTES|METHOD] [-l|--location=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
         [--test] [-v|--verbose] [-h|--help|help]
 
 GLM:
     #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
-        [-i|--interpolate=MINUTES|METHOD]
+        [-i|--interpolate=MINUTES|METHOD] [-l|--location=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
         [--test] [-v|--verbose] [-h|--help|help]
@@ -33,8 +33,8 @@ provided. The data is downloaded in either 30 or 60 intervals and cached for
 later used.  The data that is delivered from the cache can be further
 interpolated down to 1 minute.
 
-By default the data is output to /dev/stdout.  If the CSV file name is
-specified, the data will be written there.  
+By default the weather data is output to /dev/stdout.  If the CSV file name 
+is specified using `-c|--csv=CSVNAME, the data will be written to that file.  
 
 If the GLM file name is specified, the CSV file will be formatted for
 compatibility with GridLAB-D players and the GLM file will contain a
@@ -42,7 +42,16 @@ definition of the weather class, a weather object, and a player object to
 feed the weather data in from the CSV.  If the weather object name is not
 provided, then the name is automatically generated using a geohash code at
 about 2.5 km resolution, e.g., "weather@9q9j6".  To change the geohash
-resolution, you must change the `geocode_precision` parameter.
+resolution, you must change the `geocode_precision` parameter. To determine
+the geohash for a location use the `-l|--location` option.
+
+The GLM file can be output to "/dev/stdout" for embedding in other GLM files.
+For example:
+
+    #include (gridlabd nsbrd_weather -y 2010 -p=37.5,-122.2 -g=/dev/stdout)
+
+The global `${WEATHER}` is set to a space-delimited list of the weather 
+objects defined in the GLM file.
 
 PARAMETERS
 
@@ -50,21 +59,40 @@ The module uses several parameters to control its behavior.
 
     leap = True # include leap day in data
     interval = 60 # sample interval, may be 30 or 60 minutes
-    utc = True # timestamps in UTC
+    utc = False # timestamps in UTC
     email="gridlabd@gmail.com" # credential email
     verbose = False # verbose output enable
     server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv" # NSRDB server URL
     cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
     attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle' # NSRDB fields to download
     credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json" # local credential file location
-    geocode_precision = 5 # about 2.5 km geohash resolution (use for automatic naming of weather objects)
+    geocode_precision = 5 # about 2.5 km geohash resolution (uses for automatic naming of weather objects)
     float_format="%.1f"
+
+The geocode precisions are roughly as follows:
+
+    1   2500 km
+    2   600 km
+    3   80 km
+    4   20 km
+    5   2.5 km
+    6   0.2 km
+    7   0.08 km
+    8   0.02 km
+    9   0.0025 km
+    10  0.0006 km
+    11  0.000075 km
 
 You can change these options in Python scripts.
 
     >>> import nsrdb_weather as ns
     >>> ns.interval = 30
     >>> data = ns.getyear(2014,45.62,-122.70)
+
+You can permanently change these options by creating the local or shared file
+called `nsrdb_weather_config.py`. If found, this file will be imported after
+the defaults are set. Note that the default year, position, glm, csv, and name
+cannot be changed.
 
 CREDENTIALS
 
@@ -102,7 +130,7 @@ import sys, os, json, requests, pandas, numpy, datetime
 
 leap = True
 interval = 60
-utc = True
+utc = False
 email = None # by default this will be the first key in the credentials file
 interpolate_time = None
 interpolate_method = 'linear'
@@ -111,19 +139,14 @@ cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle,relative_humidity,surface_pressure'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
 geocode_precision = 6 
-# 1   ± 2500 km
-# 2   ± 630 km
-# 3   ± 78 km
-# 4   ± 20 km
-# 5   ± 2.4 km
-# 6   ± 0.61 km
-# 7   ± 0.076 km
-# 8   ± 0.019 km
-# 9   ± 0.0024 km
-# 10  ± 0.00060 km
-# 11  ± 0.000074 km
 float_format="%.1f"
-date_format="%Y-%m-%d %H:%M:%S UTC"
+date_format="%Y-%m-%d %H:%M:%S"
+verbose_enable = False
+
+try:
+    from nsrdb_weather_config import *
+except:
+    pass
 
 def error(msg,code=None):
     """Display an error message and exit if code is a number"""
@@ -139,10 +162,9 @@ def syntax(code=0):
         print(__doc__)
     else:
         print(f"Syntax: {os.path.basename(sys.argv[0])} -y|--year=YEARS -p -position=LAT,LON")
-        print("\t[-i|--interpolate=MINUTES|METHOD]\n\t[-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME]\n\t[--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]\n\t[--test] [-v|--verbose] [-h|--help|help]")
+        print("\t[-i|--interpolate=MINUTES|METHOD]\n\t[-g|--glm[=GLMNAME]] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME]\n\t[--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]\n\t[--test] [-v|--verbose] [-h|--help|help]")
     exit(code)
 
-verbose_enable = False
 def verbose(msg):
     """Display a verbose message (verbose_enable must be True"""
     if verbose_enable:
@@ -338,37 +360,58 @@ def geohash(latitude, longitude, precision=geocode_precision):
 
 
 def writeglm(data, glm=None, name=None, csv=None):
-    """Write weather object based on NSRDB data"""
+    """Write weather object based on NSRDB data
+
+    Default GLM and CSV values are handled as follows
+    GLM    CSV    Output
+    ------ ------ ------
+    None   None   CSV->stdout
+    GLM    None   GLM, CSV->GLM.csv
+    None   CSV    CSV
+    GLM    CSV    GLM, CSV
+
+    The default name is "weather@GEOCODE"
+
+    The WEATHER global is set to the list of weather object names.
+    """
     lat = data['Latitude'][0]
     lon = data['Longitude'][0]
     if not name:
         name = f"weather@{geohash(lat,lon,geocode_precision)}"
-    if not csv:
-        csv = f"{name}.csv"
     if type(data["DataFrame"]) is list:
         weather = pandas.concat(data["DataFrame"])
     else:
         weather = data["DataFrame"]
-    if glm:
-        with open(glm,"w") as f:
-            f.write("class weather\n{\n")
-            for column in weather.columns:
-                f.write(f"\tdouble {column};\n")
-            f.write("}\n")
-            weather.columns = list(map(lambda x:x.split('[')[0],weather.columns))
-            f.write("module tape;\n")
-            f.write("object weather\n{\n")
-            f.write(f"\tname \"{name}\";\n")
-            f.write(f"\tlatitude {lat};\n")
-            f.write(f"\tlongitude {lon};\n")
-            f.write("\tobject player\n\t{\n")
-            f.write(f"\t\tfile \"{csv}\";\n")
-            f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
-            f.write("\t};\n")
-            f.write("}\n")
-        weather.to_csv(csv,header=False,float_format=float_format,date_format="%s")
-    else:
-        weather.to_csv(csv,header=True,float_format=float_format,date_format=date_format)        
+    if not csv and not glm:
+        weather.to_csv("/dev/stdout",header=True,float_format=float_format,date_format=date_format)
+        return dict(glm=None,csv="/dev/stdout",name=None)
+    if not glm:
+        glm = "/dev/stdout"
+    if not csv:
+        csv = f"{name}.csv"
+    with open(glm,"w") as f:
+        f.write("class weather\n{\n")
+        for column in weather.columns:
+            f.write(f"\tdouble {column};\n")
+        f.write("}\n")
+        weather.columns = list(map(lambda x:x.split('[')[0],weather.columns))
+        f.write("module tape;\n")
+        f.write("#ifdef WEATHER\n")
+        f.write(f"#set WEATHER=$WEATHER {name}\n")
+        f.write("#else\n")
+        f.write(f"#define WEATHER={name}\n")
+        f.write("#endif\n")
+        f.write("object weather\n{\n")
+        f.write(f"\tname \"{name}\";\n")
+        f.write(f"\tlatitude {lat};\n")
+        f.write(f"\tlongitude {lon};\n")
+        f.write("\tobject player\n\t{\n")
+        f.write(f"\t\tfile \"{csv}\";\n")
+        f.write(f"\t\tproperty \"{','.join(weather.columns)}\";\n")
+        f.write("\t};\n")
+        f.write("}\n")
+    weather.to_csv(csv,header=False,float_format=float_format,date_format="%s")
+    return dict(glm=glm,csv=csv,name=name)
 
 if __name__ == "__main__":
     year = None
@@ -442,12 +485,15 @@ if __name__ == "__main__":
             print(email,file=sys.stdout)
         elif token in ["-v","--verbose"]:
             verbose_enable = not verbose_enable
+        elif token in ["-l","--location"]:
+            position = value.split(",")
+            if len(position) != 2:
+                error("position is not a tuple",1)
+            print(geohash(float(position[0]),float(position[1])),file=sys.stdout)
         else:
             error(f"option '{token}' is not valid",1)
     if position and year:
         data = getyears(year,float(position[0]),float(position[1]))
-        if not csv and not glm:
-            csv = "/dev/stdout"
         writeglm(data,glm,name,csv)
 
 
