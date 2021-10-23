@@ -48,7 +48,14 @@ the geohash for a location use the `-l|--location` option.
 The GLM file can be output to "/dev/stdout" for embedding in other GLM files.
 For example:
 
-    #include (gridlabd nsbrd_weather -y 2010 -p=37.5,-122.2 -g=/dev/stdout)
+    #include (gridlabd nsrdb_weather -y=2010 -p=37.5,-122.2 -g=/dev/stdout)
+
+This is equivalent to 
+
+    #gridlabd gridlabd nsrdb_weather -y=2010 -p=37.5,-122.2 -g=/tmp/example.glm
+    #include "/tmp/example.glm"
+
+without the creation of the temporary file.
 
 The global `${WEATHER}` is set to a space-delimited list of the weather 
 objects defined in the GLM file.
