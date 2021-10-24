@@ -373,8 +373,8 @@ def writeglm(data, glm=None, name=None, csv=None):
     GLM    CSV    Output
     ------ ------ ------
     None   None   CSV->stdout
-    GLM    None   GLM, CSV->GLM.csv
-    None   CSV    CSV
+    GLM    None   GLM, CSV->GLM/.glm/.csv
+    None   CSV    GLM->stdout, CSV
     GLM    CSV    GLM, CSV
 
     The default name is "weather@GEOCODE"
