@@ -442,7 +442,15 @@ if __name__ == "__main__":
         if token in ["-h","--help","help"]:
             syntax()
         elif token in ["-y","--year"]:
-            year = value.split(",")
+            year = []
+            for y in value.split(","):
+                yy = y.split("-")
+                if len(yy) == 1:
+                    year.append(int(yy[0]))
+                elif len(yy) == 2:
+                    year.extend(range(int(yy[0]),int(yy[1])+1))
+                else:
+                    raise Exception("'{value}' is not a valid invalid year specification")
         elif token in ["-p","--position"]:
             position = value.split(",")
             if len(position) != 2:
