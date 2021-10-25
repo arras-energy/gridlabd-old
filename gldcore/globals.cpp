@@ -1504,7 +1504,7 @@ DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
 {
 	double lat, lon;
 	OBJECT *obj;
-	unsigned int res = 12;
+	unsigned int res = 5; // about 2.4 km resolution by default
 	char name[64];
 	if ( sscanf(spec,"%lg,%lg#%u",&lat,&lon,&res) >= 2 )
 	{

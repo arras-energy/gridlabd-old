@@ -3,15 +3,15 @@
 SYNOPSIS
 
 Shell:
-    bash$ gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
-        [-i|--interpolate=MINUTES|METHOD] [-l|--location=LAT,LON]
+    bash$ gridlabd nsrdb_weather -y|--year=YEARS -p|-position=LAT,LON 
+        [-i|--interpolate=MINUTES|METHOD] [-e|--encode=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
         [--test] [-v|--verbose] [-h|--help|help]
 
 GLM:
-    #system gridlabd nsrbd_weather -y|--year=YEARS -p|-position=LAT,LON 
-        [-i|--interpolate=MINUTES|METHOD] [-l|--location=LAT,LON]
+    #system gridlabd nsrdb_weather -y|--year=YEARS -p|-position=LAT,LON 
+        [-i|--interpolate=MINUTES|METHOD] [-e|--encode=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
         [--test] [-v|--verbose] [-h|--help|help]
@@ -43,7 +43,7 @@ feed the weather data in from the CSV.  If the weather object name is not
 provided, then the name is automatically generated using a geohash code at
 about 2.5 km resolution, e.g., "weather@9q9j6".  To change the geohash
 resolution, you must change the `geocode_precision` parameter. To determine
-the geohash for a location use the `-l|--location` option.
+the geohash for a location use the `-e|--encode` option.
 
 The GLM file can be output to "/dev/stdout" for embedding in other GLM files.
 For example:
@@ -78,17 +78,17 @@ The module uses several parameters to control its behavior.
 
 The geocode precisions are roughly as follows:
 
-    1   2500 km
+    1   2,500 km
     2   600 km
     3   80 km
     4   20 km
     5   2.5 km
-    6   0.2 km
-    7   0.08 km
-    8   0.02 km
-    9   0.0025 km
-    10  0.0006 km
-    11  0.000075 km
+    6   200 m
+    7   80 m
+    8   20 m
+    9   2.5 m
+    10  60 cm
+    11  7.5 cm
 
 You can change these options in Python scripts.
 
@@ -283,7 +283,7 @@ def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
     api = getkey()
     url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&api_key={api}&attributes={attributes}&email={email}&full_name=None&affiliation=None&mailing_list=false&reason=None"
-    cache = f"{cachedir}/nsrbd_{geohash(lat,lon)}_{year}.csv"
+    cache = f"{cachedir}/nsrdb/{year}/{geohash(lat,lon)}.csv"
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
@@ -291,6 +291,7 @@ def getyear(year,lat,lon):
     except:
         result = None
     if not result:
+        os.makedirs(os.path.dirname(cache),exist_ok=True)
         with open(cache,"w") as fout:
             verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
             fout.write(requests.get(url).content.decode("utf-8"))
@@ -500,7 +501,7 @@ if __name__ == "__main__":
             print(email,file=sys.stdout)
         elif token in ["-v","--verbose"]:
             verbose_enable = not verbose_enable
-        elif token in ["-l","--location"]:
+        elif token in ["-e","--encode"]:
             position = value.split(",")
             if len(position) != 2:
                 error("position is not a tuple",1)

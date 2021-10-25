@@ -13,7 +13,7 @@ ${GEOCODE <objname>[#<resolution>]}
 
 Return the geohash code corresponding to the latitude/longitude given or the object name. This can be helpful is connecting object based on location, such as linking an object to weather.
 
-The resolution corresponds to the following distances:
+The default resolution is 5. The resolution corresponds to the following distances:
 
     1   2500 km
     2   600 km
