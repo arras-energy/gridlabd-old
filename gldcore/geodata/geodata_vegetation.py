@@ -294,28 +294,30 @@ if __name__ == '__main__':
     class TestVegetation(unittest.TestCase):
 
         def test_vegetation_meters(self):
-            test = pandas.DataFrame({
-                "latitude" : [37.4205,37.5205],
-                "longitude" : [-122.2046,-122.3046],
-                })
+            if default_config["vegetation"]["username"]:
+                test = pandas.DataFrame({
+                    "latitude" : [37.4205,37.5205],
+                    "longitude" : [-122.2046,-122.3046],
+                    })
 
-            default_options.update({"units":"meters"})
-            result = apply(test)
-            self.assertEqual(result["cover"][0],0.05)
-            self.assertEqual(result["height"][0],0.0)
-            self.assertEqual(result["base"][0],0.0)
+                default_options.update({"units":"meters"})
+                result = apply(test)
+                self.assertEqual(result["cover"][0],0.05)
+                self.assertEqual(result["height"][0],0.0)
+                self.assertEqual(result["base"][0],0.0)
 
         def test_vegetation_feet(self):
-            test = pandas.DataFrame({
-                "latitude" : [37.4205,37.5205],
-                "longitude" : [-122.2046,-122.3046],
-                })
+            if default_config["vegetation"]["username"]:
+                test = pandas.DataFrame({
+                    "latitude" : [37.4205,37.5205],
+                    "longitude" : [-122.2046,-122.3046],
+                    })
 
-            default_options.update({"units":"feet"})
-            result = apply(test,default_options)
+                default_options.update({"units":"feet"})
+                result = apply(test,default_options)
 
-            self.assertEqual(result["cover"][0],0.05)
-            self.assertEqual(result["height"][0],0.0)
-            self.assertEqual(result["base"][0],0.0)
+                self.assertEqual(result["cover"][0],0.05)
+                self.assertEqual(result["height"][0],0.0)
+                self.assertEqual(result["base"][0],0.0)
 
     unittest.main()
