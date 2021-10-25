@@ -247,8 +247,8 @@ if __name__ == '__main__':
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test)
-            self.assertEqual(result["elevation"][0],85.0)
-            self.assertEqual(result["elevation"][1],157.0)
+            self.assertEqual(result["elevation"][0],84.0)
+            self.assertEqual(result["elevation"][1],154.0)
 
         def test_elevation_feet(self):
             test = pandas.DataFrame({
@@ -256,7 +256,7 @@ if __name__ == '__main__':
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test,{"units":"feet"})
-            self.assertEqual(result["elevation"][0],279.0)
-            self.assertEqual(result["elevation"][1],515.0)
+            self.assertEqual(result["elevation"][0],275.0)
+            self.assertEqual(result["elevation"][1],504.0)
 
     unittest.main()
