@@ -130,18 +130,18 @@ if __name__ == '__main__':
 
         def test_address_reverse(self):
             test = DataFrame({
-                "address":["2575 Sand Hill Rd., Menlo Park, CA 94025, USA"],
+                "address":["1600 Pennsylvania Ave, Washington, DC"],
                 })
             result = apply(test,{"reverse":True})
-            self.assertEqual(round(result["latitude"][0],6),37.420457)
-            self.assertEqual(round(result["longitude"][0],6),-122.204568)
+            self.assertEqual(round(result["latitude"][0],6),38.8977)
+            self.assertEqual(round(result["longitude"][0],6),-77.036553)
 
         def test_address(self):
             test = DataFrame({
-                "latitude" : [37.4205],
-                "longitude" : [-122.2046],
+                "latitude" : [38.8977],
+                "longitude" : [-77.036553],
                 })
             result = apply(test)
-            self.assertEqual(result["address"][0],"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
+            self.assertTrue(result["address"][0],"The White House")
 
     unittest.main()
