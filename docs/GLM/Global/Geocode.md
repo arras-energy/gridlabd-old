@@ -13,6 +13,20 @@ ${GEOCODE <objname>[#<resolution>]}
 
 Return the geohash code corresponding to the latitude/longitude given or the object name. This can be helpful is connecting object based on location, such as linking an object to weather.
 
+The resolution corresponds to the following distances:
+
+    1   2500 km
+    2   600 km
+    3   80 km
+    4   20 km
+    5   2.5 km
+    6   0.2 km
+    7   0.08 km
+    8   0.02 km
+    9   0.0025 km
+    10  0.0006 km
+    11  0.000075 km
+
 # Example
 
 The following example prints the geohash codes for a position and an object:
