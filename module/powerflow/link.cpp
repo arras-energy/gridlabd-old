@@ -325,8 +325,6 @@ int link_object::init(OBJECT *parent)
 	OBJECT *obj = GETOBJECT(this);
 	violation_watch = violation_watchset&VW_LINK;
 
-	powerflow_object::init(parent);
-
 	set phase_f_test, phase_t_test, phases_test;
 	node *fNode = OBJECTDATA(from,node);
 	node *tNode = OBJECTDATA(to,node);
@@ -342,7 +340,25 @@ int link_object::init(OBJECT *parent)
 		/*  TROUBLESHOOT
 		The to node for a line or link is not connected to anything.
 		*/
-	
+
+	//Make sure nodes have initialized in NR - otherwise some lines get missed (if connected to children)
+	if (solver_method == SM_NR)
+	{
+		//See if the from/to nodes have parents
+		if ((from->parent != NULL) || (to->parent != NULL))
+		{
+			if	(((from->flags & OF_INIT) != OF_INIT) || ((to->flags & OF_INIT) != OF_INIT))
+			{
+				gl_verbose("link::init(): link:%d - %s - deferring initialization on from/to node", obj->id,(obj->name?obj->name : "Unnamed"));
+				return 2; // defer
+			}
+			//Default else - both have initialized already
+		}
+		//Default else - neither parented, so they can't be children - will get handled like normal
+	}
+
+	powerflow_object::init(parent);
+
 	if (mean_repair_time < 0.0)
 	{
 		warning("link:%s has a negative mean_repair_time, set to 1 hour",obj->name);
@@ -504,14 +520,31 @@ int link_object::init(OBJECT *parent)
 		{
 			phase_f_test &= ~(PHASE_S);	//Pull off the single phase portion of from node
 
-			if ((phase_f_test != (phases_test & ~(PHASE_S))) || (phase_t_test != phases_test) || ((phase_t_test & PHASE_S) != PHASE_S))	//Phase mismatch on the line
-				GL_THROW("transformer:%d (split phase) - %s has a phase mismatch at one or both ends",obj->id,obj->name);
+			//Two stage check - make sure our "to" side is triplex, at the very least - this may be checked somewhere else too (transformer), do to be paranoid
+			if ((phase_t_test & PHASE_S) != PHASE_S)
+			{
+				GL_THROW("transformer:%d (split phase) - %s has a phase mismatch the \"to\" end",obj->id,(obj->name?obj->name:"Unnamed"));
 				/*  TROUBLESHOOT
-				A line has been configured to carry a certain set of phases.  Either the input node or output
-				node is not providing a source/sink for these different conductors.  The To and From nodes must
-				have at least the phases of the line connecting them. Center-tap transformers specifically require
-				at least a single phase (A, B, or C) on the primary side, and the same phase and phase S on the
-				secondary side.
+				A split phase transformer has a "to" object that is not flagged as triplex.  This configuration is not allowed - connect a triplex-based
+				node device to the "to" end and try again.
+				*/
+			}
+
+			if (phase_f_test != (phases_test & ~(PHASE_S)))
+			{
+				GL_THROW("transformer:%d (split phase) - %s has a phase mismatch the \"from\" end",obj->id,(obj->name?obj->name:"Unnamed"));
+				/*  TROUBLESHOOT
+				A split phase transformer has a three-phase basis specified that does not exist on the "from" node.  Specify a valid "from" phase
+				and try again.
+				*/
+			}
+
+			//General phase check - make it a warning, so the CIM-import stuff doesn't fail
+			if (phase_t_test != phases_test)	//Phase mismatch on the line
+				warning("transformer:%d (split phase) - %s has a phase mismatch against the triplex end",obj->id,(obj->name?obj->name:"Unnamed"));
+				/*  TROUBLESHOOT
+				A split-phase (single-phase-center-tapped) transformer is connecting to a triplex-based node that does not have a specific phase associated.
+				This should still work, but if it is not intended, please explicitly specify the three-phase-basis phase on the triplex side.
 				*/
 		}
 		else if (SpecialLnk==DELTAGWYE)	//D-Gwye then
@@ -521,7 +554,11 @@ int link_object::init(OBJECT *parent)
 
 			if ((phase_f_test != (phases & ~(PHASE_N | PHASE_D))) || (phase_t_test != (phases & ~(PHASE_N | PHASE_D))))	//Phase mismatch on the line
 				GL_THROW("transformer:%d (delta-grounded wye) - %s has a phase mismatch at one or both ends",obj->id,obj->name);
-				//Defined above
+				/*  TROUBLESHOOT
+				A line has been configured to carry a certain set of phases.  Either the input node or output
+				node is not providing a source/sink for these different conductors.  The To and From nodes must
+				have at least the phases of the line connecting them. 
+				*/
 		}
 		else	//Must be a switch then
 		{
@@ -2275,6 +2312,8 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					*/
 				}
 
+				//For all initial implementations, we're all part of the same big/happy island - island #0!
+				NR_branchdata[NR_branch_reference].island_number = 0;
 
 				//Start with admittance matrix
 				if (SpecialLnk!=NORMAL)	//Transformer, send more - may not need all 4, but put them there anyways
@@ -2343,7 +2382,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 					}
 				}
 
-				//Link the status variable
+				//Populate the status variable while we are in here
 				NR_branchdata[NR_branch_reference].status = &status;
 
 				//Link the name
@@ -2592,7 +2631,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 			//Figure out what type of link we are and populate accordingly
 			if ((gl_object_isa(obj,"transformer","powerflow")) || (gl_object_isa(obj,"regulator","powerflow")))	//Tranformer check
 			{
-				NR_branchdata[NR_branch_reference].lnk_type = 4;
+				NR_branchdata[NR_branch_reference].lnk_type = 2;
 			}
 			else	//Normal-ish
 			{
@@ -2610,7 +2649,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 				}
 				else if (gl_object_isa(obj,"switch","powerflow"))	//We're a switch
 				{
-					NR_branchdata[NR_branch_reference].lnk_type = 2;
+					NR_branchdata[NR_branch_reference].lnk_type = 4;
 				}
 				else if (gl_object_isa(obj,"fuse","powerflow"))
 				{
@@ -7051,7 +7090,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 		//Preliminary error check - see if switch faults or fuse faults are indeed being done on a fuse/switch
 		if ((*implemented_fault>=18) && (*implemented_fault <= 24))	//Switch faults
 		{
-			if (NR_branchdata[NR_branch_reference].lnk_type != 2)	//Switch
+			if (NR_branchdata[NR_branch_reference].lnk_type != 4)	//Switch
 			{
 				GL_THROW("Event type %s was tried on a non-switch object!",fault_type);
 				/*  TROUBLESHOOT
@@ -7298,7 +7337,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				safety_hit = true;
 
 			}//End recloser
-			else if ((NR_branchdata[NR_branch_reference].lnk_type == 2) && (switch_val == true))	//Switch induced fault - handle it
+			else if (NR_branchdata[NR_branch_reference].lnk_type == 4)	//Switch induced fault - handle it
 			{
 				//Follows convention of safety devices above
 				//Extra coding - basically what would have happened below when it was classified as a safety device
@@ -7528,7 +7567,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//Break out of this pesky loop
 								break;
 							}//end recloser
-							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 2)	//Switch induced fault - handle it
+							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 4)	//Switch induced fault - handle it
 							{
 								//Follows convention of safety devices above
 								//Extra coding - basically what would have happened below when it was classified as a safety device
@@ -7770,7 +7809,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//Break out of this pesky loop
 								break;
 							}//end fuse
-							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 4)	//Transformer - not really "protective" - we assume it explodes
+							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 2)	//Transformer - not really "protective" - we assume it explodes
 							{
 								//Get the transformer
 								tmpobj = NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].obj;
@@ -9722,7 +9761,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 		//Preliminary error check - see if switch faults or fuse faults are indeed being done on a fuse/switch
 		if ((*implemented_fault>=18) && (*implemented_fault <= 24))	//Switch faults
 		{
-			if (NR_branchdata[NR_branch_reference].lnk_type != 2)	//Switch
+			if (NR_branchdata[NR_branch_reference].lnk_type != 4)	//Switch
 			{
 				GL_THROW("Event type %s was tried on a non-switch object!",fault_type);
 				/*  TROUBLESHOOT
@@ -10182,7 +10221,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				safety_hit = true;
 
 			}//End recloser
-			else if ((NR_branchdata[NR_branch_reference].lnk_type == 2) && (switch_val == true))	//Switch induced fault - handle it
+			else if (NR_branchdata[NR_branch_reference].lnk_type == 4)	//Switch induced fault - handle it
 			{
 				//Follows convention of safety devices above
 				//Extra coding - basically what would have happened below when it was classified as a safety device
@@ -10412,6 +10451,82 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//Break out of this pesky loop
 								break;
 							}//end recloser
+							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 4)	//Switch induced fault - handle it
+							{
+								//Follows convention of safety devices above
+								//Extra coding - basically what would have happened below when it was classified as a safety device
+								//Get the switch
+								tmpobj = NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].obj;
+
+								if (tmpobj == NULL)
+								{
+									GL_THROW("An attempt to alter switch %s failed.",NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].name);
+									/*  TROUBLESHOOT
+									While attempting to set the state of a switch, an error occurred.  Please try again.  If the error persists,
+									please submit a bug report and your code via the trac website.
+									*/
+								}
+
+								funadd = (FUNCTIONADDR)(gl_get_function(tmpobj,"change_switch_state"));
+
+								//Make sure it was found
+								if (funadd == NULL)
+								{
+									GL_THROW("Unable to change switch state on %s",tmpobj->name);
+									/*  TROUBLESHOOT
+									While attempting to alter a switch state, the proper switch function was not found.
+									If the problem persists, please submit a bug report and your code to the trac website.
+									*/
+								}
+
+								//Update the switch statii
+								ext_result = ((int (*)(OBJECT *, unsigned char, bool))(*funadd))(tmpobj,phase_remove,false);
+
+								//Make sure it worked
+								if (ext_result != 1)
+								{
+									GL_THROW("An attempt to alter switch %s failed.",NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].name);
+									//defined above
+								}
+
+								//Retrieve the mean_repair_time
+								temp_double_val = get_double(tmpobj,"mean_repair_time");
+
+								//See if it worked
+								if (temp_double_val == NULL)
+								{
+									warning("Unable to map mean_repair_time from object:%s",tmpobj->name);
+									//Defined above
+									*repair_time = 0;
+								}
+								else	//It did map - get the value
+								{
+									*repair_time = (TIMESTAMP)(*temp_double_val);
+								}
+
+								//Store ourselves as our protective device
+								for (phaseidx=0; phaseidx < 3; phaseidx++)
+								{
+									temp_phases = 0x04 >> phaseidx;	//Figure out the phase we are on and if it is valid
+
+									if ((phase_remove & temp_phases) == temp_phases)
+									{
+										protect_locations[phaseidx] = NR_busdata[temp_node].Link_Table[temp_table_loc];	//Store ourselves
+									}
+								}
+
+								//Flag our fault phases
+								NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].faultphases |= phase_remove;
+
+								//Update our fault phases so we aren't restored
+								NR_branchdata[NR_branch_reference].faultphases |= phase_remove;
+
+								//Store the object handle
+								*protect_obj=tmpobj;
+
+								safety_hit = true;	//We hit a protective device
+								break;
+							}
 							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 5)	//Sectionalizer
 							{
 								//Get the sectionalizer
@@ -10578,7 +10693,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 								//Break out of this pesky loop
 								break;
 							}//end fuse
-							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 4)	//Transformer - not really "protective" - we assume it explodes
+							else if (NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].lnk_type == 2)	//Transformer - not really "protective" - we assume it explodes
 							{
 								//Get the transformer
 								tmpobj = NR_branchdata[NR_busdata[temp_node].Link_Table[temp_table_loc]].obj;
@@ -11089,7 +11204,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 					else	//Not the SWING Bus
 					{
 						//See if we are of a "protective" device implementation
-						if ((NR_branchdata[protect_locations[phaseidx]].lnk_type == 2) && (switch_val == true))	//Switch
+						if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 4)	//Switch
 						{
 							//Get the switch
 							tmpobj = NR_branchdata[protect_locations[phaseidx]].obj;
@@ -11624,7 +11739,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 							//Break out of this pesky loop
 							break;
 						}//End fuse closure
-						else if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 4)	//Transformer
+						else if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 2)	//Transformer
 						{
 							//Transformers are special case - if the source is supported, all three phases are reinstated
 							temp_phases = NR_branchdata[protect_locations[phaseidx]].origphases & 0x07;
@@ -12100,7 +12215,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 					else	//Not the SWING Bus
 					{
 						//See if we are of a "protective" device implementation
-						if ((NR_branchdata[protect_locations[phaseidx]].lnk_type == 2) && (switch_val == true))	//Switch
+						if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 4)	//Switch
 						{
 							//Get the switch
 							tmpobj = NR_branchdata[protect_locations[phaseidx]].obj;
@@ -12555,7 +12670,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 							//Break out of this pesky loop
 							break;
 						}//End fuse closure
-						else if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 4)	//Transformer
+						else if (NR_branchdata[protect_locations[phaseidx]].lnk_type == 2)	//Transformer
 						{
 							//Transformers are special case - if the source is supported, all three phases are reinstated
 							temp_phases = NR_branchdata[protect_locations[phaseidx]].origphases & 0x07;
@@ -12982,7 +13097,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	//Travel back down to the faulted node adding up all the device impedances in the fault path
 	while(NR_branchdata[temp_branch_fc].fault_link_below != -1){
 		temp_branch_phases = NR_branchdata[temp_branch_fc].phases & 0x07;
-		if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
+		if(NR_branchdata[temp_branch_fc].lnk_type == 2){//transformer
 			// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 			temp_transformer = NR_branchdata[temp_branch_fc].obj;	//get the transformer object
 			if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
@@ -13133,7 +13248,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 
 	//include the faulted link's impedance in the equivalent system impedance
 	temp_branch_phases = removed_phase | NR_branchdata[temp_branch_fc].phases;
-	if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
+	if(NR_branchdata[temp_branch_fc].lnk_type == 2){//transformer
 		// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 		temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 		if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
@@ -13401,7 +13516,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	
 	while (NR_busdata[temp_node].type != 2)
 	{
-		if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
+		if(NR_branchdata[temp_branch_fc].lnk_type == 2){//transformer
 			// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 			temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 			if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
@@ -13474,7 +13589,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	}
 
 	//update the fault current variables in link object connected to the swing bus
-	if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
+	if(NR_branchdata[temp_branch_fc].lnk_type == 2){//transformer
 		// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 		temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 		if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer

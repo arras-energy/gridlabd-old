@@ -94,6 +94,10 @@ int regulator::init(OBJECT *parent)
 	size_t jindex;
 	int result = link_object::init(parent);
 
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+
 	OBJECT *obj = THISOBJECTHDR;
 
 	if (!configuration)
