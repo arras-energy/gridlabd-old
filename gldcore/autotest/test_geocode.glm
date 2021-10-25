@@ -1,0 +1,21 @@
+#set suppress_repeat_messages=false
+
+class test
+{
+	char32 geocode;
+}
+
+object test
+{
+	name "test";
+	latitude 37.5;
+	longitude -122.2;
+}
+
+#if ${GEOCODE 37.5,-122.2#6} != 9q9j76
+#error geocode "37.5,-122.2#6" does not match "9q9j76"
+#endif
+
+#if ${GEOCODE test#6} != 9q9j76
+#error geocode "test#6" does not match "9q9j76"
+#endif
