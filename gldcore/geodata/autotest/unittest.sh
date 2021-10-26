@@ -8,6 +8,7 @@ for F in $DIR/*.py; do
 	N=$(($N+1))
 done
 wait
+touch /tmp/$$_ok.err
 cat /tmp/$$_*.err > /tmp/$$.err
 rm -f /tmp/$$_*.err
 if [ -s /tmp/$$.err ]; then
