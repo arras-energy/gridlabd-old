@@ -7,14 +7,14 @@ Shell:
         [-i|--interpolate=MINUTES|METHOD] [-e|--encode=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
-        [--test] [-v|--verbose] [-h|--help|help]
+        [--test] [-v|--verbose] [--clear] [-h|--help|help] 
 
 GLM:
     #system gridlabd nsrdb_weather -y|--year=YEARS -p|-position=LAT,LON 
         [-i|--interpolate=MINUTES|METHOD] [-e|--encode=LAT,LON]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] 
         [--whoami] [--signup=EMAIL] [--apikey[=APIKEY]]
-        [--test] [-v|--verbose] [-h|--help|help]
+        [--test] [-v|--verbose] [--clear] [-h|--help|help]
     #include "GLMNAME"
 
 Python:
@@ -31,7 +31,7 @@ be done from the command line or using call the python API.
 Downloaded weather data is for a specified location and year, which must be
 provided. The data is downloaded in either 30 or 60 intervals and cached for
 later used.  The data that is delivered from the cache can be further
-interpolated down to 1 minute.
+interpolated down to 1 minute. Use the `--clear` option to clear the cache.
 
 By default the weather data is output to /dev/stdout.  If the CSV file name 
 is specified using `-c|--csv=CSVNAME, the data will be written to that file.  
@@ -111,6 +111,12 @@ You can run this process in a semi-automated manner using the command
     bash$ gridlabd nsrdb_weather --signup
 
 with which you can copy and paste a new key in the credential file.
+
+CONFIGURATION
+
+The nsrdb_weather module loads the file `nsrdb_weather_config.py` after setting the 
+default values of the configure.  The configuration can be changed by creating this
+file in the current folder, or in a folder in the python path.
 
 CAVEATS
 
@@ -279,11 +285,21 @@ def heat_index(T,RH):
         else:
             return HI
 
+def getcache(year,lat,lon,refresh=False):
+    cache = f"{cachedir}/nsrdb/{year}/{geohash(lat,lon)}.csv"
+    os.makedirs(os.path.dirname(cache),exist_ok=True)
+    api = getkey()
+    if not os.path.exists(cache) or refresh:
+        with open(cache,"w") as fout:
+            url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&api_key={api}&attributes={attributes}&email={email}&full_name=None&affiliation=None&mailing_list=false&reason=None"
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
+            fout.write(requests.get(url).content.decode("utf-8"))
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): saved data to {cache}")
+    return cache
+
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
-    api = getkey()
-    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&api_key={api}&attributes={attributes}&email={email}&full_name=None&affiliation=None&mailing_list=false&reason=None"
-    cache = f"{cachedir}/nsrdb/{year}/{geohash(lat,lon)}.csv"
+    cache = getcache(year,lat,lon)
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
@@ -291,11 +307,7 @@ def getyear(year,lat,lon):
     except:
         result = None
     if not result:
-        os.makedirs(os.path.dirname(cache),exist_ok=True)
-        with open(cache,"w") as fout:
-            verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
-            fout.write(requests.get(url).content.decode("utf-8"))
-            verbose(f"getyear(year={year},lat={lat},lon={lon}): saved data to {cache}")
+        cache = getcache(year,lat,lon,True)
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
     for data in result["DataFrame"]:
@@ -326,11 +338,60 @@ def getyear(year,lat,lon):
         data.index.name = "datetime"
     return result
 
+def decode_exactly(geohash):
+    """
+    Decode the geohash to its exact values, including the error
+    margins of the result.  Returns four float values: latitude,
+    longitude, the plus/minus error for latitude (as a positive
+    number) and the plus/minus error for longitude (as a positive
+    number).
+    """
+    __base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+    __decodemap = { }
+    for i in range(len(__base32)):
+        __decodemap[__base32[i]] = i
+    del i
+    lat_interval, lon_interval = (-90.0, 90.0), (-180.0, 180.0)
+    lat_err, lon_err = 90.0, 180.0
+    is_even = True
+    for c in geohash:
+        cd = __decodemap[c]
+        for mask in [16, 8, 4, 2, 1]:
+            if is_even: # adds longitude info
+                lon_err /= 2
+                if cd & mask:
+                    lon_interval = ((lon_interval[0]+lon_interval[1])/2, lon_interval[1])
+                else:
+                    lon_interval = (lon_interval[0], (lon_interval[0]+lon_interval[1])/2)
+            else:      # adds latitude info
+                lat_err /= 2
+                if cd & mask:
+                    lat_interval = ((lat_interval[0]+lat_interval[1])/2, lat_interval[1])
+                else:
+                    lat_interval = (lat_interval[0], (lat_interval[0]+lat_interval[1])/2)
+            is_even = not is_even
+    lat = (lat_interval[0] + lat_interval[1]) / 2
+    lon = (lon_interval[0] + lon_interval[1]) / 2
+    return lat, lon, lat_err, lon_err
+
+def geocode(geohash):
+    """
+    Decode geohash, returning two strings with latitude and longitude
+    containing only relevant digits and with trailing zeroes removed.
+    """
+    lat, lon, lat_err, lon_err = decode_exactly(geohash)
+    from math import log10
+    # Format to the number of decimals that are known
+    lats = "%.*f" % (max(1, int(round(-log10(lat_err)))) - 1, lat)
+    lons = "%.*f" % (max(1, int(round(-log10(lon_err)))) - 1, lon)
+    if '.' in lats: lats = lats.rstrip('0')
+    if '.' in lons: lons = lons.rstrip('0')
+    return float(lats), float(lons)
+
 def geohash(latitude, longitude, precision=geocode_precision):
     """Encode a position given in float arguments latitude, longitude to
     a geohash which will have the character count precision.
     """
-    from math import log10
     __base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
     __decodemap = { }
     for i in range(len(__base32)):
@@ -506,6 +567,9 @@ if __name__ == "__main__":
             if len(position) != 2:
                 error("position is not a tuple",1)
             print(geohash(float(position[0]),float(position[1])),file=sys.stdout)
+        elif token in ["--clear"]:
+            import shutil
+            shutil.rmtree(cachedir)
         else:
             error(f"option '{token}' is not valid",1)
     if position and year:
