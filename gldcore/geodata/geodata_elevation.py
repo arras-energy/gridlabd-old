@@ -239,6 +239,9 @@ if __name__ == '__main__':
 
     import unittest
 
+    default_config['cachedir'] = "/tmp/geodata/elevation"
+    os.makedirs(default_config['cachedir'],exist_ok=True)
+
     class TestElevation(unittest.TestCase):
 
         def test_elevation_meters(self):
