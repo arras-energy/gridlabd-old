@@ -46,6 +46,8 @@ default_config = {
     "provider" : "nominatim",
     "user_agent" : "csv_user_ht",
     "timeout" : 5,
+    "retries" : 5,
+    "sleep" : 1,
 }
 
 #
@@ -91,11 +93,20 @@ def apply(data, options=default_options, config=default_config, warning=print):
         if not "address" in list(data.columns):
             raise Exception("reserve address resolution requires 'address' field")
         data.reset_index(inplace=True) # index is not meaningful
-        pos = geocode(data["address"],
-                provider = config["provider"],
-                user_agent = config["user_agent"],
-                timeout = config["timeout"],
-                )
+        for retries in range(config["retries"]):
+            try:
+                pos = geocode(data["address"],
+                        provider = config["provider"],
+                        user_agent = config["user_agent"],
+                        timeout = config["timeout"],
+                        )
+                break
+            except Exception as err:
+                pos = err
+            import time
+            time.sleep(config["sleep"])
+        if type(pos) is Exception:
+            raise pos
         data["longitude"] = list(map(lambda p: p.x,pos["geometry"]))
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
         return data
@@ -111,11 +122,20 @@ def apply(data, options=default_options, config=default_config, warning=print):
             pos = None
         if type(pos) == type(None):
             raise Exception("address resolution requires 'latitude' and 'longitude' fields")
-        addr = reverse_geocode(pos,
-                provider = config["provider"],
-                user_agent = config["user_agent"],
-                timeout = config["timeout"],
-                )
+        for retries in range(config["retries"]):
+            try:
+                addr = reverse_geocode(pos,
+                        provider = config["provider"],
+                        user_agent = config["user_agent"],
+                        timeout = config["timeout"],
+                        )
+                break
+            except Exception as err:
+                addr = err
+            import time
+            time.sleep(config["sleep"])
+        if type(addr) is Exception:
+            raise addr
         data["address"] = Series(addr["address"],dtype="string").tolist()
         return data
 
