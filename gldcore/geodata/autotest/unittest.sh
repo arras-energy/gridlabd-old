@@ -10,7 +10,7 @@ done
 wait
 cat /tmp/$$_*.err > /tmp/$$.err
 rm -f /tmp/$$_*.err
-if [ ! -z /tmp/$$.err ]; then
+if [ -s /tmp/$$.err ]; then
 	cat /tmp/$$.err > /dev/stderr
 	rm -f /tmp/$$.err
 	exit 1
