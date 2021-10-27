@@ -7373,6 +7373,33 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if (strncmp(line,"#ifmissing",8)==0)
+	{
+		char *term = strchr(line+8,' ');
+		char value[1024];
+		char path[1024];
+		if (term==NULL)
+		{
+			syntax_error(filename,linenum,"#ifmissing macro missing term");
+			return FALSE;
+		}
+		while(isspace((unsigned char)(*term)))
+			++term;
+		//if (sscanf(term,"\"%[^\"\n]",value)==1 && find_file(value, NULL, 0)==NULL)
+		strcpy(value, strip_right_white(term));
+		if(value[0] == '"'){
+			char stripbuf[1024];
+			sscanf(value, "\"%[^\"\n]", stripbuf);
+			strcpy(value, stripbuf);
+		}
+		if (find_file(value, NULL, F_OK, path,sizeof(path))!=NULL)
+			suppress |= (1<<nesting);
+		macro_line[nesting] = linenum;
+		nesting++;
+		// @TODO push 'file' context
+		strcpy(line,"\n");
+		return TRUE;
+	}
 	else if (strncmp(line,"#ifndef",7)==0)
 	{
 		char *term = strchr(line+7,' ');
