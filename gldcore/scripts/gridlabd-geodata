@@ -14,6 +14,7 @@ OPTIONS
 
   [-C|--config [+]FILE]       load config file (use '+' appends to current
                               configuration)
+  [--clean]                   clean the cache files
   [-d|--debug]                enable debug output, including error traceback
   [-f|--format FORMAT]        change output format
   [--fieldsep STRING]         set the RAW output field separator
@@ -1263,10 +1264,11 @@ def main(argc,argv):
     if not PKGDATA or not os.path.exists(PKGDATA):
         warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
         PKGDATA = "/usr/local/share/gridlabd"
+    global CACHE
+    CACHE = f"{PKGDATA}/geodata"
     load_config(inplace=True)
     while n < len(argv):
         if argv[n] in ["-c","-cache"]:
-            global CACHE
             n += 1
             CACHE = argv[n]
             if not os.path.exists(CACHE):
@@ -1278,6 +1280,10 @@ def main(argc,argv):
             if not os.path.exists(argv[n]):
                 error(f"config file '{argv[n]}' not found",E_NOTFOUND)
             with open(argv[n],'r') as fh: update_values(OPTIONS,json.load(fh))
+        elif argv[n] in ["--clear"]:
+            import shutil
+            shutil.rmtree(CACHE,ignore_errors=True)
+            exit(E_OK)
         elif argv[n] in ["-d","--debug"]:
             OPTIONS['debug'] = True
             verbose("debug output enabled")
