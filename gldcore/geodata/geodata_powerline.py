@@ -402,7 +402,7 @@ def linesag(data):
     if ld:
         WARNING("ignoring waypoints after last pole")
 
-    return pandas.DataFrame(result.values(),index=result.keys())
+    return pandas.DataFrame(result.values(),columns=["linesag"],index=result.keys())["linesag"]
 
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         power_flow,global_horizontal_irradiance,ground_reflectance,
@@ -605,7 +605,7 @@ if __name__ == '__main__':
 
         def test_linesag(self):
             result = linesag(pandas.DataFrame(data))
-            self.assertEqual(result.round(1).to_list(),[18.0, 12.3, 20.0])
+            self.assertEqual(result.round(1).to_list(),[18.0, 9.3, 20.0])
 
         def test_linesway(self):
             result = linesway(pandas.DataFrame(data))
