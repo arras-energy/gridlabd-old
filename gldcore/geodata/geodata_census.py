@@ -270,7 +270,7 @@ def get_states(match="STUSPS",value=None,contains=None,config=default_config):
 
             # cache file is not available
             state_data = geopandas.read_file(f"zip://{states_file}.zip")
-            with open(f"{states_file}.gdf","wb") as f: pickle.dump(states,f)
+            with open(f"{states_file}.gdf","wb") as f: pickle.dump(state_data,f)
 
         else:
 
@@ -355,7 +355,7 @@ def get_zipcodes(zipcode=None,contains=None,config=default_config):
         # no search - return everything
         result = zipcode_data
 
-    with open(f"{config['cachedir']}/zipcode_result.last","w") as f: pickle.dump(result,f)
+    # with open(f"{config['cachedir']}/zipcode_result.last","w") as f: pickle.dump(result,f)
 
     return result
 
@@ -364,6 +364,7 @@ if __name__ == '__main__':
 
     import unittest
 
+    default_config['cachedir'] = "/tmp/geodata/census"
     os.makedirs(default_config['cachedir'],exist_ok=True)
 
     class TestStates(unittest.TestCase):
@@ -392,8 +393,8 @@ if __name__ == '__main__':
             result = get_zipcodes(contains=Point(-122.2,37.2))["GEOID10"][0]
             self.assertEqual(result,"95006")
 
-        def test_zipcodes(self):
-            self.assertEqual(len(get_zipcodes()),33144)
+        # def test_zipcodes(self):
+        #     self.assertEqual(len(get_zipcodes()),33144)
 
     unittest.main()
     # print("*** ZIPCODES ***\n",get_zipcodes("940"))
