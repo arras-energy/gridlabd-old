@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
         def test_address_reverse(self):
             test = DataFrame({
-                "address":["1600 Pennsylvania Ave, Washington, DC"],
+                "address":["The White House"],
                 })
             result = apply(test,{"reverse":True})
             self.assertEqual(round(result["latitude"][0],6),38.8977)
