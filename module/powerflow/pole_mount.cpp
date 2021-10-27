@@ -74,7 +74,11 @@ int pole_mount::init(OBJECT *parent)
         error("pole_mount must have a pole as parent object");
     }
 
-    if ( ! get_object(get_equipment())->isa("link") )
+    if ( get_object(get_equipment()) == NULL )
+    {
+        error("equipment is not specified");
+    }
+    else if ( ! get_object(get_equipment())->isa("link") )
     {
         warning("equipment is not a powerflow link object");
     }
