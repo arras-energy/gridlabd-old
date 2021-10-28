@@ -54,13 +54,17 @@ def syntax(code=None):
         print("  --ignore_location                 ignore node latitude/longitude when computer pole locations")
         print("  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)")
         print("  --pole_type=CONFIGURATION_NAME    set the pole type to use")
-        print("  --spacing=NUMBER                  set the pole spacing on overhead power lines")
+        print("  --spacing=NUMBER                  set the pole spacing in feet on overhead power lines")
     if type(code) is int:
         exit(code)
     elif code != None:
         raise Exception(f"error code '{code}' is not valid")
 
-def get_pole(model,name,pole_type):
+spacing = None
+pole_type = None
+
+def get_pole(model,name):
+    global pole_type
     if name not in model["objects"]:
         # print(f"adding pole {name}")
         model["objects"][name] = {
@@ -68,9 +72,10 @@ def get_pole(model,name,pole_type):
         }
     return model["objects"][name]
 
-def mount_line(model,pole,line,position,pole_type):
-    poledata = get_pole(model,pole,pole_type)
-    poledata[position] = {"class":"pole_mount","equipment":line}
+def mount_line(model,pole,line,position):
+    global spacing
+    poledata = get_pole(model,pole)
+    poledata[position] = {"class":"pole_mount","equipment":line,"pole_spacing":f"{spacing} ft"}
     return poledata
 
 def write_object(otype,name,data,output,indent_level=0):
@@ -91,12 +96,12 @@ def write_object(otype,name,data,output,indent_level=0):
 def main(inputfile,**options):
 
     # options
-    spacing = None
+    global spacing
+    global pole_type
     ignore_length = False
     ignore_location = False
     outputfile = "/dev/stdout"
     output = sys.stdout
-    pole_type = None
     for opt,value in options.items():
         if opt == "spacing":
             spacing = float(value)
@@ -156,10 +161,10 @@ def main(inputfile,**options):
             else:
                 length = None
                 warning(f"overhead_line '{name}' has no length information")
-            poles[f"pole_{fromname}"] = mount_line(model,f"pole_{fromname}",name,f"mount_{name}_{fromname}",pole_type)
+            poles[f"pole_{fromname}"] = mount_line(model,f"pole_{fromname}",name,f"mount_{name}_{fromname}")
             for position in range(int(spacing),int(length),int(spacing)):
-                poles[f"pole_{name}_{position}"] = mount_line(model,f"pole_{name}_{position}",name,f"mount_{name}_{position}",pole_type)
-            poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}",pole_type)
+                poles[f"pole_{name}_{position}"] = mount_line(model,f"pole_{name}_{position}",name,f"mount_{name}_{position}")
+            poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
     print("#library get pole_configuration.glm",file=output)
     print("#include \"${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm\"",file=output)
     for name,data in poles.items():
