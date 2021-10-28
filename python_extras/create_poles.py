@@ -43,14 +43,22 @@ def warning(msg):
     print(f"WARNING [create_poles]: {msg}",file=sys.stderr)
 
 def syntax(code=None):
-    if code == 0:
+    if not code:
         output = sys.stdout
     else:
         output = sys.stderr
     print(f"Syntax: gridlabd create_poles INPUTFILE [OPTIONS ...]",file=output)
+    if code == None:
+        print("Options:",file=output)
+        print("  --ignore_length                   ignore the line length when computing pole locations")
+        print("  --ignore_location                 ignore node latitude/longitude when computer pole locations")
+        print("  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)")
+        print("  --pole_type=CONFIGURATION_NAME    set the pole type to use")
+        print("  --spacing=NUMBER                  set the pole spacing on overhead power lines")
     if type(code) is int:
         exit(code)
-    raise Exception(f"error code '{code}' is not valid")
+    elif code != None:
+        raise Exception(f"error code '{code}' is not valid")
 
 def get_pole(model,name,pole_type):
     if name not in model["objects"]:
