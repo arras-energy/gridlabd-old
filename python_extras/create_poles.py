@@ -17,6 +17,7 @@ Python:
 """
 
 import sys, os, json
+from haversine import haversine, Unit
 
 def error(msg,code=None):
     print(f"ERROR [create_poles]: {msg}",file=sys.stderr)
@@ -61,8 +62,17 @@ def main(inputfile,**options):
             fromdata = objects[fromname]
             toname = data["to"]
             todata = objects[toname]
-            if "latitude" not in fromdata.keys() or "longitude" not in fromdata.keys() or "latitude" not in todata.keys() or "longitude" not in todata.keys():
-                warning(f"overhead_line '{name}' is missing location of either '{fromname}' or '{toname}' ")
+            if "latitude" in fromdata.keys() and \
+                "longitude" in fromdata.keys() and \
+                "latitude"  in todata.keys() and \
+                "longitude" in todata.keys():
+                length = haversine([float(fromdata["latitude"]),float(fromdata["longitude"])],
+                    [float(todata["latitude"]),float(todata["longitude"])],Unit.FEET)
+                if length != float(data["length"].split()[0]):
+                    warning(f"overhead_line '{name}' length '{float(data['length'].split()[0])}' does not match distance {length} from '{fromname}' to '{toname}' ")
+            else:
+                length = float(data["length"].split()[0])
+            print(f"{name}.length = {length}")
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
