@@ -61,7 +61,7 @@ $ gridlabd model.glm
 ~~~
 
 The python usage requires the options be provided as a keyword arguments where the leading `--` is
-omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network` is equivalent to `create_poles.main('example.glm',dict(output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True))`
+omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network` is equivalent to `create_poles.main('example.glm',output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True)`
 
 # See also
 
