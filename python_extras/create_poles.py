@@ -52,6 +52,7 @@ def syntax(code=None):
         print("Options:",file=output)
         print("  --ignore_length                   ignore the line length when computing pole locations")
         print("  --ignore_location                 ignore node latitude/longitude when computer pole locations")
+        print("  --include_network                 include the input network in the output GLM file")
         print("  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)")
         print("  --pole_type=CONFIGURATION_NAME    set the pole type to use")
         print("  --spacing=NUMBER                  set the pole spacing in feet on overhead power lines")
@@ -100,6 +101,7 @@ def main(inputfile,**options):
     global pole_type
     ignore_length = False
     ignore_location = False
+    include_network = False
     outputfile = "/dev/stdout"
     output = sys.stdout
     for opt,value in options.items():
@@ -109,6 +111,8 @@ def main(inputfile,**options):
             ignore_length = True
         elif opt == "ignore_location":
             ignore_location = True
+        elif opt == "include_network":
+            include_network = True
         elif opt == "output":
             outputfile = value
             output = open(outputfile,"wt")
@@ -165,6 +169,8 @@ def main(inputfile,**options):
             for position in range(int(spacing),int(length),int(spacing)):
                 poles[f"pole_{name}_{position}"] = mount_line(model,f"pole_{name}_{position}",name,f"mount_{name}_{position}")
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
+    if include_network:
+        print(f"#include \"{inputfile}\"",file=output)
     print("#library get pole_configuration.glm",file=output)
     print("#include \"${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm\"",file=output)
     for name,data in poles.items():
