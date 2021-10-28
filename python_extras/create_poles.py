@@ -28,7 +28,7 @@ SEE ALSO
     - Module powerflow pole and pole_mount
 """
 
-import sys, os, json
+import sys, os, json, datetime
 from haversine import haversine, Unit
 
 def error(msg,code=None):
@@ -169,6 +169,7 @@ def main(inputfile,**options):
             for position in range(int(spacing),int(length),int(spacing)):
                 poles[f"pole_{name}_{position}"] = mount_line(model,f"pole_{name}_{position}",name,f"mount_{name}_{position}")
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
+    print(f"// automatically generated model from command `{' '.join(sys.argv)}` on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')}",file=output)
     if include_network:
         print(f"#include \"{inputfile}\"",file=output)
     print("#library get pole_configuration.glm",file=output)
