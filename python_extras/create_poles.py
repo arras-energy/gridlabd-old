@@ -58,8 +58,8 @@ By default, the weather forecast data is linked based on location, if any, and t
 automatically set based on the forecast window.  If the `weather_name` option is provided, 
 all poles created will use the specified weather object, and the clock will not set.  If the 
 year` is specified, then the weather data for that year and location is used, and the clock 
-is set to run the entire year.  
-
+is set to run the entire year.  By default the timezone is determined from the locaiton, unless
+the `--timezone=TZSPEC` option is used to override it.
 
 SEE ALSO
 
@@ -116,6 +116,7 @@ def syntax(code=None):
         print("  --weather=NAME                    use named weather object",file=output)
         print("  --location=LAT,LON                specify the weather location",file=output)
         print("  --year=YEAR                       specify the weather year (default is forecasted)",file=output)
+        print("  --timezone=TZSPEC                 specify the timezone (default is based on location)")
     if type(code) is int:
         exit(code)
     elif code != None:
@@ -126,6 +127,7 @@ pole_type = None
 weather_name = None
 location = None
 year = None
+timezone = None
 
 def get_pole(model,name):
     """Find (and possibly create) specified pole in the model"""
@@ -148,8 +150,7 @@ def get_pole(model,name):
     elif location:
 
         # link weather based on location
-        lat,lon = list(map(lambda x:float(x),location.split(",")))
-        pole["weather"] = "weather@" + nsrdb_weather.geohash(lat,lon)
+        pole["weather"] = "weather@" + nsrdb_weather.geohash(*location)
 
     # try pole location, if any
     elif "latitude" in pole.keys() and "longitude" in pole.keys():
@@ -194,6 +195,7 @@ def main(inputfile,**options):
     global location
     global weather_name
     global year
+    global timezone
     ignore_length = False
     ignore_location = False
     include_network = False
@@ -217,11 +219,13 @@ def main(inputfile,**options):
         elif opt == "weather":
             weather_name = value
         elif opt == "location":
-            location = value
+            location = list(map(lambda x:float(x),value.split(",")))
         elif opt == "year":
-            year = value
+            year = int(value)
         elif opt == "format":
             output_format = value
+        elif opt == "timezone":
+            timezone = value
         else:
             raise Exception(f"options '{opt}={value}' is not valid")    
     if spacing == None:
@@ -302,12 +306,27 @@ def main(inputfile,**options):
     # write GLM output
     elif outputfile.endswith(".glm") or output_format == "GLM":
 
+
         # generate GLM data from model
         print(f"// automatically generated model from command `{' '.join(sys.argv)}` on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')}",file=output)
         if include_network:
             print(f"#include \"{inputfile}\"",file=output)
         print("#library get pole_configuration.glm",file=output)
         print("#include \"${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm\"",file=output)
+        # generate GLM clock
+        if year:
+            if not timezone:
+                # TODO: get timezone from location service
+                timezone = "PST+8PDT"
+                warning("location-based timezone is not implemented, timezone statically set to PST+8PDT")
+            starttime = datetime.datetime(year,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
+            stoptime = datetime.datetime(year+1,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
+            print("clock",file=output)
+            print("{",file=output)
+            print(f"  timezone \"{timezone}\";",file=output)
+            print(f"  starttime \"{starttime}\";",file=output)
+            print(f"  stoptime \"{stoptime}\";",file=output)
+            print("}",file=output)
         for name,data in poles.items():
             write_object("pole",name,data,output)
 
