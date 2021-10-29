@@ -52,6 +52,15 @@ is equivalent to
   >>> import create_poles
   >>> create_poles.main('example.glm',output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True,weather=example)
 
+WEATHER
+
+By default, the weather forecast data is linked based on location, if any, and the clock is 
+automatically set based on the forecast window.  If the `weather_name` option is provided, 
+all poles created will use the specified weather object, and the clock will not set.  If the 
+year` is specified, then the weather data for that year and location is used, and the clock 
+is set to run the entire year.  
+
+
 SEE ALSO
 
   - Module powerflow pole and pole_mount
