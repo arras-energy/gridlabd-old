@@ -5,33 +5,40 @@
 Shell:
 
 ~~~
-bash$ gridlabd create_poles FILENAME [OPTIONS ...]
+bash$ gridlabd create_poles INPUTFULE [OPTIONS ...]
 ~~~
 
 GLM:
 
 ~~~
-#create_poles FILENAME [OPTIONS ...]
+#create_poles INPUTFULE [OPTIONS ...]
 ~~~
 
 Python
 
 ~~~
 >>> import create_poles
->>> create_poles.main(inputfile,options)
+>>> create_poles.main(INPUTFULE,OPTIONS)
 ~~~
 
-Options:
+Output options
 
-* `--ignore_length`: ignore the line length when computing pole locations
-* `--ignore_location`: ignore node latitude/longitude when computer pole locations
-* `--include_network`: include the input network in the output GLM file
-* `--location=LAT,LON`: specify the weather location
-* `--output=GLMNAME`: set the output GLM file name (default is /dev/stdout)
-* `--pole_type=CONFIGURATION_NAME`: set the pole type to use
-* `--spacing=FEET`: set the pole spacing in feet on overhead power lines
-* `--weather=NAME`: specify the weather object name
-* `--year=YEAR`: specify the weather year (default is realtime forecast weather)
+  * --include_network                 include the input network in the output GLM file
+  * --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)
+  * --format={GLM,JSON}               specify the output format (default is GLM)
+
+Pole options:
+
+  * --ignore_length                   ignore the line length when computing pole locations
+  * --ignore_location                 ignore node latitude/longitude when computer pole locations
+  * --pole_type=CONFIGURATION_NAME    set the pole type to use
+  * --spacing=FEET                    set the pole spacing in feet on overhead power lines
+
+Weather options:
+
+  * --weather=NAME                    use named weather object
+  * --location=LAT,LON                specify the weather location
+  * --year=YEAR                       specify the weather year (default is forecasted)
 
 # Description
 
@@ -65,6 +72,10 @@ $ gridlabd model.glm
 
 The python usage requires the options be provided as a keyword arguments where the leading `--` is
 omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network` is equivalent to `create_poles.main('example.glm',output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True)`
+
+## Weather
+
+By default, the weather forecast data is linked based on location, if any, and the clock is automatically set based on the forecast window.  If the `weather_name` option is provided, all poles created will use the specified weather object, and the clock will not set.  If the`year` is specified, then the weather data for that year and location is used, and the clock is set to run the entire year.  
 
 # See also
 
