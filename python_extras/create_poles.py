@@ -129,6 +129,24 @@ location = None
 year = None
 timezone = None
 
+def get_timezone():
+    """Get local timezone based on how datetime works"""
+    tzlist = [
+        "EST+5EDT",
+        "CST+6CDT",
+        "MST+7MDT",
+        "PST+8PDT",
+        "AST+9ADT",
+        "HST+10HDT",
+        ]
+    now = datetime.datetime.now()
+    tz = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo.tzname(now)
+    for tzspec in tzlist:
+        if tz in tzspec:
+            return tzspec
+    return tz
+
+
 def get_pole(model,name):
     """Find (and possibly create) specified pole in the model"""
     global pole_type
@@ -316,16 +334,19 @@ def main(inputfile,**options):
         # generate GLM clock
         if year:
             if not timezone:
-                # TODO: get timezone from location service
-                timezone = "PST+8PDT"
-                warning("location-based timezone is not implemented, timezone statically set to PST+8PDT")
+                if not ignore_location:
+                    # TODO: get timezone from location service
+                    warning("location-based timezone is not implemented, timezone statically set to PST+8PDT")
+                    timezone = get_timezone()
+                else:
+                    timezone = get_timezone()
             starttime = datetime.datetime(year,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
             stoptime = datetime.datetime(year+1,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
             print("clock",file=output)
             print("{",file=output)
             print(f"  timezone \"{timezone}\";",file=output)
-            print(f"  starttime \"{starttime}\";",file=output)
-            print(f"  stoptime \"{stoptime}\";",file=output)
+            print(f"  starttime \"{starttime} {timezone[0:3]}\";",file=output)
+            print(f"  stoptime \"{stoptime} {timezone[0:3]}\";",file=output)
             print("}",file=output)
         for name,data in poles.items():
             write_object("pole",name,data,output)
