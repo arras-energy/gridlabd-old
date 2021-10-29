@@ -21,7 +21,7 @@ Python
 >>> create_poles.main(INPUTFULE,OPTIONS)
 ~~~
 
-Output options
+Output options:
 
   * --include_network                 include the input network in the output GLM file
   * --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)
