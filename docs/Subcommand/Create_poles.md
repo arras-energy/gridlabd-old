@@ -36,10 +36,11 @@ Pole options:
 
 Weather options:
 
-  * `--weather=NAME`                    use named weather object
+  * `--include_weather`                 include automatically downloaded weather for poles
   * `--location=LAT,LON`                specify the weather location
-  * `--year=YEAR`                       specify the weather year (default is forecasted)
   * `--timezone=TZSPEC`                 specify the timezone (overrides default based on location)
+  * `--weather_name=NAME`               use named weather object
+  * `--year=YEAR`                       specify the weather year (default is forecasted)
 
 # Description
 
@@ -76,7 +77,7 @@ omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm
 
 ## Weather
 
-By default, the weather forecast data is linked based on location, if any, and the clock is automatically set based on the forecast window.  If the `weather_name` option is provided, all poles created will use the specified weather object, and the clock will not set.  If the`year` is specified, then the weather data for that year and location is used, and the clock is set to run the entire year.  By default the timezone is determined from the locaiton, unless the `--timezone=TZSPEC` option is used to override it.
+If `--include_weather` is specified, then the weather forecast data is linked based on location, if any, and the clock is automatically set based on the weather window.  If the `--weather_name` option is provided, all poles created will use the specified weather object instead of using downloaded weather, and the clock will not set.  If the `--year` option is specified, then the historical weather data for that year and location is used, and the clock is set to run the entire year.  Without the `--year` specification, a realtime weather forecast is used, and the clock is set to the forecast window. By default the timezone is determined from the location, unless the `--timezone=TZSPEC` option is used to override it. If `--ignore_location` is specified, then the local system timezone specification is used.
 
 # See also
 
