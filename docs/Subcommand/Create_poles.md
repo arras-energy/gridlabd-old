@@ -25,10 +25,13 @@ Options:
 
 * `--ignore_length`: ignore the line length when computing pole locations
 * `--ignore_location`: ignore node latitude/longitude when computer pole locations
-* `--include_network`: nclude the input network in the output GLM file
+* `--include_network`: include the input network in the output GLM file
+* `--location=LAT,LON`: specify the weather location
 * `--output=GLMNAME`: set the output GLM file name (default is /dev/stdout)
 * `--pole_type=CONFIGURATION_NAME`: set the pole type to use
 * `--spacing=FEET`: set the pole spacing in feet on overhead power lines
+* `--weather=NAME`: specify the weather object name
+* `--year=YEAR`: specify the weather year (default is realtime forecast weather)
 
 # Description
 
@@ -68,3 +71,5 @@ omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm
 * [[/Module/Powerflow/Pole]]
 * [[/Module/Powerflow/Pole_mount]]
 * [[/Subcommand/Library]]
+* [[/Subcommand/Noaa_forecast]]
+* [[/Subcommand/Nsrdb_weather]]
