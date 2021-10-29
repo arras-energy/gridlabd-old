@@ -15,6 +15,26 @@ Python:
     >>> import create_poles
     >>> create_poles.main(INPUTFILE,OPTIONS ...)
 
+Output options:
+
+  --include_network                 include the input network in the output GLM file
+  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)
+  --format={GLM,JSON}               specify the output format (default is GLM)
+
+Pole options:
+
+  --ignore_length                   ignore the line length when computing pole locations
+  --ignore_location                 ignore node latitude/longitude when computer pole locations
+  --pole_type=CONFIGURATION_NAME    set the pole type to use
+  --spacing=FEET                    set the pole spacing in feet on overhead power lines
+
+Weather options:
+
+  --weather=NAME                    use named weather object
+  --location=LAT,LON                specify the weather location
+  --year=YEAR                       specify the weather year (default is forecasted)
+  --timezone=TZSPEC                 specify the timezone (overrides default based on location)
+
 DESCRIPTION
 
 The `create_poles` subcommand automatically generates a pole model for a network model and
@@ -98,25 +118,13 @@ def syntax(code=None):
         - ValueError          Type of code is not int or None
     """
     if not code:
-        output = sys.stdout
+        output = (lambda x: print(x,file=sys.stdout))
     else:
-        output = sys.stderr
-    print(f"Syntax: gridlabd create_poles INPUTFILE [OPTIONS ...]",file=output)
+        output = (lambda x: print(x,file=sys.stderr))
     if code == None:
-        print("Output options:",file=output)
-        print("  --include_network                 include the input network in the output GLM file",file=output)
-        print("  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)",file=output)
-        print("  --format={GLM,JSON}               specify the output format (default is GLM)",file=output)
-        print("Pole options:",file=output)
-        print("  --ignore_length                   ignore the line length when computing pole locations",file=output)
-        print("  --ignore_location                 ignore node latitude/longitude when computer pole locations",file=output)
-        print("  --pole_type=CONFIGURATION_NAME    set the pole type to use",file=output)
-        print("  --spacing=FEET                    set the pole spacing in feet on overhead power lines",file=output)
-        print("Weather options:",file=output)
-        print("  --weather=NAME                    use named weather object",file=output)
-        print("  --location=LAT,LON                specify the weather location",file=output)
-        print("  --year=YEAR                       specify the weather year (default is forecasted)",file=output)
-        print("  --timezone=TZSPEC                 specify the timezone (default is based on location)")
+        output(__doc__)
+    else:
+        output(f"Syntax: gridlabd create_poles INPUTFILE OPTIONS ...")
     if type(code) is int:
         exit(code)
     elif code != None:
