@@ -5,13 +5,13 @@
 Shell:
 
 ~~~
-bash$ gridlabd create_poles INPUTFULE [OPTIONS ...]
+bash$ gridlabd create_poles INPUTFULE OPTIONS ...
 ~~~
 
 GLM:
 
 ~~~
-#create_poles INPUTFULE [OPTIONS ...]
+#create_poles INPUTFULE OPTIONS ...
 ~~~
 
 Python
