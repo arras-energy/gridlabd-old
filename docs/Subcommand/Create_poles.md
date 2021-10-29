@@ -39,6 +39,7 @@ Weather options:
   * --weather=NAME                    use named weather object
   * --location=LAT,LON                specify the weather location
   * --year=YEAR                       specify the weather year (default is forecasted)
+  * --timezone=TZSPEC                 specify the timezone (overrides default based on location)
 
 # Description
 
@@ -75,7 +76,7 @@ omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm
 
 ## Weather
 
-By default, the weather forecast data is linked based on location, if any, and the clock is automatically set based on the forecast window.  If the `weather_name` option is provided, all poles created will use the specified weather object, and the clock will not set.  If the`year` is specified, then the weather data for that year and location is used, and the clock is set to run the entire year.  
+By default, the weather forecast data is linked based on location, if any, and the clock is automatically set based on the forecast window.  If the `weather_name` option is provided, all poles created will use the specified weather object, and the clock will not set.  If the`year` is specified, then the weather data for that year and location is used, and the clock is set to run the entire year.  By default the timezone is determined from the locaiton, unless the `--timezone=TZSPEC` option is used to override it.
 
 # See also
 
