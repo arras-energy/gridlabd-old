@@ -17,38 +17,60 @@ Python:
 
 Output options:
 
-  --include_network                 include the input network in the output GLM file
-  --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)
-  --format={GLM,JSON}               specify the output format (default is GLM)
+  --include_network                 include the input network in the output
+                                    GLM file
+  
+  --output=GLMNAME                  set the output GLM file name
+                                    (default is /dev/stdout)
+  
+  --format={GLM,JSON}               specify the output format (default is
+                                    GLM)
 
 Pole options:
 
-  --ignore_length                   ignore the line length when computing pole locations
-  --ignore_location                 ignore node latitude/longitude when computer pole locations
+  --ignore_length                   ignore the line length when computing pole
+                                    locations
+  
+  --ignore_location                 ignore node latitude/longitude when
+                                    computer pole locations
+  
   --pole_type=CONFIGURATION_NAME    set the pole type to use
-  --spacing=FEET                    set the pole spacing in feet on overhead power lines
+  
+  --spacing=FEET                    set the pole spacing in feet on overhead
+                                    power lines
 
 Weather options:
 
   --weather=NAME                    use named weather object
+  
   --location=LAT,LON                specify the weather location
-  --year=YEAR                       specify the weather year (default is forecasted)
-  --timezone=TZSPEC                 specify the timezone (overrides default based on location)
+  
+  --year=YEAR                       specify the weather year
+  
+  --timezone=TZSPEC                 specify the timezone (overrides default
+                                    based on location)
+  
+  --include_weather                 obtain weather data for the year specified
+                                    or realtime forecast
 
 DESCRIPTION
 
-The `create_poles` subcommand automatically generates a pole model for a network model and
-mounts the overhead lines and equipment to the newly created poles.  The output is written to
-`/dev/stdout` unless the `--output=GLMNAME` option is given.
+The `create_poles` subcommand automatically generates a pole model for a
+network model and mounts the overhead lines and equipment to the newly
+created poles.  The output is written to `/dev/stdout` unless the
+`--output=GLMNAME` option is given.
 
-The `--pole_type=CONFIGURATION_NAME` and `--spacing=FEET` options are required.  Configuration names
-may be obtained from the `pole_configuration.glm` library (see [[/Subcommand/Library]] for details
-on using libraries.
+The `--pole_type=CONFIGURATION_NAME` and `--spacing=FEET` options are
+required.  Configuration names may be obtained from the
+`pole_configuration.glm` library (see [[/Subcommand/Library]] for details on
+using libraries.
 
-Some network models include latitude and longitude information.  When this information is present,
-the line length information checked.  If there is a discrepancy between these, a warning is printed
-and the latitude/longitude information is used.  The `--ignore_length` option will suppress this
-warning. The `--ignore_location` warning will cause the model to use the line length data instead.
+Some network models include latitude and longitude information.  When this
+information is present, the line length information checked.  If there is a
+discrepancy between these, a warning is printed and the latitude/longitude
+information is used.  The `--ignore_length` option will suppress this
+warning. The `--ignore_location` warning will cause the model to use the line
+length data instead.
 
 The `--include_network` adds a `#include "FILENAME"` directive in the output to ensure that the 
 resulting GLM file contains all the objects required to run the simulation, e.g.,
@@ -74,12 +96,17 @@ is equivalent to
 
 WEATHER
 
-By default, the weather forecast data is linked based on location, if any, and the clock is 
-automatically set based on the forecast window.  If the `weather_name` option is provided, 
-all poles created will use the specified weather object, and the clock will not set.  If the 
-year` is specified, then the weather data for that year and location is used, and the clock 
-is set to run the entire year.  By default the timezone is determined from the locaiton, unless
-the `--timezone=TZSPEC` option is used to override it.
+If `--include_weather` is specified, then the weather forecast data is linked
+based on location, if any, and the clock is automatically set based on the
+weather window.  If the `--weather_name` option is provided, all poles
+created will use the specified weather object instead of using downloaded
+weather, and the clock will not set.  If the `--year` option is specified,
+then the historical weather data for that year and location is used, and the
+clock is set to run the entire year.  Without the `--year` specification, a
+realtime weather forecast is used, and the clock is set to the forecast
+window. By default the timezone is determined from the location, unless the
+`--timezone=TZSPEC` option is used to override it. If `--ignore_location` is
+specified, then the local system timezone specification is used.
 
 SEE ALSO
 
@@ -89,7 +116,7 @@ SEE ALSO
 
 import sys, os, json, datetime
 from haversine import haversine, Unit
-import nsrdb_weather
+import nsrdb_weather, noaa_forecast
 
 def error(msg,code=None):
     """Display error message and exit with code"""
@@ -136,6 +163,7 @@ weather_name = None
 location = None
 year = None
 timezone = None
+weather_locations = []
 
 def get_timezone():
     """Get local timezone based on how datetime works"""
@@ -153,7 +181,6 @@ def get_timezone():
         if tz in tzspec:
             return tzspec
     return tz
-
 
 def get_pole(model,name):
     """Find (and possibly create) specified pole in the model"""
@@ -182,6 +209,8 @@ def get_pole(model,name):
     elif "latitude" in pole.keys() and "longitude" in pole.keys():
         lat = float(pole["latitude"].split()[0])
         lon = float(pole["longitude"].split()[0])
+        if (lat,lon) not in weather_locations:
+            weather_locations.append((lat,lon))
         pole["weather"] = "weather@" + nsrdb_weather.geohash(lat,lon)
 
     # no weather
@@ -225,6 +254,7 @@ def main(inputfile,**options):
     ignore_length = False
     ignore_location = False
     include_network = False
+    include_weather = False
     outputfile = "/dev/stdout"
     output_format = "GLM"
     output = sys.stdout
@@ -237,6 +267,8 @@ def main(inputfile,**options):
             ignore_location = True
         elif opt == "include_network":
             include_network = True
+        elif opt == "include_weather":
+            include_weather = True
         elif opt == "output":
             outputfile = value
             output = open(outputfile,"wt")
@@ -325,6 +357,20 @@ def main(inputfile,**options):
             # place last pole
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
 
+    # add weather data and player
+    if include_weather and weather_locations:
+
+        # download NSRDB weather
+        if year:
+
+            warning("historical weather not supported yet")
+
+        # download NOAA forecast
+        else:
+
+
+            warning("forecast weather not supported yet")
+
     # write JSON output
     if outputfile.endswith(".json") or output_format == "JSON":
         json.dump(model,output,indent=4)
@@ -332,13 +378,13 @@ def main(inputfile,**options):
     # write GLM output
     elif outputfile.endswith(".glm") or output_format == "GLM":
 
-
         # generate GLM data from model
         print(f"// automatically generated model from command `{' '.join(sys.argv)}` on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')}",file=output)
         if include_network:
             print(f"#include \"{inputfile}\"",file=output)
         print("#library get pole_configuration.glm",file=output)
         print("#include \"${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm\"",file=output)
+        
         # generate GLM clock
         if year:
             if not timezone:
@@ -356,8 +402,12 @@ def main(inputfile,**options):
             print(f"  starttime \"{starttime} {timezone[0:3]}\";",file=output)
             print(f"  stoptime \"{stoptime} {timezone[0:3]}\";",file=output)
             print("}",file=output)
+
+        # generate GLM pole data
         for name,data in poles.items():
             write_object("pole",name,data,output)
+
+        # generate weather and player
 
     else:
         error(f"output format '{output_format}' is not valid",1)
