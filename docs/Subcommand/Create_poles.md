@@ -23,23 +23,23 @@ Python
 
 Output options:
 
-  * --include_network                 include the input network in the output GLM file
-  * --output=GLMNAME                  set the output GLM file name (default is /dev/stdout)
-  * --format={GLM,JSON}               specify the output format (default is GLM)
+  * `--include_network`                 include the input network in the output GLM file
+  * `--output=GLMNAME`                  set the output GLM file name (default is /dev/stdout)
+  * `--format={GLM,JSON}`               specify the output format (default is GLM)
 
 Pole options:
 
-  * --ignore_length                   ignore the line length when computing pole locations
-  * --ignore_location                 ignore node latitude/longitude when computer pole locations
-  * --pole_type=CONFIGURATION_NAME    set the pole type to use
-  * --spacing=FEET                    set the pole spacing in feet on overhead power lines
+  * `--ignore_length`                   ignore the line length when computing pole locations
+  * `--ignore_location`                 ignore node latitude/longitude when computer pole locations
+  * `--pole_type=CONFIGURATION_NAME`    set the pole type to use
+  * `--spacing=FEET`                    set the pole spacing in feet on overhead power lines
 
 Weather options:
 
-  * --weather=NAME                    use named weather object
-  * --location=LAT,LON                specify the weather location
-  * --year=YEAR                       specify the weather year (default is forecasted)
-  * --timezone=TZSPEC                 specify the timezone (overrides default based on location)
+  * `--weather=NAME`                    use named weather object
+  * `--location=LAT,LON`                specify the weather location
+  * `--year=YEAR`                       specify the weather year (default is forecasted)
+  * `--timezone=TZSPEC`                 specify the timezone (overrides default based on location)
 
 # Description
 
