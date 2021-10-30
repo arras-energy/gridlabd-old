@@ -102,6 +102,25 @@ is equivalent to
   $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 \
     --pole_type=WOOD-EC-45/4 --include_network  --weather=example
 
+DEFAULT PROPERTIES
+
+Pole and pole_mount objects are created with the following default
+properties:
+
+  * pole
+    - install_year: 2000
+    - tilt_angle: 0 deg
+    - tilt_direction: 0 deg
+  * pole_mount
+    height: 40 ft
+    offset: 0 ft
+    area: 0 sf
+    direction: 0 deg
+    weight: 0 lb
+
+The properties may be set at the command line using the option
+`--TYPE.PROPERTY=VALUE`, e.g. `--pole.install_year=2010`.
+
 WEATHER
 
 If `--include_weather` is specified, then the weather forecast data is linked
@@ -177,6 +196,20 @@ location = None
 year = None
 timezone = None
 weather_locations = []
+properties = {
+    "pole" : dict(
+        install_year = "2000",
+        tilt_angle = "0 deg",
+        tilt_direction = "0 deg",
+        ),
+    "pole_mount" : dict(
+        height = "40 ft",
+        offset = "0 ft",
+        area = "0 sf",
+        direction = "0 deg",
+        weight = "0 lb",
+        ),
+    }
 
 def get_timezone():
     """Get local timezone based on how datetime works"""
@@ -230,6 +263,7 @@ def get_pole(model,name):
     else:
         error(f"unable to identify weather for pole '{name}', missing required location information",2)
 
+    pole.update(properties["pole"])
     return model["objects"][name]
 
 def mount_line(model,pole,line,position):
@@ -237,6 +271,7 @@ def mount_line(model,pole,line,position):
     global spacing
     poledata = get_pole(model,pole)
     poledata[position] = {"class":"pole_mount","equipment":line,"pole_spacing":f"{spacing} ft"}
+    poledata[position].update(properties["pole_mount"])
     return poledata
 
 def write_object(otype,name,data,output,indent_level=0):
@@ -301,7 +336,13 @@ def main(inputfile,**options):
         elif opt == "timezone":
             timezone = value
         else:
-            raise Exception(f"options '{opt}={value}' is not valid")    
+            found = False
+            for otype in properties.keys():
+                if opt.startswith(otype+"."):
+                    properties[otype][opt.split(".")[1]] = value
+                    found = True
+            if not found:
+                raise Exception(f"options '{opt}={value}' is not valid")    
     if spacing == None:
         raise Exception("option for spacing is required")
     if pole_type == None:
