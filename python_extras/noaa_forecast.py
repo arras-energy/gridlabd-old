@@ -143,10 +143,10 @@ def getforecast(lat,lon):
     df.index.name = "datetime"
     return df
 
-def writeglm(data, glm=sys.stdout, name=None, csv=None):
+def writeglm(data, glm=sys.stdout, name=None, csv="/dev/stdout",download_now=True):
     """Write weather object based on NOAA forecast"""
     if glm:
-        if csv == None:
+        if csv == 'auto':
             if type(glm) is str:
                 csv = glm.replace(".glm",".csv")
             else:
@@ -167,11 +167,10 @@ def writeglm(data, glm=sys.stdout, name=None, csv=None):
         glm.write(f"\t\tproperty \"{','.join(data.columns)}\";\n")
         glm.write("\t};\n")
         glm.write("}\n")
-        data.to_csv(csv,header=False,float_format=float_format,date_format=date_format)
+        if download_now:
+            data.to_csv(csv,header=False,float_format=float_format,date_format=date_format)
     elif csv:
         data.to_csv(csv,header=True,float_format=float_format,date_format=date_format)
-    else:
-        data.to_csv("/dev/stdout",header=True,float_format=float_format,date_format=date_format)
 
 if __name__ == "__main__":
     def error(msg,code=None):
