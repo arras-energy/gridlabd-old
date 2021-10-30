@@ -41,11 +41,13 @@ Pole options:
 
 Weather options:
 
-  --weather=NAME                    use named weather object
+  --weather=NAME                    name the weather object and do not
+                                    download any weather data
   
   --location=LAT,LON                specify the weather location
   
-  --year=YEAR                       specify the weather year
+  --year=YEAR                       specify the weather year to use
+                                    (default to use forecast weather)
   
   --timezone=TZSPEC                 specify the timezone (overrides default
                                     based on location)
@@ -72,27 +74,33 @@ information is used.  The `--ignore_length` option will suppress this
 warning. The `--ignore_location` warning will cause the model to use the line
 length data instead.
 
-The `--include_network` adds a `#include "FILENAME"` directive in the output to ensure that the 
-resulting GLM file contains all the objects required to run the simulation, e.g.,
+The `--include_network` adds a `#include "FILENAME"` directive in the output
+to ensure that the resulting GLM file contains all the objects required to
+run the simulation, e.g.,
 
-  $ gridlabd create_poles example.glm --output=model.glm --spacing=100 --pole_type=WOOD-EC-45/4 --weather=example
+  $ gridlabd create_poles example.glm --output=model.glm --spacing=100 \
+    --pole_type=WOOD-EC-45/4 --weather=example
   $ gridlabd example.glm model.glm
 
-Alternative, when the input is a GLM, the two GLM files can be used together in a single command, e.g.,
+Alternative, when the input is a GLM, the two GLM files can be used together
+in a single command, e.g.,
 
-  $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network --weather=example
+  $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 \
+    --pole_type=WOOD-EC-45/4 --include_network --weather=example
   $ gridlabd model.glm
 
-The python usage requires the options be provided as a keyword arguments where the leading `--` is
-omitted, e.g., the command 
-
-  $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network  --weather=example
-
-is equivalent to
+The python usage requires the options be provided as a keyword arguments where
+the leading `--` is omitted, e.g., the command 
 
   >>> gridlabd python
   >>> import create_poles
-  >>> create_poles.main('example.glm',output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True,weather=example)
+  >>> create_poles.main('example.glm',output='model.glm',spacing=100,\
+      pole_type='WOOD-EC-45/4',include_network=True,weather=example)
+
+is equivalent to
+
+  $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 \
+    --pole_type=WOOD-EC-45/4 --include_network  --weather=example
 
 WEATHER
 
@@ -108,13 +116,18 @@ window. By default the timezone is determined from the location, unless the
 `--timezone=TZSPEC` option is used to override it. If `--ignore_location` is
 specified, then the local system timezone specification is used.
 
+CAVEAT
+
+When saving to JSON, only the new pole data is included.  Options that
+change the clock or include networks and weather are ignored.
+
 SEE ALSO
 
   - Module powerflow pole and pole_mount
   - Subcommand nsrdb_weather and noaa_forecast
 """
 
-import sys, os, json, datetime
+import sys, os, json, datetime, subprocess
 from haversine import haversine, Unit
 import nsrdb_weather, noaa_forecast
 
@@ -215,7 +228,7 @@ def get_pole(model,name):
 
     # no weather
     else:
-        warning(f"unable to identify weather for pole '{name}'")
+        error(f"unable to identify weather for pole '{name}', missing required location information",2)
 
     return model["objects"][name]
 
@@ -342,13 +355,13 @@ def main(inputfile,**options):
                         if ignore_length:
 
                             # use length based on lat/lon
-                            length = dist
+                            abs(length-dist) > spacing/2
 
                         # don't ignore length
                         else:
 
                             # print a warning
-                            warning(f"overhead_line '{name}' length '{float(data['length'].split()[0])}' does not match distance {length} from '{fromname}' to '{toname}' ")
+                            warning(f"overhead_line '{name}' length '{float(data['length'].split()[0])}' not within {spacing/2} ft of distance {length} from '{fromname}' to '{toname}' ")
 
             # place first pole
             poles[f"pole_{fromname}"] = mount_line(model,f"pole_{fromname}",name,f"mount_{name}_{fromname}")
@@ -360,54 +373,32 @@ def main(inputfile,**options):
             # place last pole
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
 
-    # add weather data and player
-    weather_data = None
-    weather
-    if include_weather:
-
-        # download NSRDB weather
-        if not weather_locations:
-
-            warning("cannot include whether because the model does not contain location information")
-
-        elif year:
-
-            for latlon in weather_locations:
-                weather_name = "weather@" + nsrdb_weather.geohash(*latlon)
-                weather_data = nsrdb_weather.getyears(year.split(","),*latlon)
-                nsrdb_weather.writeglm(weather_data,glm=output,name=weather_name,csv=weather_name+".csv")
-
-        # download NOAA forecast
-        else:
-
-            for latlon in weather_locations:
-                weather_name = "weather@" + nsrdb_weather.geohash(*latlon)
-                weather_data = noaa_forecast.getforecast(*latlon)
-                noaa_forecast.writeglm(weather_data,glm=output,name=weather_name,csv=weather_name+".csv")
-
-    # write JSON output
-    if outputfile.endswith(".json") or output_format == "JSON":
-        json.dump(model,output,indent=4)
-
     # write GLM output
-    elif outputfile.endswith(".glm") or output_format == "GLM":
+    if outputfile.endswith(".glm") or output_format == "GLM":
 
         # generate GLM data from model
         print(f"// automatically generated model from command `{' '.join(sys.argv)}` on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')}",file=output)
         if include_network:
             print(f"#include \"{inputfile}\"",file=output)
-        print("#library get pole_configuration.glm",file=output)
-        print("#include \"${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm\"",file=output)
+        rc = subprocess.run("gridlabd library get pole_configuration.glm".split())
+        if rc.returncode:
+            warning("pole configuration library not found")
+        rc = subprocess.run("gridlabd library config get DATADIR".split(),capture_output=True)
+        print(f"#include \"{rc.stdout.decode().strip()}/pole_configuration.glm\"",file=output)
         
         # generate GLM clock
         if year:
             if not timezone:
                 if not ignore_location:
                     # TODO: get timezone from location service
-                    warning("location-based timezone is not implemented, timezone statically set to PST+8PDT")
                     timezone = get_timezone()
+                    warning(f"location-based timezone is not implemented, using default '{timezone}'")
                 else:
                     timezone = get_timezone()
+                if timezone != model["clock"]["timezone"]:
+                    fix_timezones(model)
+            else:
+                timezone = model["clock"]["timezone"]
             starttime = datetime.datetime(year,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
             stoptime = datetime.datetime(year+1,1,1,0,0,0).strftime("%Y-%m-%d %H:%M:%S")
             print("clock",file=output)
@@ -417,11 +408,46 @@ def main(inputfile,**options):
             print(f"  stoptime \"{stoptime} {timezone[0:3]}\";",file=output)
             print("}",file=output)
 
+        # add weather data and player
+        if include_weather:
+
+            # download NSRDB weather
+            if not weather_locations:
+
+                error("cannot include weather because the model does not contain location information",2)
+
+            elif year:
+
+                for latlon in weather_locations:
+                    weather_name = "weather@" + nsrdb_weather.geohash(*latlon)
+                    weather_data = nsrdb_weather.getyears(year.split(","),*latlon)
+                    nsrdb_weather.writeglm(weather_data,glm=output,name=weather_name,csv=weather_name+".csv")
+
+            # download NOAA forecast
+            else:
+
+                for latlon in weather_locations:
+                    weather_name = "weather_" + nsrdb_weather.geohash(*latlon)
+                    glmname = weather_name + ".glm"
+                    csvname = weather_name + ".csv"
+                    print(f"#python -m noaa_forecast -p={latlon[0]},{latlon[1]} -i=60 -g={glmname} -c={csvname} -n={weather_name}",file=output)
+                    print(f"#include \"{glmname}\"",file=output)
+
         # generate GLM pole data
         for name,data in poles.items():
             write_object("pole",name,data,output)
 
         # generate weather and player
+
+    # write JSON output
+    elif outputfile.endswith(".json") or output_format == "JSON":
+        if include_network:
+            warning(f"option '--include_network' is ignored when using output format '{output_format}'")
+        if include_weather:
+            warning(f"option '--include_weather' is ignored when using output format '{output_format}'")
+        if year or timezone:
+            warning(f"options '--year' and '--timezone' are ignored when using output format '{output_format}'")            
+        json.dump(model,output,indent=4)
 
     else:
         error(f"output format '{output_format}' is not valid",1)
