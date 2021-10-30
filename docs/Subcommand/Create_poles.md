@@ -75,6 +75,23 @@ $ gridlabd model.glm
 The python usage requires the options be provided as a keyword arguments where the leading `--` is
 omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm  --spacing=100 --pole_type=WOOD-EC-45/4 --include_network` is equivalent to `create_poles.main('example.glm',output='model.glm',spacing=100,pole_type='WOOD-EC-45/4',include_network=True)`
 
+## Default properties
+
+Pole and pole_mount objects are created with the following default properties:
+
+  * pole
+    - install_year: 2000
+    - tilt_angle: 0 deg
+    - tilt_direction: 0 deg
+  * pole_mount
+    height: 40 ft
+    offset: 0 ft
+    area: 0 sf
+    direction: 0 deg
+    weight: 0 lb
+
+The properties may be set at the command line using the option `--TYPE.PROPERTY=VALUE`, e.g. `--pole.install_year=2010`.
+
 ## Weather
 
 If `--include_weather` is specified, then the weather forecast data is linked based on location, if any, and the clock is automatically set based on the weather window.  If the `--weather_name` option is provided, all poles created will use the specified weather object instead of using downloaded weather, and the clock will not set.  If the `--year` option is specified, then the historical weather data for that year and location is used, and the clock is set to run the entire year.  Without the `--year` specification, a realtime weather forecast is used, and the clock is set to the forecast window. By default the timezone is determined from the location, unless the `--timezone=TZSPEC` option is used to override it. If `--ignore_location` is specified, then the local system timezone specification is used.
