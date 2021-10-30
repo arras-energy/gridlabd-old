@@ -79,6 +79,13 @@ omitted, e.g., the command `gridlabd create_poles example.glm --output=model.glm
 
 If `--include_weather` is specified, then the weather forecast data is linked based on location, if any, and the clock is automatically set based on the weather window.  If the `--weather_name` option is provided, all poles created will use the specified weather object instead of using downloaded weather, and the clock will not set.  If the `--year` option is specified, then the historical weather data for that year and location is used, and the clock is set to run the entire year.  Without the `--year` specification, a realtime weather forecast is used, and the clock is set to the forecast window. By default the timezone is determined from the location, unless the `--timezone=TZSPEC` option is used to override it. If `--ignore_location` is specified, then the local system timezone specification is used.
 
+# Caveat
+
+When saving to JSON, only the new pole data is included.  Options that
+change the clock or include networks and weather are ignored.
+
+The `create_poles` subcommand is a python extra command. It is not supported directly using the `#subcommand` macro.  To use python extras as subcommand, use the `#gridlabd` macro instead.
+
 # See also
 
 * [[/Module/Powerflow/Pole]]
