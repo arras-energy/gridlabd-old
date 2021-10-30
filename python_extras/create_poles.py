@@ -251,6 +251,7 @@ def main(inputfile,**options):
     global weather_name
     global year
     global timezone
+    global weather_locations
     ignore_length = False
     ignore_location = False
     include_network = False
@@ -278,6 +279,8 @@ def main(inputfile,**options):
             weather_name = value
         elif opt == "location":
             location = list(map(lambda x:float(x),value.split(",")))
+            if not location in weather_locations:
+                weather_locations.append(location)
         elif opt == "year":
             year = int(value)
         elif opt == "format":
@@ -358,18 +361,29 @@ def main(inputfile,**options):
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
 
     # add weather data and player
-    if include_weather and weather_locations:
+    weather_data = None
+    weather
+    if include_weather:
 
         # download NSRDB weather
-        if year:
+        if not weather_locations:
 
-            warning("historical weather not supported yet")
+            warning("cannot include whether because the model does not contain location information")
+
+        elif year:
+
+            for latlon in weather_locations:
+                weather_name = "weather@" + nsrdb_weather.geohash(*latlon)
+                weather_data = nsrdb_weather.getyears(year.split(","),*latlon)
+                nsrdb_weather.writeglm(weather_data,glm=output,name=weather_name,csv=weather_name+".csv")
 
         # download NOAA forecast
         else:
 
-
-            warning("forecast weather not supported yet")
+            for latlon in weather_locations:
+                weather_name = "weather@" + nsrdb_weather.geohash(*latlon)
+                weather_data = noaa_forecast.getforecast(*latlon)
+                noaa_forecast.writeglm(weather_data,glm=output,name=weather_name,csv=weather_name+".csv")
 
     # write JSON output
     if outputfile.endswith(".json") or output_format == "JSON":
