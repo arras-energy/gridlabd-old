@@ -36,8 +36,9 @@ Pole options:
   
   --pole_type=CONFIGURATION_NAME    set the pole type to use
 
-  --properties=PROPERTIES_CSV       use CSV list of pole/mount properties for
-                                    lines
+  --pole_data=POLEDATA_CSV          use CSV data of pole properties
+
+  --mount_data=MOUNTDATA_CSV        use CSV data for equipment and line mounts
   
   --spacing=FEET                    set the pole spacing in feet on overhead
                                     power lines
@@ -124,10 +125,11 @@ properties:
 The properties may be set at the command line using the option
 `--TYPE.PROPERTY=VALUE`, e.g. `--pole.install_year=2010`.
 
-Properties may be associated with pole and mounts on specific lines using
-the `--properties=PROPERTIES_CSV` option.  The format of the CSV files must
-always include the line name in the `name` column and the property values 
-in columns using the property name.  For example,
+Properties may be associated with pole and mounts on specific lines using the
+`--pole_data=POLEDATA_CSV` options and `--mount_data=MOUNTDATA_CSV`.  The
+format of the CSV files must always include the line name in the `name`
+column and the property values in columns using the property name.  For
+example,
 
   name,install_year,tilt_angle
   overhead_line1,2010,0
@@ -229,6 +231,9 @@ properties = {
         ),
     }
 property_data = {}
+equipment_data = {}
+pole_nodes = {}
+short_line_length = 10
 
 def get_timezone():
     """Get local timezone based on how datetime works"""
@@ -249,6 +254,9 @@ def get_timezone():
 
 def get_pole(model,name,line):
     """Find (and possibly create) specified pole in the model"""
+    if name in pole_nodes.keys():
+        return get_pole(model,pole_nodes[name],line)
+
     global pole_type
     if name not in model["objects"]:
         
@@ -298,8 +306,23 @@ def mount_line(model,pole,line,position):
     poledata = get_pole(model,pole,line)
     poledata[position] = {"class":"pole_mount","equipment":line,"pole_spacing":f"{spacing} ft"}
     poledata[position].update(properties["pole_mount"])
-    if line in property_data.keys():
-        for prop,value in property_data[line].items():
+    # if line in property_data.keys():
+    #     for prop,value in property_data[line].items():
+    #         if prop in poledata[position].keys():
+    #             if value in [None] or (type(value) is float and math.isnan(value)):
+    #                 del poledata[position][prop]
+    #             else:
+    #                 poledata[position][prop] = value
+    return poledata
+
+def mount_equipment(model,pole,name,position):
+    """Connect line to pole"""
+    global spacing
+    poledata = get_pole(model,pole,name)
+    poledata[position] = {"class":"pole_mount","equipment":name,"pole_spacing":f"{spacing} ft"}
+    poledata[position].update(properties["pole_mount"])
+    if name in equipment_data.keys():
+        for prop,value in equipment_data[name].items():
             if prop in poledata[position].keys():
                 if value in [None] or (type(value) is float and math.isnan(value)):
                     del poledata[position][prop]
@@ -368,8 +391,10 @@ def main(inputfile,**options):
             output_format = value
         elif opt == "timezone":
             timezone = value
-        elif opt == "properties":
+        elif opt == "pole_data":
             property_data.update(pandas.read_csv(value,index_col=["name"],dtype=str,na_values='').to_dict('index'))
+        elif opt == "mount_data":
+            equipment_data.update(pandas.read_csv(value,index_col=["name"],dtype=str,na_values='').to_dict('index'))
         else:
             found = False
             for otype in properties.keys():
@@ -397,14 +422,29 @@ def main(inputfile,**options):
     with open(jsonfile,"r") as f:
         model = json.load(f)
 
-    # process overhead lines in model
+    # process pole-mounted equipment in model and short lines
     objects = model["objects"]
     poles = {}
+    global pole_nodes
     for name in list(objects.keys()):
         data = model["objects"][name]
+        if "from" in data.keys() and "to" in data.keys() and \
+                ( not "length" in data.keys() or int(data["length"].split()[0]) < short_line_length ):
+            fromname = data["from"]
+            toname = data["to"]
 
-        # overhead line
-        if data["class"] in ["overhead_line"]:
+            # add pole to shared node list
+            if not toname in pole_nodes.keys():
+                pole_nodes[toname] = []
+            pole_nodes[toname].append(fromname)
+
+            # mount equipment on pole
+            poles[f"pole_{fromname}"] = mount_equipment(model,f"pole_{fromname}",name,f"mount_{name}")
+
+    # process overhead lines in model
+    for name in list(objects.keys()):
+        data = model["objects"][name]
+        if "class" in data.keys() and data["class"] == "overhead_line":
             length = float(data["length"].split()[0])
             fromname = data["from"]
             toname = data["to"]
@@ -448,6 +488,17 @@ def main(inputfile,**options):
 
             # place last pole
             poles[f"pole_{toname}"] = mount_line(model,f"pole_{toname}",name,f"mount_{name}_{toname}")
+
+    # process node-like equipment
+    for name in list(objects.keys()):
+        data = model["objects"][name]
+        if "phases" in data.keys() and "nominal_voltage" in data.keys() and \
+                not "from" in data.keys() and not "to" in data.keys() and \
+                not "pole_"+name in poles.keys() and name not in pole_nodes.keys() and \
+                name in equipment_data.keys():
+            if not "status" in data.keys():
+                error(f"equipment '{name}' cannot be mounted because it does not have required status property",3)
+            poles[f"pole_{name}"] = mount_equipment(model,f"pole_{name}",name,f"mount_{name}")
 
     # write GLM output
     if outputfile.endswith(".glm") or output_format == "GLM":

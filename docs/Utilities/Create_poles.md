@@ -32,6 +32,10 @@ Pole options:
   * `--ignore_length`                   ignore the line length when computing pole locations
   * `--ignore_location`                 ignore node latitude/longitude when computer pole locations
   * `--pole_type=CONFIGURATION_NAME`    set the pole type to use
+  * `--pole_data=POLEDATA_CSV`          use CSV data of pole properties
+
+  * `--mount_data=MOUNTDATA_CSV`        use CSV data for equipment and line mounts
+  
   * `--spacing=FEET`                    set the pole spacing in feet on overhead power lines
 
 Weather options:
