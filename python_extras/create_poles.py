@@ -35,6 +35,9 @@ Pole options:
                                     computer pole locations
   
   --pole_type=CONFIGURATION_NAME    set the pole type to use
+
+  --properties=PROPERTIES_CSV       use CSV list of pole/mount properties for
+                                    lines
   
   --spacing=FEET                    set the pole spacing in feet on overhead
                                     power lines
@@ -102,7 +105,7 @@ is equivalent to
   $ gridlabd create_poles example.glm --output=model.glm  --spacing=100 \
     --pole_type=WOOD-EC-45/4 --include_network  --weather=example
 
-DEFAULT PROPERTIES
+PROPERTIES
 
 Pole and pole_mount objects are created with the following default
 properties:
@@ -120,6 +123,20 @@ properties:
 
 The properties may be set at the command line using the option
 `--TYPE.PROPERTY=VALUE`, e.g. `--pole.install_year=2010`.
+
+Properties may be associated with pole and mounts on specific lines using
+the `--properties=PROPERTIES_CSV` option.  The format of the CSV files must
+always include the line name in the `name` column and the property values 
+in columns using the property name.  For example,
+
+  name,install_year,tilt_angle
+  overhead_line1,2010,0
+  overhead_line2,2010,0
+  overhead_line3,2010,0
+
+Assigns the install year and tilt angle to all poles associated with the
+named lines.  If a value is omitted, the property is deleted, which causes
+it to take on the default value.
 
 WEATHER
 
@@ -147,8 +164,9 @@ SEE ALSO
 """
 
 import sys, os, json, datetime, subprocess
+import math, pandas
 from haversine import haversine, Unit
-import nsrdb_weather, noaa_forecast
+import nsrdb_weather
 
 def error(msg,code=None):
     """Display error message and exit with code"""
@@ -210,6 +228,7 @@ properties = {
         weight = "0 lb",
         ),
     }
+property_data = {}
 
 def get_timezone():
     """Get local timezone based on how datetime works"""
@@ -228,7 +247,7 @@ def get_timezone():
             return tzspec
     return tz
 
-def get_pole(model,name):
+def get_pole(model,name,line):
     """Find (and possibly create) specified pole in the model"""
     global pole_type
     if name not in model["objects"]:
@@ -264,14 +283,28 @@ def get_pole(model,name):
         error(f"unable to identify weather for pole '{name}', missing required location information",2)
 
     pole.update(properties["pole"])
+    if line in property_data.keys():
+        for prop,value in property_data[line].items():
+            if prop in pole.keys():
+                if value in [None] or (type(value) is float and math.isnan(value)):
+                    del pole[prop]
+                else:
+                    pole[prop] = value
     return model["objects"][name]
 
 def mount_line(model,pole,line,position):
     """Connect line to pole"""
     global spacing
-    poledata = get_pole(model,pole)
+    poledata = get_pole(model,pole,line)
     poledata[position] = {"class":"pole_mount","equipment":line,"pole_spacing":f"{spacing} ft"}
     poledata[position].update(properties["pole_mount"])
+    if line in property_data.keys():
+        for prop,value in property_data[line].items():
+            if prop in poledata[position].keys():
+                if value in [None] or (type(value) is float and math.isnan(value)):
+                    del poledata[position][prop]
+                else:
+                    poledata[position][prop] = value
     return poledata
 
 def write_object(otype,name,data,output,indent_level=0):
@@ -335,6 +368,8 @@ def main(inputfile,**options):
             output_format = value
         elif opt == "timezone":
             timezone = value
+        elif opt == "properties":
+            property_data.update(pandas.read_csv(value,index_col=["name"],dtype=str,na_values='').to_dict('index'))
         else:
             found = False
             for otype in properties.keys():
