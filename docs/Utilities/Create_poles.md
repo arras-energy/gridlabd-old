@@ -1,4 +1,4 @@
-[[/Subcommand/Create_poles]] -- Creates poles and pole mounts for networks
+[[/Utilities/Create_poles]] -- Creates poles and pole mounts for networks
 
 # Synopsis
 
@@ -11,7 +11,7 @@ bash$ gridlabd create_poles INPUTFULE OPTIONS ...
 GLM:
 
 ~~~
-#create_poles INPUTFULE OPTIONS ...
+#python -m create_poles INPUTFULE OPTIONS ...
 ~~~
 
 Python
@@ -111,6 +111,6 @@ The `create_poles` subcommand is a python extra command. It is not supported dir
 
 * [[/Module/Powerflow/Pole]]
 * [[/Module/Powerflow/Pole_mount]]
-* [[/Subcommand/Library]]
-* [[/Subcommand/Noaa_forecast]]
-* [[/Subcommand/Nsrdb_weather]]
+* [[/Utilities/Library]]
+* [[/Utilities/Noaa_forecast]]
+* [[/Utilities/Nsrdb_weather]]
