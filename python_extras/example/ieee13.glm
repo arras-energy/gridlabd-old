@@ -232,8 +232,9 @@ object overhead_line
      configuration line_configuration3;
 }
 
-object overhead_line {
-	 name overhead_line2;
+object overhead_line 
+{
+	name overhead_line2;
      phases "BCN";
      from Load645;
      to Load646;
