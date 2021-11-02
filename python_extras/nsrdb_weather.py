@@ -158,7 +158,7 @@ except:
 def error(msg,code=None):
     """Display an error message and exit if code is a number"""
     if code != None:
-        print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
+        print(f"ERROR [nsrdb_weather]: {msg}",file=sys.stderr)
         exit(code)
     else:
         raise Exception(msg)
@@ -286,8 +286,12 @@ def getyear(year,lat,lon):
     cache = f"{cachedir}/nsrdb/{year}/{geohash(lat,lon)}.csv"
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
-        result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
-        verbose(f"getyear(year={year},lat={lat},lon={lon}): reading data from {cache}")
+        try:
+            result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): reading data from {cache}")
+        except Exception as err:
+            os.remove(cache)
+            raise Exception(f"cache file '{cache}' is not readable ({err}), try again later")
     except:
         result = None
     if not result:
@@ -296,7 +300,11 @@ def getyear(year,lat,lon):
             verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
             fout.write(requests.get(url).content.decode("utf-8"))
             verbose(f"getyear(year={year},lat={lat},lon={lon}): saved data to {cache}")
-        result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
+        try:
+            result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
+        except Exception as err:
+            os.remove(cache)
+            raise Exception(f"cache file '{cache}' is not readable ({err}), try again later")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
     for data in result["DataFrame"]:
         data["datetime"] = list(map(lambda x: datetime.datetime(x[0,0],x[0,1],x[0,2],x[0,3],0,0),numpy.matrix([data.Year,data.Month,data.Day,data.Hour]).transpose()))
@@ -442,6 +450,8 @@ if __name__ == "__main__":
             value = None
         if token in ["-h","--help","help"]:
             syntax()
+        elif token == "--debug":
+            debug_enable = True
         elif token in ["-y","--year"]:
             year = []
             for y in value.split(","):
@@ -509,7 +519,11 @@ if __name__ == "__main__":
         else:
             error(f"option '{token}' is not valid",1)
     if position and year:
-        data = getyears(year,float(position[0]),float(position[1]))
-        writeglm(data,glm,name,csv)
-
+        try:
+            data = getyears(year,float(position[0]),float(position[1]))
+            writeglm(data,glm,name,csv)
+        except Exception as err:
+            if not debug_enable:
+                error(err,1)
+            raise
 
