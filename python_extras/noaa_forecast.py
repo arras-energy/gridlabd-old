@@ -138,6 +138,9 @@ def getforecast(lat,lon):
     if interpolate_time:
         starttime = df.index.min()
         stoptime = df.index.max()
+        if starttime.tzinfo.utcoffset != stoptime.tzinfo.utcoffset:
+            dt = stoptime - starttime
+            stoptime = starttime + dt
         daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
         df = df.join(daterange,how="outer").interpolate(interpolate_method)
     df.index.name = "datetime"
