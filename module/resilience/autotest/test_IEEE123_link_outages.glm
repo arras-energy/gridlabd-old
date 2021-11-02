@@ -2,6 +2,7 @@
 #set relax_naming_rules=TRUE
 #set suppress_repeat_messages=FALSE
 #set pythonpath=..
+
 module test_IEEE123_link_outages;
 clock
 {
@@ -22,7 +23,7 @@ object fault_check
 	name "base_fault_check_object";
 	check_mode "ONCHANGE";
 	strictly_radial "FALSE";
-	grid_association "FALSE";
+	grid_association "TRUE";
 	output_filename "test_IEEE123_link_outages.txt";
 	reliability_mode "TRUE";
 }

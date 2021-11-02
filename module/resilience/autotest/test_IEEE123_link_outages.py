@@ -30,7 +30,7 @@ def on_precommit(t0):
 		current_object = None
 	else:
 		t_next = gridlabd.NEVER
-		gridlabd.output(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): no link left --> {datetime.datetime.fromtimestamp(t_next)}")
+		gridlabd.output(f"on_precommit(t={datetime.datetime.fromtimestamp(t0)}): no links left --> NEVER")
 	return t_next
 
 def on_sync(t0):
