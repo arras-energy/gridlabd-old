@@ -5,20 +5,20 @@
 Shell:
 
 ~~~
-bash$ gridlabd create_poles INPUTFULE OPTIONS ...
+bash$ gridlabd create_poles INPUTFILE OPTIONS ...
 ~~~
 
 GLM:
 
 ~~~
-#python -m create_poles INPUTFULE OPTIONS ...
+#python -m create_poles INPUTFILE OPTIONS ...
 ~~~
 
 Python
 
 ~~~
 >>> import create_poles
->>> create_poles.main(INPUTFULE,OPTIONS)
+>>> create_poles.main(INPUTFILE,OPTIONS)
 ~~~
 
 Output options:
