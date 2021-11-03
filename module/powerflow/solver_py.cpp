@@ -960,6 +960,13 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,15,bus[n].I[1].i);
 			SET_BUS(n,16,bus[n].I[2].r);
 			SET_BUS(n,17,bus[n].I[2].i);
+
+			SET_BUS(n,18,bus[n].V[0].r);
+			SET_BUS(n,19,bus[n].V[0].i);
+			SET_BUS(n,20,bus[n].V[1].r);
+			SET_BUS(n,21,bus[n].V[1].i);
+			SET_BUS(n,22,bus[n].V[2].r);
+			SET_BUS(n,23,bus[n].V[2].i);
 		}
 	}
 	else if ( dir == ED_IN )
