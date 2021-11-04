@@ -89,11 +89,11 @@ EXAMPLE
 
 The following command downloads only the CSV data for a location:
 
-    bash$ python3 /usr/local/share/gridlabd/noaa_forecast.py -p=45.62,-122.70 -c=test.csv
+    bash$ gridlabd python -m noaa_forecast -p=45.62,-122.70 -c=test.csv
 
 The following command downloads the CSV data and creates a GLM file with the data linked and weather object named:
 
-    bash$ python3 /usr/local/share/gridlabd/noaa_forecast.py -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
+    bash$ gridlabd python -m noaa_forecast -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
 
 SEE ALSO
 
@@ -138,36 +138,42 @@ def getforecast(lat,lon):
     if interpolate_time:
         starttime = df.index.min()
         stoptime = df.index.max()
+        if starttime.tzinfo.utcoffset != stoptime.tzinfo.utcoffset:
+            dt = stoptime - starttime
+            stoptime = starttime + dt
         daterange = pandas.DataFrame(index=pandas.date_range(starttime,stoptime,freq=f"{interpolate_time}min"))
         df = df.join(daterange,how="outer").interpolate(interpolate_method)
     df.index.name = "datetime"
     return df
 
-def writeglm(data, glm=None, name=None, csv=None):
+def writeglm(data, glm=sys.stdout, name=None, csv="/dev/stdout",download_now=True):
     """Write weather object based on NOAA forecast"""
     if glm:
-        if csv == None:
-            csv = glm.replace(".glm",".csv")
-        with open(glm,"w") as f:
-            f.write("class forecast\n{\n")
-            for column in data.columns:
-                f.write(f"\tdouble {column};\n")
-            f.write("}\n")
-            data.columns = list(map(lambda x:x.split('[')[0],data.columns))
-            f.write("module tape;\n")
-            f.write("object forecast\n{\n")
-            if name:
-                f.write(f"\tname \"{name}\";\n")
-            f.write("\tobject player\n\t{\n")
-            f.write(f"\t\tfile \"{csv}\";\n")
-            f.write(f"\t\tproperty \"{','.join(data.columns)}\";\n")
-            f.write("\t};\n")
-            f.write("}\n")
-        data.to_csv(csv,header=False,float_format=float_format,date_format=date_format)
+        if csv == 'auto':
+            if type(glm) is str:
+                csv = glm.replace(".glm",".csv")
+            else:
+                raise Exception("csv name is required when glm is not a filename")
+        if type(glm) is str:
+            glm = open(glm,"w")
+        glm.write("class forecast\n{\n")
+        for column in data.columns:
+            glm.write(f"\tdouble {column};\n")
+        glm.write("}\n")
+        data.columns = list(map(lambda x:x.split('[')[0],data.columns))
+        glm.write("module tape;\n")
+        glm.write("object forecast\n{\n")
+        if name:
+            glm.write(f"\tname \"{name}\";\n")
+        glm.write("\tobject player\n\t{\n")
+        glm.write(f"\t\tfile \"{csv}\";\n")
+        glm.write(f"\t\tproperty \"{','.join(data.columns)}\";\n")
+        glm.write("\t};\n")
+        glm.write("}\n")
+        if download_now:
+            data.to_csv(csv,header=False,float_format=float_format,date_format=date_format)
     elif csv:
         data.to_csv(csv,header=True,float_format=float_format,date_format=date_format)
-    else:
-        data.to_csv("/dev/stdout",header=True,float_format=float_format,date_format=date_format)
 
 if __name__ == "__main__":
     def error(msg,code=None):

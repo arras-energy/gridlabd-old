@@ -1,8 +1,0 @@
-module residential;
-#for LOAD in ${FIND class=load}
-
-	modify ${LOAD}.constant_power_A 0;
-	modify ${LOAD}.constant_power_B 0;
-	modify ${LOAD}.constant_power_C 0;
-	
-#done

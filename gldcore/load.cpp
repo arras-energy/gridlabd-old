@@ -2584,7 +2584,12 @@ int GldLoader::clock_block(PARSER)
 		REJECT;
 	}
 	if WHITE ACCEPT;
-	// cache timestamp for delayed timestamp offsets
+	
+	// reset clock entities
+	timestamp_set_tz(NULL);
+	global_starttime = 946684800;
+	global_stoptime = TS_NEVER;
+	
 	if TERM(clock_properties(HERE)) ACCEPT;
 	if WHITE ACCEPT;
 	if LITERAL("}") ACCEPT else

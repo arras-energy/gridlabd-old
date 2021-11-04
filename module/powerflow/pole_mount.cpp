@@ -72,6 +72,13 @@ int pole_mount::init(OBJECT *parent)
     if ( my()->parent == NULL || ! get_parent()->isa("pole") )
     {
         error("pole_mount must have a pole as parent object");
+        return 0;
+    }
+
+    if ( equipment == NULL )
+    {
+        error("equipment not specified");
+        return 0;
     }
 
     if ( get_object(get_equipment()) == NULL )
@@ -91,12 +98,14 @@ int pole_mount::init(OBJECT *parent)
     if ( pole_status == NULL || ! pole_status->is_valid() )
     {
         error("pole status property is not valid");
+        return 0;
     }
 
     equipment_status = new gld_property(equipment,"status");
     if ( equipment_status == NULL || ! equipment_status->is_valid() )
     {
         error("equipment status property is not valid");
+        return 0;
     }
 
     if ( equipment_is_line )
