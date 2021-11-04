@@ -1100,17 +1100,17 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		|| strfind(python_nlearntags,python_learntags,"powerflow_values.deltaI_NR") >= 0 )
 	{
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
-		if ( powerflow_values->deltaI_NR )
+		if ( powerflow_values->island_matrix_values[0].deltaI_NR )
 		{
 			PyObject *pData = PyDict_GetItemString(pDict,"deltaI_NR");
 			if ( pData == NULL )
 			{
-				pData = PyList_New(powerflow_values->total_variables*2);
+				pData = PyList_New(powerflow_values->island_matrix_values[0].total_variables*2);
 				PyDict_SetItemString(pDict,"deltaI_NR",pData);
 			}
-			for ( size_t n = 0 ; n < powerflow_values->total_variables*2 ; n++ )
+			for ( size_t n = 0 ; n < powerflow_values->island_matrix_values[0].total_variables*2 ; n++ )
 			{
-				PyList_SetItem(pData,n,PyFloat_FromDouble(powerflow_values->deltaI_NR[n]));
+				PyList_SetItem(pData,n,PyFloat_FromDouble(powerflow_values->island_matrix_values[0].deltaI_NR[n]));
 			}
 		}
 		else
@@ -1198,17 +1198,17 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		|| strfind(python_nlearntags,python_learntags,"powerflow_values.Y_offdiag_PQ") >= 0 )
 	{
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
-		if ( powerflow_values->Y_offdiag_PQ )
+		if ( powerflow_values->island_matrix_values[0].Y_offdiag_PQ )
 		{
 			PyObject *pData = PyDict_GetItemString(pDict,"Y_offdiag_PQ");
 			if ( pData == NULL )
 			{
-				pData = PyList_New(powerflow_values->size_offdiag_PQ*2);
+				pData = PyList_New(powerflow_values->island_matrix_values[0].size_offdiag_PQ*2);
 				PyDict_SetItemString(pDict,"Y_offdiag_PQ",pData);
 			}
-			for ( size_t n = 0 ; n < powerflow_values->size_offdiag_PQ*2 ; n++ )
+			for ( size_t n = 0 ; n < powerflow_values->island_matrix_values[0].size_offdiag_PQ*2 ; n++ )
 			{
-				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->Y_offdiag_PQ[n].row_ind,powerflow_values->Y_offdiag_PQ[n].col_ind,powerflow_values->Y_offdiag_PQ[n].Y_value);
+				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->island_matrix_values[0].Y_offdiag_PQ[n].row_ind,powerflow_values->island_matrix_values[0].Y_offdiag_PQ[n].col_ind,powerflow_values->island_matrix_values[0].Y_offdiag_PQ[n].Y_value);
 				PyList_SetItem(pData,n,pValue);
 			}
 		}
@@ -1222,17 +1222,17 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		|| strfind(python_nlearntags,python_learntags,"powerflow_values.Y_diag_fixed") >= 0 )
 	{
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
-		if ( powerflow_values->Y_diag_fixed )
+		if ( powerflow_values->island_matrix_values[0].Y_diag_fixed )
 		{
 			PyObject *pData = PyDict_GetItemString(pDict,"Y_diag_fixed");
 			if ( pData == NULL )
 			{
-				pData = PyList_New(powerflow_values->size_diag_fixed*2);
+				pData = PyList_New(powerflow_values->island_matrix_values[0].size_diag_fixed*2);
 				PyDict_SetItemString(pDict,"Y_diag_fixed",pData);
 			}
-			for ( size_t n = 0 ; n < powerflow_values->size_diag_fixed*2 ; n++ )
+			for ( size_t n = 0 ; n < powerflow_values->island_matrix_values[0].size_diag_fixed*2 ; n++ )
 			{
-				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->Y_diag_fixed[n].row_ind,powerflow_values->Y_diag_fixed[n].col_ind,powerflow_values->Y_diag_fixed[n].Y_value);
+				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->island_matrix_values[0].Y_diag_fixed[n].row_ind,powerflow_values->island_matrix_values[0].Y_diag_fixed[n].col_ind,powerflow_values->island_matrix_values[0].Y_diag_fixed[n].Y_value);
 				PyList_SetItem(pData,n,pValue);
 			}
 		}
@@ -1246,13 +1246,13 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		|| strfind(python_nlearntags,python_learntags,"powerflow_values.Y_Amatrix") >= 0 )
 	{
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
-		if ( powerflow_values->Y_Amatrix )
+		if ( powerflow_values->island_matrix_values[0].Y_Amatrix )
 		{
 			PyObject *pData = check_dict(pDict,"Y_Amatrix");
 
 			PyObject *pHeap = PyList_New(0);
 			PyDict_SetItemString(pData,"llheap",pHeap);
-			for ( SP_E *p = powerflow_values->Y_Amatrix->llheap ; p != NULL ; p = p->next )
+			for ( SP_E *p = powerflow_values->island_matrix_values[0].Y_Amatrix->llheap ; p != NULL ; p = p->next )
 			{
 				PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
 				PyList_Append(pHeap,pValue);
@@ -1260,15 +1260,15 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 
 			PyObject *pCols = PyList_New(0);
 			PyDict_SetItemString(pData,"cols",pCols);
-			for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
+			for ( size_t n = 0 ; n < powerflow_values->island_matrix_values[0].Y_Amatrix->ncols ; n++ )
 			{
-				if ( powerflow_values->Y_Amatrix->cols[n] == NULL )
+				if ( powerflow_values->island_matrix_values[0].Y_Amatrix->cols[n] == NULL )
 				{
 					continue;
 				}
 				PyObject *pCol = PyList_New(0);
 				PyList_Append(pCols,pCol);
-				for ( SP_E *p = powerflow_values->Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
+				for ( SP_E *p = powerflow_values->island_matrix_values[0].Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
 				{
 					PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
 					PyList_Append(pCol,pValue);

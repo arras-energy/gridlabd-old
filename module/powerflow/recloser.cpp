@@ -79,6 +79,10 @@ int recloser::init(OBJECT *parent)
 {
 	int result = switch_object::init(parent);
 
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+
 	if(ntries<0)
 	{
 		warning("The number of recloser tries is less than 0 resetting to zero");

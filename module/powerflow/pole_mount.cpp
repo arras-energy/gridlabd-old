@@ -74,7 +74,11 @@ int pole_mount::init(OBJECT *parent)
         error("pole_mount must have a pole as parent object");
     }
 
-    if ( ! get_object(get_equipment())->isa("link") )
+    if ( get_object(get_equipment()) == NULL )
+    {
+        error("equipment is not specified");
+    }
+    else if ( ! get_object(get_equipment())->isa("link") )
     {
         warning("equipment is not a powerflow link object");
     }
@@ -214,7 +218,8 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
     {
         if ( equipment_is_line )
         {
-            // TODO
+            verbose("%s recalculation flag set",my()->parent->name);
+            verbose("TODO: %s line moment not implemented yet",my()->parent->name);
         }
         else
         {
@@ -232,7 +237,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("y = %g ft.lb",y);
             double moment = sqrt(x*x+y*y);
             verbose("moment = %g deg",moment);
-            mount->set_equipment_moment(moment);
+            mount->set_equipment_moment(mount->get_equipment_moment()+moment);
         }
     }
     else

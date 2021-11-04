@@ -59,13 +59,17 @@ public:
 	enumeration phase_B_state;				///< Defines the current state of the phase B switch
 	enumeration phase_C_state;				///< Defines the current state of the phase C switch
 
-	double switch_resistance;
 	int kmldata(int (*stream)(const char*,...));
 private:
 	OBJECT **eventgen_obj;					//Reliability variable - link to eventgen object
 	FUNCTIONADDR event_schedule;			//Reliability variable - links to "add_event" function in eventgen
 	FUNCTIONADDR fault_handle_call;			//Reliability-type variable - calls topology reconfiguration after switch changes state
 	bool event_schedule_map_attempt;		//Flag to see if we've tried to map the event_schedule variable, or not
+
+	complex switch_impedance_value;			//Used for closed-switch value
+	complex switch_admittance_value;		//Admittance version - save some divides
+
+	set node_phase_information(OBJECT *obj);
 };
 
 EXPORT int change_switch_state(OBJECT *thisobj, unsigned char phase_change, bool state);
