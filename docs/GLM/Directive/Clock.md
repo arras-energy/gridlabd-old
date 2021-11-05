@@ -50,6 +50,10 @@ clock {
 }
 ~~~
 
+# Caveat
+
+Introducing more than one clock directive in a model is allowed. However, all elements of previous clock directives are reset when a new clock directive is encountered.  As a result, all previous parameters of previous settings are lost after the new directive is processed.
+
 # See also
 
 * [share/tzinfo.txt](https://github.com/slacgismo/gridlabd/blob/master/gldcore/tzinfo.txt)

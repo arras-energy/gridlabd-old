@@ -40,7 +40,8 @@ typedef enum {
 
 typedef enum {
 	LS_OPEN=0,			///< defines that that link is open
-	LS_CLOSED=1			///< defines that that link is closed
+	LS_CLOSED=1,		///< defines that that link is closed
+	LS_INIT=2			///< defines that the link needs to be initalized
 } LINESTATUS;	//Line/link status - made at powerflow level for reusability
 
 //Structure to hold external LU solver calls
@@ -58,6 +59,7 @@ EXTERN SOLVERMETHOD solver_method INIT(SM_FBS);		/**< powerflow solver methodolo
 EXTERN char256 MDFileName INIT("");					/**< filename for matrix dump */
 EXTERN MATRIXDUMPMETHOD NRMatDumpMethod INIT(MD_NONE);	/**< NR-based matrix output method */
 EXTERN bool NRMatReferences INIT(false);			/**< Flag to indicate if the decoding information for the matrix is dumped - row/col to bus */
+EXTERN bool NRMatRHSDump INIT(false);				/**< Flag to indicate if the RHS portion (current injection) should be exported to the file */
 EXTERN bool use_line_cap INIT(false);				/**< Flag to include line capacitance quantities */
 EXTERN bool use_link_limits INIT(true);				/**< Flag to include line/transformer ratings and provide a warning if exceeded */
 EXTERN MATRIXSOLVERMETHOD matrix_solver_method INIT(MM_SUPERLU);	/**< Newton-Raphson uses superLU as the default solver */
@@ -66,6 +68,9 @@ EXTERN unsigned int NR_branch_count INIT(0);		/**< Newton-Raphson branch count -
 EXTERN BUSDATA *NR_busdata INIT(NULL);				/**< Newton-Raphson bus data pointer array */
 EXTERN BRANCHDATA *NR_branchdata INIT(NULL);		/**< Newton-Raphson branch data pointer array */
 EXTERN NR_SOLVER_STRUCT NR_powerflow;				/**< Newton-Raphson solver working variables - "steady-state" powerflow version */
+EXTERN int NR_islands_detected INIT(0);				/**< Newton-Raphson solver island count (from fault_check) - determines the array size of NR_powerflow */
+EXTERN bool NR_island_fail_method INIT(false);		/**< Newton-Raphson multiple islands - determine how individual island failure may determined */
+EXTERN bool NR_solver_working INIT(false);			/**< Newton-Raphson global flag to indicate if the solver is working -- mostly to prevent island redetection if it is mid-array */
 EXTERN int NR_curr_bus INIT(-1);					/**< Newton-Raphson current bus indicator - used to populate NR_busdata */
 EXTERN int NR_curr_branch INIT(-1);					/**< Newton-Raphson current branch indicator - used to populate NR_branchdata */
 EXTERN int64 NR_iteration_limit INIT(500);			/**< Newton-Raphson iteration limit (per GridLAB-D iteration) */
@@ -93,6 +98,7 @@ EXTERN double default_maximum_voltage_error INIT(1e-6);	/**< default sync voltag
 EXTERN double default_maximum_power_error INIT(0.0001);	/**< default power convergence limit for multirun */
 EXTERN OBJECT *restoration_object INIT(NULL);		/**< restoration object of the system */
 EXTERN OBJECT *fault_check_object INIT(NULL);		/**< fault_check object of the system */
+EXTERN bool fault_check_override_mode INIT(false);	/**< Mode designator for fault_check -- overrides errors and prevents powerflow -- meant for debug */
 EXTERN bool meshed_fault_checking_enabled INIT(false);	/*** fault_check object flag for possible meshing -- adjusts how reliability-related code runs */
 EXTERN bool restoration_checks_active INIT(false);	/***< Overall flag for when reconfigurations are occurring - special actions in devices */
 

@@ -69,6 +69,8 @@ class player{
 
 The object properties that will be updated based on value in the player's input file. Property names are case sensitive, and whitespace between properties is verboten. Properties with units may be converted to compatible internal units, if necessary. Complex properties may be written as their individual real and imaginary parts by appending ".real" or ".imag" to the property name, such as "power.real", but those parts cannot convert their units, if the associated complex property has an internal unit specified.
 
+The property object must be omitted when the CSV file contains a header line with the property list.  In this case, looping is not permitted.
+
 ### `file`
 
 ~~~
