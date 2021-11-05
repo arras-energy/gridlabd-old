@@ -31,6 +31,7 @@ typedef struct  {
 	double QL[3];			///< reactive power component of total bus load
 	bool *dynamics_enabled;	///< Flag indicating this particular node has a dynamics contribution function
 	bool swing_functions_enabled;	///< Flag indicating if this particular node is a swing node, and if so, if it is behaving "all swingy"
+	bool swing_topology_entry;		///< Flag to indicate this bus was the source entry point, even if it isn't a swing anymore (SWING_PQ generator stuff)
 	complex *PGenTotal;		///< Total output of any generation at this node - lumped for now for dynamics
 	complex *DynCurrent;	///< Dynamics current portions - used as storage/tracking for generator dynamics
 	complex *BusHistTerm;	///< History term pointer for in-rush-based calculations
@@ -47,6 +48,8 @@ typedef struct  {
 	OBJECT *obj;			///< Link to original object header
 	FUNCTIONADDR ExtraCurrentInjFunc;	///< Link to extra functions of current injection updates -- mostly VSI current updates
 	OBJECT *ExtraCurrentInjFuncObject;	///< Link to the object that mapped the current injection function - needed for function calls
+	FUNCTIONADDR LoadUpdateFxn;			///< Link to load update function for load objects -- for impedance conversion (inrush or forced)
+	int island_number;		///< Numerical designation for which island this bus belongs to
 } BUSDATA;
 
 typedef struct {
@@ -61,7 +64,7 @@ typedef struct {
 	int to;					///< index into bus data
 	int fault_link_below;    ///< index indicating next faulted link object below the current link object
 	enumeration *status;	///< status of the object, if it is a switch (restoration module usage)
-	unsigned char lnk_type;	///< type of link the object is - 0 = UG/OH line, 1 = Triplex line, 2 = switch, 3 = fuse, 4 = transformer, 5 = sectionalizer, 6 = recloser
+	unsigned char lnk_type;	///< type of link the object is - 0 = UG/OH line, 1 = Triplex line, 2 = transformer, 3 = fuse, 4 = switch, , 5 = sectionalizer, 6 = recloser
 	double v_ratio;			///< voltage ratio (v_from/v_to)
 	const char *name;				///< original name
 	OBJECT *obj;			///< Link to original object header
@@ -69,6 +72,7 @@ typedef struct {
 	complex *If_to;			///< 3 phase fault currents on the to side 
 	FUNCTIONADDR limit_check;	////< Link to overload checking function (calculate_overlimit_link) -- restoration related
 	FUNCTIONADDR ExtraDeltaModeFunc;	///< Link to extra functions of deltamode -- notably, transformer saturation
+	int island_number;		///< Numerical designation for which island this branch belongs to
 } BRANCHDATA;
 
 typedef struct Y_NR{
@@ -116,18 +120,37 @@ typedef struct {
 	double *deltaI_NR;					/// Storage array for current injection
 	unsigned int size_offdiag_PQ;		/// Number of fixed off-diagonal matrix elements
 	unsigned int size_diag_fixed;		/// Number of fixed diagonal matrix elements
-	unsigned int total_variables;		///Total number of phases to be calculating (size of matrices)
+	unsigned int total_variables;		/// Total number of phases to be calculating (size of matrices)
+	unsigned int size_diag_update;		/// Number of "update on the diagonal" matrix elements
+	unsigned int size_Amatrix;			/// Size of the A matrix variable
 	unsigned int max_size_offdiag_PQ;	///Maximum allocated space for off-diagonal portion
 	unsigned int max_size_diag_fixed;	///Maximum allocated space for fixed portion of diagonal
 	unsigned int max_total_variables;	///Maximum allocated space for "whole solution" variables - e.g., Y_Amatrix
 	unsigned int max_size_diag_update;	///Maximum allocated space for updating portion of diagonal
 	unsigned int prev_m;				///Track size of matrix put into superLU form - may not need a realloc, but needs to be updated
+	unsigned int index_count;			///Temporary variable for figuring out sizes -- put inside each island for size tracking
+	unsigned int bus_count;				///Variable to keep track of number of buses in this island -- since it is needed
+	unsigned int indexer;				///Temporary variable for indexing arrays
 	bool NR_realloc_needed;				///flag to indicate a matrix reallocation is required
-	Bus_admit *BA_diag;					/// BA_diag store the diagonal elements of the bus admittance matrix, the off_diag elements of bus admittance matrix are equal to negative value of branch admittance
 	Y_NR *Y_offdiag_PQ;					///Y_offdiag_PQ store the row,column and value of off_diagonal elements of 6n*6n Y_NR matrix. No PV bus is included.
 	Y_NR *Y_diag_fixed;					///Y_diag_fixed store the row,column and value of fixed diagonal elements of 6n*6n Y_NR matrix. No PV bus is included.
 	Y_NR *Y_diag_update;				///Y_diag_update store the row,column and value of updated diagonal elements of 6n*6n Y_NR matrix at each iteration. No PV bus is included.
 	SPARSE *Y_Amatrix;					///Y_Amatrix store all the elements of Amatrix in equation AX=B;
+	NR_SOLVER_VARS matrices_LU;			///Matrices structure for LU solver - superLU, by default
+	void *LU_solver_vars;				///Pointer to the LU routine variables for each island
+	int64 iteration_count;				///Iteration count for this particular solver system
+	bool new_iteration_required;		///Flag to indicate if a new iteration is required
+	bool swing_converged;				///Flag to indicate if the swing imbalance has been resolved -- deltamode-oriented
+	bool swing_is_a_swing;				///Flag to indicate if swing buses should still be in that mode or not -- deltamode-oriented
+	bool SaturationMismatchPresent;		///Flag to indicate if any saturation-based calculations haven't coded
+	int solver_info;					///Status return value for LU solver -- put into the array for tracking
+	int64 return_code;					///Specific return value - just to replicate previous functionality
+	double max_mismatch_converge;		///Current difference for convergence checks
+} NR_MATRIX_CONSTRUCTION;
+
+typedef struct {
+	NR_MATRIX_CONSTRUCTION *island_matrix_values;	///Structure pointer to the individual matrix element "population" portions
+	Bus_admit *BA_diag;					/// BA_diag store the diagonal elements of the bus admittance matrix, the off_diag elements of bus admittance matrix are equal to negative value of branch admittance
 } NR_SOLVER_STRUCT;
 
 //Mesh-fault-related structure - passing information
@@ -144,8 +167,11 @@ typedef struct {
 //void ext_solver_destroy(void *ext_array, bool new_iteration);
 
 int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count, BRANCHDATA *branch, NR_SOLVER_STRUCT *powerflow_values, NRSOLVERMODE powerflow_type , NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, bool *bad_computations);
-void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT *powerflow_values, bool jacobian_pass);
+void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT *powerflow_values, bool jacobian_pass, int island_number);
 
+//Newton-Raphson solver array handlers
 extern bool solver_dump_enable;
+STATUS NR_array_structure_free(NR_SOLVER_STRUCT *struct_of_interest,int number_of_islands);		/* Handles freeing NR_SOLVER_STRUCT arrays */
+STATUS NR_array_structure_allocate(NR_SOLVER_STRUCT *struct_of_interest,int number_of_islands);	/* Allocates NR_SOLVER_STRUCT item for a given number of entries/islands */
 
 #endif

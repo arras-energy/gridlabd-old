@@ -34,11 +34,8 @@ The `#ifexist` macro is used to conditionally process GLM lines when a file is f
 #endif
 ~~~
 
-# Caveats
-
-1. TODO enumerate known issues using Ifexist
-
 # See also
 
 * [[/Glm/Macro/If]]
+* [[/Glm/Macro/Ifmissing]]
 

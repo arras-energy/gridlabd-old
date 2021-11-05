@@ -362,7 +362,7 @@ TIMESTAMP substation::sync(TIMESTAMP t0, TIMESTAMP t1)
 	
 	// update currents if in NR
 	if(solver_method == SM_NR){
-		int result = node::NR_current_update(true,false);
+		int result = node::NR_current_update(false);
 
 		if(result != 1){
 			GL_THROW("Attempt to update current/power on substation:%s failed!",obj->name);

@@ -5,13 +5,13 @@
 Shell:
 
 ~~~
-host% gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-T|--threadcount NTHREADS] FILE1 ...
+host% gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-m|--modifyfile MODIFY] [-T|--threadcount NTHREADS] FILE1 ...
 ~~~
 
 GLM:
 
 ~~~
-#job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-T|--threadcount NTHREADS] FILE1 ...
+#job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-m|--modifyfile MODIFY] [-T|--threadcount NTHREADS] FILE1 ...
 ~~~
 
 # Description
@@ -26,23 +26,27 @@ The default configuration file name is `gridlabd-config.glm`.
 
 ### `-c|--configfile CONFIG`
 
-Specifies the name of the configuration file to use instead of `gridlabd-config.glm`.
+Specifies the name of the configuration file name to use instead of `gridlabd-config.glm`. The configuration file is created from the job entry in the job control file and loaded before the main GLM file is loaded.
 
 ### `-d|--debug`
 
 Enables debugging output.
 
-### `-T|--threadpool NTHREADS`
-
-Enables parallel processing of jobs using a threadpool using the specified number of threads.
-
 ### `-j|--jobfile JOBFILE`
 
 Specifies the name of the job control file to use instead of `gridlabd-job.csv`.
 
+### `-m|--modifyfile MODIFY`
+
+Specifies the name of the modify file to use instead of `gridlabd-modify.glm`. The modification file is loaded after the main GLM file is loaded.
+
 ### `-q|--quiet`
 
 Disables all but error output.
+
+### `-T|--threadpool NTHREADS`
+
+Enables parallel processing of jobs using a threadpool using the specified number of threads.
 
 ### `-v|--verbose`
 
