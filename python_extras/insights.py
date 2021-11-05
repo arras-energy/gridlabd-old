@@ -22,6 +22,11 @@ The following options are available.
 
   -y|--year=YEAR       Specify the year number (4 digit year)
 
+CAVEAT
+
+Currently, only the category `requests` is supported. This returns the number of users
+who run gridlabd online each day of the month.
+
 SEE ALSO
 
 * [[/Subcommand/Aws]]
