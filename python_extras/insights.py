@@ -1,4 +1,31 @@
+"""Gather data on gridlabd usage
 
+SYNTAX
+
+  $ gridlabd insights CATEGORY [OPTIONS ...]
+
+DESCRIPTION
+
+The `insights` utility retrieves gridlabd usage data from the AWS servers.
+
+The following options are available.
+
+  -d|--debug           Enable debugging (raises exception instead of printing errors)
+
+  -h|--help|help       Display this help
+
+  -m|--month=MONTH     Specify the month number (1-12)
+
+  -o|--output=CSVFILE  Specify the output CSV filename
+
+  -p|--prefix=PATH     Specify the log prefix pathname
+
+  -y|--year=YEAR       Specify the year number (4 digit year)
+
+SEE ALSO
+
+* [[/Subcommand/Aws]]
+"""
 import sys
 import boto3
 import pandas
@@ -18,7 +45,16 @@ def error(msg,code=None):
 	if code != None:
 		exit(code)
 
-def get_insights(year=None,month=None):
+def syntax(code=None):
+	if code == None:
+		print(__doc__)
+		exit(1)
+	else:
+		print("Syntax: gridlabd insights CATEGORY [OPTIONS ...]")
+	if type(code) == int:
+		exit(code)
+
+def get_requests(year=None,month=None):
 
 	if not year:
 		year = today.year
@@ -30,14 +66,16 @@ def get_insights(year=None,month=None):
 	objects = s3.list_objects(Bucket=bucket,Prefix=prefix)
 	dt = []
 	ip = []
-	for obj in objects.get("Contents"):
-		data = s3.get_object(Bucket=bucket, Key=obj.get("Key"))
-		records = data["Body"].read().decode("utf-8").split("\n")
-		for record in records:
-			field = record.split()
-			if len(field) > 10 and field[10] == "/version.gridlabd.us":
-				dt.append(datetime.datetime.strptime(field[2].strip(" []"),"%d/%b/%Y:%H:%M:%S").date())
-				ip.append(field[4])
+	contents = objects.get("Contents")
+	if contents:
+		for obj in contents:
+			data = s3.get_object(Bucket=bucket, Key=obj.get("Key"))
+			records = data["Body"].read().decode("utf-8").split("\n")
+			for record in records:
+				field = record.split()
+				if len(field) > 10 and field[10] == "/version.gridlabd.us":
+					dt.append(datetime.datetime.strptime(field[2].strip(" []"),"%d/%b/%Y:%H:%M:%S").date())
+					ip.append(field[4])
 
 	df = pandas.DataFrame(ip,index=dt,columns=["requests"])
 	df.index.name = "date"
@@ -46,6 +84,10 @@ def get_insights(year=None,month=None):
 if __name__ == "__main__":
 	year = None
 	month = None
+	call = None
+
+	if len(sys.argv) == 1:
+		syntax(1)
 	for arg in sys.argv[1:]:
 		args = arg.split("=")
 		if type(args) is list and len(args) > 1:
@@ -54,16 +96,25 @@ if __name__ == "__main__":
 		else:
 			tag = arg
 			value = None
-		if arg in ["-y","--year"]:
+		if tag in ["-y","--year"]:
 			year = value
-		elif arg in ["-m","--month"]:
+		elif tag in ["-m","--month"]:
 			month = value
-		elif arg in ["-d","--debug"]:
+		elif tag in ["-d","--debug"]:
 			debug = True
-		elif arg in ["-o","--output"]:
+		elif tag in ["-o","--output"]:
 			output = value
+		elif tag in ["-p","--prefix"]:
+			path = value
+		elif tag in ["-h","--help","help"]:
+			syntax()
+		elif "get_"+tag in globals().keys():
+			call = globals()["get_"+tag]
 		else:
 			error(f"{arg} is invalid",1)
 
-	result = get_insights(year,month)
-	result.to_csv("/dev/stdout")
+	if not call:
+		error(f"insight category not specified",2)
+	else:
+		result = call(year,month)
+		result.to_csv(output)
