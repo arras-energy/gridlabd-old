@@ -2,6 +2,7 @@
 //	Copyright (C) 2011 Battelle Memorial Institute
 
 #set iteration_limit=100
+#define MAX_VERR=6
 
 clock {
 	timezone EST+5EDT;
@@ -317,15 +318,15 @@ object node { //633 {
 	 object complex_assert {
 		target voltage_A;
 		value 2445.01-2.56d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_B;
 		value 2498.09-121.77d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_C;
 		value 2437.32+117.82d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };
 }
 
@@ -348,15 +349,15 @@ object node { //632 {
 	 object complex_assert {
 		target voltage_A;
 		value 2452.21-2.49d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_B;
 		value 2502.56-121.72d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_C;
 		value 2443.56+117.83d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };
 }
 
@@ -371,15 +372,15 @@ object node { //650 {
 	 object complex_assert {
 		target voltage_A;
 		value 2401.7771;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_B;
 		value 2401.7771-120.0d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };	 object complex_assert {
 		target voltage_C;
 		value 2401.7771+120.0d;
-		within 5;
+		within ${MAX_VERR:-5};
 	 };
      object recorder {
         property "voltage_A,voltage_B,voltage_C";
@@ -398,12 +399,12 @@ object node { //680 {
 		object complex_assert {
 			target voltage_A;
 			value 2377.75-5.3d;
-			within 5;
+			within ${MAX_VERR:-5};
 		};	 
 		object complex_assert {
 			target voltage_B;
 			value 2528.82-122.34dd;
-			within 5;
+			within ${MAX_VERR:-5};
 		};	
 		object complex_assert {
 			target voltage_C;
@@ -423,12 +424,12 @@ object node { //684 {
 	object complex_assert {
 		target voltage_A;
 		value 2373.65-5.32d;
-		within 5;
+		within ${MAX_VERR:-5};
 	};	 
 	object complex_assert {
 		target voltage_C; 
 		value 2343.65+115.78d;
-		within 5;  
+		within ${MAX_VERR:-5};  
 	};
 } 
  
@@ -448,17 +449,17 @@ object load { //634 {
      nominal_voltage 480.000;
 	object complex_assert {
 		target voltage_A;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 275-3.23d;
 	};
 	object complex_assert {
 		target voltage_B;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 283.16-122.22d;
 	};
 	object complex_assert {
 		target voltage_C;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 276.02+117.34d;
 	};
 }
@@ -473,12 +474,12 @@ object load { //645 {
      nominal_voltage 2401.7771;
 	object complex_assert {
 		target voltage_B;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 2480.798-121.90d;
 	};
 	object complex_assert {
 		target voltage_C;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 2439.00+117.86d;
 	};
 }
@@ -492,12 +493,12 @@ object load { //646 {
      nominal_voltage 2401.7771;
     	object complex_assert {
     		target voltage_B;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2476.47-121.98d;
     	};
     	object complex_assert {
     		target voltage_C;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2433.96+117.90d;
 	};
 }
@@ -513,7 +514,7 @@ object load { //652 {
      nominal_voltage 2401.7771;
     	object complex_assert {
     		target voltage_A;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2359.74-5.25d;
     	};
 }
@@ -530,12 +531,12 @@ object load { //671 {
      nominal_voltage 2401.7771;
     	object complex_assert {
     		target voltage_A;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2377.76-5.3d;
     	};
     	object complex_assert {
     		target voltage_B;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2526.67-122.34d;
     	};
     	object complex_assert {
@@ -560,12 +561,12 @@ object load { //675 {
      nominal_voltage 2401.7771;
     	object complex_assert {
     		target voltage_A;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2362.15-5.56d;
     	};
     	object complex_assert {
     		target voltage_B;
-    		within 5;
+    		within ${MAX_VERR:-5};
     		value 2534.59-122.52d;
     	};
     	object complex_assert {
@@ -587,12 +588,12 @@ object load { //692 {
      nominal_voltage 2401.7771;
 	object complex_assert {
 		target voltage_A;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 2377.76-5.31d;
 	};
 	object complex_assert {
 		target voltage_B;
-		within 5;
+		within ${MAX_VERR:-5};
 		value 2526.67-122.34d;
 	};
 	object complex_assert {
