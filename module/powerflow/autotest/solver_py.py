@@ -3,6 +3,9 @@ import pandas as pd
 import pprint as pp
 import datetime as dt
 
+pd.options.display.max_rows = None
+pd.options.display.max_columns = None
+
 def solve(gridlabd,**kwargs):
     """solve(gridlabd,kwargs)
     
@@ -32,12 +35,12 @@ def solve(gridlabd,**kwargs):
         if kwargs['options']['dump'] == 'dataframe':
             branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
             bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
-            print(branch)
-            print(bus)
+            print(branch,file=output_stream)
+            print(bus,file=output_stream)
         elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
         elif kwargs['options']['dump'] == 'print':
-            print(kwargs)
+            print(kwargs,file=output_stream)
     return -1 
 
 def learn(gridlabd,**kwargs):
@@ -77,10 +80,10 @@ def learn(gridlabd,**kwargs):
         if kwargs['options']['dump'] == 'dataframe':
             branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
             bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
-            print(branch)
-            print(bus)
+            print(branch,file=output_stream)
+            print(bus,file=output_stream)
         elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
         elif kwargs['options']['dump'] == 'print':
-            print(kwargs)
+            print(kwargs,file=output_stream)
     return None
