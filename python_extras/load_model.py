@@ -2,31 +2,85 @@
 
 SYNTAX
 
-  $ gridlabd load_model -p|--power=POWERCSV -w|--weather=WEATHERCSV -o|--output=OUTPUTFILE
-        -n|--name=LOADNAME -t|--type=LOADTYPE [OPTIONS ...]
+  $ gridlabd load_model -i|--input=INPUTCSV -o|--output=OUTPUTCSV [-k|--order] 
+        [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] [-n|--name=LOADNAME] [-t|--type=LOADTYPE]
+        [-v|--verbose] [-w|--warning] [-q|--quiet] [-d|--debug]
+        [-h|--help|help] [--test] 
+        [OPTIONS ...]
 
 DESCRIPTION
 
-The `load_model` utility creates a load model from load and weather data by fitting
-a Nth-order transfer functions to the data using a least-squares linear regressions
-of the equation
+The `load_model` utility creates a load model from N input and M output
+channels of data by fitting a Kth-order transfer functions to the data using
+a least-squares linear regressions of the equations
 
-    P0 = -a1*P1 - ... -aN*PN + b0*T0 + ... + bN*TN + c0*S0 + ... cN*SN
+    Y0 = -a1*Y1 - ... -aK*YK + b0*U0 + ... + bK*UK + ... + c0*V0 + ... cK*VK
+    ...
+    Z0 = -d1*Z1 - ... -dK*ZK + e0*U0 + ... + eK*UK + ... + f0*V0 + ... fK*VK
 
 where
 
-    P0 is the power at time t
-    P1 is the power at time t-1
-    PN is the power at time t-N
-    T0 is the temperature at time t
-    TN is the temperature at time t-N
-    S0 is the solar radiation at time t
-    SN is the solar radiation at time t-N
-    a, b, and c are the coefficient of the transfer functions
+    Y0 is the output channel 0 at time t
+    Y1 is the output channel 0 at time t-1
+    YK is the output channel 0 at time t-K
+    ...
+    Z0 is the output channel N at time t
+    Z1 is the output channel N at time t-1
+    ...
+    ZK is the output channel N at time t-K
+    U0 is the input channel 0 at time t
+    ...
+    UK is the input channel 0 at time t-K
+    V0 is the input channel M at time t
+    ...
+    VK is the input channel M at time t-K
+    a, b, c, d, e, and f are the coefficient of the transfer functions
+
+CONFIGURATION
+
+By default all the columns of the input and output files are used in the load
+model identification.  Consequently there will be M x N transfer functions
+identified.  To prevent columns from being used you must use the
+`-c|--config=CONFIGNAME` option to specify how columns are loaded. The file
+CONFIGNAME must be a valid Python file. The class `converters` must be
+defined, and contain the properties `inputs` and `outputs`.  These must be 
+dictionaries where the keys are the column names, and values of the converters
+to be used for those columns.  
+
+For the example below, the following converter files can be used:
+
+    from datetime import datetime
+    class converters:
+
+        def real(x):
+            try:
+                return float(x)
+            except:
+                return float('NAN')
+        
+        def timestamp(x):
+            return datetime.strptime(x,"%m/%d/%y %H:%M")
+        
+        def datetime(x):
+            return datetime.strptime(x,"%Y-%m-%d %H:%M:%S")
+
+        outputs = {"timestamp":timestamp,"real_power":real}
+        inputs = {"datetime":datetime,"temperature":real,"solar":real}
+
+Note that using a converter often speeds up the load process because the
+date/time format is specified and the loader does not need to deduce the
+format automatically, which can take additional time.
+
+To limit which columns of the input or output files are used, it is sufficient
+to omit them from the converter list.  For example, 
+
+    inputs = {"datetime":datetime,"temperature":real}
+
+omits the solar data in the input file.
 
 EXAMPLE
 
-    $ gridlabd load_model -p=power.csv -w=weather.csv -o=/tmp/test.glm
+    $ gridlabd load_model -i=power.csv -o=weather.csv -g=/tmp/test.glm
 
 """
 
@@ -35,50 +89,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import random
-
-class convert:
-
-    def power(x):
-        try:
-            return round(float(x),1)
-        except:
-            return float('NAN')
-    
-    def timestamp(x):
-        return datetime.strptime(x,"%m/%d/%y %H:%M")
-    
-    def temperature(x):
-        try:
-            return round(float(x),1)
-        except:
-            return float('NAN')
-    
-    def solar(x):
-        try:
-            return round(float(x),1)
-        except:
-            return float('NAN')
-
-    def datetime(x):
-        return datetime.strptime(x,"%Y-%m-%d %H:%M:%S")
-
-converters = {
-    "power" : {
-        "timestamp" : convert.timestamp,
-        "power" : convert.power,    
-    },
-    "weather" : {
-        "datetime" : convert.datetime,
-        "temperature" : convert.temperature,
-        "solar" : convert.solar,
-    }
-}
-
-K = 24
-name = "load"
-modeltype = "filter"
-phases = "ABC"
-nominal_voltage = 120.0
 
 def identify(Y, X, K = 24,
     daytype = False, hour = False, month = False, weekday = False,
@@ -163,22 +173,57 @@ def identify(Y, X, K = 24,
 if __name__ == '__main__':
 
     basename = os.path.basename(sys.argv[0]).replace('.py','')
+    
+    K = 24
+    name = "load"
+    modeltype = "filter"
+    phases = "ABC"
+    nominal_voltage = 120.0
+    verbose_enabled = False
+    warning_enabled = True
+    debug_enabled = False
+    quiet_enabled = False
+
+    # exit codes
+    E_OK = 0 # no error
+    E_INPUT = 1 # input file error
+    E_OUTPUT = 2 # output file error
+    E_INVALID = 3 # invalid arguments
+    E_CONFIG = 4 # invalid configuration
+    E_OPTION = 5 # invalid options
+
     def error(msg,code=None):
-        if code != None:
+        if not quiet_enabled:
             print(f"ERROR [{basename}]: {msg}",file=sys.stderr)
+        if not debug_enabled and code != None:
             exit(code)
-        else:
-            raise Exception(msg)
+        elif debug_enabled:
+            raise
+
     def syntax(code=0):
         if code == 0:
-            print(__doc__)
+            print(__doc__,file=sys.stderr)
         else:
-            print(f"Syntax: {basename} -p|--power=POWERCSV -w|--weather=WEATHERCSV [-g|--glm=GLMNAME] [-n|--name=LOADNAME] [-t|--type=LOADTYPE] [--test] [-h|--help|help] [OPTIONS ...]")
+            print(f"Syntax: {basename} -o|--output=OUTPUTCSV -i|--input=INPUTCSV [-g|--glm=GLMNAME] [-n|--name=LOADNAME] [-t|--type=LOADTYPE] [--test] [-h|--help|help] [OPTIONS ...]")
         exit(code)
 
-    power = None
-    weather = None
-    output_file = None
+    def verbose(msg):
+        if verbose_enabled:
+            print(f"VERBOSE [{basename}]: {msg}",file=sys.stderr)
+
+    def warning(msg):
+        if warnings_enabled:
+            print(f"WARNINGS [{basename}]: {msg}",file=sys.stderr)
+
+    inputs = None
+    outputs = None
+    glmname = "/dev/stdout"
+    config = None
+
+    class converters:
+        outputs = None
+        inputs = None
+
     for arg in sys.argv[1:]:
         args = arg.split("=")
         if type(args) is list and len(args) > 1:
@@ -192,108 +237,144 @@ if __name__ == '__main__':
             value = None
         if token in ["-h","--help","help"]:
             syntax()
-        elif token in ["-p","--power"]:
-            power = value
-        elif token in ["-w","--weather"]:
-            weather = value
+        elif token in ["-c","--config"]:
+            config = value
         elif token in ["-o","--output"]:
-            output_file = value
+            outputs = value
+        elif token in ["-i","--input"]:
+            inputs = value
+        elif token in ["-g","--glm"]:
+            glmname = value
         elif token in ["-n","--name"]:
             name = value
-        elif token in ["--order"]:
+        elif token in ["-k","--order"]:
             K = int(value)
         elif token in ["-t","--type"]:
             modeltype = value
+        elif token in ["-w","--warning"]:
+            warning_enabled = not warning_enabled
+        elif token in ["-v","--verbose"]:
+            verbose_enabled = not verbose_enabled
+        elif token in ["-q","--quiet"]:
+            quiet_enabled = not quiet_enabled
+        elif token in ["-d","--debug"]:
+            debug_enabled = not debug_enabled
+        elif token in ["--test"]:
+            inputs = "weather.csv"
+            outputs = "power.csv"
         else:
-            error(f"option '{token}' is not valid",1)
-    if power and weather:
-        power_data = pd.read_csv(power,converters=converters["power"])
-        ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(power_data[power_data.columns[0]])))
-        data = pd.DataFrame(power_data.groupby(ndx)[power_data.columns[1]].mean())
-        data.index.name = "datetime"
-        weather_data = pd.read_csv(weather,converters=converters["weather"])
-        weather_data.index.name = "datetime"
-        ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(weather_data[weather_data.columns[0]])))
-        data = weather_data.groupby(ndx).mean().join(data).dropna()
-        data.index.name = "datetime"
-        P = np.matrix(data["real_power"]).transpose()
-        U = []
-        U.append(np.matrix(data["temperature"]).transpose())
-        U.append(np.matrix(data["solar"]).transpose())
-        # U.append(np.matrix(np.floor(data.index.weekday/5)).transpose())
-        # U.append(np.matrix((data.index-data.index.min()).seconds/86400/365.24).transpose())
-        x,M = identify(P,np.hstack(U),K)
-        if not output_file:
-            output = sys.stdout
-        else:
-            output = open(output_file,"w")
-        if output_file.endswith(".glm"):
-            print(f"// generated from 'gridlabd {basename} {' '.join(sys.argv[1:])}'",file=output)
+            error(f"option '{token}' is not valid",E_OPTION)
+
+    # load user-specified config
+    try:
+        import importlib
+        sys.path.insert(0,os.path.dirname(config))
+        config_items = importlib.import_module(os.path.basename(config).replace('.py',''))
+        for item in dir(config_items):
+            if not item.startswith("__"):
+                value = getattr(config_items,item)
+                setattr(sys.modules[__name__],item,value)
+                verbose(f"{config}: configuration item {item} = {value} ok")
+    except Exception as msg:
+        if config:
+            error(f"unable to import config file '{config}' ({msg})",E_CONFIG)
+
+    # load and process data
+    if inputs and outputs:
+        
+        if glmname != "/dev/stdout":
+            if not glmname.endswith(".glm"):
+                error(f"output file '{glmname}' is not a supported file format",E_INVALID)
+            try:
+                sys.stdout = open(glmname,"w")
+            except Exception as err:
+                error(err,E_OUTPUT)
+
+        try:
+
+            output_data = pd.read_csv(outputs, usecols=converters.outputs.keys(), converters=converters.outputs)
+            output_names = output_data.columns[1:]
+            ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(output_data[output_data.columns[0]])))
+            data = pd.DataFrame(output_data.groupby(ndx)[output_data.columns[1]].mean())
+            verbose(data)
+
+            input_data = pd.read_csv(inputs, usecols=converters.inputs.keys(), converters=converters.inputs)
+            input_names = input_data.columns[1:]
+            ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(input_data[input_data.columns[0]])))
+            data = input_data.groupby(ndx).mean().join(data).dropna()
+            verbose(data)
+
+        except Exception as err:
+
+            error(err,E_INPUT)
+
+        print(f"// generated from 'gridlabd {basename} {' '.join(sys.argv[1:])}'")
+        for output_name in output_names:
+
+            try:
+
+                Y = np.matrix(data[output_name]).transpose()
+                U = []
+                for input_name in input_names:
+                    U.append(np.matrix(data[input_name]).transpose())
+                x,M = identify(Y,np.hstack(U),K)
+
+            except Exception as err:
+
+                error(err,E_INVALID)
+
+            except Exception as err:
+
+                error(err,E_CONFIG)
+
             if modeltype == "filter":
-                print(f"// x={x.transpose().round(2).tolist()[0]}",file=output)
+
+                print(f"// x={x.transpose().round(2).tolist()[0]}")
 
                 for n in range(len(data.columns)-1):
-                    print(f"filter {name}_{data.columns[n]}(z,1h) = (",file=output,end="")
+                    print(f"filter {name}_{data.columns[n]}(z,1h) = (",end="")
                     for k in range(0,K-1):
-                        print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",file=output,end="")            
-                    print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",file=output,end="")         
+                        print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",end="")            
+                    print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",end="")         
                     for k in range(1,K-1):
-                        print(f"{x[k-1,0]:+f}z^{K-k-1:.0f}",file=output,end="")
-                    print(f"{x[K-2,0]:+f})",file=output,end=";\n")
+                        print(f"{x[k-1,0]:+f}z^{K-k-1:.0f}",end="")
+                    print(f"{x[K-2,0]:+f})",end=";\n")
 
-                # print(f"filter {name}_solar(z,1h) = (",file=output,end="")
-                # print(f"{x[2*K+1,0]:+f}z^{K}",file=output,end="")            
-                # for k in range(1,K+1):
-                #     print(f"{x[k+2*K+1,0]:+f}z^{K-k:.0f}",file=output,end="")            
-                # print(f") / (z^{K}",file=output,end="")
-                # for k in range(0,K):
-                #     print(f"{x[k,0]:+f}z^{K-k-1:.0f}",file=output,end="")
-                # print(")",file=output)
-
-                # print(f"filter {name}_weekend(z,1h) = ",file=output,end="")
-                # print(f"{x[3*K+2,0]:+f}",file=output,end="")            
-                # print(f" / (z^{K}",file=output,end="")
-                # for k in range(0,K):
-                #     print(f"{x[k,0]:+f}z^{K-k-1:.0f}",file=output,end="")
-                # print(")",file=output)
-
-                weather_name = f"weather_{random.randint(1e15,1e16)}"
-                print("module tape;",file=output)
-                print("class","weather","{",file=output)
+                input_object = f"input_{random.randint(1e15,1e16):x}"
+                print("module tape;")
+                print("class","input","{")
                 for n in range(len(data.columns)):
-                    print("   ","double",data.columns[n],file=output,end=";\n")
-                print("}",file=output)
-                print("object weather {",file=output)
-                print("   ","name",weather_name,file=output,end=";\n")
-                print("   ","object","player","{",file=output)
-                print("   ","   ","file",f"\"{weather}\"",file=output,end=";\n")
-                print("   ","}",file=output,end=";\n")
-                print("}",file=output)
+                    print("   ","double",data.columns[n],end=";\n")
+                print("}")
+                print("object input {")
+                print("   ","name",input_object,end=";\n")
+                print("   ","object","player","{")
+                print("   ","   ","file",f"\"{inputs}\"",end=";\n")
+                print("   ","}",end=";\n")
+                print("}")
 
-                print("module","powerflow",file=output,end=";\n")
-                load_name = f"weather_{random.randint(1e15,1e16)}"
-                print("object load {",file=output)
-                print("   ","name",f"{load_name}",file=output,end=";\n")
-                print("   ","phases",phases,file=output,end=";\n")
-                print("   ","nominal_voltage",nominal_voltage,"V",file=output,end=";\n")
-                for source in ["temperature","solar"]:
-                    print("   ","object","load","{",file=output)
-                    print("   ","   ","name",f"{load_name}_{source}",file=output,end=";\n")
+                print("module","powerflow",end=";\n")
+                load_name = f"load_{random.randint(1e15,1e16):x}"
+                print("object load {")
+                print("   ","name",f"{load_name}",end=";\n")
+                print("   ","phases",phases,end=";\n")
+                print("   ","nominal_voltage",nominal_voltage,"V",end=";\n")
+                for input_name in input_names:
+                    print("   ","object","load","{")
+                    print("   ","   ","name",f"{load_name}_{input_name}",end=";\n")
                     if "D" in phases:
-                        print("   ","   ","constant_power_AB_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
-                        print("   ","   ","constant_power_BC_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
-                        print("   ","   ","constant_power_CA_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
+                        print("   ","   ","constant_power_AB_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_BC_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_CA_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
                     else:
-                        print("   ","   ","constant_power_A_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
-                        print("   ","   ","constant_power_B_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
-                        print("   ","   ","constant_power_C_real",f"{name}_{source}({weather_name}:{source})",file=output,end=";\n")
-                    print("   ","}",file=output,end=";\n")
-                print("}",file=output)
-            elif modeltype == "player":
-                print()
+                        print("   ","   ","constant_power_A_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_B_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_C_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                    print("   ","}",end=";\n")
+                print("}")
+            # elif modeltype == "player":
+            #     print()
             else:
-                error(f"modeltype '{modeltype}' is not valid",2)
-        else:
-            error(f"output file '{output_file}' is not a support file format",3)
+                error(f"modeltype '{modeltype}' is not valid",E_INVALID)
     else:
         syntax(1)    
