@@ -80,7 +80,7 @@ omits the solar data in the input file.
 
 EXAMPLE
 
-    $ gridlabd load_model -i=power.csv -o=weather.csv -g=/tmp/test.glm
+    $ gridlabd load_model -o=power.csv -i=weather.csv -g=/tmp/test.glm
 
 """
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     basename = os.path.basename(sys.argv[0]).replace('.py','')
     
     K = 24
-    name = "load"
+    load_name = None
     modeltype = "filter"
     phases = "ABC"
     nominal_voltage = 120.0
@@ -246,7 +246,7 @@ if __name__ == '__main__':
         elif token in ["-g","--glm"]:
             glmname = value
         elif token in ["-n","--name"]:
-            name = value
+            load_name = value
         elif token in ["-k","--order"]:
             K = int(value)
         elif token in ["-t","--type"]:
@@ -279,9 +279,10 @@ if __name__ == '__main__':
         if config:
             error(f"unable to import config file '{config}' ({msg})",E_CONFIG)
 
-    # load and process data
+    # processing requirements met
     if inputs and outputs:
         
+        # set output
         if glmname != "/dev/stdout":
             if not glmname.endswith(".glm"):
                 error(f"output file '{glmname}' is not a supported file format",E_INVALID)
@@ -290,6 +291,7 @@ if __name__ == '__main__':
             except Exception as err:
                 error(err,E_OUTPUT)
 
+        # load data
         try:
 
             output_data = pd.read_csv(outputs, usecols=converters.outputs.keys(), converters=converters.outputs)
@@ -308,9 +310,11 @@ if __name__ == '__main__':
 
             error(err,E_INPUT)
 
+        # begin outputing model
         print(f"// generated from 'gridlabd {basename} {' '.join(sys.argv[1:])}'")
         for output_name in output_names:
 
+            # perform model fit
             try:
 
                 Y = np.matrix(data[output_name]).transpose()
@@ -322,10 +326,6 @@ if __name__ == '__main__':
             except Exception as err:
 
                 error(err,E_INVALID)
-
-            except Exception as err:
-
-                error(err,E_CONFIG)
 
             if modeltype == "filter":
 
@@ -354,7 +354,8 @@ if __name__ == '__main__':
                 print("}")
 
                 print("module","powerflow",end=";\n")
-                load_name = f"load_{random.randint(1e15,1e16):x}"
+                if not load_name:
+                    load_name = f"load_{random.randint(1e15,1e16):x}"
                 print("object load {")
                 print("   ","name",f"{load_name}",end=";\n")
                 print("   ","phases",phases,end=";\n")
@@ -372,8 +373,6 @@ if __name__ == '__main__':
                         print("   ","   ","constant_power_C_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
                     print("   ","}",end=";\n")
                 print("}")
-            # elif modeltype == "player":
-            #     print()
             else:
                 error(f"modeltype '{modeltype}' is not valid",E_INVALID)
     else:
