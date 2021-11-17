@@ -17,7 +17,7 @@ yum -q install libcurl-devel -y
 
 # python3.9.x support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then
-	yum install openssl-devel bzip2-devel libffi-devel zlib-devel -q -y
+	yum install openssl-devel bzip2-devel libffi-devel zlib-devel xz-devel -q -y
 	cd /usr/local/src
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	cd Python-3.9.6
