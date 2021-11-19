@@ -331,8 +331,10 @@ if __name__ == '__main__':
 
                 print(f"// x={x.transpose().round(2).tolist()[0]}")
 
+                if not load_name:
+                    load_name = f"load_{random.randint(1e15,1e16):x}"
                 for n in range(len(data.columns)-1):
-                    print(f"filter {name}_{data.columns[n]}(z,1h) = (",end="")
+                    print(f"filter {load_name}_{data.columns[n]}(z,1h) = (",end="")
                     for k in range(0,K-1):
                         print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",end="")            
                     print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",end="")         
@@ -343,8 +345,8 @@ if __name__ == '__main__':
                 input_object = f"input_{random.randint(1e15,1e16):x}"
                 print("module tape;")
                 print("class","input","{")
-                for n in range(len(data.columns)):
-                    print("   ","double",data.columns[n],end=";\n")
+                for name in input_names:
+                    print("   ","double",name,end=";\n")
                 print("}")
                 print("object input {")
                 print("   ","name",input_object,end=";\n")
@@ -354,8 +356,6 @@ if __name__ == '__main__':
                 print("}")
 
                 print("module","powerflow",end=";\n")
-                if not load_name:
-                    load_name = f"load_{random.randint(1e15,1e16):x}"
                 print("object load {")
                 print("   ","name",f"{load_name}",end=";\n")
                 print("   ","phases",phases,end=";\n")
@@ -364,13 +364,13 @@ if __name__ == '__main__':
                     print("   ","object","load","{")
                     print("   ","   ","name",f"{load_name}_{input_name}",end=";\n")
                     if "D" in phases:
-                        print("   ","   ","constant_power_AB_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_BC_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_CA_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_AB_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_BC_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_CA_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
                     else:
-                        print("   ","   ","constant_power_A_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_B_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_C_real",f"{name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_A_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_B_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ","   ","constant_power_C_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
                     print("   ","}",end=";\n")
                 print("}")
             else:
