@@ -1,5 +1,5 @@
 
-#python -m load_model -o=power.csv -i=weather.csv -c=load_model_config.py -g=/tmp/test.glm -k=2 -n=load
+//#python -m load_model -o=power.csv -i=weather.csv -c=load_model_config.py -g=/tmp/test.glm -k=24 -n=load
 
 #include "/tmp/test.glm"
 
@@ -11,8 +11,16 @@ clock {
 
 object recorder
 {
-	parent "load";
-	property "constant_power_A_real";
+	parent "load_solar";
+	property "constant_power_A_real,constant_power_B_real,constant_power_C_real";
+	file "load_model.csv";
+	interval 1 h;
+}
+
+object recorder
+{
+	parent "load_temperature";
+	property "constant_power_A_real,constant_power_B_real,constant_power_C_real";
 	file "load_model.csv";
 	interval 1 h;
 }
