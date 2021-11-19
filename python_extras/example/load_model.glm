@@ -1,5 +1,5 @@
 
-//#python -m load_model -o=power.csv -i=weather.csv -c=load_model_config.py -g=/tmp/test.glm -k=24 -n=load
+#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=2 -R=output.csv
 
 #include "/tmp/test.glm"
 
@@ -7,20 +7,4 @@ clock {
 	timezone "PST+8PDT";
 	starttime "2017-09-01 00:00:00";
 	stoptime "2017-10-01 00:00:00";
-}
-
-object recorder
-{
-	parent "load_solar";
-	property "constant_power_A_real,constant_power_B_real,constant_power_C_real";
-	file "load_model.csv";
-	interval 1 h;
-}
-
-object recorder
-{
-	parent "load_temperature";
-	property "constant_power_A_real,constant_power_B_real,constant_power_C_real";
-	file "load_model.csv";
-	interval 1 h;
 }

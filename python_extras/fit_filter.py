@@ -1,18 +1,20 @@
-"""Create a load model from load data
+"""Create filters from data
 
 SYNTAX
 
-  $ gridlabd load_model -i|--input=INPUTCSV -o|--output=OUTPUTCSV [-k|--order] 
-        [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] [-n|--name=LOADNAME] [-t|--type=LOADTYPE]
+  $ gridlabd fit_filter -i|--input=INPUTCSV -o|--output=OUTPUTCSV [-k|--order] 
+        [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] 
+        [-M|--module=MODULENAME] [-C|--class=CLASSNAME] [-N|--name=OBJNAME]
+        [-P|--player[=PLAYERCSV]] [-R|--recorder=RECORDERCSV]
         [-v|--verbose] [-w|--warning] [-q|--quiet] [-d|--debug]
         [-h|--help|help] [--test] 
         [OPTIONS ...]
 
 DESCRIPTION
 
-The `load_model` utility creates a load model from N input and M output
-channels of data by fitting a Kth-order transfer functions to the data using
-a least-squares linear regressions of the equations
+The `fit_filter` utility creates NxM filters from N input and M output
+channels of data by fitting a Kth-order discrete-time transfer functions to
+the data using a least-squares linear regressions of the equations
 
     Y0 = -a1*Y1 - ... -aK*YK + b0*U0 + ... + bK*UK + ... + c0*V0 + ... cK*VK
     ...
@@ -36,16 +38,28 @@ where
     VK is the input channel M at time t-K
     a, b, c, d, e, and f are the coefficient of the transfer functions
 
+If a MODULENAME and CLASSNAME are specified, then an object of that class will be
+created with the filter as inputs and object properties as outputs.  If the
+module is not specified, the class is defined as a runtime class with all
+inputs and outputs specified as doubles.  If OBJNAME is specified the object is 
+given that name, otherwise a random object name is generated and appended to the 
+OBJNAME global variable.
+
+If PLAYERCSV is specified, then any created object will have the inputs 
+assigned from that file.  If RECORDERCSV is specified, then any object created will
+have the outputs recorded to that file.
+
 CONFIGURATION
 
-By default all the columns of the input and output files are used in the load
-model identification.  Consequently there will be M x N transfer functions
-identified.  To prevent columns from being used you must use the
-`-c|--config=CONFIGNAME` option to specify how columns are loaded. The file
-CONFIGNAME must be a valid Python file. The class `converters` must be
-defined, and contain the properties `inputs` and `outputs`.  These must be 
-dictionaries where the keys are the column names, and values of the converters
-to be used for those columns.  
+By default all the columns of the input and output files are used in the
+filter model identification.  Consequently there will be M x N transfer
+functions identified.  To prevent columns from being used you must specify
+the `-c|--config=CONFIGNAME` option to specify how columns are loaded. Only
+columns listed in the `converters` class will be used to generate filters.
+The file CONFIGNAME must be a valid Python file. The class `converters` must
+be defined, and contain the properties `inputs` and `outputs`.  These must be
+dictionaries where the keys are the column names, and values of the
+converters to be used for those columns.  
 
 For the example below, the following converter files can be used:
 
@@ -67,9 +81,9 @@ For the example below, the following converter files can be used:
         outputs = {"timestamp":timestamp,"real_power":real}
         inputs = {"datetime":datetime,"temperature":real,"solar":real}
 
-Note that using a converter often speeds up the load process because the
+Note that using a converter often speeds up the CSV read process because the
 date/time format is specified and the loader does not need to deduce the
-format automatically, which can take additional time.
+format automatically, which can take significant additional time.
 
 To limit which columns of the input or output files are used, it is sufficient
 to omit them from the converter list.  For example, 
@@ -80,11 +94,11 @@ omits the solar data in the input file.
 
 EXAMPLE
 
-    $ gridlabd load_model -o=power.csv -i=weather.csv -g=/tmp/test.glm
+    $ gridlabd fit_filter -o=power.csv -i=weather.csv -g=/tmp/test.glm
 
 """
 
-import os, sys, warnings
+import os, sys, warnings, subprocess, json
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -160,9 +174,7 @@ def identify(Y, X, K = 24,
         M is the historical data assembled from X and Y
         
         x is the model
-        
-        Z is the hold out data (if any)
-    """
+"""
     L = len(Y)
     M = np.hstack([-np.hstack([Y[n:L-K+n] for n in range(K)]),
                    +np.hstack([X[n+1:L-K+n+1] for n in range(K)])])
@@ -175,9 +187,15 @@ if __name__ == '__main__':
     basename = os.path.basename(sys.argv[0]).replace('.py','')
     
     K = 24
-    load_name = None
-    modeltype = "filter"
-    phases = "ABC"
+    inputs = None
+    outputs = None
+    glmname = "/dev/stdout"
+    modulename = None
+    classname = None
+    config = None
+    objname = None
+    playername = None
+    recordername = None
     nominal_voltage = 120.0
     verbose_enabled = False
     warning_enabled = True
@@ -215,14 +233,9 @@ if __name__ == '__main__':
         if warnings_enabled:
             print(f"WARNINGS [{basename}]: {msg}",file=sys.stderr)
 
-    inputs = None
-    outputs = None
-    glmname = "/dev/stdout"
-    config = None
-
     class converters:
-        outputs = None
-        inputs = None
+        outputs = {}
+        inputs = {}
 
     for arg in sys.argv[1:]:
         args = arg.split("=")
@@ -245,12 +258,20 @@ if __name__ == '__main__':
             inputs = value
         elif token in ["-g","--glm"]:
             glmname = value
-        elif token in ["-n","--name"]:
-            load_name = value
         elif token in ["-k","--order"]:
             K = int(value)
         elif token in ["-t","--type"]:
             modeltype = value
+        elif token in ["-N","--name"]:
+            objname = value
+        elif token in ["-M","--module"]:
+            modulename = value
+        elif token in ["-C","--class"]:
+            classname = value
+        elif token in ["-P","--player"]:
+            playername = value
+        elif token in ["-R","--recorder"]:
+            recordername = value
         elif token in ["-w","--warning"]:
             warning_enabled = not warning_enabled
         elif token in ["-v","--verbose"]:
@@ -291,16 +312,31 @@ if __name__ == '__main__':
             except Exception as err:
                 error(err,E_OUTPUT)
 
+        # begin outputing model
+        print(f"// generated from 'gridlabd {basename} {' '.join(sys.argv[1:])}'")
+        gldver = subprocess.run("gridlabd -D suppress_repeat_messages=FALSE --version=number --version=build --version=branch".split(),capture_output=True).stdout.decode('utf-8').split('\n')
+        print(f"#define FIT_FILTER_VERSION_NUMBER={gldver[0]}")
+        print(f"#define FIT_FILTER_VERSION_BUILD={gldver[1]}")
+        print(f"#define FIT_FILTER_VERSION_BRANCH={gldver[2]}",flush=True)
+
         # load data
         try:
 
-            output_data = pd.read_csv(outputs, usecols=converters.outputs.keys(), converters=converters.outputs)
+            if converters.outputs:
+                output_cols = converters.outputs.keys()
+            else:
+                output_cols = None
+            output_data = pd.read_csv(outputs, usecols=output_cols, converters=converters.outputs)
             output_names = output_data.columns[1:]
             ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(output_data[output_data.columns[0]])))
             data = pd.DataFrame(output_data.groupby(ndx)[output_data.columns[1]].mean())
             verbose(data)
 
-            input_data = pd.read_csv(inputs, usecols=converters.inputs.keys(), converters=converters.inputs)
+            if converters.inputs:
+                input_cols = converters.inputs.keys()
+            else:
+                input_cols = None
+            input_data = pd.read_csv(inputs, usecols=input_cols, converters=converters.inputs)
             input_names = input_data.columns[1:]
             ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(input_data[input_data.columns[0]])))
             data = input_data.groupby(ndx).mean().join(data).dropna()
@@ -308,10 +344,9 @@ if __name__ == '__main__':
 
         except Exception as err:
 
+            print(f"#error {basename} {err}")
             error(err,E_INPUT)
 
-        # begin outputing model
-        print(f"// generated from 'gridlabd {basename} {' '.join(sys.argv[1:])}'")
         for output_name in output_names:
 
             # perform model fit
@@ -325,55 +360,59 @@ if __name__ == '__main__':
 
             except Exception as err:
 
+                print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            if modeltype == "filter":
+            print(f"// x={x.transpose().round(2).tolist()[0]}")
 
-                print(f"// x={x.transpose().round(2).tolist()[0]}")
+            for n in range(len(data.columns)-1):
+                print(f"\n// {data.columns[n]} --> {output_name}")
+                print(f"filter {output_name}_{data.columns[n]}(z,1h) = (",end="")
+                for k in range(0,K-1):
+                    print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",end="")            
+                print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",end="")         
+                for k in range(1,K-1):
+                    print(f"{x[k-1,0]:+f}z^{K-k-1:.0f}",end="")
+                print(f"{x[K-2,0]:+f})",end=";\n")
 
-                if not load_name:
-                    load_name = f"load_{random.randint(1e15,1e16):x}"
-                for n in range(len(data.columns)-1):
-                    print(f"filter {load_name}_{data.columns[n]}(z,1h) = (",end="")
-                    for k in range(0,K-1):
-                        print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",end="")            
-                    print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",end="")         
-                    for k in range(1,K-1):
-                        print(f"{x[k-1,0]:+f}z^{K-k-1:.0f}",end="")
-                    print(f"{x[K-2,0]:+f})",end=";\n")
-
-                input_object = f"input_{random.randint(1e15,1e16):x}"
+            if playername:
                 print("module tape;")
                 print("class","input","{")
                 for name in input_names:
                     print("   ","double",name,end=";\n")
                 print("}")
+                input_object = f"input_{random.randint(1e15,1e16):x}"
+                print("#define",f"INPUTNAME={input_object}")
                 print("object input {")
                 print("   ","name",input_object,end=";\n")
                 print("   ","object","player","{")
-                print("   ","   ","file",f"\"{inputs}\"",end=";\n")
+                print("   ","   ","file",f"\"{playername}\"",end=";\n")
                 print("   ","}",end=";\n")
                 print("}")
 
-                print("module","powerflow",end=";\n")
-                print("object load {")
-                print("   ","name",f"{load_name}",end=";\n")
-                print("   ","phases",phases,end=";\n")
-                print("   ","nominal_voltage",nominal_voltage,"V",end=";\n")
-                for input_name in input_names:
-                    print("   ","object","load","{")
-                    print("   ","   ","name",f"{load_name}_{input_name}",end=";\n")
-                    if "D" in phases:
-                        print("   ","   ","constant_power_AB_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_BC_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_CA_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                    else:
-                        print("   ","   ","constant_power_A_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_B_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                        print("   ","   ","constant_power_C_real",f"{load_name}_{input_name}({input_object}:{input_name})",end=";\n")
-                    print("   ","}",end=";\n")
-                print("}")
-            else:
-                error(f"modeltype '{modeltype}' is not valid",E_INVALID)
+                if classname:
+                    if modulename:
+                        print("module","powerflow",end=";\n")
+                    print("class",classname,"{")
+                    for name in output_names:
+                        print("   ","double",name,end=";\n")
+                    print("}")
+
+                    if not objname:
+                        objname = f"{classname}_{random.randint(1e15,1e16):x}"
+
+                    print("#define",f"OUTPUTNAME={objname}")
+                    print("object",classname,"{")
+                    print("   ","name",f"{objname}",end=";\n")
+                    for output_name in output_names:
+                        print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                    if recordername:
+                        print("   ","object","recorder","{")
+                        print("   ","    ","file",recordername,end=";\n")
+                        print("   ","    ","property",",".join(output_names),end=";\n");
+                        print("   ","    ","interval",-1,end=";\n")
+                        print("   ","}",end=";\n")
+                    print("}")
+
     else:
         syntax(1)    
