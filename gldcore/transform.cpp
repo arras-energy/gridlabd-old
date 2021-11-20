@@ -238,7 +238,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,filter, object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 		return 0;
 	}
-	xform->x = (double*)malloc(sizeof(double)*(tf->n-1));
+	xform->x = (double*)malloc(sizeof(double)*(tf->n));
 	if ( xform->x == NULL )
 	{
 		output_error("transform_add_filter(source='%s:%s',filter='%s',target='%s:%s'): memory allocation failure",
@@ -246,7 +246,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 		free(xform);
 		return 0;
 	}
-	memset(xform->x,0,sizeof(double)*(tf->n-1));
+	memset(xform->x,0,sizeof(double)*(tf->n));
 
 	// build tranform
 	xform->source = object_get_double_by_name(source_obj,source_prop->name);
