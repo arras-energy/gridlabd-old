@@ -17,6 +17,8 @@ EXPORT complex *delta_linkage(OBJECT *obj, unsigned char mapvar);
 EXPORT STATUS delta_frequency_node(OBJECT *obj, complex *powerval, complex *freqpowerval);
 EXPORT SIMULATIONMODE interupdate_node(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 EXPORT STATUS swap_node_swing_status(OBJECT *obj, bool desired_status);
+EXPORT STATUS node_swing_status(OBJECT *this_obj, bool *swing_status_check_value, bool *swing_pq_status_value);
+EXPORT STATUS node_reset_disabled_status(OBJECT *nodeObj);
 EXPORT STATUS node_map_current_update_function(OBJECT *nodeObj, OBJECT *callObj);
 EXPORT STATUS attach_vfd_to_node(OBJECT *obj,OBJECT *calledVFD);
 
@@ -139,6 +141,8 @@ public:
 	unsigned short k;			///< incidence count (number of links connecting to this node) */
 	complex *prev_voltage_value;	// Pointer for array used to store previous voltage value for Master/Slave functionality
 	complex *prev_power_value;		// Pointer for array used to store previous power value for Master/Slave functionality
+
+	bool reset_island_state;			//< Flagging variable - indicates the disabled island state should be re-evaluated
 public:
 	// status
 	enum {
@@ -262,11 +266,17 @@ public:
 
 	int NR_populate(void);
 	OBJECT *SubNodeParent;	/// Child node's original parent or child of parent
-	int NR_current_update(bool postpass, bool parentcall);
+	int NR_current_update(bool parentcall);
 	object TopologicalParent;	/// Child node's original parent as per the topological configuration in the GLM file
 
 	//NR bus status toggle function
 	STATUS NR_swap_swing_status(bool desired_status);
+
+	//NR bus swing-status check
+	void NR_swing_status_check(bool *swing_status_check_value, bool *swing_pq_status_value);
+
+	//Island-condition reset function
+	STATUS reset_node_island_condition(void);
 
 	//Function to map "internal powerflow iteration" current injection updates
 	STATUS NR_map_current_update_function(OBJECT *callObj);

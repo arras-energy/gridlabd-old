@@ -1,0 +1,48 @@
+#ifexist "../test_player_header.csv"
+#define DIR=".."
+#endif
+class weather
+{
+	double solar_global[W/sf];
+	double solar_horizontal[W/sf];
+	double solar_direct[W/sf];
+	double clouds;
+	double dewpoint[degF];
+	double temperature[degF];
+	double ground_reflectivity[pu];
+	double wind_speed[m/s];
+	double wind_dir[rad];
+	double solar_altitude[deg];
+	double humidity[%];
+	double pressure[mbar];
+	double heat_index[degF];
+}
+module tape
+{
+	csv_header_type NAME;
+}
+object weather
+{
+	name "weather@9q9j6b";
+	latitude 37.49;
+	longitude -122.22;
+	object player
+	{
+		file "${DIR:-.}/test_player_header.csv";
+	};
+	object recorder
+	{
+		file "test_player_header_output.csv";
+		property "solar_global,solar_horizontal,solar_direct,clouds,dewpoint,temperature,ground_reflectivity,wind_speed,wind_dir,solar_altitude,humidity,pressure,heat_index";
+	};
+}
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2018-01-01 00:00:00 PST";
+	stoptime "2019-01-01 00:00:00 PST";
+}
+
+#ifdef DIR
+#on_exit 0 diff test_player_header_output.csv ${DIR}/test_player_header_output.csv
+#endif

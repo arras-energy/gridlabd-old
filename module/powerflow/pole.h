@@ -18,8 +18,11 @@ public:
     static pole *defaults;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
+	GL_ATOMIC(enumeration,pole_type);
 	enum {PS_OK=0, PS_FAILED=1};
 	GL_ATOMIC(enumeration, pole_status);
+	enum {FT_UNKNOWN=0, FT_FOUNDATION=1, FT_BASE=2, FT_MIDDLE=3, FT_TOP=4};
+	GL_ATOMIC(enumeration, failure_type);
 	GL_ATOMIC(double, tilt_angle);
 	GL_ATOMIC(double, tilt_direction);
 	GL_ATOMIC(object, configuration);
