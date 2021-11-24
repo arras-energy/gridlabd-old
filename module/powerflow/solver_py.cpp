@@ -919,7 +919,7 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			"SAr","SAi","SBr","SBi","SCr","SCi",
 			"YAr","YAi","YBr","YBi","YCr","YCi",
 			"IAr","IAi","IBr","IBi","ICr","ICi",
-			"VAr","VAi","VBr","VBi","VCr","VCi",
+			"VAm","VAa","VBm","VBa","VCm","VCa",
 		};
 		size_t ntags = sizeof(tags)/sizeof(tags[0]);
 		PyObject *taglist = PyList_New(ntags);
@@ -961,24 +961,28 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,16,bus[n].I[2].r);
 			SET_BUS(n,17,bus[n].I[2].i);
 
-			SET_BUS(n,18,bus[n].V[0].r);
-			SET_BUS(n,19,bus[n].V[0].i);
-			SET_BUS(n,20,bus[n].V[1].r);
-			SET_BUS(n,21,bus[n].V[1].i);
-			SET_BUS(n,22,bus[n].V[2].r);
-			SET_BUS(n,23,bus[n].V[2].i);
+			SET_BUS(n,18,bus[n].V[0].Mag());
+			SET_BUS(n,19,bus[n].V[0].Ang());
+			SET_BUS(n,20,bus[n].V[1].Mag());
+			SET_BUS(n,21,bus[n].V[1].Ang());
+			SET_BUS(n,22,bus[n].V[2].Mag());
+			SET_BUS(n,23,bus[n].V[2].Ang());
 		}
 	}
 	else if ( dir == ED_IN )
 	{
 		for ( size_t n = 0 ; n < bus_count  ; n++ )
 		{
-			GET_BUS(n,18,bus[n].V[0].r);
-			GET_BUS(n,19,bus[n].V[0].i);
-			GET_BUS(n,20,bus[n].V[1].r);
-			GET_BUS(n,21,bus[n].V[1].i);
-			GET_BUS(n,22,bus[n].V[2].r);
-			GET_BUS(n,23,bus[n].V[2].i);
+			double mag, ang;
+			GET_BUS(n,18,mag);
+			GET_BUS(n,19,ang);
+			bus[n].V[0].SetPolar(mag,ang);
+			GET_BUS(n,20,mag);
+			GET_BUS(n,21,ang);
+			bus[n].V[1].SetPolar(mag,ang);
+			GET_BUS(n,22,mag);
+			GET_BUS(n,23,ang);
+			bus[n].V[2].SetPolar(mag,ang);
 		}
 	}
 }
@@ -1482,7 +1486,6 @@ PyObject *sync_solution(
 		return Py_None;
 	}
 }
-
 
 void solver_python_learn (
 	unsigned int bus_count,
