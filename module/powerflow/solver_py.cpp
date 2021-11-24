@@ -487,6 +487,10 @@ int solver_python_init(void)
 				pKwargs = PyDict_New();
 			}
 			PyDict_SetItemString(pModel,"options",pKwargs);
+			if ( pSolution == NULL )
+			{
+				pSolution = PyDict_Copy(pModel);
+			}
 		}
 		if ( ! python_mle_data_only )
 		{
@@ -501,10 +505,6 @@ int solver_python_init(void)
 			if ( pLearndata == NULL )
 			{
 				init_learndata();
-			}
-			if ( pSolution == NULL )
-			{
-				pSolution = PyDict_Copy(pModel);
 			}
 		}
 		return 0;
@@ -1466,25 +1466,12 @@ PyObject *sync_solution(
 	bool *bad_computations,
 	int64 iterations)
 {
-	if ( ! python_mle_data_only )
-	{
-		sync_bad_computations(pSolution,bad_computations);
-		sync_iterations(pSolution,iterations);
-		sync_powerflow_values(pSolution,buscount,powerflow_values);
-		sync_powerflow_type(pSolution,powerflow_type);
-		sync_mesh_imped_values(pSolution,mesh_imped_values);
-		return pSolution;
-	}
-	else if ( pBusdata )
-	{
-		Py_INCREF(pBusdata);
-		return pBusdata;
-	}
-	else
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+	sync_bad_computations(pSolution,bad_computations);
+	sync_iterations(pSolution,iterations);
+	sync_powerflow_values(pSolution,buscount,powerflow_values);
+	sync_powerflow_type(pSolution,powerflow_type);
+	sync_mesh_imped_values(pSolution,mesh_imped_values);
+	return pSolution;
 }
 
 void solver_python_learn (
