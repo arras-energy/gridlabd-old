@@ -3,7 +3,7 @@
 SYNTAX
 
   $ gridlabd fit_filter -i|--input=INPUTCSV -o|--output=OUTPUTCSV [-k|--order] 
-        [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] 
+        [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] [-I|--init=ISODATETIME]
         [-M|--module=MODULENAME] [-C|--class=CLASSNAME] [-N|--name=OBJNAME]
         [-P|--player[=PLAYERCSV]] [-R|--recorder=RECORDERCSV]
         [-v|--verbose] [-w|--warning] [-q|--quiet] [-d|--debug]
@@ -101,7 +101,7 @@ EXAMPLE
 import os, sys, warnings, subprocess, json
 import numpy as np
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 
 def identify(Y, X, K = 24,
@@ -201,6 +201,7 @@ if __name__ == '__main__':
     warning_enabled = True
     debug_enabled = False
     quiet_enabled = False
+    init_time = None
 
     # exit codes
     E_OK = 0 # no error
@@ -241,7 +242,7 @@ if __name__ == '__main__':
         args = arg.split("=")
         if type(args) is list and len(args) > 1:
             token = args[0]
-            value = args[1]
+            value = "=".join(args[1:])
         elif type(args) is list:
             token = args[0]
             value = None
@@ -272,6 +273,8 @@ if __name__ == '__main__':
             playername = value
         elif token in ["-R","--recorder"]:
             recordername = value
+        elif token in ["-I","--init"]:
+            init_time = datetime.fromisoformat(value)
         elif token in ["-w","--warning"]:
             warning_enabled = not warning_enabled
         elif token in ["-v","--verbose"]:
@@ -347,6 +350,14 @@ if __name__ == '__main__':
             print(f"#error {basename} {err}")
             error(err,E_INPUT)
 
+        if init_time:
+            back_time = init_time - timedelta(hours=K)
+            print(f"\n// initial input and state vector from {back_time} to {init_time}")
+            U0 = data[input_names][back_time:init_time].to_dict('list')
+            print(f"#define U0={U0}")
+            X0 = data[output_names][back_time:init_time].to_dict('list')
+            print(f"#define X0={X0}")
+
         for output_name in output_names:
 
             # perform model fit
@@ -363,7 +374,7 @@ if __name__ == '__main__':
                 print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            print(f"// x={x.transpose().round(2).tolist()[0]}")
+            print(f"// fit = {x.transpose().round(2).tolist()[0]}")
 
             for n in range(len(data.columns)-1):
                 print(f"\n// {data.columns[n]} --> {output_name}")
@@ -405,7 +416,7 @@ if __name__ == '__main__':
                     print("object",classname,"{")
                     print("   ","name",f"{objname}",end=";\n")
                     for output_name in output_names:
-                        print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name})",end=";\n")
+                        print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name},u={U0[input_name]},x={X0[output_name]})",end=";\n")
                     if recordername:
                         print("   ","object","recorder","{")
                         print("   ","    ","file",recordername,end=";\n")
