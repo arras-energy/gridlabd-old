@@ -373,17 +373,10 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	unsigned int m = f->m;
 	double *a = f->a;
 	double *b = f->b;
-	static double *dx = NULL;
-	static unsigned int len = 0;
+	unsigned int len = (n/sizeof(double)+1)*sizeof(double)+1;
+	double dx[len];
 	unsigned int i;
 
-	// memory check
-	if ( n > len )
-	{
-		len = (n/4+1)*4;
-		dx = (double*)realloc(dx,len);
-		IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): allocating %d doubles to dx", f->name, f->domain,len);
-	}
 	IN_MYCONTEXT
 	{
 		char buffer[1024] = "";
