@@ -1,10 +1,11 @@
-
-#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=2 -R=output.csv
-
-#include "/tmp/test.glm"
+// test load model fitting
 
 clock {
 	timezone "PST+8PDT";
 	starttime "2017-09-01 00:00:00";
 	stoptime "2017-10-01 00:00:00";
 }
+
+#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=24 -R=output.csv -I="2017-09-01T00:00:00"
+
+#include "/tmp/test.glm"
