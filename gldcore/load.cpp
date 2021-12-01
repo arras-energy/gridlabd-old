@@ -4419,9 +4419,9 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				&& MARK && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
-				char sobj[64], sprop[64];
+				char sobj[64], sprop[64], input_var[64]="", state_var[64]="";
 
-				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
+				int n = sscanf(sources,"%[^:,]:%[^,],:%[^,],:%[^,]",sobj,sprop,input_var,state_var);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4444,7 +4444,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 
 				/* add to external transform list */
-				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
+				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop,input_var[0]?input_var:NULL,state_var[0]?state_var:NULL) )
 				{
 					syntax_error(filename,linenum,"filter transform could not be created - %s", errno?strerror(errno):"(no details)");
 					REJECT;

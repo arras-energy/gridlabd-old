@@ -215,7 +215,9 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 						 PROPERTY *target_prop,	/* pointer to the target property */
 						 char *filter,			/* filter name to use */
 						 OBJECT *source_obj,		/* object containing source value (rhs) */
-						 PROPERTY *source_prop)		/* schedule object associated with target value, used if stype == XS_SCHEDULE */
+						 PROPERTY *source_prop,		/* schedule object associated with target value, used if stype == XS_SCHEDULE */
+						 const char *input_name,		/* name of global containing initial input vector */
+						 const char *state_name)      /* name of global containing initial state vector */
 {
 	char buffer1[1024], buffer2[1024];
 	TRANSFORM *xform;

@@ -354,9 +354,11 @@ if __name__ == '__main__':
             back_time = init_time - timedelta(hours=K)
             print(f"\n// initial input and state vector from {back_time} to {init_time}")
             U0 = data[input_names][back_time:init_time].to_dict('list')
-            print(f"#define U0={U0}")
+            for name in input_names:
+                print(f"#define U0_{name}={','.join(list(map(lambda z:str(z),U0[name])))}")
             X0 = data[output_names][back_time:init_time].to_dict('list')
-            print(f"#define X0={X0}")
+            for name in output_names:
+                print(f"#define X0_{name}={','.join(list(map(lambda z:str(z),X0[name])))}")
 
         for output_name in output_names:
 
@@ -374,7 +376,7 @@ if __name__ == '__main__':
                 print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            print(f"// fit = {x.transpose().round(2).tolist()[0]}")
+            print(f"\n// fit = {','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}")
 
             for n in range(len(data.columns)-1):
                 print(f"\n// {data.columns[n]} --> {output_name}")
@@ -416,7 +418,7 @@ if __name__ == '__main__':
                     print("object",classname,"{")
                     print("   ","name",f"{objname}",end=";\n")
                     for output_name in output_names:
-                        print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name},u={U0[input_name]},x={X0[output_name]})",end=";\n")
+                        print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name},:U0_{input_name},:X0_{output_name})",end=";\n")
                     if recordername:
                         print("   ","object","recorder","{")
                         print("   ","    ","file",recordername,end=";\n")
