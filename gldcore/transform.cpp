@@ -211,6 +211,32 @@ TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 		return XS_UNKNOWN;
 	}
 }
+static bool read_vector(const char *name, double *vector, size_t len)
+{
+	char values[1024];
+	if ( global_getvar(name,values,sizeof(values)) == NULL )
+	{
+		output_error("transform.cpp/read_vector(name='%s',...): global variable not found",name);
+		return false;
+	}
+	char *p = values;
+	for ( size_t n = 0 ; n < len ; n++ )
+	{
+		if ( p == NULL )
+		{
+			output_error("transform.cpp/read_vector(name='%s',...): too few values to read (missing %d values)",name,len-n-1);
+			return false;
+		}
+		vector[n] = atof(p+1);
+		p = strchr(p+1,',');
+	}
+	if ( p != NULL )
+	{
+		output_warning("transform.cpp/read_vector(name='%s',...): too many values to read ('%s' not scanned)",name,p+1);
+	}
+	return true;
+}
+
 int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (lhs) */
 						 PROPERTY *target_prop,	/* pointer to the target property */
 						 char *filter,			/* filter name to use */
@@ -240,15 +266,31 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,filter, object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 		return 0;
 	}
-	xform->x = (double*)malloc(sizeof(double)*(tf->n));
-	if ( xform->x == NULL )
+	xform->x = (double*)malloc(sizeof(double)*(tf->n+1));
+	xform->u = (double*)malloc(sizeof(double)*(tf->m+1));
+	if ( xform->x == NULL || xform->u == NULL )
 	{
 		output_error("transform_add_filter(source='%s:%s',filter='%s',target='%s:%s'): memory allocation failure",
 			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,filter, object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 		free(xform);
 		return 0;
 	}
-	memset(xform->x,0,sizeof(double)*(tf->n));
+	if ( state_name )
+	{
+		read_vector(state_name,xform->x,tf->n+1);
+	}
+	else
+	{
+		memset(xform->x,0,sizeof(double)*(tf->n+1));
+	}
+	if ( input_name )
+	{
+		read_vector(input_name,xform->u,tf->m+1);
+	}
+	else
+	{
+		memset(xform->u,0,sizeof(double)*(tf->m+1));
+	}
 
 	// build tranform
 	xform->source = object_get_double_by_name(source_obj,source_prop->name);
