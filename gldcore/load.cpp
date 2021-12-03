@@ -5847,7 +5847,7 @@ int GldLoader::filter_block(PARSER)
 		unsigned int64 flags = 0;
  		unsigned int64 resolution = 0;
  		double minimum = 0.0;
- 		double maximum = 1.0;
+ 		double maximum = 0.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
