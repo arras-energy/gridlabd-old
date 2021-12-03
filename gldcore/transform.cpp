@@ -532,16 +532,16 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		dump_vector(x,n,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
 	}
-	*y = 0;
-	for ( unsigned int i = 1 ; i < n ; i++ )
+	*y = b[0]*u[0];
+	for ( unsigned int i = 1 ; i < n ; i-- )
 	{
-		*y -= a[i]*x[i];
 		if ( i < m )
 		{
 			*y += b[i]*u[i];
 		}
+		*y -= a[i]*x[i];
 	}
-	*y /= a[0];
+	*y /= -a[0];
 	memmove(x+1,x,sizeof(double)*(n-1));
 	x[0] = *y;
 	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum && f->minimum < f->maximum )
