@@ -8,4 +8,8 @@ clock {
 
 #python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=24 -R=output.csv -I="2017-09-01T00:00:00"
 
+#set debug=TRUE
+#set output_message_context=TRANSFORM
+#set suppress_repeat_messages=FALSE
+
 #include "/tmp/test.glm"
