@@ -176,10 +176,10 @@ def identify(Y, X, K = 24,
         x is the model
 """
     L = len(Y)
-    M = np.hstack([-np.hstack([Y[n:L-K+n] for n in range(K)]),
-                   +np.hstack([X[n+1:L-K+n+1] for n in range(K)])])
+    M = np.hstack([-np.hstack([Y[n:L-K-1+n] for n in range(K+1)]),
+                   +np.hstack([X[n+1:L-K-1+n+1] for n in range(K+1)])])
     Mt = M.transpose()
-    x = np.linalg.solve(Mt*M,Mt*Y[K:])
+    x = np.linalg.solve(Mt*M,Mt*Y[K+1:])
     return x,M
 
 if __name__ == '__main__':
@@ -376,17 +376,17 @@ if __name__ == '__main__':
                 print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            print(f"\n// fit = {','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}")
+            print(f"\n// model = [{','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}]")
 
             for n in range(len(data.columns)-1):
                 print(f"\n// {data.columns[n]} --> {output_name}")
                 print(f"filter {output_name}_{data.columns[n]}(z,1h) = (",end="")
-                for k in range(0,K-1):
-                    print(f"{x[k+(n+1)*K-1,0]:+f}z^{K-k-1:.0f}",end="")            
-                print(f"{x[K-1,0]:+f} ) / (z^{K-1:.0f}",end="")         
-                for k in range(1,K-1):
-                    print(f"{x[k-1,0]:+f}z^{K-k-1:.0f}",end="")
-                print(f"{x[K-2,0]:+f})",end=";\n")
+                for k in range(0,K):
+                    print(f"{x[k+(n+1)*(K+1)-1,0]:+f}z^{K-k:.0f}",end="")            
+                print(f"{x[K,0]:+f} ) / (z^{K:.0f}",end="")         
+                for k in range(1,K):
+                    print(f"{x[k-1,0]:+f}z^{K-k:.0f}",end="")
+                print(f"{x[K-1,0]:+f})",end=";\n")
 
             if playername:
                 print("module tape;")
