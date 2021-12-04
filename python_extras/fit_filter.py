@@ -391,8 +391,8 @@ if __name__ == '__main__':
                     print(f"{x[K+2*k+n,0]:+f}z^{K-k:.0f}",end="")            
                 print(f"{x[K+2*k+n+2,0]:+f} ) / (z^{K:.0f}",end="")         
                 for k in range(1,K):
-                    print(f"{x[k-1,0]:+f}z^{K-k:.0f}",end="")
-                print(f"{x[K-1,0]:+f})",end=";\n")
+                    print(f"{x[K-k,0]:+f}z^{K-k:.0f}",end="")
+                print(f"{x[0,0]:+f})",end=";\n")
 
             if playername:
                 print("module tape;")
