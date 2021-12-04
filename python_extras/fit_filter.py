@@ -104,6 +104,8 @@ import pandas as pd
 from datetime import datetime, timedelta
 import random
 
+np.set_printoptions(edgeitems=12,linewidth=1000,formatter={"float_kind":(lambda x:f"{x:7.4g}")})
+
 def identify(Y, X, K = 24,
     daytype = False, hour = False, month = False, weekday = False,
     piecewise = {}
@@ -180,6 +182,8 @@ def identify(Y, X, K = 24,
                    np.hstack([X[n+1:L-K-1+n+1] for n in range(K+1)])])
     Mt = M.transpose()
     x = np.linalg.solve(Mt*M,Mt*Y[K+1:])
+    print(np.hstack([M,Y[K+1:]]),file=sys.stderr)
+    print(x.transpose(),file=sys.stderr)
     return x,M
 
 if __name__ == '__main__':
@@ -376,7 +380,6 @@ if __name__ == '__main__':
                 print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            np.set_printoptions(edgeitems=2*K,linewidth=50*K,formatter={"float_kind":(lambda x:f"{x:7.4g}")})
             print("")
             print(f"// data = {M}".replace("\n","\n//        "))
             print(f"\n// model = [{','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}]")
