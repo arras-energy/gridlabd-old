@@ -178,12 +178,13 @@ def identify(Y, X, K = 24,
         x is the model
 """
     L = len(Y)
-    M = np.hstack([np.hstack([Y[n:L-K-1+n] for n in range(K+1)]),
-                   np.hstack([X[n+1:L-K-1+n+1] for n in range(K+1)])])
+    M = np.hstack([np.hstack([Y[n+1:L-K+n] for n in range(K)]),
+                   np.hstack([X[n+1:L-K+n] for n in range(K+1)])])
     Mt = M.transpose()
     x = np.linalg.solve(Mt*M,Mt*Y[K+1:])
-    print(np.hstack([M,Y[K+1:]]),file=sys.stderr)
-    print(x.transpose(),file=sys.stderr)
+    if debug_enabled:
+        print(np.hstack([M,Y[K+1:]]),file=sys.stderr)
+        print(x.transpose(),file=sys.stderr)
     return x,M
 
 if __name__ == '__main__':
@@ -355,14 +356,14 @@ if __name__ == '__main__':
             error(err,E_INPUT)
 
         if init_time:
-            back_time = init_time - timedelta(hours=K)
+            back_time = init_time - timedelta(hours=K+1)
             print(f"\n// initial input and state vector from {back_time} to {init_time}")
-            U0 = data[input_names][back_time:init_time].to_dict('list')
+            U0 = data[input_names][back_time:init_time-timedelta(hours=1)].to_dict('list')
             for name in input_names:
-                print(f"#define U0_{name}={','.join(list(map(lambda z:str(z),U0[name])))}")
-            X0 = data[output_names][back_time:init_time].to_dict('list')
+                print(f"#define U0_{name}={','.join(list(map(lambda z:str(z),reversed(U0[name]))))}")
+            X0 = data[output_names][back_time:init_time-timedelta(hours=1)].to_dict('list')
             for name in output_names:
-                print(f"#define X0_{name}={','.join(list(map(lambda z:str(z),X0[name])))}")
+                print(f"#define X0_{name}={','.join(list(map(lambda z:str(z),reversed(X0[name]))))}")
 
         for output_name in output_names:
 
@@ -380,9 +381,11 @@ if __name__ == '__main__':
                 print(f"#error {basename} {err}")
                 error(err,E_INVALID)
 
-            print("")
-            print(f"// data = {M}".replace("\n","\n//        "))
-            print(f"\n// model = [{','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}]")
+            if debug_enabled:
+                print("")
+                print(f"// input = {M}".replace("\n","\n//         "))
+                print(f"// output = {Y[K+1:]}".replace("\n","\n//          "))
+                print(f"\n// model = [{','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}]")
 
             for n in range(len(data.columns)-1):
                 print(f"\n// {data.columns[n]} --> {output_name}")

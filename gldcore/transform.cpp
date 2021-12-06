@@ -101,6 +101,74 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 	}
 	return len;
 }
+
+static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen)
+{
+	size_t pos = snprintf(buffer,maxlen,"[ ");
+	for ( size_t i = 0 ; i < n && pos < maxlen-10; i++ )
+	{
+		pos += snprintf(buffer+pos,maxlen-pos,"%s %+g", i>0?",":"", x[i]);
+	}
+	pos += snprintf(buffer+pos,maxlen-pos," ]");		
+	return pos;
+}
+
+static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buffer, size_t maxlen)
+{
+	size_t pos = snprintf(buffer,maxlen,"( ");
+	for ( int i = m-1 ; i >= 0 && pos < maxlen-10 ; i-- )
+	{
+		if ( b[i] == 0.0 )
+		{
+			continue;
+		}
+		if ( b[i] != 1.0 || i == 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+		}
+		switch ( i ) {
+		case 0:
+			pos += snprintf(buffer+pos,maxlen-pos," ");
+			break;
+		case 1:
+			pos += snprintf(buffer+pos,maxlen-pos,"z ");
+			break;
+		default:
+			pos += snprintf(buffer+pos,maxlen-pos,"z^%d ", i);
+			break;
+		}
+	}
+	pos += snprintf(buffer+pos,maxlen-pos,") / ( ");
+	for ( int i = n-1 ; i >= 0 && pos < maxlen-10 ; i-- )
+	{
+		if ( a[i] == 0.0 )
+		{
+			continue;
+		}
+		if ( a[i] != 1.0 || i == 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+		}
+		switch ( i ) {
+		case 0:
+			pos += snprintf(buffer+pos,maxlen-pos," ");
+			break;
+		case 1:
+			pos += snprintf(buffer+pos,maxlen-pos,"z ");
+			break;
+		default:
+			pos += snprintf(buffer+pos,maxlen-pos,"z^%d ", i);
+			break;
+		}
+
+	}
+	pos += snprintf(buffer+pos,maxlen-pos,"); b = ");
+	pos += dump_vector(b,m,buffer+pos,maxlen-pos);
+	pos += snprintf(buffer+pos,maxlen-pos,"; a = ");
+	pos += dump_vector(a,n,buffer+pos,maxlen-pos);
+	return pos;
+}
+
 int transfer_function_add(char *name,		///< transfer function name
 						  char *domain,		///< domain variable name
 						  double timestep,	///< timestep (seconds)
@@ -141,28 +209,11 @@ int transfer_function_add(char *name,		///< transfer function name
 	tflist = tf;
 
 	// debugging output
-	if ( global_debug_output )
+	IN_MYCONTEXT
 	{
-		char num[1024]="", den[1024]="";
-		int i;
-		int len;
-		int count1=0, count2=0;
-		for ( len=0,i=n-1 ; i>=0 ; i-- )
-		{
-			int c = write_term(den+len,a[i],domain,i,len==0);
-			if ( c>0 ) count1++;
-			len +=c;
-		}
-		for ( len=0,i=m-1 ; i>=0 ; i-- )
-		{
-			int c = write_term(num+len,b[i],domain,i,len==0);
-			if ( c>0 ) count2++;
-			len +=c;
-		}
-		IN_MYCONTEXT output_debug("defining transfer function %s(%s) = %s%s%s/%s%s%s, step=%.0fs, skew=%.0fs", name,domain,
-			count1>1?"(":"",num,count1>1?")":"",
-			count2>1?"(":"",den,count2>1?")":"",
-			timestep,timeskew);
+		char buffer[1024];
+		dump_function(a,n,b,m,buffer,sizeof(buffer)-1);
+		output_debug("%s(%s) = %s",name,domain,buffer);
 	}
 	return 1;
 }
@@ -226,17 +277,6 @@ TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 			prop->name,property_getspec(prop->ptype)->name);
 		return XS_UNKNOWN;
 	}
-}
-
-static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen)
-{
-	size_t pos = sprintf(buffer,"[ ");
-	for ( size_t i = 0 ; i < n && pos < maxlen-10; i++ )
-	{
-		pos += sprintf(buffer+pos,"%s %+g", i>0?",":"", x[i]);
-	}
-	pos += sprintf(buffer+pos," ]");		
-	return pos;
 }
 
 static bool read_vector(const char *name, double *vector, size_t len)
@@ -446,59 +486,6 @@ void cast_from_double(PROPERTYTYPE ptype, void *addr, double value)
 	}
 }
 
-static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buffer, size_t maxlen)
-{
-	size_t pos = sprintf(buffer,"( ");
-	for ( int i = m-1 ; i >= 0 && pos < maxlen-10 ; i-- )
-	{
-		if ( b[i] == 0.0 )
-		{
-			continue;
-		}
-		if ( b[i] != 1.0 || i == 0 )
-		{
-			pos += sprintf(buffer+pos,"%+.4g",b[i]);
-		}
-		switch ( i ) {
-		case 0:
-			pos += sprintf(buffer+pos," ");
-			break;
-		case 1:
-			pos += sprintf(buffer+pos,"z ");
-			break;
-		default:
-			pos += sprintf(buffer+pos,"z^%d ", i);
-			break;
-		}
-	}
-	pos += sprintf(buffer+pos,") / ( ");
-	for ( int i = n-1 ; i >= 0 && pos < maxlen-10 ; i-- )
-	{
-		if ( a[i] == 0.0 )
-		{
-			continue;
-		}
-		if ( a[i] != 1.0 || i == 0 )
-		{
-			pos += sprintf(buffer+pos,"%+.4g",a[i]);
-		}
-		switch ( i ) {
-		case 0:
-			pos += sprintf(buffer+pos," ");
-			break;
-		case 1:
-			pos += sprintf(buffer+pos,"z ");
-			break;
-		default:
-			pos += sprintf(buffer+pos,"z^%d ", i);
-			break;
-		}
-
-	}
-	pos += sprintf(buffer+pos,")");
-	return pos;
-}
-
 TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 					   double *src,			///< next input value
 					   double *u,			///< input vector
@@ -518,6 +505,7 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): tf = %s",f->name,f->domain, buffer);
 	}
 
+	// update input vector
 	memmove(u+1,u,sizeof(double)*(m-1));
 	u[0] = *src;
 
@@ -532,18 +520,22 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		dump_vector(x,n,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
 	}
-	*y = b[m-1]*u[0];
-	for ( unsigned int i = 1 ; i < n ; i-- )
+	double dx[n];
+	memset(dx,0,sizeof(dx));
+	for ( unsigned int i = 0 ; i < n ; i++ )
 	{
+		dx[i] = -a[n-i-1]*(x[n-1]+b[0]*u[0]);
+		if ( i > 0 )
+		{
+			dx[i] += x[i-1];
+		}
 		if ( i < m )
 		{
-			*y += b[m-1-i]*u[i];
+			dx[i] += b[i]*u[0];
 		}
-		*y -= a[n-1-i]*x[i];
 	}
-	*y /= -a[n-1];
-	memmove(x+1,x,sizeof(double)*(n-1));
-	x[0] = *y;
+	memcpy(x,dx,sizeof(dx));
+	*y = x[n-1]+b[0]*u[0];
 	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum && f->minimum < f->maximum )
  	{
  		*y = f->minimum;
