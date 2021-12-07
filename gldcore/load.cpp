@@ -5750,7 +5750,7 @@ int GldLoader::filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 
 int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 {
-	double x[256]; // maximum 64th order polynomial
+	double x[1024]; // maximum 1024th order polynomial
 	int m = -1; // order of polynomial
 	int first = 1;
 	START;
@@ -5768,7 +5768,13 @@ int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 				&& ((WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power))))||true) )
 			{
 				first = 0;
-				if ( power > (int64)(sizeof(x)/sizeof(x[0])) )
+				if ( power < 0 )
+				{
+					syntax_error(filename,linenum,"filter polynomial cannot use negative power %d",power);
+					REJECT;
+					break;
+				}
+				else if ( power > (int64)(sizeof(x)/sizeof(x[0])) )
 				{
 					syntax_error(filename,linenum,"filter polynomial order cannot be higher than %d",sizeof(x)/sizeof(x[0]));
 					REJECT;
