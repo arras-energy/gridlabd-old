@@ -102,12 +102,16 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 	return len;
 }
 
-static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen)
+static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen, const char *format="%+7.4g")
 {
 	size_t pos = snprintf(buffer,maxlen,"[ ");
 	for ( size_t i = 0 ; i < n && pos < maxlen-10; i++ )
 	{
-		pos += snprintf(buffer+pos,maxlen-pos,"%s %+g", i>0?",":"", x[i]);
+		if ( i > 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%s",", ");
+		} 
+		pos += snprintf(buffer+pos,maxlen-pos,format, x[i]);
 	}
 	pos += snprintf(buffer+pos,maxlen-pos," ]");		
 	return pos;
@@ -115,57 +119,55 @@ static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen)
 
 static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buffer, size_t maxlen)
 {
-	size_t pos = snprintf(buffer,maxlen,"( ");
-	for ( int i = m-1 ; i >= 0 && pos < maxlen-10 ; i-- )
+	size_t pos = snprintf(buffer,maxlen,"(");
+	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
 	{
 		if ( b[i] == 0.0 )
 		{
 			continue;
 		}
-		if ( b[i] != 1.0 || i == 0 )
+		if ( i == 0 )
 		{
-			pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
 		}
-		switch ( i ) {
-		case 0:
-			pos += snprintf(buffer+pos,maxlen-pos," ");
-			break;
-		case 1:
-			pos += snprintf(buffer+pos,maxlen-pos,"z ");
-			break;
-		default:
-			pos += snprintf(buffer+pos,maxlen-pos,"z^%d ", i);
-			break;
+		else 
+		{
+			if ( b[0] != 1.0 )
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+			}
+			else
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%s"," +");	
+			}
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
 		}
 	}
-	pos += snprintf(buffer+pos,maxlen-pos,") / ( ");
-	for ( int i = n-1 ; i >= 0 && pos < maxlen-10 ; i-- )
+	pos += snprintf(buffer+pos,maxlen-pos,") / (");
+	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
 	{
 		if ( a[i] == 0.0 )
 		{
 			continue;
 		}
-		if ( a[i] != 1.0 || i == 0 )
+		if ( i == 0 )
 		{
-			pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
 		}
-		switch ( i ) {
-		case 0:
-			pos += snprintf(buffer+pos,maxlen-pos," ");
-			break;
-		case 1:
-			pos += snprintf(buffer+pos,maxlen-pos,"z ");
-			break;
-		default:
-			pos += snprintf(buffer+pos,maxlen-pos,"z^%d ", i);
-			break;
+		else 
+		{
+			if ( a[i] != 1.0 )
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+			}
+			else
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%s","+");	
+			}
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
 		}
-
 	}
-	pos += snprintf(buffer+pos,maxlen-pos,"); b = ");
-	pos += dump_vector(b,m,buffer+pos,maxlen-pos);
-	pos += snprintf(buffer+pos,maxlen-pos,"; a = ");
-	pos += dump_vector(a,n,buffer+pos,maxlen-pos);
+	pos += snprintf(buffer+pos,maxlen-pos,")");
 	return pos;
 }
 
@@ -196,15 +198,25 @@ int transfer_function_add(char *name,		///< transfer function name
 		output_error("transfer_function_add(): memory allocation failure");
 		return 0;
 	}
-	memcpy(tf->a,a,sizeof(double)*n);
+	for ( unsigned int i = 0 ; i < n ; i++ )
+	{
+		tf->a[i] = a[n-i-1];
+	}
 	tf->m = m;
-	tf->b = (double*)malloc(sizeof(double)*m);
+	tf->b = (double*)malloc(sizeof(double)*n);
 	if ( tf->b == NULL )
 	{
 		output_error("transfer_function_add(): memory allocation failure");
 		return 0;
 	}
-	memcpy(tf->b,b,sizeof(double)*m);
+	for ( unsigned int i = 0 ; i < m ; i++ )
+	{
+		tf->b[i+n-m] = b[m-i-1];
+	}
+	if ( m < n )
+	{
+		memset(tf->b,0,sizeof(double)*(n-m));
+	}
 	tf->next = tflist;
 	tflist = tf;
 
@@ -346,7 +358,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 		return 0;
 	}
 	xform->x = (double*)malloc(sizeof(double)*(tf->n));
-	xform->u = (double*)malloc(sizeof(double)*(tf->m));
+	xform->u = (double*)malloc(sizeof(double)*(tf->n));
 	if ( xform->x == NULL || xform->u == NULL )
 	{
 		output_error("transform_add_filter(source='%s:%s',filter='%s',target='%s:%s'): memory allocation failure",
@@ -368,7 +380,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	}
 	else
 	{
-		memset(xform->u,0,sizeof(double)*(tf->m));
+		memset(xform->u,0,sizeof(double)*(tf->n));
 	}
 
 	// build tranform
@@ -503,39 +515,35 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	{
 		dump_function(a,n,b,m,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): tf = %s",f->name,f->domain, buffer);
+		dump_vector(a,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): a = %s",f->name,f->domain, buffer);
+		dump_vector(b,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): b = %s",f->name,f->domain, buffer);
 	}
 
-	// update input vector
-	memmove(u+1,u,sizeof(double)*(m-1));
+	// update input
+	memmove(u+1,u,sizeof(double)*(n-1));
 	u[0] = *src;
-
-	// observable form
 	IN_MYCONTEXT
 	{
-		dump_vector(u,m,buffer,sizeof(buffer));
+		dump_vector(u,n,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %s",f->name,f->domain, buffer);
 	}
+
+	// update state
 	IN_MYCONTEXT
 	{
 		dump_vector(x,n,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
 	}
-	double dx[n];
-	memset(dx,0,sizeof(dx));
-	for ( unsigned int i = 0 ; i < n ; i++ )
+	x[0] = b[0]*u[0];
+	for ( unsigned int i = 1 ; i < n ; i++ )
 	{
-		dx[i] = -a[n-i-1]*(x[n-1]+b[0]*u[0]);
-		if ( i > 0 )
-		{
-			dx[i] += x[i-1];
-		}
-		if ( i < m )
-		{
-			dx[i] += b[i]*u[0];
-		}
+		x[0] += -a[i]*x[i] + b[i]*u[i];
 	}
-	memcpy(x,dx,sizeof(dx));
-	*y = x[n-1]+b[0]*u[0];
+	memmove(x+1,x,sizeof(double)*(n-1));
+	y[0] = x[0];
+
 	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum && f->minimum < f->maximum )
  	{
  		*y = f->minimum;
