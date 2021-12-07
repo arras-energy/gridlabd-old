@@ -487,6 +487,10 @@ int solver_python_init(void)
 				pKwargs = PyDict_New();
 			}
 			PyDict_SetItemString(pModel,"options",pKwargs);
+			if ( pSolution == NULL )
+			{
+				pSolution = PyDict_Copy(pModel);
+			}
 		}
 		if ( ! python_mle_data_only )
 		{
@@ -501,10 +505,6 @@ int solver_python_init(void)
 			if ( pLearndata == NULL )
 			{
 				init_learndata();
-			}
-			if ( pSolution == NULL )
-			{
-				pSolution = PyDict_Copy(pModel);
 			}
 		}
 		return 0;
@@ -919,7 +919,7 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			"SAr","SAi","SBr","SBi","SCr","SCi",
 			"YAr","YAi","YBr","YBi","YCr","YCi",
 			"IAr","IAi","IBr","IBi","ICr","ICi",
-			"VAr","VAi","VBr","VBi","VCr","VCi",
+			"VAm","VAa","VBm","VBa","VCm","VCa",
 		};
 		size_t ntags = sizeof(tags)/sizeof(tags[0]);
 		PyObject *taglist = PyList_New(ntags);
@@ -961,24 +961,28 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,16,bus[n].I[2].r);
 			SET_BUS(n,17,bus[n].I[2].i);
 
-			SET_BUS(n,18,bus[n].V[0].r);
-			SET_BUS(n,19,bus[n].V[0].i);
-			SET_BUS(n,20,bus[n].V[1].r);
-			SET_BUS(n,21,bus[n].V[1].i);
-			SET_BUS(n,22,bus[n].V[2].r);
-			SET_BUS(n,23,bus[n].V[2].i);
+			SET_BUS(n,18,bus[n].V[0].Mag());
+			SET_BUS(n,19,bus[n].V[0].Ang());
+			SET_BUS(n,20,bus[n].V[1].Mag());
+			SET_BUS(n,21,bus[n].V[1].Ang());
+			SET_BUS(n,22,bus[n].V[2].Mag());
+			SET_BUS(n,23,bus[n].V[2].Ang());
 		}
 	}
 	else if ( dir == ED_IN )
 	{
 		for ( size_t n = 0 ; n < bus_count  ; n++ )
 		{
-			GET_BUS(n,18,bus[n].V[0].r);
-			GET_BUS(n,19,bus[n].V[0].i);
-			GET_BUS(n,20,bus[n].V[1].r);
-			GET_BUS(n,21,bus[n].V[1].i);
-			GET_BUS(n,22,bus[n].V[2].r);
-			GET_BUS(n,23,bus[n].V[2].i);
+			double mag, ang;
+			GET_BUS(n,18,mag);
+			GET_BUS(n,19,ang);
+			bus[n].V[0].SetPolar(mag,ang);
+			GET_BUS(n,20,mag);
+			GET_BUS(n,21,ang);
+			bus[n].V[1].SetPolar(mag,ang);
+			GET_BUS(n,22,mag);
+			GET_BUS(n,23,ang);
+			bus[n].V[2].SetPolar(mag,ang);
 		}
 	}
 }
@@ -1462,27 +1466,13 @@ PyObject *sync_solution(
 	bool *bad_computations,
 	int64 iterations)
 {
-	if ( ! python_mle_data_only )
-	{
-		sync_bad_computations(pSolution,bad_computations);
-		sync_iterations(pSolution,iterations);
-		sync_powerflow_values(pSolution,buscount,powerflow_values);
-		sync_powerflow_type(pSolution,powerflow_type);
-		sync_mesh_imped_values(pSolution,mesh_imped_values);
-		return pSolution;
-	}
-	else if ( pBusdata )
-	{
-		Py_INCREF(pBusdata);
-		return pBusdata;
-	}
-	else
-	{
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+	sync_bad_computations(pSolution,bad_computations);
+	sync_iterations(pSolution,iterations);
+	sync_powerflow_values(pSolution,buscount,powerflow_values);
+	sync_powerflow_type(pSolution,powerflow_type);
+	sync_mesh_imped_values(pSolution,mesh_imped_values);
+	return pSolution;
 }
-
 
 void solver_python_learn (
 	unsigned int bus_count,

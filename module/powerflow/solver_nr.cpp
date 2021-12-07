@@ -5034,6 +5034,7 @@ int64 solver_nr(unsigned int bus_count,
 			}
 			//Default else - it was a failure, just keep going
 		}
+		Iteration = return_value_for_solver_NR;
 
 		//Deflag the "island locker"
 		NR_solver_working = false;
