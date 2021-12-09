@@ -448,7 +448,7 @@ if __name__ == '__main__':
                     print("#define",f"OUTPUTNAME={objname}")
                     print("object",classname,"{")
                     print("   ","name",f"{objname}",end=";\n")
-                    for output_name in output_names:
+                    for input_name in input_names:
                         print("   ",output_name,f"{output_name}_{input_name}({input_object}:{input_name},:U0_{input_name},:X0_{output_name})",end=";\n")
                     if recordername:
                         print("   ","object","recorder","{")
