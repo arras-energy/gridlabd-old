@@ -643,11 +643,7 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 			    int32 dtnext = schedule_dtnext(xform->source_schedule,index)*60;
 			    double value = schedule_value(xform->source_schedule,index);
 			    t = (dtnext == 0 ? TS_NEVER : t1 + dtnext - (tskew % 60));
-			    if ( t < t2 ) 
-			    {
-			    	t2 = t;
-			    	transform_reset(xform);
-			    }
+			    if ( t < t2 ) t2 = t;
 				if ( ( tskew <= xform->source_schedule->since ) 
 						|| ( tskew >= xform->source_schedule->next_t ) )
 				{
