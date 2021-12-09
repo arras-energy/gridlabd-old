@@ -323,7 +323,7 @@ static bool read_vector(const char *name, double *vector, size_t len)
 	{
 		char buffer[1024];
 		dump_vector(vector,len,buffer,sizeof(buffer));
-		output_warning("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): --> %s",name,vector,len,buffer);
+		output_debug("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): --> %s",name,vector,len,buffer);
 	}
 	return true;
 }
@@ -530,20 +530,22 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %s",f->name,f->domain, buffer);
 	}
 
-	// update state
+	// update state and output
+	y[0] = x[0];
+	x[0] = b[0]*u[0];
+	for ( unsigned int i = 1 ; i < n ; i++ )
+	{
+		x[0] += b[i]*u[i] - a[i]*x[i];
+	}
+	memmove(x+1,x,sizeof(x[0])*(n-1));
+
 	IN_MYCONTEXT
 	{
 		dump_vector(x,n,buffer,sizeof(buffer));
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
 	}
-	x[0] = b[0]*u[0];
-	for ( unsigned int i = 1 ; i < n ; i++ )
-	{
-		x[0] += -a[i]*x[i] + b[i]*u[i];
-	}
-	memmove(x+1,x,sizeof(double)*(n-1));
-	y[0] = x[0];
 
+	// output
 	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum && f->minimum < f->maximum )
  	{
  		*y = f->minimum;
