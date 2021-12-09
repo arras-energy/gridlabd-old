@@ -562,6 +562,25 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	return ((int64)(t1/f->timestep)+1)*f->timestep + f->timeskew;
 }
 
+void transform_reset(TRANSFORM *xform)
+{
+	switch ( xform->function_type )
+	{
+	case XT_LINEAR:
+		xform->target[0] = 0.0;
+		break;
+	case XT_EXTERNAL:
+		memset(xform->plhs,0,xform->nlhs*sizeof(xform->plhs[0]));
+		break;
+	case XT_FILTER:
+		xform->y[0] = 0.0;
+		break;
+	default:
+		output_error("transform_reset(): invalid function type %d",xform->function_type);
+		break;
+	}
+}
+
 /** apply the transform, source is optional and xform.source is used when source is NULL 
     @return timestamp for next update, TS_NEVER for none, TS_ZERO for error
 **/
@@ -624,8 +643,14 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 			    int32 dtnext = schedule_dtnext(xform->source_schedule,index)*60;
 			    double value = schedule_value(xform->source_schedule,index);
 			    t = (dtnext == 0 ? TS_NEVER : t1 + dtnext - (tskew % 60));
-			    if ( t < t2 ) t2 = t;
-				if((tskew <= xform->source_schedule->since) || (tskew >= xform->source_schedule->next_t)){
+			    if ( t < t2 ) 
+			    {
+			    	t2 = t;
+			    	transform_reset(xform);
+			    }
+				if ( ( tskew <= xform->source_schedule->since ) 
+						|| ( tskew >= xform->source_schedule->next_t ) )
+				{
 					t = transform_apply(t1,xform,&value);
 					if ( t<t2 ) t2=t;
 				} 
