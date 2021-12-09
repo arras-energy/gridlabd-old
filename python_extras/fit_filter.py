@@ -207,6 +207,9 @@ if __name__ == '__main__':
     debug_enabled = False
     quiet_enabled = False
     init_time = None
+    time_skew = 0
+    constraint = None
+    resolution = None
 
     # exit codes
     E_OK = 0 # no error
@@ -256,41 +259,47 @@ if __name__ == '__main__':
             value = None
         if token in ["-h","--help","help"]:
             syntax()
+        elif token in ["-B","--bits"]:
+            resolution = int(value)
         elif token in ["-c","--config"]:
             config = value
-        elif token in ["-o","--output"]:
-            outputs = value
+        elif token in ["-C","--class"]:
+            classname = value
+        elif token in ["-d","--debug"]:
+            debug_enabled = not debug_enabled
         elif token in ["-i","--input"]:
             inputs = value
+        elif token in ["-I","--init"]:
+            init_time = datetime.fromisoformat(value)
         elif token in ["-g","--glm"]:
             glmname = value
         elif token in ["-k","--order"]:
             K = int(value)
-        elif token in ["-t","--type"]:
-            modeltype = value
-        elif token in ["-N","--name"]:
-            objname = value
         elif token in ["-M","--module"]:
             modulename = value
-        elif token in ["-C","--class"]:
-            classname = value
+        elif token in ["-N","--name"]:
+            objname = value
+        elif token in ["-o","--output"]:
+            outputs = value
         elif token in ["-P","--player"]:
             playername = value
-        elif token in ["-R","--recorder"]:
-            recordername = value
-        elif token in ["-I","--init"]:
-            init_time = datetime.fromisoformat(value)
-        elif token in ["-w","--warning"]:
-            warning_enabled = not warning_enabled
-        elif token in ["-v","--verbose"]:
-            verbose_enabled = not verbose_enabled
         elif token in ["-q","--quiet"]:
             quiet_enabled = not quiet_enabled
-        elif token in ["-d","--debug"]:
-            debug_enabled = not debug_enabled
-        elif token in ["--test"]:
+        elif token in ["-R","--recorder"]:
+            recordername = value
+        elif token in ["-t","--type"]:
+            modeltype = value
+        elif token in ["-v","--verbose"]:
+            verbose_enabled = not verbose_enabled
+        elif token in ["-w","--warning"]:
+            warning_enabled = not warning_enabled
+        elif token in ["--autotest"]:
             inputs = "weather.csv"
             outputs = "power.csv"
+        elif token in ["--skew"]:
+            time_skew = value
+        elif token in ["--stdev"]:
+            constraint = int(value)
         else:
             error(f"option '{token}' is not valid",E_OPTION)
 
@@ -360,10 +369,14 @@ if __name__ == '__main__':
             print(f"\n// initial input and state vector from {back_time} to {init_time}")
             U0 = data[input_names][back_time:init_time-timedelta(hours=1)].to_dict('list')
             for name in input_names:
-                print(f"#define U0_{name}={','.join(list(map(lambda z:str(z),reversed(U0[name]))))}")
+                print(f"#define U0_{name}={','.join(list(map(lambda z:str(z),U0[name])))}")
+                print(f"#define T0_{name}={data.index[0]}")
+                print(f"#define TN_{name}={data.index[-1]}")
             X0 = data[output_names][back_time:init_time-timedelta(hours=1)].to_dict('list')
             for name in output_names:
-                print(f"#define X0_{name}={','.join(list(map(lambda z:str(z),reversed(X0[name]))))}")
+                print(f"#define X0_{name}={','.join(list(map(lambda z:str(z),X0[name])))}")
+                print(f"#define T0_{name}={data.index[0]}")
+                print(f"#define TN_{name}={data.index[-1]}")
 
         for output_name in output_names:
 
@@ -387,15 +400,24 @@ if __name__ == '__main__':
                 print(f"// output = {Y[K+1:]}".replace("\n","\n//          "))
                 print(f"\n// model = [{','.join(list(map(lambda z:str(z),x.transpose().round(2).tolist()[0])))}]")
 
-            for n in range(len(data.columns)-1):
+            opts = ["0"]
+            if resolution:
+                opts.append(f"resolution={resolution}")
+            if constraint:
+                mean = data[output_name].mean()
+                std = data[output_name].std()                
+                opts.append(f"minimum={mean-constraint*std},maximum={mean+constraint*std}")
+
+            n_inputs = len(data.columns)-1
+            for n in range(n_inputs):
                 print(f"\n// {data.columns[n]} --> {output_name}")
-                print(f"filter {output_name}_{data.columns[n]}(z,1h) = (",end="")
-                for k in range(0,K):
-                    print(f"{x[K+2*k+n,0]:+f}z^{K-k:.0f}",end="")            
-                print(f"{x[K+2*k+n+2,0]:+f} ) / (z^{K:.0f}",end="")         
+                print(f"filter {output_name}_{data.columns[n]}(z,1h,{','.join(opts)}) = (",end="")
+                for k in range(0,K+1):
+                    print(f"{x[-k*n_inputs-1,0]:+f}z^{K-k:.0f}",end="")            
+                print(f"{x[K+n,0]:+f} ) / (z^{K:.0f}",end="")         
                 for k in range(1,K):
-                    print(f"{x[k-1,0]:+f}z^{K-k:.0f}",end="")
-                print(f"{x[K-1,0]:+f})",end=";\n")
+                    print(f"{-x[K-k,0]:+f}z^{K-k:.0f}",end="")
+                print(f"{-x[0,0]:+f})",end=";\n")
 
             if playername:
                 print("module tape;")
