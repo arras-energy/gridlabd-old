@@ -1,8 +1,8 @@
 // test load model fitting
 
-#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=24 -R=output.csv -I="2014-10-02T01:00:00"
+#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=3 -R=output.csv -I="2014-10-02T01:00:00" -d
 
-//#set debug=TRUE
+#set debug=TRUE
 #set output_message_context=TRANSFORM
 #set suppress_repeat_messages=FALSE
 

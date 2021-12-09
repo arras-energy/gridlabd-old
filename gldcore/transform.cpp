@@ -390,6 +390,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	xform->target_prop = target_prop;
 	xform->function_type = XT_FILTER;
 	xform->tf = tf;
+	xform->t_last = TS_ZERO;
 	xform->y = object_get_double_by_name(target_obj,target_prop->name);
 	xform->t2 = (int64)(global_starttime/tf->timestep)*tf->timestep + tf->timeskew;
 	xform->next = schedule_xformlist;
@@ -531,7 +532,7 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	}
 
 	// update state and output
-	y[0] = x[0];
+	y[0] += x[0];
 	x[0] = b[0]*u[0];
 	for ( unsigned int i = 1 ; i < n ; i++ )
 	{
@@ -562,23 +563,40 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	return ((int64)(t1/f->timestep)+1)*f->timestep + f->timeskew;
 }
 
-void transform_reset(TRANSFORM *xform)
+void transform_reset(TRANSFORM *xform, TIMESTAMP t1)
 {
+	if ( xform->t_last == t1 )
+	{
+		return;
+	}
 	switch ( xform->function_type )
 	{
 	case XT_LINEAR:
-		xform->target[0] = 0.0;
+		if ( xform->target != NULL )
+		{
+			xform->target[0] = 0.0;
+		}
 		break;
 	case XT_EXTERNAL:
-		memset(xform->plhs,0,xform->nlhs*sizeof(xform->plhs[0]));
+		if ( xform->plhs != NULL && xform->nlhs > 0 )
+		{
+			for ( unsigned int i = 0 ; i < xform->nlhs ; i++ )
+			{
+				*(xform->plhs[i].addr) = 0.0;
+			}
+		}
 		break;
 	case XT_FILTER:
-		xform->y[0] = 0.0;
+		if ( xform->y != NULL )
+		{
+			xform->y[0] = 0.0;
+		}
 		break;
 	default:
 		output_error("transform_reset(): invalid function type %d",xform->function_type);
 		break;
 	}
+	xform->t_last = t1;
 }
 
 /** apply the transform, source is optional and xform.source is used when source is NULL 
@@ -590,11 +608,13 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 	switch (xform->function_type) {
 	case XT_LINEAR:
 		IN_MYCONTEXT output_debug("running linear transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
+		transform_reset(xform,t1);
 		cast_from_double(xform->target_prop->ptype, xform->target, (source?(*source):(*(xform->source))) * xform->scale + xform->bias);
 		t2 = TS_NEVER;
 		break;
 	case XT_EXTERNAL:
 		IN_MYCONTEXT output_debug("running external transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
+		transform_reset(xform,t1);
 		xform->retval = (*xform->function)(xform->nlhs, xform->plhs, xform->nrhs, xform->prhs);
 		if ( xform->retval==-1 ) /* error */
 			t2 = TS_ZERO;
@@ -606,7 +626,10 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 	case XT_FILTER:
 		IN_MYCONTEXT output_debug("running filter transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
 		if ( xform->t2 <= t1 )
+		{
+			transform_reset(xform,t1);
 			xform->t2 = apply_filter(xform->tf,xform->source,xform->u,xform->x,xform->y,t1);
+		}
 		t2 = xform->t2;
 		break;
 	default:
