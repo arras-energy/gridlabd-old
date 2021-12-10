@@ -277,10 +277,13 @@ private:
 	int time_value_minutes(PARSER, TIMESTAMP *t);
 	int time_value_hours(PARSER, TIMESTAMP *t);
 	int time_value_days(PARSER, TIMESTAMP *t);
+	int time_value_weeks(PARSER, TIMESTAMP *t);
+	int time_value_years(PARSER, TIMESTAMP *t);
 	int time_value_datetime(PARSER, TIMESTAMP *t);
 	int time_value_datetimezone(PARSER, TIMESTAMP *t);
 	int time_value_isodatetime(PARSER, TIMESTAMP *t);
 	int time_value(PARSER, TIMESTAMP *t);
+	int delta_time(PARSER, TIMESTAMP *t);
 	double load_latitude(char *buffer);
 	double load_longitude(char *buffer);
 	int clock_properties(PARSER);

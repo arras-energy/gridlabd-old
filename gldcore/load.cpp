@@ -2065,9 +2065,7 @@ int GldLoader::time_value_seconds(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("s")) { *t *= TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("S")) { *t *= TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("s"))) { *t *= TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2075,9 +2073,7 @@ int GldLoader::time_value_minutes(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("m")) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("M")) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("m"))) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2085,9 +2081,7 @@ int GldLoader::time_value_hours(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("h")) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("H")) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("h"))) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2095,9 +2089,15 @@ int GldLoader::time_value_days(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("d")) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("D")) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("d"))) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
+	REJECT;
+}
+
+int GldLoader::time_value_weeks(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("w"))) { *t *= 86400*TS_SECOND*7; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2200,6 +2200,26 @@ int GldLoader::time_value(PARSER, TIMESTAMP *t)
 	if (TERM(time_value_isodatetime(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	OR
 	if (TERM(integer(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
+int GldLoader::delta_time(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	if (TERM(time_value_seconds(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_minutes(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_hours(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_days(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_weeks(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	else
 	{
 		REJECT;
@@ -2335,6 +2355,24 @@ int GldLoader::clock_properties(PARSER)
 			goto Next;
 		}
 		syntax_error(filename,linenum,"expected time zone specification");
+		REJECT;
+	}
+	OR if (LITERAL("runtime") && WHITE)
+	{
+		if ( TERM(delta_time(HERE,&tsval)) )
+		{
+			if ( global_starttime + tsval < TS_NEVER )
+			{	
+				global_stoptime = global_starttime + tsval;
+			}
+			else
+			{
+				global_stoptime = TS_NEVER;
+			}
+			ACCEPT;
+			goto Next;
+		}
+		syntax_error(filename,linenum,"expected delta time value");
 		REJECT;
 	}
 	OR if (WHITE,LITERAL("}")) {/* don't accept yet */ DONE;}
