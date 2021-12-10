@@ -1,6 +1,6 @@
 // test load model fitting
 
-#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=3 -R=output.csv -I="2014-10-02T01:00:00" -d
+#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=24 -R=output.csv -I="2014-10-02T01:00:00" -d
 
 #set debug=TRUE
 #set output_message_context=TRANSFORM
@@ -11,5 +11,5 @@
 clock {
 	timezone "PST+8PDT";
 	starttime "2014-10-02 01:00:00";
-	stoptime "2014-10-03 01:00:00";
+	runtime 7 d;
 }
