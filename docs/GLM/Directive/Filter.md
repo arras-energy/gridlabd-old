@@ -12,6 +12,20 @@ filter <name>(<domain>[,<timestep>[,<timeskew>[,<option>=<value>]]]) = <polynomi
 
 The filter directive defines a filter that can be used to connect a signal source property to a output signal property. 
 
+Filter may be used to output values to an object property of type `double`.  Outputs are summed so that multiple filter may output to a single property, e.g.,
+
+~~~
+object example
+{
+  output1 filter11(input1);
+  output1 filter21(input2);
+  output2 filter12(input1);
+  output2 filter22(input2);
+}
+~~~
+
+Would represent a MIMO system with two inputs going to two outputs through 4 different filters with outputs summed.
+
 ## Name
 
 Any unique alphabetic name may be used.
@@ -46,7 +60,7 @@ The numerator and denominator are specified as a polynomial of the form $a_n z^n
   an z^n + ... + a1 z + a0
 ~~~
 
-The order of the numerator must be strictly less than the order of the denominator. 
+The order of the numerator must be less than or equal to the order of the denominator. 
 
 # Example
 
