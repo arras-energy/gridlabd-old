@@ -5,7 +5,7 @@ clock {
 	starttime '2000-01-01 00:00:00 PST';
 	stoptime '2000-01-01 01:00:00 PST';
 }
-filter delay(z,5min,10s) = 1/z;
+filter delay(z,5min) = 1/z;
 class from {
 	randomvar value;
 }
@@ -27,5 +27,29 @@ object multi_recorder {
 	property "from:value,to:value";
 }
 
+module assert;
+object assert {
+    parent to;
+    start '2000-01-01 00:00:00 PST';
+    stop '2000-01-01 00:04:59 PST';
+    target value;
+    relation ==;
+    value 0.0;
+    within 1e-4;
+}
+object assert {
+    parent to;
+    start '2000-01-01 00:05:00 PST';
+    stop '2000-01-01 00:09:59 PST';
+    target value;
+    relation ==;
+    value -0.191708;
+    within 1e-4;
+}
+
 #set glm_save_options=MINIMAL
 #set savefile=gridlabd.glm
+
+#set output_message_context=TRANSFORM
+#set suppress_repeat_messages=FALSE
+#set debug=TRUE
