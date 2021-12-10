@@ -531,14 +531,15 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %s",f->name,f->domain, buffer);
 	}
 
-	// update state and output
-	y[0] += x[0];
-	x[0] = b[0]*u[0];
-	for ( unsigned int i = 1 ; i < n ; i++ )
+	// update state
+	for ( unsigned int i = 0 ; i < n ; i++ )
 	{
-		x[0] += b[i]*u[i] - a[i]*x[i];
+		x[0] += b[i]*u[i];
 	}
-	memmove(x+1,x,sizeof(x[0])*(n-1));
+
+	// update output
+	y[0] = x[0] / a[0];
+	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): y = %g",f->name,f->domain, *y);
 
 	IN_MYCONTEXT
 	{
@@ -546,20 +547,6 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
 	}
 
-	// output
-	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum && f->minimum < f->maximum )
- 	{
- 		*y = f->minimum;
- 	}
- 	else if ( ((f->flags)&FC_MAXIMUM) == FC_MAXIMUM && *y > f->maximum && f->minimum < f->maximum  )
- 	{
- 		*y = f->maximum;
- 	}
- 	if ( ((f->flags)&FC_RESOLUTION) == FC_RESOLUTION && f->resolution > 0.0 )
- 	{
- 		*y = floor((*y - f->minimum)/f->resolution)*f->resolution + f->minimum;
- 	}	
-	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): y = %g",f->name,f->domain, *y);
 	return ((int64)(t1/f->timestep)+1)*f->timestep + f->timeskew;
 }
 
@@ -589,7 +576,43 @@ void transform_reset(TRANSFORM *xform, TIMESTAMP t1)
 	case XT_FILTER:
 		if ( xform->y != NULL )
 		{
-			xform->y[0] = 0.0;
+			char buffer[1024];
+			TRANSFERFUNCTION *f = xform->tf;
+			double *x = xform->x;
+			double *a = f->a;
+			int n = f->n;
+			double *y = xform->y;
+
+			// update state
+			double x0 = 0.0;
+			for ( int i = n-1 ; i > 0 ; i-- )
+			{
+				x[i] = x[i-1];	
+				x0 -= a[i]*x[i];
+			}
+			x[0] = x0;
+			IN_MYCONTEXT
+			{
+				dump_vector(x,n,buffer,sizeof(buffer));
+				output_debug("transform_reset(f={name='%s'; domain='%s'},t1=%ld): x = %s",f->name,f->domain, t1, buffer);
+			}
+
+			// update output
+			y[0] = x[0] / a[0];
+			if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && y[0] < f->minimum && f->minimum < f->maximum )
+		 	{
+		 		y[0] = f->minimum;
+		 	}
+		 	else if ( ((f->flags)&FC_MAXIMUM) == FC_MAXIMUM && y[0] > f->maximum && f->minimum < f->maximum  )
+		 	{
+		 		y[0] = f->maximum;
+		 	}
+		 	if ( ((f->flags)&FC_RESOLUTION) == FC_RESOLUTION && f->resolution > 0.0 )
+		 	{
+		 		y[0] = floor((*y - f->minimum)/f->resolution)*f->resolution + f->minimum;
+		 	}	
+			IN_MYCONTEXT output_debug("transform_reset(f={name='%s'; domain='%s'},t1=%ld): y = %.4g",f->name,f->domain, t1, y[0]);
+
 		}
 		break;
 	default:
