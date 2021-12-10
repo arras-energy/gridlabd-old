@@ -580,9 +580,9 @@ void transform_reset(TRANSFORM *xform, TIMESTAMP t1)
 	case XT_EXTERNAL:
 		if ( xform->plhs != NULL && xform->nlhs > 0 )
 		{
-			for ( unsigned int i = 0 ; i < xform->nlhs ; i++ )
+			for ( int i = 0 ; i < xform->nlhs ; i++ )
 			{
-				*(xform->plhs[i].addr) = 0.0;
+				*(double*)(xform->plhs[i].addr) = 0.0;
 			}
 		}
 		break;
