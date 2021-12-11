@@ -165,9 +165,9 @@ void sparse_reset(SPARSE* sm, int ncols)
 }
 
 //Add in new elements to the sparse notation
-inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_values, unsigned int bus_values_count, NR_SOLVER_STRUCT *powerflow_information, int island_number_curr)
+inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_values, int bus_values_count, NR_SOLVER_STRUCT *powerflow_information, int island_number_curr)
 {
-	unsigned int bus_index_val, bus_start_val, bus_end_val;
+	int bus_index_val, bus_start_val, bus_end_val;
 	bool found_proper_bus_val;
 
 	SP_E* insertion_point = sm->cols[col];
@@ -390,8 +390,8 @@ int64 solver_nr(unsigned int bus_count,
 
 		//Miscellaneous index variable
 		unsigned int indexer, tempa, tempb, jindexer, kindexer;
-		char jindex, kindex;
-		char temp_index, temp_index_b;
+		int jindex, kindex;
+		int temp_index, temp_index_b;
 		unsigned int temp_index_c;
 
 		//Working matrix for admittance collapsing/determinations
@@ -408,7 +408,7 @@ int64 solver_nr(unsigned int bus_count,
 		complex aval, avalsq;
 
 		//Temporary size variable
-		size_t temp_size, temp_size_b, temp_size_c;
+		int temp_size, temp_size_b, temp_size_c;
 
 		//Temporary admittance variables
 		complex Temp_Ad_A[3][3];
@@ -1049,9 +1049,9 @@ int64 solver_nr(unsigned int bus_count,
 				}
 
 				//Store the admittance values into the BA_diag matrix structure
-				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+				for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 				{
-					for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
+					for ( kindex = 0; kindex < powerflow_values->BA_diag[indexer].size ; kindex++ )			//Store values - assume square matrix - don't bother parsing what doesn't exist.
 					{
 						powerflow_values->BA_diag[indexer].Y[jindex][kindex] = tempY[jindex][kindex];// Store the self admittance terms.
 					}
@@ -1060,9 +1060,9 @@ int64 solver_nr(unsigned int bus_count,
 				//Copy values into node-specific link (if needed)
 				if (bus[indexer].full_Y_all != NULL)
 				{
-					for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+					for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 					{
-						for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
+						for ( kindex = 0 ; kindex < powerflow_values->BA_diag[indexer].size ; kindex++ )			//Store values - assume square matrix - don't bother parsing what doesn't exist.
 						{
 							bus[indexer].full_Y_all[jindex*3+kindex] = tempY[jindex][kindex];// Store the self admittance terms.
 						}
@@ -1929,12 +1929,12 @@ int64 solver_nr(unsigned int bus_count,
 							}
 					}//end line switch/case
 
-					if ((int)temp_size_c==-99)
+					if ( temp_size_c == -99 )
 					{
 						continue;	//Next iteration of branch loop
 					}
 
-					if ((int)temp_size_c==-1)	//Make sure it is right
+					if ( temp_size_c == -1 )	//Make sure it is right
 					{
 						GL_THROW("NR: A line's phase was flagged as not full three-phase, but wasn't: (%s) %u %u %u %u", 
 										 branch[jindexer].name, branch[jindexer].phases, branch[jindexer].origphases, phase_worka, phase_workb);
@@ -2244,7 +2244,7 @@ int64 solver_nr(unsigned int bus_count,
 					}//End switch/case for to
 
 					//Make sure everything was set before proceeding
-					if (((int)temp_index==-1) || ((int)temp_index_b==-1) || ((int)temp_size==-1) || ((int)temp_size_b==-1) || ((int)temp_size_c==-1))
+					if ( (temp_index==-1) || (temp_index_b==-1) || (temp_size==-1) || (temp_size_b==-1) || (temp_size_c==-1))
 					{
 						GL_THROW("NR: Failure to construct single/double phase line indices");
 						/*  TROUBLESHOOT
@@ -2255,9 +2255,9 @@ int64 solver_nr(unsigned int bus_count,
 
 					if (Full_Mat_A)	//From side is a full ABC and we have AC
 					{
-						for (jindex=0; jindex<temp_size_c; jindex++)		//Loop through rows of admittance matrices				
+						for ( jindex = 0 ; jindex < temp_size_c ; jindex++ )		//Loop through rows of admittance matrices				
 						{
-							for (kindex=0; kindex<temp_size_c; kindex++)	//Loop through columns of admittance matrices
+							for ( kindex = 0 ; kindex < temp_size_c ; kindex++ )	//Loop through columns of admittance matrices
 							{
 								//Indices counted out from Self admittance above.  needs doubling due to complex separation
 								if ((Temp_Ad_A[jindex][kindex].Im() != 0) && (bus[tempa].type != 1) && (bus[tempb].type != 1))	//From imags
@@ -2519,9 +2519,9 @@ int64 solver_nr(unsigned int bus_count,
 				}
 				//Default else -- proceed
 
-				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
+				for ( jindex = 0 ; jindex < powerflow_values->BA_diag[jindexer].size ; jindex++ )
 				{
-					for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[jindexer].size; kindex++)
+					for ( kindex = 0 ; kindex < powerflow_values->BA_diag[jindexer].size ; kindex++ )
 					{					
 						if ((powerflow_values->BA_diag[jindexer].Y[jindex][kindex]).Im() != 0 && bus[jindexer].type != 1 && jindex!=kindex)
 						{
@@ -2700,7 +2700,7 @@ int64 solver_nr(unsigned int bus_count,
 						}
 					}//End PF_DYNINIT and SWING is still the same
 
-					for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++) // rows - for specific phase that exists
+					for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ ) // rows - for specific phase that exists
 					{
 						tempIcalcReal = tempIcalcImag = 0;   
 
@@ -2934,7 +2934,7 @@ int64 solver_nr(unsigned int bus_count,
 							tempPbus =  - bus[indexer].PL[jindex];	//Copy load amounts in
 							tempQbus =  - bus[indexer].QL[jindex];	
 
-							for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)		//cols - Still only for specified phases
+							for ( kindex = 0 ; kindex < powerflow_values->BA_diag[indexer].size ; kindex++ )		//cols - Still only for specified phases
 							{
 								//Determine our indices, based on phase information
 								temp_index = -1;
@@ -3703,14 +3703,14 @@ int64 solver_nr(unsigned int bus_count,
 
 			indexer = 0;	//Rest positional counter
 
-			for (jindexer=0; jindexer<bus_count; jindexer++)	//Parse through bus list
+			for ( jindexer = 0 ; jindexer < bus_count ; jindexer++ )	//Parse through bus list
 			{
 				//See if we're part of the currently progressing island -- if not, skip us
 				if (bus[jindexer].island_number == island_loop_index)
 				{
 					if ((bus[jindexer].type > 1) && (bus[jindexer].swing_functions_enabled == true))	//Swing bus - and we aren't ignoring it
 					{
-						for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
+						for ( jindex = 0 ; jindex < powerflow_values->BA_diag[jindexer].size ; jindex++ )
 						{
 							powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].row_ind = 2*bus[jindexer].Matrix_Loc + jindex;
 							powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].col_ind = powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].row_ind;
@@ -3736,7 +3736,7 @@ int64 solver_nr(unsigned int bus_count,
 
 					if ((bus[jindexer].type == 0) || ((bus[jindexer].type > 1) && bus[jindexer].swing_functions_enabled == false))	//Only do on PQ (or SWING masquerading as PQ)
 					{
-						for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
+						for ( jindex = 0 ; jindex < powerflow_values->BA_diag[jindexer].size ; jindex++ )
 						{
 							powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].row_ind = 2*bus[jindexer].Matrix_Loc + jindex;
 							powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].col_ind = powerflow_values->island_matrix_values[island_loop_index].Y_diag_update[indexer].row_ind;
@@ -3971,7 +3971,7 @@ int64 solver_nr(unsigned int bus_count,
 							m = 2*powerflow_values->island_matrix_values[island_loop_index].total_variables;
 
 							//Print the size - should be the matrix size, but put here for ease of use
-							fprintf(FPoutVal,"Matrix RHS Information - %lld elements\n",m);
+							fprintf(FPoutVal,"Matrix RHS Information - %d elements\n",m);
 
 							//Print a header - row information isn't really needed, but include, just for ease of viewing
 							fprintf(FPoutVal,"RHS Information - row, value\n");
@@ -3979,7 +3979,7 @@ int64 solver_nr(unsigned int bus_count,
 							//Loop through and output the RHS values
 							for (jindexer=0; jindexer<m; jindexer++)
 							{
-								fprintf(FPoutVal,"%lld,%f\n",jindexer,powerflow_values->island_matrix_values[island_loop_index].deltaI_NR[jindexer]);
+								fprintf(FPoutVal,"%d,%f\n",jindexer,powerflow_values->island_matrix_values[island_loop_index].deltaI_NR[jindexer]);
 							}//End output RHS
 
 							//Print an extra line, just for spacing for ALL/PERCALL
@@ -4577,7 +4577,7 @@ int64 solver_nr(unsigned int bus_count,
 						}//end split phase update
 						else										//Not split phase
 						{
-							for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)	//parse through the phases
+							for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )	//parse through the phases
 							{
 								switch(bus[indexer].phases & 0x07) {
 									case 0x01:	//C
@@ -5092,7 +5092,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 	complex adjust_temp_nominal_voltage[6], adjusted_constant_current[6];
 	complex delta_current[3], voltageDel[3], undeltacurr[3];
 	complex temp_current[3], temp_store[3];
-	char jindex, temp_index, temp_index_b;
+	int jindex, temp_index, temp_index_b;
 	STATUS temp_status;
 
 	//Loop through the buses
@@ -5361,7 +5361,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				temp_index = -1;
 				temp_index_b = -1;
 
-				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+				for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 				{
 					switch(bus[indexer].phases & 0x07) {
 						case 0x01:	//C
@@ -5750,7 +5750,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 					undeltacurr[0] = undeltacurr[1] = undeltacurr[2] = complex(0.0,0.0);	//Zero it
 				}
 
-				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+				for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 				{
 					switch(bus[indexer].phases & 0x07) {
 						case 0x01:	//C
@@ -6132,7 +6132,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				temp_index = -1;
 				temp_index_b = -1;
 
-				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+				for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 				{
 					switch(bus[indexer].phases & 0x07) {
 						case 0x01:	//C
@@ -6246,7 +6246,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 					temp_index = -1;
 					temp_index_b = -1;
 
-					for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
+					for ( jindex = 0 ; jindex < powerflow_values->BA_diag[indexer].size ; jindex++ )
 					{
 						switch(bus[indexer].phases & 0x07) {
 							case 0x01:	//C
