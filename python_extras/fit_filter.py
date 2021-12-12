@@ -6,6 +6,7 @@ SYNTAX
         [-c|--config=CONFIGNAME] [-g|--glm=GLMNAME] [-I|--init=ISODATETIME]
         [-M|--module=MODULENAME] [-C|--class=CLASSNAME] [-N|--name=OBJNAME]
         [-P|--player[=PLAYERCSV]] [-R|--recorder=RECORDERCSV]
+        [--{by,with}_{hour,day,month,year}] [--with_time=unit]
         [-v|--verbose] [-w|--warning] [-q|--quiet] [-d|--debug]
         [-h|--help|help] [--test] 
         [OPTIONS ...]
@@ -48,6 +49,13 @@ OBJNAME global variable.
 If PLAYERCSV is specified, then any created object will have the inputs 
 assigned from that file.  If RECORDERCSV is specified, then any object created will
 have the outputs recorded to that file.
+
+If --with_{hour,day,month,year} is specified, then an hour, day, month, or
+year column is added to the input data.  If --by_{hour,day,month,year} is
+specified, then the input data is grouped by hour, day, month, or year. If
+--with_time is specified, then the elapsed time in the specified units is
+included in a column.
+
 
 CONFIGURATION
 
@@ -210,6 +218,16 @@ if __name__ == '__main__':
     time_skew = 0
     constraint = None
     resolution = None
+    with_time = None
+    with_hour = False
+    with_day = False
+    with_weekend = False
+    with_month = False
+    with_year = False
+    by_hour = False
+    by_day = False
+    by_month = False
+    by_year = False
 
     # exit codes
     E_OK = 0 # no error
@@ -300,6 +318,26 @@ if __name__ == '__main__':
             time_skew = value
         elif token in ["--stdev"]:
             constraint = int(value)
+        elif token in ["--with_time"]:
+            with_time = value
+        elif token in ["--with_hour"]:
+            with_hour = True
+        elif token in ["--with_day"]:
+            with_day = True
+        elif token in ["--with_weekend"]:
+            with_weekend = True
+        elif token in ["--with_month"]:
+            with_month = True
+        elif token in ["--with_year"]:
+            with_year = True
+        elif token in ["--by_hour"]:
+            by_hour = True
+        elif token in ["--by_weekday"]:
+            by_day = True
+        elif token in ["--by_month"]:
+            by_month = True
+        elif token in ["--by_year"]:
+            by_year = True
         else:
             error(f"option '{token}' is not valid",E_OPTION)
 
@@ -354,6 +392,33 @@ if __name__ == '__main__':
             else:
                 input_cols = None
             input_data = pd.read_csv(inputs, usecols=input_cols, converters=converters.inputs)
+            col0 = input_data.columns[0]
+            if with_time:
+                tndx = input_data[col0]-input_data[col0][0]
+                input_data["time"] = list(map(lambda x: x.total_seconds(),tndx))
+                if with_time == "week":
+                    input_data["time"] /= (3600*24*7)
+                elif with_time == "day":
+                    input_data["time"] /= (3600*24)
+                elif with_time == "hour":
+                    input_data["time"] /= 3600
+                elif with_time != "second":
+                    error(f"time unit '{with_time}' is not valid",2)
+            if with_day:
+                weekdays = list(map(lambda x: x.weekday(),input_data[col0]))
+                for weekday in set(weekdays):
+                    input_data[f"weekday{weekday}"] = list(map(lambda x:int(x==weekday),weekdays))
+            if with_weekend:
+                weekdays = list(map(lambda x: x.weekday(),input_data[col0]))
+                input_data["weekday"] = list(map(lambda x:int(x<5),weekdays))
+            if with_hour:
+                hours = list(map(lambda x: x.hour,input_data[col0]))
+                for hour in set(hours):
+                    input_data[f"hour{hour}"] = list(map(lambda x:int(x==hour),hours))
+            if with_month:
+                months = list(map(lambda x: x.month,input_data[col0]))
+                for month in set(months):
+                    input_data[f"month{month}"] = list(map(lambda x: int(x==month),months))
             input_names = input_data.columns[1:]
             ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(input_data[input_data.columns[0]])))
             data = input_data.groupby(ndx).mean().join(data).dropna()
