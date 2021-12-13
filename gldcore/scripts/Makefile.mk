@@ -1,3 +1,4 @@
+bin_SCRIPTS += gldcore/scripts/gridlabd-assert
 bin_SCRIPTS += gldcore/scripts/gridlabd-aws
 bin_SCRIPTS += gldcore/scripts/gridlabd-check
 bin_SCRIPTS += gldcore/scripts/gridlabd-compare

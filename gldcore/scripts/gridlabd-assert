@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# See `test` command for help
+#
+
+test $* || ( echo "ASSERT FAILED: '$*'"; exit 1)
