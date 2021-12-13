@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-"""GridLAB-D pandas subcommand
+"""GridLAB-D table subcommand
 
 SYNTAX
 
