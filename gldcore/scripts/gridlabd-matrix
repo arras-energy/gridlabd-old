@@ -1278,6 +1278,7 @@ def main(argv):
             result = call()
         output(result)
     except Exception as info:
+        output("MATRIXERROR")
         if config.exception:
             raise
         error(f"'{' '.join(argv[1:])}' failed - {info}",E_FAILED)
