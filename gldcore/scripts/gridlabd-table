@@ -4,34 +4,29 @@
 SYNTAX
 
 GLM:
-    #pandas [-i input.from] [-o output.to]
+    #table [-i INPUTNAME] [-o OUTPUTNAME] FUNCTION [ARGUMENTS ...]
 
 Shell:
 
-    $ gridlabd pandas [-i input.from] [-o output.to]
+    $ gridlabd table [-i INPUTNAME] [-o INPUTNAME] FUNCTION [ARGUMENTS ...]
 
 DESCRIPTION
 
-The `pandas` subcommand processes input data file using the pandas package
+The `table` subcommand processes input data file using the pandas package
 and outputs them to the specified output data file.  If no input is specified
-/dev/stdin is read in CSV format. If no output is specified the output is
-written to /dev/stdout using the data frame table format.
+/dev/stdin is read in CSV format with a header row. If no output is specified the output is
+written to /dev/stdout in CSV format with a header row.
 
 EXAMPLE
 
-The following creates a CSV file and prints it in human readable table format:
+The following creates a CSV file from standard input:
 
-    $ cat >/tmp/example.csv
+    $ gridlabd table -o output.csv
     my,data
     0,zero
     1,one
     2,two
     <CTRL-D>
-    $ gridlabd pandas -i my_data.csv
-       my  data
-    0   0  zero
-    1   1   one
-    2   2   two
 """
 
 import sys, os
