@@ -1,6 +1,45 @@
 #!/bin/bash
 #
-# See `test` command for help
+# EXIT 0 - ok
+# EXIT 1 - test failed
+# EXIT 2 - syntax error
 #
 
-test $* || ( echo "ASSERT FAILED: '$*'"; exit 1)
+#set -x 
+
+WARN="no"
+QUIET="no"
+
+if [ -z "$1" -o "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
+	echo "Syntax: gridlabd assert [-h|-w|-q] EXPRESSION"
+	test -z "$1" && exit 2
+	echo "  -h|--help|help   print this helpful information"
+	echo "  -w|--warn        errors are merely warnings"
+	echo "  -q|--quiet       output to stderr is suppressed"
+	echo "Type 'man test' for EXPRESSION syntax."
+	exit 0
+fi
+if [ "$1" == "-w" -o "$1" == "--warn" ]; then
+	WARN="yes"
+	shift 1
+fi
+if [ "$1" == "-q" -o "$1" == "--quiet" ]; then
+	QUIET="yes"
+	shift 1
+fi
+
+if [ "$@" ]; then
+	exit 0
+else
+	if [ $WARN == "no" ]; then
+		if [ $QUIET == "no" ]; then
+			echo "ERROR [gridlabd-assert]: test $* failed" >/dev/stderr
+		fi
+		exit 1
+	else
+		if [ $QUIET == "no" ]; then
+			echo "WARNING [gridlabd-assert]: test $* failed" >/dev/stderr
+		fi
+		exit 0
+	fi
+fi
