@@ -108,19 +108,19 @@
 #assert $(gridlabd matrix -f eye 5 k=-1) == '0,0,0,0,0;1,0,0,0,0;0,1,0,0,0;0,0,1,0,0;0,0,0,1,0;'
 
 // fabs
-#assert $(gridlabd matrix -f fabs '1,2;-3,4;-5,-6') == '1,2;3,4;5,6'
+#assert $(gridlabd matrix -f fabs '1,2;-3,4;-5,-6') == '1,2;3,4;5,6;'
 
 // fix
 #assert $(gridlabd matrix -f fix '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,2;-3,4;-5,-6;'
 
 // float_power
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f float_power '1.1,2.2;3.3,4.4;5.5,6.6' '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1.1105342,5.6666958;0.019449301,677.94081;8.4723757e-05,3.8995099e-06;'
 
 // floor
-//#assert $(gridlabd matrix -f ) == ''
+//#assert $(gridlabd matrix -f floor '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,2;-4,4;-6,-7;'
 
 // floor_divide
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f floor_divide '1.1,2.2;3.3,4.4;5.5,6.6' '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,1;-1,1;-1,-1;'
 
 // fmax
 //#assert $(gridlabd matrix -f ) == ''
