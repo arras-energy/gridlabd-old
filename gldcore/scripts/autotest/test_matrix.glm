@@ -56,49 +56,62 @@
 
 // cumprod
 #assert $(gridlabd matrix -f cumprod "1,2;3,4;5,6") == '1,2,6,24,120,720;'
-#assert $(gridlabd matrix -f cumprod "1,2;3,4;5,6" axis=0) == '1,2;3;8;15,48'
-#assert $(gridlabd matrix -f cumprod "1,2;3,4;5,6" axis=1) == '1,2;3,12;5,30'
+#assert $(gridlabd matrix -f cumprod "1,2;3,4;5,6" axis=0) == '1,2;3,8;15,48;'
+#assert $(gridlabd matrix -f cumprod "1,2;3,4;5,6" axis=1) == '1,2;3,12;5,30;'
 
 // cumsum
 #assert $(gridlabd matrix -f cumsum "1,2;3,4;5,6") == '1,3,6,10,15,21;'
-#assert $(gridlabd matrix -f cumsum "1,2;3,4;5,6" axis=0) == '1,2;4,6;9,12'
-#assert $(gridlabd matrix -f cumsum "1,2;3,4;5,6" axis=1) == '1,3;3,7;5,11'
+#assert $(gridlabd matrix -f cumsum "1,2;3,4;5,6" axis=0) == '1,2;4,6;9,12;'
+#assert $(gridlabd matrix -f cumsum "1,2;3,4;5,6" axis=1) == '1,3;3,7;5,11;'
 
 // deg2rad 
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f deg2rad '1,2;3,4;5,6') == '0.017453293,0.034906585;0.052359878,0.06981317;0.087266463,0.10471976;'
 
-// degress
-//#assert $(gridlabd matrix -f ) == ''
+// degrees
+#assert $(gridlabd matrix -f degrees '1,2;3,4;5,6') == '57.29578,114.59156;171.88734,229.18312;286.4789,343.77468;'
 
 // diff
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6') == '1;1;1;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' n=2) == ';;;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=0) == '2,2;2,2;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=1) == '1;1;1;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=0 prepend='1,2') == '0,0;2,2;2,2;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=0 append='1,2') == '2,2;2,2;-4,-4;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=0 prepend='1,2' append='1,2') == '0,0;2,2;2,2;-4,-4;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=1 prepend='1;2;3') == '0,1;1,1;2,1;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=1 append='1;2;3') == '1,-1;1,-2;1,-3;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=1 prepend='1;2;3' append='1;2;3') == '0,1,-1;1,1,-2;2,1,-3;'
+#assert $(gridlabd matrix -f diff '1,2;3,4;5,6' axis=1 prepend='1;2;3' append='1;2;3' n=3) == '-3;-3;-3;'
 
 // divide
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f divide '1,2;3,4;5,6' '1,2;3,4;5,6') == '1,1;1,1;1,1;'
 
 // divmod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f divmod '1,2;3,4;5,6' '1,2;3,4;5,6') == '1,1;1,1;1,1;0,0;0,0;0,0;'
+#assert $(gridlabd matrix -f divmod '1,2;3,4;5,6' '1,2;3,4;5,5') == '1,1;1,1;1,1;0,0;0,0;0,1;'
 
 // dot
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f dot '1,2;3,4;5,6' '1,2,3;4,5,6') == '9,12,15;19,26,33;29,40,51;'
+#assert $(gridlabd matrix -f dot '1,2,3;4,5,6' '1,2;3,4;5,6') == '22,28;49,64;'
 
 // exp
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f exp '1,2,3;4,5,6') == '2.7182818,7.3890561,20.085537;54.59815,148.41316,403.42879;'
 
 // exp2
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f exp2 '1,2,3;4,5,6') == '2,4,8;16,32,64;'
 
 // expm1
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f expm1 '1,2,3;4,5,6') == '1.7182818,6.3890561,19.085537;53.59815,147.41316,402.42879;'
 
 // eye
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f eye 5) == '1,0,0,0,0;0,1,0,0,0;0,0,1,0,0;0,0,0,1,0;0,0,0,0,1;'
+#assert $(gridlabd matrix -f eye 5 k=-1) == '0,0,0,0,0;1,0,0,0,0;0,1,0,0,0;0,0,1,0,0;0,0,0,1,0;'
 
 // fabs
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f fabs '1,2;-3,4;-5,-6') == '1,2;3,4;5,6'
 
 // fix
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f fix '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,2;-3,4;-5,-6;'
 
 // float_power
 //#assert $(gridlabd matrix -f ) == ''
