@@ -511,20 +511,23 @@ functions = {
     "nancumprod" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "nancumsum" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "diff" : 
     {
         POSITIONAL : [matrix],
         "n" : int,
+        "axis" : int,
         "prepend" : matrix,
         "append" : matrix,
-        UARGS : ["axis"],
+        UARGS : [],
     },
     # "ediff1d" : 
     # {
