@@ -148,145 +148,150 @@
 // ldexp
 //#assert $(gridlabd matrix -f ) == ''
 
-// linalg.cholesky
+// log
 //#assert $(gridlabd matrix -f ) == ''
 
-// linalg.cond
+// log10
 //#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// log1p
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// log2
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// logaddexp
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// logaddexp2
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// maximum
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// minimum
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// mod
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// modf
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// multiply
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// nancumprod
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// nancumsum
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// nanprod
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// nansum
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// negative
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// nextafter
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// ones
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// positive
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// power
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// prod
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// rad2deg
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// radians
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// real
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// real_if_close
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// reciprocal
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// remainder
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// rint
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// round_
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// savetxt
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sign
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// signbit
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sin
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sinc
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sinh
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// spacing
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sqrt
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// square
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// subtract
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// sum
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// tan
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// tanh
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// trace
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// transpose
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// trapz
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// true_divide
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// trunc
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
+// unwrap
+//#assert $(gridlabd matrix -f ) == ''
 
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
-
-// #assert $(gridlabd matrix -f ) == ''
+// zeros
+#assert $(gridlabd matrix -f zeros 2,3) == '0,0,0;0,0,0;'
 
