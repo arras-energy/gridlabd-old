@@ -117,67 +117,75 @@
 #assert $(gridlabd matrix -f float_power '1.1,2.2;3.3,4.4;5.5,6.6' '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1.1105342,5.6666958;0.019449301,677.94081;8.4723757e-05,3.8995099e-06;'
 
 // floor
-//#assert $(gridlabd matrix -f floor '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,2;-4,4;-6,-7;'
+#assert $(gridlabd matrix -f floor '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,2;-4,4;-6,-7;'
 
 // floor_divide
 #assert $(gridlabd matrix -f floor_divide '1.1,2.2;3.3,4.4;5.5,6.6' '1.1,2.2;-3.3,4.4;-5.5,-6.6') == '1,1;-1,1;-1,-1;'
 
 // fmax
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f fmax '1.1,2.2;-3.3,4.4;-5.5,-6.6' '2,2;3,3;4,4') == '2,2.2;3,4.4;4,4;'
 
 // fmin
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f fmin '1.1,2.2;-3.3,4.4;-5.5,-6.6' '2,2;3,3;4,4') == '1.1,2;-3.3,3;-5.5,-6.6;'
 
 // fmod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f fmod '1.1,2.2;-3.3,4.4;-5.5,-6.6' '2,2;3,3;4,4') == '1.1,0.2;-0.3,1.4;-1.5,-2.6;'
 
 // gcd
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f gcd '1,2;3,4;5,6' '2,2;2,2;2,2') == '1,2;1,2;1,2;'
 
 // gradient
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f gradient '1,2,4,7,11,16;2,3,6,7,12,15' axis=0) == '1,1,2,0,1,-1;1,1,2,0,1,-1;'
+#assert $(gridlabd matrix -f gradient '1,2,4,7,11,16;2,3,6,7,12,15' axis=1) == '1,1.5,2.5,3.5,4.5,5;1,2,2,3,4,3;'
+#assert $(gridlabd matrix -f gradient '1,2,4,7,11,16;2,3,6,7,12,15' axis=1 edge_order=2) == '0.5,1.5,2.5,3.5,4.5,5.5;0,2,2,3,4,2;'
 
 // heaviside
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f heaviside '-1,0,1;0,-1,1;0,1,-1' 0.5) == '0,0.5,1;0.5,0,1;0.5,1,0;'
+#assert $(gridlabd matrix -f heaviside '-1,0,1;0,-1,1;0,1,-1' '-1,0,1;0,-1,1;0,1,-1') == '0,0,1;0,0,1;0,1,0;'
 
 // hypot
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f hypot '3,4;4,3' '4,3;3,4') == '5,5;5,5;'
 
 // i0
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f i0 '0,1;2,3') == '1,1,2,4;'
+#assert $(gridlabd matrix -f i0 '0.0,1.0;2.0,3.0') == '1,1.2660659,2.2795853,4.8807926;'
 
-// identify
-//#assert $(gridlabd matrix -f ) == ''
+// identity
+#assert $(gridlabd matrix -f identity 3) == '1,0,0;0,1,0;0,0,1;'
 
 // imag
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f imag '1+0j,2+1j;3+2j,3+3j') == '0,1;2,3;'
 
 // interp
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f interp 2.5 1,2,3 3,2,0) == '1;'
+#assert $(gridlabd matrix -f interp 0,1,1.5,2.72,3.14 1,2,3 3,2,0) == '3,3,2.5,0.56,0;'
+#assert $(gridlabd matrix -f interp 3.5 1,2,3 3,2,0 right=inf) == 'inf;'
+#assert $(gridlabd matrix -f interp -3.5 1,2,3 3,2,0 left=-inf) == '-inf;'
+#assert $(gridlabd matrix -f interp 3.5 1,2,3 3,2,0 left=nan right=nan) == 'nan;'
 
 // lcm
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f lcm 12,15 20,30) == '60,30;'
 
 // ldexp
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f ldexp 5 1,2,3,4) == '10,20,40,80;'
 
 // log
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f log 1,2,3,4) == '0,0.69314718,1.0986123,1.3862944;'
 
 // log10
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f log10 1,2,3,4) == '0,0.30103,0.47712125,0.60205999;'
 
 // log1p
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f log1p 1,2,3,4) == '0.69314718,1.0986123,1.3862944,1.6094379;'
 
 // log2
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f log2 1,2,3,4) == '0,1,1.5849625,2;'
 
 // logaddexp
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f logaddexp -115.12925 -114.21296) == '-113.87649;'
 
 // logaddexp2
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f logaddexp2 -115.12925 -114.21296) == '-113.59955;'
 
 // maximum
 //#assert $(gridlabd matrix -f ) == ''
@@ -229,6 +237,13 @@
 
 // radians
 //#assert $(gridlabd matrix -f ) == ''
+
+// arange
+#assert $(gridlabd matrix -f arange 1 4) == '1,2,3;'
+#assert $(gridlabd matrix -f arange 1 4 step=2) == '1,3;'
+#assert $(gridlabd matrix -f arange 1 4 step=-2) == ';'
+#assert $(gridlabd matrix -f arange 4 1 step=-2) == '4,2;'
+#assert $(gridlabd matrix -f arange 4 1 step=-1.2) == '4,2.8,1.6;'
 
 // real
 //#assert $(gridlabd matrix -f ) == ''
