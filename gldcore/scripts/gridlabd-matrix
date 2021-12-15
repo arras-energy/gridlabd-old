@@ -126,9 +126,9 @@ def order(a):
 #
 # Arguments and options
 #
-POSITIONAL="" # keyword for required arguments
+POSITIONAL="ARGS" # keyword for required arguments
 VARARGS = [intlist_args] # variable argument list handlers
-UARGS = "**" # keywork for kwargs for ufunc
+UARGS = "UFUNC" # keywork for kwargs for ufunc
 UFUNC = {
     "where" : boollist,
     "axes" : tuplelist,
@@ -141,6 +141,13 @@ UFUNC = {
 }
 UKEYS = list(UFUNC.keys())
 functions = {
+
+    # numpy utilities
+    "arange" :
+    {
+        POSITIONAL : [float,float],
+        "step" : float,
+    },
 
     # arithmetic
     "add" :
@@ -330,9 +337,9 @@ functions = {
     "interp" : 
     {
         POSITIONAL : [array,array,array],
-        "left" : complex,
-        "right" : complex,
-        "period" : complex,
+        "left" : float,
+        "right" : float,
+        "period" : float,
     },
 
     # trigonometric
