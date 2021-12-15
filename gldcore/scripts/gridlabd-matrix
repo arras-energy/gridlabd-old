@@ -7,62 +7,86 @@ GLM:
     #matrix [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 
 Shell:
-    $ gridlabd OPTIONS ...] matrix FUNCTION [ARGUMENTS ...]
+    $ gridlabd matrix [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 
 Options:
 
-    -c|--columns=NAMES  name columns
+    -c|--columns=NAMES  add column names
     -d|--debug          enable debugging output
     -e|--exception      raise exceptions on errors",file=sys.stdout)
     -f|--flatten        use semicolon as newline",file=sys.stdout)
-    -h|--help           print this help info",file=sys.stdout)
+    -h|--help PATTERN   print this help info",file=sys.stdout)
+    -n|--name=NAME      add name to cell 0,0 when both columns and rows have
+                        names
     -q|--quiet          suppress all output to stderr",file=sys.stdout)
-    -r|--rows=NAMES     name rows
+    -r|--rows=NAMES     add row names
     -t|--transpose      transpose output
     -w|--warning        suppress warning output",file=sys.stdout)
 
 DESCRIPTION
 
-This module is a CLI for the python numpy matrix class and supporting
-linear algebra library. The general syntax is
+This module is a CLI for the python numpy matrix class and supporting linear
+algebra library. The general syntax is
 
   shell% gridlabd matrix FUNCTION [ARGUMENTS ...]
 
-where function is a numpy function that takes zero or more positional
-and/or keyword arguments.  Position arguments may be provided explicitly
-as a string, or implicitly from stdin.  Keyword argument are provided in
-the form KEYWORD=VALUE.  
+where function is a numpy function that takes zero or more positional and/or
+keyword arguments.  Position arguments may be provided explicitly as a
+string, or implicitly from stdin.  Keyword argument are provided in the form
+KEYWORD=VALUE.  
 
 Examples:
 
 1) Generate a matrix of random numbers
 
-  shell% gridlabd matrix random.normal size=2,1
-  [[-0.35433847]; [ 0.66326107]]
+  shell% gridlabd matrix random.normal size=2,3
+  -1.0435592,1.1823197,-0.20050981
+  -1.4243777,1.1164794,1.2545108
 
 2) Transpose a matrix
 
-  shell% gridlabd matrix transpose '[[ 0.60125537] [-0.45920654]]'
-  [[ 0.60125537]; [-0.45920654]]
+  shell% gridlabd matrix transpose '-0.43461221,-1.1657202,0.0063091172;0.10027139,0.71389914,1.9480481;'
+  -0.43461221,0.10027139
+  -1.1657202,0.71389914
+  0.0063091172,1.9480481
 
 3) Pipe data from one operation to another
 
   shell% gridlabd matrix random.normal size=2 | gridlabd matrix transpose
-  [[ 1.57581807]; [-0.25069095]]
+  -1.3058182
+  0.18353732
 
 Getting help:
 
-The "help" command provide additional information on available functions
-using the syntax:
+The "help" command provide additional information on available functions using
+the syntax:
 
-  shell% gridlabd matrix help [command]
+  shell% gridlabd matrix help linalg
+      linalg.cholesky <matrix>
+      linalg.cond <matrix> p=<order>
+      linalg.det <matrix>
+      linalg.eig <matrix>
+      linalg.eigh <matrix> UPLO=<str>
+      linalg.eigvals <matrix>
+      linalg.eigvalsh <matrix> UPLO=<str>
+      linalg.inv <matrix>
+      linalg.lstsq <matrix> <matrix> rcond=<float>
+      linalg.matrix_rank <matrix>
+      linalg.norm <matrix> ord=<order> axis=<int> keepdims=<bool>
+      linalg.pinv <matrix>
+      linalg.qr <matrix> mode=<str>
+      linalg.slogdet <matrix>
+      linalg.solve <matrix> <matrix>
+      linalg.svd <matrix> full_matrices=<bool> compute_uv=<bool> hermitian=<bool>
 
-Note: any matrix can be provided as a URL, e.g.,
+Note: any matrix input argument can be provided as a URL, e.g.,
 
   shell% echo "1,2;3,4" > /tmp/A
   shell% gridlabd matrix transpose file:///tmp/A
   1,3
   2,4
+
+FUNCTIONS
 
 """
 
@@ -1070,6 +1094,7 @@ class config:
     transpose = False
     columns = None
     rows = None
+    name = None
 
 
 numpy.set_printoptions(threshold=sys.maxsize)
@@ -1096,6 +1121,8 @@ def output(result):
             df = pandas.DataFrame(result,
                 index = config.rows,
                 columns = config.columns)
+            if config.rows and config.columns and config.name != None:
+                df.index.name = config.name
             df.to_csv(sys.stdout,
                 line_terminator = config.newline,
                 sep = ",",
@@ -1186,47 +1213,48 @@ def help(name='.*'):
         specs = functions[name]
         args = []
         for tag, value in specs.items():
-            if tag == POSITIONAL:
+            if tag in POSITIONAL:
                 if type(value) is list:
                     for item in value:
                         args.append(f"<{item.__name__}>")
                 else:
                     args.append(f"<{value.__name__}>")
+            elif tag == UARGS:
+                for utag in value:
+                    ufunc = UFUNC[utag]
+                    args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
             else:
                 args.append(f"{tag}=<{value.__name__}>")
         print("matrix",name," ".join(args),file=sys.stdout)
         output(call.__doc__)
-    else:
-        print(f"Syntax: {cmdname} [options] [command] [arguments]",file=sys.stdout)
-        if not name == None:
-            print("Options:",file=sys.stdout)
-            print("  -d|--debug       enable debugging output",file=sys.stdout)
-            print("  -e|--exception   raise exceptions on errors",file=sys.stdout)
-            print("  -f|--flatten     use semicolon as newline",file=sys.stdout)
-            print("  -h|--help        print this help info",file=sys.stdout)
-            print("  -q|--quiet       suppress all output to stderr",file=sys.stdout)
-            print("  -w|--warning     suppress warning output",file=sys.stdout)
-            print("Commands:",file=sys.stdout)
-            print("  help [pattern]",file=sys.stdout)
-            for function in sorted(list(functions.keys())):
-                if not re.search(name,function): 
-                    continue
-                specs = functions[function]
-                args = []
-                for tag, value in specs.items():
-                    if tag == POSITIONAL:
-                        if type(value) is list:
-                            for item in value:
-                                args.append(f"<{item.__name__}>")
-                        else:
-                            args.append(f"<{value.__name__}>")
-                    elif tag == UARGS:
-                        for utag in value:
-                            ufunc = UFUNC[utag]
-                            args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
+    elif name:
+        count = 0
+        if name == '.*':
+            print(__doc__,file=sys.stdout)
+        for function in sorted(list(functions.keys())):
+            if not re.match(name,function): 
+                continue
+            specs = functions[function]
+            args = []
+            for tag, value in specs.items():
+                if tag == POSITIONAL:
+                    if type(value) is list:
+                        for item in value:
+                            args.append(f"<{item.__name__}>")
                     else:
-                        args.append(f"{tag}=<{value.__name__}>")
-                print(" ",function," ".join(args),file=sys.stdout)
+                        args.append(f"<{value.__name__}>")
+                elif tag == UARGS:
+                    for utag in value:
+                        ufunc = UFUNC[utag]
+                        args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
+                else:
+                    args.append(f"{tag}=<{value.__name__}>")
+            print(" ",function," ".join(args),file=sys.stdout)
+            count += 1
+        if count == 0:
+            error(f"no help for {name}",E_INVALID)
+    else:
+        print(f"Syntax: {cmdname} [OPTIONS ...] FUNCTION [ARGUMENTS ...]")
 
 #
 # Main function
@@ -1261,6 +1289,9 @@ def main(argv):
             del argv[1]
         elif argv[1].startswith("-r=") or argv[1].startswith("--rows="):
             config.rows = argv[1].split("=")[1].split(",")
+            del argv[1]
+        elif argv[1].startswith("-n=") or argv[1].startswith("--name="):
+            config.name = argv[1].split("=")[1]
             del argv[1]
         elif argv[1] == "--makedocs":
             makedocs()
