@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix arange <float> <float> step=<float>
+matrix arange <float> <float> step=<float> [subok=<bool>]
 
 arange([start,] stop[, step,], dtype=None)
 
