@@ -126,7 +126,7 @@ def matrix(a):
         pass
     try: # try item by item in case there are nans
         result = []
-        for row in a.split(";"):
+        for row in a.rstrip(";").split(";"):
             line = []
             for item in row.split(","):
                 if item == '':
@@ -160,6 +160,10 @@ def intlist_args(*s):
     """Parse arguments as integer list"""
     return list(map(lambda n:int(n),*s))
 
+def inttuple(s):
+    """Parse inttuple as N[,M[,[...]]]"""
+    return tuple(map(lambda n:int(n),s.split(',')))
+
 def arrayorint(a):
     try:
         return int(a)
@@ -187,7 +191,7 @@ UARGS = "UFUNC" # keywork for kwargs for ufunc
 UFUNC = {
     "where" : boollist,
     "axes" : tuplelist,
-    "axis" : intlist,
+    "axis" : inttuple,
     "keepdims" : bool,
     "casting" : str,
     "order" : str,
@@ -566,26 +570,22 @@ functions = {
     "cumprod" : 
     {
         POSITIONAL : [matrix],
-        "axis" : int,
-        UARGS : ["dtype"],
+        UARGS : ["axis","dtype"],
     },
     "cumsum" : 
     {
         POSITIONAL : [matrix],
-        "axis" : int,
-        UARGS : ["dtype"],
+        UARGS : ["axis","dtype"],
     },
     "nancumprod" : 
     {
         POSITIONAL : [matrix],
-        "axis" : int,
-        UARGS : ["dtype"],
+        UARGS : ["axis","dtype"],
     },
     "nancumsum" : 
     {
         POSITIONAL : [matrix],
-        "axis" : int,
-        UARGS : ["dtype"],
+        UARGS : ["axis","dtype"],
     },
     "diff" : 
     {
@@ -606,8 +606,8 @@ functions = {
     {
         POSITIONAL : [matrix],
         "spacing" : matrix,
-        "axis" : int,
         "edge_order" : int,
+        UARGS : ["axis"]
     },
     "cross" : 
     {
