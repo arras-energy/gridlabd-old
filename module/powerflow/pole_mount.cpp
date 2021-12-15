@@ -213,6 +213,7 @@ TIMESTAMP pole_mount::precommit(TIMESTAMP t0)
 	}
     else
     {
+        pole_configuration *pole_config = OBJECTDATA(mount->get_configuration(),pole_configuration);
         equipment_moment_nowind = 1 * area * height * pole_config->overload_factor_transverse_general;
         verbose("equipment_moment_nowind = %g ft.lb (wind load is 1 lb/sf)",equipment_moment_nowind);
 
