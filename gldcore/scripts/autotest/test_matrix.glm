@@ -219,34 +219,48 @@
 #assert $(gridlabd matrix -f nancumsum "1,;3,4;5,6" axis=1) == '1,1;3,7;5,11;'
 
 // nanprod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f nanprod "1,;3,4;5,6") == '360;'
+#assert $(gridlabd matrix -f nanprod "1,;3,4;5,6" axis=0) == '15,24;'
+#assert $(gridlabd matrix -f nanprod "1,;3,4;5,6" axis=1) == '1,12,3;'
+#assert $(gridlabd matrix -f nanprod "1,;3,4;5,6" axis=0,1) == '360;'
+#assert $(gridlabd matrix -f nanprod "1,;3,4;5,6" axis=1,0) == '360;'
 
 // nansum
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f nansum "1,;3,4;5,6") == '19;'
+#assert $(gridlabd matrix -f nansum "1,;3,4;5,6" axis=0) == '9,10;'
+#assert $(gridlabd matrix -f nansum "1,;3,4;5,6" axis=1) == '1,7,11;'
+#assert $(gridlabd matrix -f nansum "1,;3,4;5,6" axis=0,1) == '19;'
+#assert $(gridlabd matrix -f nansum "1,;3,4;5,6" axis=1,0) == '19;'
 
 // negative
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f negative "1,;3,4;5,6") == '-1,nan;-3,-4;-5,-6;'
 
 // nextafter
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f nextafter "1e-500,;3,4;5,6" 1) == '4.9406565e-324,nan;3,4;5,6;'
+#assert $(gridlabd matrix -f nextafter "1e-500,;3,4;5,6" 0) == '0,nan;3,4;5,6;'
 
 // ones
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f ones 2,3) == '1,1,1;1,1,1;'
 
 // positive
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f positive '-1,nan;-3,-4;-5,-6;') == '-1,nan;-3,-4;-5,-6;'
 
 // power
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f power "-1,nan;inf,-inf;-5,-6;" 2) == '1,nan;inf,inf;25,36;'
+#assert $(gridlabd matrix -f power power "-1,nan;inf,-inf;-5,-6;" "-1,nan;inf,-inf;-5,-6;") == '-1,nan;inf,0;-0.00032,2.1433471e-05;'
 
 // prod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f "1,2;3,4;5,6") == '720;'
+#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=0) == '15,48;'
+#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=1) == '2;12;30;'
+#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=0,1) == '720;'
+#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=1,0) == '720;'
 
 // rad2deg
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f rad2deg "1,2;3,4;5,6") == '57.29578,114.59156;171.88734,229.18312;286.4789,343.77468;'
 
 // radians
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f radians "1,2;3,4;5,6") == '0.017453293,0.034906585;0.052359878,0.06981317;0.087266463,0.10471976;'
 
 // arange
 #assert $(gridlabd matrix -f arange 1 4) == '1,2,3;'
