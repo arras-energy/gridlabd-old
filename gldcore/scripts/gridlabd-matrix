@@ -462,6 +462,7 @@ functions = {
         POSITIONAL : [matrix],
         "discont" : float,
         "axis" : int,
+        "period" : float,
     },
     "deg2rad" : 
     {
