@@ -1273,7 +1273,7 @@ def main(argv):
                 elif spec[0] in function.keys():
                     atype = function[spec[0]]
                     kwargs[spec[0]] = atype(spec[1])
-                elif spec[0] in function[UARGS]:
+                elif UARGS in function.keys() and spec[0] in function[UARGS]:
                     atype = UFUNC[spec[0]]
                     kwargs[spec[0]] = atype(spec[1])
                 else:
