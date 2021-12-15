@@ -123,8 +123,26 @@ def matrix(a):
     try: # normally it's a string that can be read as a matrix
         return numpy.matrix(a.rstrip(";"))
     except: # maybe it's a file
+        pass
+    try: # try item by item in case there are nans
+        result = []
+        for row in a.split(";"):
+            line = []
+            for item in row.split(","):
+                if item == '':
+                    line.append(float('nan'))
+                else:
+                    line.append(float(item))
+            result.append(line)
+        return result
+    except:
+        pass
+    try: # try load as a URL
         with urllib.request.urlopen(a) as req:
             return numpy.matrix(req.read().decode("utf-8"))
+    except:
+        pass
+    error(f"invalid matrix or URL: '{a}'",E_INVALID)
 
 def intlist(s):
     """Parse intlist as N[,M[,[...]]]"""
