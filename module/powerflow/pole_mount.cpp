@@ -168,8 +168,8 @@ int pole_mount::init(OBJECT *parent)
             spacing->distance_CtoE * (conductor[2]?conductor[2]->get_cable_strength():0.0) + 
             spacing->distance_NtoE * (conductor[3]?conductor[3]->get_cable_strength():0.0));
         verbose("tension = %g ft.lb (moments due to line tension)",tension); // moment due to conductor tension
-        line_load_nowind = 0.0; // TODO
-        verbose("line_load_nowind = %g ft.lb.s/m (TODO)",tension);
+        line_load_nowind = transverse_load * pole_spacing + strength; // line load due to wind load and conductor strength
+        verbose("line_load_nowind = %g lb",line_load_nowind);
     }
 
 	return 1;
