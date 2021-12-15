@@ -1,6 +1,7 @@
 // matrix operations test
 #assert $(gridlabd matrix -f copy "1,2;3,4") == '1,2;3,4;'
 #assert $(gridlabd matrix -f -r=a,b -c=c,d -t copy "1,2;3,4") == ',c,d;a,1,3;b,2,4;'
+#assert $(gridlabd matrix -f -r=a,b -c=c,d -n=test -t copy "1,2;3,4") == 'test,c,d;a,1,3;b,2,4;'
 
 // absolute
 #assert $(gridlabd matrix -f absolute "1,2;-3,4") == '1,2;3,4;'
@@ -198,19 +199,24 @@
 #assert $(gridlabd matrix -f minimum 2,3,4 5) == '2,3,4;'
 
 // mod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f mod 1,2,3 2,2,2) == '1,0,1;'
 
 // modf
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f modf 1.2,3.4) == '0.2,0.4;1,3;'
 
 // multiply
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f multiply '1,2;3,4' 2) == '2,4;6,8;'
+#assert $(gridlabd matrix -f multiply '1,2;3,4' '1,2;3,4') == '1,4;9,16;'
 
 // nancumprod
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f nancumprod "1,;3,4;5,6") == '1,1,3,12,60,360;'
+#assert $(gridlabd matrix -f nancumprod "1,;3,4;5,6" axis=0) == '1,1;3,4;15,24;'
+#assert $(gridlabd matrix -f nancumprod "1,;3,4;5,6" axis=1) == '1,1;3,12;5,30;'
 
 // nancumsum
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f nancumsum "1,;3,4;5,6") == '1,1,4,8,13,19;'
+#assert $(gridlabd matrix -f nancumsum "1,;3,4;5,6" axis=0) == '1,0;4,4;9,10;'
+#assert $(gridlabd matrix -f nancumsum "1,;3,4;5,6" axis=1) == '1,1;3,7;5,11;'
 
 // nanprod
 //#assert $(gridlabd matrix -f ) == ''
