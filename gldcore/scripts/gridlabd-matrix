@@ -570,22 +570,26 @@ functions = {
     "cumprod" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "cumsum" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "nancumprod" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "nancumsum" : 
     {
         POSITIONAL : [matrix],
-        UARGS : ["axis","dtype"],
+        "axis" : int,
+        UARGS : ["dtype"],
     },
     "diff" : 
     {
