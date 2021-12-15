@@ -250,11 +250,11 @@
 #assert $(gridlabd matrix -f power "-1,nan;inf,-inf;-5,-6;" "-1,nan;inf,-inf;-5,-6;") == '-1,nan;inf,0;-0.00032,2.1433471e-05;'
 
 // prod
-#assert $(gridlabd matrix -f "1,2;3,4;5,6") == '720;'
-#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=0) == '15,48;'
-#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=1) == '2;12;30;'
-#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=0,1) == '720;'
-#assert $(gridlabd matrix -f "1,2;3,4;5,6" axis=1,0) == '720;'
+#assert $(gridlabd matrix -f prod "1,2;3,4;5,6") == '720;'
+#assert $(gridlabd matrix -f prod "1,2;3,4;5,6" axis=0) == '15,48;'
+#assert $(gridlabd matrix -f prod "1,2;3,4;5,6" axis=1) == '2;12;30;'
+#assert $(gridlabd matrix -f prod "1,2;3,4;5,6" axis=0,1) == '720;'
+#assert $(gridlabd matrix -f prod "1,2;3,4;5,6" axis=1,0) == '720;'
 
 // rad2deg
 #assert $(gridlabd matrix -f rad2deg "1,2;3,4;5,6") == '57.29578,114.59156;171.88734,229.18312;286.4789,343.77468;'
