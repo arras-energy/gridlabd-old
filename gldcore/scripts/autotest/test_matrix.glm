@@ -246,13 +246,15 @@
 #assert $(gridlabd matrix -f arange 4 1 step=-1.2) == '4,2.8,1.6;'
 
 // real
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f real '1+0j,2+1j;3+2j,4+3j') == '1,2;3,4;'
 
 // real_if_close
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f real_if_close '1+0j,2+1j;3+2j,4+3j' tol=1e20) == '1,2;3,4;'
 
 // reciprocal
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f reciprocal '1,2,3' dtype=int) == '1,0,0;'
+#assert $(gridlabd matrix -f reciprocal '1,2,3' dtype=float) == '1,0.5,0.33333333;'
+#assert $(gridlabd matrix -f reciprocal '1,2,3' dtype=complex | tr -d ' ') == '(1-0j),(0.5-0j),(0.33333333-0j);'
 
 // remainder
 //#assert $(gridlabd matrix -f ) == ''
