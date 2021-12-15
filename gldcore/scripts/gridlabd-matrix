@@ -11,15 +11,15 @@ Shell:
 
 Options:
 
-    -c|--columns     name columns
-    -d|--debug       enable debugging output
-    -e|--exception   raise exceptions on errors",file=sys.stdout)
-    -f|--flatten     use semicolon as newline",file=sys.stdout)
-    -h|--help        print this help info",file=sys.stdout)
-    -q|--quiet       suppress all output to stderr",file=sys.stdout)
-    -r|--rows        name rows
-    -t|--transpose   transpose output
-    -w|--warning     suppress warning output",file=sys.stdout)
+    -c|--columns=NAMES  name columns
+    -d|--debug          enable debugging output
+    -e|--exception      raise exceptions on errors",file=sys.stdout)
+    -f|--flatten        use semicolon as newline",file=sys.stdout)
+    -h|--help           print this help info",file=sys.stdout)
+    -q|--quiet          suppress all output to stderr",file=sys.stdout)
+    -r|--rows=NAMES     name rows
+    -t|--transpose      transpose output
+    -w|--warning        suppress warning output",file=sys.stdout)
 
 DESCRIPTION
 
@@ -89,13 +89,7 @@ def local_exit(code):
 import numpy
 import numpy.matlib as matlib
 import numpy.linalg as linalg
-
-#
-# Default options
-#
-transpose_output = False
-column_names = None
-row_names = None
+import pandas
 
 #
 # Argument types
@@ -166,6 +160,11 @@ functions = {
     {
         POSITIONAL : [float,float],
         "step" : float,
+        UARGS : ["subok"],
+    },
+    "copy" :
+    {
+        POSITIONAL : [matrix],
     },
 
     # arithmetic
@@ -1068,6 +1067,10 @@ class config:
     exception = False
     newline = '\n'
     format = "%.8g"
+    transpose = False
+    columns = None
+    rows = None
+
 
 numpy.set_printoptions(threshold=sys.maxsize)
 
@@ -1085,10 +1088,22 @@ def output(result):
     elif type(result) == str:
         print(result,file=sys.stdout)
     else:
-        try:
+        if config.transpose:
+            if not hasattr(result,"transpose"):
+                error("cannot transpose result".E_FAILED)
+            result = result.transpose()
+        if config.rows or config.columns:
+            df = pandas.DataFrame(result,
+                index = config.rows,
+                columns = config.columns)
+            df.to_csv(sys.stdout,
+                line_terminator = config.newline,
+                sep = ",",
+                float_format = config.format,
+                index = bool(config.rows),
+                header = bool(config.columns))
+        else:
             output(numpy.matrix(result).tolist())
-        except:
-            print(f"output({type(result)}={result}) failed",file=sys.stderr)
 
 def warning(msg):
     if config.warning:
@@ -1238,6 +1253,15 @@ def main(argv):
             argv[1] = "help"
         elif argv[1] in ["-v","--version"]:
             argv[1] = "version"
+        elif argv[1] in ["-t","--transpose"]:
+            config.transpose = True
+            del argv[1]
+        elif argv[1].startswith("-c=") or argv[1].startswith("--columns="):
+            config.columns = argv[1].split("=")[1].split(",")
+            del argv[1]
+        elif argv[1].startswith("-r=") or argv[1].startswith("--rows="):
+            config.rows = argv[1].split("=")[1].split(",")
+            del argv[1]
         elif argv[1] == "--makedocs":
             makedocs()
             return local_exit(E_OK)
