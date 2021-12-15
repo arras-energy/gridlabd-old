@@ -190,10 +190,12 @@
 #assert $(gridlabd matrix -f logaddexp2 -115.12925 -114.21296) == '-113.59955;'
 
 // maximum
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f maximum 2,3,4 1,5,2) == '2,5,4;'
+#assert $(gridlabd matrix -f maximum 2,3,4 5) == '5,5,5;'
 
 // minimum
-//#assert $(gridlabd matrix -f ) == ''
+#assert $(gridlabd matrix -f minimum 2,3,4 1,5,2) == '1,3,2;'
+#assert $(gridlabd matrix -f minimum 2,3,4 5) == '2,3,4;'
 
 // mod
 //#assert $(gridlabd matrix -f ) == ''
