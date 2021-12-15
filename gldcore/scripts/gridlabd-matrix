@@ -754,17 +754,6 @@ functions = {
     {
         POSITIONAL : [matrix,matrix],
     },
-    "savetxt" : 
-    {
-        POSITIONAL : [str, matrix],
-        "fmt" : str,
-        "delimiter" : str,
-        "newline" : str,
-        "header" : str,
-        "footer" : str,
-        "comments" : str,
-        "encoding" : str,
-    },
     "trace" :
     {
         POSITIONAL : [matrix],
