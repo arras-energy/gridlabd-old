@@ -218,7 +218,7 @@ TIMESTAMP pole_mount::precommit(TIMESTAMP t0)
         verbose("equipment_moment_nowind = %g ft.lb (wind load is 1 lb/sf)",equipment_moment_nowind);
 
         equipment_moment = weight * offset;
-        verbose("equipment_moment = %g ft.lb",equipment_moment);
+        verbose("equipment_moment = %g ft.lb (no tilt)",equipment_moment);
     }
 
     return TS_NEVER;
@@ -253,9 +253,10 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("alpha = %g rad",alpha);
             double beta = (mount->get_tilt_direction()-direction)*PI/180;
             verbose("beta = %g rad",beta);
-            double x = mount->get_equipment_moment() + abs(mount->height - height)*sin(alpha)*weight + equipment_moment*cos(beta);
+            double x = mount->get_equipment_moment() + weight * (height*sin(alpha) + offset*cos(alpha)) * cos(beta)
+            // mount->get_equipment_moment() + abs(mount->height - height)*sin(alpha)*weight + equipment_moment*cos(beta);
             verbose("x = %g ft.lb",x);
-            double y = equipment_moment*sin(beta);
+            double y = weight * (height*sin(alpha) + offset*cos(alpha)) * sin(beta) // moment arm changes when the pole tilts
             verbose("y = %g ft.lb",y);
             double moment = sqrt(x*x+y*y);
             verbose("moment = %g ft.lb",moment);
