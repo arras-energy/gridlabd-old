@@ -1,0 +1,14 @@
+#assert $(gridlabd matrix version) == '1.21.4'
+
+// matlib.rand <intlist_args>
+#assert ! -z "$(gridlabd matrix -f matlib.rand 1)"
+#assert ! -z "$(gridlabd matrix -f matlib.rand 2)"
+#assert ! -z "$(gridlabd matrix -f matlib.rand 2 2)"
+
+// matlib.randn <intlist_args>
+#assert ! -z $(gridlabd matrix -f matlib.randn 1)
+#assert ! -z $(gridlabd matrix -f matlib.randn 1 2)
+#assert ! -z $(gridlabd matrix -f matlib.randn 2 3)
+
+// matlib.repmat <matrix> <int> <int>
+#assert $(gridlabd matrix -f matlib.repmat "1,2;3,4" 2 2) == '1,2,1,2;3,4,3,4;1,2,1,2;3,4,3,4;'
