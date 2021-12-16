@@ -1,0 +1,62 @@
+// check numpy version (must be exactly the same to pass these tests)
+#assert $(gridlabd matrix version) == '1.21.4'
+
+// linalg.cholesky <matrix>
+#assert $(gridlabd matrix -f linalg.cholesky "1,2;-2,5") == '1,0;-2,1;'
+
+// linalg.cond <matrix> p=<order>
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5") == '3.4913561;'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=1) == '5.4444444;'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=inf) == '5.4444444;'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=-inf) == '1;'
+
+// linalg.det <matrix>
+#assert $(gridlabd matrix -f linalg.det "1,2;-2,5") == '9;'
+
+// linalg.eig <matrix>
+#assert $(gridlabd matrix -f linalg.eig "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j;0.70710678+0j,0.70710678-0j;0.70710678+1.0536712e-08j,0.70710678-1.0536712e-08j;'
+
+// linalg.eigh <matrix> UPLO=<str>
+#assert $(gridlabd matrix -f linalg.eigh "'1,2;-2,5'") == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
+#assert $(gridlabd matrix -f linalg.eigh "'1,2;-2,5'" UPLO=U) == '0.17157288,5.8284271;-0.92387953,0.38268343;0.38268343,0.92387953;'
+#assert $(gridlabd matrix -f linalg.eigh "'1,2;-2,5'" UPLO=L) == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
+
+// linalg.eigvals <matrix>
+#assert $(gridlabd matrix -f linalg.eigvals "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j;'
+
+// linalg.eigvalsh <matrix> UPLO=<str>
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5") == '0.17157288,5.8284271;'
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=U) == '0.17157288,5.8284271;'
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=L) == '0.17157288,5.8284271;'
+
+// linalg.inv <matrix>
+#assert $(gridlabd matrix -f linalg.inv "1,2;-2,5") == '0.55555556,-0.22222222;0.22222222,0.11111111;'
+
+// linalg.lstsq <matrix> <matrix> rcond=<float>
+#assert $(gridlabd matrix -f linalg.lstsq "MATRIX" "MATRIX") == 'MATRIX'
+#assert $(gridlabd matrix -f linalg.lstsq "MATRIX" "MATRIX" rcond=VALUE) == 'MATRIX'
+
+// linalg.matrix_rank <matrix>
+#assert $(gridlabd matrix -f linalg.matrix_rank "MATRIX") == 'MATRIX'
+
+// linalg.norm <matrix> ord=<order> axis=<int> keepdims=<bool>
+#assert $(gridlabd matrix -f linalg.norm "MATRIX") == 'MATRIX'
+#assert $(gridlabd matrix -f linalg.norm "MATRIX" ord=NUMBER) == 'MATRIX'
+#assert $(gridlabd matrix -f linalg.norm "MATRIX" axis=NUMBER) == 'MATRIX'
+#assert $(gridlabd matrix -f linalg.norm "MATRIX" keepdims=NUMBER) == 'MATRIX'
+
+// linalg.pinv <matrix>
+#assert $(gridlabd matrix -f linalg.pinv "MATRIX") == 'MATRIX'
+
+// linalg.qr <matrix> mode=<str>
+#assert $(gridlabd matrix -f linalg.qr "MATRIX") == 'MATRIX'
+
+// linalg.slogdet <matrix>
+#assert $(gridlabd matrix -f linalg.slogdet "MATRIX") == 'MATRIX'
+
+// linalg.solve <matrix> <matrix>
+#assert $(gridlabd matrix -f linalg.solve "MATRIX" "MATRIX") == 'MATRIX'
+
+// linalg.svd <matrix> full_matrices=<bool> compute_uv=<bool> hermitian=<bool>
+#assert $(gridlabd matrix -f linalg.svd "MATRIX") == 'MATRIX'
+
