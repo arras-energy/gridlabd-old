@@ -1139,7 +1139,7 @@ def output(result):
                     print(int(item),end="",file=sys.stdout)
                 else:
                     print(str(item),end="",file=sys.stdout)
-            print(";",end="",file=sys.stdout)
+            print(config.newline,end="",file=sys.stdout)
     elif type(result) == str:
         print(result,file=sys.stdout)
     else:
@@ -1155,7 +1155,7 @@ def output(result):
                 df.index.name = config.name
             df.to_csv(sys.stdout,
                 line_terminator = config.newline,
-                sep = ",",
+                sep = config.delimiter,
                 float_format = config.float_format,
                 index = bool(config.rows),
                 header = bool(config.columns))
