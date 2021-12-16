@@ -11,17 +11,18 @@ Shell:
 
 Options:
 
-    -c|--columns=NAMES  add column names
-    -d|--debug          enable debugging output
-    -e|--exception      raise exceptions on errors",file=sys.stdout)
-    -f|--flatten        use semicolon as newline",file=sys.stdout)
-    -h|--help [PATTERN] print this help info",file=sys.stdout)
-    -n|--name=NAME      add name to cell 0,0 when both columns and rows have
-                        names
-    -q|--quiet          suppress all output to stderr",file=sys.stdout)
-    -r|--rows=NAMES     add row names
-    -t|--transpose      transpose output
-    -w|--warning        suppress warning output",file=sys.stdout)
+    -c|--columns=NAMES    add column names
+    -d|--debug            enable debugging output
+    -e|--exception        raise exceptions on errors",file=sys.stdout)
+    -f|--flatten          use semicolon as newline",file=sys.stdout)
+    -h|--help [PATTERN]   print this help info",file=sys.stdout)
+    -n|--name=NAME        add name to cell 0,0 when both columns and rows have
+                          names
+    -p|--polynomial[=VAR] output matrix rows as polynomial(s)
+    -q|--quiet            suppress all output to stderr",file=sys.stdout)
+    -r|--rows=NAMES       add row names
+    -t|--transpose        transpose output
+    -w|--warning          suppress warning output",file=sys.stdout)
 
 DESCRIPTION
 
@@ -200,6 +201,17 @@ def boolstr(a):
         return False
     else:
         return bool(a)
+
+def weakcomplex(x):
+    try:
+        return float(x)
+    except:
+        pass
+    try: 
+        return complex(x)
+    except:
+        pass
+    return float('nanz')
 
 #
 # Arguments and options
@@ -906,21 +918,21 @@ functions = {
     },
     "matrix.argpartition" : 
     {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,int],
         "axis" : int,
         "kind" : str,
-        "order" : intlist,
+        # "order" : intlist,
     },
     "matrix.argsort" : 
     {
         POSITIONAL : [matrix],
         "axis" : int,
         "kind" : str,
-        "order" : intlist,
+        # "order" : intlist,
     },
     "matrix.astype" :
     {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,str],
         "order" : str,
         "casting" : str,
         "subok" : boolstr,
@@ -942,7 +954,8 @@ functions = {
         UARGS : UKEYS,
     },
     "matrix.compress" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [boollist,matrix],
+        "axis" : int,
     },
     "matrix.conj" : {
         POSITIONAL : [matrix],
@@ -960,10 +973,10 @@ functions = {
         POSITIONAL : [matrix],
     },
     "matrix.dot" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,matrix],
     },
     "matrix.fill" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,weakcomplex],
     },
     "matrix.flatten" : {
         POSITIONAL : [matrix],
@@ -1128,6 +1141,7 @@ class config:
     columns = None
     rows = None
     name = None
+    polynomial = None
 
 
 numpy.set_printoptions(threshold=sys.maxsize)
@@ -1142,23 +1156,50 @@ def output(result):
         for item in result:
             output(item)
     elif type(result) == list:    
-        # print(list(map(lambda y: config.newline.join(list(map(lambda x: ",".join(x),y))),result)),file=sys.stdout)
         for row in result:
             first_item = True 
-            for item in row:
-                if first_item:
-                    first_item = False
-                else:
-                    print(config.delimiter,end="",file=sys.stdout)
-                if type(item) is float:
-                    print(config.float_format%item,end="",file=sys.stdout)
-                elif type(item) is complex:
-                    print(config.complex_format%(item.real,item.imag),end="",file=sys.stdout)
-                elif type(item) is bool:
-                    print(int(item),end="",file=sys.stdout)
-                else:
-                    print(str(item),end="",file=sys.stdout)
-            print(config.newline,end="",file=sys.stdout)
+            if not config.polynomial:
+                for item in row:
+                    if first_item:
+                        first_item = False
+                    else:
+                        print(config.delimiter,end="",file=sys.stdout)
+                    if type(item) is float:
+                        print(config.float_format%item,end="",file=sys.stdout)
+                    elif type(item) is complex:
+                        print(config.complex_format%(item.real,item.imag),end="",file=sys.stdout)
+                    elif type(item) is bool:
+                        print(int(item),end="",file=sys.stdout)
+                    else:
+                        print(str(item),end="",file=sys.stdout)
+                print(config.newline,end="",file=sys.stdout)
+            else:
+                n = 0
+                for item in row:
+                    if type(item) is float:
+                        if n > 0 and item >= 0:
+                            print("+",end="",file=sys.stdout)
+                        print(config.float_format%item,end="",file=sys.stdout)
+                    elif type(item) is complex:
+                        if n > 0 and item.real >= 0:
+                            print("+",end="",file=sys.stdout)
+                        if item.imag != 0:
+                            print(f"({config.complex_format%(item.real,item.imag)})",end="",file=sys.stdout)
+                        else:
+                            print(config.float_format%item.real,end="",file=sys.stdout)
+                    elif type(item) is bool:
+                        print("+",end="",file=sys.stdout)
+                        print(int(item),end="",file=sys.stdout)
+                    else:
+                        if n > 0 and item >= 0:
+                            print("+",end="",file=sys.stdout)
+                        print(str(item),end="",file=sys.stdout)
+                    if n >= 1:
+                        print(f"{config.polynomial}",end="",file=sys.stdout)
+                    if n > 1:
+                        print(f"^{n}",end="",file=sys.stdout)
+                    n += 1
+                print(config.newline,end="",file=sys.stdout)
     elif type(result) == str:
         print(result,file=sys.stdout)
     else:
@@ -1342,6 +1383,12 @@ def main(argv):
         elif argv[1].startswith("-n=") or argv[1].startswith("--name="):
             config.name = argv[1].split("=")[1]
             del argv[1]
+        elif argv[1] in ["-p","--polynomial"]:
+            config.polynomial = "x"
+            del argv[1]
+        elif argv[1].startswith("-p=") or argv[1].startswith("--polynomial="):
+            config.polynomial = argv[1].split("=")[1]
+            del argv[1]
         elif argv[1] == "--makedocs":
             makedocs()
             return local_exit(E_OK)
@@ -1418,7 +1465,11 @@ def main(argv):
             result = call(**kwargs)
         else:
             result = call()
-        output(result)
+        if type(result) == type(None) and len(args) > 0: 
+            # catch in-place operations
+            output(args[0])
+        else:
+            output(result)
     except Exception as info:
         output("MATRIXERROR")
         if config.exception:
