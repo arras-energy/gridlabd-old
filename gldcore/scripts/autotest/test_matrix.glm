@@ -14,6 +14,8 @@
 
 // angle
 #assert $(gridlabd matrix -f angle "1+1j,1+2j;1-3j,1-4j") == '0.78539816,1.1071487;-1.2490458,-1.3258177;'
+#assert $(gridlabd matrix -f angle "1+1j,1+2j;1-3j,1-4j" deg=0) == '0.78539816,1.1071487;-1.2490458,-1.3258177;'
+#assert $(gridlabd matrix -f angle "1+1j,1+2j;1-3j,1-4j" deg=1) == '45,63.434949;-71.565051,-75.963757;'
 
 // arc{cos,sin,tan}[h]
 #assert $(gridlabd matrix -f arccos "0.1,0.2;0.3,0.4") == '1.4706289,1.3694384;1.2661037,1.1592795;'
