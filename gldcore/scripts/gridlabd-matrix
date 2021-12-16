@@ -86,6 +86,13 @@ Note: any matrix input argument can be provided as a URL, e.g.,
   1,3
   2,4
 
+CAVEAT
+
+The numpy and pandas support for GLM has limited performance insofar as it
+uses shell scripts to parse and dispatch operations.  If extensive use of
+numpy and pandas is required, it is highly recommended that the GLM file use
+the `#begin python ... `#end` syntax to perform complex operations inline.
+
 FUNCTIONS
 
 """
@@ -182,6 +189,18 @@ def order(a):
     except:
         return a
 
+def boolstr(a):
+    try:
+        return bool(float(a))
+    except:
+        pass
+    if a in ["TRUE","True","true","","YES","Yes","yes"]:
+        return True
+    elif a in ["FALSE","False","false","NO","No","no",""]:
+        return False
+    else:
+        return bool(a)
+
 #
 # Arguments and options
 #
@@ -192,11 +211,11 @@ UFUNC = {
     "where" : boollist,
     "axes" : tuplelist,
     "axis" : inttuple,
-    "keepdims" : bool,
+    "keepdims" : boolstr,
     "casting" : str,
     "order" : str,
     "dtype" : str,
-    "subok" : bool,
+    "subok" : boolstr,
 }
 UKEYS = list(UFUNC.keys())
 functions = {
@@ -299,7 +318,7 @@ functions = {
     "angle" : 
     {
         POSITIONAL : [matrix],
-        "deg" : bool,
+        "deg" : boolstr,
     },
     "real" : 
     {
@@ -823,7 +842,7 @@ functions = {
         POSITIONAL : [matrix],
         "ord" : order,
         "axis" : int,
-        "keepdims" : bool,
+        "keepdims" : boolstr,
     },
     "linalg.pinv" :
     {
@@ -845,9 +864,9 @@ functions = {
     "linalg.svd" : 
     {
         POSITIONAL : [matrix],
-        "full_matrices" : bool,
-        "compute_uv" : bool,
-        "hermitian" : bool,
+        "full_matrices" : boolstr,
+        "compute_uv" : boolstr,
+        "hermitian" : boolstr,
     },
 
     # matlib
@@ -904,7 +923,7 @@ functions = {
         POSITIONAL : [matrix],
         "order" : str,
         "casting" : str,
-        "subok" : bool,
+        "subok" : boolstr,
     },
     "matrix.byteswap" :
     {
@@ -1087,7 +1106,7 @@ functions = {
     {
         POSITIONAL : [arrayorint],
         "size" : intlist,
-        "replace" : bool,
+        "replace" : boolstr,
         "p" : array,    
     },
 
