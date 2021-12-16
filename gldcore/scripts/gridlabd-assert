@@ -9,37 +9,89 @@
 
 WARN="no"
 QUIET="no"
+VERBOSE="no"
 
-if [ -z "$1" -o "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
-	echo "Syntax: gridlabd assert [-h|-w|-q] EXPRESSION"
-	test -z "$1" && exit 2
-	echo "  -h|--help|help   print this helpful information"
-	echo "  -w|--warn        errors are merely warnings"
-	echo "  -q|--quiet       output to stderr is suppressed"
-	echo "Type 'man test' for EXPRESSION syntax."
-	exit 0
+function syntax()
+{
+	echo "Syntax: gridlabd assert [OPTIONS...] EXPRESSION"	
+}
+
+function help()
+{
+	syntax
+	echo "OPTIONS:"
+	echo "  --help|help   print this helpful information"
+	echo "  --warn        errors are merely warnings"
+	echo "  --quiet       output to stderr is suppressed"
+	echo "  --verbose     output test before it is performed"
+	echo "See 'man test' for EXPRESSION syntax."
+}
+
+function error()
+{
+	if [ "$QUIET" == "no" ]; then
+		echo "ERROR [gridlabd-assert]: $*" > /dev/stderr
+	fi
+}
+
+function warning()
+{
+	if [ "$WARN" == "yes" ]; then
+		echo "WARNING [gridlabd-assert]: $*"  > /dev/stderr
+	fi
+}
+
+function verbose()
+{
+	if [ "$VERBOSE" == "yes" ]; then
+		echo "VERBOSE [gridlabd-assert]: $*" > /dev/stderr
+	fi	
+}
+
+if [ $# -eq 0 ]; then
+	syntax > /dev/stderr
+	exit 2
 fi
-if [ "$1" == "-w" -o "$1" == "--warn" ]; then
-	WARN="yes"
-	shift 1
-fi
-if [ "$1" == "-q" -o "$1" == "--quiet" ]; then
-	QUIET="yes"
-	shift 1
+
+DONE="no"
+while [ "$DONE" == "no" ]; do
+	case "$1" in
+	--help|help)
+		help
+		exit 0
+		;;
+	--warn)
+		WARN="yes"
+		shift 1
+		;;
+	--quiet)
+		QUIET="yes"
+		shift 1
+		;;
+	--verbose)
+		VERBOSE="yes"
+		shift 1
+		;;
+	*)
+		DONE="yes"
+		;;
+	esac
+done
+
+if [ $# -eq 0 ]; then
+	warning "null test"
+else
+	verbose "testing '""$@""'"
 fi
 
 if [ "$@" ]; then
 	exit 0
 else
-	if [ $WARN == "no" ]; then
-		if [ $QUIET == "no" ]; then
-			echo "ERROR [gridlabd-assert]: test $* failed" >/dev/stderr
-		fi
+	if [ "$WARN" == "no" ]; then
+		error "test '""$@""' failed!"
 		exit 1
 	else
-		if [ $QUIET == "no" ]; then
-			echo "WARNING [gridlabd-assert]: test $* failed" >/dev/stderr
-		fi
+		warning "test '""$@""' failed!"
 		exit 0
 	fi
 fi
