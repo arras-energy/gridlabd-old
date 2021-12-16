@@ -1,0 +1,149 @@
+#assert $(gridlabd matrix version) == '1.21.4'
+
+// matrix.all <matrix> axis=<int>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.any <matrix> axis=<int>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.argmax <matrix> axis=<int>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.argmin <matrix> axis=<int>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.argpartition <matrix> axis=<int> kind=<str> order=<intlist>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.argsort <matrix> axis=<int> kind=<str> order=<intlist>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.astype <matrix> order=<str> casting=<str> subok=<boolstr>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.byteswap <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.choose <matrix> <intlist> mode=<str>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.clip <matrix> min=<float> max=<float> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.compress <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.conj <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.conjugate <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.cumprod <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.cumsum <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.diagonal <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.dot <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.fill <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.flatten <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.getH <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.getI <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.getT <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.getfield <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.item <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.itemset <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.max <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.mean <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.min <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.nonzero <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.partition <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.prod <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.ptp <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.put <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.ravel <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.repeat <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.reshape <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.resize <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.round <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.searchsorted <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.setfield <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.sort <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.squeeze <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.std <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.sum <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.swapaxes <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.take <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.trace <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.transpose <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
+// matrix.var <matrix>
+//#assert $(gridlabd matrix matrix.FUNCTION "MATRIX") == 'RESULT'
+
