@@ -45,7 +45,8 @@
 #assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" ord=1) == '7;'
 #assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=0) == '2.236068,5.3851648;'
 #assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1) == '2.236068,5.3851648;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=1) == '2.236068;5.3851648;'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=False) == '2.236068,5.3851648;'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=True) == '2.236068;5.3851648;'
 
 // linalg.pinv <matrix>
 #assert $(gridlabd matrix -f linalg.pinv "1,2;-2,-4") == '0.04,-0.08;0.08,-0.16;'
@@ -63,4 +64,7 @@
 
 // linalg.svd <matrix> full_matrices=<bool> compute_uv=<bool> hermitian=<bool>
 #assert $(gridlabd matrix -f linalg.svd "1,2;-2,5") == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" full_matrices=False) == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" compute_uv=False) == '5.6055513,1.6055513;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" hermitian=True) == '-0.38268343,-0.92387953;0.92387953,-0.38268343;5.8284271,0.17157288;-0.38268343,0.92387953;-0.92387953,-0.38268343;'
 
