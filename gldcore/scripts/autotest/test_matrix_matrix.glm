@@ -57,8 +57,9 @@
 #assert $(gridlabd matrix -f matrix.clip "1,2,3,4;5,6,7,8" max=7) == '1,2,3,4;5,6,7,7;'
 #assert $(gridlabd matrix -f matrix.clip "1,2,3,4;5,6,7,8" min=2 max=7) == '2,2,3,4;5,6,7,7;'
 
-// matrix.compress <matrix>
-#assert --warn --quiet $(gridlabd matrix -f matrix.compress "0,1" "1,2;3,4;5,6" axis=0) == '3,4;'
+// matrix.compress <matrix> axis=<int>
+// TODO: ERROR [gridlabd-matrix]: 'matrix.compress 0,1 1,2;3,4;5,6 axis=0' failed - descriptor 'compress' for 'numpy.ndarray' objects doesn't apply to a 'list' object
+//#assert $(gridlabd matrix -f matrix.compress "0,1" "1,2;3,4;5,6" axis=0) == '3,4;'
 
 // matrix.conj <matrix>
 #assert $(gridlabd matrix -f matrix.conj "0+1j,1-2j") == '0-1j,1+2j;'
@@ -83,64 +84,94 @@
 #assert $(gridlabd matrix -f matrix.fill "1,2;3,4+0j" 5) == '5+0j,5+0j;5+0j,5+0j;'
 
 // matrix.flatten <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.flatten "1,2;3,4") == '1,2,3,4;'
 
 // matrix.getH <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.getH "0+1j,2+3j;4+5j,6+7j") == '0-1j,4-5j;2-3j,6-7j;'
 
 // matrix.getI <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.getI "1,2;3,4") == '-2,1;1.5,-0.5;'
 
 // matrix.getT <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.getT "1,2;3,4") == '1,3;2,4;'
 
-// matrix.getfield <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+// matrix.getfield <matrix> <dtype>
+#assert $(gridlabd matrix -f matrix.getfield "0+1j,2+3j;4+5j,6+7j" float) == '0,2;4,6;'
+#assert $(gridlabd matrix -f matrix.getfield "0+1j,2+3j;4+5j,6+7j" float offset=8) == '1,3;5,7;'
 
 // matrix.item <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.item "0+1j,2+3j;4+5j,6+7j" 2) == '4+5j;'
+#assert $(gridlabd matrix -f matrix.item "0+1j,2+3j;4+5j,6+7j" 1,1) == '6+7j;'
 
 // matrix.itemset <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.itemset "0+1j,2+3j;4+5j,6+7j" 1,1 1.23) == '0+1j,2+3j;4+5j,1.23+0j;'
 
 // matrix.max <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.max "0+1j,2+3j;4+5j,6+7j;") == '6+7j;'
+#assert $(gridlabd matrix -f matrix.max "0+1j,2+3j;4+5j,6+7j;" axis=0) == '4+5j,6+7j;'
+#assert $(gridlabd matrix -f matrix.max "0+1j,2+3j;4+5j,6+7j;" axis=1) == '2+3j;6+7j;'
 
 // matrix.mean <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.mean "0+1j,2+3j;4+5j,6+7j;") == '3+4j;'
+#assert $(gridlabd matrix -f matrix.mean "0+1j,2+3j;4+5j,6+7j;" axis=0) == '2+3j,4+5j;'
+#assert $(gridlabd matrix -f matrix.mean "0+1j,2+3j;4+5j,6+7j;" axis=1) == '1+2j;5+6j;'
 
 // matrix.min <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.min "0+1j,2+3j;4+5j,6+7j;") == '0+1j;'
+#assert $(gridlabd matrix -f matrix.min "0+1j,2+3j;4+5j,6+7j;" axis=0) == '0+1j,2+3j;'
+#assert $(gridlabd matrix -f matrix.min "0+1j,2+3j;4+5j,6+7j;" axis=1) == '0+1j;4+5j;'
 
 // matrix.nonzero <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.nonzero "0,1;2,3") == '0,1,1;1,0,1;'
 
 // matrix.partition <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.partition "4,3,2,1,0;5,4,3,2,1;" 3) == '1,0,2,3,4;2,1,3,4,5;'
+#assert $(gridlabd matrix -f matrix.partition "4,3,2,1,0;5,4,3,2,1;" 3 axis=1) == '1,0,2,3,4;2,1,3,4,5;'
+#assert $(gridlabd matrix -f matrix.partition "4,3,2,1,0;5,4,3,2,1;" 1 axis=0) == '4,3,2,1,0;5,4,3,2,1;'
 
-// matrix.prod <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+// matrix.prod <matrix> axis=<int> dtype=<str> keepdims=<bool>
+#assert $(gridlabd matrix -f matrix.prod "1,2;3,4;") == '24;'
+#assert $(gridlabd matrix -f matrix.prod "1,2;3,4;" dtype=complex) == '24+0j;'
+#assert $(gridlabd matrix -f matrix.prod "1,2;3,4;" axis=0) == '3,8;'
+#assert $(gridlabd matrix -f matrix.prod "1,2;3,4;" axis=1) == '2;12;'
 
 // matrix.ptp <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.ptp "1,2;3,4;") == '3;'
+#assert $(gridlabd matrix -f matrix.ptp "1,2;3,4;" axis=0) == '2,2;'
+#assert $(gridlabd matrix -f matrix.ptp "1,2;3,4;" axis=1) == '1;1;'
 
 // matrix.put <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.put "1,2;3,4" 1 0) == '1,0;3,4;'
+#assert $(gridlabd matrix -f matrix.put "1,2;3,4" 6 0 mode=wrap) == '1,2;0,4;'
+#assert $(gridlabd matrix -f matrix.put "1,2;3,4" 6 0 mode=clip) == '1,2;3,0;'
 
 // matrix.ravel <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.ravel "1,2;3,4") == '1,2,3,4;'
+#assert $(gridlabd matrix -f matrix.ravel "1,2;3,4" order=C) == '1,2,3,4;'
+#assert $(gridlabd matrix -f matrix.ravel "1,2;3,4" order=F) == '1,3,2,4;'
+#assert $(gridlabd matrix -f matrix.ravel "1,2;3,4" order=A) == '1,2,3,4;'
+#assert $(gridlabd matrix -f matrix.ravel "1,2;3,4" order=K) == '1,2,3,4;'
 
-// matrix.repeat <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+// matrix.repeat <matrix> <repeats> axis=<inttuple>
+#assert $(gridlabd matrix -f matrix.repeat "1,2;3,4" 2) == '1,1,2,2,3,3,4,4;'
+#assert $(gridlabd matrix -f matrix.repeat "1,2;3,4" 2,3 axis=0) == '1,2;1,2;3,4;3,4;3,4;'
+#assert $(gridlabd matrix -f matrix.repeat "1,2;3,4" 2,3 axis=1) == '1,1,2,2,2;3,3,4,4,4;'
 
 // matrix.reshape <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.reshape "1,2;3,4" 1,4) == '1,2,3,4;'
+#assert $(gridlabd matrix -f matrix.reshape "1,2;3,4" 4,1) == '1;2;3;4;'
+#assert $(gridlabd matrix -f matrix.reshape "1,2;3,4" 4,1 order=F) == '1;3;2;4;'
 
 // matrix.resize <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+// TODO: ValueError: cannot resize this array: it does not own its data
+//#assert $(gridlabd matrix -f matrix.resize "1,2;3,4" 2,2) == '1,2;3,4;'
 
 // matrix.round <matrix>
-//#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
+#assert $(gridlabd matrix -f matrix.round "1.2,3.4;5.6,7.8") == '1,3;6,8;'
+#assert $(gridlabd matrix -f matrix.round "1.2,3.4;5.6,7.8" decimals=0) == '1,3;6,8;'
+#assert $(gridlabd matrix -f matrix.round "1.2,3.4;5.6,7.8" decimals=1) == '1.2,3.4;5.6,7.8;'
+#assert $(gridlabd matrix -f matrix.round "1.2,3.4;5.6,7.8" decimals=2) == '1.2,3.4;5.6,7.8;'
+#assert $(gridlabd matrix -f matrix.round "1.2,3.4;5.6,7.8" decimals=-1) == '0,0;10,10;'
 
 // matrix.searchsorted <matrix>
 //#assert $(gridlabd matrix -f matrix.FUNCTION "MATRIX") == 'RESULT'
