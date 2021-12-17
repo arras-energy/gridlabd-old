@@ -956,10 +956,10 @@ functions = {
         "max" : float,
         UARGS : UKEYS,
     },
-    "matrix.compress" : {
-        POSITIONAL : [boollist,matrix],
-        "axis" : int,
-    },
+    # "matrix.compress" : {
+    #     POSITIONAL : [boollist,matrix],
+    #     "axis" : int,
+    # },
     "matrix.conj" : {
         POSITIONAL : [matrix],
     },
@@ -1057,39 +1057,59 @@ functions = {
         POSITIONAL : [matrix],
         "decimals" : int,
     },
-    "matrix.searchsorted" : {
-        POSITIONAL : [matrix],
-    },
+    # "matrix.searchsorted" : {
+    #     POSITIONAL : [matrix,matrix],
+    #     "side" : str,
+    #     "sorter" : intlist,
+    # },
     "matrix.setfield" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,weakcomplex,str],
+        "offset" : int,
     },
     "matrix.sort" : {
         POSITIONAL : [matrix],
+        "axis" : int,
+        "kind" : str,
+        "order" : strlist,
     },
     "matrix.squeeze" : {
         POSITIONAL : [matrix],
+        "axis" : int,
     },
     "matrix.std" : {
         POSITIONAL : [matrix],
+        "axis" : int,
+        "ddof" : int,
+        UARGS : ["dtype"]
     },
     "matrix.sum" : {
         POSITIONAL : [matrix],
+        UARGS : ["axis","dtype"]
     },
     "matrix.swapaxes" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,int,int],
     },
     "matrix.take" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,matrix],
+        "axis" : int,
+        "mode" : str,
     },
     "matrix.trace" : {
         POSITIONAL : [matrix],
+        "offset" : int,
+        "axis1" : int,
+        "axis2" : int,
+        UARGS : ["dtype"]
     },
     "matrix.transpose" : {
         POSITIONAL : [matrix],
     },
     "matrix.var" : {
         POSITIONAL : [matrix],
-    },
+        "axis" : int,
+        "ddof" : int,
+        UARGS : ["dtype"]
+   },
 
     # random
     "random.normal" : 
