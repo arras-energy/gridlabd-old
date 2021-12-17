@@ -90,9 +90,11 @@ Note: any matrix input argument can be provided as a URL, e.g.,
 CAVEAT
 
 The numpy and pandas support for GLM has limited performance insofar as it
-uses shell scripts to parse and dispatch operations.  If extensive use of
-numpy and pandas is required, it is highly recommended that the GLM file use
-the `#begin python ... `#end` syntax to perform complex operations inline.
+uses shell scripts to parse and dispatch individual operations. This can be
+very efficient for a few operations on very large data files.  If many
+operations on smaller datasets are required, it is highly recommended that
+the GLM file use the `#begin python ... `#end` syntax to perform complex
+operations inline.
 
 FUNCTIONS
 
