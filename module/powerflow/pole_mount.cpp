@@ -205,11 +205,10 @@ TIMESTAMP pole_mount::precommit(TIMESTAMP t0)
     pole *mount = OBJECTDATA(my()->parent,pole);
     if ( equipment_is_line )
     {
-        mount->set_wire_load(mount->get_wire_load() + weight);
-        mount->set_wire_load_nowind(mount->get_wire_load_nowind() + line_load_nowind);
-        mount->set_wire_moment(mount->get_wire_moment() + weight*abs(mount->height - height));
-        mount->set_wire_moment_nowind(mount->get_wire_moment_nowind() + line_moment_nowind);
-        mount->set_wire_tension(mount->get_wire_tension() + tension);
+        verbose("weight = %g lbs",weight);
+        verbose("tension = %g ft.lb (moments due to line tension)",tension); // moment due to conductor tension
+        verbose("line_load_nowind = %g lb",line_load_nowind);
+        verbose("load_moment_nowind = %g ft.lb (wind load is 1 lb/sf)", line_moment_nowind);
 	}
     else
     {
@@ -241,7 +240,11 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
         if ( equipment_is_line )
         {
             verbose("%s recalculation flag set",my()->parent->name);
-            verbose("TODO: %s line moment not implemented yet",my()->parent->name);
+            mount->set_wire_load(mount->get_wire_load() + weight);
+            mount->set_wire_load_nowind(mount->get_wire_load_nowind() + line_load_nowind);
+            mount->set_wire_moment(mount->get_wire_moment() + weight*abs(mount->height - height));
+            mount->set_wire_moment_nowind(mount->get_wire_moment_nowind() + line_moment_nowind);
+            mount->set_wire_tension(mount->get_wire_tension() + tension);
         }
         else
         {
