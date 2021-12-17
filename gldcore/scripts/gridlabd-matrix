@@ -164,6 +164,9 @@ def tuplelist(s):
     """Parse intlist as N[,M[,[...]]]"""
     return list(map(lambda n:intlist(n),s.split(',')))
 
+def strlist(s):
+    return s.split(",")
+
 def intlist_args(*s):
     """Parse arguments as integer list"""
     return list(map(lambda n:int(n),*s))
@@ -991,52 +994,68 @@ functions = {
         POSITIONAL : [matrix],
     },
     "matrix.getfield" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,str],
+        "offset" : int,
     },
     "matrix.item" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,inttuple],
     },
     "matrix.itemset" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,inttuple,weakcomplex],
     },
     "matrix.max" : {
         POSITIONAL : [matrix],
+        "axis" : int,
     },
     "matrix.mean" : {
         POSITIONAL : [matrix],
+        "axis" : int,
     },
     "matrix.min" : {
         POSITIONAL : [matrix],
+        "axis" : int,
     },
     "matrix.nonzero" : {
         POSITIONAL : [matrix],
     },
     "matrix.partition" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,inttuple],
+        "axis" : int,
+        "kind" : str,
+        "order" : strlist,
     },
     "matrix.prod" : {
         POSITIONAL : [matrix],
+        "axis" : int,
+        UARGS : ["dtype"]
     },
     "matrix.ptp" : {
         POSITIONAL : [matrix],
+        "axis" : int,
     },
     "matrix.put" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,intlist,matrix],
+        "mode" : str,
     },
     "matrix.ravel" : {
         POSITIONAL : [matrix],
+        "order" : str,
     },
     "matrix.repeat" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,inttuple],
+        "axis" : int,
     },
     "matrix.reshape" : {
-        POSITIONAL : [matrix],
+        POSITIONAL : [matrix,inttuple],
+        "order" : str,
     },
-    "matrix.resize" : {
-        POSITIONAL : [matrix],
-    },
+    # "matrix.resize" : {
+    #     POSITIONAL : [matrix,inttuple],
+    #     "refcheck" : boolstr,
+    # },
     "matrix.round" : {
         POSITIONAL : [matrix],
+        "decimals" : int,
     },
     "matrix.searchsorted" : {
         POSITIONAL : [matrix],
