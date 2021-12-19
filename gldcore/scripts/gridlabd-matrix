@@ -27,15 +27,18 @@ Options:
 
 DESCRIPTION
 
-This module is a CLI for the python numpy matrix class and supporting linear
-algebra library. The general syntax is
+This subcommand is the front-end to python numpy, matrix class, and linear
+algebra library for processing unlabeled data. See the `table` subcommand for
+processing labeled data.
+
+The general syntax is
 
   shell% gridlabd [OPTIONS ...] matrix FUNCTION [ARGUMENTS ...]
 
 where function is a numpy function that takes zero or more positional and/or
 keyword arguments.  Position arguments may be provided explicitly as a
-string, or implicitly from stdin.  Keyword argument are provided in the form
-KEYWORD=VALUE.  
+string, or implicitly from stdin with each argument separated by a newline.
+Keyword argument are provided in the form KEYWORD=VALUE.  
 
 Examples:
 
@@ -224,6 +227,14 @@ def weakcomplex(x):
         pass
     return float('nanz')
 
+def hstack(*a):
+    from numpy import hstack as hstack1
+    return hstack1([*a])
+
+def vstack(*a):
+    from numpy import vstack as vstack1
+    return vstack1([*a])
+
 #
 # Arguments and options
 #
@@ -254,6 +265,14 @@ functions = {
     "copy" :
     {
         POSITIONAL : [matrix],
+    },
+    "hstack" :
+    {
+        POSITIONAL : [matrix,matrix]
+    },
+    "vstack" :
+    {
+        POSITIONAL : [matrix,matrix]
     },
 
     # arithmetic
@@ -1485,10 +1504,10 @@ def main(argv):
         function = functions[name]
         if not sys.stdin.isatty():
             try: # try reading stdin for first arg
-                data = sys.stdin.readlines()
-                atype = function[POSITIONAL][0]
-                args.append(atype(";".join(data).strip()))
-                pos = 1
+                for n, data in enumerate(sys.stdin.readlines()):
+                    atype = function[POSITIONAL][n]
+                    args.append(atype(data.strip()))
+                    pos += 1
             except:
                 pass
         if function[POSITIONAL] in VARARGS:
@@ -1511,9 +1530,9 @@ def main(argv):
                     atype = UFUNC[spec[0]]
                     kwargs[spec[0]] = atype(spec[1])
                 else:
-                    error(f"'{arg}' is an invalid argument",E_INVALID)
+                    error(f"argument {pos+1} is invalid",E_INVALID)
             if len(args) < len(function[POSITIONAL]):
-                error("missing positional argument",E_INVALID)
+                error(f"missing positional {function[POSITIONAL][pos].__name__} argument {pos+1}",E_INVALID)
         if args and kwargs:
             result = call(*args,**kwargs)
         elif args:
