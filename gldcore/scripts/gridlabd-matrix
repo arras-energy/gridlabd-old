@@ -21,6 +21,7 @@ Options:
     -p|--polynomial[=VAR] output matrix rows as polynomial(s)
     -q|--quiet            suppress all output to stderr",file=sys.stdout)
     -r|--rows=NAMES       add row names
+    -s|--slice=SPEC       slice rows and columns from data before operation
     -t|--transpose        transpose output
     -w|--warning          suppress warning output",file=sys.stdout)
 
@@ -96,6 +97,11 @@ operations on smaller datasets are required, it is highly recommended that
 the GLM file use the `#begin python ... `#end` syntax to perform complex
 operations inline.
 
+The flatten option applies to the output matrices separately. If a function
+outputs more than one matrix, they will still be separated by a newline,
+while each matrix will have rows separated by the config.newline character,
+which is the semicolon by default. 
+
 FUNCTIONS
 
 """
@@ -131,7 +137,7 @@ import pandas
 def matrix(a):
     """Matrix or input file"""
     try: # normally it's a string that can be read as a matrix
-        return numpy.matrix(a.rstrip(";"))
+        return apply_slice(config.slice_spec,numpy.matrix(a.rstrip(";")))
     except: # maybe it's a file
         pass
     try: # try item by item in case there are nans
@@ -144,12 +150,12 @@ def matrix(a):
                 else:
                     line.append(float(item))
             result.append(line)
-        return result
+        return apply_slice(config.slice_spec,numpy.matrix(result))
     except:
         pass
     try: # try load as a URL
         with urllib.request.urlopen(a) as req:
-            return numpy.matrix(req.read().decode("utf-8"))
+            return apply_slice(config.slice_spec,numpy.matrix(req.read().decode("utf-8")))
     except:
         pass
     error(f"invalid matrix or URL: '{a}'",E_INVALID)
@@ -240,7 +246,8 @@ functions = {
     # numpy utilities
     "arange" :
     {
-        POSITIONAL : [float,float],
+        POSITIONAL : [float],
+        "stop" : float,
         "step" : float,
         UARGS : ["subok"],
     },
@@ -1183,7 +1190,7 @@ class config:
     rows = None
     name = None
     polynomial = None
-
+    slice_spec   = ":"
 
 numpy.set_printoptions(threshold=sys.maxsize)
 
@@ -1197,13 +1204,21 @@ def output(result):
         for item in result:
             output(item)
     elif type(result) == list:    
-        for row in result:
-            first_item = True 
+        if not config.polynomial:
+            if config.name:
+                print(config.name,end=config.delimiter,file=sys.stdout)
+            if config.columns:
+                if not config.name:
+                    print(config.delimiter,end="",file=sys.stdout)
+                print(config.delimiter.join(config.columns),end=config.newline,file=sys.stdout)
+        for m, row in enumerate(result):
+            if m > 0:
+                print(config.newline,end="",file=sys.stdout)
             if not config.polynomial:
-                for item in row:
-                    if first_item:
-                        first_item = False
-                    else:
+                if config.rows:
+                    print(config.rows[m],end=config.delimiter,file=sys.stdout)
+                for n, item in enumerate(row):
+                    if n > 0:
                         print(config.delimiter,end="",file=sys.stdout)
                     if type(item) is float:
                         print(config.float_format%item,end="",file=sys.stdout)
@@ -1213,10 +1228,8 @@ def output(result):
                         print(int(item),end="",file=sys.stdout)
                     else:
                         print(str(item),end="",file=sys.stdout)
-                print(config.newline,end="",file=sys.stdout)
             else:
-                n = 0
-                for item in row:
+                for n, item in enumerate(row):
                     if type(item) is float:
                         if n > 0 and item >= 0:
                             print("+",end="",file=sys.stdout)
@@ -1239,8 +1252,7 @@ def output(result):
                         print(f"{config.polynomial}",end="",file=sys.stdout)
                     if n > 1:
                         print(f"^{n}",end="",file=sys.stdout)
-                    n += 1
-                print(config.newline,end="",file=sys.stdout)
+        print("",file=sys.stdout)
     elif type(result) == str:
         print(result,file=sys.stdout)
     else:
@@ -1248,20 +1260,7 @@ def output(result):
             if not hasattr(result,"transpose"):
                 error("cannot transpose result".E_FAILED)
             result = result.transpose()
-        if config.rows or config.columns:
-            df = pandas.DataFrame(result,
-                index = config.rows,
-                columns = config.columns)
-            if config.rows and config.columns and config.name != None:
-                df.index.name = config.name
-            df.to_csv(sys.stdout,
-                line_terminator = config.newline,
-                sep = config.delimiter,
-                float_format = config.float_format,
-                index = bool(config.rows),
-                header = bool(config.columns))
-        else:
-            output(numpy.matrix(result).tolist())
+        output(numpy.matrix(result).tolist())
 
 def warning(msg):
     if config.warning:
@@ -1330,6 +1329,17 @@ def makedocs():
             fh.write(f"matrix {specs[-1]} {' '.join(args)}\n\n")
             fh.write("\n".join(docs[parameters:examples]))
             fh.write("\n~~~\n")
+
+def apply_slice(spec,data):
+    slices = spec.split(",")
+    rows = slices[0]
+    if len(slices) > 1:
+        columns = slices[1]
+    else:
+        columns = ":"
+    result = eval(f"data[{rows},{columns}]")
+    # print(f"apply_slice(spec='{spec}',data={data}) --> {result}")
+    return result
 
 def help(name='.*'):
     if name in list(functions.keys()):
@@ -1430,6 +1440,9 @@ def main(argv):
         elif argv[1].startswith("-p=") or argv[1].startswith("--polynomial="):
             config.polynomial = argv[1].split("=")[1]
             del argv[1]
+        elif argv[1].startswith("-s=") or argv[1].startswith("--slice="):
+            config.slice_spec = argv[1].split("=")[1]
+            del argv[1]
         elif argv[1] == "--makedocs":
             makedocs()
             return local_exit(E_OK)
@@ -1470,6 +1483,14 @@ def main(argv):
         pos = 0
         name = argv[1]
         function = functions[name]
+        if not sys.stdin.isatty():
+            try: # try reading stdin for first arg
+                data = sys.stdin.readlines()
+                atype = function[POSITIONAL][0]
+                args.append(atype(";".join(data).strip()))
+                pos = 1
+            except:
+                pass
         if function[POSITIONAL] in VARARGS:
             atype = function[POSITIONAL]
             if len(argv) > 2:
@@ -1491,13 +1512,8 @@ def main(argv):
                     kwargs[spec[0]] = atype(spec[1])
                 else:
                     error(f"'{arg}' is an invalid argument",E_INVALID)
-            while len(args) < len(function[POSITIONAL]):
-                if sys.stdin.isatty():
-                    error("missing positional argument",E_INVALID)
-                atype = function[POSITIONAL][pos]
-                data = sys.stdin.readlines()
-                args.append(atype(";".join(data)))
-                pos += 1
+            if len(args) < len(function[POSITIONAL]):
+                error("missing positional argument",E_INVALID)
         if args and kwargs:
             result = call(*args,**kwargs)
         elif args:

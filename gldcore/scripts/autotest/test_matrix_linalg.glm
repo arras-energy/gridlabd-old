@@ -2,69 +2,69 @@
 #assert $(gridlabd matrix version) == '1.21.4'
 
 // linalg.cholesky <matrix>
-#assert $(gridlabd matrix -f linalg.cholesky "1,2;-2,5") == '1,0;-2,1;'
+#assert $(gridlabd matrix -f linalg.cholesky "1,2;-2,5") == '1,0;-2,1'
 
 // linalg.cond <matrix> p=<order>
-#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5") == '3.4913561;'
-#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=1) == '5.4444444;'
-#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=inf) == '5.4444444;'
-#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=-inf) == '1;'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5") == '3.4913561'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=1) == '5.4444444'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=inf) == '5.4444444'
+#assert $(gridlabd matrix -f linalg.cond "1,2;-2,5" p=-inf) == '1'
 
 // linalg.det <matrix>
-#assert $(gridlabd matrix -f linalg.det "1,2;-2,5") == '9;'
+#assert $(gridlabd matrix -f linalg.det "1,2;-2,5") == '9'
 
 // linalg.eig <matrix>
-#assert $(gridlabd matrix -f linalg.eig "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j;0.70710678+0j,0.70710678-0j;0.70710678+1.0536712e-08j,0.70710678-1.0536712e-08j;'
+#assert $(gridlabd matrix -f linalg.eig "1,2;-2,5" | tr '\n' ';') == '3+2.9802322e-08j,3-2.9802322e-08j;0.70710678+0j,0.70710678-0j;0.70710678+1.0536712e-08j,0.70710678-1.0536712e-08j;'
 
 // linalg.eigh <matrix> UPLO=<str>
-#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5') == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
-#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' UPLO=U) == '0.17157288,5.8284271;-0.92387953,0.38268343;0.38268343,0.92387953;'
-#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' UPLO=L) == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
+#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' | tr '\n' ';') == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
+#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' UPLO=U | tr '\n' ';') == '0.17157288,5.8284271;-0.92387953,0.38268343;0.38268343,0.92387953;'
+#assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' UPLO=L | tr '\n' ';') == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
 
 // linalg.eigvals <matrix>
-#assert $(gridlabd matrix -f linalg.eigvals "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j;'
+#assert $(gridlabd matrix -f linalg.eigvals "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j'
 
 // linalg.eigvalsh <matrix> UPLO=<str>
-#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5") == '0.17157288,5.8284271;'
-#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=U) == '0.17157288,5.8284271;'
-#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=L) == '0.17157288,5.8284271;'
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5") == '0.17157288,5.8284271'
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=U) == '0.17157288,5.8284271'
+#assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5" UPLO=L) == '0.17157288,5.8284271'
 
 // linalg.inv <matrix>
-#assert $(gridlabd matrix -f linalg.inv "1,2;-2,5") == '0.55555556,-0.22222222;0.22222222,0.11111111;'
+#assert $(gridlabd matrix -f linalg.inv "1,2;-2,5") == '0.55555556,-0.22222222;0.22222222,0.11111111'
 
 // linalg.lstsq <matrix> <matrix> rcond=<float>
-#assert $(gridlabd matrix -f linalg.lstsq '0,1;1,1;2,1;3,1;' '-1;0.2;0.9;2.1' rcond=-1) == '1;-0.95;0.05;2;4.1000304,1.0907568;'
-#assert $(gridlabd matrix -f linalg.lstsq '0,1;1,1;2,1;3,1;' '-1;0.2;0.9;2.1' rcond=1) == '1;-0.95;0.05;2;4.1000304,1.0907568;'
+#assert $(gridlabd matrix -f linalg.lstsq '0,1;1,1;2,1;3,1' '-1;0.2;0.9;2.1' rcond=-1 | tr '\n' ';') == '1;-0.95;0.05;2;4.1000304,1.0907568;'
+#assert $(gridlabd matrix -f linalg.lstsq '0,1;1,1;2,1;3,1' '-1;0.2;0.9;2.1' rcond=1 | tr '\n' ';') == '1;-0.95;0.05;2;4.1000304,1.0907568;'
 
 // linalg.matrix_rank <matrix>
-#assert $(gridlabd matrix -f linalg.matrix_rank "1,2;-2,5") == '2;'
-#assert $(gridlabd matrix -f linalg.matrix_rank "1,2;-2,-4") == '1;'
+#assert $(gridlabd matrix -f linalg.matrix_rank "1,2;-2,5") == '2'
+#assert $(gridlabd matrix -f linalg.matrix_rank "1,2;-2,-4") == '1'
 
 // linalg.norm <matrix> ord=<order> axis=<int> keepdims=<bool>
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5") == '5.8309519;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" ord=1) == '7;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=0) == '2.236068,5.3851648;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1) == '2.236068,5.3851648;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=False) == '2.236068,5.3851648;'
-#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=True) == '2.236068;5.3851648;'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5") == '5.8309519'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" ord=1) == '7'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=0) == '2.236068,5.3851648'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1) == '2.236068,5.3851648'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=False) == '2.236068,5.3851648'
+#assert $(gridlabd matrix -f linalg.norm "1,2;-2,5" axis=1 keepdims=True) == '2.236068;5.3851648'
 
 // linalg.pinv <matrix>
-#assert $(gridlabd matrix -f linalg.pinv "1,2;-2,-4") == '0.04,-0.08;0.08,-0.16;'
-#assert $(gridlabd matrix -f linalg.pinv "0,1;1,1;2,1;3,1;") == '-0.3,-0.1,0.1,0.3;0.7,0.4,0.1,-0.2;'
+#assert $(gridlabd matrix -f linalg.pinv "1,2;-2,-4") == '0.04,-0.08;0.08,-0.16'
+#assert $(gridlabd matrix -f linalg.pinv "0,1;1,1;2,1;3,1;") == '-0.3,-0.1,0.1,0.3;0.7,0.4,0.1,-0.2'
 #assert $(gridlabd matrix -f linalg.pinv "1,2;-2,5") == $(gridlabd matrix -f linalg.inv "1,2;-2,5")
 
 // linalg.qr <matrix> mode=<str>
-#assert $(gridlabd matrix -f linalg.qr "1,2;-2,5") == '-0.4472136,0.89442719;0.89442719,0.4472136;-2.236068,3.5777088;0,4.0249224;'
+#assert $(gridlabd matrix -f linalg.qr "1,2;-2,5" | tr '\n' ';') == '-0.4472136,0.89442719;0.89442719,0.4472136;-2.236068,3.5777088;0,4.0249224;'
 
 // linalg.slogdet <matrix>
-#assert $(gridlabd matrix -f linalg.slogdet "1,2;-2,5") == '1;2.1972246;'
+#assert $(gridlabd matrix -f linalg.slogdet "1,2;-2,5" | tr '\n' ';') == '1;2.1972246;'
 
 // linalg.solve <matrix> <matrix>
-#assert $(gridlabd matrix -f linalg.solve "1,2;3,5" "1;2") == '-1;1;'
+#assert $(gridlabd matrix -f linalg.solve "1,2;3,5" "1;2") == '-1;1'
 
 // linalg.svd <matrix> full_matrices=<bool> compute_uv=<bool> hermitian=<bool>
-#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5") == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
-#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" full_matrices=False) == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
-#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" compute_uv=False) == '5.6055513,1.6055513;'
-#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" hermitian=True) == '-0.38268343,-0.92387953;0.92387953,-0.38268343;5.8284271,0.17157288;-0.38268343,0.92387953;-0.92387953,-0.38268343;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5"| tr '\n' ';') == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" full_matrices=False| tr '\n' ';') == '0.28978415,0.95709203;0.95709203,-0.28978415;5.6055513,1.6055513;-0.28978415,0.95709203;0.95709203,0.28978415;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" compute_uv=False| tr '\n' ';') == '5.6055513,1.6055513;'
+#assert $(gridlabd matrix -f linalg.svd "1,2;-2,5" hermitian=True| tr '\n' ';') == '-0.38268343,-0.92387953;0.92387953,-0.38268343;5.8284271,0.17157288;-0.38268343,0.92387953;-0.92387953,-0.38268343;'
 

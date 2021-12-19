@@ -11,4 +11,4 @@
 #assert ! -z $(gridlabd matrix -f matlib.randn 2 3)
 
 // matlib.repmat <matrix> <int> <int>
-#assert $(gridlabd matrix -f matlib.repmat "1,2;3,4" 2 2) == '1,2,1,2;3,4,3,4;1,2,1,2;3,4,3,4;'
+#assert $(gridlabd matrix -f matlib.repmat "1,2;3,4" 2 2) == '1,2,1,2;3,4,3,4;1,2,1,2;3,4,3,4'
