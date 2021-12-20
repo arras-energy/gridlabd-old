@@ -137,10 +137,12 @@ import pandas
 #
 # Argument types
 #
-def matrix(a):
+def matrix(a,slice=None):
     """Matrix or input file"""
+    if not slice:
+        slice = config.slice_spec
     try: # normally it's a string that can be read as a matrix
-        return apply_slice(config.slice_spec,numpy.matrix(a.rstrip(";")))
+        return apply_slice(slice,numpy.matrix(a.rstrip(";")))
     except: # maybe it's a file
         pass
     try: # try item by item in case there are nans
@@ -153,12 +155,17 @@ def matrix(a):
                 else:
                     line.append(float(item))
             result.append(line)
-        return apply_slice(config.slice_spec,numpy.matrix(result))
+        return apply_slice(slice,numpy.matrix(result))
+    except:
+        pass
+    try: # try reading a file
+        result = pandas.read_csv(a,header=None).to_dict('split')["data"]
+        return apply_slice(slice,numpy.matrix(result))
     except:
         pass
     try: # try load as a URL
         with urllib.request.urlopen(a) as req:
-            return apply_slice(config.slice_spec,numpy.matrix(req.read().decode("utf-8")))
+            return apply_slice(slice,numpy.matrix(req.read().decode("utf-8")))
     except:
         pass
     error(f"invalid matrix or URL: '{a}'",E_INVALID)
@@ -227,13 +234,8 @@ def weakcomplex(x):
         pass
     return float('nanz')
 
-def hstack(*a):
-    from numpy import hstack as hstack1
-    return hstack1([*a])
-
-def vstack(*a):
-    from numpy import vstack as vstack1
-    return vstack1([*a])
+def matrixlist(a):
+    result = []
 
 #
 # Arguments and options
@@ -252,6 +254,7 @@ UFUNC = {
     "subok" : boolstr,
 }
 UKEYS = list(UFUNC.keys())
+DIRECT = [numpy.hstack, numpy.vstack] # call where args are passed as a single list
 functions = {
 
     # numpy utilities
@@ -1533,7 +1536,9 @@ def main(argv):
                     error(f"argument {pos+1} is invalid",E_INVALID)
             if len(args) < len(function[POSITIONAL]):
                 error(f"missing positional {function[POSITIONAL][pos].__name__} argument {pos+1}",E_INVALID)
-        if args and kwargs:
+        if call in DIRECT:
+            result = call(args)
+        elif args and kwargs:
             result = call(*args,**kwargs)
         elif args:
             result = call(*args)
