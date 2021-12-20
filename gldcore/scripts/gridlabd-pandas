@@ -1,32 +1,37 @@
 #!/usr/local/bin/python3
-"""GridLAB-D table subcommand
+"""GridLAB-D pandas subcommand
 
 SYNTAX
 
 GLM:
-    #table [-i INPUTNAME] [-o OUTPUTNAME] FUNCTION [ARGUMENTS ...]
+    #pandas [-i input.from] [-o output.to]
 
 Shell:
 
-    $ gridlabd table [-i INPUTNAME] [-o INPUTNAME] FUNCTION [ARGUMENTS ...]
+    $ gridlabd pandas [-i input.from] [-o output.to]
 
 DESCRIPTION
 
-The `table` subcommand processes input data file using the pandas package
+The `pandas` subcommand processes input data file using the pandas package
 and outputs them to the specified output data file.  If no input is specified
-/dev/stdin is read in CSV format with a header row. If no output is specified the output is
-written to /dev/stdout in CSV format with a header row.
+/dev/stdin is read in CSV format. If no output is specified the output is
+written to /dev/stdout using the data frame table format.
 
 EXAMPLE
 
-The following creates a CSV file from standard input:
+The following creates a CSV file and prints it in human readable table format:
 
-    $ gridlabd table -o output.csv
+    $ cat >/tmp/example.csv
     my,data
     0,zero
     1,one
     2,two
     <CTRL-D>
+    $ gridlabd pandas -i my_data.csv
+       my  data
+    0   0  zero
+    1   1   one
+    2   2   two
 """
 
 import sys, os
