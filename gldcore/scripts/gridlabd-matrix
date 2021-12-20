@@ -38,7 +38,7 @@ The general syntax is
 where function is a numpy function that takes zero or more positional and/or
 keyword arguments.  Position arguments may be provided explicitly as a
 string, or implicitly from stdin with each argument separated by a newline.
-Keyword argument are provided in the form KEYWORD=VALUE.  
+Keyword arguments are provided in the form KEYWORD=VALUE.  
 
 Examples:
 
