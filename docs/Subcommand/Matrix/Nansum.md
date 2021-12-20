@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix nansum <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=<bool>] [where=<boollist>]
+matrix nansum <matrix> initial=<float> [axis=<inttuple>] [dtype=<str>] [keepdims=<boolstr>] [where=<boollist>]
 
 
     Return the sum of array elements over a given axis treating Not a
@@ -34,7 +34,7 @@ matrix nansum <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=
         Alternate output array in which to place the result.  The default
         is ``None``. If provided, it must have the same shape as the
         expected output, but the type will be cast if necessary.  See
-        `ufuncs-output-type` for more details. The casting of NaN to integer
+        :ref:`ufuncs-output-type` for more details. The casting of NaN to integer
         can yield unexpected results.
 
         .. versionadded:: 1.8.0
@@ -63,7 +63,7 @@ matrix nansum <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=
     --------
     numpy.sum : Sum across array propagating NaNs.
     isnan : Show which elements are NaN.
-    isfinite: Show which elements are not NaN or +/-inf.
+    isfinite : Show which elements are not NaN or +/-inf.
 
     Notes
     -----

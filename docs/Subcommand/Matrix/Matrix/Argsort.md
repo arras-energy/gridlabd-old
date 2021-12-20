@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix argsort <matrix> axis=<int> kind=<str> order=<intlist>
+matrix argsort <matrix> axis=<int> kind=<str>
 
 a.argsort(axis=-1, kind=None, order=None)
 

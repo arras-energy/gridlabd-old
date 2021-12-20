@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix fill <matrix>
+matrix fill <matrix> <weakcomplex>
 
 a.fill(value)
 

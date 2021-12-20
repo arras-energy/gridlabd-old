@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix argpartition <matrix> axis=<int> kind=<str> order=<intlist>
+matrix argpartition <matrix> <int> axis=<int> kind=<str>
 
 a.argpartition(kth, axis=-1, kind='introselect', order=None)
 

@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix ravel <matrix>
+matrix ravel <matrix> order=<str>
 
 
         Return a flattened matrix.

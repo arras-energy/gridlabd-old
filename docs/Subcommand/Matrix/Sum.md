@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix sum <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=<bool>] [where=<boollist>]
+matrix sum <matrix> initial=<float> [axis=<inttuple>] [dtype=<str>] [keepdims=<boolstr>] [where=<boollist>]
 
 
     Sum of array elements over a given axis.

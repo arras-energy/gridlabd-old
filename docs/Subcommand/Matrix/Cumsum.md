@@ -25,7 +25,7 @@ matrix cumsum <matrix> axis=<int> [dtype=<str>]
     out : ndarray, optional
         Alternative output array in which to place the result. It must
         have the same shape and buffer length as the expected output
-        but the type will be cast if necessary. See `ufuncs-output-type` for
+        but the type will be cast if necessary. See :ref:`ufuncs-output-type` for
         more details.
 
     Returns
@@ -36,19 +36,20 @@ matrix cumsum <matrix> axis=<int> [dtype=<str>]
         result has the same size as `a`, and the same shape as `a` if
         `axis` is not None or `a` is a 1-d array.
 
-
     See Also
     --------
     sum : Sum array elements.
-
     trapz : Integration of array values using the composite trapezoidal rule.
-
-    diff :  Calculate the n-th discrete difference along given axis.
+    diff : Calculate the n-th discrete difference along given axis.
 
     Notes
     -----
     Arithmetic is modular when using integer types, and no error is
     raised on overflow.
+
+    ``cumsum(a)[-1]`` may not be equal to ``sum(a)`` for floating-point
+    values since ``sum`` may use a pairwise summation routine, reducing
+    the roundoff-error. See `sum` for more information.
 
     Examples
     --------
@@ -67,5 +68,13 @@ matrix cumsum <matrix> axis=<int> [dtype=<str>]
     >>> np.cumsum(a,axis=1)      # sum over columns for each of the 2 rows
     array([[ 1,  3,  6],
            [ 4,  9, 15]])
+
+    ``cumsum(b)[-1]`` may not be equal to ``sum(b)``
+
+    >>> b = np.array([1, 2e-9, 3e-9] * 1000000)
+    >>> b.cumsum()[-1]
+    1000000.0050045159
+    >>> b.sum()                    
+    1000000.0050000029
 
 ~~~

@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix item <matrix>
+matrix item <matrix> <inttuple>
 
 a.item(*args)
 

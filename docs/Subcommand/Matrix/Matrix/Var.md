@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix var <matrix>
+matrix var <matrix> axis=<int> ddof=<int> [dtype=<str>]
 
 
         Returns the variance of the matrix elements, along the given axis.

@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix take <matrix>
+matrix take <matrix> <matrix> axis=<int> mode=<str>
 
 a.take(indices, axis=None, out=None, mode='raise')
 

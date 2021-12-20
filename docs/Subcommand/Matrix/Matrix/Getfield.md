@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix getfield <matrix>
+matrix getfield <matrix> <str> offset=<int>
 
 a.getfield(dtype, offset=0)
 

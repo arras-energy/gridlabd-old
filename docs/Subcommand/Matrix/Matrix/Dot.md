@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix dot <matrix>
+matrix dot <matrix> <matrix>
 
 a.dot(b, out=None)
 

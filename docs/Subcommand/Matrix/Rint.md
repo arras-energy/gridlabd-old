@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix rint <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix rint <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -34,6 +34,12 @@ out : ndarray or scalar
 
 See Also
 --------
-ceil, floor, trunc
+fix, ceil, floor, trunc
+
+Notes
+-----
+For values exactly halfway between rounded decimal values, NumPy
+rounds to the nearest even value. Thus 1.5 and 2.5 round to 2.0,
+-0.5 and 0.5 round to 0.0, etc.
 
 ~~~

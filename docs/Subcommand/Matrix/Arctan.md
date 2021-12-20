@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix arctan <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix arctan <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -49,7 +49,7 @@ For each value that cannot be expressed as a real number or infinity,
 it yields ``nan`` and sets the `invalid` floating point error flag.
 
 For complex-valued input, `arctan` is a complex analytic function that
-has [`1j, infj`] and [`-1j, -infj`] as branch cuts, and is continuous
+has [``1j, infj``] and [``-1j, -infj``] as branch cuts, and is continuous
 from the left on the former and from the right on the latter.
 
 The inverse tangent is also known as `atan` or tan^{-1}.

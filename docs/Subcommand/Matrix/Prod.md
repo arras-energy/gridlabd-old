@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix prod <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=<bool>] [where=<boollist>]
+matrix prod <matrix> initial=<float> [axis=<inttuple>] [dtype=<str>] [keepdims=<boolstr>] [where=<boollist>]
 
 
     Return the product of array elements over a given axis.
@@ -64,7 +64,7 @@ matrix prod <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=<b
     See Also
     --------
     ndarray.prod : equivalent method
-    ufuncs-output-type
+    :ref:`ufuncs-output-type`
 
     Notes
     -----

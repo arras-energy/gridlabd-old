@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix arctanh <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix arctanh <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -39,7 +39,7 @@ emath.arctanh
 Notes
 -----
 `arctanh` is a multivalued function: for each `x` there are infinitely
-many numbers `z` such that `tanh(z) = x`. The convention is to return
+many numbers `z` such that ``tanh(z) = x``. The convention is to return
 the `z` whose imaginary part lies in `[-pi/2, pi/2]`.
 
 For real-valued input data types, `arctanh` always returns real output.

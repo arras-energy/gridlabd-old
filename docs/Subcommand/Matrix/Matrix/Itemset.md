@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix itemset <matrix>
+matrix itemset <matrix> <inttuple> <weakcomplex>
 
 a.itemset(*args)
 

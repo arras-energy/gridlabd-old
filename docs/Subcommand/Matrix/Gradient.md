@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix gradient <matrix> spacing=<matrix> axis=<int> edge_order=<int>
+matrix gradient <matrix> spacing=<matrix> edge_order=<int> [axis=<inttuple>]
 
 
     Return the gradient of an N-dimensional array.
@@ -50,7 +50,7 @@ matrix gradient <matrix> spacing=<matrix> axis=<int> edge_order=<int>
     Returns
     -------
     gradient : ndarray or list of ndarray
-        A set of ndarrays (or a single ndarray if there is only one dimension)
+        A list of ndarrays (or a single ndarray if there is only one dimension)
         corresponding to the derivatives of f with respect to each dimension.
         Each derivative has the same shape as f.
 

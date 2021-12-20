@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix arccos <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix arccos <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -41,7 +41,7 @@ cos, arctan, arcsin, emath.arccos
 Notes
 -----
 `arccos` is a multivalued function: for each `x` there are infinitely
-many numbers `z` such that `cos(z) = x`. The convention is to return
+many numbers `z` such that ``cos(z) = x``. The convention is to return
 the angle `z` whose real part lies in `[0, pi]`.
 
 For real-valued input data types, `arccos` always returns real output.
@@ -49,7 +49,7 @@ For each value that cannot be expressed as a real number or infinity,
 it yields ``nan`` and sets the `invalid` floating point error flag.
 
 For complex-valued input, `arccos` is a complex analytic function that
-has branch cuts `[-inf, -1]` and `[1, inf]` and is continuous from
+has branch cuts ``[-inf, -1]`` and `[1, inf]` and is continuous from
 above on the former and from below on the latter.
 
 The inverse `cos` is also known as `acos` or cos^-1.

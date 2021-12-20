@@ -9,8 +9,15 @@ matrix trapz <matrix> x=<matrix> dx=<float> axis=<int>
 
     Integrate along the given axis using the composite trapezoidal rule.
 
-    Integrate `y` (`x`) along given axis.
-
+    If `x` is provided, the integration happens in sequence along its
+    elements - they are not sorted.
+    
+    Integrate `y` (`x`) along each 1d slice on the given axis, compute
+    :math:`\int y(x) dx`.
+    When `x` is specified, this integrates along the parametric curve,
+    computing :math:`\int_t y(t) dt =
+    \int_t y(t) \left.\frac{dx}{dt}\right|_{x=x(t)} dt`.
+    
     Parameters
     ----------
     y : array_like
@@ -26,9 +33,12 @@ matrix trapz <matrix> x=<matrix> dx=<float> axis=<int>
 
     Returns
     -------
-    trapz : float
-        Definite integral as approximated by trapezoidal rule.
-
+    trapz : float or ndarray
+        Definite integral of 'y' = n-dimensional array as approximated along
+        a single axis by the trapezoidal rule. If 'y' is a 1-dimensional array,
+        then the result is a float. If 'n' is greater than 1, then the result
+        is an 'n-1' dimensional array.
+        
     See Also
     --------
     sum, cumsum
@@ -57,6 +67,20 @@ matrix trapz <matrix> x=<matrix> dx=<float> axis=<int>
     8.0
     >>> np.trapz([1,2,3], dx=2)
     8.0
+    
+    Using a decreasing `x` corresponds to integrating in reverse:
+    
+    >>> np.trapz([1,2,3], x=[8,6,4])  
+    -8.0
+    
+    More generally `x` is used to integrate along a parametric curve.
+    This finds the area of a circle, noting we repeat the sample which closes
+    the curve:
+    
+    >>> theta = np.linspace(0, 2 * np.pi, num=1000, endpoint=True)
+    >>> np.trapz(np.cos(theta), x=np.sin(theta))
+    3.141571941375841
+
     >>> a = np.arange(6).reshape(2, 3)
     >>> a
     array([[0, 1, 2],
@@ -65,5 +89,4 @@ matrix trapz <matrix> x=<matrix> dx=<float> axis=<int>
     array([1.5, 2.5, 3.5])
     >>> np.trapz(a, axis=1)
     array([2.,  8.])
-
 ~~~

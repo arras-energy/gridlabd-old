@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix repeat <matrix>
+matrix repeat <matrix> <inttuple> axis=<int>
 
 a.repeat(repeats, axis=None)
 

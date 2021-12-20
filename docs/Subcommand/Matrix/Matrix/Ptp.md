@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix ptp <matrix>
+matrix ptp <matrix> axis=<int>
 
 
         Peak-to-peak (maximum - minimum) value along the given axis.

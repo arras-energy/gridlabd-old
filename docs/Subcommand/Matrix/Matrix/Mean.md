@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix mean <matrix>
+matrix mean <matrix> axis=<int>
 
 
         Returns the average of the matrix elements along the given axis.

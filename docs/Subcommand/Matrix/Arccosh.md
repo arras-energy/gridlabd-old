@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix arccosh <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix arccosh <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -41,7 +41,7 @@ Notes
 -----
 `arccosh` is a multivalued function: for each `x` there are infinitely
 many numbers `z` such that `cosh(z) = x`. The convention is to return the
-`z` whose imaginary part lies in `[-pi, pi]` and the real part in
+`z` whose imaginary part lies in ``[-pi, pi]`` and the real part in
 ``[0, inf]``.
 
 For real-valued input data types, `arccosh` always returns real output.

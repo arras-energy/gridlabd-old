@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix partition <matrix>
+matrix partition <matrix> <inttuple> axis=<int> kind=<str> order=<strlist>
 
 a.partition(kth, axis=-1, kind='introselect', order=None)
 

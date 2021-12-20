@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix setfield <matrix>
+matrix setfield <matrix> <weakcomplex> <str> offset=<int>
 
 a.setfield(val, dtype, offset=0)
 

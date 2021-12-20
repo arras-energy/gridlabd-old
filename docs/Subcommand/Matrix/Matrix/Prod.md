@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix prod <matrix>
+matrix prod <matrix> axis=<int> [dtype=<str>]
 
 
         Return the product of the array elements over the given axis.

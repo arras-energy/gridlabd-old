@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix svd <matrix> full_matrices=<bool> compute_uv=<bool> hermitian=<bool>
+matrix svd <matrix> full_matrices=<boolstr> compute_uv=<boolstr> hermitian=<boolstr>
 
 
     Singular Value Decomposition.

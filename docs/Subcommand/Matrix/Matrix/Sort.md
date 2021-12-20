@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix sort <matrix>
+matrix sort <matrix> axis=<int> kind=<str> order=<strlist>
 
 a.sort(axis=-1, kind=None, order=None)
 
@@ -21,7 +21,7 @@ a.sort(axis=-1, kind=None, order=None)
         actual implementation will vary with datatype. The 'mergesort' option
         is retained for backwards compatibility.
 
-        .. versionchanged:: 1.15.0.
+        .. versionchanged:: 1.15.0
            The 'stable' option was added.
 
     order : str or list of str, optional
