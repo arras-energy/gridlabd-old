@@ -4,91 +4,547 @@
 SYNTAX
 
 GLM:
-    #table [-i INPUTNAME] [-o OUTPUTNAME] FUNCTION [ARGUMENTS ...]
+    #table [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 
 Shell:
+    $ gridlabd table [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 
-    $ gridlabd table [-i INPUTNAME] [-o INPUTNAME] FUNCTION [ARGUMENTS ...]
+Options:
+
+    -d|--debug            enable debugging output
+    -e|--exception        raise exceptions on errors
+    -h|--help [PATTERN]   print this help info
+    -q|--quiet            suppress all output to stderr
+    --reader=NAME         specify input reader (default "pandas.read_csv")
+    -w|--warning          suppress warning output
+    --writer=NAME         specify output writer (default "dataframe.to_csv")
 
 DESCRIPTION
 
-The `table` subcommand processes input data file using the pandas package
-and outputs them to the specified output data file.  If no input is specified
-/dev/stdin is read in CSV format with a header row. If no output is specified the output is
-written to /dev/stdout in CSV format with a header row.
+This subcommand is the front-end to python pandas library for processing
+labeled data. See the `matrix` subcommand for processing unlabeled data.
 
-EXAMPLE
+The general syntax is
 
-The following creates a CSV file from standard input:
+  shell% gridlabd [OPTIONS ...] table FUNCTION [ARGUMENTS ...]
 
-    $ gridlabd table -o output.csv
-    my,data
+where function is a numpy function that takes zero or more positional and/or
+keyword arguments.  Position arguments may be provided explicitly as a
+string, or implicitly from stdin with each argument separated by a newline.
+Keyword arguments are provided in the form KEYWORD=VALUE.  
+
+EXAMPLES
+
+The following creates CSV data from standard input:
+
+    $ gridlabd table "a,b;0,zero;1,one;2,two"
+    a,b
     0,zero
     1,one
     2,two
-    <CTRL-D>
 """
 
-import sys, os
+import sys, os, subprocess, csv, urllib.request, re
+cmdname = os.path.basename(sys.argv[0])
+if not cmdname:
+    cmdname = "table"
+    exit_on_error = False
+else:
+    exit_on_error = True
+def local_exit(code):
+    if exit_on_error:
+        exit(code)
+    else: 
+        return
+
+# exit codes
+E_OK = 0
+E_NOARGS = 1
+E_FAILED = 2
+E_NOTFOUND = 3
+E_INVALID = 4
+
+def warning(msg):
+    if config.warning:
+        print(f"WARNING [{cmdname}]: {msg}",file=sys.stderr)
+
+def error(msg,code=None):
+    if not config.quiet:
+        print(f"ERROR [{cmdname}]: {msg}",file=sys.stderr)
+    if config.exception:
+        raise Exception(msg)
+    elif code != None:
+        return local_exit(code)
+    
+def debug(msg):
+    if config.debug:
+        print(f"DEBUG [{cmdname}]: {msg}",file=sys.stderr)
+
 import pandas
 
-sys.path.append(f".")
-sys.path.append(f"{os.getenv('HOME')}/.gridlabd")
-sys.path.append(f"{os.getenv('GLD_ETC')}/gridlabd")
-try:
-    import gridlabd_pandas_config
-    for option, value in gridlabd_pandas_config.pandas_options.items():
-        pandas.set_option(option,value)
-except ModuleNotFoundError:
-    pass
+class config:
+    warning = True
+    quiet = False
+    debug = False
+    exception = False
+    delimiter = ","
+    newline = '\n'
+    transpose = False
+    select_spec = None
+    # float_format = "%.8g"
+    # complex_format = "%.8g%+.8gj"
+    # columns = None
+    # rows = None
+    # name = None
 
-read_opts = {}
-read_function = pandas.read_csv
-write_opts = {}
-write_function = None
+# sys.path.append(f".")
+# sys.path.append(f"{os.getenv('HOME')}/.gridlabd")
+# sys.path.append(f"{os.getenv('GLD_ETC')}/gridlabd")
+# try:
+#     import gridlabd_pandas_config
+#     for option, value in gridlabd_pandas_config.pandas_options.items():
+#         pandas.set_option(option,value)
+# except ModuleNotFoundError:
+#     pass
 
-n = 1
-while n < len(sys.argv):
-    arg = sys.argv[n]
-    if n < len(sys.argv):
-        opts = sys.argv[n+1:]
+reader_list = {
+    "csv" : pandas.read_csv,
+}
+reader_function = None
+reader_options = dict(
+    sep = config.delimiter,
+    lineterminator = config.newline,
+    index_col = 0,
+    header = 0,
+    parse_dates = True,
+    infer_datetime_format = True,
+    )
+
+writer_function = None
+writer_list = {
+    "csv" : pandas.DataFrame.to_csv,
+}
+
+#
+# Argument types
+#
+
+def table(a,select=None):
+    if not select:
+        select = config.select_spec
+    try:
+        return apply_select(select,pandas.DataFrame(a))
+    except:
+        pass
+    if type(a) is str:
+        try:
+            if a.find("\n") >= 0:
+                newline = "\n"
+            else:
+                newline = ";"
+            data = [x.split(",") for x in a.split(newline)]
+            df = pandas.DataFrame(data[1:],columns=data[0])
+            df.set_index(data[0][0],inplace=True)
+            return apply_select(select,df)
+        except:
+            pass
+        try: # try load as a URL
+            with urllib.request.urlopen(a) as req:
+                astr = req.read().decode("utf-8")
+                return apply_select(slice,pandas.read_csv(astr,**reader_options))
+        except:
+            pass
+    return None
+
+def intlist(s):
+    """Parse intlist as N[,M[,[...]]]"""
+    return list(map(lambda n:int(n),s.split(',')))
+
+def boollist(s):
+    """Parse intlist as N[,M[,[...]]]"""
+    return list(map(lambda n:bool(n),s.split(',')))
+
+def tuplelist(s):
+    """Parse intlist as N[,M[,[...]]]"""
+    return list(map(lambda n:intlist(n),s.split(',')))
+
+def strlist(s):
+    return s.split(",")
+
+def intlist_args(*s):
+    """Parse arguments as integer list"""
+    return list(map(lambda n:int(n),*s))
+
+def inttuple(s):
+    """Parse inttuple as N[,M[,[...]]]"""
+    return tuple(map(lambda n:int(n),s.split(',')))
+
+def arrayorint(a):
+    try:
+        return int(a)
+    except:
+        pass
+    return numpy.array(numpy.matrix(a).flatten())[0]
+
+def array(a):
+    return numpy.array(numpy.matrix(a).flatten())[0]
+
+def order(a):
+    if a in ["inf","-inf"]:
+        return float(a)
+    try:
+        return int(a)
+    except:
+        return a
+
+def boolstr(a):
+    try:
+        return bool(float(a))
+    except:
+        pass
+    if a in ["TRUE","True","true","","YES","Yes","yes"]:
+        return True
+    elif a in ["FALSE","False","false","NO","No","no",""]:
+        return False
     else:
-        opts = []
-    if arg in ["-h","--help","help"]:
-        print(__doc__)
-        exit(0)
-    if arg in ["-i","--input"]:
-        if not opts:
-            raise Exception(f"{arg} missing require option")
-        specs = opts[0].split(":")
-        sys.stdin = open(specs[0],"r")
-        read_function = getattr(pandas,f"read_{os.path.splitext(specs[0])[1][1:]}")
+        return bool(a)
+
+def weakcomplex(x):
+    try:
+        return float(x)
+    except:
+        pass
+    try: 
+        return complex(x)
+    except:
+        pass
+    return float('nanz')
+
+def matrixlist(a):
+    result = []
+
+# 
+# Arguments and options
+#
+POSITIONAL="ARGS" # keyword for required arguments
+VARARGS = [intlist_args] # variable argument list handlers
+UARGS = "UFUNC" # keywork for kwargs for ufunc
+UFUNC = {
+}
+UKEYS = list(UFUNC.keys())
+DIRECT = [] # call where args are passed as a single list
+functions = {
+    "merge" : 
+    {
+        POSITIONAL : [table,table],
+        "how" : str,
+        "on" : strlist,
+        "left_on" : strlist,
+        "right_on" : strlist,
+        "left_index" : strlist,
+        "right_index" : strlist,
+        "sort" : boolstr,
+        "suffixes" : lambda x : x.split(",")[0:2],
+        "copy" : boolstr,
+        "indicator" : str,
+        "validate" : str,
+        # "id_vars" : strlist,
+        # "value_vars" : strlist,
+        # "var_name" : str,
+        # "value_name" : str,
+        # "col_level" : int,
+        # "ignore_index" : boolstr,
+    },
+}
+
+#
+# Output routines
+#
+def output(result):
+    if hasattr(result,"to_csv"):
+        result.to_csv("/dev/stdout",sep=config.delimiter,line_terminator=config.newline)
+
+def warning(msg):
+    if config.warning:
+        print(f"WARNING [{cmdname}]: {msg}",file=sys.stderr)
+
+def error(msg,code=None):
+    if not config.quiet:
+        print(f"ERROR [{cmdname}]: {msg}",file=sys.stderr)
+    if config.exception:
+        raise Exception(msg)
+    elif code != None:
+        return local_exit(code)
+    
+def debug(msg):
+    if config.debug:
+        print(f"DEBUG [{cmdname}]: {msg}",file=sys.stderr)
+
+def makedocs():
+    if not os.path.exists("docs/Subcommand/Matrix"):
+        error("'docs/Subcommand/Matrix' folder does not exist",E_NOTFOUND)
+    for function in functions.keys():
+        specs = function.split(".")
+        path = "/".join(list(map(lambda n:n.title(),specs[0:-1])))
         if len(specs) > 1:
-            read_opts = specs[1].split(",")
-        n += 1
-    elif arg in ["-o","--output"]:
-        if not opts:
-            raise Exception(f"{arg} missing require option")
-        specs = opts[0].split(":")
-        sys.stdout = open(specs[0],"w+")
-        write_function = f"to_{os.path.splitext(specs[0])[1][1:]}"
-        if len(specs) > 1:
-            write_opts = specs[1].split(",")
-        n += 1
-    elif arg in ["-e","--error"]:
-        if not opts:
-            raise Exception(f"{arg} missing require option")
-        sys.stderr = open(opts[0],"w+")
-        n += 1
+            path = "/" + path
+            os.makedirs("docs/Subcommand/Matrix"+path.title(),exist_ok=True)
+        name = specs[-1].title()
+        with open(f"docs/Subcommand/Matrix{path}/{name}.md","w") as fh:
+            lib = numpy
+            for pkg in specs[0:-1]:
+                lib = getattr(lib,pkg)
+            call = getattr(lib,specs[-1])
+            NL="\n"
+            docs = call.__doc__.split(NL)
+            fspecs = functions[function]
+            args = []
+            for tag, value in fspecs.items():
+                if tag == POSITIONAL:
+                    if type(value) is list:
+                        for item in value:
+                            args.append(f"<{item.__name__}>")
+                    else:
+                        args.append(f"<{value.__name__}>")
+                elif tag == UARGS:
+                    for utag in value:
+                        uval = UFUNC[utag]
+                        args.append(f"[{utag}=<{uval.__name__}>]")
+                elif hasattr(value,"__name__"):
+                    args.append(f"{tag}=<{value.__name__}>")
+                else:
+                    args.append(f"[{tag}=<{str(value)}>]")
+            try:
+                parameters = docs.index("Parameters")
+            except:
+                parameters = 0
+            try:
+                examples = docs.index("Examples")
+            except:
+                examples = -1
+            if parameters > 0:
+                fh.write(f"[[{path}/{name}]] -- {docs[2]}")
+            else:
+                fh.write(f"[[{path}/{name}]]")              
+            fh.write("\n\n~~~\n")
+            fh.write(f"Syntax\n------\n\n")
+            fh.write(f"matrix {specs[-1]} {' '.join(args)}\n\n")
+            fh.write("\n".join(docs[parameters:examples]))
+            fh.write("\n~~~\n")
+
+def apply_select(spec,data):
+    # TODO: apply spec to data
+    return data
+
+def help(name='.*'):
+    if name in list(functions.keys()):
+        if not name in functions.keys():
+            error(f"'{name}' not found",code=E_NOTFOUND)
+        sys.stderr = sys.stdout
+        package = name.split('.')
+        lib = numpy
+        for pkg in package[0:-1]:
+            lib = getattr(lib,pkg)
+        call = getattr(lib,package[-1])
+        specs = functions[name]
+        args = []
+        for tag, value in specs.items():
+            if tag in POSITIONAL:
+                if type(value) is list:
+                    for item in value:
+                        args.append(f"<{item.__name__}>")
+                else:
+                    args.append(f"<{value.__name__}>")
+            elif tag == UARGS:
+                for utag in value:
+                    ufunc = UFUNC[utag]
+                    args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
+            else:
+                args.append(f"{tag}=<{value.__name__}>")
+        print("matrix",name," ".join(args),file=sys.stdout)
+        output(call.__doc__)
+    elif name:
+        count = 0
+        if name == '.*':
+            print(__doc__,file=sys.stdout)
+        for function in sorted(list(functions.keys())):
+            if not re.match(name,function): 
+                continue
+            specs = functions[function]
+            args = []
+            for tag, value in specs.items():
+                if tag == POSITIONAL:
+                    if type(value) is list:
+                        for item in value:
+                            args.append(f"<{item.__name__}>")
+                    else:
+                        args.append(f"<{value.__name__}>")
+                elif tag == UARGS:
+                    for utag in value:
+                        ufunc = UFUNC[utag]
+                        args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
+                else:
+                    args.append(f"{tag}=<{value.__name__}>")
+            print(" ",function," ".join(args),file=sys.stdout)
+            count += 1
+        if count == 0:
+            error(f"no help for {name}",E_INVALID)
     else:
-        raise Exception(f"{arg} is invalid")
-    n += 1
+        print(f"Syntax: {cmdname} [OPTIONS ...] FUNCTION [ARGUMENTS ...]")
 
-if not read_function:
-    raise Exception("not reader specified or implied by input file name")
-data = read_function(sys.stdin,**read_opts)
+#
+# Main function
+#
+def main(argv):
+    done = False
+    while not done and len(argv) > 1:
+        if argv[1] in ["-w","--warning"]:
+            config.warning = not config.warning
+            del argv[1]
+        elif argv[1] in ["-q","--quiet"]:
+            config.quiet = not config.quiet
+            del argv[1]
+        elif argv[1] in ["-d","--debug"]:
+            config.debug = not config.debug
+            del argv[1]
+        elif argv[1] in ["-e","--exception"]:
+            config.exception = not config.exception
+            del argv[1]
+        elif argv[1] in ["-f","--flatten"]:
+            config.newline = ';'
+            del argv[1]
+        elif argv[1] in ["-h","--help"]:
+            argv[1] = "help"
+        elif argv[1] in ["-v","--version"]:
+            argv[1] = "version"
+        elif argv[1] in ["-t","--transpose"]:
+            config.transpose = True
+            del argv[1]
+        elif argv[1] in ["-v","--version"]:
+            argv[1] = "version"
+        else:
+            done = True
 
-if not write_function:
-    print(data)
-else:
-    getattr(data,write_function)(sys.stdout,**write_opts)
+    if len(argv) < 2:
+        help(None)
+        return local_exit(E_NOARGS)
+    elif argv[1] == "help":
+        if len(argv) == 2:
+            help()
+            return local_exit(E_OK)
+        elif len(argv) == 3 and argv[1] == "help":
+            help(argv[2])
+            return local_exit(E_OK)
+        else:
+            error("too many help functions requested",code=E_INVALID)
+    elif argv[1] == "version":
+        print(pandas.__version__,file=sys.stdout)
+        return local_exit(E_OK)
+    try:
+        package = argv[1].split('.')
+        lib = pandas
+        for name in package[0:-1]:
+            lib = getattr(lib,name)
+        call = getattr(lib,package[-1])
+    except:
+        if config.exception:
+            raise
+        error(f"'{argv[1]}' not found",code=E_NOTFOUND)
+
+    try:
+        args = []
+        kwargs = {}
+        pos = 0
+        name = argv[1]
+        function = functions[name]
+        if not sys.stdin.isatty():
+            try: # try reading stdin for first arg
+                for n, data in enumerate(sys.stdin.readlines()):
+                    atype = function[POSITIONAL][n]
+                    args.append(atype(data.strip()))
+                    pos += 1
+            except:
+                pass
+        # breakpoint()
+        if function[POSITIONAL] in VARARGS:
+            atype = function[POSITIONAL]
+            if len(argv) > 2:
+                args = atype(argv[2:])
+        else:
+            for arg in argv[2:]:
+                spec = arg.split("=")
+                if len(spec) < 2:
+                    if pos >= len(function[POSITIONAL]):
+                        error("too many positional argument",E_INVALID)
+                    atype = function[POSITIONAL][pos]
+                    args.append(atype(arg))
+                    pos += 1
+                elif spec[0] in function.keys():
+                    atype = function[spec[0]]
+                    kwargs[spec[0]] = atype(spec[1])
+                elif UARGS in function.keys() and spec[0] in function[UARGS]:
+                    atype = UFUNC[spec[0]]
+                    kwargs[spec[0]] = atype(spec[1])
+                else:
+                    error(f"argument {pos+1} is invalid",E_INVALID)
+            if len(args) < len(function[POSITIONAL]):
+                error(f"missing positional {function[POSITIONAL][pos].__name__} argument {pos+1}",E_INVALID)
+        # for n, arg in enumerate(args): print(f"args[{n}] = \n{arg}",file=sys.stderr)
+        if call in DIRECT:
+            result = call(args)
+        elif args and kwargs:
+            result = call(*args,**kwargs)
+        elif args:
+            result = call(*args)
+        elif kwargs:
+            result = call(**kwargs)
+        else:
+            result = call()
+        if type(result) == type(None) and len(args) > 0: 
+            # catch in-place operations
+            output(args[0])
+        else:
+            # print(f"result = \n{result}",file=sys.stderr)
+            output(result)
+    except Exception as info:
+        output("TABLEERROR")
+        if config.exception:
+            raise
+        error(f"'{' '.join(argv[1:])}' failed - {info}",E_FAILED)
+
+    return local_exit(E_OK)
+# if arg in ["-i","--input"]:
+#     if not opts:
+#         raise Exception(f"{arg} missing require option")
+#     specs = opts[0].split(":")
+#     sys.stdin = open(specs[0],"r")
+#     read_function = getattr(pandas,f"read_{os.path.splitext(specs[0])[1][1:]}")
+#     if len(specs) > 1:
+#         read_opts = specs[1].split(",")
+#     n += 1
+# elif arg in ["-o","--output"]:
+#     if not opts:
+#         raise Exception(f"{arg} missing require option")
+#     specs = opts[0].split(":")
+#     sys.stdout = open(specs[0],"w+")
+#     write_function = f"to_{os.path.splitext(specs[0])[1][1:]}"
+#     if len(specs) > 1:
+#         write_opts = specs[1].split(",")
+#     n += 1
+# elif arg in ["-e","--error"]:
+#     if not opts:
+#         raise Exception(f"{arg} missing require option")
+#     sys.stderr = open(opts[0],"w+")
+#     n += 1
+
+# if not read_function:
+#     raise Exception("not reader specified or implied by input file name")
+# data = read_function(sys.stdin,**read_opts)
+
+# if not write_function:
+#     print(data)
+# else:
+#     getattr(data,write_function)(sys.stdout,**write_opts)
+
+if __name__ == '__main__':
+    main(sys.argv)
