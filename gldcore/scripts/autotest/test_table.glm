@@ -1,0 +1,4 @@
+
+#assert $(gridlabd table version) == '1.1.4'
+
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux;'
