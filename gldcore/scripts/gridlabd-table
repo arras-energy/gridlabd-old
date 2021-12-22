@@ -241,8 +241,8 @@ functions = {
         "on" : strlist,
         "left_on" : strlist,
         "right_on" : strlist,
-        "left_index" : strlist,
-        "right_index" : strlist,
+        "left_index" : boolstr,
+        "right_index" : boolstr,
         "sort" : boolstr,
         "suffixes" : lambda x : x.split(",")[0:2],
         "copy" : boolstr,
@@ -262,7 +262,8 @@ functions = {
 #
 def output(result):
     if hasattr(result,"to_csv"):
-        result.to_csv("/dev/stdout",sep=config.delimiter,line_terminator=config.newline)
+        outstr = result.to_csv(sep=config.delimiter,line_terminator=config.newline)
+        print(outstr.strip(";\n"),file=sys.stdout)
 
 def warning(msg):
     if config.warning:
@@ -342,7 +343,7 @@ def help(name='.*'):
             error(f"'{name}' not found",code=E_NOTFOUND)
         sys.stderr = sys.stdout
         package = name.split('.')
-        lib = numpy
+        lib = pandas
         for pkg in package[0:-1]:
             lib = getattr(lib,pkg)
         call = getattr(lib,package[-1])
@@ -361,7 +362,7 @@ def help(name='.*'):
                     args.append(f"[{utag}=<{UFUNC[utag].__name__}>]")
             else:
                 args.append(f"{tag}=<{value.__name__}>")
-        print("matrix",name," ".join(args),file=sys.stdout)
+        print("table",name," ".join(args),file=sys.stdout)
         output(call.__doc__)
     elif name:
         count = 0
