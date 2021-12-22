@@ -3500,9 +3500,7 @@ int node::NR_populate(void)
 {
 	//Object header for names
 	OBJECT *me = THISOBJECTHDR;
-	node *temp_par_node = NULL;
 	gld_property *temp_bool_property;
-	gld_wlock *test_rlock;
 	bool temp_bool_val;
 
 	//Lock the SWING for global operations
@@ -3568,7 +3566,7 @@ int node::NR_populate(void)
 				}
 
 				//Pull the value
-				temp_bool_property->getp<bool>(temp_bool_val,*test_rlock);
+				temp_bool_property->getp<bool>(temp_bool_val);
 
 				//Clear the property
 				delete temp_bool_property;
