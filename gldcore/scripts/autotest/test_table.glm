@@ -1,4 +1,16 @@
-
 #assert $(gridlabd table version) == '1.1.4'
 
-#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux;'
+// merge <table> <table> how=<str> on=<strlist> left_on=<strlist> right_on=<strlist> left_index=<strlist> right_index=<strlist> sort=<boolstr> suffixes=<<lambda>> copy=<boolstr> indicator=<str> validate=<str>
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" left_index=True right_index=True) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" left_on=a right_on=a) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a how=inner) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a how=outer) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux;-1,nothing,;-2,,rien'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a how=left) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux;-1,nothing,'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a how=right) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux;-2,,rien'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a sort=True) == 'a,b,c;0,zero,zero;1,one,un;2,two,deux'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a sort=True indicator=merged how=outer) == 'a,b,c,merged;-1,nothing,,left_only;-2,,rien,right_only;0,zero,zero,both;1,one,un,both;2,two,deux,both'
+#assert $(gridlabd table -f merge "a,b;0,zero;1,one;2,two;-1,nothing" "a,c;0,zero;1,un;2,deux;-2,rien" on=a sort=True indicator=merged how=outer validate="1:1") == 'a,b,c,merged;-1,nothing,,left_only;-2,,rien,right_only;0,zero,zero,both;1,one,un,both;2,two,deux,both'
+
+//#assert $() == ''
+
