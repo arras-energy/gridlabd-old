@@ -240,7 +240,6 @@ int windturb_dg::init(OBJECT *parent)
 	complex tst, tst2, tst3, tst4;
 	gld_property *temp_property_pointer;
 	enumeration temp_enum;
-	bool NR_detect;
 
 	switch (Turbine_Model)	{
 		case GENERIC_IND_LARGE:
@@ -456,7 +455,6 @@ int windturb_dg::init(OBJECT *parent)
 	}
 
 	static complex default_line123_voltage[3], default_line1_current[3];
-	size_t i;
 
 	//Map phases
 	set *phaseInfo = NULL;
