@@ -191,6 +191,6 @@ object multi_recorder {
 	file test_pole.csv;
 }
 
-#ifexist "../test_pole.csv"
-#on_exit 0 diff -q test_pole.csv ../test_pole.csv
-#endif
+// #ifexist "../test_pole.csv"
+// #on_exit 0 diff -q test_pole.csv ../test_pole.csv
+// #endif
