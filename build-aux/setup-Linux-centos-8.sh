@@ -12,11 +12,11 @@ yum -q install which -y
 yum -q install svn -y
 
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version) != "Python 3.9.0" ]; then
+if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
 	yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel -y
 	cd /usr/local/src
-	curl https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz | tar xz
-	cd Python-3.9.0
+	curl https://www.python.org/ftp/python/3.9.0/Python-3.9.6.tgz | tar xz
+	cd Python-3.9.6
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 	make -j $(nproc)
 	make altinstall
@@ -26,6 +26,7 @@ if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version) != "Pyth
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
+	
 fi
 
 # latex
