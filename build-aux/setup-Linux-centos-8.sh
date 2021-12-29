@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Install needed system tools
+
 yum -q update -y ; 
 yum -q clean all
 yum -q groupinstall "Development Tools" -y
@@ -15,7 +16,7 @@ yum -q install svn -y
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
 	yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel -y
 	cd /usr/local/src
-	curl https://www.python.org/ftp/python/3.9.0/Python-3.9.6.tgz | tar xz
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	cd Python-3.9.6
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 	make -j $(nproc)
@@ -33,8 +34,6 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	/usr/local/bin/python3 pip -m install Pillow
 	/usr/local/bin/python3 -m pip install IPython 
 	/usr/local/bin/python3 -m pip install censusdata
-
-
 	# remove tgz
 	rm -f Python-3.9.6.tgz
 fi
