@@ -28,12 +28,13 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	# install python packages
 	/usr/local/bin/python3 -m pip install --upgrade pip
-	/usr/local/bin/python3 pip -m install mysql-connector 
-	/usr/local/bin/python3 pip -m install matplotlib 
-	/usr/local/bin/python3 pip -m install numpy 
-	/usr/local/bin/python3 pip -m install pandas
-	/usr/local/bin/python3 pip -m install Pillow
+	/usr/local/bin/python3 -m pip install mysql-connector 
+	/usr/local/bin/python3 -m pip install matplotlib 
+	/usr/local/bin/python3 -m pip install numpy 
+	/usr/local/bin/python3 -m pip install pandas
+	/usr/local/bin/python3 -m pip install Pillow
 	/usr/local/bin/python3 -m pip install IPython 
+	/usr/local/bin/python3 -m pip install wheel 
 	/usr/local/bin/python3 -m pip install censusdata
 	# remove tgz
 	rm -f /usr/local/src/Python-3.9.6.tgz
