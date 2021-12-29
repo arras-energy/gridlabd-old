@@ -31,6 +31,8 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	/usr/local/bin/python3 pip -m install numpy 
 	/usr/local/bin/python3 pip -m install pandas
 	/usr/local/bin/python3 pip -m install Pillow
+	/usr/local/bin/python3 -m pip install IPython 
+	/usr/local/bin/python3 -m pip install censusdata
 
 
 	# remove tgz
