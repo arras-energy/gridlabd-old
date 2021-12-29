@@ -25,8 +25,16 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
-	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
-	
+	# install python packages
+	/usr/local/bin/python3 pip -m install mysql-connector 
+	/usr/local/bin/python3 pip -m install matplotlib 
+	/usr/local/bin/python3 pip -m install numpy 
+	/usr/local/bin/python3 pip -m install pandas
+	/usr/local/bin/python3 pip -m install Pillow
+
+
+	# remove tgz
+	rm -f Python-3.9.6.tgz
 fi
 
 # latex
