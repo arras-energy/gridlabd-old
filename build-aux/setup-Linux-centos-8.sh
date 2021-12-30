@@ -48,7 +48,7 @@ fi
 # doxygen
 vaild
 if [ ! -x /usr/bin/doxygen ]; then
-	echo "install doxygen"
+
 	if [ ! -d /usr/local/src/doxygen ]; then
 		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen --depth 1
 	fi
@@ -64,7 +64,7 @@ fi
 
 mono
 if [ ! -f /usr/bin/mono ]; then
-	echo "install mono"	
+
 	rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
 	su -c 'curl https://download.mono-project.com/repo/centos8-stable.repo | tee /etc/yum.repos.d/mono-centos8-stable.repo'
 	yum -q install mono-devel -y
@@ -72,7 +72,7 @@ fi
 
 # natural_docs
 if [ ! -x /usr/local/bin/natural_docs ]; then
-	echo "install natural_docs"	
+	
 	cd /usr/local
 	curl -s https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
