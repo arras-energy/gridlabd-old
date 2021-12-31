@@ -327,6 +327,8 @@ fi
 export PATH=/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC))
 run make install
+# update numpy after make install
+# /usr/local/bin/python3 -m pip install --upgrade numpy
 if [ "$DOCS" == "yes" ]; then
 	run make html 
 	run cp -r "documents/html" "$INSTALL"
