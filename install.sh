@@ -315,6 +315,7 @@ if [ ! -f "configure" -o "$QUICK" == "no" ]; then
 fi
 
 NPROC=1
+SYSTEM=$(uname -s)
 if [ "$PARALLEL" == "yes" ]; then
 	if [ "$SYSTEM" == "Linux" ]; then
 		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
@@ -327,6 +328,8 @@ fi
 export PATH=/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC))
 run make install
+# upgrade numpy after make install
+ /usr/local/bin/python3 -m pip install --upgrade numpy
 if [ "$DOCS" == "yes" ]; then
 	run make html 
 	run cp -r "documents/html" "$INSTALL"
