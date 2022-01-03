@@ -405,7 +405,7 @@ int load::isa(char *classname)
 int load::create(void)
 {
 	int res = node::create();
-	char index_x,index_y;
+	int index_x,index_y;
         
 	maximum_voltage_error = 0;
 
@@ -596,8 +596,6 @@ TIMESTAMP load::presync(TIMESTAMP t0)
 
 TIMESTAMP load::sync(TIMESTAMP t0)
 {
-	//bool all_three_phases;
-	bool fault_mode;
 	TIMESTAMP result;
 
  	//Check for straggler nodes - fix so segfaults don't occur
@@ -3475,7 +3473,6 @@ int load::notify(int update_mode, PROPERTY *prop, char *value)
 SIMULATIONMODE load::inter_deltaupdate_load(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
 	OBJECT *hdr = THISOBJECTHDR;
-	bool fault_mode;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;
 

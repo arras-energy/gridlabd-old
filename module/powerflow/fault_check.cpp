@@ -2227,7 +2227,7 @@ void fault_check::search_associated_grids(unsigned int node_int, int grid_counte
 //Function to remove a divergent island
 STATUS fault_check::disable_island(int island_number)
 {
-	int index_value;
+	unsigned int index_value;
 	TIMESTAMP curr_time_val_TS;
 	double curr_time_val_DBL;
 	FILE *FPOutput;
