@@ -1147,11 +1147,13 @@ typedef struct s_transferfunction {
 
 /* transform data structure */
 typedef struct s_transform {
+	const char *definition; ///< original definition of the transformation (needed for save operations)
 	double *source;	///< source vector of the function input
 	TRANSFORMSOURCE source_type; ///< data type of source
 	struct s_object_list *target_obj; ///< object of the target
 	struct s_property_map *target_prop; ///< property of the target
 	TRANSFORMFUNCTIONTYPE function_type; ///< function type (linear, external, etc.)
+	TIMESTAMP t_last;
 	union {
 		struct { // used only by linear transforms
 			void *source_addr; ///< pointer to the source

@@ -72,34 +72,65 @@ underground_line_conductor::underground_line_conductor(MODULE *mod) : powerflow_
 int underground_line_conductor::create(void)
 {
 	int result = powerflow_library::create();
+    outer_diameter = conductor_gmr = conductor_diameter = 0.0;
+	conductor_resistance = neutral_gmr = neutral_diameter = 0.0;
+	neutral_resistance = shield_gmr = 0.0;
+	neutral_strands = 0;
+	shield_resistance = 0.0;
+	shield_thickness = 0.0;
+	shield_diameter = 0.0;
+	
 	return result;
 }
 
 int underground_line_conductor::init(OBJECT *parent)
 {
-	if (outer_diameter <= conductor_diameter)
+	if (outer_diameter < conductor_diameter)
 	{
-		GL_THROW("outer_diameter was specified as less than or equal to the conductor_diameter");
+		GL_THROW("outer_diameter was specified as less than the conductor_diameter");
 		/* TROUBLESHOOT
 		The outer diameter is the diameter of the entire cable, and therefore should be the largest value. Please check your values
 		and refer to Fig. 4.11 of "Distribution System Modeling and Analysis, Third Edition" by William H. Kersting for a diagram.
 		*/
 	}
-	if (outer_diameter <= neutral_diameter)
+	if (outer_diameter < neutral_diameter)
 	{
-		GL_THROW("outer_diameter was specified as less than or equal to the neutral_diameter");
+		GL_THROW("outer_diameter was specified as less than the neutral_diameter");
 		/* TROUBLESHOOT
 		The outer diameter is the diameter of the entire cable, and therefore should be the largest value. Please check your values
 		and refer to Fig. 4.11 of "Distribution System Modeling and Analysis, Third Edition" by William H. Kersting for a diagram.
 		*/
 	}
-	if (shield_diameter <= shield_thickness)
+	if (shield_diameter < shield_thickness)
 	{
-		GL_THROW("shield_diameter was specified as less than or equal to the tapeshield_thickness");
+		GL_THROW("shield_diameter was specified as less than the tapeshield_thickness");
 		/* TROUBLESHOOT
 		Refer to Example 5.4 in "Distribution System Modeling and Analysis, Third Edition" by William H. Kersting for a diagram.
 		*/
 	}
+
+	//Check resistance
+	if (conductor_resistance == 0.0)
+	{
+		if (solver_method == SM_NR)
+		{
+			GL_THROW("underground_line_conductor:%d - %s - NR: conductor_resistance is zero",get_id(),get_name());
+			/*  TROUBLESHOOT
+			The underground_line_conductor has a conductor_resistance of zero.  This will cause problems with the 
+			Newton-Raphson solution.  Please put a valid conductor_resistance value.
+			*/
+		}
+		else //Assumes FBS
+		{
+			warning("underground_line_conductor:%d - %s - FBS: conductor_resistance is zero",get_id(),get_name());
+			/*  TROUBLESHOOT
+			The underground_line_conductor has a resistance of zero.  This will cause problems with the 
+			Newton-Raphson solver - if you intend to swap powerflow solvers, this must be fixed.
+			Please put a valid resistance value if that is the case.
+			*/
+		}
+	}
+
 	return 1;
 }
 
@@ -135,6 +166,15 @@ EXPORT int create_underground_line_conductor(OBJECT **obj, OBJECT *parent)
 			return 0;
 	}
 	CREATE_CATCHALL(underground_line_conductor);
+}
+
+EXPORT int init_underground_line_conductor(OBJECT *obj)
+{
+	try {
+		underground_line_conductor *my = OBJECTDATA(obj,underground_line_conductor);
+		return my->init(obj->parent);
+	}
+	INIT_CATCHALL(underground_line_conductor);
 }
 
 EXPORT TIMESTAMP sync_underground_line_conductor(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)

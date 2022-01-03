@@ -1438,6 +1438,93 @@ DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
     return buffer;
 }
 
+const char *geocode_encode(char *buffer, int len, double lat, double lon, int resolution=12)
+{
+	static const char *base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
+	if ( len < resolution+1 )
+	{
+		output_warning("geocode_encode(buffer=%p, len=%d, lat=%g, lon=%g, resolution=%d): buffer too small for specified resolution, result truncated", 
+			buffer, len, lat, lon, resolution);
+		resolution = len-1;
+	}
+	double lat_interval[] = {-90,90};
+	double lon_interval[] = {-180,180};
+	char *geohash = buffer;
+	geohash[0] = '\0';
+	int bits[] = {16,8,4,2,1};
+	int bit = 0;
+	int ch = '\0';
+	bool even = true;
+	int i = 0;
+	while ( i < resolution )
+	{
+		if ( even )
+		{
+			double mid = (lon_interval[0]+lon_interval[1])/2;
+			if ( lon > mid )
+			{
+				ch |= bits[bit];
+				lon_interval[0] = mid;
+			}
+			else
+			{
+				lon_interval[1] = mid;
+			}
+		}
+		else
+		{
+			double mid = (lat_interval[0]+lat_interval[1])/2;
+			if ( lat > mid )
+			{
+				ch |= bits[bit];
+				lat_interval[0] = mid;
+			}
+			else
+			{
+				lat_interval[1] = mid;
+			}
+		}
+		even = !even;
+		if ( bit < 4 )
+		{
+			bit += 1;
+		}
+		else
+		{
+			*geohash++ = base32[ch];
+			i++;
+			bit = 0;
+			ch = 0;
+		}
+	}
+	*geohash++ = '\0';
+	return buffer;
+}
+
+DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
+{
+	double lat, lon;
+	OBJECT *obj;
+	unsigned int res = 5; // about 2.4 km resolution by default
+	char name[64];
+	if ( sscanf(spec,"%lg,%lg#%u",&lat,&lon,&res) >= 2 )
+	{
+		return geocode_encode(buffer,size,lat,lon,res);
+	}
+	else if ( sscanf(spec,"%63[^#]#%u",name,&res) >= 1 && (obj=object_find_name(name)) != NULL )
+	{
+		lat = obj->latitude;
+		lon = obj->longitude;
+		if ( isfinite(lat) && isfinite(lon) && lat>=-90 && lat<=+90 && lon>=-180 && lon<=180 )
+		{
+			return geocode_encode(buffer,size,lat,lon,res);
+		}
+	}
+	output_warning("${GEOCODE %s}: geocode spec is not valid",spec);
+	buffer[0] = '\0';
+	return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1532,6 +1619,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
     if ( strncmp(name,"FIND ",5) == 0 )
     {
         return global_findobj(buffer,size,name+5);
+    }
+    if ( strncmp(name,"GEOCODE ",8) == 0 )
+    {
+    	return global_geocode(buffer,size,name+8);
     }
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
