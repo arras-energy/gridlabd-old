@@ -71,7 +71,7 @@ if [ ! -f /usr/bin/mono ]; then
 	yum -q install mono-devel -y
 fi
 
-# # natural_docs
+# # # natural_docs
 if [ ! -x /usr/local/bin/natural_docs ]; then
 	
 	cd /usr/local
