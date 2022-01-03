@@ -10,11 +10,12 @@ yum -q install epel-release -y
 yum -q install curl-devel -y
 yum -q install which -y
 yum -q install svn -y
+yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel -y
 
 # # python3 support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
 	echo "install python 3.9.6"	
-	yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel -y
+	
 	cd /usr/local/src
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	cd Python-3.9.6
