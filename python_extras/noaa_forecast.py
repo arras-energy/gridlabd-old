@@ -115,7 +115,7 @@ def getforecast(lat,lon):
     headers = {'User-agent' : user_agent}
     location = json.loads(requests.get(url,headers=headers).content.decode("utf-8"))
 
-    data = json.loads(requests.get(location["properties"]["forecast"],headers=headers).content.decode("utf-8"))
+    data = json.loads(requests.get(location["properties"]["forecastHourly"],headers=headers).content.decode("utf-8"))
     result = {
         "datetime" : [],
         "temperature[degF]" : [],
