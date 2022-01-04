@@ -37,6 +37,8 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	/usr/local/bin/python3 -m pip install IPython 
 	/usr/local/bin/python3 -m pip install wheel 
 	/usr/local/bin/python3 -m pip install censusdata
+	# update numpy
+	/usr/local/bin/python3 -m pip install --upgrade numpy
 	# remove tgz
 	rm -f /usr/local/src/Python-3.9.6.tgz
 fi
