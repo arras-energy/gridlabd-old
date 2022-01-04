@@ -405,7 +405,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
         wind_pressure = 0.00256 * (2.24*wind_speed) * (2.24*wind_speed); // 2.24 account for m/s to mph conversion
         pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-        double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind + wire_load);
+        double wind_pressure_failure = (resisting_moment-wire_tension-wire_moment) / (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24 * 2.24));
         verbose("wind_pressure = %g psf",wind_pressure); // unit: pounds per square foot
         verbose("pole_moment_nowind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_nowind);
@@ -457,7 +457,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
     //  - pole          calculate total moment and failure status
     if ( recalc )
     {
-        verbose("pole_moment = %g ft*lb",pole_moment);
+        verbose("pole_moment = %g ft*lb",pole_moment); // moment due to pole tilt and wind loads
         verbose("equipment_moment = %g ft*lb",equipment_moment); // moment due to equipment weight and pole tilt
         verbose("wire_moment = %g ft*lb",wire_moment); // moment due to conductor weight
         verbose("wire_tension = %g ft*lb",wire_tension); // moment due to conductor tension
@@ -467,12 +467,12 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         verbose("total_moment = %g ft*lb",total_moment);
 
         if ( wind_speed > 0.0 )
-			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(wind_speed)/(0.00256)/(2.24);
+			susceptibility = 2*(pole_moment+equipment_moment+wire_load)/resisting_moment/(wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
         verbose("susceptibility = %g ft*lb.s/m",susceptibility);
 
-        if ( resisting_moment > 0.0 ) ////
+        if ( resisting_moment > 0.0 ) 
         {
             pole_stress = total_moment/resisting_moment;
         }
@@ -492,6 +492,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         }
 
         // M = a * V^2 + b * V + c
+        // TODO
         pole_stress_polynomial_a = pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind;
         pole_stress_polynomial_b = 0.0;
         pole_stress_polynomial_c = wire_tension;
