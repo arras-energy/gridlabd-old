@@ -315,13 +315,12 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("alpha = %g rad",alpha);
             double beta = (mount->get_tilt_direction()-direction)*PI/180;
             verbose("beta = %g rad",beta);
-            double x = mount->get_equipment_moment() + weight * ((height-mount->get_guy_height())*sin(alpha) + offset*cos(alpha)) * cos(beta);
+            double x = weight * ((height-mount->get_guy_height())*sin(alpha) + offset*cos(beta));
             // mount->get_equipment_moment() + abs(mount->height - height)*sin(alpha)*weight + equipment_moment*cos(beta);
             verbose("x = %g ft*lb",x);
-            double y = weight * ((height-mount->get_guy_height())*sin(alpha) + offset*cos(alpha)) * sin(beta); // moment arm changes when the pole tilts
+            double y = weight * offset * sin(beta); // moment arm changes when the pole tilts
             verbose("y = %g ft*lb",y);
-            double z = 0.00256*(2.24*wind_speed)*(2.24*wind_speed)*area*sin(alpha) * (height-mount->get_guy_height())*pole_config->overload_factor_transverse_general;
-            double moment = sqrt(x*x+y*y);
+            double moment = sqrt(x*x+y*y); // ingore wind load on equipment for now
             verbose("moment = %g ft*lb",moment);
             mount->set_equipment_moment(mount->get_equipment_moment()+moment); // moment due to equipment weight and pole tilt
         }
