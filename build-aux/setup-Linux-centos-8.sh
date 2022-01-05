@@ -1,20 +1,31 @@
 #!/bin/bash
 
+# chmod -R 775 /usr/local
+# chown -R root:adm /usr/local
+
 #Install needed system tools
-yum -q update -y ; 
-yum -q clean all
-yum -q groupinstall "Development Tools" -y
-yum -q install cmake -y 
-yum -q install ncurses-devel -y
-yum -q install epel-release -y
-yum -q install curl-devel -y
-yum -q install which -y
-yum -q install svn -y
+yum clean all
+yum groupinstall "Development Tools" -y
+yum install cmake -y 
+yum install ncurses-devel -y
+yum install epel-release -y
+yum install curl-devel -y
+yum install which -y
+yum install svn -y
+
+yum install 'dnf-command(config-manager)' -y
 
 
-# # python3 support needed as of 4.2
+
+
+# change directory
+# cd /usr/local/src
+yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel  xz-devel  -y
+
+
+# python3 support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
-	echo "install python 3.9.6"	
+	# echo "install python 3.9.6"	
 	
 	cd /usr/local/src
 	yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel  xz-devel  -y
@@ -31,21 +42,21 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	# install python packages
 	/usr/local/bin/python3 -m pip install --upgrade pip
-	# /usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+	/usr/local/bin/python3 -m pip install IPython censusdata
+	# # /usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+	# # /usr/local/bin/python3 -m pip install IPython 
+	# # /usr/local/bin/python3 -m pip install censusdata
+	# /usr/local/bin/python3 -m pip install --upgrade pip
+	# /usr/local/bin/python3 -m pip install mysql-connector 
+	# /usr/local/bin/python3 -m pip install matplotlib 
+	# /usr/local/bin/python3 -m pip install numpy 
+	# /usr/local/bin/python3 -m pip install pandas
+	# /usr/local/bin/python3 -m pip install Pillow
 	# /usr/local/bin/python3 -m pip install IPython 
+	# /usr/local/bin/python3 -m pip install wheel 
 	# /usr/local/bin/python3 -m pip install censusdata
-	/usr/local/bin/python3 -m pip install --upgrade pip
-	/usr/local/bin/python3 -m pip install mysql-connector 
-	/usr/local/bin/python3 -m pip install matplotlib 
-	/usr/local/bin/python3 -m pip install numpy 
-	/usr/local/bin/python3 -m pip install pandas
-	/usr/local/bin/python3 -m pip install Pillow
-	/usr/local/bin/python3 -m pip install IPython 
-	/usr/local/bin/python3 -m pip install wheel 
-	/usr/local/bin/python3 -m pip install censusdata
 
-	# remove tgz
-	rm -f /usr/local/src/Python-3.9.6.tgz
 fi
 
 # # latex
