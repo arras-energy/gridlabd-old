@@ -130,7 +130,11 @@ triplex_meter::triplex_meter(MODULE *mod) : triplex_node(mod)
 				GL_THROW("Unable to publish triplex_meter current injection update mapping function");
 			if (gl_publish_function(oclass,	"attach_vfd_to_pwr_object", (FUNCTIONADDR)attach_vfd_to_node)==NULL)
 				GL_THROW("Unable to publish triplex_meter VFD attachment function");
-
+			if (gl_publish_function(oclass, "pwr_object_reset_disabled_status", (FUNCTIONADDR)node_reset_disabled_status) == NULL)
+				GL_THROW("Unable to publish triplex_meter island-status-reset function");
+			if (gl_publish_function(oclass, "pwr_object_swing_status_check", (FUNCTIONADDR)node_swing_status) == NULL)
+				GL_THROW("Unable to publish triplex_meter swing-status check function");
+			
 			// market price name
 			gl_global_create("powerflow::market_price_name",PT_char1024,&market_price_name,NULL);
 		}
@@ -694,9 +698,6 @@ SIMULATIONMODE triplex_meter::inter_deltaupdate_triplex_meter(unsigned int64 del
 			//Reliability addition - clear momentary flag if set
 			if (tpmeter_interrupted_secondary == true)
 				tpmeter_interrupted_secondary = false;
-
-		//Call triplex-specific call
-		BOTH_triplex_node_presync_fxn();
 
 		//Call node presync-equivalent items
 		NR_node_presync_fxn(0);

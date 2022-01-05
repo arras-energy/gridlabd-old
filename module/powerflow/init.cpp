@@ -15,18 +15,18 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	/* exported globals */
 	gl_global_create("powerflow::show_matrix_values",PT_bool,&show_matrix_values,NULL);
-	gl_global_create("powerflow::primary_voltage_ratio",PT_double,&primary_voltage_ratio,NULL);
-	gl_global_create("powerflow::nominal_frequency",PT_double,&nominal_frequency,NULL);
+	gl_global_create("powerflow::primary_voltage_ratio[pu]",PT_double,&primary_voltage_ratio,NULL);
+	gl_global_create("powerflow::nominal_frequency[Hz]",PT_double,&nominal_frequency,NULL);
 	gl_global_create("powerflow::require_voltage_control", PT_bool,&require_voltage_control,NULL);
 	gl_global_create("powerflow::geographic_degree",PT_double,&geographic_degree,NULL);
-	gl_global_create("powerflow::fault_impedance",PT_complex,&fault_Z,NULL);
-	gl_global_create("powerflow::ground_impedance",PT_complex,&ground_Z,NULL);
-	gl_global_create("powerflow::warning_underfrequency",PT_double,&warning_underfrequency,NULL);
-	gl_global_create("powerflow::warning_overfrequency",PT_double,&warning_overfrequency,NULL);
-	gl_global_create("powerflow::warning_undervoltage",PT_double,&warning_undervoltage,NULL);
-	gl_global_create("powerflow::warning_overvoltage",PT_double,&warning_overvoltage,NULL);
+	gl_global_create("powerflow::fault_impedance[Ohm]",PT_complex,&fault_Z,NULL);
+	gl_global_create("powerflow::ground_impedance[Ohm]",PT_complex,&ground_Z,NULL);
+	gl_global_create("powerflow::warning_underfrequency[Hz]",PT_double,&warning_underfrequency,NULL);
+	gl_global_create("powerflow::warning_overfrequency[Hz]",PT_double,&warning_overfrequency,NULL);
+	gl_global_create("powerflow::warning_undervoltage[V]",PT_double,&warning_undervoltage,NULL);
+	gl_global_create("powerflow::warning_overvoltage[V]",PT_double,&warning_overvoltage,NULL);
 	gl_global_create("powerflow::warning_voltageangle",PT_double,&warning_voltageangle,NULL);
-	gl_global_create("powerflow::maximum_voltage_error",PT_double,&default_maximum_voltage_error,NULL);
+	gl_global_create("powerflow::maximum_voltage_error[V]",PT_double,&default_maximum_voltage_error,NULL);
 	gl_global_create("powerflow::solver_method",PT_enumeration,&solver_method,
 		PT_KEYWORD,"FBS",SM_FBS,
 		PT_KEYWORD,"GS",SM_GS,
@@ -40,14 +40,16 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 		PT_KEYWORD,"ALL",MD_ALL,
 		NULL);
 	gl_global_create("powerflow::NR_matrix_output_references",PT_bool,&NRMatReferences,NULL);
+	gl_global_create("powerflow::NR_matrix_output_rhs",PT_bool,&NRMatRHSDump,PT_DESCRIPTION,"Flag to indicate if the RHS (delta-current-injections) should be output to the matrix dump",NULL);
+	gl_global_create("powerflow::NR_island_failure_handled",PT_bool,&NR_island_fail_method,PT_DESCRIPTION,"Indicates if an island fails if it should be removed from service",NULL);
 	gl_global_create("powerflow::line_capacitance",PT_bool,&use_line_cap,NULL);
 	gl_global_create("powerflow::line_limits",PT_bool,&use_link_limits,NULL);
 	gl_global_create("powerflow::lu_solver",PT_char256,&LUSolverName,NULL);
 	gl_global_create("powerflow::NR_iteration_limit",PT_int64,&NR_iteration_limit,NULL);
 	gl_global_create("powerflow::NR_deltamode_iteration_limit",PT_int64,&NR_delta_iteration_limit,NULL);
 	gl_global_create("powerflow::NR_superLU_procs",PT_int32,&NR_superLU_procs,NULL);
-	gl_global_create("powerflow::default_maximum_voltage_error",PT_double,&default_maximum_voltage_error,NULL);
-	gl_global_create("powerflow::default_maximum_power_error",PT_double,&default_maximum_power_error,NULL);
+	gl_global_create("powerflow::default_maximum_voltage_error[pu]",PT_double,&default_maximum_voltage_error,NULL);
+	gl_global_create("powerflow::default_maximum_power_error[pu]",PT_double,&default_maximum_power_error,NULL);
 	gl_global_create("powerflow::NR_admit_change",PT_bool,&NR_admit_change,NULL);
 	gl_global_create("powerflow::enable_subsecond_models", PT_bool, &enable_subsecond_models,PT_DESCRIPTION,"Enable deltamode capabilities within the powerflow module",NULL);
 	gl_global_create("powerflow::all_powerflow_delta", PT_bool, &all_powerflow_delta,PT_DESCRIPTION,"Forces all powerflow objects that are capable to participate in deltamode",NULL);
@@ -55,9 +57,9 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	gl_global_create("powerflow::current_frequency",PT_double,&current_frequency,PT_UNITS,"Hz",PT_DESCRIPTION,"Current system-level frequency of the powerflow system",NULL);
 	gl_global_create("powerflow::master_frequency_update",PT_bool,&master_frequency_update,PT_DESCRIPTION,"Tracking variable to see if an object has become the system frequency updater",NULL);
 	gl_global_create("powerflow::enable_frequency_dependence",PT_bool,&enable_frequency_dependence,PT_DESCRIPTION,"Flag to enable frequency-based variations in impedance values of lines and loads",NULL);
-	gl_global_create("powerflow::default_resistance",PT_double,&default_resistance,NULL);
+	gl_global_create("powerflow::default_resistance[Ohm]",PT_double,&default_resistance,NULL);
 	gl_global_create("powerflow::enable_inrush",PT_bool,&enable_inrush_calculations,PT_DESCRIPTION,"Flag to enable in-rush calculations for lines and transformers in deltamode",NULL);
-	gl_global_create("powerflow::low_voltage_impedance_level",PT_double,&impedance_conversion_low_pu,PT_DESCRIPTION,"Lower limit of voltage (in per-unit) at which all load types are converted to impedance for in-rush calculations",NULL);
+	gl_global_create("powerflow::low_voltage_impedance_level[pu]",PT_double,&impedance_conversion_low_pu,PT_DESCRIPTION,"Lower limit of voltage (in per-unit) at which all load types are converted to impedance for in-rush calculations",NULL);
 	gl_global_create("powerflow::enable_mesh_fault_current",PT_bool,&enable_mesh_fault_current,PT_DESCRIPTION,"Flag to enable mesh-based fault current calculations",NULL);
 	gl_global_create("powerflow::convergence_error_handling",PT_enumeration,&convergence_error_handling,PT_DESCRIPTION,"Flag to handle convergence error",
 			PT_KEYWORD,"FATAL",CEH_FATAL,

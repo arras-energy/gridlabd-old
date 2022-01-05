@@ -29,10 +29,21 @@ import haversine
 default_options = {
     "units" : "meters",
     "relative" : False,
+    "precision" :
+    {
+        "distance" : 0,
+    }
 }
 
 default_config = {
     "method" : "haversine",
+    "column_names" :
+    {
+        "LAT" : "latitude",
+        "LON" : "longitude",
+        "ID" : "id",
+        "DIST" : "distance",
+    },
 }
 
 valid_units = {
@@ -130,10 +141,11 @@ if __name__ == '__main__':
 
         def test_distance(self):
             test = DataFrame({
+                "id" : [0,1],
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test)
-            self.assertEqual(result["distance"][1],12604.0)
+            self.assertEqual(result["distance"][1],14196.0)
 
     unittest.main()
