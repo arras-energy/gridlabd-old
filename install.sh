@@ -325,8 +325,8 @@ fi
 
 # build everything
 export PATH=/usr/local/bin:/usr/bin:/bin
-run make -j$((3*$NPROC))
-run make install
+run make -j$((3*$NPROC)) system
+
 if [ "$DOCS" == "yes" ]; then
 	run make html 
 	run cp -r "documents/html" "$INSTALL"
