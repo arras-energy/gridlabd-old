@@ -40,7 +40,7 @@ RUN pip3 install --upgrade pip
 RUN /usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 RUN /usr/local/bin/python3 -m pip install IPython censusdata
 # mac m1
-RUN /usr/local/bin/python3 -m pip install shapely 
+# RUN /usr/local/bin/python3 -m pip install shapely 
 WORKDIR /usr/local/src
 RUN rm -f Python-3.9.6.tgz
 
@@ -55,6 +55,25 @@ WORKDIR /usr/local/src/gridlabd
 RUN rm -rf ./build-aux/setup-Linux-centos-8.sh
 COPY ./build-aux/setup-Linux-centos-8.sh ./build-aux/setup-Linux-centos-8.sh
 COPY ./requirements.txt ./requirements.txt
+COPY ./gldcore/scripts/autotest/test_matrix.glm ./gldcore/scripts/autotest/test_matrix.glm
+RUN   chmod +rxw ./gldcore/scripts/autotest/test_matrix.glm
+COPY ./gldcore/scripts/autotest/test_matrix_linalg.glm ./gldcore/scripts/autotest/test_matrix_linalg.glm
+RUN   chmod +rxw ./gldcore/scripts/autotest/test_matrix_linalg.glm
+COPY ./gldcore/scripts/autotest/test_matrix_matlib.glm ./gldcore/scripts/autotest/test_matrix_matlib.glm
+RUN   chmod +rxw ./gldcore/scripts/autotest/test_matrix_matlib.glm
+COPY ./gldcore/scripts/autotest/test_matrix_matrix.glm ./gldcore/scripts/autotest/test_matrix_matrix.glm
+RUN   chmod +rxw ./gldcore/scripts/autotest/test_matrix_matrix.glm
+COPY ./gldcore/scripts/autotest/test_matrix_random.glm ./gldcore/scripts/autotest/test_matrix_random.glm
+RUN   chmod +rxw ./gldcore/scripts/autotest/test_matrix_random.glm
 RUN chmod +rxw ./requirements.txt
 RUN chmod +rxw ./build-aux/setup-Linux-centos-8.sh
-# RUN ./install.sh -v -t 
+
+
+COPY ./install.sh ./install.sh
+
+# test install.sh
+RUN ./install.sh -v -t --parallel
+
+# WORKDIR "/usr/local/src/gridlabd"
+# RUN autoreconf -isf && ./configure
+# RUN make -j6 system
