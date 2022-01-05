@@ -322,7 +322,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("y = %g ft*lb",y);
             double equipment_wind_moment = 0.00256*(2.24*wind_speed)*(2.24*wind_speed)*area*(height-mount->get_guy_height())*pole_config->overload_factor_transverse_general;
             verbose("equipment_wind_moment = %g ft*lb",equipment_wind_moment);
-            double moment = sqrt(x*x+y*y) + equipment_wind_moment; // ingore wind load on equipment for now
+            double moment = sqrt(x*x+y*y) + equipment_wind_moment; 
             verbose("moment = %g ft*lb",moment);
             mount->set_equipment_moment(mount->get_equipment_moment()+moment); // moment due to equipment weight and pole tilt
         }
