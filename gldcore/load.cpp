@@ -2383,7 +2383,7 @@ int GldLoader::clock_properties(PARSER)
 			ACCEPT;
 			goto Next;
 		}
-		syntax_error(filename,linenum,"expected delta time value");
+		syntax_error("expected delta time value");
 		REJECT;
 	}
 	OR if (WHITE,LITERAL("}")) {/* don't accept yet */ DONE;}
@@ -5823,13 +5823,13 @@ int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 				first = 0;
 				if ( power < 0 )
 				{
-					syntax_error(filename,linenum,"filter polynomial cannot use negative power %d",power);
+					syntax_error("filter polynomial cannot use negative power %d",power);
 					REJECT;
 					break;
 				}
 				else if ( power > (int64)(sizeof(x)/sizeof(x[0])) )
 				{
-					syntax_error(filename,linenum,"filter polynomial order cannot be higher than %d",sizeof(x)/sizeof(x[0]));
+					syntax_error("filter polynomial order cannot be higher than %d",sizeof(x)/sizeof(x[0]));
 					REJECT;
 					break;
 				}
@@ -7431,7 +7431,7 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 		char path[1024];
 		if (term==NULL)
 		{
-			syntax_error(filename,linenum,"#ifmissing macro missing term");
+			syntax_error("#ifmissing macro missing term");
 			return FALSE;
 		}
 		while(isspace((unsigned char)(*term)))
