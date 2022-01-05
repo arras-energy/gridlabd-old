@@ -181,6 +181,8 @@ int powerflow_object::isa(CLASSNAME classname)
 int powerflow_object::create(void)
 {
 	OBJECT *obj = THISOBJECTHDR;
+	phases = NO_PHASE;
+	nominal_voltage = 0.0;
 
 	//Deltamode override flag
 	if (all_powerflow_delta == true)
