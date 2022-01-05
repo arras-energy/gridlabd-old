@@ -44,61 +44,50 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	/usr/local/bin/python3 -m pip install --upgrade pip
 	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
 	/usr/local/bin/python3 -m pip install IPython censusdata
-	# # /usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
-	# # /usr/local/bin/python3 -m pip install IPython 
-	# # /usr/local/bin/python3 -m pip install censusdata
-	# /usr/local/bin/python3 -m pip install --upgrade pip
-	# /usr/local/bin/python3 -m pip install mysql-connector 
-	# /usr/local/bin/python3 -m pip install matplotlib 
-	# /usr/local/bin/python3 -m pip install numpy 
-	# /usr/local/bin/python3 -m pip install pandas
-	# /usr/local/bin/python3 -m pip install Pillow
-	# /usr/local/bin/python3 -m pip install IPython 
-	# /usr/local/bin/python3 -m pip install wheel 
-	# /usr/local/bin/python3 -m pip install censusdata
+
 
 fi
 
-# # latex
-# if [ ! -x /usr/bin/tex ]; then
-# 	yum -q install tex -y
-# fi
+# latex
+if [ ! -x /usr/bin/tex ]; then
+	yum -q install tex -y
+fi
 
-# # # doxygen
+# # doxygen
 
-# if [ ! -x /usr/bin/doxygen ]; then
-# 	echo "install doxygen"
-# 	if [ ! -d /usr/local/src/doxygen ]; then
-# 		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen --depth 1
-# 	fi
-# 	if [ ! -d /usr/local/src/doxygen/build ]; then
-# 		mkdir /usr/local/src/doxygen/build
-# 	fi
+if [ ! -x /usr/bin/doxygen ]; then
+	echo "install doxygen"
+	if [ ! -d /usr/local/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen --depth 1
+	fi
+	if [ ! -d /usr/local/src/doxygen/build ]; then
+		mkdir /usr/local/src/doxygen/build
+	fi
 	
-# 	cd /usr/local/src/doxygen/build
-# 	cmake -G "Unix Makefiles" ..
-# 	make
-# 	make install
-# fi
+	cd /usr/local/src/doxygen/build
+	cmake -G "Unix Makefiles" ..
+	make
+	make install
+fi
 
-# # mono
-# if [ ! -f /usr/bin/mono ]; then
+# mono
+if [ ! -f /usr/bin/mono ]; then
 
-# 	rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-# 	su -c 'curl https://download.mono-project.com/repo/centos8-stable.repo | tee /etc/yum.repos.d/mono-centos8-stable.repo'
-# 	yum -q install mono-devel -y
-# fi
+	rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+	su -c 'curl https://download.mono-project.com/repo/centos8-stable.repo | tee /etc/yum.repos.d/mono-centos8-stable.repo'
+	yum -q install mono-devel -y
+fi
 
-# # # # natural_docs
-# if [ ! -x /usr/local/bin/natural_docs ]; then
+# # # natural_docs
+if [ ! -x /usr/local/bin/natural_docs ]; then
 	
-# 	cd /usr/local
-# 	curl -s https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
-# 	unzip -qq natural_docs
-# 	rm -f natural_docs.zip
-# 	mv Natural\ Docs natural_docs
-# 	echo '#!/bin/bash
-# mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
-# 	chmod a+x /usr/local/bin/natural_docs
-# fi
+	cd /usr/local
+	curl -s https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+	unzip -qq natural_docs
+	rm -f natural_docs.zip
+	mv Natural\ Docs natural_docs
+	echo '#!/bin/bash
+mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
+	chmod a+x /usr/local/bin/natural_docs
+fi
 
