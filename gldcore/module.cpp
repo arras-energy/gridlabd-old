@@ -2149,6 +2149,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 			switch (global_processor_overload_action)
 			{
 			case POA_IGNORE:
+				n = rand()%n_procs; // pick a random processor to overload
 				break;
 			case POA_WARNING:
 				n = rand()%n_procs; // pick a random processor to overload
