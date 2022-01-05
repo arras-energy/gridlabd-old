@@ -1,7 +1,7 @@
 clock {
     timezone "PST+8PDT";
     starttime "2020-01-01 00:00:00 PST";
-    stoptime "2021-01-01 00:00:00 PST";
+    stoptime "2020-01-02 00:00:00 PST";
 }
 
 module tape;
@@ -82,6 +82,7 @@ object test_loadshape
         relation "==";
         value 1.0;
         within 0.00001;
+        hold 3600s;
     };
 }
 
@@ -95,6 +96,7 @@ object test_loadshape
         relation "==";
         value 0.5;
         within 0.00001;
+        hold 3600s;
     };
 }
 
@@ -108,6 +110,7 @@ object test_loadshape
         relation "==";
         value 0.04167;
         within 0.00001;
+        hold 3600s;
     };
 }
 
@@ -121,6 +124,7 @@ object test_loadshape
         relation "==";
         value 0.04167;
         within 0.00001;
+        hold 3600s;
     };
 }
 

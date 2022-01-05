@@ -178,3 +178,5 @@ gldcore/gridlabd.in
 geodata.conf
 gldcore/converters/autotest/IEEE-123-cyme_database.zip
 gldcore/converters/autotest/IEEE-13-cyme_database.zip
+gldcore/autotest/output.csv
+python_extras/example/output.csv

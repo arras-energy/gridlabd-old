@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# EXIT 0 - ok
+# EXIT 1 - test failed
+# EXIT 2 - syntax error
+#
+
+#set -x 
+
+WARN="no"
+QUIET="no"
+VERBOSE="no"
+
+function syntax()
+{
+	echo "Syntax: gridlabd assert [OPTIONS...] EXPRESSION"	
+}
+
+function help()
+{
+	syntax
+	echo "OPTIONS:"
+	echo "  --help|help   print this helpful information"
+	echo "  --warn        errors are merely warnings"
+	echo "  --quiet       output to stderr is suppressed"
+	echo "  --verbose     output test before it is performed"
+	echo "See 'man test' for EXPRESSION syntax."
+}
+
+function error()
+{
+	if [ "$QUIET" == "no" ]; then
+		echo "ERROR [gridlabd-assert]: $*" > /dev/stderr
+	fi
+}
+
+function warning()
+{
+	if [ "$WARN" == "yes" ]; then
+		echo "WARNING [gridlabd-assert]: $*"  > /dev/stderr
+	fi
+}
+
+function verbose()
+{
+	if [ "$VERBOSE" == "yes" ]; then
+		echo "VERBOSE [gridlabd-assert]: $*" > /dev/stderr
+	fi	
+}
+
+if [ $# -eq 0 ]; then
+	syntax > /dev/stderr
+	exit 2
+fi
+
+DONE="no"
+while [ "$DONE" == "no" ]; do
+	case "$1" in
+	--help|help)
+		help
+		exit 0
+		;;
+	--warn)
+		WARN="yes"
+		shift 1
+		;;
+	--quiet)
+		QUIET="yes"
+		shift 1
+		;;
+	--verbose)
+		VERBOSE="yes"
+		shift 1
+		;;
+	*)
+		DONE="yes"
+		;;
+	esac
+done
+
+if [ $# -eq 0 ]; then
+	warning "null test"
+else
+	verbose "testing '""$@""'"
+fi
+
+if [ "$@" ]; then
+	exit 0
+else
+	if [ "$WARN" == "no" ]; then
+		error "test '""$@""' failed!"
+		exit 1
+	else
+		warning "test '""$@""' failed!"
+		exit 0
+	fi
+fi

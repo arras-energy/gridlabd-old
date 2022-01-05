@@ -1,0 +1,7 @@
+clock
+{
+    starttime "2020-01-01 00:00:00";
+    stoptime "2021-01-01 00:00:00";
+}
+#set suppress_repeat_messages=FALSE
+#print clock modified in ${modelname}

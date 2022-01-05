@@ -2076,9 +2076,7 @@ int GldLoader::time_value_seconds(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("s")) { *t *= TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("S")) { *t *= TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("s"))) { *t *= TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2086,9 +2084,7 @@ int GldLoader::time_value_minutes(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("m")) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("M")) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("m"))) { *t *= 60*TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2096,9 +2092,7 @@ int GldLoader::time_value_hours(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("h")) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("H")) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("h"))) { *t *= 3600*TS_SECOND; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2106,9 +2100,15 @@ int GldLoader::time_value_days(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(integer(HERE,t)) && LITERAL("d")) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
-	OR
-	if (TERM(integer(HERE,t)) && LITERAL("D")) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("d"))) { *t *= 86400*TS_SECOND; ACCEPT; DONE;}
+	REJECT;
+}
+
+int GldLoader::time_value_weeks(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	if (TERM(integer(HERE,t)) && (WHITE,LITERAL("w"))) { *t *= 86400*TS_SECOND*7; ACCEPT; DONE;}
 	REJECT;
 }
 
@@ -2211,6 +2211,26 @@ int GldLoader::time_value(PARSER, TIMESTAMP *t)
 	if (TERM(time_value_isodatetime(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	OR
 	if (TERM(integer(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
+int GldLoader::delta_time(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	if (TERM(time_value_seconds(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_minutes(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_hours(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_days(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
+	if (TERM(time_value_weeks(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	else
 	{
 		REJECT;
@@ -2346,6 +2366,24 @@ int GldLoader::clock_properties(PARSER)
 			goto Next;
 		}
 		syntax_error("expected time zone specification");
+		REJECT;
+	}
+	OR if (LITERAL("runtime") && WHITE)
+	{
+		if ( TERM(delta_time(HERE,&tsval)) )
+		{
+			if ( global_starttime + tsval < TS_NEVER )
+			{	
+				global_stoptime = global_starttime + tsval;
+			}
+			else
+			{
+				global_stoptime = TS_NEVER;
+			}
+			ACCEPT;
+			goto Next;
+		}
+		syntax_error(filename,linenum,"expected delta time value");
 		REJECT;
 	}
 	OR if (WHITE,LITERAL("}")) {/* don't accept yet */ DONE;}
@@ -2599,7 +2637,12 @@ int GldLoader::clock_block(PARSER)
 		REJECT;
 	}
 	if WHITE ACCEPT;
-	// cache timestamp for delayed timestamp offsets
+	
+	// reset clock entities
+	timestamp_set_tz(NULL);
+	global_starttime = 946684800;
+	global_stoptime = TS_NEVER;
+	
 	if TERM(clock_properties(HERE)) ACCEPT;
 	if WHITE ACCEPT;
 	if LITERAL("}") ACCEPT else
@@ -4429,9 +4472,9 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				&& MARK && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
-				char sobj[64], sprop[64];
+				char sobj[64], sprop[64], input_var[64]="", state_var[64]="";
 
-				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
+				int n = sscanf(sources,"%[^:,]:%[^,],:%[^,],:%[^,]",sobj,sprop,input_var,state_var);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4454,7 +4497,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 
 				/* add to external transform list */
-				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
+				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop,input_var[0]?input_var:NULL,state_var[0]?state_var:NULL) )
 				{
 					syntax_error("filter transform could not be created - %s", errno?strerror(errno):"(no details)");
 					REJECT;
@@ -5760,7 +5803,7 @@ int GldLoader::filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 
 int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 {
-	double x[64]; // maximum 64th order polynomial
+	double x[1024]; // maximum 1024th order polynomial
 	int m = -1; // order of polynomial
 	int first = 1;
 	START;
@@ -5778,9 +5821,15 @@ int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 				&& ((WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power))))||true) )
 			{
 				first = 0;
-				if ( power > 63 )
+				if ( power < 0 )
 				{
-					syntax_error("filter polynomial order cannot be higher than 63");
+					syntax_error(filename,linenum,"filter polynomial cannot use negative power %d",power);
+					REJECT;
+					break;
+				}
+				else if ( power > (int64)(sizeof(x)/sizeof(x[0])) )
+				{
+					syntax_error(filename,linenum,"filter polynomial order cannot be higher than %d",sizeof(x)/sizeof(x[0]));
 					REJECT;
 					break;
 				}
@@ -5857,12 +5906,12 @@ int GldLoader::filter_block(PARSER)
 		unsigned int64 flags = 0;
  		unsigned int64 resolution = 0;
  		double minimum = 0.0;
- 		double maximum = 1.0;
+ 		double maximum = 0.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
 			{
-				double a[64],b[64]; // polynomial coefficients
+				double a[256],b[256]; // polynomial coefficients
 				unsigned int n,m; // polynomial orders
 
 				// parse z-domain filter parameters
@@ -7368,6 +7417,33 @@ int GldLoader::process_macro(char *line, int size, const char *_filename, int li
 			strcpy(value, stripbuf);
 		}
 		if (find_file(value, NULL, F_OK, path,sizeof(path))==NULL)
+			suppress |= (1<<nesting);
+		macro_line[nesting] = linenum;
+		nesting++;
+		// @TODO push 'file' context
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	else if (strncmp(line,"#ifmissing",8)==0)
+	{
+		char *term = strchr(line+8,' ');
+		char value[1024];
+		char path[1024];
+		if (term==NULL)
+		{
+			syntax_error(filename,linenum,"#ifmissing macro missing term");
+			return FALSE;
+		}
+		while(isspace((unsigned char)(*term)))
+			++term;
+		//if (sscanf(term,"\"%[^\"\n]",value)==1 && find_file(value, NULL, 0)==NULL)
+		strcpy(value, strip_right_white(term));
+		if(value[0] == '"'){
+			char stripbuf[1024];
+			sscanf(value, "\"%[^\"\n]", stripbuf);
+			strcpy(value, stripbuf);
+		}
+		if (find_file(value, NULL, F_OK, path,sizeof(path))!=NULL)
 			suppress |= (1<<nesting);
 		macro_line[nesting] = linenum;
 		nesting++;
