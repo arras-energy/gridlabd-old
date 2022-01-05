@@ -1,5 +1,5 @@
 // check numpy version (must be exactly the same to pass these tests)
-#assert $(gridlabd matrix version) == '1.21.4'
+#assert $(gridlabd matrix version) >= '1.21.4'
 
 // matrix operations test
 #assert $(gridlabd matrix -f copy "1,2;3,4") == '1,2;3,4'

@@ -1,4 +1,4 @@
-#assert $(gridlabd matrix version) == '1.21.4'
+#assert $(gridlabd matrix version) >= '1.21.4'
 
 // matlib.rand <intlist_args>
 #assert ! -z "$(gridlabd matrix -f matlib.rand 1)"
