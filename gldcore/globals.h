@@ -830,7 +830,20 @@ GLOBAL int64 global_rusage_rate INIT(0);
 /* Variable: global_rusage_file */
 GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
 
+/* Variable: global_rusage_data */
 GLOBAL char1024 global_rusage_data INIT("{}");
+
+/* Type: PROCESSOROVERLOADACTION */
+typedef enum
+{
+	POA_IGNORE = 0x0000,
+	POA_WARNING = 0x0001,
+	POA_ERROR = 0x0002,
+	POA_WAIT = 0x0004,
+} PROCESSOROVERLOADACTION;
+
+/* Variable: processor_overload_action */
+GLOBAL enumeration global_processor_overload_action INIT(POA_ERROR);
 
 /* Type: PROFILEOUTPUTFORMAT */
 typedef enum

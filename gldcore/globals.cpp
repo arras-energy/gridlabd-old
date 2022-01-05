@@ -205,7 +205,12 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"CSV",         POF_CSV,        pof_keys+2},
 	{"JSON",		POF_JSON,		NULL},
 };
-
+DEPRECATED static KEYWORD poa_keys[] = {
+	{"IGNORE",		POA_IGNORE, 	poa_keys+1},
+	{"WARNING",		POA_WARNING,	poa_keys+2},
+	{"ERROR",		POA_ERROR,		poa_keys+3},
+	{"WAIT",		POA_WAIT,		NULL},
+};
 DEPRECATED static struct s_varmap {
 	const char *name;
 	PROPERTYTYPE type;
@@ -368,6 +373,7 @@ DEPRECATED static struct s_varmap {
     {"region", PT_char32, &global_region,PA_PUBLIC,"region code"},
     {"organization",PT_char32, &global_organization,PA_PUBLIC,"organization name"},
     {"profile_output_format",PT_set,&global_profile_output_format,PA_PUBLIC,"profiler output data format"},
+	{"processor_overload_action",PT_enumeration,&global_processor_overload_action,PA_PUBLIC,"action when processor overload occurs",poa_keys},
 	/* add new global variables here */
 };
 

@@ -2127,28 +2127,6 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 {
 	int t;
 
-#if defined WIN32
-	int cpu;
-
-	/* get process info */
-	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS,FALSE,pid);
-	if ( hProc==NULL )
-	{
-		unsigned long  err = GetLastError();
-		output_warning("unable to access current process info, err code %d--job not added to process map", err);
-		return NULL;
-	}
-#elif defined DYN_PROC_AFFINITY
-	cpu_set_t *cpuset = CPU_ALLOC(n_procs);
-#elif defined HAVE_CPU_SET_T && defined HAVE_CPU_SET_MACROS
-	cpu_set_t *cpuset = malloc(sizeof(cpu_set_t));
-	CPU_ZERO(cpuset);
-#elif defined MACOSX
-	int cpu;
-#else
-	#error "no processor allocation method available on this platform"	
-#endif
-
 	if ( n_threads==0 ) n_threads = n_procs;
 	my_proc = (MYPROCINFO*)malloc(sizeof(MYPROCINFO));
 	my_proc->list = (unsigned short *)malloc(sizeof(unsigned short)*n_threads);
@@ -2158,6 +2136,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 	for ( t=0 ; t<(int)n_threads ; t++ )
 	{
 		int n;
+	Retry:
 		for ( n=0 ; n<n_procs ; n++ )
 		{
 			sched_lock(n);
@@ -2167,6 +2146,21 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		}
 		if ( n==n_procs )
 		{
+			switch (global_processor_overload_action)
+			{
+			case POA_IGNORE:
+				break;
+			case POA_WARNING:
+				n = rand()%n_procs; // pick a random processor to overload
+				output_warning("processor %d overloaded",n);
+				break;
+			case POA_ERROR:
+				output_error("processor %d overloaded",n);
+				goto Error;
+			case POA_WAIT:
+				usleep(1000000);
+				goto Retry;
+			}
 			goto Error;
 			/** @todo wait for a processor to free up before running */
 		}
@@ -2176,42 +2170,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		strncpy(process_map[n].model,global_modelname,sizeof(process_map[n].model)-1);
 		process_map[n].start = time(NULL);
 		sched_unlock(n);
-
-#ifdef WIN32
-		// TODO add this cpu to affinity
-		cpu = n;
-#elif defined DYN_PROC_AFFINITY /* linux */
-		CPU_SET_S(n,CPU_ALLOC_SIZE(n_procs),cpuset);	
-#elif defined HAVE_CPU_SET_T && defined HAVE_CPU_SET_MACROS
-		CPU_SET(n,cpuset);
-#elif defined MACOSX
-		// TODO add this cpu to affinity
-		cpu = n;
-#endif
 	}
-#ifdef WIN32
-	// TODO set mp affinity
-	if ( global_threadcount==1 && SetProcessAffinityMask(hProc,(DWORD_PTR)(1<<cpu))==0 )
-	{
-		unsigned long  err = GetLastError();
-		output_error("unable to set current process affinity mask, err code %d", err);
-	}
-	CloseHandle(hProc);
-#elif defined DYN_PROC_AFFINITY
-	if (sched_setaffinity(pid,CPU_ALLOC_SIZE(n_procs),cpuset) )
-		output_warning("unable to set current process affinity mask: %s", strerror(errno));
-#elif defined HAVE_SCHED_SETAFFINITY
-	if (sched_setaffinity(pid,sizeof(cpu_set_t),cpuset) )
-		output_warning("unable to set current process affinity mask: %s", strerror(errno));
-#elif defined MACOSX
-	// TODO set mp affinity
-	//if ( global_threadcount==1 )
-	{
-		policy.affinity_tag = cpu;
-		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
-			output_warning("unable to set thread policy: %s", strerror(errno));
-	}
-#endif
 	return my_proc;
 Error:
 	if ( my_proc!=NULL )
