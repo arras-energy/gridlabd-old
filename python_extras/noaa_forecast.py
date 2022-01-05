@@ -89,11 +89,11 @@ EXAMPLE
 
 The following command downloads only the CSV data for a location:
 
-    bash$ gridlabd python -m noaa_forecast -p=45.62,-122.70 -c=test.csv
+    bash$ gridlabd noaa_forecast -p=45.62,-122.70 -c=test.csv
 
 The following command downloads the CSV data and creates a GLM file with the data linked and weather object named:
 
-    bash$ gridlabd python -m noaa_forecast -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
+    bash$ gridlabd noaa_forecast -p=45.62,-122.70 -c=test.csv -n=test -g=test.glm
 
 SEE ALSO
 
