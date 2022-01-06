@@ -30,7 +30,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	# install python packages
 	/usr/local/bin/python3 -m pip install --upgrade pip
-	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+	/usr/local/bin/python3 -m pip install mysql-connector matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
 	/usr/local/bin/python3 -m pip install IPython censusdata
 
 
