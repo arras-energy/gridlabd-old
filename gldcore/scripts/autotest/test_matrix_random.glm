@@ -1,4 +1,4 @@
-#assert $(gridlabd matrix version) == '1.21.4'
+'1.22.0'
 
 // random.choice <arrayorint> size=<intlist> replace=<boolstr> p=<array>
 #assert ! -z $(gridlabd matrix -f random.choice "1,2,3,4,5")
