@@ -1,4 +1,4 @@
-#assert $(gridlabd matrix version) == '1.22.0'
+#assert ! $(gridlabd matrix version) '<' '1.21.0'
 
 // matrix.all <matrix> axis=<int>
 #assert $(gridlabd matrix -f matrix.all "1,2,3;4,5,6;") == '1'
