@@ -2,6 +2,9 @@
 #
 # Install script for Amazon EC2 instance 
 #
+echo export PATH=/usr/local/bin:$PATH >> /etc/profile
+source /etc/profile
+
 
 chmod -R 775 /usr/local
 chown -R root:adm /usr/local
