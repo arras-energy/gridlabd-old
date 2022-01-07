@@ -45,10 +45,12 @@ host% gridlabd/install.sh
 ### AWS EC2 Installation 
 1) Set path variable
 ~~~
+host% sudo su
 host% export PATH=/usr/local/bin:$PATH
 ~~~
-2) Clone github repository 
+1) Change work dictionary and clone github repository
 ~~~
+host% cd /usr/local/src
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 ~~~
 3) Run installation 
