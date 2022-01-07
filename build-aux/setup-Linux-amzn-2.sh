@@ -1,10 +1,6 @@
 #!/bin/bash
 #
 # Install script for Amazon EC2 instance 
-#
-echo export PATH=/usr/local/bin:$PATH >> /etc/profile
-source /etc/profile
-
 
 chmod -R 775 /usr/local
 chown -R root:adm /usr/local
@@ -38,12 +34,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	/usr/local/bin/python3 -m pip install IPython censusdata
 fi
 
-# # mono
-if [ ! -f /usr/bin/mono ]; then
-	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
-	curl https://download.mono-project.com/repo/centos7-stable.repo > /etc/yum.repos.d/mono-centos7-stable.repo
-	yum -q install mono-devel -y
-fi
+
 # mono
 if [ ! -f /usr/bin/mono ]; then
 	echo "Install mono"
@@ -60,7 +51,7 @@ if [ ! -f /usr/bin/mono ]; then
 	rm -rf /tmp/mono_deps
 fi
 
-# natural_docs
+# # natural_docs
 if [ ! -x /usr/local/bin/natural_docs ]; then
 	cd /usr/local
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
@@ -72,7 +63,7 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi
 
-# converter support
+# # converter support
 
 echo "Install support"
 cd ~
@@ -80,7 +71,7 @@ amazon-linux-extras install epel -y
 yum-config-manager --enable epel
 yum -q install mdbtools -y
 
-# #latex
+# # #latex
 echo "Install latex"
 yum -q install texlive -y
 
