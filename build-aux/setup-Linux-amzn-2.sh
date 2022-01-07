@@ -2,6 +2,15 @@
 #
 # Install script for Amazon EC2 instance 
 
+# Set environment variable in EC2.
+# In order to set environment variable permanently, the system need to be rebooted after the first time run this code.
+# The other way around is to run `export PATH=/usr/local/bin:$PATH` before run `./install.sh` in the command line. 
+# The temporary `PATH` will be generated and used for installation. 
+# The `PATH` will be set permanently because of running `echo "export PATH=/usr/local/bin:$PATH" >> /etc/profile.d/setVars.sh`
+
+echo "export PATH=/usr/local/bin:$PATH" >> /etc/profile.d/setVars.sh && \
+source /etc/profile.d/setVars.sh
+
 chmod -R 775 /usr/local
 chown -R root:adm /usr/local
 
