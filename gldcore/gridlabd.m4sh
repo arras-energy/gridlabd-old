@@ -102,6 +102,10 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [. ${pkgdatadir}/gridlabd.rc],
   [])
 
+AS_IF([test -f "${GLD_ETC}/$1.py"],
+  [export PYTHONPATH=$GLD_ETC; /usr/local/bin/python3 -m "$@" ; exit $?],
+  [])
+
 AS_IF([test -x "${bindir}/gridlabd-$1"],
   ["${bindir}/gridlabd"-"$@"],
   ["${bindir}/gridlabd.bin" "$@" && "${bindir}/gridlabd-version" check -w])
