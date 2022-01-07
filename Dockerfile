@@ -49,9 +49,10 @@ RUN apt-get -q install git -y
 # WORKDIR "/usr/local/src"
 # RUN rm -f Python-3.9.6.tgz
 # RUN pip3 install --upgrade pip
-
+RUN echo "clone gridlabd"
 WORKDIR /usr/local/src/
 RUN git clone -b develop-fix-debian10-setup https://github.com/slacgismo/gridlabd
 WORKDIR /usr/local/src/gridlabd
+COPY ./gldcore/scripts/autotest/test_matrix_linalg.glm ./gldcore/scripts/autotest/test_matrix_linalg.glm
 COPY ./build-aux/setup-Linux-debian-10.sh ./build-aux/setup-Linux-debian-10.sh 
 # RUN ./install.sh -t -v --parallel
