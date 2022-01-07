@@ -1,5 +1,9 @@
 // check numpy version (must be exactly the same to pass these tests)
+<<<<<<< HEAD
 #assert $(gridlabd matrix version) == '1.22.0'
+=======
+#assert ! $(gridlabd matrix version) '<' '1.21.0'
+>>>>>>> e860c93a5c6da95be7fc820cb10b5857c6d5286b
 
 // linalg.cholesky <matrix>
 #assert $(gridlabd matrix -f linalg.cholesky "1,2;-2,5") == '1,0;-2,1'
