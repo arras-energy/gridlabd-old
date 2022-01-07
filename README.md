@@ -42,7 +42,15 @@ Normally on Linux and Mac OS X developers should use the `install.sh` script to 
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
-
+## AWS EC2 
+~~~
+1) Set path variable
+host% export PATH=/usr/local/bin:$PATH
+2) Clone github repository 
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
+3) Run installation 
+host% gridlabd/install.sh
+~~~
 To rebuild the source code and install again, use the `make system` command.  You can use parallel builds using the `make -j<nproc> system` command.
 
 If you have modified the branch name or version information, you must reconfigure your build using the `make reconfigure` command before using `make system`.
