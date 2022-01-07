@@ -5,23 +5,29 @@
 apt-get -q update
 apt-get -q install tzdata -y
 
-# install python 3.7
-apt-get -q install software-properties-common -y
-apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
-cd /tmp
-curl -O https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tar.xz
-tar -xf Python-3.7.3.tar.xz
-cd Python-3.7.3
-./configure --enable-optimizations --enable-shared CXXFLAGS="-fPIC"
-make -j10 altinstall
-cd /usr/local/bin
-ln -s python3.7 python3
-ln -s python3.7m-config python3-config
-ln -s pip3.7 pip3
+# Install python 3.9.6
+# python3 support needed as of 4.2
+if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
+	cd /usr/local/src
 
-# install python libraries by validation
-pip3 -q install --upgrade pip
-pip -q install pandas matplotlib mysql-client Pillow
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	cd /usr/local/src/Python-3.9.6
+
+	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+
+	make -j $(nproc)
+	make altinstall
+	/sbin/ldconfig /usr/local/lib
+	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
+	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
+	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	/usr/local/bin/python3 -m pip install IPython censusdata
+
+fi
+
 
 # install system build tools needed by gridlabd
 apt-get -q install git -y
