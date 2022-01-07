@@ -6,7 +6,7 @@
 #version -gt 4.2.0
 #version -ge 4.2
 #version -le 999999
-#version -lt 5.0
+#version -lt 999.999
 #version -gt 4.1
 #version -ge 4.2.1 -ge 191217
 #version -ge A
