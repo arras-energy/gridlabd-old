@@ -8,6 +8,7 @@ RUN apt-get -q install software-properties-common -y
 # RUN apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
 
 # # install system build tools needed by gridlabd
+RUN apt-get -q install nano -y
 RUN apt-get -q install git -y
 # RUN apt-get -q install unzip -y
 # RUN apt-get -q install autoconf -y
@@ -49,7 +50,8 @@ RUN apt-get -q install git -y
 # RUN rm -f Python-3.9.6.tgz
 # RUN pip3 install --upgrade pip
 
-WORKDIR "/usr/local/src/"
+WORKDIR /usr/local/src/
 RUN git clone -b develop-fix-debian10-setup https://github.com/slacgismo/gridlabd
-WORKDIR "/usr/local/src/gridlabd"
-RUN ./install.sh -t -v --parallel
+WORKDIR /usr/local/src/gridlabd
+COPY ./build-aux/setup-Linux-debian-10.sh ./build-aux/setup-Linux-debian-10.sh 
+# RUN ./install.sh -t -v --parallel

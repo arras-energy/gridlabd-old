@@ -4,6 +4,8 @@
 # update first
 apt-get -q update
 apt-get -q install tzdata -y
+RUN apt-get -q install software-properties-common -y
+apt install build-essential zlib1g-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
 # install system build tools needed by gridlabd
 apt-get -q install git -y
 apt-get -q install unzip -y
@@ -25,10 +27,12 @@ apt-get install xz-utils -y
 # Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
+	echo "install python 3.9.6"
 	cd /usr/local/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	cd /usr/local/src/Python-3.9.6
+	# tar xzf Python-3.9.6.tgz 
+	cd Python-3.9.6
 
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
@@ -42,7 +46,6 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/bin/python3 -m pip install IPython censusdata
-
 fi
 
 
@@ -62,12 +65,13 @@ if [ ! -x /usr/bin/doxygen ]; then
 	make install
 fi
 
-# mono
+# # mono
 apt-get -q install curl -y
 if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
+	apt install apt-transport-https dirmngr gnupg ca-certificates
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-	echo "deb http://download.mono-project.com/repo/ubuntu wheezy/snapshots/4.8.0 main" | tee /etc/apt/sources.list.d/mono-official.list
+	echo "deb https://download.mono-project.com/repo/debian stable-buster main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 	apt-get -q update -y
 	apt-get -q install mono-devel -y
 fi
