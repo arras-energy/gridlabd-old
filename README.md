@@ -42,7 +42,7 @@ Normally on Linux and Mac OS X developers should use the `install.sh` script to 
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
-## AWS EC2 
+### AWS EC2 Installation 
 1) Set path variable
 ~~~
 host% export PATH=/usr/local/bin:$PATH
