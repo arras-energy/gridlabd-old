@@ -10,6 +10,7 @@ clock
     timezone "<specification>";
     starttime "<datetime>";
     stoptime "<datetime>";
+    runtime "<deltatime>";
 }
 ~~~
 
@@ -21,9 +22,17 @@ The `clock` directive specifies how the internal clock will operate while a simu
 
 The `timezone` property sets the time zone for the simulation.  The time zone may be specified either as a ISO timezone, e.g., `PST+8PDT`, or a locale, e.g., `US/CA/San Francisco`.  If the time zone is not specified the simulation will use `UTC`.
 
+## `runtime`
+
+The `runtime` property sets the duration of the simulation run.  This will always be relative to the `starttime` and set the `stoptime` accordingly.  Valid units are `s`, `m`, `h`, `d`, and `w` for seconds, minutes, hours, days, and weeks, respectively.
+
+Note that runtime units of months and years are not supported because they are not well-defined units.
+
 ## `starttime`
 
-The `starttime` property specifies when the simulation start.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no start time is specified, the current wall clock time is used. Note, `ISO8601` is supported.
+The `starttime` property specifies when the simulation start.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no start time is specified, the current wall clock time is used. Note, `ISO8601` is supported.  
+
+Note that the parameter `timestamp` is a synonym for `starttime`.
 
 ## `stoptime`
 
