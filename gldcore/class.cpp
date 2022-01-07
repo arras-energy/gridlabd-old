@@ -1285,59 +1285,168 @@ void class_profiles(void)
 	int64 total=0;
 	int count=0, i=0, hits;
 	CLASS **index;
-	output_profile("Model profiler results");
-	output_profile("======================\n");
-	output_profile("Class            Time (s) Time (%%) msec/obj");
-	output_profile("---------------- -------- -------- --------");
-	for (cl=first_class; cl!=NULL; cl=cl->next)
+	if ( global_profile_output_format == POF_TEXT )
 	{
-		total+=cl->profiler.clocks;
-		count++;
-	}
-	if(0 == count){
-		return;	// short-circuit
-	}
-	index = (CLASS**)malloc(sizeof(CLASS*)*count);
-	if(0 == index){
-		// error
-		return;
-	}
-	for (cl=first_class; cl!=NULL; cl=cl->next)
-		index[i++]=cl;
-	hits=-1;
-	while (hits!=0)
-	{
-		hits=0;
-		for (i=0; i<count-1; i++)
+		output_profile("Model profiler results");
+		output_profile("======================\n");
+		output_profile("Class            Time (s) Time (%%) msec/obj");
+		output_profile("---------------- -------- -------- --------");
+		for (cl=first_class; cl!=NULL; cl=cl->next)
 		{
-			if (index[i]->profiler.clocks<index[i+1]->profiler.clocks)
+			total+=cl->profiler.clocks;
+			count++;
+		}
+		if(0 == count){
+			return;	// short-circuit
+		}
+		index = (CLASS**)malloc(sizeof(CLASS*)*count);
+		if(0 == index){
+			// error
+			return;
+		}
+		for (cl=first_class; cl!=NULL; cl=cl->next)
+			index[i++]=cl;
+		hits=-1;
+		while (hits!=0)
+		{
+			hits=0;
+			for (i=0; i<count-1; i++)
 			{
-				CLASS *tmp = index[i];
-				index[i]=index[i+1];
-				index[i+1]=tmp;
-				hits++;
+				if (index[i]->profiler.clocks<index[i+1]->profiler.clocks)
+				{
+					CLASS *tmp = index[i];
+					index[i]=index[i+1];
+					index[i+1]=tmp;
+					hits++;
+				}
 			}
 		}
-	}
-	for (i=0; i<count; i++)
-	{
-		cl = index[i];
-		if (cl->profiler.clocks>0)
+		for (i=0; i<count; i++)
 		{
-			double ts = (double)cl->profiler.clocks/CLOCKS_PER_SEC;
-			double tp = (double)cl->profiler.clocks/total*100;
-			double mt = ts/cl->profiler.numobjs*1000;
-			output_profile("%-16.16s %7.3f %8.1f%% %8.1f", cl->name, ts,tp,mt);
+			cl = index[i];
+			if (cl->profiler.clocks>0)
+			{
+				double ts = (double)cl->profiler.clocks/CLOCKS_PER_SEC;
+				double tp = (double)cl->profiler.clocks/total*100;
+				double mt = ts/cl->profiler.numobjs*1000;
+				output_profile("%-16.16s %7.3f %8.1f%% %8.1f", cl->name, ts,tp,mt);
+			}
+			else
+				break;
 		}
-		else
-			break;
+		free(index);
+		index = NULL;
+		output_profile("================ ======== ======== ========");
+		output_profile("%-16.16s %7.3f %8.1f%% %8.1f\n",
+			"Total", (double)total/CLOCKS_PER_SEC,100.0,1000*(double)total/CLOCKS_PER_SEC/object_get_count());
 	}
-	free(index);
-	index = NULL;
-	output_profile("================ ======== ======== ========");
-	output_profile("%-16.16s %7.3f %8.1f%% %8.1f\n",
-		"Total", (double)total/CLOCKS_PER_SEC,100.0,1000*(double)total/CLOCKS_PER_SEC/object_get_count());
-
+	else if ( global_profile_output_format == POF_CSV )
+	{
+		for (cl=first_class; cl!=NULL; cl=cl->next)
+		{
+			total+=cl->profiler.clocks;
+			count++;
+		}
+		if(0 == count){
+			return;	// short-circuit
+		}
+		index = (CLASS**)malloc(sizeof(CLASS*)*count);
+		if(0 == index){
+			// error
+			return;
+		}
+		for (cl=first_class; cl!=NULL; cl=cl->next)
+			index[i++]=cl;
+		hits=-1;
+		while (hits!=0)
+		{
+			hits=0;
+			for (i=0; i<count-1; i++)
+			{
+				if (index[i]->profiler.clocks<index[i+1]->profiler.clocks)
+				{
+					CLASS *tmp = index[i];
+					index[i]=index[i+1];
+					index[i+1]=tmp;
+					hits++;
+				}
+			}
+		}
+		for (i=0; i<count; i++)
+		{
+			cl = index[i];
+			if (cl->profiler.clocks>0)
+			{
+				double ts = (double)cl->profiler.clocks/CLOCKS_PER_SEC;
+				double tp = (double)cl->profiler.clocks/total*100;
+				double mt = ts/cl->profiler.numobjs*1000;
+				output_profile("%s,%f,s,%f,%f", cl->name, ts, tp, mt);
+			}
+			else
+				break;
+		}
+		free(index);
+		index = NULL;
+		output_profile("%s,%f,s,%f,%f", "Total", (double)total/CLOCKS_PER_SEC,100.0,1000*(double)total/CLOCKS_PER_SEC/object_get_count());
+	}
+	else if ( global_profile_output_format == POF_JSON )
+	{
+		output_profile("  \"model\" : {");
+		for (cl=first_class; cl!=NULL; cl=cl->next)
+		{
+			total+=cl->profiler.clocks;
+			count++;
+		}
+		if(0 == count){
+			return;	// short-circuit
+		}
+		index = (CLASS**)malloc(sizeof(CLASS*)*count);
+		if(0 == index){
+			// error
+			return;
+		}
+		for (cl=first_class; cl!=NULL; cl=cl->next)
+			index[i++]=cl;
+		hits=-1;
+		while (hits!=0)
+		{
+			hits=0;
+			for (i=0; i<count-1; i++)
+			{
+				if (index[i]->profiler.clocks<index[i+1]->profiler.clocks)
+				{
+					CLASS *tmp = index[i];
+					index[i]=index[i+1];
+					index[i+1]=tmp;
+					hits++;
+				}
+			}
+		}
+		for (i=0; i<count; i++)
+		{
+			cl = index[i];
+			if (cl->profiler.clocks>0)
+			{
+				double ts = (double)cl->profiler.clocks/CLOCKS_PER_SEC;
+				double tp = (double)cl->profiler.clocks/total*100;
+				double mt = ts/cl->profiler.numobjs*1000;
+				output_profile("    \"%s\" : { \"value\" : \"%f\", \"units\" : \"s\", \"percent_of_total\" : %f, \"msec_per_object\" : %f },", 
+					cl->name, ts,tp,mt);
+			}
+			else
+				break;
+		}
+		free(index);
+		index = NULL;
+		output_profile("    \"%s\" : { \"value\" : \"%f\", \"units\" : \"s\", \"percent_of_total\" : %f, \"msec_per_object\" : %f },", 
+			"Total", (double)total/CLOCKS_PER_SEC,100.0,1000*(double)total/CLOCKS_PER_SEC/object_get_count());
+		output_profile("  }");
+		output_profile("}");
+	}
+	else
+	{
+		output_warning("class_profiles() does not support for id '%d'", global_profile_output_format);
+	}
 }
 
 /** Register a type delegation for a property

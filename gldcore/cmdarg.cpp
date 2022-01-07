@@ -247,42 +247,20 @@ DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 STATUS GldCmdarg::no_cmdargs(void)
 {
-	char htmlfile[1024];
-	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile,sizeof(htmlfile)-1)!=NULL )
+	char guiname[1024] = "gridlabd-editor.py";
+	char guipath[1024];
+	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
-		char cmd[4096];
-
-		/* enter server mode and wait */
-#ifdef WIN32
-		if ( htmlfile[1]!=':' )
-		{
-			snprintf(htmlfile,sizeof(htmlfile)-1,"%s\\gridlabd.htm", global_workdir);
-		}
-		output_message("opening html page '%s'", htmlfile);
-		snprintf(cmd,sizeof(cmd)-1,"start %s file:///%s", global_browser, htmlfile);
-#elif defined(MACOSX)
-		snprintf(cmd,sizeof(cmd)-1,"open -a %s %s", global_browser, htmlfile);
-#else
-		snprintf(cmd,sizeof(cmd)-1,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
-#endif
-		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
-		if (my_instance->subcommand("%s",cmd)!=0)
-		{
-			output_error("unable to start browser");
-			return FAILED;
-		}
-		else
-		{
-			IN_MYCONTEXT output_verbose("starting interface");
-		}
-		strcpy(global_environment,"server");
-		global_mainloopstate = MLS_PAUSED;
+		char command[2048];
+		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
+		system(command);
 		return SUCCESS;
 	}
 	else
-		output_error("default html file '%s' not found (workdir='%s')", "gridlabd.htm",global_workdir);
-
-	return SUCCESS;
+	{
+		output_error("%s not found",guiname);
+		return FAILED;
+	}
 }
 
 DEPRECATED static int copyright(void *main, int argc, const char *argv[])
@@ -397,6 +375,27 @@ DEPRECATED static int profile(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::profile(int , const char *[])
 {
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ != NULL )
+	{
+		if ( strcmp(opt,"text") == 0 )
+		{
+			global_profile_output_format = POF_TEXT;
+		}
+		else if ( strcmp(opt,"csv") == 0 )
+		{
+			global_profile_output_format = POF_CSV;
+		}
+		else if ( strcmp(opt,"json") == 0 )
+		{
+			global_profile_output_format = POF_JSON;
+		}
+		else
+		{
+			output_error("profiler option '%s' is not valid",opt);
+			return CMDERR;
+		}
+	}
 	global_profiler = !global_profiler;
 	return 0;
 }
@@ -454,6 +453,62 @@ int GldCmdarg::compile(int , const char *[])
 	return 0;
 }
 
+DEPRECATED static int library(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->library(argc,argv);	
+}
+int GldCmdarg::library(int argc, const char *argv[])
+{
+	if ( argc > 1 )
+	{
+		char pathname[4096];
+		const char *etcpath = getenv("GLD_ETC");
+		if ( etcpath == NULL )
+		{
+			etcpath = "/usr/local/share/gridlabd";
+		}
+		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
+	}
+	else
+	{
+		output_fatal("missing library filename");
+		return CMDERR;
+	}
+}
+
+DEPRECATED static int _template(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->_template(argc,argv);	
+}
+int GldCmdarg::_template(int argc, const char *argv[])
+{
+	if ( argc > 1 )
+	{
+		char pathname[4096];
+		const char *etcpath = getenv("GLD_ETC");
+		if ( etcpath == NULL )
+		{
+			etcpath = "/usr/local/share/gridlabd";
+		}
+		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		if ( strstr(global_pythonpath,pathname) == NULL )
+		{
+			if ( strcmp(global_pythonpath,":") != 0 )
+			{
+				strcat(global_pythonpath,":");
+			}
+			strcat(global_pythonpath,pathname);
+		}
+		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s/%s.glm",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1],argv[1]);
+		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
+	}
+	else
+	{
+		output_fatal("missing template filename");
+		return CMDERR;
+	}
+}
 
 DEPRECATED static int initialize(void *main, int argc, const char *argv[])
 {
@@ -554,7 +609,7 @@ int GldCmdarg::version(int , const char *argv[])
 #else // LINUX
 			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
@@ -574,7 +629,22 @@ int GldCmdarg::version(int , const char *argv[])
 	}
 	else if ( strcmp(opt,"branch") == 0 )
 	{
+		output_message("%s", BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-branch") == 0 )
+	{
 		output_message("%s", BUILD_BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-repo") == 0 )
+	{
+		output_message("%s", BUILD_URL);
+		return 0;
+	}
+	else if ( strcmp(opt,"git-commit") == 0 )
+	{
+		output_message("%s", BUILD_ID);
 		return 0;
 	}
 	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
@@ -1032,9 +1102,17 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			*/
 			return FAILED;
 		}
-		if ( options && strcmp(options,"md") == 0 )
+		if ( options )
 		{
-			module_help_md(mod,oclass);
+			if ( strcmp(options,"md") == 0 )
+			{
+				module_help_md(mod,oclass);
+			}
+			else if ( strcmp(options,"json") == 0 )
+			{
+				GldJsonWriter writer("/dev/stdout");
+				return writer.dump_modules() > 0 ? 1 : CMDERR;
+			}
 		}
 		else if ( oclass != NULL )
 		{
@@ -1527,7 +1605,11 @@ DEPRECATED static int pstatus(void *main, int argc, const char *argv[])
 int GldCmdarg::pstatus(int, const char *[])
 {
 	sched_init(1);
-	sched_print(0);
+	const char *opt = strchr(argv[0],'=');
+	if ( opt != NULL )
+		sched_print(0,opt+1);
+	else
+		sched_print(0);
 	return 0;
 }
 
@@ -2142,34 +2224,6 @@ DEPRECATED static int nprocs(void *, int, const char *[])
     return 0;
 }
 
-DEPRECATED static int _template(void *main, int argc, const char *argv[])
-{
-	if ( argc < 2 )
-	{
-		output_error("missing template name");
-		return CMDERR;
-	}
-	char template_glm[1024];
-	const char *organization = getenv("ORGANIZATION");
-	if ( organization == NULL )
-	{
-		output_error("ORGANIZATION is not set in environment");
-		return CMDERR;
-	}
-	char *oldpath = strdup(global_pythonpath);
-	snprintf(global_pythonpath,sizeof(global_pythonpath)-strlen(global_pythonpath)-1,"%s/template/%s/%s",getenv("GLD_ETC"),organization,argv[1]);
-	snprintf(template_glm,sizeof(template_glm)-1,"%s/template/%s/%s/%s.glm",getenv("GLD_ETC"),organization,argv[1],argv[1]);
-	bool result = ((GldMain*)main)->get_loader()->load(template_glm);
-	strcpy(global_pythonpath,oldpath);
-	free(oldpath);
-	if ( ! result )
-	{
-		output_error("unable to load template file '%s'", template_glm);
-		return CMDERR;
-	}
-	return 1;
-}
-
 #include "job.h"
 #include "validate.h"
 
@@ -2257,6 +2311,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
 	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
+	{"library",     "l",    library,        "<filename>", "Loads a library GLM file"},
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },

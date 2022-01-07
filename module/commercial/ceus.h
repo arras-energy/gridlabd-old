@@ -96,6 +96,7 @@ public:
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)
 		double fraction; // fraction of total floor area affected by this component
+		double electric; // fraction of total enduse that is electrified
 		SENSITIVITY heating; // heating temperature sensitivity
 		SENSITIVITY cooling; // cooling temperature sensitivity
 		SENSITIVITY solar; // solar gain sensitivity

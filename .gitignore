@@ -81,7 +81,9 @@ gldcore/stamp-h1
 .settings/
 config.log
 config.status
-./configure
+configure
+configure~
+gldcore/gridlabd
 gridlabd.spec
 libtool
 m4/libtool.m4
@@ -172,3 +174,7 @@ gldcore/converters/autotest/table2glm_input_noname.glm
 gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 *.inc
+gldcore/gridlabd.in
+geodata.conf
+gldcore/autotest/output.csv
+python_extras/example/output.csv

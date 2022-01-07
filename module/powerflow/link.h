@@ -51,6 +51,7 @@ public: /// @todo make this private and create interfaces to control values
 	complex A_mat[3][3];	// A_mat - 3x3 matrix, 'A' matrix
 	complex B_mat[3][3];	// B_mat - 3x3 matrix, 'B' matrix
 	complex tn[3];			// Used to calculate return current
+	complex base_admittance_mat[3][3];	// 3x3 matrix as "pre-inverted" matrix for NR - mostly for transformers
 	complex To_Y[3][3];		// To_Y  - 3x3 matrix, object transition to admittance
 	complex From_Y[3][3];	// From_Y - 3x3 matrix, object transition from admittance
 	complex *YSfrom;		// YSfrom - Pointer to 3x3 matrix representing admittance seen from "from" side (transformers)
@@ -130,7 +131,7 @@ public:
 	//Current injection calculation function - so it can be called remotely
 	int CurrentCalculation(int nodecall);
 
-	void NR_link_presync_fxn(void);
+	void NR_link_sync_fxn(void);
 	void BOTH_link_postsync_fxn(void);
 	void perform_limit_checks(double *over_limit_value, bool *over_limits);
 	double inrush_tol_value;	///< Tolerance value (of vdiff on the line ends) before "inrush convergence" is accepted

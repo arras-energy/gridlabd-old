@@ -1,0 +1,8 @@
+// gldcore/geodata/tutorial/example_1.glm
+//
+// This example shows how to import lat/lon values into a generic class 
+// and show the resulting map.
+//
+class simple {}
+#input "positions.csv" -f table -t object -C simple
+#output "example.html" --show

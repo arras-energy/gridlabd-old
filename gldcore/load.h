@@ -235,10 +235,12 @@ private:
 	OBJECT *get_next_unlinked(CLASS *oclass);
 	void free_index(void);	
 	UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
-	int resolve_object(UNRESOLVED *item, const char *filename);
-	int resolve_double(UNRESOLVED *item, const char *context);
-	STATUS resolve_list(UNRESOLVED *item);
-	STATUS load_resolve_all(void);
+	int resolve_object(UNRESOLVED *item, const char *filename, bool deferred);
+	int resolve_double(UNRESOLVED *item, const char *context, bool deferred);
+	STATUS resolve_list(UNRESOLVED *item, bool deferred);
+public:
+	STATUS load_resolve_all(bool deferred=false);
+private:
 	void start_parse(int &mm, int &m, int &n, int &l, int linenum);
 	void syntax_error_here(const char *p);
 	int white(PARSER);
@@ -275,10 +277,13 @@ private:
 	int time_value_minutes(PARSER, TIMESTAMP *t);
 	int time_value_hours(PARSER, TIMESTAMP *t);
 	int time_value_days(PARSER, TIMESTAMP *t);
+	int time_value_weeks(PARSER, TIMESTAMP *t);
+	int time_value_years(PARSER, TIMESTAMP *t);
 	int time_value_datetime(PARSER, TIMESTAMP *t);
 	int time_value_datetimezone(PARSER, TIMESTAMP *t);
 	int time_value_isodatetime(PARSER, TIMESTAMP *t);
 	int time_value(PARSER, TIMESTAMP *t);
+	int delta_time(PARSER, TIMESTAMP *t);
 	double load_latitude(char *buffer);
 	double load_longitude(char *buffer);
 	int clock_properties(PARSER);
@@ -369,7 +374,9 @@ private:
 	static void kill_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
+public:
 	STATUS loadall_glm(const char *file);
+private:
 	TECHNOLOGYREADINESSLEVEL calculate_trl(void);
 	bool load_import(const char *from, char *to, int len);
 	STATUS load_python(const char *filename);
@@ -379,6 +386,8 @@ private:
 	void set_last_term(const char *p);
 	void save_last_term(const char *p);
 	const char *get_last_term(void);
+private:
+	void inc_linenum() { linenum++; global_loader_linenum = linenum; };
 };
 
 #endif

@@ -1,0 +1,12 @@
+// gldcore/geodata/tutorial/example_2.glm
+//
+// This example shows how to import lat/lon values into pole objects 
+// and show the resulting map.
+//
+module powerflow;
+object pole_configuration
+{
+	name "default";
+}
+#input "positions.csv" -f table -t object -M powerflow -C pole -p configuration=default
+#output "example.html" --cluster --show

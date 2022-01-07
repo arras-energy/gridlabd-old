@@ -1,0 +1,7 @@
+#set suppress_repeat_messages=FALSE
+
+#print filename = ${filename}
+
+#print FILENAME = ${FILENAME $filename}
+#print FILEPATH = ${FILEPATH $filename}
+#print FILETYPE = ${FILETYPE $filename}

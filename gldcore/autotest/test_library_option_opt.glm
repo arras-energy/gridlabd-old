@@ -1,0 +1,18 @@
+#library config set CACHEDIR /tmp
+#library config set DATADIR /tmp
+#library get wood_pole.glm
+#option library wood_pole.glm
+
+class test {
+	object lib;
+}
+
+module assert;
+object test {
+	lib "WOOD-C-45/5";
+	object assert{
+		target lib;
+		relation "==";
+		value "WOOD-C-45/5";
+	};
+}
