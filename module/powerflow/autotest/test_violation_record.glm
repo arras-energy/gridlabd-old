@@ -547,4 +547,4 @@ object regulator {
 	 configuration regconfig6506321;
 }
 
-#on_exit 0 test "$(grep '2000-01-01 00:00:00 EST,line_630-632' violations.csv | cut -f3 -d,)" == "CURRENT"
+#on_exit 0 test "$(grep '2000-01-01 00:00:00 EST,line_630-632' violations.csv | cut -f3 -d,) == 'CURRENT'"
