@@ -160,6 +160,7 @@ public:
 	int initialize(int argc, const char *argv[]);
 	int kml(int argc, const char *argv[]);
 	int libinfo(int argc, const char *argv[]);
+	int library(int argc, const char *argv[]);
 	int license(int argc, const char *argv[]);
 	int loadshapetest(int argc, const char *argv[]);
 	int local_daemon(int argc, const char *argv[]);
@@ -191,6 +192,7 @@ public:
 	int slave(int argc, const char *argv[]);
 	int slave_id(int argc, const char *argv[]);
 	int slavenode(int argc, const char *argv[]);
+	int _template(int argc, const char *argv[]);
 	int test(int argc, const char *argv[]);
 	int testall(int argc, const char *argv[]);
 	int threadcount(int argc, const char *argv[]);

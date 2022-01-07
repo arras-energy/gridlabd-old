@@ -1,0 +1,20 @@
+// gldcore/geodata/tutorial/example_5.glm
+//
+// This example shows how to merge elevation data and display the result
+//
+class vegetation { double elevation[ft]; double base[m]; double cover; double height[m]; double linesag[m]; double contact[%]; bool hidden; }
+#geodata merge -D elevation poles.csv -o /tmp/elevation.csv -r 50 --resolution_id
+#geodata merge -D vegetation /tmp/elevation.csv -o /tmp/vegetation.csv
+#geodata merge -D powerline /tmp/vegetation.csv -o /tmp/position.csv --cable_type="TACSR/AC 610mm^2" --margin.vertical=0
+
+#begin python
+import sys, pandas as pd
+data = pd.read_csv("/tmp/position.csv")
+data["hidden"] = (data["contact"]==0.0)
+for i in ["class","pole_height","id","position","distance","heading","linesway","linegallop"]: del data[i]
+data["contact"]*=100
+data.to_csv("/tmp/lines.csv",index=False)
+#end
+
+#input "/tmp/lines.csv" -f table -t object -C vegetation
+#output "example.html" --cluster --show

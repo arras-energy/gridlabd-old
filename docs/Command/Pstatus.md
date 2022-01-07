@@ -3,10 +3,9 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd --pstatus                                               
+bash$ gridlabd --pstatus[=json]                                               
 ~~~
 
 # Description
 
-Prints the process list.
-
+Prints the process list. If `=json` is included the output is formatted as a JSON file. Otherwise the output is in tabular form.

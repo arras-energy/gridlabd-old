@@ -99,15 +99,9 @@ gridlabd_bin_LDADD += $(XERCES_LIB)
 gridlabd_bin_LDADD += $(CURSES_LIB)
 gridlabd_bin_LDADD += -ldl -lcurl
 
-gridlabd_bin_SOURCES =
-gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
-
-EXTRA_gridlabd_bin_SOURCES =
-EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-
 bin_SCRIPTS += gldcore/gridlabd 
 
-GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
+gridlabd_bin_SOURCES += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
 CLEANFILES += gldcore/build.h origin.txt
 
@@ -131,14 +125,14 @@ gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 
 gldcore/gridlabd.in: gldcore/gridlabd.m4sh
-	@autoreconf -isf
 	@autom4te -l m4sh $< > $@
+	@echo "$@ updated, please run 'make reconfigure && make TARGET' again" && false
 
 gldcore/build.h: buildnum
 
 buildnum: utilities/build_number
-	@/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
-	@/bin/bash -c "source utilities/update_origin.sh" > origin.txt
+	@/bin/bash -c "$(top_srcdir)/utilities/build_number"
+	@/bin/bash -c "$(top_srcdir)/utilities/update_origin" > origin.txt
 
 weather:
 	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 2777 $(prefix)/share/gridlabd/weather && chmod 1755 $(bindir)/gridlabd-weather)

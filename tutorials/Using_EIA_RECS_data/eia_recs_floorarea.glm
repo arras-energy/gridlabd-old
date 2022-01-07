@@ -1,0 +1,25 @@
+// this prevents the simulation from start a clock
+#set compileonly=TRUE
+#set warn=FALSE
+
+// load the RECS data and calculate the floor area statistics
+#begin python
+import eia_recs, numpy
+fips = eia_recs.Microdata.get_division("${region}")
+codes = eia_recs.Microdata.get_codes(**fips)
+recs = eia_recs.Microdata()
+data = recs[recs["DIVISION"]==codes["division"]]
+avg = numpy.log(data["TOTSQFT_EN"]).mean()
+std =  numpy.log(data["TOTSQFT_EN"]).std()
+#end
+
+// create the same number of homes with a similar log-normal distribution
+module residential;
+object house:..${PYTHON len(data)}
+{
+    floor_area random.lognormal(${PYTHON avg},${PYTHON std});
+}
+
+// save and plot the results 
+#set savefile=${modelname/.glm/.json}
+#on_exit 0 python3 ${modelname/.glm/.py}

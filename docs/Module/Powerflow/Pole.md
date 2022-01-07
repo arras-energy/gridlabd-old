@@ -5,7 +5,7 @@
 ~~~
 object pole
 {
-    pole_status "OK";
+    status "OK";
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";

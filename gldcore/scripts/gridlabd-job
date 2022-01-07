@@ -9,13 +9,14 @@ import subprocess
 from multiprocessing import pool, freeze_support
 import curses
 
-SYNTAX="Syntax: gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-T|--threadcount NTHREADS] FILE1 ..."
+SYNTAX="Syntax: gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-m|--modifyfile MODIFY] [-T|--threadcount NTHREADS] FILE1 ..."
 VERBOSE=False
 DEBUG=False
 QUIET=False
 DEBUG=False
 JOBFILE="gridlabd-job.csv"
 CFGFILE="gridlabd-config.glm"
+MODFILE="gridlabd-modify.glm"
 WORKDIR=os.getcwd()
 THREADS=1
 JOBPOOL=None
@@ -58,6 +59,10 @@ def runjob(jobid):
 			print(f"#define {var}={value}",file=cfg)
 	args = ["gridlabd",cfgfile]
 	args.extend(GLMLIST)
+	if os.path.exists(MODFILE):
+		args.append(MODFILE)
+	elif MODFILE != "gridlabd-modify.glm":
+		error(f"{MODFILE} does not exist")
 	verbose(f"running '{' '.join(args)}'")
 	result = subprocess.run(args,capture_output=True,encoding="utf-8")
 	if result.stdout:
@@ -66,7 +71,7 @@ def runjob(jobid):
 		error(None,result.stderr.strip())
 	return result
 
-def initializer(verbose,debug,quiet,jobfile,cfgfile,workdir,glmlist,jobdata):
+def initializer(verbose,debug,quiet,jobfile,cfgfile,modfile,workdir,glmlist,jobdata):
 	global VERBOSE
 	VERBOSE = verbose
 	global DEBUG
@@ -77,6 +82,8 @@ def initializer(verbose,debug,quiet,jobfile,cfgfile,workdir,glmlist,jobdata):
 	JOBFILE = jobfile
 	global CFGFILE
 	CFGFILE = cfgfile
+	global MODFILE
+	MODFILE = modfile
 	global WORKDIR
 	WORKDIR = workdir
 	global GLMLIST
@@ -105,11 +112,15 @@ if __name__ == "__main__":
 		elif sys.argv[n] in ["-j","--jobfile"]:
 			n+=1
 			JOBFILE=sys.argv[n]
-			verbose(f"using control file {CFGFILE}")
+			verbose(f"using control file {JOBFILE}")
 		elif sys.argv[n] in ["-c","--configfile"]:
 			n+=1
 			CFGFILE=sys.argv[n]
-			verbose(f"using GLM file {GLMFILE}")
+			verbose(f"using GLM configuration file {CFGFILE}")
+		elif sys.argv[n] in ["-m","--modifyfile"]:
+			n+=1
+			MODFILE=sys.argv[n]
+			verbose(f"using GLM modify file {MODFILE}")
 		elif sys.argv[n] in ["-w","--workdir"]:
 			n+=1
 			WORKDIR=sys.argv[n]
@@ -138,6 +149,7 @@ if __name__ == "__main__":
 				QUIET,
 				JOBFILE,
 				CFGFILE,
+				MODFILE,
 				WORKDIR,
 				GLMLIST,
 				JOBDATA,
