@@ -70,7 +70,14 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 fi
 
 # converter support
-# cd /tmp
-# curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm > mdbtools-0.7.1-3.el7.x86_64.rpm
-# rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
+
+echo "Install support"
+cd ~
+amazon-linux-extras install epel -y
+yum-config-manager --enable epel
 yum -q install mdbtools -y
+
+# #latex
+echo "Install latex"
+yum -q install texlive -y
+
