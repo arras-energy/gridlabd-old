@@ -4,6 +4,23 @@
 # update first
 apt-get -q update
 apt-get -q install tzdata -y
+# install system build tools needed by gridlabd
+apt-get -q install git -y
+apt-get -q install unzip -y
+apt-get -q install autoconf -y
+apt-get -q install libtool -y
+apt-get -q install g++ -y
+apt-get -q install cmake -y 
+apt-get -q install flex -y
+apt-get -q install bison -y
+apt-get -q install libcurl4-gnutls-dev -y
+apt-get -q install libncurses5-dev -y
+apt-get -q install subversion -y
+apt-get -q install util-linux -y
+apt-get install liblzma-dev -y
+apt-get install libbz2-dev -y
+apt-get install libncursesw5-dev -y
+apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
@@ -29,18 +46,6 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 fi
 
 
-# install system build tools needed by gridlabd
-apt-get -q install git -y
-apt-get -q install unzip -y
-apt-get -q install autoconf -y
-apt-get -q install libtool -y
-apt-get -q install g++ -y
-apt-get -q install cmake -y 
-apt-get -q install flex -y
-apt-get -q install bison -y
-apt-get -q install libcurl4-gnutls-dev -y
-apt-get -q install libncurses5-dev -y
-apt-get -q install subversion -y
 
 # doxgygen
 apt-get -q install gawk -y
