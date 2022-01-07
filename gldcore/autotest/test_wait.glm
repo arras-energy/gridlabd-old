@@ -1,0 +1,4 @@
+#set debug=TRUE
+#start sleep 2
+#start sleep 1
+#wait
