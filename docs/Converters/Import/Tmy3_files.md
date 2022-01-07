@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-#input "filename.tmy3"
+#input "filename.tmy3" [-p|--property NAME=VALUE] [...]
 ~~~
 
 # Description
@@ -18,6 +18,8 @@ module climate;
 object climate 
 {
 	tmyfile "<filename>.tmy3";
+	NAME "VALUE";
+	...
 }
 ~~~
 

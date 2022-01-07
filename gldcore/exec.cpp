@@ -3032,7 +3032,7 @@ STATUS GldExec::exec_start(void)
 	if ( global_profiler && ! sync_isinvalid(NULL) )
 	{
 		double elapsed_sim = timestamp_to_hours(global_clock)-timestamp_to_hours(global_starttime);
-		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time();
+		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time() / CLOCKS_PER_SEC;
 		double elapsed_wall = (double)(realtime_now()-started_at+loader_time);
 		double sync_time = 0;
 		double sim_speed = object_get_count()/1000.0*elapsed_sim/elapsed_wall;
@@ -3054,58 +3054,125 @@ STATUS GldExec::exec_start(void)
 		delta_runtime = dp->t_count>0 ? (dp->t_preupdate+dp->t_update+dp->t_postupdate)/CLOCKS_PER_SEC : 0;
 		delta_simtime = dp->t_count*(double)dp->t_delta/(double)dp->t_count/1e9;
 
-		output_profile("\nCore profiler results");
-		output_profile("======================\n");
-		output_profile("Total objects           %8d objects", object_get_count());
-		output_profile("Parallelism             %8d thread%s", global_threadcount,global_threadcount>1?"s":"");
-		output_profile("Total time              %8.1f seconds", elapsed_wall);
-		output_profile("  Core time             %8.1f seconds (%.1f%%)", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
-		output_profile("    Compiler            %8.1f seconds (%.1f%%)", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Instances           %8.1f seconds (%.1f%%)", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Random variables    %8.1f seconds (%.1f%%)", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Schedules           %8.1f seconds (%.1f%%)", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Loadshapes          %8.1f seconds (%.1f%%)", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Enduses             %8.1f seconds (%.1f%%)", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("    Transforms          %8.1f seconds (%.1f%%)", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
-		output_profile("  Model time            %8.1f seconds/thread (%.1f%%)", sync_time,sync_time/elapsed_wall*100);
-		if ( dp->t_count>0 )
-			output_profile("  Deltamode time        %8.1f seconds/thread (%.1f%%)", delta_runtime,delta_runtime/elapsed_wall*100);	
-		output_profile("Simulation time         %8.0f days", elapsed_sim/24);
-		if (sim_speed>10.0)
-			output_profile("Simulation speed         %7.0lfk object.hours/second", sim_speed);
-		else if (sim_speed>1.0)
-			output_profile("Simulation speed         %7.1lfk object.hours/second", sim_speed);
-		else
-			output_profile("Simulation speed         %7.0lf object.hours/second", sim_speed*1000);
-		output_profile("Passes completed        %8d passes", passes);
-		output_profile("Time steps completed    %8d timesteps", tsteps);
-		output_profile("Convergence efficiency  %8.02lf passes/timestep", (double)passes/tsteps);
-#ifndef NOLOCKS
-		output_profile("Read lock contention    %7.01lf%%", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
-		output_profile("Write lock contention   %7.01lf%%", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
-#endif
-		output_profile("Average timestep        %7.0lf seconds/timestep", (double)(global_clock-global_starttime)/tsteps);
-		output_profile("Simulation rate         %7.0lf x realtime", (double)(global_clock-global_starttime)/elapsed_wall);
-		if ( dp->t_count>0 )
+		if ( global_profile_output_format == POF_TEXT )
 		{
-			double total = dp->t_preupdate + dp->t_update + dp->t_interupdate + dp->t_postupdate;
-			output_profile("\nDelta mode profiler results");
-			output_profile("===========================\n");
-			output_profile("Active modules          %s", dp->module_list);
-			output_profile("Initialization time     %8.1lf seconds", (double)(dp->t_init)/(double)CLOCKS_PER_SEC);
-			output_profile("Number of updates       %8" FMT_INT64 "u", dp->t_count);
-			output_profile("Average update timestep %8.4lf ms", (double)dp->t_delta/(double)dp->t_count/1e6);
-			output_profile("Minumum update timestep %8.4lf ms", dp->t_min/1e6);
-			output_profile("Maximum update timestep %8.4lf ms", dp->t_max/1e6);
-			output_profile("Total deltamode simtime %8.1lf s", delta_simtime/1000);
-			output_profile("Preupdate time          %8.1lf s (%.1f%%)", (double)(dp->t_preupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_preupdate)/total*100); 
-			output_profile("Object update time      %8.1lf s (%.1f%%)", (double)(dp->t_update)/(double)CLOCKS_PER_SEC, (double)(dp->t_update)/total*100); 
-			output_profile("Interupdate time        %8.1lf s (%.1f%%)", (double)(dp->t_interupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_interupdate)/total*100); 
-			output_profile("Postupdate time         %8.1lf s (%.1f%%)", (double)(dp->t_postupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_postupdate)/total*100);
-			output_profile("Total deltamode runtime %8.1lf s (100%%)", delta_runtime);
-			output_profile("Simulation rate         %8.1lf x realtime", delta_simtime/delta_runtime/1000);
+			output_profile("\nCore profiler results");
+			output_profile("======================\n");
+			output_profile("Total objects           %8d objects", object_get_count());
+			output_profile("Parallelism             %8d thread%s", global_threadcount,global_threadcount>1?"s":"");
+			output_profile("Total time              %8.1f seconds", elapsed_wall);
+			output_profile("  Core time             %8.1f seconds (%.1f%%)", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
+			output_profile("    Compiler            %8.1f seconds (%.1f%%)", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Instances           %8.1f seconds (%.1f%%)", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Random variables    %8.1f seconds (%.1f%%)", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Schedules           %8.1f seconds (%.1f%%)", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Loadshapes          %8.1f seconds (%.1f%%)", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Enduses             %8.1f seconds (%.1f%%)", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    Transforms          %8.1f seconds (%.1f%%)", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("  Model time            %8.1f seconds/thread (%.1f%%)", sync_time,sync_time/elapsed_wall*100);
+			if ( dp->t_count>0 )
+				output_profile("  Deltamode time        %8.1f seconds/thread (%.1f%%)", delta_runtime,delta_runtime/elapsed_wall*100);	
+			output_profile("Simulation time         %8.0f days", elapsed_sim/24);
+			if (sim_speed>10.0)
+				output_profile("Simulation speed         %7.0lfk object.hours/second", sim_speed);
+			else if (sim_speed>1.0)
+				output_profile("Simulation speed         %7.1lfk object.hours/second", sim_speed);
+			else
+				output_profile("Simulation speed         %7.0lf object.hours/second", sim_speed*1000);
+			output_profile("Passes completed        %8d passes", passes);
+			output_profile("Time steps completed    %8d timesteps", tsteps);
+			output_profile("Convergence efficiency  %8.02lf passes/timestep", (double)passes/tsteps);
+#ifndef NOLOCKS
+			output_profile("Read lock contention    %7.01lf%%", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
+			output_profile("Write lock contention   %7.01lf%%", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
+#endif
+			output_profile("Average timestep        %7.0lf seconds/timestep", (double)(global_clock-global_starttime)/tsteps);
+			output_profile("Simulation rate         %7.0lf x realtime", (double)(global_clock-global_starttime)/elapsed_wall);
+			if ( dp->t_count>0 )
+			{
+				double total = dp->t_preupdate + dp->t_update + dp->t_interupdate + dp->t_postupdate;
+				output_profile("\nDelta mode profiler results");
+				output_profile("===========================\n");
+				output_profile("Active modules          %s", dp->module_list);
+				output_profile("Initialization time     %8.1lf seconds", (double)(dp->t_init)/(double)CLOCKS_PER_SEC);
+				output_profile("Number of updates       %8" FMT_INT64 "u", dp->t_count);
+				output_profile("Average update timestep %8.4lf ms", (double)dp->t_delta/(double)dp->t_count/1e6);
+				output_profile("Minumum update timestep %8.4lf ms", dp->t_min/1e6);
+				output_profile("Maximum update timestep %8.4lf ms", dp->t_max/1e6);
+				output_profile("Total deltamode simtime %8.1lf s", delta_simtime/1000);
+				output_profile("Preupdate time          %8.1lf s (%.1f%%)", (double)(dp->t_preupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_preupdate)/total*100); 
+				output_profile("Object update time      %8.1lf s (%.1f%%)", (double)(dp->t_update)/(double)CLOCKS_PER_SEC, (double)(dp->t_update)/total*100); 
+				output_profile("Interupdate time        %8.1lf s (%.1f%%)", (double)(dp->t_interupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_interupdate)/total*100); 
+				output_profile("Postupdate time         %8.1lf s (%.1f%%)", (double)(dp->t_postupdate)/(double)CLOCKS_PER_SEC, (double)(dp->t_postupdate)/total*100);
+				output_profile("Total deltamode runtime %8.1lf s (100%%)", delta_runtime);
+				output_profile("Simulation rate         %8.1lf x realtime", delta_simtime/delta_runtime/1000);
+				output_profile("\n");
+			}
 		}
-		output_profile("\n");
+		else if ( global_profile_output_format == POF_CSV )
+		{
+			output_profile("metric,value,unit,percent_of_total,msec/object");
+			output_profile("total_objects,%d,objects,", object_get_count());
+			output_profile("parallelism,%d,threads,", global_threadcount,global_threadcount>1?"s":"");
+			output_profile("total_time,%.3f,s,100", elapsed_wall);
+			output_profile("core_time,%.3f,s,%.1f", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
+			output_profile("compile_time,%.3f,s,%.1f", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("instance_time,%.3f,s,%.1f", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("random_variable_time,%.3f,s,%.1f", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("schedule_time,%.3f,s,%.1f", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("loadshape_time,%.3f,s,%.1f", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("enduse_time,%.3f,s,%.1f", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("transform_time,%.3f,s,%.1f", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("model_time,%.3f,s/thread,%.1f", sync_time,sync_time/elapsed_wall*100);
+			if ( dp->t_count>0 )
+				output_profile("_deltamode_time,%.3f,s/thread,%.1f", delta_runtime,delta_runtime/elapsed_wall*100);	
+			output_profile("simulation_time,%.3f,days,", elapsed_sim/24);
+			output_profile("simulation_speed,%.1lf,object.hr/s", sim_speed*1000);
+			output_profile("passes_completed,%d,passes", passes);
+			output_profile("time_steps_completed,%d,timesteps", tsteps);
+			output_profile("convergence_efficiency,%.2lf,passes/timestep", (double)passes/tsteps);
+#ifndef NOLOCKS
+			output_profile("read_lock_contention,%.1lf,%%", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
+			output_profile("write_lock_contention,%.1lf,%%", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
+#endif
+			output_profile("average_timestep,%.1lf,s/timestep", (double)(global_clock-global_starttime)/tsteps);
+			output_profile("simulation_rate,%.1lf,pu", (double)(global_clock-global_starttime)/elapsed_wall);
+		}
+		else if ( global_profile_output_format == POF_JSON )
+		{
+			output_profile("{");
+			output_profile("  \"core\" : {");
+			output_profile("    \"total_objects\" : { \"value\" : %d, \"units\" : \"objects\" },", object_get_count());
+			output_profile("    \"parallelism\" : { \"value\" : %d, \"units\" : \"threads\" },", global_threadcount,global_threadcount>1?"s":"");
+			output_profile("    \"total_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : 100.0},", elapsed_wall);
+			output_profile("    \"core_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (elapsed_wall-sync_time-delta_runtime),(elapsed_wall-sync_time-delta_runtime)/elapsed_wall*100);
+			output_profile("    \"compile_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loader_time/CLOCKS_PER_SEC,((double)loader_time/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"instance_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)instance_synctime/CLOCKS_PER_SEC,((double)instance_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"random_variable_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)randomvar_synctime/CLOCKS_PER_SEC,((double)randomvar_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"schedule_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)schedule_synctime/CLOCKS_PER_SEC,((double)schedule_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"loadshape_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)loadshape_synctime/CLOCKS_PER_SEC,((double)loadshape_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"enduse_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)enduse_synctime/CLOCKS_PER_SEC,((double)enduse_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"transform_time\" : { \"value\" : %.3f, \"units\" : \"s\", \"percent_of_total\" : %.1f},", (double)transform_synctime/CLOCKS_PER_SEC,((double)transform_synctime/CLOCKS_PER_SEC)/elapsed_wall*100);
+			output_profile("    \"model_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", sync_time,sync_time/elapsed_wall*100);
+			if ( dp->t_count>0 )
+				output_profile("    \"_deltamode_time\" : { \"value\" : %.3f, \"units\" : \"s/thread\", \"percent_of_total\" : %.1f},", delta_runtime,delta_runtime/elapsed_wall*100);	
+			output_profile("    \"simulation_time\" : { \"value\" : %.3f, \"units\" : \"days\"},", elapsed_sim/24);
+			output_profile("    \"simulation_speed\" : { \"value\" : %.1lf, \"units\" : \"object.hr/s\"},", sim_speed*1000);
+			output_profile("    \"passes_completed\" : { \"value\" : %d, \"units\" : \"passes\"},", passes);
+			output_profile("    \"time_steps_completed\" : { \"value\" : %d, \"units\" : \"timesteps\"},", tsteps);
+			output_profile("    \"convergence_efficiency\" : { \"value\" : %.2lf, \"units\" : \"passes/timestep\"},", (double)passes/tsteps);
+#ifndef NOLOCKS
+			output_profile("    \"read_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
+			output_profile("    \"write_lock_contention\" : { \"value\" : %.1lf, \"units\" : \"%%\"},", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
+#endif
+			output_profile("    \"average_timestep\" : { \"value\" : %.1lf, \"units\" : \"s/timestep\"},", (double)(global_clock-global_starttime)/tsteps);
+			output_profile("    \"simulation_rate\" : { \"value\" : %.1lf, \"units\" : \"pu\"}", (double)(global_clock-global_starttime)/elapsed_wall);
+			output_profile("  },");
+		}
+		else
+		{
+			output_warning("profiler output format '%d' is not valid", global_profile_output_format);
+		}
 		object_synctime_profile_dump(NULL);
 	}
 

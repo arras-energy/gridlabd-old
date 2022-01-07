@@ -1,0 +1,15 @@
+// gldcore/geodata/tutorial/example_4.glm
+//
+// This example shows how to use address data to find lan/lon values
+// and show the resulting map.
+//
+class industrial { char1024 address; }
+object industrial
+{
+	name "Building_54";
+	address "2575 Sand Hill Rd., Menlo Park, CA";
+}
+#write /tmp/address.csv industrial:address
+#geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
+#include "/tmp/latlon.glm"
+#output "example.html" --cluster --show

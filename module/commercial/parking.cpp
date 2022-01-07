@@ -32,14 +32,14 @@ parking::parking(MODULE *module)
         if (gl_publish_variable(oclass,
             PT_object,"weather",get_weather_offset(),PT_DESCRIPTION,"weather object for lighting data",
             PT_bool,"lighting_nightonly",get_lighting_nightonly_offset(),PT_DEFAULT,"TRUE",PT_DESCRIPTION,"lighting is used only at night (requires weather)",
-            PT_complex,"lighting_capacity",get_lighting_capacity_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"installed capacity for lighting",
+            PT_complex,"lighting_capacity[VA]",get_lighting_capacity_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"installed capacity for lighting",
             PT_int16,"charger_installed",get_charger_installed_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"number of chargers installed",
             PT_double,"charger_active",get_charger_active_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"number of chargers active",
-            PT_complex,"charger_unit_power",get_charger_unit_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for a single charger",
-            PT_complex,"lighting_power",get_lighting_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for lighting",
-            PT_complex,"ventilation_power",get_ventilation_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for ventilation",
-            PT_complex,"charger_power",get_charger_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for active chargers",
-            PT_complex,"total_power",get_total_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power total demand for parking structure",
+            PT_complex,"charger_unit_power[VA]",get_charger_unit_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power demand for a single charger",
+            PT_complex,"lighting_power[VA]",get_lighting_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power demand for lighting",
+            PT_complex,"ventilation_power[VA]",get_ventilation_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power demand for ventilation",
+            PT_complex,"charger_power[VA]",get_charger_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power demand for active chargers",
+            PT_complex,"total_power[VA]",get_total_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power total demand for parking structure",
             NULL)<1){
                 char msg[256];
                 sprintf(msg, "unable to publish properties in %s",__FILE__);

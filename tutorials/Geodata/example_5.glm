@@ -1,0 +1,8 @@
+// gldcore/geodata/tutorial/example_5.glm
+//
+// This example shows how to merge elevation data and display the result
+//
+class pole { double elevation[ft]; double pole_height[m]; double distance[ft]; double heading[deg];}
+#geodata merge -D elevation poles.csv -f GLM -o /tmp/poles.glm -k position
+#include "/tmp/poles.glm"
+#output "example.html" --cluster --show

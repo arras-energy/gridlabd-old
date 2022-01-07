@@ -1732,7 +1732,7 @@ struct thread_affinity_policy policy;
 
 static unsigned short n_procs=0; /* number of processors in map */
 
-#define MAPNAME "gridlabd-pmap-3" /* TODO: change the pmap number each time the structure changes */
+#define MAPNAME "gridlabd-pmap-4" /* TODO: change the pmap number each time the structure changes */
 typedef struct s_gldprocinfo {
 	LOCKVAR lock;		/* field lock */
 	pid_t pid;			/* process id */
@@ -1742,6 +1742,7 @@ typedef struct s_gldprocinfo {
 	enumeration status;		/* current status */
 	char1024 model;			/* model name */
 	time_t start;			/* wall time of start */
+	int port;				/* server port */
 } GLDPROCINFO;
 static GLDPROCINFO *process_map = NULL; /* global process map */
 
@@ -1872,8 +1873,8 @@ void sched_pkill(pid_t pid, int signal)
 	}
 }
 
-static char HEADING_R[] = "PROC PID   RUNTIME    STATE   CLOCK                   MODEL" ;
-static char HEADING_P[] = "PROC PID   PROGRESS   STATE   CLOCK                   MODEL" ;
+static char HEADING_R[] = "PROC PID   PORT  RUNTIME    STATE   CLOCK                   MODEL" ;
+static char HEADING_P[] = "PROC PID   PORT  PROGRESS   STATE   CLOCK                   MODEL" ;
 int sched_getinfo(int n,char *buf, size_t sz)
 {
 	const char *status = NULL;
@@ -1999,7 +2000,7 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %10s %-7s %-23s %s", n, process_map[n].pid, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
 		sz = snprintf(buf,sz,"%4d   -", n);
@@ -2022,6 +2023,7 @@ STATUS sched_getinfo(int n,PROCINFO *pinfo)
 	pinfo->status = process_map[n].status;
 	strcpy(pinfo->model,process_map[n].model);
 	pinfo->start = process_map[n].start;
+	pinfo->port = process_map[n].port;
 	sched_unlock(n);
 	return SUCCESS;
 }
@@ -2031,7 +2033,7 @@ int sched_getnproc(void)
 	return n_procs;
 }
 
-void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous listing */
+void sched_print(int flags, const char* format) /* flag=0 for single listing, flag=1 for continuous listing */
 {
 	char line[1024];
 	int width = 80, namesize;
@@ -2055,24 +2057,67 @@ void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous 
 	if ( namesize>1024 ) namesize=1024;
 	if ( name!=NULL ) free(name);
 	name = (char*)malloc(namesize+1);
-	if ( process_map!=NULL )
+	if ( flags == 1 && format != NULL )
 	{
-		unsigned int n;
-		if ( flags==1 )
-		{
-			sched_getinfo(-1,line,sizeof(line)-1);
-			printf("%s\n",line);
-			sched_getinfo(-2,line,sizeof(line)-1);
-			printf("%s\n",line);
-		}
-		for ( n=0 ; n<n_procs ; n++ )
-		{
-			if ( process_map[n].pid!=0 || flags==1 )
+		output_error("pstatus format '%s' not supported for continuous output",format);
+	}
+	else if ( process_map != NULL )
+	{
+		if ( format != NULL && strcmp(format,"json") == 0 )
+ 		{
+ 			unsigned int n;
+ 			printf("{\n");
+			for ( n=0 ; n<n_procs ; n++ )
 			{
-				if ( sched_getinfo(n,line,sizeof(line)-1)>0 )
-					printf("%s\n",line);
-				else
-					printf("%4d (error)\n",n);
+				PROCINFO pinfo;
+				if ( sched_getinfo(n,&pinfo) == SUCCESS )
+				{
+					printf("  \"%d\" : {\n",n);
+					sched_lock(n);
+					char buffer[64];
+					printf("     \"pid\" : %d,\n",process_map[n].pid);
+					printf("     \"progress\" : \"%s\",\n",convert_from_timestamp(process_map[n].progress,buffer,sizeof(buffer))>0?buffer:"");
+					printf("     \"starttime\" : \"%s\",\n",convert_from_timestamp(process_map[n].starttime,buffer,sizeof(buffer))>0?buffer:"");
+					printf("     \"stoptime\" : \"%s\",\n",convert_from_timestamp(process_map[n].stoptime,buffer,sizeof(buffer))>0?buffer:"");
+					const char *status = NULL;
+					switch ( process_map[n].status ) 
+					{
+					case MLS_INIT: status = "INIT"; break;
+					case MLS_RUNNING: status = "RUNNING"; break;
+					case MLS_PAUSED: status = "PAUSED"; break;
+					case MLS_DONE: status = "DONE"; break;
+					case MLS_LOCKED: status = "LOCKED"; break;
+					default: status = "UNKNOWN"; break;
+					}
+					printf("     \"status\" : \"%s\",\n",status);
+					printf("     \"model\" : \"%s\",\n",(const char*)process_map[n].model);
+					printf("     \"start\" : \"%s\",\n",convert_from_timestamp(process_map[n].start,buffer,sizeof(buffer))>0?buffer:"");
+					printf("     \"port\" : %d\n",process_map[n].port);
+					sched_unlock(n);
+					printf("  }%s\n",n+1<n_procs?",":"");
+				}
+			}
+			printf("}\n");
+		}
+		else
+		{
+			unsigned int n;
+			if ( flags==1 )
+			{
+				sched_getinfo(-1,line,sizeof(line)-1);
+				printf("%s\n",line);
+				sched_getinfo(-2,line,sizeof(line)-1);
+				printf("%s\n",line);
+			}
+			for ( n=0 ; n<n_procs ; n++ )
+			{
+				if ( process_map[n].pid!=0 || flags==1 )
+				{
+					if ( sched_getinfo(n,line,sizeof(line)-1)>0 )
+						printf("%s\n",line);
+					else
+						printf("%4d (error)\n",n);
+				}
 			}
 		}
 	}

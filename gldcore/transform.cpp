@@ -86,12 +86,12 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 			else if ( fabs(-a-1)<1e-6 )
 				len += sprintf(buffer+len,"%s","-1");
 			else
-				len += sprintf(buffer+len,first?"%.4f":"%+.4f",a);
+				len += sprintf(buffer+len,first?"%+.4f":"%+.4f",a);
 		}
 		else // z^n term
 		{
 			if ( fabs(a-1)>1e-6 ) // non-unitary coefficient
-				len += sprintf(buffer+len,"%.4f",a);
+				len += sprintf(buffer+len,"%+.4f",a);
 			else if ( fabs(-a-1)<1e-6 ) // -1 coefficient
 				len += sprintf(buffer+len,"-");
 			len += sprintf(buffer+len,"%s",x); // domain variable
@@ -101,6 +101,76 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 	}
 	return len;
 }
+
+static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen, const char *format="%+7.4g")
+{
+	size_t pos = snprintf(buffer,maxlen,"[ ");
+	for ( size_t i = 0 ; i < n && pos < maxlen-10; i++ )
+	{
+		if ( i > 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%s",", ");
+		} 
+		pos += snprintf(buffer+pos,maxlen-pos,format, x[i]);
+	}
+	pos += snprintf(buffer+pos,maxlen-pos," ]");		
+	return pos;
+}
+
+static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buffer, size_t maxlen)
+{
+	size_t pos = snprintf(buffer,maxlen,"(");
+	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
+	{
+		if ( b[i] == 0.0 )
+		{
+			continue;
+		}
+		if ( i == 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
+		}
+		else 
+		{
+			if ( b[0] != 1.0 )
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+			}
+			else
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%s"," +");	
+			}
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+		}
+	}
+	pos += snprintf(buffer+pos,maxlen-pos,") / (");
+	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
+	{
+		if ( a[i] == 0.0 )
+		{
+			continue;
+		}
+		if ( i == 0 )
+		{
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
+		}
+		else 
+		{
+			if ( a[i] != 1.0 )
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+			}
+			else
+			{
+				pos += snprintf(buffer+pos,maxlen-pos,"%s","+");	
+			}
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+		}
+	}
+	pos += snprintf(buffer+pos,maxlen-pos,")");
+	return pos;
+}
+
 int transfer_function_add(char *name,		///< transfer function name
 						  char *domain,		///< domain variable name
 						  double timestep,	///< timestep (seconds)
@@ -128,41 +198,34 @@ int transfer_function_add(char *name,		///< transfer function name
 		output_error("transfer_function_add(): memory allocation failure");
 		return 0;
 	}
-	memcpy(tf->a,a,sizeof(double)*n);
+	for ( unsigned int i = 0 ; i < n ; i++ )
+	{
+		tf->a[i] = a[n-i-1];
+	}
 	tf->m = m;
-	tf->b = (double*)malloc(sizeof(double)*m);
+	tf->b = (double*)malloc(sizeof(double)*n);
 	if ( tf->b == NULL )
 	{
 		output_error("transfer_function_add(): memory allocation failure");
 		return 0;
 	}
-	memcpy(tf->b,b,sizeof(double)*m);
+	for ( unsigned int i = 0 ; i < m ; i++ )
+	{
+		tf->b[i+n-m] = b[m-i-1];
+	}
+	if ( m < n )
+	{
+		memset(tf->b,0,sizeof(double)*(n-m));
+	}
 	tf->next = tflist;
 	tflist = tf;
 
 	// debugging output
-	if ( global_debug_output )
+	IN_MYCONTEXT
 	{
-		char num[1024]="", den[1024]="";
-		int i;
-		int len;
-		int count1=0, count2=0;
-		for ( len=0,i=n-1 ; i>=0 ; i-- )
-		{
-			int c = write_term(den+len,a[i],domain,i,len==0);
-			if ( c>0 ) count1++;
-			len +=c;
-		}
-		for ( len=0,i=m-1 ; i>=0 ; i-- )
-		{
-			int c = write_term(num+len,b[i],domain,i,len==0);
-			if ( c>0 ) count2++;
-			len +=c;
-		}
-		IN_MYCONTEXT output_debug("defining transfer function %s(%s) = %s%s%s/%s%s%s, step=%.0fs, skew=%.0fs", name,domain,
-			count1>1?"(":"",num,count1>1?")":"",
-			count2>1?"(":"",den,count2>1?")":"",
-			timestep,timeskew);
+		char buffer[1024];
+		dump_function(a,n,b,m,buffer,sizeof(buffer)-1);
+		output_debug("%s(%s) = %s",name,domain,buffer);
 	}
 	return 1;
 }
@@ -192,7 +255,23 @@ int transfer_function_constrain(char *tfname, unsigned int64 flags, unsigned int
 	tf->resolution = (maximum-minimum)/pow(2.0,(double)nbits);
 	tf->minimum = minimum;
 	tf->maximum = maximum;
-	output_debug("transfer function '%s' constraint to range (%lg,%lg( with resolution %lg (%lld bits, flags=0x%llx)",tfname,minimum,maximum,tf->resolution, nbits, flags);
+	if ( tf->flags != FC_NONE )
+	{
+		if ( tf->flags&FC_MINIMUM && tf->flags&FC_MAXIMUM && tf->minimum >= tf->maximum )
+		{
+			output_error("transfer function '%s' constraint minimum=%lg is not less than maximum=%lg",tfname,minimum,maximum);
+			return 0;
+		}
+		else if ( tf->flags&FC_RESOLUTION && ( nbits == 0 || nbits > 64 ) )
+		{
+			output_error("transfer function '%s' constraint resolution=%lld bits is not valid",tfname,nbits);
+			return 0;
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("transfer function '%s' constraint to range (%lg,%lg( with resolution %lg (%lld bits, flags=0x%llx)",tfname,minimum,maximum,tf->resolution, nbits, flags);
+		}
+	}
 	return 1;
 }
 
@@ -211,11 +290,51 @@ TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 		return XS_UNKNOWN;
 	}
 }
+
+static bool read_vector(const char *name, double *vector, size_t len)
+{
+	char values[1024];
+	if ( global_getvar(name,values,sizeof(values)) == NULL )
+	{
+		output_error("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): global variable not found",name,vector,len);
+		return false;
+	}
+	else
+	{
+		IN_MYCONTEXT output_debug("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): value = '%s'",name,vector,len,values);
+	}
+	char *p = values;
+	int n;
+	for ( n = len-1 ; n >= 0 && p != (char*)1 ; n--,p++ )
+	{
+		vector[n] = atof(p);
+		p = strchr(p,',');
+	}
+	if ( n >= 0 )
+	{
+		output_error("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): too few values to read (missing %d values)",name,vector,len,n+1);
+		return false;
+	}
+	else if ( p != (char*)1 )
+	{
+		output_warning("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): too many values to read ('%s' not scanned)",name,vector,len,p+1);
+	}
+	IN_MYCONTEXT
+	{
+		char buffer[1024];
+		dump_vector(vector,len,buffer,sizeof(buffer));
+		output_debug("transform.cpp/read_vector(name='%s',vector=%x,len=%ld): --> %s",name,vector,len,buffer);
+	}
+	return true;
+}
+
 int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (lhs) */
 						 PROPERTY *target_prop,	/* pointer to the target property */
 						 char *filter,			/* filter name to use */
 						 OBJECT *source_obj,		/* object containing source value (rhs) */
-						 PROPERTY *source_prop)		/* schedule object associated with target value, used if stype == XS_SCHEDULE */
+						 PROPERTY *source_prop,		/* schedule object associated with target value, used if stype == XS_SCHEDULE */
+						 const char *input_name,		/* name of global containing initial input vector */
+						 const char *state_name)      /* name of global containing initial state vector */
 {
 	char buffer1[1024], buffer2[1024];
 	TRANSFORM *xform;
@@ -238,15 +357,31 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,filter, object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 		return 0;
 	}
-	xform->x = (double*)malloc(sizeof(double)*(tf->n-1));
-	if ( xform->x == NULL )
+	xform->x = (double*)malloc(sizeof(double)*(tf->n));
+	xform->u = (double*)malloc(sizeof(double)*(tf->n));
+	if ( xform->x == NULL || xform->u == NULL )
 	{
 		output_error("transform_add_filter(source='%s:%s',filter='%s',target='%s:%s'): memory allocation failure",
 			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,filter, object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 		free(xform);
 		return 0;
 	}
-	memset(xform->x,0,sizeof(double)*(tf->n-1));
+	if ( state_name )
+	{
+		read_vector(state_name,xform->x,tf->n);
+	}
+	else
+	{
+		memset(xform->x,0,sizeof(double)*(tf->n));
+	}
+	if ( input_name )
+	{
+		read_vector(input_name,xform->u,tf->m);
+	}
+	else
+	{
+		memset(xform->u,0,sizeof(double)*(tf->n));
+	}
 
 	// build tranform
 	xform->source = object_get_double_by_name(source_obj,source_prop->name);
@@ -255,6 +390,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	xform->target_prop = target_prop;
 	xform->function_type = XT_FILTER;
 	xform->tf = tf;
+	xform->t_last = TS_ZERO;
 	xform->y = object_get_double_by_name(target_obj,target_prop->name);
 	xform->t2 = (int64)(global_starttime/tf->timestep)*tf->timestep + tf->timeskew;
 	xform->next = schedule_xformlist;
@@ -364,112 +500,126 @@ void cast_from_double(PROPERTYTYPE ptype, void *addr, double value)
 }
 
 TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
+					   double *src,			///< next input value
 					   double *u,			///< input vector
 					   double *x,			///< state vector
 					   double *y,			///< output vector
 					   TIMESTAMP t1)		///< current time value
 {
-	unsigned int n = f->n-1;
+	unsigned int n = f->n;
 	unsigned int m = f->m;
 	double *a = f->a;
 	double *b = f->b;
-	static double *dx = NULL;
-	static unsigned int len = 0;
-	unsigned int i;
 
-	// memory check
-	if ( n > len )
+	char buffer[1024] = "";
+	IN_MYCONTEXT 
 	{
-		len = (n/4+1)*4;
-		dx = (double*)realloc(dx,len);
-		IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): allocating %d doubles to dx", f->name, f->domain,len);
-	}
-	IN_MYCONTEXT
-	{
-		char buffer[1024] = "";
-		int pos = sprintf(buffer,"%s(%s) = ( ", f->name,f->domain);
-		for ( i = 0 ; i < m ; i++ )
-		{
-			switch ( m-i-1 ) {
-			case 0:
-				pos += sprintf(buffer+pos,"%+g ", b[m-i-1]);
-				break;
-			case 1:
-				pos += sprintf(buffer+pos,"%+gz ", b[m-i-1]);
-				break;
-			default:
-				pos += sprintf(buffer+pos,"%+gz^%d ", b[m-i-1], m-i-1);
-				break;
-			}
-		}
-		pos += sprintf(buffer+pos,") / ( z^%d ",n);
-		for ( i = 0 ; i < n ; i++ )
-		{
-			switch ( n-i-1 ) {
-			case 0:
-				pos += sprintf(buffer+pos,"%+g ", a[n-i-1]);
-				break;
-			case 1:
-				pos += sprintf(buffer+pos,"%+gz ", a[n-i-1]);
-				break;
-			default:
-				pos += sprintf(buffer+pos,"%+gz^%d ", a[n-i-1], n-i-1);
-				break;
-			}
-
-		}
-		pos += sprintf(buffer+pos,")");
-		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
+		dump_function(a,n,b,m,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): tf = %s",f->name,f->domain, buffer);
+		dump_vector(a,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): a = %s",f->name,f->domain, buffer);
+		dump_vector(b,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): b = %s",f->name,f->domain, buffer);
 	}
 
-	// observable form
-	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %g",f->name,f->domain, *u);
-	for ( i = 0 ; i < n ; i++ )
-	{
-		dx[i] = - a[i]*x[n-1];
-		if ( i > 0 )
-			dx[i] += x[i-1];
-		if ( i < m )
-			dx[i] += b[i] * (*u);
-	}
+	// update input
+	memmove(u+1,u,sizeof(double)*(n-1));
+	u[0] = *src;
 	IN_MYCONTEXT
 	{
-		char buffer[1024];
-		int pos = sprintf(buffer,"x = [");
-		for ( i = 0 ; i < n ; i++ )
-		{
-			pos += sprintf(buffer+pos,"%s %g", i>0?",":"", x[i]);
-		}
-		pos += sprintf(buffer+pos,"]");
-		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
+		dump_vector(u,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %s",f->name,f->domain, buffer);
 	}
-	memcpy(x,dx,sizeof(double)*n);
-	IN_MYCONTEXT
+
+	// update state
+	for ( unsigned int i = 0 ; i < n ; i++ )
 	{
-		char buffer[1024];
-		int pos = sprintf(buffer,"dx = [");
-		for ( i = 0 ; i < n ; i++ )
-		{
-			pos += sprintf(buffer+pos,"%s %g", i>0?",":"", x[i]);
-		}
-		pos += sprintf(buffer+pos,"]");
-		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
+		x[0] += b[i]*u[i];
 	}
-	*y = x[n-1]; // output
-	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum )
- 	{
- 		*y = f->minimum;
- 	}
- 	else if ( ((f->flags)&FC_MAXIMUM) == FC_MAXIMUM && *y > f->maximum )
- 	{
- 		*y = f->maximum;
- 	}
- 	if ( ((f->flags)&FC_RESOLUTION) == FC_RESOLUTION && f->resolution > 0.0 )
- 	{
- 		*y = floor((*y - f->minimum)/f->resolution)*f->resolution + f->minimum;
- 	}	
+
+	// update output
+	y[0] = x[0] / a[0];
 	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): y = %g",f->name,f->domain, *y);
+
+	IN_MYCONTEXT
+	{
+		dump_vector(x,n,buffer,sizeof(buffer));
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): x = %s",f->name,f->domain, buffer);
+	}
+
 	return ((int64)(t1/f->timestep)+1)*f->timestep + f->timeskew;
+}
+
+void transform_reset(TRANSFORM *xform, TIMESTAMP t1)
+{
+	if ( xform->t_last == t1 )
+	{
+		return;
+	}
+	switch ( xform->function_type )
+	{
+	case XT_LINEAR:
+		if ( xform->target != NULL )
+		{
+			xform->target[0] = 0.0;
+		}
+		break;
+	case XT_EXTERNAL:
+		if ( xform->plhs != NULL && xform->nlhs > 0 )
+		{
+			for ( int i = 0 ; i < xform->nlhs ; i++ )
+			{
+				*(double*)(xform->plhs[i].addr) = 0.0;
+			}
+		}
+		break;
+	case XT_FILTER:
+		if ( xform->y != NULL )
+		{
+			char buffer[1024];
+			TRANSFERFUNCTION *f = xform->tf;
+			double *x = xform->x;
+			double *a = f->a;
+			int n = f->n;
+			double *y = xform->y;
+
+			// update state
+			double x0 = 0.0;
+			for ( int i = n-1 ; i > 0 ; i-- )
+			{
+				x[i] = x[i-1];	
+				x0 -= a[i]*x[i];
+			}
+			x[0] = x0;
+			IN_MYCONTEXT
+			{
+				dump_vector(x,n,buffer,sizeof(buffer));
+				output_debug("transform_reset(f={name='%s'; domain='%s'},t1=%ld): x = %s",f->name,f->domain, t1, buffer);
+			}
+
+			// update output
+			y[0] = x[0] / a[0];
+			if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && y[0] < f->minimum && f->minimum < f->maximum )
+		 	{
+		 		y[0] = f->minimum;
+		 	}
+		 	else if ( ((f->flags)&FC_MAXIMUM) == FC_MAXIMUM && y[0] > f->maximum && f->minimum < f->maximum  )
+		 	{
+		 		y[0] = f->maximum;
+		 	}
+		 	if ( ((f->flags)&FC_RESOLUTION) == FC_RESOLUTION && f->resolution > 0.0 )
+		 	{
+		 		y[0] = floor((*y - f->minimum)/f->resolution)*f->resolution + f->minimum;
+		 	}	
+			IN_MYCONTEXT output_debug("transform_reset(f={name='%s'; domain='%s'},t1=%ld): y = %.4g",f->name,f->domain, t1, y[0]);
+
+		}
+		break;
+	default:
+		output_error("transform_reset(): invalid function type %d",xform->function_type);
+		break;
+	}
+	xform->t_last = t1;
 }
 
 /** apply the transform, source is optional and xform.source is used when source is NULL 
@@ -481,11 +631,13 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 	switch (xform->function_type) {
 	case XT_LINEAR:
 		IN_MYCONTEXT output_debug("running linear transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
+		transform_reset(xform,t1);
 		cast_from_double(xform->target_prop->ptype, xform->target, (source?(*source):(*(xform->source))) * xform->scale + xform->bias);
 		t2 = TS_NEVER;
 		break;
 	case XT_EXTERNAL:
 		IN_MYCONTEXT output_debug("running external transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
+		transform_reset(xform,t1);
 		xform->retval = (*xform->function)(xform->nlhs, xform->plhs, xform->nrhs, xform->prhs);
 		if ( xform->retval==-1 ) /* error */
 			t2 = TS_ZERO;
@@ -497,7 +649,10 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 	case XT_FILTER:
 		IN_MYCONTEXT output_debug("running filter transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
 		if ( xform->t2 <= t1 )
-			xform->t2 = apply_filter(xform->tf,xform->source,xform->x,xform->y,t1);
+		{
+			transform_reset(xform,t1);
+			xform->t2 = apply_filter(xform->tf,xform->source,xform->u,xform->x,xform->y,t1);
+		}
 		t2 = xform->t2;
 		break;
 	default:
@@ -535,7 +690,9 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 			    double value = schedule_value(xform->source_schedule,index);
 			    t = (dtnext == 0 ? TS_NEVER : t1 + dtnext - (tskew % 60));
 			    if ( t < t2 ) t2 = t;
-				if((tskew <= xform->source_schedule->since) || (tskew >= xform->source_schedule->next_t)){
+				if ( ( tskew <= xform->source_schedule->since ) 
+						|| ( tskew >= xform->source_schedule->next_t ) )
+				{
 					t = transform_apply(t1,xform,&value);
 					if ( t<t2 ) t2=t;
 				} 

@@ -1,0 +1,21 @@
+module assert;
+
+class test
+ {
+     double x;
+ }
+ object test
+ {
+     name test1;
+     x 8.88;
+ }
+ object test
+ {
+     name test2;
+     x @test1;
+     object assert{
+        target x;
+        relation "==";
+        value 8.88;
+     };
+ }

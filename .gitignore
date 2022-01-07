@@ -83,6 +83,7 @@ Makefile
 config.log
 config.status
 configure
+configure~
 gldcore/gridlabd
 gridlabd.spec
 libtool
@@ -173,3 +174,7 @@ gldcore/converters/autotest/table2glm_input_noclass.glm
 gldcore/converters/autotest/table2glm_input_noname.glm
 gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
+gldcore/gridlabd.in
+geodata.conf
+gldcore/autotest/output.csv
+python_extras/example/output.csv

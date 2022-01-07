@@ -2,4 +2,7 @@
 #define DIR=..
 #endif
 
+#if ${github_actions:-no}==no
+// TODO: this doesn't work on github actions because of a problems with accessing required services
 #exec ${DIR:-.}/unittest.sh
+#endif
