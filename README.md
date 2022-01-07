@@ -43,12 +43,12 @@ host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
 ### AWS EC2 Installation 
-1) Set path variable
+1) Set the path variable
 ~~~
 host% sudo su
 host% export PATH=/usr/local/bin:$PATH
 ~~~
-1) Change work dictionary and clone github repository
+2) Change work dictionary and clone GitHub repository
 ~~~
 host% cd /usr/local/src
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
