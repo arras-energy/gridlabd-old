@@ -923,7 +923,7 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 		};
 		long int ntags = sizeof(tags)/sizeof(tags[0]);
 		PyObject *taglist = PyList_New(ntags);
-		for ( size_t m = 0 ; m < ntags ; m++ )
+		for ( long int m = 0 ; m < ntags ; m++ )
 		{
 			PyObject *tag = PyUnicode_FromString(tags[m]);
 			PyList_SetItem(taglist,m,tag);

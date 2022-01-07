@@ -4086,7 +4086,6 @@ int node::NR_current_update(bool parentcall)
 		{
 			complex vdel;
 			complex temp_current[3];
-			complex temp_val[3];
 
 			//Find V12 (just in case)
 			vdel=voltage[0] + voltage[1];
