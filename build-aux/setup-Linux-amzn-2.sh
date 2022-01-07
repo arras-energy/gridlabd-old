@@ -35,11 +35,26 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	/usr/local/bin/python3 -m pip install IPython censusdata
 fi
 
-# mono
+# # mono
 if [ ! -f /usr/bin/mono ]; then
 	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
 	curl https://download.mono-project.com/repo/centos7-stable.repo > /etc/yum.repos.d/mono-centos7-stable.repo
 	yum -q install mono-devel -y
+fi
+# mono
+if [ ! -f /usr/bin/mono ]; then
+	echo "Install mono"
+	cd ~
+	wget https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/l/libpng15-1.5.30-13.fc35.x86_64.rpm
+	yum install -y ~/downloads/mono_dependencies/libpng15-1.5.30-13.fc35.x86_64.rpm
+	yum install yum-utils
+	rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+	yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
+	yum clean all
+	yum makecache
+	yum install mono-complete -y
+	cd ~
+	rm -rf /tmp/mono_deps
 fi
 
 # natural_docs
