@@ -1,0 +1,75 @@
+// run 1 year simulation
+clock {
+	timezone US/CA/Los Angeles;
+	starttime '2018-01-01 00:00:00 PST';
+	stoptime '2019-01-01 00:00:00 PST';
+}
+
+// generate plots when done
+script on_term "python3 ../test_ceus_saveplots.py";
+
+// make sure csv files have no comments
+module tape {
+	csv_data_only 1;
+}
+
+// power flow
+module powerflow;
+object meter {
+	name main;
+	bustype SWING;
+	nominal_voltage 120.0;
+	phases ABCN;
+	object recorder {
+		file test_ceus_main.csv;
+		property measured_power_A,measured_power_B,measured_power_C,measured_real_power,measured_reactive_power;
+		interval 1h;
+	};
+}
+
+// climate data
+module climate;
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate {
+	name yakima;
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
+}
+
+// tariff data
+schedule tou_prices {
+	* 8-17 1-5 * * 0.25;
+	* 18-7 6-0 * * 0.15;
+}
+class tariff {
+	double energy_price[$/MWh];
+}
+object tariff {
+	name tou;
+	energy_price tou_prices;
+}
+
+// commercial buildings
+module commercial;
+object ceus {
+	parent main;
+	name small_office;
+	filename "../FCZ01_SOFF.csv";
+	floor_area 10 ksf;
+	tariff tou;
+	weather yakima;
+	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01;Th:-100;Th0:50;Th1:20;Electric:0}";
+	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01;Tc:100;Tc0:70;Tc1:100;}";
+	composition "Ventilation:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Water_Heating:{ZR:0.9;PR:0.1;PI:0.01;Electric:0}";
+	composition "Refrigeration:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Exterior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Interior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Office_Equipment:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Miscellaneous:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Motors:{ZR:0.9;PR:0.1;PI:0.01}";
+	object recorder {
+		file test_ceus_small_office.csv;
+		property total_power_A,total_power_B,total_power_C,total_real_power,total_reactive_power;
+		interval 1h;
+	};
+}

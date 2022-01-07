@@ -160,6 +160,7 @@ DEPRECATED static KEYWORD dmc_keys[] = {
 		{"VERSION", 	DMC_VERSION, 		dmc_keys+50},
 		{"XCORE", 		DMC_XCORE, 			dmc_keys+51},
 		{"MAIN",		DMC_MAIN,			dmc_keys+52},
+		{"PYTHON",      DMC_PYTHON,         dmc_keys+53},
 		{"CMDARG",		DMC_CMDARG,			NULL},
 };
 DEPRECATED static KEYWORD vtc_keys[] = {
@@ -198,6 +199,11 @@ DEPRECATED static KEYWORD jcf_keys[] = {
 	{"DICT",		JCF_DICT,		jcf_keys+3},
 	{"DEGREES",		JCF_DEGREES,	jcf_keys+4},
 	{"RADIANS",		JCF_RADIANS,	NULL}
+};
+DEPRECATED static KEYWORD pof_keys[] = {
+	{"TEXT",		POF_TEXT,		pof_keys+1},
+	{"CSV",         POF_CSV,        pof_keys+2},
+	{"JSON",		POF_JSON,		NULL},
 };
 
 DEPRECATED static struct s_varmap {
@@ -356,6 +362,12 @@ DEPRECATED static struct s_varmap {
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
     {"echo", PT_bool, &global_echo, PA_PUBLIC, "echo subcommands"},
+    {"filename",PT_char1024, &global_loader_filename, PA_REFERENCE, "current filename processed by loader"},
+    // {"linenum",PT_int32, &global_loader_linenum, PA_REFERENCE,"current line number processed by loaded"},
+    {"country", PT_char8, &global_country,PA_PUBLIC,"country code"},
+    {"region", PT_char32, &global_region,PA_PUBLIC,"region code"},
+    {"organization",PT_char32, &global_organization,PA_PUBLIC,"organization name"},
+    {"profile_output_format",PT_set,&global_profile_output_format,PA_PUBLIC,"profiler output data format"},
 	/* add new global variables here */
 };
 
@@ -1320,7 +1332,7 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
@@ -1350,7 +1362,7 @@ DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
@@ -1360,11 +1372,11 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
 		return NULL;
 	}
-	strncpy(buffer,var,size);
-	char *dir = strrchr(buffer,'/');
+	char *dir = strrchr(var,'/');
 	if ( dir != NULL )
 	{
 		*dir = '\0';
+		strncpy(buffer,var,size);
 	}
 	else
 	{
@@ -1375,7 +1387,7 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 
 DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 {
-	char var[1024];
+	char var[size+1];
 	if ( spec[0] != '$' )
 	{
 		strncpy(var,spec,sizeof(var)-1);
@@ -1423,6 +1435,93 @@ DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
         len += snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
     }
     return buffer;
+}
+
+const char *geocode_encode(char *buffer, int len, double lat, double lon, int resolution=12)
+{
+	static const char *base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
+	if ( len < resolution+1 )
+	{
+		output_warning("geocode_encode(buffer=%p, len=%d, lat=%g, lon=%g, resolution=%d): buffer too small for specified resolution, result truncated", 
+			buffer, len, lat, lon, resolution);
+		resolution = len-1;
+	}
+	double lat_interval[] = {-90,90};
+	double lon_interval[] = {-180,180};
+	char *geohash = buffer;
+	geohash[0] = '\0';
+	int bits[] = {16,8,4,2,1};
+	int bit = 0;
+	int ch = '\0';
+	bool even = true;
+	int i = 0;
+	while ( i < resolution )
+	{
+		if ( even )
+		{
+			double mid = (lon_interval[0]+lon_interval[1])/2;
+			if ( lon > mid )
+			{
+				ch |= bits[bit];
+				lon_interval[0] = mid;
+			}
+			else
+			{
+				lon_interval[1] = mid;
+			}
+		}
+		else
+		{
+			double mid = (lat_interval[0]+lat_interval[1])/2;
+			if ( lat > mid )
+			{
+				ch |= bits[bit];
+				lat_interval[0] = mid;
+			}
+			else
+			{
+				lat_interval[1] = mid;
+			}
+		}
+		even = !even;
+		if ( bit < 4 )
+		{
+			bit += 1;
+		}
+		else
+		{
+			*geohash++ = base32[ch];
+			i++;
+			bit = 0;
+			ch = 0;
+		}
+	}
+	*geohash++ = '\0';
+	return buffer;
+}
+
+DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
+{
+	double lat, lon;
+	OBJECT *obj;
+	unsigned int res = 5; // about 2.4 km resolution by default
+	char name[64];
+	if ( sscanf(spec,"%lg,%lg#%u",&lat,&lon,&res) >= 2 )
+	{
+		return geocode_encode(buffer,size,lat,lon,res);
+	}
+	else if ( sscanf(spec,"%63[^#]#%u",name,&res) >= 1 && (obj=object_find_name(name)) != NULL )
+	{
+		lat = obj->latitude;
+		lon = obj->longitude;
+		if ( isfinite(lat) && isfinite(lon) && lat>=-90 && lat<=+90 && lon>=-180 && lon<=180 )
+		{
+			return geocode_encode(buffer,size,lat,lon,res);
+		}
+	}
+	output_warning("${GEOCODE %s}: geocode spec is not valid",spec);
+	buffer[0] = '\0';
+	return buffer;
 }
 
 /** Get the value of a global variable in a safer fashion
@@ -1519,6 +1618,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
     if ( strncmp(name,"FIND ",5) == 0 )
     {
         return global_findobj(buffer,size,name+5);
+    }
+    if ( strncmp(name,"GEOCODE ",8) == 0 )
+    {
+    	return global_geocode(buffer,size,name+8);
     }
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )

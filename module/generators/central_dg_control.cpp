@@ -47,28 +47,86 @@ central_dg_control::central_dg_control(MODULE *module)
 				PT_KEYWORD,"NO_CONTROL",(enumeration)NO_CONTROL,
 				PT_KEYWORD,"CONSTANT_PF",(enumeration)CONSTANT_PF,
 				PT_KEYWORD,"PEAK_SHAVING",(enumeration)PEAK_SHAVING,
-
-			
-			
 			PT_double, "peak_S[W]", PADDR(S_peak),
 			PT_double, "pf_low[unit]", PADDR(pf_low),
 			PT_double, "pf_high[unit]", PADDR(pf_high),
-
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 			defaults = this;
-
-			memset(this,0,sizeof(central_dg_control));
-
-
 	}
 }
 /* Object creation is called once for each object that is created by the core */
 int central_dg_control::create(void) 
 {
-	// Default values for Inverter object.
+	FreqPower = NULL;
+	TotalPower = NULL;
+	PO_prev_it = 0.0;
+	QO_prev_it = 0.0;
+	strcpy(controlled_objects,"");
+	inverter_set = NULL;
+	battery_inverter_set = NULL;
+	solar_inverter_set = NULL;
+	battery_set = NULL;
+	solar_set = NULL;
+	feederhead_meter = NULL;
+	controlled_count = 0;
+	inverter_count = 0;
+	battery_count = 0;
+	solar_count = 0;
+	battery_inverter_count = 0;
+	solar_inverter_count = 0;
+	active_control_mode = NO_CONTROL;
+	pf_is_low = false;
+	pf_is_high = false;
+	P_is_high = false;
+	P[0] = P[1] = P[2] = 0.0;
+	P_3p = 0.0;
+	Q[0] = Q[1] =  Q[2] = 0.0;
+	Q_3p = 0.0;
+	S_3p = complex(0,0,I);
+	P_disp_3p = 0.0;
+	Q_disp_3p = 0.0;
+	P_gen[0] = P_gen[1] = P_gen[2] = 10.0;
+	P_gen_3p = 0.0;
+	Q_gen[0] = Q_gen[1] = Q_gen[2] = 0.0;
+	Q_gen_3p = 0.0;
+	P_gen_solar[0] = P_gen_solar[1] = P_gen_solar[2] = 0.0;
+	P_gen_solar_3p = 0.0;
+	Q_gen_solar[0] = Q_gen_solar[1] = Q_gen_solar[2] = 0.0;
+	Q_gen_solar_3p = 0.0;
+	P_gen_battery[0] = P_gen_battery[1] = P_gen_battery[2] = 0.0;
+	P_gen_battery_3p = 0.0;
+	Q_gen_battery[0] = Q_gen_battery[1] = Q_gen_battery[2] = 0.0;
+	Q_gen_battery_3p = 0.0;
+	pf_meas[0] = pf_meas[1] = pf_meas[2] = 0.0;
+	pf_meas_3p = 0.0;
+	pf_low = 0.0;
+	pf_high = 0.0;
+	S_peak = 0.0;
+	inverter_P_a_set = NULL;
+	inverter_P_b_set = NULL;
+	inverter_P_c_set = NULL;
+	inverter_Q_a_set = NULL;
+	inverter_Q_b_set = NULL;
+	inverter_Q_c_set = NULL;
+	inverter_S_rated_set = NULL;
+	battery_qs = NULL;
+	inverter_P_a_disp_set = NULL;
+	inverter_P_b_disp_set = NULL;
+	inverter_P_c_disp_set = NULL;
+	inverter_Q_a_disp_set = NULL;
+	inverter_Q_b_disp_set = NULL;
+	inverter_Q_c_disp_set = NULL;
+	all_inverter_S_rated = 0.0;
+	all_battery_S_rated = 0.0;
+	all_solar_S_rated = 0.0;
+
+	inverter_type_v = (enumeration)TWO_PULSE;
+	
+	VA_Out = complex(0,0,I);
 	control_mode_setting[0] = NO_CONTROL;
 	control_mode_setting[1] = control_mode_setting[2] = control_mode_setting[3] = NO_SETTING;
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 

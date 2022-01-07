@@ -92,25 +92,35 @@ rbsa::RBSADATA * rbsa::add_enduse(const char *filename, const char *enduse)
 }
 rbsa::RBSADATA * rbsa::add_enduse(RBSADATA *repo, const char *enduse)
 {
-	while ( repo->next_enduse != NULL && repo->enduse != NULL )
+	if ( find_enduse(repo,enduse) != NULL )
 	{
-		repo = repo->next_enduse;
+		gl_debug("enduse %s already exists", enduse);
+		return repo;
 	}
-	if ( repo->enduse != NULL ) // this is aleady in use
+	else if ( repo->enduse == NULL )
+	{
+		repo->enduse = strdup(enduse);
+		return repo;
+	}
+	else if ( repo->next_enduse == NULL )
 	{
 		RBSADATA *item = (RBSADATA*)malloc(sizeof(RBSADATA));
 		memset((void*)item,0,sizeof(RBSADATA));
 		item->filename = repo->filename;
 		item->next_file = repo->next_file;
+		item->enduse = strdup(enduse);
+		item->next_enduse = repo->next_enduse;
 		repo->next_enduse = item;
-		repo = item;
+		return item;
 	}
-	repo->enduse = strdup(enduse);
-	return repo;
+	else
+	{
+		return add_enduse(repo->next_enduse,enduse);
+	}	
 }
-rbsa::RBSADATA *rbsa::get_first_enduse(const char *filename)
+rbsa::RBSADATA *rbsa::get_first_enduse(const char *filename=NULL)
 {
-	RBSADATA *repo = find_file(filename);
+	RBSADATA *repo = filename ? find_file(filename) : get_first_file();
 	return repo;
 }
 rbsa::RBSADATA *rbsa::get_next_enduse(RBSADATA *repo)
@@ -124,15 +134,14 @@ rbsa::RBSADATA *rbsa::find_enduse(const char *filename, const char *enduse)
 }
 rbsa::RBSADATA *rbsa::find_enduse(RBSADATA *repo, const char *enduse)
 {
-	while ( repo != NULL )
+	for ( RBSADATA *item = repo ; item != NULL ; item = item->next_enduse )
 	{
-		if ( strcmp(repo->enduse,enduse) == 0 )
+		if ( item->enduse != NULL && strcmp(item->enduse,enduse) == 0 )
 		{
-			break;
+			return item;
 		}
-		repo = repo->next_enduse;
 	}
-	return repo;
+	return NULL;
 }
 size_t rbsa::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
 {
@@ -203,6 +212,7 @@ rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition
 	if ( e == NULL )
 	{
 		warning("unable to add composition '%s' -- enduse '%s' not found",composition,enduse);
+		debug("add_component(enduse='%s',composition='%s') --> NULL",enduse,composition);
 		return NULL;	
 	}
 
@@ -236,6 +246,7 @@ rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition
 	components = c;
 Done:
 	free(buffer);
+	debug("add_component(enduse='%s',composition='%s') --> 0x%x",enduse,composition,c);
 	return c;
 Error:
 	free(c);
@@ -245,7 +256,9 @@ Error:
 bool rbsa::set_component(const char *enduse, const char *term, double value)
 {
 	COMPONENT *c = find_component(enduse);
-	return c ? set_component(c,term,value) : false;
+	bool result = c ? set_component(c,term,value) : false;
+	debug("set_component(enduse='%s',term='%s',value=%g) --> %s", enduse, term, value, result ? "true" : "false");
+	return result;
 }
 bool rbsa::set_component(COMPONENT *component, const char *term, double value)
 {
@@ -317,6 +330,7 @@ rbsa::COMPONENT *rbsa::find_component(const char *enduse)
 			break;
 		}
 	}
+	debug("find_component(enduse='%s') --> 0x%x", enduse, c);
 	return c;
 }
 
@@ -381,8 +395,25 @@ rbsa::rbsa(MODULE *module)
 
 int rbsa::create(void) 
 {
-
-	memcpy((void*)this,defaults,sizeof(*this));
+	components = NULL;
+	voltage_A = NULL;
+	voltage_B = NULL;
+	voltage_C = NULL;
+	nominal_voltage = NULL;
+	temperature = NULL;
+	price = NULL;
+	solar = NULL;
+	occupancy = NULL;
+	data = NULL;
+	power_A = NULL;
+	power_B = NULL;
+	power_C = NULL;
+	current_A = NULL;
+	current_B = NULL;
+	current_C = NULL;
+	shunt_A = NULL;
+	shunt_B = NULL;
+	shunt_C = NULL;
 	return 1; 
 }
 
@@ -438,19 +469,16 @@ int rbsa::init(OBJECT *parent)
 
 TIMESTAMP rbsa::presync(TIMESTAMP t1)
 {
-	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
-	complex P(0,0,J);
-	*power_A = P;
-	*power_B = P;
-	*power_C = P;
-	complex I(0,0,J);
-	*current_A = I;
-	*current_B = I;
-	*current_C = I;
-	complex S(0,0,J);
-	*shunt_A = S;
-	*shunt_B = S;
-	*shunt_C = S;
+	complex O(0,0,J);
+	if ( power_A ) *power_A = O;
+	if ( power_B ) *power_B = O;
+	if ( power_C ) *power_C = O;
+	if ( current_A ) *current_A = O;
+	if ( current_B ) *current_B = O;
+	if ( current_C ) *current_C = O;
+	if ( shunt_A ) *shunt_A = O;
+	if ( shunt_B ) *shunt_B = O;
+	if ( shunt_C ) *shunt_C = O;
 	return TS_NEVER;
 }
 double rbsa::apply_sensitivity(SENSITIVITY &component, double *variable)
@@ -504,17 +532,17 @@ TIMESTAMP rbsa::sync(TIMESTAMP t1)
 		}
 	}
 	complex P(Pr,Pi,J);
-	*power_A += P;
-	*power_B += P;
-	*power_C += P;
+	if ( power_A ) *power_A += P;
+	if ( power_B ) *power_B += P;
+	if ( power_C ) *power_C += P;
 	complex I(Ir,Ii,J);
-	*current_A += I;
-	*current_B += I;
-	*current_C += I;
+	if ( current_A ) *current_A += I;
+	if ( current_B ) *current_B += I;
+	if ( current_C ) *current_C += I;
 	complex S = complex(1,0,J)/complex(Zr,Zi,J);
-	*shunt_A += S;
-	*shunt_B += S;
-	*shunt_C += S;
+	if ( shunt_A ) *shunt_A += S;
+	if ( shunt_B ) *shunt_B += S;
+	if ( shunt_C ) *shunt_C += S;
 	total_power_A = ((*voltage_A/(*nominal_voltage)*S + I)*(*voltage_A)/(*nominal_voltage) + P);
 	total_power_B = ((*voltage_B/(*nominal_voltage)*S + I)*(*voltage_B)/(*nominal_voltage) + P);
 	total_power_C = ((*voltage_C/(*nominal_voltage)*S + I)*(*voltage_C)/(*nominal_voltage) + P);
@@ -536,11 +564,6 @@ int rbsa::composition(char *buffer, size_t len)
 		if ( sscanf(buffer,"%[^:]:{%[^}]}",enduse,composition) < 2 )
 		{
 			error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",buffer);
-			return 0;
-		}
-		if ( find_component(enduse) )
-		{
-			error("composition '%s' has already been specified",enduse);
 			return 0;
 		}
 		add_component(enduse,composition);
@@ -616,7 +639,7 @@ int rbsa::filename(char *filename, size_t len)
 	size_t max_column = 0;
 	memset(map,0,sizeof(map));
 	size_t daytype_ndx = 0;
-	size_t enduse_ndx = 0;
+	int enduse_ndx = -1;
 	while ( (item=strtok_r(last?NULL:header,",\r\n",&last)) != NULL )
 	{
 		if ( max_column >= MAXDATA )
@@ -646,9 +669,10 @@ int rbsa::filename(char *filename, size_t len)
 		{
 			map[max_column].type = DT_REAL;
 			map[max_column].format = "%lg";
-			if ( enduse_ndx == 0 )
+			if ( enduse_ndx == -1 )
 				enduse_ndx = max_column;
 			map[max_column].data = add_enduse(data,item);
+			// debug("%s: added enduse %s to column %d", filename, item, max_column);
 		}
 		max_column++;
 		if ( last == NULL ) 
@@ -657,6 +681,10 @@ int rbsa::filename(char *filename, size_t len)
 		}
 	}
 	debug("%s: found %d columns", filename, max_column);
+	if ( enduse_ndx == -1 )
+	{
+		warning("%s: no enduse data found", filename);
+	}
 
 	// load records
 	char line[1024];
@@ -713,8 +741,6 @@ int rbsa::filename(char *filename, size_t len)
 			error("ignore extra data in '%s' after '%s'",(const char*)filename,line);
 			fclose(fp);
 		}
-		// unsigned int month = map[month_ndx].buffer.integer;
-		// unsigned int hour = map[hour_ndx].buffer.integer;
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
 			map[n].data->data[count] = map[n].buffer.real;

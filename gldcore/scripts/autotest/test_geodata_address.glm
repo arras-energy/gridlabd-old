@@ -1,14 +1,14 @@
 // test a single location
-#setenv REQ="2575 Sand Hill Rd, Menlo Park, CA"
+#setenv REQ="The White House"
 #define RES=${SHELL gridlabd geodata merge -D address "$REQ" --reverse -f POS}
-#define ANS=37.41546,-122.20118
+#define ANS=38.89770,-77.03655
 #if ${RES} != ${ANS}
     #error "geodata -D address merge ${REQ}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif
 
-#setenv REQ=37.4155,-122.2012
+#setenv REQ=38.8977,-77.036553
 #define RES=${SHELL gridlabd geodata merge -D address "$REQ" -f RAW:address}
-#define ANS=Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States
+#define ANS=White House, 1600, Pennsylvania Avenue Northwest, Washington, District of Columbia, 20500, United States
 #if ${RES} != ${ANS}
     #error "geodata -D address location ${REQ}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif

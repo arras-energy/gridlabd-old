@@ -103,7 +103,6 @@ public:
 		SENSITIVITY occupancy; // occupancy sensitivity
 		struct s_component *next;
 	} COMPONENT;
-	COMPONENT *components;
 public:
 	COMPONENT *get_first_component();
 	inline COMPONENT *get_next_component(COMPONENT *c);
@@ -144,6 +143,8 @@ private:
 		else
 			warning("unable to link property '%s' in object '%s'",name,get_object(obj)->get_name());
 	}
+private:
+	COMPONENT *components;
 private:
 	complex *voltage_A;
 	complex *voltage_B;

@@ -8,7 +8,7 @@ bash$ gridlabd --redirect <stream>[:<file>]
 
 # Description
 
-Redirects an output to stream to a file (or null).
+Redirects an output to stream to a file (or null). Valid streams are `output`, `error`, `warning`, `debug`, `verbose`, `profile`, and `progress`.  The default filenames are `gridlabd.{out,err,wrn,dbg,inf,pro,prg}`, respectively.
 
 # Examples 
 

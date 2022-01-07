@@ -1,12 +1,17 @@
-[[/Command/Profile]] -- Toggles performance profiling of core and modules while simulation runs
+[[/Command/Profile]] -- Control performance profiling of core and modules while simulation runs
 
 # Synopsis
 
 ~~~
-bash$ gridlabd --profile                                               
+bash$ gridlabd --profile[=FORMAT]                                           
 ~~~
 
 # Description
 
-Toggles performance profiling of core and modules while simulation runs.
+Control performance profiling of core and modules while simulation runs.  Support formats are `TEXT`, `CSV`, and `JSON`.  The default format is `TEXT`.  Use the [[/Command/Redirect]] option to write the output to a file.
 
+When the profiler is enabled, the object profile is also output to `object_profile.txt`.
+
+# See also
+
+* [[/Command/Redirect]]

@@ -5,16 +5,16 @@
 ~~~
 object pole
 {
-    pole_status "OK";
+    status "OK";
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
-    wind_speed 0.0 m/s;
-    wind_direction 0.0 deg;
-    wind_gusts 0.0 m/s;
     configuration "<pole-configuration-object>";
     install_year "1970";
     repair_time "24 h";
+    wind_speed 0.0 m/s;
+    wind_direction 0.0 deg;
+    wind_gusts 0.0 m/s;
     pole_stress "0 pu";
     pole_stress_polynomial_a "0 ft*lb";
     pole_stress_polynomial_b "0 ft*lb";
@@ -22,7 +22,12 @@ object pole
     susceptibility "0 pu*s/m";
     total_moment "0 ft*lb";
     resisting_moment "0 ft*lb";
+    pole_moment "0 ft*lb"; 
+    pole_moment_nowind "0 ft*lb"; 
+    equipment_moment "0 ft*lb"; 
+    equipment_moment_nowind "0 ft*lb"; 
     critical_wind_speed "0 m/s";
+    guy_height "0 ft"; 
 }
 ~~~
 
@@ -66,33 +71,6 @@ The tilt direction of the pole.
 
 Reference to the source of the weather data.
 
-### `wind_speed`
-
-~~~
-    wind_speed 0.0 m/s;
-~~~
-
-The wind speed at the location of the pole.  This is automatically set is the
-`weather` object is provided.
-
-### `wind_direction`
-
-~~~
-    wind_direction 0.0 deg;
-~~~
-
-The wind direction at the location of the pole.  This is automatically set is the
-`weather` object is provided.
-
-### `wind_gusts`
-
-~~~
-    wind_gusts 0.0 m/s;
-~~~
-
-The wind gusts at the location of the pole.  This is automatically set is the
-`weather` object is provided.
-
 ### `configuration`
 
 ~~~
@@ -116,6 +94,33 @@ Year the pole was installed.
 ~~~
 
 Time required to repair or replace the pole after failure.
+
+### `wind_speed`
+
+~~~
+    int32 wind_speed [m/s];
+~~~
+
+The wind speed at the location of the pole.  This is automatically set is the
+`weather` object is provided.
+
+### `wind_direction`
+
+~~~
+    int32 wind_direction [deg];
+~~~
+
+The wind direction at the location of the pole.  This is automatically set is the
+`weather` object is provided.
+
+### `wind_gusts`
+
+~~~
+    int32 wind_gusts [m/s];
+~~~
+
+The wind gusts at the location of the pole.  This is automatically set is the
+`weather` object is provided.
 
 ### `pole_stress`
 
@@ -171,6 +176,38 @@ The total moment on the pole.
     double resisting_moment[ft*lb];
 ~~~
 
+### `pole_moment`
+
+~~~
+    double pole_moment[ft*lb];
+~~~
+
+The moment of the pole. 
+
+### `pole_moment_nowind`
+
+~~~
+    double pole_moment_nowind[ft*lb];
+~~~
+
+The moment of the pole without wind. 
+
+### `equipment_moment`
+
+~~~
+    double equipment_moment[ft*lb];
+~~~
+
+The moment of the equipment. 
+
+### `equipment_moment_nowind`
+
+~~~
+    double equipment_moment_nowind[ft*lb];
+~~~
+
+The moment of the equipment without wind. 
+
 The resisting moment on the pole.
 
 ### `critical_wind_speed`
@@ -180,6 +217,14 @@ The resisting moment on the pole.
 ~~~
 
 Wind speed at pole failure.
+
+### `guy_height`
+
+~~~
+    double guy_height[m/s];
+~~~
+
+Guy wire attachment height.
 
 # Model
 
