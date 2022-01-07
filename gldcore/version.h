@@ -1,4 +1,4 @@
-/* File: version.h
+/* File: version.h 
    Copyright (C) 2008, Pacific Northwest National Laboratory
  */
 
@@ -9,9 +9,9 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
-#define REV_MAJOR 5
-#define REV_MINOR 0
-#define REV_PATCH 0
+#define REV_MAJOR 4
+#define REV_MINOR 2
+#define REV_PATCH 30
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -33,6 +33,7 @@ unsigned int version_minor(void);
 unsigned int version_patch(void);
 unsigned int version_build(void);
 const char *version_branch(void);
+bool version_check(const char *expression);
 
 #ifdef __cplusplus
 }
