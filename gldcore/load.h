@@ -277,10 +277,13 @@ private:
 	int time_value_minutes(PARSER, TIMESTAMP *t);
 	int time_value_hours(PARSER, TIMESTAMP *t);
 	int time_value_days(PARSER, TIMESTAMP *t);
+	int time_value_weeks(PARSER, TIMESTAMP *t);
+	int time_value_years(PARSER, TIMESTAMP *t);
 	int time_value_datetime(PARSER, TIMESTAMP *t);
 	int time_value_datetimezone(PARSER, TIMESTAMP *t);
 	int time_value_isodatetime(PARSER, TIMESTAMP *t);
 	int time_value(PARSER, TIMESTAMP *t);
+	int delta_time(PARSER, TIMESTAMP *t);
 	double load_latitude(char *buffer);
 	double load_longitude(char *buffer);
 	int clock_properties(PARSER);
@@ -371,7 +374,9 @@ private:
 	static void kill_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
+public:
 	STATUS loadall_glm(const char *file);
+private:
 	TECHNOLOGYREADINESSLEVEL calculate_trl(void);
 	bool load_import(const char *from, char *to, int len);
 	STATUS load_python(const char *filename);

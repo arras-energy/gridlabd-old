@@ -1,4 +1,6 @@
 #set suppress_repeat_messages=FALSE
+#set verbose=TRUE
+#set output_message_context=NONE
 
 clock {
     timezone "PST+8PDT";
@@ -22,7 +24,10 @@ object climate {
 // pole model
 ///////////////////////////////////////
 
-module powerflow;
+module powerflow
+{
+	message_flags VERBOSE;
+}
 
 object overhead_line_conductor
 {
@@ -117,16 +122,21 @@ object pole {
     tilt_direction 270;
     install_year 1990;
     object pole_mount {
+    	name device1_mount_pole1;
         equipment device1;
         weight 250 lb;
         area 4 sf;
         height 35 ft;
+	    flags NONE;
     };
     object pole_mount
     {
+    	name line_1_2_mount_pole1;
         equipment line_1_2;
         pole_spacing 300 ft;
+	    flags VERBOSE;
     };
+    flags NONE;
 };
 
 object pole {
@@ -138,16 +148,21 @@ object pole {
 	install_year 2000;
     object pole_mount
     {
+    	name device2_mount_pole2;
         equipment device2;
         weight 250 lb;
         area 4 sf;
         height 35 ft;
+	    flags NONE;
     };
     object pole_mount
     {
+    	name line_1_2_mount_pole2;
         equipment line_1_2;
         pole_spacing 300 ft;
+	    flags NONE;
     };
+    flags NONE;
 }
 
 object equipment
@@ -176,6 +191,6 @@ object multi_recorder {
 	file test_pole.csv;
 }
 
-#ifexist "../test_pole.csv"
-#on_exit 0 diff -q test_pole.csv ../test_pole.csv
-#endif
+// #ifexist "../test_pole.csv"
+// #on_exit 0 diff -q test_pole.csv ../test_pole.csv
+// #endif

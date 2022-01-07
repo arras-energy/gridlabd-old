@@ -109,7 +109,7 @@ extern "C" {
 
 	void sched_init(int readonly);
 	void sched_clear(void);
-	void sched_print(int flags);
+	void sched_print(int flags, const char *format = NULL);
 	void sched_update(TIMESTAMP clock, enumeration status);
 	void sched_pkill(pid_t pid, int signal=SIGINT);
 	void sched_controller(void);

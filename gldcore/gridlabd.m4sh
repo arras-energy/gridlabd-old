@@ -16,7 +16,7 @@ HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
 if test "x$1" = "xdocker" ; then :
   if test "x$HAS_DOCKER" = "xno"; then :
-    echo "docker is not installed"
+    echo "ERROR: docker is not installed"
     exit 1
   elif test "x$2" = "xhelp"; then :
     echo "Syntax: gridlabd docker <command>"
@@ -34,7 +34,7 @@ if test "x$1" = "xdocker" ; then :
       docker images | grep gridlabd
       exit 0
     else
-      echo "missing docker image name"
+      echo "ERROR: missing docker image name"
       exit 1
     fi
   elif test "x$2" = "xdisable" ; then :
@@ -92,7 +92,7 @@ elif test "x$1" = "xlldb" ; then :
 elif test "x$1" = "xvalgrind" ; then :
   shift
   if test -z "${VALGRIND_OPTIONS}" ; then :
-    echo "warning: VALGRIND_OPTIONS is not set, using default valgrind options"
+    echo "WARNING: VALGRIND_OPTIONS is not set, using default valgrind options"
   fi
   valgrind ${VALGRIND_OPTIONS} $bindir/gridlabd.bin $@
   exit 0
@@ -102,6 +102,10 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [. ${pkgdatadir}/gridlabd.rc],
   [])
 
+AS_IF([test -f "${GLD_ETC}/$1.py"],
+  [export PYTHONPATH=$GLD_ETC; /usr/local/bin/python3 -m "$@" ; exit $?],
+  [])
+
 AS_IF([test -x "${bindir}/gridlabd-$1"],
   ["${bindir}/gridlabd"-"$@"],
-  ["$bindir/gridlabd.bin" "$@"])
+  ["${bindir}/gridlabd.bin" "$@" && "${bindir}/gridlabd-version" check -w])
