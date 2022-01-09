@@ -59,7 +59,7 @@ function version-check()
 		exit 0
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
-	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
+	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
 	[ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
 	[ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/index.html?v=${version}&b=${branch}" >/dev/null & )
 	exit 0
@@ -193,3 +193,11 @@ if [ "$(type -t version-$1)" == "function" ]; then
 else
 	error 9 "'$1' is not a valid command"
 fi
+
+if [ -z "$(which gridlabd)" ]; then
+	warning "gridlabd is not in the current PATH environment"
+fi
+if [ -f "/usr/local/bin/python3" ]; then
+	warning "python3 is not linked where gridlabd wants it in /usr/local/bin"
+fi
+
