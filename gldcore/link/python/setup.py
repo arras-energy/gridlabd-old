@@ -137,9 +137,12 @@ def get_version(path=None):
 				if info[0] == "#define":
 					if info[1] == "BUILDNUM":
 						build = int(info[2])
+					elif info[1] == "BRANCH":
+						branch = info[2].replace('"','')
 	except:
 		build = 0
-	return '%d.%d.%d.%d' % (major,minor,patch,build)
+	# TODO: this needs to be revised to match PEP 440
+	return '%d.%d.%d-%d-%s' % (major,minor,patch,build,branch)
 
 setup (	name = 'gridlabd',
 		version = get_version(),
