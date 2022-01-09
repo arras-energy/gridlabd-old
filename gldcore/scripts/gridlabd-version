@@ -59,7 +59,7 @@ function version-check()
 		exit 0
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
-	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && error 1 "$version ($branch) is outdated" ) ; exit 1 )
+	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && warning "$version ($branch) is outdated" ) ; exit 0 )
 	[ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
 	[ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/index.html?v=${version}&b=${branch}" >/dev/null & )
 	exit 0
