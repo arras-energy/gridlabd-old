@@ -1,23 +1,35 @@
 #!/bin/bash
 
 REPO=${REPO:-https://github.com/slacgismo/gridlabd}
-BRANCH=${BRANCH:-master}
+BRANCH=${BRANCH:-develop}
+IMAGE_NAME=${IMAGE_NAME:-gismo/gridlabd}
+NPROC=${NPROC:-1}
+RUN_VALIDATION=${RUN_VALIDATION:-yes}
+
+
 echo "
 #####################################
 #   gridlabd <- $REPO/$BRANCH
+#   NPROC <- $NPROC
+#   IMAGE_NAME <- $IMAGE_NAME
+#   RUN_VALIDATION <- $RUN_VALIDATION
 #####################################
 "
 
+echo "check docker .."
+#check docker installation
+if [[ $(which docker) && $(docker --version) ]]; then
+    echo "docker is installed "
+else
+    error "docker is not installed, please install docker"
+fi
+# check docker service 
+if ! docker info > /dev/null 2>&1; then
+error "This script uses docker, and it isn't running - please start docker and try again!"
+fi
 
-# create Dockerfile 
-echo "FROM centos:8" >> Dockerfile
-echo "RUN yum install git -y" >> Dockerfile
-echo "WORKDIR /usr/local/src" >> Dockerfile
-echo "RUN git clone $REPO -b $BRANCH" >> Dockerfile
-echo "WORKDIR /usr/local/src/gridlabd" >> Dockerfile
-echo "# install system dependencies and python packages" >> Dockerfile
-# echo "RUN ./build-aux/setup-Linux-centos-8.sh" >> Dockerfile
-
-chmod +rxw Dockerfile
-docker build -t gismo/gridlabd .
-docker run -it gismo/gridlabd bash
+# copy and overwrite Dockerfile to work directory 
+cp  -fr ./docker/docker-build/Dockerfile ./Dockerfile
+chmod +rxw ./Dockerfile
+# run docker build
+# docker build -f Dockerfile -t $IMAGE_NAME --build-arg BRANCH=$SOURCE_BRANCH --build-arg RUN_VALIDATION=$RUN_VALIDATION --build-arg NPROC=$NPROC .
