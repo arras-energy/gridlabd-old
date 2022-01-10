@@ -1403,9 +1403,10 @@ DEPRECATED static int libinfo(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::libinfo(int argc, const char *argv[])
 {
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	if (argc-1>0)
 	{	argc--;
-		module_libinfo(*++argv);
+		module_libinfo(*++argv,use_json);
 		return CMDOK;
 	}
 	else
