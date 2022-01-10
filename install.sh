@@ -94,6 +94,7 @@ function info()
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
+	echo "DOCKER=$DOCKER"
 }
 
 function help()
@@ -120,6 +121,8 @@ function help()
 	  -v   --verbose         Run showing log output
 	       --validate        Run validation tests
 	       --version <name>  Override the default version name
+	  -b   --docker <branch> Installation via docker container with optional branch name
+	  	   
 	END
 }
 
@@ -158,6 +161,11 @@ while [ $# -gt 0 ]; do
 		;;
 	(-p|--parallel)
 		PARALLEL="yes"
+		;;
+	(-b|--docker)
+		DOCKER="yes"
+		BRANCH="$2"
+		shift 1
 		;;
 	(--prefix)
 		PREFIX="$2"
@@ -237,6 +245,34 @@ if [ "$VERBOSE" == "yes" ]; then
 	tail -f -n 10000 $LOG 2>/dev/null &
 fi
 
+
+# check system
+NPROC=1
+SYSTEM=$(uname -s)
+if [ "$PARALLEL" == "yes" ]; then
+	if [ "$SYSTEM" == "Linux" ]; then
+		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
+	elif [ "$SYSTEM" == "Darwin" ]; then
+		NPROC=$(sysctl -n machdep.cpu.thread_count)
+	fi
+fi
+
+
+
+# define docker-build 
+function docker ()
+{	
+	# pass variable to setup-Linux-docker-build.sh and execute the file
+	NPROC=$NPROC BRANCH=$BRANCH RUN_VALIDATION=$TEST ./build-aux/setup-Linux-docker-build.sh
+	exit 0
+}
+
+# run setup docker build
+if [ "$DOCKER" == "yes" ]; then
+	docker
+	exit 0
+fi
+
 # run setup
 if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
@@ -314,15 +350,6 @@ if [ ! -f "configure" -o "$QUICK" == "no" ]; then
     run ./configure --prefix="$INSTALL" $*
 fi
 
-NPROC=1
-SYSTEM=$(uname -s)
-if [ "$PARALLEL" == "yes" ]; then
-	if [ "$SYSTEM" == "Linux" ]; then
-		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
-	elif [ "$SYSTEM" == "Darwin" ]; then
-		NPROC=$(sysctl -n machdep.cpu.thread_count)
-	fi
-fi
 
 # build everything
 export PATH=/usr/local/bin:/usr/bin:/bin
