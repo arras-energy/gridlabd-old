@@ -10,7 +10,8 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-AM_INIT_AUTOMAKE = subdir-objects
+AM_INIT_AUTOMAKE = subdir-objects 
+AUTOMAKE_OPTIONS = -Wno-portability
 ACLOCAL_AMFLAGS = -I m4
 
 CC = $(PTHREAD_CC)
@@ -57,6 +58,7 @@ include $(top_srcdir)/third_party/Makefile.mk
 include $(top_srcdir)/gldcore/Makefile.mk
 include $(top_srcdir)/python_extras/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
+include $(top_srcdir)/utilities/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk
