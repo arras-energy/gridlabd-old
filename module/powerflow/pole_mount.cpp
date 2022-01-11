@@ -55,9 +55,11 @@ pole_mount::pole_mount(MODULE *mod)
                 PT_DESCRIPTION, "weight of equipment mounted",
 
             PT_double, "pole_spacing[ft]", get_pole_spacing_offset(),
+                PT_DEFAULT, "0.0 ft",
                 PT_DESCRIPTION, "Mean spacing between poles adjacent",
 
             PT_double, "angle[deg]", get_angle_offset(),
+                PT_DEFAULT, "0.0 deg",
                 PT_DESCRIPTION, "Angle of the pole line",
 
             PT_object, "weather", get_weather_offset(),
