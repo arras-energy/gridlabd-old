@@ -48,7 +48,7 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
-python_requirements = requirements.txt
+python_requirements = $(shell find $(top_srcdir) -name requirements.txt -print)
 
 docs_targets =
 
@@ -295,7 +295,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@cat $(shell find $(top_srcdir) -name requirements.txt -print) | python3 -m pip install -q -r /dev/stdin
+	@for REQ in $(python_requirements) ; do python3 -m pip install -q -r $$REQ ; done
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
