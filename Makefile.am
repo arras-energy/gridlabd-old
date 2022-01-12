@@ -295,7 +295,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@for REQ in $(python_requirements) ; do python3 -m pip install -q -r $$REQ ; done
+	@python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
