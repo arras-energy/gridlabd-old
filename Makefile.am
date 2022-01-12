@@ -295,7 +295,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) | python3 -m pip install -q -r /dev/stdin
+	@cat $(shell find $(top_srcdir) -name requirements.txt -print) | python3 -m pip install -q -r /dev/stdin
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
