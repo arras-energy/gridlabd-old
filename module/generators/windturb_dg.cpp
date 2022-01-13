@@ -454,7 +454,7 @@ int windturb_dg::init(OBJECT *parent)
 			*/
 	}
 
-	static complex default_line123_voltage[3], default_line1_current[3];
+	static complex default_line123_voltage[3];
 
 	//Map phases
 	set *phaseInfo = NULL;
