@@ -178,3 +178,5 @@ gldcore/gridlabd.in
 geodata.conf
 gldcore/autotest/output.csv
 python_extras/example/output.csv
+*.egg
+gridlabd.egg-info/
