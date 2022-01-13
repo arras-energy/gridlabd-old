@@ -10,6 +10,7 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-help
 bin_SCRIPTS += gldcore/scripts/gridlabd-json-get
 bin_SCRIPTS += gldcore/scripts/gridlabd-job
 bin_SCRIPTS += gldcore/scripts/gridlabd-library
+bin_SCRIPTS += gldcore/scripts/gridlabd-lock
 bin_SCRIPTS += gldcore/scripts/gridlabd-manual
 bin_SCRIPTS += gldcore/scripts/gridlabd-matrix
 bin_SCRIPTS += gldcore/scripts/gridlabd-openfido

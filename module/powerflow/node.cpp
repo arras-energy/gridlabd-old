@@ -4086,7 +4086,6 @@ int node::NR_current_update(bool parentcall)
 		{
 			complex vdel;
 			complex temp_current[3];
-			complex temp_val[3];
 
 			//Find V12 (just in case)
 			vdel=voltage[0] + voltage[1];
@@ -5158,7 +5157,7 @@ void node::NR_swing_status_check(bool *swing_status_check_value, bool *swing_pq_
 //Function to reset the "disabled state" of the node, if called (re-enable an island, basically)
 STATUS node::reset_node_island_condition(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = ((OBJECT*)this)-1; //OBJECTHDR(this);
 	STATUS temp_status;
 	FUNCTIONADDR temp_fxn_val;
 	int node_calling_reference;
