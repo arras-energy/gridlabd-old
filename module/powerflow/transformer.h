@@ -48,6 +48,7 @@ public:
 	double aging_step;			// maximum timestep before updating thermal and aging model in seconds.
 	TIMESTAMP return_at;
 	double last_temp;
+	double degradation_factor;	// turns ratio degradation factor
 
 	int transformer_inrush_mat_update(void);
 	int transformer_saturation_update(bool *deltaIsat);
