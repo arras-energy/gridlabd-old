@@ -67,8 +67,12 @@ int overhead_line::init(OBJECT *parent)
 	double temp_rating_emergency = 20000.0;
 	size_t index;
 	OBJECT *temp_obj;
-	line::init(parent);
+	int result = line::init(parent);
 
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+	
 	if (!configuration)
 		throw "no overhead line configuration specified.";
 		/*  TROUBLESHOOT

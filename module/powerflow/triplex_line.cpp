@@ -66,6 +66,10 @@ int triplex_line::init(OBJECT *parent)
 	
 	int result = line::init(parent);
 
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+
 	if (!has_phase(PHASE_S))
 		warning("%s (%s:%d) is triplex but doesn't have phases S set", obj->name, obj->oclass->name, obj->id);
 		/*  TROUBLESHOOT

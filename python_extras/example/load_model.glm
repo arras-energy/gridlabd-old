@@ -1,0 +1,19 @@
+// test load model fitting
+
+#define START=2017-09-01T01:00:00
+#python -m fit_filter -o=power.csv -i=weather.csv -c=load_model_config.py -C=output -P=weather.csv -g=/tmp/test.glm -k=24 -R=output.csv -I="${START}"
+
+#include "/tmp/test.glm"
+
+module tape
+{
+	csv_header_type NAME;
+}
+
+clock {
+	timezone "PST+8PDT";
+	starttime "${START}";
+	runtime 24 h;
+}
+
+#on_exit 0 gridlabd dataframe -i=power.csv --left_dateformat="%m/%d/%y %H:%M" -j=output.csv -o=output.png

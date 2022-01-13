@@ -5,7 +5,7 @@
 ~~~
 object pole
 {
-    pole_status "OK";
+    status "OK";
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
@@ -27,7 +27,9 @@ object pole
     equipment_moment "0 ft*lb"; 
     equipment_moment_nowind "0 ft*lb"; 
     critical_wind_speed "0 m/s";
-    guy_height "0 ft"; 
+    wire_moment "0 ft*lb";
+    wire_tension "0 ft*lb";
+    guy_height "0 ft";
 }
 ~~~
 
@@ -217,6 +219,22 @@ The resisting moment on the pole.
 ~~~
 
 Wind speed at pole failure.
+
+### `wire_moment`
+
+~~~
+    double wire_moment[ft*lb];
+~~~
+
+Wire moment due to conductor weight.
+
+### `wire_tension`
+
+~~~
+    double wire_tension[ft*lb];
+~~~
+
+Wire moment due to conductor tension.
 
 ### `guy_height`
 

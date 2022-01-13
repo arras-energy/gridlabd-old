@@ -449,7 +449,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 {
 	if ( argc > 1 )
 	{
-		char pathname[1024];
+		char pathname[4096];
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{
@@ -473,7 +473,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 {
 	if ( argc > 1 )
 	{
-		char pathname[1024];
+		char pathname[4096];
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{
@@ -1391,9 +1391,10 @@ DEPRECATED static int libinfo(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::libinfo(int argc, const char *argv[])
 {
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	if (argc-1>0)
 	{	argc--;
-		module_libinfo(*++argv);
+		module_libinfo(*++argv,use_json);
 		return CMDOK;
 	}
 	else
@@ -2185,11 +2186,42 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 	int month = (BUILDNUM%10000)/100;
 	int day = (BUILDNUM%100);
 	const char *Month[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-	output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
-		" %s\" (%d) [online]."
-		" Available at %s. Accessed %s. %d, %d",
-		PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
-		platform, year, url, Month[month-1], day, year);
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
+	bool use_bibtex = (strstr(argv[0],"=bibtex")!=NULL);
+	int old = global_suppress_repeat_messages;
+	global_suppress_repeat_messages = 0;
+	if ( use_json )
+	{
+		output_message("{");
+		output_message("  \"%s\" : \"%s\",","author","Chassin, D.P. et al.");
+		output_message("  \"%s\" : \"%s\",","name",PACKAGE_NAME);
+		output_message("  \"%s\" : \"%s\",","version",PACKAGE_VERSION);
+		output_message("  \"%s\" : \"%s\",","branch",BRANCH);
+		output_message("  \"%s\" : %d,","year",year);
+		output_message("  \"%s\" : \"%d-%d-%d\",","date",year,month,day);
+		output_message("  \"%s\" : \"%s\",","url",url);
+		output_message("  \"%s\" : %d,","buildnum",BUILDNUM);
+		output_message("  \"%s\" : \"%s\"","platform",platform);
+		output_message("}");
+	}
+	else if ( use_bibtex )
+	{
+		output_message("@misc{gridlabd,");
+		output_message("\tauthor = {{Chassin, D.P., et al.}},");
+		output_message("\ttitle = {{%s (%s-%d-%s for %s)}},", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, platform);
+		output_message("\tyear = {%d},", year);
+		output_message("\turl = {%s}",url);
+		output_message("}");
+	}
+	else
+	{
+		output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
+			" %s\" (%d) [online]."
+			" Available at %s. Accessed %s. %d, %d",
+			PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
+			platform, year, url, Month[month-1], day, year);
+	}
+	global_suppress_repeat_messages = old;
 	return 0;
 }
 
@@ -2212,14 +2244,20 @@ DEPRECATED static int nprocs(void *main, int argc, const char *argv[])
     return 0;
 }
 
-#include "job.h"
-#include "validate.h"
+DEPRECATED static int sublime_syntax(void *main, int argc, const char *argv[])
+{
+	((GldMain*)main)->get_loader()->sublime_syntax();
+	return 0;
+}
 
 /*********************************************/
 /* ADD NEW CMDARG PROCESSORS ABOVE THIS HERE */
 /* Then make the appropriate entry in the    */
 /* CMDARG structure below                    */
 /*********************************************/
+
+#include "job.h"
+#include "validate.h"
 
 DEPRECATED static CMDARG main_commands[] = {
 
@@ -2278,6 +2316,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"xsd",			NULL,	xsd,			"[module[:class]]", "Prints the XSD of a module or class" },
 	{"xsl",			NULL,	xsl,			"module[,module[,...]]]", "Create the XSL file for the module(s) listed" },
 	{"formats",     NULL,   formats,        NULL, "get a list supported file formats"},
+	{"sublime_syntax", NULL, sublime_syntax, NULL, "generate sublime syntax file"},
 
 	{NULL,NULL,NULL,NULL, "Help"},
 	{"help",		"h",	help,			NULL, "Displays command line help" },
