@@ -48,6 +48,7 @@ int output_debug(const char *format,...);
 int output_verbose(const char *format,...);
 int output_message(const char *format,...);
 int output_raw(const char *format,...);
+int output_raw_error(const char *format,...);
 int output_test(const char *format,...);
 int output_progress(void);
 int output_profile(const char *format,...);
