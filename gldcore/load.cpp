@@ -7030,6 +7030,30 @@ static int is_autodef(char *value)
 #include "threadpool.h"
 #include "signal.h"
 
+void GldLoader::wait_processes(void)
+{
+	output_debug("waiting for started tasks to terminate");
+	while ( threadlist != NULL )
+	{
+		struct s_threadlist *next = threadlist->next;
+		void *status = NULL;
+		int err = pthread_join(*(threadlist->data),&status);
+		if ( err != 0 )
+		{
+			output_error("thread wait failed, errno %d (%s)", err, strerror(err));
+		}
+		else if ( status != 0 )
+		{
+			output_error("thread %p terminated with status %d", threadlist->data, status);
+		}
+		else
+		{
+			output_debug("thread %p completed ok", threadlist->data);
+		}
+		threadlist = next;
+	}
+}
+
 void GldLoader::kill_processes(void)
 {
 	while ( threadlist != NULL )
@@ -8181,6 +8205,12 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#meta", 5) == 0 )
 	{
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	else if ( strncmp(line, "#wait", 5) == 0 )
+	{
+		wait_processes();
 		strcpy(line,"\n");
 		return TRUE;
 	}

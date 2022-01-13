@@ -372,6 +372,7 @@ private:
 	int include_file(char *incname, char *buffer, int size, int _linenum);
 	int process_macro(char *line, int size, char *_filename, int linenum);
 	static void kill_processes(void);
+	static void wait_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
 public:
