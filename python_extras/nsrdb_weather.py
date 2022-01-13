@@ -325,7 +325,7 @@ def getyear(year,lat,lon):
             raise Exception(f"cache file '{cache}' is not readable ({err}), try again later")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
     for data in result["DataFrame"]:
-        data["datetime"] = list(map(lambda x: datetime.datetime(x[0,0],x[0,1],x[0,2],x[0,3],0,0),numpy.matrix([data.Year,data.Month,data.Day,data.Hour]).transpose()))
+        data["datetime"] = list(map(lambda x: datetime.datetime(x[0,0],x[0,1],x[0,2],x[0,3],0,0),numpy.array([data.Year,data.Month,data.Day,data.Hour]).transpose()))
         data.set_index("datetime",inplace=True)
         data.drop(columns=["Year","Day","Month","Hour","Minute"],inplace=True)
         data.columns = [
