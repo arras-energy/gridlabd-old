@@ -23,16 +23,22 @@ public:
     GL_ATOMIC(double,area);
     GL_ATOMIC(double,pole_spacing);
     GL_ATOMIC(double,angle);
+    GL_ATOMIC(object, weather);
+    GL_ATOMIC(double, wind_speed);
+    GL_ATOMIC(double, wind_direction);
 private:
     double equipment_moment;
     double equipment_moment_nowind;
     gld_property *pole_status;
     gld_property *equipment_status;
     bool equipment_is_line;
+    double line_load;
     double line_load_nowind;
     double line_moment;
     double line_moment_nowind;
     double tension;
+    gld_property *wind_speed_ref;
+    gld_property *wind_direction_ref;
 public:
 	pole_mount(MODULE *);
 	int create(void);

@@ -182,3 +182,4 @@ python_extras/example/output.csv
 gridlabd.egg-info/
 gldcore/link/python/dist/
 gldcore/link/python/gridlabd.egg-info/
+gridlabd.egg-*
