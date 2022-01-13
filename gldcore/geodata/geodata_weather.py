@@ -2,6 +2,38 @@
 
 The collects weather data from a region to allow object to refer to localized weather.
 
+INPUT:
+
+    latitude    the latitude of the location
+    
+    longitude   the longitude of the location
+
+OUTPUT:
+
+    name        the geohash code name of the location
+    
+    filename    the weather filename of the location
+
+
+OPTIONS:
+
+    geohash_resolution  the size of the geohash code name (default 6)
+    
+    key_index           the output record name (default "name")
+    
+    starttime           the default start time (Jan 1 of last year) 
+    
+    stoptime            the default stop time (Dec 31 of last year)
+
+CONFIGURATION:
+
+    cachedir    the path to the cache for data files (default 
+                "$GLD_ETC/gridlabd/weather/nsrdb")
+
+ENVIRONMENT:
+
+    GLD_ETC     the path to the shared files (default "/usr/local/share/gridlabd")
+
 Note: This package can require a lot of time when accessing several years over a wide area.
 """
 
@@ -72,9 +104,9 @@ def apply(data, options=default_options, config=default_config, warning=print):
     else:
         years = f"{startyear}-{stopyear}"
     location = list(map(lambda row:nsrdb_weather.geohash(float(row['latitude']),float(row['longitude']),nsrdb_weather.geocode_precision),data.to_dict('records')))
-    data["name"] = location
+    data[options["key_index"]] = location
     data["filename"] = list(map(lambda code:f"nsrdb_{code}_{years}.csv",location))
-    for code,file in zip(data["name"],data["filename"]):
+    for code,file in zip(data[options["key_index"]],data["filename"]):
         if not os.path.exists(file):
             lat,lon = nsrdb_weather.geocode(code)
             years = list(range(startyear,stopyear+1))
@@ -98,7 +130,7 @@ if __name__ == '__main__':
                 })
             starttime = "2020"
             stoptime = "2020"
-            result = apply(test,options=dict(geohash_resolution=6,starttime=starttime,stoptime=stoptime))
+            result = apply(test,options=dict(geohash_resolution=6,key_index="name",starttime=starttime,stoptime=stoptime))
             pandas.set_option("display.max_rows",None)
             pandas.set_option("display.max_columns",None)
             pandas.set_option("display.max_colwidth",None)
