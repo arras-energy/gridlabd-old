@@ -1,4 +1,9 @@
 FROM centos:8
+# variable pass from install.sh
+ARG NPROC=${NPROC}
+ARG RUN_VALIDATION=${RUN_VALIDATION}
+RUN echo "NPROC=$NPROC RUN_VALIDATION=$RUN_VALIDATION"
+
 RUN yum install git -y
 WORKDIR /usr/local/src
 RUN git clone $REPO -b $BRANCH

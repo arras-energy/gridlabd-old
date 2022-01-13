@@ -99,8 +99,8 @@ UPDATE="yes"
 VERBOSE="no"
 
 #
-# Enable to build a docker image and start gridlabd installation process inside 
-# the docker container. By default the dokcer build command was disable. This 
-# option can be enabled using the "--docker-build" option.
+# Enable the docker build command and run installation inside the docker image. 
+# By default the dokcer build command was disable. This 
+# option can be enabled using the "--docker <branch>" option. The second argument is the o
 #
 DOCKER="no"
