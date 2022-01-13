@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# ensure only one weather call runs at a time
+. $(dirname $0)/gridlabd-lock
+
 # check environment
 if [ ${GLD_ETC:-none} == none ]; then
 	echo "$0: ERROR: GLD_ETC is not exported from the shell environment" > /dev/stderr
