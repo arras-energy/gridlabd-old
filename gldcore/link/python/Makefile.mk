@@ -9,4 +9,4 @@ python-install: $(top_srcdir)/gldcore/link/python/dist/gridlabd-$(notdir $(prefi
 
 python-clean:
 	@echo "uninstalling $(top_srcdir)/gldcore/link/python"
-	@python3 -m pip uninstall gridlabd -y
+	@python3 -m pip uninstall gridlabd -y || (echo "Use '. utilities/cleanwc' instead to clean this build."; exit 1)
