@@ -2256,14 +2256,20 @@ DEPRECATED static int nprocs(void *main, int argc, const char *argv[])
     return 0;
 }
 
-#include "job.h"
-#include "validate.h"
+DEPRECATED static int sublime_syntax(void *main, int argc, const char *argv[])
+{
+	((GldMain*)main)->get_loader()->sublime_syntax();
+	return 0;
+}
 
 /*********************************************/
 /* ADD NEW CMDARG PROCESSORS ABOVE THIS HERE */
 /* Then make the appropriate entry in the    */
 /* CMDARG structure below                    */
 /*********************************************/
+
+#include "job.h"
+#include "validate.h"
 
 DEPRECATED static CMDARG main_commands[] = {
 
@@ -2322,6 +2328,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"xsd",			NULL,	xsd,			"[module[:class]]", "Prints the XSD of a module or class" },
 	{"xsl",			NULL,	xsl,			"module[,module[,...]]]", "Create the XSL file for the module(s) listed" },
 	{"formats",     NULL,   formats,        NULL, "get a list supported file formats"},
+	{"sublime_syntax", NULL, sublime_syntax, NULL, "generate sublime syntax file"},
 
 	{NULL,NULL,NULL,NULL, "Help"},
 	{"help",		"h",	help,			NULL, "Displays command line help" },

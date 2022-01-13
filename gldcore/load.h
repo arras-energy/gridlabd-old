@@ -389,6 +389,8 @@ private:
 	const char *get_last_term(void);
 private:
 	void inc_linenum() { linenum++; global_loader_linenum = linenum; };
+public:
+	void sublime_syntax(void);
 };
 
 #endif
