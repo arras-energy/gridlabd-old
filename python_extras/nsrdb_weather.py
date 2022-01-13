@@ -164,7 +164,7 @@ except:
 def error(msg,code=None):
     """Display an error message and exit if code is a number"""
     if code != None:
-        print(f"ERROR [nsrdb_weather.py]: {msg}",file=sys.stderr)
+        print(f"ERROR [nsrdb_weather]: {msg}",file=sys.stderr)
         exit(code)
     else:
         raise Exception(msg)
@@ -299,16 +299,30 @@ def getcache(year,lat,lon,refresh=False):
 
 def getyear(year,lat,lon):
     """Get NSRDB weather data for a single year"""
-    cache = getcache(year,lat,lon)
+    api = getkey()
+    url = f"{server}?wkt=POINT({lon}%20{lat})&names={year}&leap_day={str(leap).lower()}&interval={interval}&utc={str(utc).lower()}&api_key={api}&attributes={attributes}&email={email}&full_name=None&affiliation=None&mailing_list=false&reason=None"
+    cache = f"{cachedir}/nsrdb/{year}/{geohash(lat,lon)}.csv"
     try:
         result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
-        result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
-        verbose(f"getyear(year={year},lat={lat},lon={lon}): reading data from {cache}")
+        try:
+            result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): reading data from {cache}")
+        except Exception as err:
+            os.remove(cache)
+            raise Exception(f"cache file '{cache}' is not readable ({err}), try again later")
     except:
         result = None
     if not result:
-        cache = getcache(year,lat,lon,True)
-        result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
+        os.makedirs(os.path.dirname(cache),exist_ok=True)
+        with open(cache,"w") as fout:
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): downloading data from {url}")
+            fout.write(requests.get(url).content.decode("utf-8"))
+            verbose(f"getyear(year={year},lat={lat},lon={lon}): saved data to {cache}")
+        try:
+            result = pandas.read_csv(cache,nrows=1).to_dict(orient="list")
+        except Exception as err:
+            os.remove(cache)
+            raise Exception(f"cache file '{cache}' is not readable ({err}), try again later")
         result.update(dict(Year=[year],DataFrame=[pandas.read_csv(cache,skiprows=2)]))
     for data in result["DataFrame"]:
         data["datetime"] = list(map(lambda x: datetime.datetime(x[0,0],x[0,1],x[0,2],x[0,3],0,0),numpy.matrix([data.Year,data.Month,data.Day,data.Hour]).transpose()))
@@ -392,6 +406,7 @@ def geohash(latitude, longitude, precision=geocode_precision):
     """Encode a position given in float arguments latitude, longitude to
     a geohash which will have the character count precision.
     """
+    from math import log10
     __base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
     __decodemap = { }
     for i in range(len(__base32)):
@@ -503,6 +518,8 @@ if __name__ == "__main__":
             value = None
         if token in ["-h","--help","help"]:
             syntax()
+        elif token == "--debug":
+            debug_enable = True
         elif token in ["-y","--year"]:
             year = []
             for y in value.split(","):
@@ -576,4 +593,12 @@ if __name__ == "__main__":
         data = getyears(year,float(position[0]),float(position[1]))
         writeglm(data,glm,name,csv)
 
+    if position and year:
+        try:
+            data = getyears(year,float(position[0]),float(position[1]))
+            writeglm(data,glm,name,csv)
+        except Exception as err:
+            if not debug_enable:
+                error(err,1)
+            raise
 

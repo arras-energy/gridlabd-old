@@ -238,6 +238,8 @@ int windturb_dg::init(OBJECT *parent)
 
 	double ZB, SB = 0.0, EB = 0.0;
 	complex tst, tst2, tst3, tst4;
+	gld_property *temp_property_pointer;
+	enumeration temp_enum;
 
 	switch (Turbine_Model)	{
 		case GENERIC_IND_LARGE:
@@ -452,19 +454,7 @@ int windturb_dg::init(OBJECT *parent)
 			*/
 	}
 
-	// construct circuit variable map to meter -- copied from 'House' module
-	struct {
-		complex **var;
-		const char *varname;
-	} map[] = {
-		// local object name,	meter object name
-		{&pCircuit_V,			"voltage_A"}, // assumes 2 and 3 follow immediately in memory
-		{&pLine_I,				"current_A"}, // assumes 2 and 3(N) follow immediately in memory
-		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
-	};
-
-	static complex default_line123_voltage[3], default_line1_current[3];
-	size_t i;
+	static complex default_line123_voltage[3];
 
 	//Map phases
 	set *phaseInfo = NULL;
@@ -554,18 +544,58 @@ int windturb_dg::init(OBJECT *parent)
 			voltages of the parent meter be within ~10% of the rated voltage.
 			*/
 
-			// attach meter variables to each circuit
-			for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
-			{
-				*(map[i].var) = get_complex(parent,map[i].varname);
+			//Map the solver method and see if we're NR-oriented
+			temp_property_pointer = new gld_property("powerflow::solver_method");
 
-				if (*(map[i].var) == NULL)
-				{
-					GL_THROW("Unable to map variable %s",map[i].varname);
-					/*  TROUBLESHOOT
-					The variable name was not found when mapping it
-					*/
-				}
+			//Make sure it worked
+			if ((temp_property_pointer->is_valid() != true) || (temp_property_pointer->is_enumeration() != true))
+			{
+				GL_THROW("windturb_dg:%d %s failed to map the nominal_frequency property", obj->id, (obj->name ? obj->name : "Unnamed"));
+				/*  TROUBLESHOOT
+				While attempting to map the powerflow:solver_method property, an error occurred.  Please try again.
+				If the error persists, please submit your GLM and a bug report to the ticketing system.
+				*/
+			}
+
+			//Must be valid, read it
+			temp_enum = temp_property_pointer->get_enumeration();
+
+			//Remove the link
+			delete temp_property_pointer;
+
+			//Check which method we are - NR=2
+			if (temp_enum == 2)
+			{
+				//Map the current property - pre-rotated for NR
+				pLine_I = get_complex(parent,"prerotated_current_A");
+			}
+			else	//Other methods - should already be set, but be explicit
+			{
+				//Map the normal current property for FBS for now
+				pLine_I = get_complex(parent,"current_A");
+			}
+
+			//Check it
+			if (pLine_I == NULL)
+			{
+				GL_THROW("windturb_dg:%d %s failed to map the current property", obj->id, (obj->name ? obj->name : "Unnamed"));
+				/*  TROUBLESHOOT
+				While attempting to map the current property from the parent meter, an error occurred.  Please try again.
+				If the error persists, please submit your GLM and a bug report to the ticketing system.
+				*/
+			}
+
+			//Map the voltage - it's the same regardless
+			pCircuit_V = get_complex(parent,"voltage_A");
+
+			//Check it
+			if (pCircuit_V == NULL)
+			{
+				GL_THROW("windturb_dg:%d %s failed to map the voltage property", obj->id, (obj->name ? obj->name : "Unnamed"));
+				/*  TROUBLESHOOT
+				While attempting to map the voltage property from the parent meter, an error occurred.  Please try again.
+				If the error persists, please submit your GLM and a bug report to the ticketing system.
+				*/
 			}
 		}
 		else if (gl_object_isa(parent,"triplex_meter","powerflow"))
@@ -620,22 +650,25 @@ int windturb_dg::init(OBJECT *parent)
 			voltages of the parent meter be within ~10% of the rated voltage.
 			*/
 
+			//Map the normal current property
+			pLine_I = get_complex(parent,"current_A");
 
-
-			// attach meter variables to each circuit
-			for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+			//Check it
+			if (pLine_I == NULL)
 			{
-				if ((*(map[i].var) = get_complex(parent,map[i].varname))==NULL)
-				{
-					GL_THROW("%s (%s:%d) does not implement rectifier variable %s for %s (windturb_dg:%d)", 
-						/*	TROUBLESHOOT
-						The rectifier requires that the inverter contains certain published properties in order to properly connect. If you encounter this error, please report it to the developers, along with
-						the version of GridLAB-D that raised this error.
-						*/
-						parent->name?parent->name:"unnamed object", parent->oclass->name, parent->id, map[i].varname, obj->name?obj->name:"unnamed", obj->id);
-				}
-			}
+				GL_THROW("windturb_dg:%d %s failed to map the current property", obj->id, (obj->name ? obj->name : "Unnamed"));
+				//Defined above
+			}	
 
+			//Map the voltage - it's the same regardless
+			pCircuit_V = get_complex(parent,"voltage_A");
+
+			//Check it
+			if (pCircuit_V == NULL)
+			{
+				GL_THROW("windturb_dg:%d %s failed to map the voltage property", obj->id, (obj->name ? obj->name : "Unnamed"));
+				//Defined above
+			}
 		}
 		else
 		{
@@ -650,8 +683,8 @@ int windturb_dg::init(OBJECT *parent)
 		warning("windturb_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");	
 
 		// attach meter variables to each circuit in the default_meter
-		*(map[0].var) = &default_line123_voltage[0];
-		*(map[1].var) = &default_line1_current[0];
+		// *(map[0].var) = &default_line123_voltage[0];
+		// *(map[1].var) = &default_line1_current[0];
 
 		// provide initial values for voltages
 		default_line123_voltage[0] = complex(Rated_V/sqrt(3.0),0);

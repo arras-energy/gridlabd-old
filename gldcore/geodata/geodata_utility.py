@@ -223,6 +223,9 @@ if __name__ == '__main__':
 
     import unittest
 
+    default_config['cachedir'] = "/tmp/geodata/utility"
+    os.makedirs(default_config['cachedir'],exist_ok=True)
+
     class TestDataset(unittest.TestCase):
 
         def test_utility_geometry(self):

@@ -20,7 +20,9 @@ fi
 cd gridlabd 
 autoreconf -isf 
 ./configure 
-make -j30 system
+export MAKEFLAGS=-j$(($(nproc)*3))
+export PYTHONSETUPFLAGS="-j $(($(nproc)*3))"
+make system
 export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
 
 # get weather

@@ -89,18 +89,80 @@ int line::create()
 
 int line::init(OBJECT *parent)
 {
+	OBJECT *obj = ((OBJECT*)this)-1; // OBJECTHDR(this)
+	gld_property *fNode_nominal, *tNode_nominal;
+	double f_nominal_voltage, t_nominal_voltage;
+	complex Zabc_mat_temp[3][3], Yabc_mat_temp[3][3];
+	
 	violation_watch = violation_watchset&VW_LINE;
 	int result = link_object::init(parent);
 
-	node *pFrom = OBJECTDATA(from,node);
-	node *pTo = OBJECTDATA(to,node);
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+
+	//Map the nodes nominal_voltage values
+	fNode_nominal = new gld_property(from,"nominal_voltage");
+
+	//Check it
+	if ((fNode_nominal->is_valid() != true) || (fNode_nominal->is_double() != true))
+	{
+		GL_THROW("line:%d - %s - Unable to map nominal_voltage from connected node!",obj->id,(obj->name ? obj->name : "Unnamed"));
+		/*  TROUBESHOOT
+		While attempting to map the nominal_voltage property of the from or to node on a line, an error occurred.
+		Please try again.  If the error persists, please submit your code and a bug report via the issue tracking system.
+		*/
+	}
+
+	//Get the other one
+	tNode_nominal = new gld_property(to,"nominal_voltage");
+
+	//Check it
+	if ((tNode_nominal->is_valid() != true) || (tNode_nominal->is_double() != true))
+	{
+		GL_THROW("line:%d - %s - Unable to map nominal_voltage from connected node!",obj->id,(obj->name ? obj->name : "Unnamed"));
+		//Defined above
+	}
+
+	//Pull the values
+	f_nominal_voltage = fNode_nominal->get_double();
+	t_nominal_voltage = tNode_nominal->get_double();
+
+	//Remove the property pointers, since they are no longer needed
+	delete fNode_nominal;
+	delete tNode_nominal;
 
 	/* check for node nominal voltage mismatch */
-	if ((pFrom->nominal_voltage - pTo->nominal_voltage) > fabs(0.001*pFrom->nominal_voltage))
-		throw "from and to node nominal voltage mismatch of greater than 0.1%";
+	if (fabs(f_nominal_voltage - t_nominal_voltage) > (0.001*f_nominal_voltage))
+		throw "from and to node nominal voltage mismatch of greater than 0.1%%";
 
 	if (solver_method == SM_NR && length == 0.0)
 		throw "Newton-Raphson method does not support zero length lines at this time";
+	
+	//Now see if we are truly "just a line" (not overhead or anything) - if so, do a recalc for us
+	if (strcmp(obj->oclass->name,"line")==0)
+	{
+		warning("line:%d - %s - use of an overhead_line, underground_line, or other line-based subclass is highly recommended!",obj->id,(obj->name?obj->name:"Unnamed"));
+		/*  TROUBLESHOOT
+		Users are encouraged to use one of the specific sub-classes of line objects, not line itself.  Functionality with line objects is limited and mostly handled
+		by their appropriate subclasses (e.g., overhead_line, underground_line, triplex_line).
+		*/
+
+		//Make sure a configuration was actually specified
+		if ((configuration == NULL) || (!gl_object_isa(configuration,"line_configuration","powerflow")))
+		{
+			GL_THROW("line:%d - %s - configuration object either doesn't exist, or is not a valid configuration object!",obj->id,(obj->name?obj->name:"Unnamed"));
+			/*  TROUBLESHOOT
+			The configuration field for the line object is either empty, or does not contain a line_configuration object.  Please fix this and try again.
+			*/
+		}
+
+		//Perform the calculation assuming we're matrix-based (because we basically have to be)
+		load_matrix_based_configuration(Zabc_mat_temp, Yabc_mat_temp);
+
+		//Now push it
+		recalc_line_matricies(Zabc_mat_temp, Yabc_mat_temp);
+	}
 
 	return result;
 }
@@ -191,11 +253,26 @@ void line::recalc_line_matricies(complex Zabc_mat[3][3], complex Yabc_mat[3][3])
 {
 	complex U_mat[3][3], temp_mat[3][3];
 
-	// Setup unity matrix
-	U_mat[0][0] = U_mat[1][1] = U_mat[2][2] = 1.0;
-	U_mat[0][1] = U_mat[0][2] = 0.0;
-	U_mat[1][0] = U_mat[1][2] = 0.0;
-	U_mat[2][0] = U_mat[2][1] = 0.0;
+	//Do an initial zero
+	U_mat[0][0] = U_mat[0][1] = U_mat[0][2] = 0.0;
+	U_mat[1][0] = U_mat[1][1] = U_mat[1][2] = 0.0;
+	U_mat[2][0] = U_mat[2][1] = U_mat[2][2] = 0.0;
+
+	// Setup unity matrix - by phase
+	if (has_phase(PHASE_A))
+	{
+		U_mat[0][0] = 1.0;
+	}
+
+	if (has_phase(PHASE_B))
+	{
+		U_mat[1][1] = 1.0;
+	}
+
+	if (has_phase(PHASE_C))
+	{
+		U_mat[2][2] = 1.0;
+	}
 
 	//b_mat = Zabc_mat as per Kersting (6.10)
 		equalm(Zabc_mat,b_mat);

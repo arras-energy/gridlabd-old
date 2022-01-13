@@ -46,6 +46,8 @@ default_config = {
     "provider" : "nominatim",
     "user_agent" : "csv_user_ht",
     "timeout" : 5,
+    "retries" : 5,
+    "sleep" : 1,
 }
 
 #
@@ -91,11 +93,20 @@ def apply(data, options=default_options, config=default_config, warning=print):
         if not "address" in list(data.columns):
             raise Exception("reserve address resolution requires 'address' field")
         data.reset_index(inplace=True) # index is not meaningful
-        pos = geocode(data["address"],
-                provider = config["provider"],
-                user_agent = config["user_agent"],
-                timeout = config["timeout"],
-                )
+        for retries in range(config["retries"]):
+            try:
+                pos = geocode(data["address"],
+                        provider = config["provider"],
+                        user_agent = config["user_agent"],
+                        timeout = config["timeout"],
+                        )
+                break
+            except Exception as err:
+                pos = err
+            import time
+            time.sleep(config["sleep"])
+        if type(pos) is Exception:
+            raise pos
         data["longitude"] = list(map(lambda p: p.x,pos["geometry"]))
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
         return data
@@ -111,11 +122,20 @@ def apply(data, options=default_options, config=default_config, warning=print):
             pos = None
         if type(pos) == type(None):
             raise Exception("address resolution requires 'latitude' and 'longitude' fields")
-        addr = reverse_geocode(pos,
-                provider = config["provider"],
-                user_agent = config["user_agent"],
-                timeout = config["timeout"],
-                )
+        for retries in range(config["retries"]):
+            try:
+                addr = reverse_geocode(pos,
+                        provider = config["provider"],
+                        user_agent = config["user_agent"],
+                        timeout = config["timeout"],
+                        )
+                break
+            except Exception as err:
+                addr = err
+            import time
+            time.sleep(config["sleep"])
+        if type(addr) is Exception:
+            raise addr
         data["address"] = Series(addr["address"],dtype="string").tolist()
         return data
 
@@ -130,18 +150,18 @@ if __name__ == '__main__':
 
         def test_address_reverse(self):
             test = DataFrame({
-                "address":["2575 Sand Hill Rd., Menlo Park, CA 94025, USA"],
+                "address":["The White House"],
                 })
             result = apply(test,{"reverse":True})
-            self.assertEqual(round(result["latitude"][0],6),37.420457)
-            self.assertEqual(round(result["longitude"][0],6),-122.204568)
+            self.assertEqual(round(result["latitude"][0],6),38.8977)
+            self.assertEqual(round(result["longitude"][0],6),-77.036553)
 
         def test_address(self):
             test = DataFrame({
-                "latitude" : [37.4205],
-                "longitude" : [-122.2046],
+                "latitude" : [38.8977],
+                "longitude" : [-77.036553],
                 })
             result = apply(test)
-            self.assertEqual(result["address"][0],"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
+            self.assertTrue(result["address"][0],"The White House")
 
     unittest.main()

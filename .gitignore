@@ -176,3 +176,7 @@ gldcore/converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
 geodata.conf
+gldcore/autotest/output.csv
+python_extras/example/output.csv
+*.egg
+gridlabd.egg-*

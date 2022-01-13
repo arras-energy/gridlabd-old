@@ -73,6 +73,8 @@ transformer::transformer(MODULE *mod) : link_object(mod)
 				PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the secondary side of the transformer during saturation calculations",
 			PT_double, "phase_C_secondary_flux_value[Wb]", PADDR(flux_vals_inst[5]),
 				PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the secondary side of the transformer during saturation calculations",
+			PT_double, "degradation_factor[pu]", PADDR(degradation_factor),
+				PT_DESCRIPTION, "turns ratio degradataion factor (0 means no degradation)", 
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 			if (gl_publish_function(oclass,"power_calculation",(FUNCTIONADDR)power_calculation)==NULL)
@@ -173,18 +175,30 @@ int transformer::init(OBJECT *parent)
 	link_rating[0][0] = config->kVA_rating;
 	link_rating[1][0] = config->kVA_rating;
 
-	link_object::init(parent);
+	int result = link_object::init(parent);
+
+	//Check for deferred
+	if (result == 2)
+		return 2;	//Return the deferment - no sense doing everything else!
+
 	OBJECT *obj = THISOBJECTHDR;
 
-	V_base = config->V_secondary;
-	voltage_ratio = nt = config->V_primary / config->V_secondary;
+	V_base = config->V_secondary/(1-degradation_factor);
+	if ( degradation_factor < 0 || degradation_factor >= 1 )
+	{
+		error("degradation_factor must be between 0 and 1 pu");
+	}
+	voltage_ratio = nt = config->V_primary / config->V_secondary * (1-degradation_factor);
 	zt = (config->impedance * V_base * V_base) / (config->kVA_rating * 1000.0);
 	zc =  complex(V_base * V_base,0) / (config->kVA_rating * 1000.0) * complex(config->shunt_impedance.Re(),0) * complex(0,config->shunt_impedance.Im()) / complex(config->shunt_impedance.Re(),config->shunt_impedance.Im());
 
 	for (int i = 0; i < 3; i++) 
 	{
-		for (int j = 0; j < 3; j++) 
-			a_mat[i][j] = b_mat[i][j] = c_mat[i][j] = d_mat[i][j] = A_mat[i][j] = B_mat[i][j] = 0.0;
+		for (int j = 0; j < 3; j++)
+		{
+			a_mat[i][j] = b_mat[i][j] = c_mat[i][j] = d_mat[i][j] = A_mat[i][j] = B_mat[i][j] = complex(0.0,0.0);
+			base_admittance_mat[i][j] = complex(0.0,0.0);
+		}
 	}
 
 	switch (config->connect_type) {
@@ -412,14 +426,23 @@ int transformer::init(OBJECT *parent)
 
 				//Pre-inverted
 				if (has_phase(PHASE_A))
-					//b_mat[0][0] = (zc - zt) / ((zc + zt) * zt);
-					b_mat[0][0] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+				{
+					//base_admittance_mat[0][0] = (zc - zt) / ((zc + zt) * zt);
+					base_admittance_mat[0][0] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+					b_mat[0][0] = zt;
+				}
 				if (has_phase(PHASE_B))
-					//b_mat[1][1] = (zc - zt) / ((zc + zt) * zt);
-					b_mat[1][1] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+				{
+					//base_admittance_mat[1][1] = (zc - zt) / ((zc + zt) * zt);
+					base_admittance_mat[1][1] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+					b_mat[1][1] = zt;
+				}
 				if (has_phase(PHASE_C))
-					//b_mat[2][2] = (zc - zt) / ((zc + zt) * zt);
-					b_mat[2][2] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+				{
+					//base_admittance_mat[2][2] = (zc - zt) / ((zc + zt) * zt);
+					base_admittance_mat[2][2] = complex(1,0) / zt;//(zc - zt) / ((zc + zt) * zt);
+					b_mat[2][2] = zt;
+				}
 
 				//Other matrices
 				A_mat[0][1] = A_mat[0][2] = A_mat[1][0] = A_mat[1][2] = A_mat[2][0] = A_mat[2][1] = 0.0;
@@ -461,9 +484,21 @@ int transformer::init(OBJECT *parent)
 				*/
 			}
 
-			B_mat[0][0] = zt*zc/(zt+zc);
-			B_mat[1][1] = zt*zc/(zt+zc);
-			B_mat[2][2] = zt*zc/(zt+zc);
+			//Check by phase and populate
+			if (has_phase(PHASE_A))
+			{
+				B_mat[0][0] = zt*zc/(zt+zc);
+			}
+
+			if (has_phase(PHASE_B))
+			{
+				B_mat[1][1] = zt*zc/(zt+zc);
+			}
+
+			if (has_phase(PHASE_C))
+			{
+				B_mat[2][2] = zt*zc/(zt+zc);
+			}
 
 			break;
 		case transformer_configuration::DELTA_DELTA:
@@ -489,8 +524,11 @@ int transformer::init(OBJECT *parent)
 				//Calculate admittance matrix
 				complex Izt = complex(1,0) / zt;
 
-				b_mat[0][0] = b_mat[1][1] = b_mat[2][2] = Izt;
+				base_admittance_mat[0][0] = base_admittance_mat[1][1] = base_admittance_mat[2][2] = Izt;
 
+				//Base impedance
+				b_mat[0][0] = b_mat[1][1] = b_mat[2][2] = zt;
+				
 				//used for power loss calculations
 				//a_mat[0][0] = a_mat[1][1] = a_mat[2][2] = nt;
 
@@ -560,6 +598,9 @@ int transformer::init(OBJECT *parent)
 
 				nt *= sqrt(3.0);	//Adjustment for other matrices
 
+				//Base impedance for dumps
+				b_mat[0][0] = b_mat[1][1] = b_mat[2][2] = zt;
+
 				if (voltage_ratio>1.0) //Step down
 				{
 					//High->low voltage change
@@ -568,9 +609,9 @@ int transformer::init(OBJECT *parent)
 					c_mat[0][1] = c_mat[1][2] = c_mat[2][0] = 0.0;
 
 					//Y-based impedance model
-					b_mat[0][0] = b_mat[1][1] = b_mat[2][2] = Izt;
-					b_mat[0][1] = b_mat[0][2] = b_mat[1][0] = 0.0;
-					b_mat[1][2] = b_mat[2][0] = b_mat[2][1] = 0.0;
+					base_admittance_mat[0][0] = base_admittance_mat[1][1] = base_admittance_mat[2][2] = Izt;
+					base_admittance_mat[0][1] = base_admittance_mat[0][2] = base_admittance_mat[1][0] = 0.0;
+					base_admittance_mat[1][2] = base_admittance_mat[2][0] = base_admittance_mat[2][1] = 0.0;
 
 					//I-low to I-high change
 					B_mat[0][0] = B_mat[1][1] = B_mat[2][2] = complex(1.0) / alphaval;
@@ -592,9 +633,9 @@ int transformer::init(OBJECT *parent)
 					c_mat[0][2] = c_mat[1][0] = c_mat[2][1] = 0.0;
 
 					//Impedance matrix
-					b_mat[0][0] = b_mat[1][1] = b_mat[2][2] = Izt;
-					b_mat[0][1] = b_mat[0][2] = b_mat[1][0] = 0.0;
-					b_mat[1][2] = b_mat[2][0] = b_mat[2][1] = 0.0;
+					base_admittance_mat[0][0] = base_admittance_mat[1][1] = base_admittance_mat[2][2] = Izt;
+					base_admittance_mat[0][1] = base_admittance_mat[0][2] = base_admittance_mat[1][0] = 0.0;
+					base_admittance_mat[1][2] = base_admittance_mat[2][0] = base_admittance_mat[2][1] = 0.0;
 
 					//I-high to I-low change
 					B_mat[0][0] = B_mat[1][1] = B_mat[2][2] = complex(1.0) / alphaval;
@@ -871,31 +912,31 @@ int transformer::init(OBJECT *parent)
 
 				//Put in a_mat first, it gets scaled
 				//Yto
-				a_mat[0][0] = -(z2*zc*nt*nt+z0*zc+z0*z2*nt*nt);	//-z2*nt*nt-z0;
-				a_mat[0][1] = z0*zc;							//z0;
-				a_mat[1][0] = -z0*zc;							//-z0;
-				a_mat[1][1] = (z1*zc*nt*nt+z0*zc+z0*z1*nt*nt);	//z1*nt*nt+z0;
+				base_admittance_mat[0][0] = (-(z2*zc*nt*nt+z0*zc+z0*z2*nt*nt))*indet;	//-z2*nt*nt-z0;
+				base_admittance_mat[0][1] = (z0*zc)*indet;							//z0;
+				base_admittance_mat[1][0] = (-z0*zc)*indet;							//-z0;
+				base_admittance_mat[1][1] = (z1*zc*nt*nt+z0*zc+z0*z1*nt*nt)*indet;	//z1*nt*nt+z0;
 
 				//To_Y
-				a_mat[0][2] = z2*zc*nt;		//z2*nt;
-				a_mat[1][2] = -z1*zc*nt;	//-z1*nt;
+				base_admittance_mat[0][2] = (z2*zc*nt)*indet;		//z2*nt;
+				base_admittance_mat[1][2] = (-z1*zc*nt)*indet;	//-z1*nt;
 
 				//From_Y
-				a_mat[2][0] = -z2*zc*nt;	//-z2*nt;
-				a_mat[2][1] = -z1*zc*nt;	//-z1*nt;
+				base_admittance_mat[2][0] = (-z2*zc*nt)*indet;	//-z2*nt;
+				base_admittance_mat[2][1] = (-z1*zc*nt)*indet;	//-z1*nt;
 
 				//Yfrom
-				a_mat[2][2] = (z2*zc+z1*zc+z1*z2*nt*nt);	//z1+z2;
+				base_admittance_mat[2][2] = (z2*zc+z1*zc+z1*z2*nt*nt)*indet;	//z1+z2;
 
-				//Form it into b_mat
-				for (size_t xindex=0; xindex<3; xindex++)
-				{
-					for (size_t yindex=0; yindex<3; yindex++)
-					{
-						b_mat[xindex][yindex]=a_mat[xindex][yindex]*indet;
-						a_mat[xindex][yindex]=0.0;
-					}
-				}
+				//Low-side base impedance
+				b_mat[0][0] = (z1) + (z0*zc/((zc + z0)*nt*nt));
+				b_mat[0][1] = -(z0*zc/((zc + z0)*nt*nt));
+				b_mat[1][0] = (z0*zc/((zc + z0)*nt*nt));
+				b_mat[1][1] = complex(-1,0) * ((z2) + (z0*zc/((zc + z0)*nt*nt)));
+				b_mat[1][2] = complex(0,0);
+				b_mat[2][0] = complex(0,0);
+				b_mat[2][1] = complex(0,0);
+				b_mat[2][2] = complex(0,0);
 			}	
 			else 
 			{
@@ -1336,12 +1377,12 @@ int transformer::transformer_inrush_mat_update(void)
 
 	//Get the voltage levels
 	Np = config->V_primary/sqrt(3.0);
-	Ns = config->V_secondary/sqrt(3.0);
+	Ns = config->V_secondary/(1-degradation_factor)/sqrt(3.0);
 
 	//Get base impedance values
-	Rd = config->impedance.Re()*config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0);
-	Xd = config->impedance.Im()*config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0*2.0);	//Where'd this /2 come from?  Fixed in later version!?!
-	XM = config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0*config->IM_pu)-Xd;
+	Rd = config->impedance.Re()*config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0);
+	Xd = config->impedance.Im()*config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0*2.0);	//Where'd this /2 come from?  Fixed in later version!?!
+	XM = config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0*config->IM_pu)-Xd;
 
 	//******************** DEBUG NOTE - these may need to be moved, depending on where I populate things
 	//Compute saturation constants
@@ -1369,8 +1410,8 @@ int transformer::transformer_inrush_mat_update(void)
 		phi_base_Pri = config->V_primary / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
 		I_base_Pri = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_primary);
 
-		phi_base_Sec = config->V_secondary / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
-		I_base_Sec = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_secondary);
+		phi_base_Sec = config->V_secondary/(1-degradation_factor) / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
+		I_base_Sec = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_secondary/(1-degradation_factor));
 	}//Saturation enabled
 	else	//set to 0, so they cause problems if anyone uses them
 	{
