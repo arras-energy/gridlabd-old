@@ -34,7 +34,13 @@ ENVIRONMENT:
 
     GLD_ETC     the path to the shared files (default "/usr/local/share/gridlabd")
 
-Note: This package can require a lot of time when accessing several years over a wide area.
+CAVEATS:
+
+    This package can require a lot of time when accessing several years over a wide area.
+
+SEE ALSO:
+
+    * `gridlabd nsrbd_weather help` for details on NSRDB data source used by this package.
 """
 
 version = 1 # specify API version
