@@ -13,17 +13,17 @@ Options:
 
     -c|--columns=NAMES    add column names
     -d|--debug            enable debugging output
-    -e|--exception        raise exceptions on errors",file=sys.stdout)
-    -f|--flatten          use semicolon as newline",file=sys.stdout)
-    -h|--help [PATTERN]   print this help info",file=sys.stdout)
+    -e|--exception        raise exceptions on errors
+    -f|--flatten          use semicolon as newline
+    -h|--help [PATTERN]   print this help info
     -n|--name=NAME        add name to cell 0,0 when both columns and rows have
                           names
     -p|--polynomial[=VAR] output matrix rows as polynomial(s)
-    -q|--quiet            suppress all output to stderr",file=sys.stdout)
+    -q|--quiet            suppress all output to stderr
     -r|--rows=NAMES       add row names
     -s|--slice=SPEC       slice rows and columns from data before operation
     -t|--transpose        transpose output
-    -w|--warning          suppress warning output",file=sys.stdout)
+    -w|--warning          suppress warning output
 
 DESCRIPTION
 
@@ -38,7 +38,7 @@ The general syntax is
 where function is a numpy function that takes zero or more positional and/or
 keyword arguments.  Position arguments may be provided explicitly as a
 string, or implicitly from stdin with each argument separated by a newline.
-Keyword argument are provided in the form KEYWORD=VALUE.  
+Keyword arguments are provided in the form KEYWORD=VALUE.  
 
 Examples:
 
