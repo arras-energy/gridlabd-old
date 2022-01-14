@@ -3,90 +3,150 @@
 The powerline package computes geographic information about powerlines, such as
 line sag, line sway, and line gallop.
 
-All powerline package calculations require the following data:
+INPUT
 
-    latitude - required column in the data
+    latitude - The latitude is required as a float with positive north and negative
+    south orientation.
 
-        The latitude is specified as a float with positive north and negative
-        south orientation.
+    longitude - The longitude is required as a float with position east and negative
+    west orientation.
 
-    longitude - required column in the data
+    pole_height - The pole height is required in meters.
 
-        The longitude is specified as a float with position east and negative
-        west orientation.
+    cable_type - Required either in the data if not provided in the options.
+    The cable types are listed in the file geodata_powerline_cabletypes.csv
+    located in the GridLAB-D shared geodata folder, which is by default
+    /usr/local/share/gridlabd/geodata.
 
-    pole_height - required column in the data
+    distance - Optional column in the data, if absent it will be computed.
+    The distance between from the first pole in the data series.
 
-        The pole height is specified in meters.
+    heading - Optional column in the data, if absent it will computed.
+    The heading from the last pole encountered in the data series.
 
-    cable_type - required either in the data or provided in the options
+    elevation - Optional column in the data, by default 0.0.
 
-        The cable types are listed in the file geodata_powerline_cabletypes.csv
-        located in the GridLAB-D shared geodata folder, which is by default
-        /usr/local/share/gridlabd/geodata.
+    powerflow - Optional column in the data, by default 0.0, may be provided in
+    the options.
 
-    distance - optional column in the data, if absent it will be computed
+    wind_speed - Optional column in the data, by default 0.0, may be provided in
+    the options.
 
-        The distance between from the first pole in the data series.
+    wind_direction - Optional column in the data, by default 0.0, may be
+    provided in the options
 
-    heading - optional column in the data, if absent it will computed
+    air_temperature - Optional column in the data, by default 30 degC, may be
+    provided in the options.
 
-        The heading from the last pole encountered in the data series.
+    global_horizontal_irradiance - Optional column in the data, by default
+    1000.0 W/m^2, may be provided in the options.
 
-In addition, the following optional values are supported:
+    ground_reflectance - Optional column in the data, by default 0.3 pu, may be
+    provided in the options.
 
-    elevation - optional column in the data, by default 0.0
+    ice_density - Optional column in the data, by default 915.0 kg/m^3, may be
+    provided in the options.
 
-    powerflow - optional column in the data, by default 0.0, may be provided in
-        the options
+    ice_thickness - Optional column in the data, by default 0.0, may be
+    provided in the options.
 
-    wind_speed - optional column in the data, by default 0.0, may be provided in
-        the options
+OUTPUT
 
-    wind_direction - optional column in the data, by default 0.0, may be
-        provided in the options
+    LINE SAG
 
-    air_temperature - optional column in the data, by default 30 degC, may be
-        provided in the options
+    Line sag is the drop in line elevation above ground resulting from a
+    combination of the line weight, line elasticity, and line temperature. Note
+    that line sag may be affected by line sway (see below) insofar as line elevation
+    about ground is reduced as line sway is increased.
 
-    global_horizontal_irradiance - optional column in the data, by default
-        1000.0 W/m^2, may be provided in the options
+    If the line sway is non-zero, the line sag will be computed according to the
+    formula
 
-    ground_reflectance - optional column in the data, by default 0.3 pu, may be
-        provided in the options
+      linesag(linesway)^2 = linesag(0)^2 - linesway^2
 
-    ice_density - optional column in the data, by default 915.0 kg/m^3, may be
-        provided in the options
+    LINE SWAY
 
-    ice_thickness - optional column in the data, by default 0.0, may be
-        provided in the options
+    Line sway is the lateral displacement of the line as a result of lateral wind
+    forces on the line.
 
-The follows options may also be set:
+    LINE GALLOP
 
-    nominal_temperature - the temperature at which line loads are based, by
-        default 15.0 degC.
+    Line gallop is a vertical multi-nodal oscillation of a line resulting from the
+    asymetric build up of ice on the line.
 
-LINE SAG
+    try:
+        result["linesag"] = linesag(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINESAG and {err} is missing or invalid")
+    try:
+        result["linesway"] = linesway(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINEWAY and {err} is missing or invalid")
+    try:
+        result["linegallop"] = linegallop(data)
+    except Exception as err:
+        WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")
+    try:
+        result["contact"] = contact(result)
+    except Exception as err:
+        WARNING(f"cannot run function CONTACT and {err} is missing or invalid")
 
-Line sag is the drop in line elevation above ground resulting from a
-combination of the line weight, line elasticity, and line temperature. Note
-that line sag may be affected by line sway (see below) insofar as line elevation
-about ground is reduced as line sway is increased.
+OPTIONS
 
-If the line sway is non-zero, the line sag will be computed according to the
-formula
+    nominal_temperature - Temperature at which line loads are based (default
+    is 15.0 degC).
 
-  linesag(linesway)^2 = linesag(0)^2 - linesway^2
+    air_temperature - Air temperature to use (default is 30.0 degC).
 
-LINE SWAY
+    wind_speed - Wind speed to use (default is 0.0 m/s)
+    
+    wind_direction - Wind direction in compass heading degrees (default is 0.0 deg)
+    
+    ice_thickness - Ice thickness in meters (default is 0.0)
+    
+    power_flow - Power flow on line in Watts (default is 0.0 W)
+    
+    global_horizontal_irradiance - Global solar horizontal irradiance in W/m^2 
+    (default is 1000.0 W/m^2)
+    
+    ground_reflectance - Ground reflectance per unit W/m^2 (default is 0.3 pu)
+    
+    ice_density - Density of ice on lines in kg/m^3 (default is 915.0 kg/m^3)
+    
+    cable_type - Cable type (default is empty string, i.e., none specified)
+    
+    elevation - Default elevation in meters (default is 0.0, i.e., sea level)
+    
+    precision - Dictionary of value precision
 
-Line sway is the lateral displacement of the line as a result of lateral wind
-forces on the line.
+        linesag - Linesay value precision (default 1 decimal)
+    
+    margin - Clearance margins for line contact test
 
-LINE GALLOP
+        vertical - Vertical clearance margin in meters (default is 2.0 meters)
 
-Line gallop is a vertical multi-nodal oscillation of a line resulting from the
-asymetric build up of ice on the line.
+        horizontal - Horizontal clearance margin in meters (default is 2.0 meters)
+
+CONFIGURATION
+
+    cabletype_file - File name for cable types (default is "/usr/local/share/gridlabd/geodata_powerline_cabletypes.csv")
+
+EXAMPLES
+
+    Using the following geodata file stored in /tmp/test.csv
+
+        id,latitude,longitude,pole_height,elevation,cable_type,height,linesag,linesway,linegallop
+        0,37.41505,-122.20565,18.0,88.45,TACSR/AC 610mm^2,8.0,18.0,0.0,0.0
+        1,37.41487,-122.20707,,93.87875,TACSR/AC 610mm^2,8.0,9.2,0.0,0.0
+        2,37.4147,-122.20849,20.0,99.125,TACSR/AC 610mm^2,9.0,20.0,0.0,0.0
+
+    The following command computes the linesag, linesway, linegallop, contact probability
+
+        % gridlabd geodata merge -D powerline /tmp/test.csv
+        id,latitude,longitude,pole_height,elevation,cable_type,height,cover,linesag,linesway,linegallop,contact
+        0,37.41505,-122.20565,18.0,88.45,TACSR/AC 610mm^2,8.0,0.5,18.0,0.0,0.0,0.0
+        1,37.41487,-122.20707,,93.87875,TACSR/AC 610mm^2,8.0,0.4,9.2,0.0,0.0,0.4
+        2,37.4147,-122.20849,20.0,99.125,TACSR/AC 610mm^2,9.0,0.8,20.0,0.0,0.0,0.0
 
 """
 
