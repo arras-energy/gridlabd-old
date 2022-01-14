@@ -200,7 +200,7 @@ def addkey(apikey=None):
     global credential_file
     if not email:
         email = getemail()
-    keys = getkeys()
+    keys = getkeys(new=True)
     if email:
         if apikey or not email in keys.keys():
             keys[email] = apikey
@@ -209,14 +209,16 @@ def addkey(apikey=None):
         with open(credential_file,"w") as f:
             json.dump(keys,f)
 
-def getkeys():
+def getkeys(new=False):
     """Get all NSRDB API keys"""
     global credential_file
     try:
         with open(credential_file,"r") as f: 
             keys = json.load(f)
     except:
-        keys = {}
+        if new:
+            return {}
+        raise Exception("unable to get API key for NSRDB data - see `gridlabd nsrdb_weather help` for detail on NSRDB access credentials")
     return keys
 
 def getkey(email=None):
