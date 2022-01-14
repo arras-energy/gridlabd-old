@@ -35,7 +35,7 @@ matrix cumprod <matrix> axis=<int> [dtype=<str>]
 
     See Also
     --------
-    ufuncs-output-type
+    :ref:`ufuncs-output-type`
 
     Notes
     -----

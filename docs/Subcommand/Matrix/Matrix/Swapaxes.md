@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix swapaxes <matrix>
+matrix swapaxes <matrix> <int> <int>
 
 a.swapaxes(axis1, axis2)
 

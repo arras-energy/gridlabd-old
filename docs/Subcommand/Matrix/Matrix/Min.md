@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix min <matrix>
+matrix min <matrix> axis=<int>
 
 
         Return the minimum value along an axis.

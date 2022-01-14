@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix std <matrix>
+matrix std <matrix> axis=<int> ddof=<int> [dtype=<str>]
 
 
         Return the standard deviation of the array elements along the given axis.

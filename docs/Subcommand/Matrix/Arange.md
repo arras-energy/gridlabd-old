@@ -4,9 +4,9 @@
 Syntax
 ------
 
-matrix arange <float> <float> step=<float> [subok=<bool>]
+matrix arange <float> stop=<float> step=<float> [subok=<boolstr>]
 
-arange([start,] stop[, step,], dtype=None)
+arange([start,] stop[, step,], dtype=None, *, like=None)
 
     Return evenly spaced values within a given interval.
 
@@ -20,14 +20,14 @@ arange([start,] stop[, step,], dtype=None)
 
     Parameters
     ----------
-    start : number, optional
+    start : integer or real, optional
         Start of interval.  The interval includes this value.  The default
         start value is 0.
-    stop : number
+    stop : integer or real
         End of interval.  The interval does not include this value, except
         in some cases where `step` is not an integer and floating point
         round-off affects the length of `out`.
-    step : number, optional
+    step : integer or real, optional
         Spacing between values.  For any output `out`, this is the distance
         between two adjacent values, ``out[i+1] - out[i]``.  The default
         step size is 1.  If `step` is specified as a position argument,
@@ -35,6 +35,14 @@ arange([start,] stop[, step,], dtype=None)
     dtype : dtype
         The type of the output array.  If `dtype` is not given, infer the data
         type from the other input arguments.
+    like : array_like
+        Reference object to allow the creation of arrays which are not
+        NumPy arrays. If an array-like passed in as ``like`` supports
+        the ``__array_function__`` protocol, the result will be defined
+        by it. In this case, it ensures the creation of an array object
+        compatible with that passed in via this argument.
+
+        .. versionadded:: 1.20.0
 
     Returns
     -------

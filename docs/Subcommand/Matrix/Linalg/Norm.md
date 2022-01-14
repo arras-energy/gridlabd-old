@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix norm <matrix> ord=<order> axis=<int> keepdims=<bool>
+matrix norm <matrix> ord=<order> axis=<int> keepdims=<boolstr>
 
 
     Matrix or vector norm.

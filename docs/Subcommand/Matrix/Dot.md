@@ -62,6 +62,7 @@ matrix dot <matrix> <matrix>
     tensordot : Sum products over arbitrary axes.
     einsum : Einstein summation convention.
     matmul : '@' operator as method with out parameter.
+    linalg.multi_dot : Chained dot product.
 
     Examples
     --------

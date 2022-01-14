@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix put <matrix>
+matrix put <matrix> <intlist> <matrix> mode=<str>
 
 a.put(indices, values, mode='raise')
 

@@ -20,7 +20,7 @@ matrix around <matrix> decimals=<int>
     out : ndarray, optional
         Alternative output array in which to place the result. It must have
         the same shape as the expected output, but the type of the output
-        values will be cast if necessary. See `ufuncs-output-type` for more
+        values will be cast if necessary. See :ref:`ufuncs-output-type` for more
         details.
 
     Returns

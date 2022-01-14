@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix ceil <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix ceil <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -34,6 +34,6 @@ y : ndarray or scalar
 
 See Also
 --------
-floor, trunc, rint
+floor, trunc, rint, fix
 
 ~~~

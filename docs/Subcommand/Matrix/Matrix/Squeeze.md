@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix squeeze <matrix>
+matrix squeeze <matrix> axis=<int>
 
 
         Return a possibly reshaped matrix.
@@ -14,7 +14,7 @@ matrix squeeze <matrix>
         Parameters
         ----------
         axis : None or int or tuple of ints, optional
-            Selects a subset of the single-dimensional entries in the shape.
+            Selects a subset of the axes of length one in the shape.
             If an axis is selected with shape entry greater than one,
             an error is raised.
 

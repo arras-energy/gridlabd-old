@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix sum <matrix>
+matrix sum <matrix> [axis=<inttuple>] [dtype=<str>]
 
 
         Returns the sum of the matrix elements, along the given axis.

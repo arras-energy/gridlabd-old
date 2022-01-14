@@ -9,13 +9,14 @@ matrix lstsq <matrix> <matrix> rcond=<float>
 
     Return the least-squares solution to a linear matrix equation.
 
-    Computes the vector x that approximatively solves the equation
+    Computes the vector `x` that approximatively solves the equation
     ``a @ x = b``. The equation may be under-, well-, or over-determined
     (i.e., the number of linearly independent rows of `a` can be less than,
     equal to, or greater than its number of linearly independent columns).
     If `a` is square and of full rank, then `x` (but for round-off error)
     is the "exact" solution of the equation. Else, `x` minimizes the
-    Euclidean 2-norm :math:`|| b - a x ||`.
+    Euclidean 2-norm :math:`||b - ax||`. If there are multiple minimizing 
+    solutions, the one with the smallest 2-norm :math:`||x||` is returned.
 
     Parameters
     ----------
@@ -44,8 +45,8 @@ matrix lstsq <matrix> <matrix> rcond=<float>
         Least-squares solution. If `b` is two-dimensional,
         the solutions are in the `K` columns of `x`.
     residuals : {(1,), (K,), (0,)} ndarray
-        Sums of residuals; squared Euclidean 2-norm for each column in
-        ``b - a*x``.
+        Sums of squared residuals: Squared Euclidean 2-norm for each column in
+        ``b - a @ x``.
         If the rank of `a` is < N or M <= N, this is an empty array.
         If `b` is 1-dimensional, this is a (1,) shape array.
         Otherwise the shape is (K,).

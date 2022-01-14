@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix positive <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix positive <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -20,4 +20,6 @@ y : ndarray or scalar
 Notes
 -----
 Equivalent to `x.copy()`, but only defined for types that support
+arithmetic.
+
 ~~~

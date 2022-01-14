@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix choice <arrayorint> size=<intlist> replace=<bool> p=<array>
+matrix choice <arrayorint> size=<intlist> replace=<boolstr> p=<array>
 
 
         choice(a, size=None, replace=True, p=None)
@@ -21,17 +21,18 @@ matrix choice <arrayorint> size=<intlist> replace=<bool> p=<array>
         ----------
         a : 1-D array-like or int
             If an ndarray, a random sample is generated from its elements.
-            If an int, the random sample is generated as if a were np.arange(a)
+            If an int, the random sample is generated as if it were ``np.arange(a)``
         size : int or tuple of ints, optional
             Output shape.  If the given shape is, e.g., ``(m, n, k)``, then
             ``m * n * k`` samples are drawn.  Default is None, in which case a
             single value is returned.
         replace : boolean, optional
-            Whether the sample is with or without replacement
+            Whether the sample is with or without replacement. Default is True,
+            meaning that a value of ``a`` can be selected multiple times.
         p : 1-D array-like, optional
             The probabilities associated with each entry in a.
-            If not given the sample assumes a uniform distribution over all
-            entries in a.
+            If not given, the sample assumes a uniform distribution over all
+            entries in ``a``.
 
         Returns
         -------
@@ -54,6 +55,10 @@ matrix choice <arrayorint> size=<intlist> replace=<bool> p=<array>
 
         Notes
         -----
+        Setting user-specified probabilities through ``p`` uses a more general but less
+        efficient sampler than the default. The general sampler produces a different sample
+        than the optimized sampler even if each element of ``p`` is 1 / len(a).
+
         Sampling random rows from a 2-D array is not possible with this function,
         but is possible with `Generator.choice` through its ``axis`` keyword.
 

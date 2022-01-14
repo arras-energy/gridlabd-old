@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix clip <matrix> min=<float> max=<float> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix clip <matrix> min=<float> max=<float> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 a.clip(min=None, max=None, out=None, **kwargs)
 

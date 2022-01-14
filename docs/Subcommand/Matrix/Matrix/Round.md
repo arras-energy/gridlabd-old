@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix round <matrix>
+matrix round <matrix> decimals=<int>
 
 a.round(decimals=0, out=None)
 

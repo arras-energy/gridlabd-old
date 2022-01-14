@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix reshape <matrix>
+matrix reshape <matrix> <inttuple> order=<str>
 
 a.reshape(shape, order='C')
 

@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix trunc <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix trunc <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -34,7 +34,7 @@ y : ndarray or scalar
 
 See Also
 --------
-ceil, floor, rint
+ceil, floor, rint, fix
 
 Notes
 -----

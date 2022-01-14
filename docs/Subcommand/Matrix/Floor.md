@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix floor <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix floor <matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 Parameters
 ----------
@@ -34,12 +34,13 @@ y : ndarray or scalar
 
 See Also
 --------
-ceil, trunc, rint
+ceil, trunc, rint, fix
 
 Notes
 -----
-Some spreadsheet programs calculate the "floor-towards-zero", in other
-words ``floor(-2.5) == -2``.  NumPy instead uses the definition of
-`floor` where `floor(-2.5) == -3`.
+Some spreadsheet programs calculate the "floor-towards-zero", where
+``floor(-2.5) == -2``.  NumPy instead uses the definition of
+`floor` where `floor(-2.5) == -3`. The "floor-towards-zero"
+function is called ``fix`` in NumPy.
 
 ~~~

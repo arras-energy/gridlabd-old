@@ -7,7 +7,7 @@ Syntax
 matrix interp <array> <array> <array> left=<float> right=<float> period=<float>
 
 
-    One-dimensional linear interpolation.
+    One-dimensional linear interpolation for monotonically increasing sample points.
 
     Returns the one-dimensional piecewise linear interpolant to a function
     with given discrete data points (`xp`, `fp`), evaluated at `x`.
@@ -50,8 +50,12 @@ matrix interp <array> <array> <array> left=<float> right=<float> period=<float>
         If `xp` or `fp` are not 1-D sequences
         If `period == 0`
 
-    Notes
-    -----
+    See Also
+    --------
+    scipy.interpolate
+
+    Warnings
+    --------
     The x-coordinate sequence is expected to be increasing, but this is not
     explicitly enforced.  However, if the sequence `xp` is non-increasing,
     interpolation results are meaningless.

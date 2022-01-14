@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix clip <matrix> a_min=<matrix> a_max=<matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<intlist>] [keepdims=<bool>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<bool>]
+matrix clip <matrix> a_min=<matrix> a_max=<matrix> [where=<boollist>] [axes=<tuplelist>] [axis=<inttuple>] [keepdims=<boolstr>] [casting=<str>] [order=<str>] [dtype=<str>] [subok=<boolstr>]
 
 
     Clip (limit) the values in an array.
@@ -22,15 +22,10 @@ matrix clip <matrix> a_min=<matrix> a_max=<matrix> [where=<boollist>] [axes=<tup
     ----------
     a : array_like
         Array containing elements to clip.
-    a_min : scalar or array_like or None
-        Minimum value. If None, clipping is not performed on lower
-        interval edge. Not more than one of `a_min` and `a_max` may be
-        None.
-    a_max : scalar or array_like or None
-        Maximum value. If None, clipping is not performed on upper
-        interval edge. Not more than one of `a_min` and `a_max` may be
-        None. If `a_min` or `a_max` are array_like, then the three
-        arrays will be broadcasted to match their shapes.
+    a_min, a_max : array_like or None
+        Minimum and maximum value. If ``None``, clipping is not performed on
+        the corresponding edge. Only one of `a_min` and `a_max` may be
+        ``None``. Both are broadcast against `a`.
     out : ndarray, optional
         The results will be placed in this array. It may be the input
         array for in-place clipping.  `out` must be of the right shape
@@ -50,16 +45,26 @@ matrix clip <matrix> a_min=<matrix> a_max=<matrix> [where=<boollist>] [axes=<tup
 
     See Also
     --------
-    ufuncs-output-type
+    :ref:`ufuncs-output-type`
+
+    Notes
+    -----
+    When `a_min` is greater than `a_max`, `clip` returns an 
+    array in which all values are equal to `a_max`, 
+    as shown in the second example.  
 
     Examples
     --------
     >>> a = np.arange(10)
-    >>> np.clip(a, 1, 8)
-    array([1, 1, 2, 3, 4, 5, 6, 7, 8, 8])
     >>> a
     array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    >>> np.clip(a, 1, 8)
+    array([1, 1, 2, 3, 4, 5, 6, 7, 8, 8])
+    >>> np.clip(a, 8, 1)
+    array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     >>> np.clip(a, 3, 6, out=a)
+    array([3, 3, 3, 3, 4, 5, 6, 6, 6, 6])
+    >>> a
     array([3, 3, 3, 3, 4, 5, 6, 6, 6, 6])
     >>> a = np.arange(10)
     >>> a

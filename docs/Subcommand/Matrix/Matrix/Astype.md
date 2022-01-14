@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix astype <matrix> order=<str> casting=<str> subok=<bool>
+matrix astype <matrix> <str> order=<str> casting=<str> subok=<boolstr>
 
 a.astype(dtype, order='K', casting='unsafe', subok=True, copy=True)
 

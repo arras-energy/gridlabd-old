@@ -31,7 +31,7 @@ matrix nancumsum <matrix> axis=<int> [dtype=<str>]
     out : ndarray, optional
         Alternative output array in which to place the result. It must
         have the same shape and buffer length as the expected output
-        but the type will be cast if necessary. See `ufuncs-output-type` for
+        but the type will be cast if necessary. See :ref:`ufuncs-output-type` for
         more details.
 
     Returns

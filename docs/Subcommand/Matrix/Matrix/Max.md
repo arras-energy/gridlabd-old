@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix max <matrix>
+matrix max <matrix> axis=<int>
 
 
         Return the maximum value along an axis.

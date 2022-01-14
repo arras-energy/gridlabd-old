@@ -4,7 +4,7 @@
 Syntax
 ------
 
-matrix nanprod <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims=<bool>] [where=<boollist>]
+matrix nanprod <matrix> initial=<float> [axis=<inttuple>] [dtype=<str>] [keepdims=<boolstr>] [where=<boollist>]
 
 
     Return the product of array elements over a given axis treating Not a
@@ -33,7 +33,7 @@ matrix nanprod <matrix> initial=<float> [axis=<intlist>] [dtype=<str>] [keepdims
         Alternate output array in which to place the result.  The default
         is ``None``. If provided, it must have the same shape as the
         expected output, but the type will be cast if necessary. See
-        `ufuncs-output-type` for more details. The casting of NaN to integer
+        :ref:`ufuncs-output-type` for more details. The casting of NaN to integer
         can yield unexpected results.
     keepdims : bool, optional
         If True, the axes which are reduced are left in the result as
