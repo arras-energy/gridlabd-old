@@ -169,6 +169,9 @@ def error(msg,code=None):
     else:
         raise Exception(msg)
 
+def warning(msg):
+    print(f"WARNING [nsrdb_weather]: {msg}")
+
 def syntax(code=0):
     """Display docs (code=0) or syntax help and exit (code!=0)"""
     if code == 0:
@@ -212,6 +215,12 @@ def addkey(apikey=None):
 def getkeys(new=False):
     """Get all NSRDB API keys"""
     global credential_file
+    try:
+        os.mkdir(f"{os.getenv('HOME')}/.nsrdb")
+    except FileExistsError:
+        pass
+    except Exception as err:
+        warning(f"unable to create $HOME/.nsrdb folder for credentials ({err})")        
     try:
         with open(credential_file,"r") as f: 
             keys = json.load(f)
@@ -505,6 +514,7 @@ if __name__ == "__main__":
     glm = None
     name = None
     csv = None
+
     if len(sys.argv) == 1:
         syntax(1)
     for arg in sys.argv[1:]:
