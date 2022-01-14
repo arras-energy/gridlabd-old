@@ -13,6 +13,7 @@ Options:
 
     -d|--debug            enable debugging output
     -e|--exception        raise exceptions on errors
+    -f|--flatten          write output with semicolons record separators
     -h|--help [PATTERN]   print this help info
     -q|--quiet            suppress all output to stderr
     --reader=NAME         specify input reader (default "pandas.read_csv")
@@ -32,6 +33,11 @@ where function is a numpy function that takes zero or more positional and/or
 keyword arguments.  Position arguments may be provided explicitly as a
 string, or implicitly from stdin with each argument separated by a newline.
 Keyword arguments are provided in the form KEYWORD=VALUE.  
+
+CAVEATS
+
+Pandas commands that take lists of object (e.g., concat) must be provided the
+input list using a double semicolon as the table separator, e.g., TABLE1;;TABLE2;;...;;TABLEn.
 
 EXAMPLES
 
@@ -164,6 +170,12 @@ def table(a,select=None):
             pass
     return None
 
+def tablelist(alist):
+    result = []
+    for a in alist.split(";;"):
+        result.append(table(a))
+    return res
+
 def intlist(s):
     """Parse intlist as N[,M[,[...]]]"""
     return list(map(lambda n:int(n),s.split(',')))
@@ -289,7 +301,15 @@ functions = {
     {
         POSITIONAL : [table],
         "dtype" : str,
-    }
+    },
+    "concat" : {
+        POSITIONAL : [tablelist],
+        "axis" : int,
+        "join" : str,
+        "ignore_index" : boolstr,
+        "verify_integrity" : boolstr,
+        "sort" : boolstr,
+    },
 }
 
 #
