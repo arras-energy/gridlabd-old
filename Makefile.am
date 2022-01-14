@@ -10,7 +10,8 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-AM_INIT_AUTOMAKE = subdir-objects
+AM_INIT_AUTOMAKE = subdir-objects 
+AUTOMAKE_OPTIONS = -Wno-portability
 ACLOCAL_AMFLAGS = -I m4
 
 CC = $(PTHREAD_CC)
@@ -48,7 +49,7 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
-python_requirements = requirements.txt
+python_requirements = $(shell find $(top_srcdir) -name requirements.txt -print)
 
 docs_targets =
 
@@ -57,6 +58,7 @@ include $(top_srcdir)/third_party/Makefile.mk
 include $(top_srcdir)/gldcore/Makefile.mk
 include $(top_srcdir)/python_extras/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
+include $(top_srcdir)/utilities/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk
@@ -295,7 +297,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) | python3 -m pip install -q -r /dev/stdin
+	@python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet

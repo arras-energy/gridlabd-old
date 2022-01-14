@@ -1,0 +1,8 @@
+# enable locking of the current executable to ensure only one runs at a time
+PIDFILE="/tmp/$(basename $0).pid"
+trap "rm -f ${PIDFILE}; exit" INT TERM EXIT
+if [ -e $PIDFILE ]; then
+    PID=$(cat $PIDFILE)
+    while (ps -p $PID >/dev/null); do sleep 1; done
+fi 
+echo $$ >$PIDFILE

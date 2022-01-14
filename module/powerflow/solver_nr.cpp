@@ -168,7 +168,6 @@ void sparse_reset(SPARSE* sm, int ncols)
 inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_values, int bus_values_count, NR_SOLVER_STRUCT *powerflow_information, int island_number_curr)
 {
 	int bus_index_val, bus_start_val, bus_end_val;
-	bool found_proper_bus_val;
 
 	SP_E* insertion_point = sm->cols[col];
 	SP_E* new_list_element = &(sm->llheap[sm->llptr++]);
@@ -198,9 +197,6 @@ inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_
 			{
 				if (insertion_point->next->row_ind == new_list_element->row_ind)	//Same entry (by column), so bad
 				{
-					//Reset the flag
-					found_proper_bus_val = false;
-
 					//Loop through and see if we can find the bus
 					for (bus_index_val=0; bus_index_val<bus_values_count; bus_index_val++)
 					{
@@ -244,9 +240,6 @@ inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_
 			{
 				if (insertion_point->row_ind == new_list_element->row_ind)	//Same entry (by column), so bad
 				{
-					//Reset the flag
-					found_proper_bus_val = false;
-
 					//Loop through and see if we can find the bus
 					for (bus_index_val=0; bus_index_val<bus_values_count; bus_index_val++)
 					{

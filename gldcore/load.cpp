@@ -1377,7 +1377,7 @@ int GldLoader::multiline_value(PARSER,char *result,int size)
 			value += std::string("\t");
 			break;
 		case 'b':
-			value += std::string("\b");
+			value += std::string("\\b");
 			break;
 		case 'f':
 			value += std::string("\f");
@@ -7030,6 +7030,30 @@ static int is_autodef(char *value)
 #include "threadpool.h"
 #include "signal.h"
 
+void GldLoader::wait_processes(void)
+{
+	output_debug("waiting for started tasks to terminate");
+	while ( threadlist != NULL )
+	{
+		struct s_threadlist *next = threadlist->next;
+		void *status = NULL;
+		int err = pthread_join(*(threadlist->data),&status);
+		if ( err != 0 )
+		{
+			output_error("thread wait failed, errno %d (%s)", err, strerror(err));
+		}
+		else if ( status != 0 )
+		{
+			output_error("thread %p terminated with status %d", threadlist->data, status);
+		}
+		else
+		{
+			output_debug("thread %p completed ok", threadlist->data);
+		}
+		threadlist = next;
+	}
+}
+
 void GldLoader::kill_processes(void)
 {
 	while ( threadlist != NULL )
@@ -8184,6 +8208,12 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if ( strncmp(line, "#wait", 5) == 0 )
+	{
+		wait_processes();
+		strcpy(line,"\n");
+		return TRUE;
+	}
 	int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
 	if ( rc != 127 )
 	{
@@ -8636,4 +8666,112 @@ void GldLoader::add_depend(const char *filename, const char *dependency)
 	{
 		item.push_back(dependency);
 	}
+}
+
+void GldLoader::sublime_syntax(void)
+{
+	output_message("%%YAML 1.2");
+	output_message("---");
+	output_message("# See http://www.sublimetext.com/docs/3/syntax.html");
+	output_message("name: HiPAS GridLAB-D");
+	output_message("file_extensions:");
+	output_message("  - glm");
+	output_message("scope: source");
+	output_message("");
+	output_message("contexts:");
+	output_message("  # The prototype context is prepended to all contexts but those setting");
+	output_message("  # meta_include_prototype: false.");
+	output_message("  prototype:");
+	output_message("    - include: comments");
+	output_message("");
+	output_message("  main:");
+	output_message("    # The main context is the initial starting point of our syntax.");
+	output_message("    # Include other contexts from here (or specify them directly).");
+	output_message("    - include: strings");
+	output_message("    - include: conditionals");
+	output_message("    - include: macros");
+	output_message("    - include: directives");
+	output_message("    - include: units");
+	output_message("    - include: numbers");
+	output_message("    - include: keywords");
+	output_message("    - include: names");
+	output_message("");
+	output_message("  conditionals:");
+	output_message("    - match: '\\b#(if|ifdef|ifndef|for|end|begin|for|done)\\b'");
+	output_message("      scope: keyword");
+	output_message("");
+	output_message("  macros:");
+	output_message("    - match: '\\b#[a-z]+\\b'");
+	output_message("      scope: keyword");
+	output_message("");
+	output_message("  directives:");
+	output_message("    - match: '\\b(clock|module|class|object|modify|global|filter|intrinsic|import|export|script|library|link|dump|extension|instance|schedule)\\b'");
+	output_message("      scope: keyword");
+	output_message("");
+	output_message("  names:");
+	output_message("    - match: '\\b[A-Za-z_]+[-A-Za-z_:.0-9]*\\b'");
+	output_message("      scope: entity.name");
+	output_message("");
+	output_message("  numbers:");
+	output_message("    - include: complex");
+	output_message("    - include: reals");
+	output_message("    - include: integers");
+	output_message("");
+	output_message("  integers:");
+	output_message("    - match: '\\b[-+]?[0-9]+\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  reals:");
+	output_message("    - match: '\\b[-+]?[0-9]+.[0-9]+(|[eE][-+]?[0-9]+)\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  complex:");
+	output_message("    - match: '\\b[-+]?[0-9]+.[0-9]+(|[eE][-+]?[0-9]+)[-+][0-9]+.[0-9]+(|[eE][-+]?[0-9]+)[ijrd]\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  units:");
+	output_message("    - include: real_units");
+	output_message("    - include: complex_units");
+	output_message("");
+	output_message("  real_units:");
+	output_message("    - match: '\\b[-+]?[0-9]+.[0-9]+(|[eE][-+]?[0-9]+) [A-Za-z/*]+\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  complex_units:");
+	output_message("    - match: '\\b[-+]?[0-9]+.[0-9]+(|[eE][-+]?[0-9]+)[-+][0-9]+.[0-9]+(|[eE][-+]?[0-9]+)[ijrd] [A-Za-z/*]+\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  dates:");
+	output_message("    - match: '\\b[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9](|[A-Z]+)\\b'");
+	output_message("      scope: constant");
+	output_message("");
+  	output_message("  keywords:");
+	output_message("    - match: '\\b[A-Z0-9_]+\\b'");
+	output_message("      scope: constant");
+	output_message("");
+	output_message("  strings:");
+	output_message("    # Strings begin and end with quotes, and use backslashes as an escape character.");
+	output_message("    - match: '\"'");
+	output_message("      scope: punctuation.definition.string.begin");
+	output_message("      push: inside_string");
+	output_message("");
+	output_message("  inside_string:");
+	output_message("    - meta_include_prototype: false");
+	output_message("    - meta_scope: string.quoted.double");
+	output_message("    - match: '\\.'");
+	output_message("      scope: constant.character.escape");
+	output_message("    - match: '\"'");
+	output_message("      scope: punctuation.definition.string.end");
+	output_message("      pop: true");
+	output_message("");
+	output_message("  comments:");
+	output_message("    # Comments begin with a '//' and finish at the end of the line.");
+	output_message("    - match: '//'");
+	output_message("      scope: punctuation.definition.comment");
+	output_message("      push:");
+	output_message("        # This is an anonymous context push for brevity.");
+	output_message("        - meta_scope: comment.line.double-slash");
+	output_message("        - match: $\\n?");
+	output_message("          pop: true");
+	output_message("");
 }
