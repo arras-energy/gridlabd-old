@@ -1,6 +1,39 @@
 """GridLAB-D Geodata Elevation Package
 
 The elevation geodata package obtains the elevation of locations.
+
+INPUT
+
+    latitude - record latitude
+
+    longitude - record longitude
+
+OUTPUT
+
+    elevation - record elevation
+
+OPTIONS
+
+    units - elevation units (default "meters"). Valid units are "m", "meters", 
+    "ft", and "feet".
+
+    precision - elevation precision (default 0 decimals)
+
+CONFIGURATION
+
+    nan_error - enable inserting NaN values instead of raise an exception on
+    bad elevation data (default is False).
+
+    cachedir - identifies the cache folder (default is ""/usr/local/share/gridlabd/geodata/elevation/10m")
+
+    repourl - identifies the source URL for the elevation data (default is ""http://geodata.gridlabd.us/elevation/10m")
+
+EXAMPLES
+
+    % geodata merge -D elevation 37.5,-122.2 37.4,-122.3 --units=ft
+    id,latitude,longitude,elevation
+    0,37.5,-122.2,3.0
+    1,37.4,-122.3,2100.0
 """
 
 version = 1 # specify API version
