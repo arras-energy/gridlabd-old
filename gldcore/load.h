@@ -277,10 +277,13 @@ private:
 	int time_value_minutes(PARSER, TIMESTAMP *t);
 	int time_value_hours(PARSER, TIMESTAMP *t);
 	int time_value_days(PARSER, TIMESTAMP *t);
+	int time_value_weeks(PARSER, TIMESTAMP *t);
+	int time_value_years(PARSER, TIMESTAMP *t);
 	int time_value_datetime(PARSER, TIMESTAMP *t);
 	int time_value_datetimezone(PARSER, TIMESTAMP *t);
 	int time_value_isodatetime(PARSER, TIMESTAMP *t);
 	int time_value(PARSER, TIMESTAMP *t);
+	int delta_time(PARSER, TIMESTAMP *t);
 	double load_latitude(char *buffer);
 	double load_longitude(char *buffer);
 	int clock_properties(PARSER);
@@ -369,6 +372,7 @@ private:
 	int include_file(char *incname, char *buffer, int size, int _linenum);
 	int process_macro(char *line, int size, char *_filename, int linenum);
 	static void kill_processes(void);
+	static void wait_processes(void);
 	void* start_process(const char *cmd);
 	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
 public:
@@ -385,6 +389,8 @@ private:
 	const char *get_last_term(void);
 private:
 	void inc_linenum() { linenum++; global_loader_linenum = linenum; };
+public:
+	void sublime_syntax(void);
 };
 
 #endif

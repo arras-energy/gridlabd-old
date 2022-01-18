@@ -60,7 +60,7 @@ GLM:
     inrush_convergence_value "<decimal> V";
     phases "[ABCDNSG]";
     nominal_voltage "<decimal> V";
-    supernode_name "<string>";
+    degradation_factor "<decimal> pu";
   }
 ~~~
 
@@ -501,13 +501,9 @@ TODO
 
 TODO
 
-### `supernode_name`
+### `degradation_factor`
 
-~~~
-  char1024 supernode_name;
-~~~
-
-TODO
+Specifies the degradation of the transform turns ratio pu.  The final voltage ratio will be increased by `(1-degradation_factor)`.  Note that this value is only considered during initialization. Changes in the turns ratio degradation after the simulation starts are ignored.
 
 # Example
 
@@ -563,7 +559,7 @@ TODO
     inrush_convergence_value "0.0";
     phases "0";
     nominal_voltage "0.0";
-    supernode_name "";
+    degradation_factor "0.0";
   }
 ~~~
 

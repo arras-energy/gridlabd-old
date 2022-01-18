@@ -368,6 +368,7 @@ DEPRECATED static struct s_varmap {
     {"region", PT_char32, &global_region,PA_PUBLIC,"region code"},
     {"organization",PT_char32, &global_organization,PA_PUBLIC,"organization name"},
     {"profile_output_format",PT_set,&global_profile_output_format,PA_PUBLIC,"profiler output data format"},
+    {"maximum_runtime",PT_int64,&global_maximum_runtime,PA_PUBLIC,"maximum wall clock runtime allowed"},
 	/* add new global variables here */
 };
 

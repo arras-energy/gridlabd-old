@@ -1,0 +1,50 @@
+#assert ! $(gridlabd matrix version) '<' '1.21.0'
+
+// random.choice <arrayorint> size=<intlist> replace=<boolstr> p=<array>
+#assert ! -z $(gridlabd matrix -f random.choice "1,2,3,4,5")
+#assert ! -z $(gridlabd matrix -f random.choice "1,2,3,4,5" replace=False)
+#assert ! -z $(gridlabd matrix -f random.choice "1,2,3,4,5" size=2,2)
+#assert ! -z $(gridlabd matrix -f random.choice "1,2,3,4,5" p=0.1,0.2,0.4,0.2,0.1 size=10)
+
+// random.normal loc=<matrix> scale=<matrix> size=<intlist>
+#assert ! -z $(gridlabd matrix -f random.normal)
+#assert ! -z $(gridlabd matrix -f random.normal loc=10)
+#assert ! -z $(gridlabd matrix -f random.normal scale=10)
+#assert ! -z $(gridlabd matrix -f random.normal size=3,2)
+
+// random.rand <intlist_args>
+#assert ! -z $(gridlabd matrix -f random.rand)
+#assert ! -z $(gridlabd matrix -f random.rand 3 2)
+
+// random.randint <int> high=<int> size=<intlist> dtype=<str>
+#assert ! -z $(gridlabd matrix -f random.randint 10)
+#assert ! -z $(gridlabd matrix -f random.randint 10 high=20)
+#assert ! -z $(gridlabd matrix -f random.randint 10 high=20 dtype=int8)
+#assert ! -z $(gridlabd matrix -f random.randint 10 high=20 dtype=int16)
+#assert ! -z $(gridlabd matrix -f random.randint 10 high=20 dtype=int32)
+#assert ! -z $(gridlabd matrix -f random.randint 10 high=20 dtype=int64)
+
+// random.randn <intlist_args>
+#assert ! -z $(gridlabd matrix -f random.randn)
+#assert ! -z $(gridlabd matrix -f random.randn 3)
+#assert ! -z $(gridlabd matrix -f random.randn 3 2)
+
+// random.random size=<intlist>
+#assert ! -z $(gridlabd matrix -f random.random)
+#assert ! -z $(gridlabd matrix -f random.random size=2)
+#assert ! -z $(gridlabd matrix -f random.random size=2,3)
+
+// random.random_sample size=<intlist>
+#assert ! -z $(gridlabd matrix -f random.random_sample)
+#assert ! -z $(gridlabd matrix -f random.random_sample size=2)
+#assert ! -z $(gridlabd matrix -f random.random_sample size=2,3)
+
+// random.ranf size=<intlist>
+#assert ! -z $(gridlabd matrix -f random.ranf)
+#assert ! -z $(gridlabd matrix -f random.ranf size=2)
+#assert ! -z $(gridlabd matrix -f random.ranf size=2,3)
+
+// random.sample size=<intlist>
+#assert ! -z $(gridlabd matrix -f random.sample)
+#assert ! -z $(gridlabd matrix -f random.sample size=2)
+#assert ! -z $(gridlabd matrix -f random.sample size=2,3)

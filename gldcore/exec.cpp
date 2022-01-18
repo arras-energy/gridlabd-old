@@ -2467,6 +2467,11 @@ STATUS GldExec::exec_start(void)
 		/* main loop runs for iteration limit, or when nothing futher occurs (ignoring soft events) */
 		while ( iteration_counter>0 && sync_isrunning(NULL) )
 		{	
+			if ( ! my_instance->check_runtime() )
+			{
+				setexitcode(XC_TMERR);
+			}
+
 			if ( getexitcode() != XC_SUCCESS && ! global_ignore_errors ) 
 			{
 				break;
