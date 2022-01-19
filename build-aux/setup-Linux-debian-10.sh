@@ -50,7 +50,8 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	/usr/local/bin/python3 -m pip install IPython censusdata
 fi
 
-
+# install latex
+apt-get install texlive -y
 
 # doxgygen
 apt-get -q install gawk -y
