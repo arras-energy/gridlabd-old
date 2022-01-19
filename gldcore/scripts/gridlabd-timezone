@@ -1,9 +1,9 @@
 #!/usr/local/bin/python3
 """Syntax: gridlabd timezone [OPTIONS...] LOCATION
 
-The gridlabd timezone subcommand obtains the timezone for the location given by
-LOCATION, which may be in the form `LATITUDE,LONGITUDE`, `local`, or an IP address
-of the form `A.B.C.D`.
+The gridlabd timezone subcommand obtains the timezone for the location given
+by LOCATION, which may be in the form `LATITUDE,LONGITUDE`, `local`, or an IP
+address of the form `A.B.C.D`.
 
 OPTIONS:
 
@@ -13,7 +13,8 @@ OPTIONS:
 
 EXAMPLES:
 
-The following command obtains the timezone for the current location as determine by the IP address of the host machine:
+The following command obtains the timezone for the current location as
+determine by the IP address of the host machine:
 
   shell$ gridlabd timezone local
   America/Los_Angeles
