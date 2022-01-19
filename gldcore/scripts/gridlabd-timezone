@@ -1,0 +1,92 @@
+#!/usr/local/bin/python3
+"""Syntax: gridlabd timezone [OPTIONS...] {[LATITUDE,LONGITUDE],local}
+
+The gridlabd timezone subcommand obtains the timezone for the location given by
+LATITUDE,LONGITUDE or the local timezone based on the hostname's IP address.
+
+OPTIONS:
+
+  -d|--debug       output debugging output on error
+  -h|--help|help   print full documentation
+  -v|--verbose     output intermediate results
+
+EXAMPLES:
+
+The following command obtains the timezone for the current location as determine by the IP address of the host machine:
+
+  shell$ gridlabd timezone
+
+The following command obtains the timezone for the location specified:
+
+  shell$ gridlabd timezone 37.5,-122.2
+"""
+
+import sys, os
+
+verbose = False
+debug = False
+location = None
+
+E_OK = 0
+E_SYNTAX = 1
+E_INVALID = 2
+E_FAILED = 3
+
+def output_verbose(msg):
+	if verbose:
+		print(f"VERBOSE [{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
+
+def output_error(msg,code=None):
+	print(f"VERBOSE [{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
+	if type(code) is int:
+		exit(code)
+
+def output_help():
+	print(__doc__)
+	exit(E_OK)
+
+def output_syntax():
+	print(__doc__.split("\n")[0])
+	exit(E_SYNTAX)
+
+try:
+	from timezonefinder import TimezoneFinder
+	import geocoder as gc
+
+	if len(sys.argv) == 1:
+		output_syntax()
+
+	while len(sys.argv) > 1:
+		if sys.argv[1] in ["-d","--debug"]:
+			debug = True
+		elif sys.argv[1] in ["-v","--verbose"]:
+			verbose = True
+		elif sys.argv[1] in ["-h","--help","help"]:
+			output_help()
+		elif sys.argv[1][0] == '-':
+			output_error(f"option '{sys.argv[1]}' is not valid",E_SYNTAX)
+		else:
+			location = sys.argv[1]
+		del sys.argv[1]
+
+	if not location:
+		output_error("no location specified",E_SYNTAX)
+	elif location == 'local':
+		latlon = gc.ip('me').latlng
+	else:
+		latlon = list(map(lambda x:float(x),location.split(",")))
+	if not type(latlon) is list or len(latlon) != 2 \
+			or type(latlon[0]) != float or type(latlon[1]) != float:
+		output_error("latlon format is not valid",E_INVALID)
+	output_verbose(f"latlon = {latlon}")
+
+	print(TimezoneFinder().timezone_at(lat=latlon[0],lng=latlon[1]),file=sys.stdout)
+
+	exit(E_OK)
+
+except Exception as err:
+
+	if debug:
+		raise
+	else:
+		output_error(str(err),E_FAILED)

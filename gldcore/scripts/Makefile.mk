@@ -20,6 +20,7 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-python
 bin_SCRIPTS += gldcore/scripts/gridlabd-require
 bin_SCRIPTS += gldcore/scripts/gridlabd-requirements
 bin_SCRIPTS += gldcore/scripts/gridlabd-template
+bin_SCRIPTS += gldcore/scripts/gridlabd-timezone
 bin_SCRIPTS += gldcore/scripts/gridlabd-trace
 bin_SCRIPTS += gldcore/scripts/gridlabd-validate
 bin_SCRIPTS += gldcore/scripts/gridlabd-version
