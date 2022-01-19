@@ -737,17 +737,21 @@ int tz_info(const char *tzspec, char *tzname, char *std, char *dst, time_t *offs
 	}
 }
 
-const char *tz_locale(const char *country, const char *province, const char *city)
+const char *tz_locale(const char *target)
 {
-	extern const char *tz_name(const char *tzspec);
 	static char tzname[256]="";
 	char filepath[1024];
 	FILE *fp = NULL;
 	char buffer[1024];
-	char target[256];
-	int len = sprintf(target,"%s/%s/%s",country,province,city);
+	strcpy(tzname,target);
+	int len = strlen(target);
+	while ( isspace(target[len-1]) )
+	{
+		len--;
+	}
 
-	if ( find_file(TZFILE, NULL, R_OK,filepath,sizeof(filepath)) == NULL ) {
+	if ( find_file(TZFILE, NULL, R_OK,filepath,sizeof(filepath)) == NULL ) 
+	{
 		throw_exception("timezone specification file %s not found in GLPATH=%s: %s", TZFILE, getenv("GLPATH"), strerror(errno));
 		/* TROUBLESHOOT
 			The system could not locate the timezone file <code>tzinfo.txt</code>.
@@ -755,7 +759,8 @@ const char *tz_locale(const char *country, const char *province, const char *cit
 		 */
 	}
 	fp = fopen(filepath,"r");
-	if ( fp == NULL ) {
+	if ( fp == NULL ) 
+	{
 		throw_exception("%s: access denied: %s", filepath, strerror(errno));
 		/* TROUBLESHOOT
 			The system was unable to read the timezone file.  Check that the file has the correct permissions and try again.
@@ -771,13 +776,12 @@ const char *tz_locale(const char *country, const char *province, const char *cit
 			if ( strnicmp(locale,target,len)==0 )
 			{
 				fclose(fp);
-				return tz_name(tzname);
+				return tzname;
 			}
 		}
 		else
 			sscanf(buffer, "%[^,]", tzname);
 	}
-	throw_exception("tz_locale(char *country='%s', char *province='%s', char *city='%s'): not tzinfo entry found", country, province, city);
 	return NULL;
 }
 
@@ -787,12 +791,14 @@ const char *tz_locale(const char *country, const char *province, const char *cit
 const char *tz_name(const char *tzspec)
 {
 	static char name[32] = "GMT";
-	char country[64], province[64], city[64];
-
-	if ( sscanf(tzspec,"%[^/]/%[^/]/%[^/]",country,province,city)==3 )
-		return tz_locale(country,province,city);
-
-	if ( tz_info(tzspec, name, NULL, NULL, NULL))
+	
+	const char *result = tz_locale(tzspec);
+	if ( result )
+	{
+		tzspec = result;
+	}
+	
+	if ( tz_info(tzspec, name, NULL, NULL, NULL) )
 	{
 		return name;
 	} 
