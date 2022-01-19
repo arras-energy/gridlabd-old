@@ -10,7 +10,7 @@ apt-get -q update
 # export DEBIAN_FRONTEND=noninteractive
 # ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
 apt-get install -y tzdata
-# dpkg-reconfigure --frontend noninteractive tzdata
+dpkg-reconfigure --frontend noninteractive tzdata
 
 apt-get -q install software-properties-common -y
 apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
@@ -43,7 +43,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local. --enable-share --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make altinstall
@@ -97,4 +97,3 @@ fi
 # mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 # 	chmod a+x /usr/local/bin/natural_docs
 # fi
-
