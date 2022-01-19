@@ -1287,7 +1287,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 		/* only output time update if it differs from last one */
 		if (convert_from_timestamp(global_clock,buffer,sizeof(buffer)) && strcmp(buffer,timebuf)!=0)
 		{
-			output_raw("DEBUG: global_clock = '%s' (%" FMT_INT64 "d)\r", buffer,global_clock);
+			output_raw_error("DEBUG: global_clock = '%s' (%" FMT_INT64 "d)\r", buffer,global_clock);
 			strcpy(timebuf,buffer);
 		}
 

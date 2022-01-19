@@ -99,7 +99,7 @@ extern "C" {
 	int module_saveall(FILE *fp);
 	int module_saveall_xml(FILE *fp);
 	int module_dumpall();
-	void module_libinfo(const char *module_name);
+	void module_libinfo(const char *module_name,bool as_json=false);
 	const char *module_find_transform_function(TRANSFORMFUNCTION function);
 	int module_cmdargs(int argc, const char **argv);
 	int module_saveobj_xml(FILE *fp, MODULE *mod);

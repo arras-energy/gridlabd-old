@@ -1,7 +1,7 @@
-#library config set CACHEDIR /tmp
-#library config set DATADIR /tmp
+#library config set CACHEDIR .
+#library config set DATADIR .
 #library get pole_configuration.glm
-#include "/tmp/pole_configuration.glm"
+#include "./pole_configuration.glm"
 
 class test {
 	object lib;

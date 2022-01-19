@@ -4997,7 +4997,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 	FUNCTIONADDR funadd = NULL;
 	double *Recloser_Counts;
 	double type_fault = 0.0;
-	bool switch_val;
 	complex C_mat[7][7];
 	int64 pf_resultval;
 	bool pf_badcompute;
@@ -5018,9 +5017,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 		}
 		C_mat[0][0]=C_mat[1][1]=C_mat[2][2]=complex(1,0);
 		
-		//Default switch_val - special case
-		switch_val = false;
-
 		//Protective device set to NULL (should already be this way, but just in case)
 		*protect_obj = NULL;
 
@@ -6689,9 +6685,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//End three-phase occurance
 			}//end of normal reliability mode
 
-			//Flag as special case
-			switch_val = true;
-
 		}//End switches
 		else if ((fault_type[0] == 'F') && (fault_type[1] == 'U') && (fault_type[2] == 'S') && (fault_type[3] == '-') && (fault_type[5] == '\0'))	//Single phase fuse fault
 		{
@@ -7955,9 +7948,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 
 		C_mat[0][0]=C_mat[1][1]=C_mat[2][2]=complex(1,0);
 		
-		//Default switch_val - special case
-		switch_val = false;
-
 		//Protective device set to NULL (should already be this way, but just in case)
 		*protect_obj = NULL;
 
@@ -9359,9 +9349,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 
 				phase_remove = temp_phases;	//Flag phase removing
 			}//End three-phase occurance
-
-			//Flag as special case
-			switch_val = true;
 
 		}//End switches
 		else if ((fault_type[0] == 'F') && (fault_type[1] == 'U') && (fault_type[2] == 'S') && (fault_type[3] == '-') && (fault_type[5] == '\0'))	//Single phase fuse fault
@@ -10834,14 +10821,10 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 	OBJECT *objhdr = THISOBJECTHDR;
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
-	bool switch_val;
 
 	//Check our operations mode
 	if (meshed_fault_checking_enabled == false)	//Normal mode
 	{
-		//Set up default switch variable - used to indicate special cases
-		switch_val = false;
-
 		//Link up recloser counts for manipulation
 		// Recloser_Counts = (double *)Extra_Data;
 
@@ -11014,7 +10997,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'A';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x04;	//Put A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 19:	//SW-B
 				imp_fault_name[0] = 'S';
@@ -11023,7 +11005,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'B';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x02;	//Put B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 20:	//SW-C
 				imp_fault_name[0] = 'S';
@@ -11032,7 +11013,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'C';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x01;	//Put C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 21:	//SW-AB
 				imp_fault_name[0] = 'S';
@@ -11042,7 +11022,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'B';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x06;	//Put A and B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 22:	//SW-BC
 				imp_fault_name[0] = 'S';
@@ -11052,7 +11031,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'C';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x03;	//Put B and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 23:	//SW-CA
 				imp_fault_name[0] = 'S';
@@ -11062,7 +11040,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'A';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x05;	//Put C and A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 24:	//SW-ABC
 				imp_fault_name[0] = 'S';
@@ -11073,7 +11050,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[5] = 'C';
 				imp_fault_name[6] = '\0';
 				phase_restore = 0x07;	//Put A, B, and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 25:	//FUS-A
 				imp_fault_name[0] = 'F';
@@ -11850,9 +11826,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 	}//End "normal" operations mode
 	else	//Must be crazy mesh checking mode
 	{
-		//Set up default switch variable - used to indicate special cases
-		switch_val = false;
-
 		//Link up recloser counts for manipulation
 		// Recloser_Counts = (double *)Extra_Data;
 
@@ -12025,7 +11998,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'A';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x04;	//Put A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 19:	//SW-B
 				imp_fault_name[0] = 'S';
@@ -12034,7 +12006,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'B';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x02;	//Put B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 20:	//SW-C
 				imp_fault_name[0] = 'S';
@@ -12043,7 +12014,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'C';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x01;	//Put C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 21:	//SW-AB
 				imp_fault_name[0] = 'S';
@@ -12053,7 +12023,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'B';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x06;	//Put A and B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 22:	//SW-BC
 				imp_fault_name[0] = 'S';
@@ -12063,7 +12032,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'C';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x03;	//Put B and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 23:	//SW-CA
 				imp_fault_name[0] = 'S';
@@ -12073,7 +12041,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'A';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x05;	//Put C and A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 24:	//SW-ABC
 				imp_fault_name[0] = 'S';
@@ -12084,7 +12051,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[5] = 'C';
 				imp_fault_name[6] = '\0';
 				phase_restore = 0x07;	//Put A, B, and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 25:	//FUS-A
 				imp_fault_name[0] = 'F';
