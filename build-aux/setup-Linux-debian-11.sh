@@ -36,7 +36,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make altinstall
@@ -67,7 +67,7 @@ if [ ! -x /usr/bin/doxygen ]; then
 	make install
 fi
 
-# # mono
+# # # mono
 
 if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
@@ -78,7 +78,7 @@ if [ ! -f /usr/bin/mono ]; then
 	apt-get -q install mono-devel -y
 fi
 
-# natural_docs
+# # natural_docs
 if [ ! -x /usr/local/bin/natural_docs ]; then
 	cd /usr/local
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
