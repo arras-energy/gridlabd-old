@@ -51,6 +51,10 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 fi
 
 
+# install latex
+apt-get install texlive-base
+apt-get install biblatex
+apt-get install texlive-fonts-recommended
 
 # doxgygen
 apt-get -q install gawk -y
