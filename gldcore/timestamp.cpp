@@ -782,6 +782,7 @@ const char *tz_locale(const char *target)
 		else
 			sscanf(buffer, "%[^,]", tzname);
 	}
+	fclose(fp);
 	return NULL;
 }
 
