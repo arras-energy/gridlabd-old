@@ -3,6 +3,7 @@
 # Install needed system tools
 # update first
 apt-get -q update
+
 # Set default timezone as America/Pacific
 # In windows wsl/debain, the default timezone is etc/GMT+X
 # The ETC timezone will causes installation error
