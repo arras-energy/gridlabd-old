@@ -1,8 +1,9 @@
 #!/usr/local/bin/python3
-"""Syntax: gridlabd timezone [OPTIONS...] {[LATITUDE,LONGITUDE],local}
+"""Syntax: gridlabd timezone [OPTIONS...] LOCATION
 
 The gridlabd timezone subcommand obtains the timezone for the location given by
-LATITUDE,LONGITUDE or the local timezone based on the hostname's IP address.
+LOCATION, which may be in the form `LATITUDE,LONGITUDE`, `local`, or an IP address
+of the form `A.B.C.D`.
 
 OPTIONS:
 
@@ -14,11 +15,20 @@ EXAMPLES:
 
 The following command obtains the timezone for the current location as determine by the IP address of the host machine:
 
-  shell$ gridlabd timezone
+  shell$ gridlabd timezone local
+  America/Los_Angeles
 
 The following command obtains the timezone for the location specified:
 
   shell$ gridlabd timezone 37.5,-122.2
+  America/Los_Angeles
+
+The following GLM directive sets the model timezone to the local timezone:
+
+  clock
+  {
+	timezone ${SHELL gridlabd timezone local};
+  }
 """
 
 import sys, os
@@ -73,8 +83,10 @@ try:
 		output_error("no location specified",E_SYNTAX)
 	elif location == 'local':
 		latlon = gc.ip('me').latlng
-	else:
+	elif location.find(",") > 0:
 		latlon = list(map(lambda x:float(x),location.split(",")))
+	else:
+		latlon = gc.ip(location).latlng
 	if not type(latlon) is list or len(latlon) != 2 \
 			or type(latlon[0]) != float or type(latlon[1]) != float:
 		output_error("latlon format is not valid",E_INVALID)
