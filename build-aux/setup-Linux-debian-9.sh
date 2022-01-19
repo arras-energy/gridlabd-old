@@ -3,7 +3,14 @@
 # Install needed system tools
 # update first
 apt-get -q update
-apt-get -q install tzdata -y
+
+# Set default timezone as America/Pacific
+# In windows wsl/debain, the default timezone is etc/GMT+X
+# The ETC timezone will causes installation error
+export DEBIAN_FRONTEND=noninteractive
+ln -fs /usr/share/zoneinfo/America/Pacific /etc/localtime
+apt-get install -y tzdata
+dpkg-reconfigure --frontend noninteractive tzdata
 
 apt-get -q install software-properties-common -y
 apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
@@ -28,7 +35,7 @@ apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
+if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.6"
 	cd /usr/local/src
 
