@@ -962,11 +962,11 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,17,bus[n].I[2].i);
 
 			SET_BUS(n,18,bus[n].V[0].Mag());
-			SET_BUS(n,19,bus[n].V[0].Ang());
+			SET_BUS(n,19,bus[n].V[0].Arg());
 			SET_BUS(n,20,bus[n].V[1].Mag());
-			SET_BUS(n,21,bus[n].V[1].Ang());
+			SET_BUS(n,21,bus[n].V[1].Arg());
 			SET_BUS(n,22,bus[n].V[2].Mag());
-			SET_BUS(n,23,bus[n].V[2].Ang());
+			SET_BUS(n,23,bus[n].V[2].Arg());
 		}
 	}
 	else if ( dir == ED_IN )
