@@ -11,3 +11,4 @@ clock
 #assert $(gridlabd timezone 40,-100) == "America/Chicago"
 #assert $(gridlabd timezone 40,-80) == "America/New_York"
 #assert $(gridlabd timezone 50,-120) == "America/Vancouver"
+#assert $(gridlabd timezone 37.5,-122.2 -f=TZSPEC) == "PST+8PDT"
