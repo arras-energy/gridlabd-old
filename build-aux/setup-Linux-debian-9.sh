@@ -4,13 +4,11 @@
 # update first
 apt-get -q update
 
-# Set default timezone as America/Pacific
 # In windows wsl/debain, the default timezone is Etc/GMT+X
 # Enforce user to update local timezone
 if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
 	dpkg-reconfigure tzdata
 fi
-
 
 apt-get -q install software-properties-common -y
 apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y

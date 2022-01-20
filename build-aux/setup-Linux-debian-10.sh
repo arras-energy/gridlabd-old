@@ -4,7 +4,7 @@
 # update first
 apt-get -q update
 
-# Set default timezone as America/Pacific
+
 # In windows wsl/debain, the default timezone is Etc/GMT+X
 # Enforce user to update local timezone
 if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
