@@ -7,8 +7,11 @@ apt-get -q update
 # Set default timezone as America/Pacific
 # In windows wsl/debain, the default timezone is etc/GMT+X
 # The ETC timezone will causes installation error
-# export DEBIAN_FRONTEND=noninteractive
-# ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+
+
+export DEBIAN_FRONTEND=noninteractive
+# get localtime zone from web
+ln -snf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime
 apt-get install -y tzdata
 dpkg-reconfigure --frontend noninteractive tzdata
 
