@@ -4,14 +4,11 @@
 # update first
 apt-get -q update
 
-
-
-
 apt-get install -y tzdata
 # In windows wsl/debain, the default timezone is Etc/GMT+X
 # The ETC timezone will causes installation error
 # Enforce user to select timezone
-if ["$(cat /etc/timezone | cut -f1 -d"/")" == "Etc"]; then 
+if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
 	dpkg-reconfigure tzdata
 fi
 
@@ -36,8 +33,8 @@ apt-get install libbz2-dev -y
 apt-get install libncursesw5-dev -y
 apt-get install xz-utils -y
 
-# Install python 3.9.6
-# python3 support needed as of 4.2
+# # Install python 3.9.6
+# # python3 support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.6"
 	cd /usr/local/src
