@@ -9,6 +9,7 @@ apt-get install -y tzdata
 # The ETC timezone will causes installation error
 # Enforce user to select timezone
 if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
+	chsh -s /bin/bash
 	apt-get install dialog -y
 	export DEBIAN_FRONTEND=dialog
 	dpkg-reconfigure tzdata
