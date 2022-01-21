@@ -604,10 +604,7 @@ if __name__ == "__main__":
             shutil.rmtree(cachedir)
         else:
             error(f"option '{token}' is not valid",1)
-    if position and year:
-        data = getyears(year,float(position[0]),float(position[1]))
-        writeglm(data,glm,name,csv)
-
+ 
     if position and year:
         try:
             data = getyears(year,float(position[0]),float(position[1]))
