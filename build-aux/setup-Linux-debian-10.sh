@@ -10,7 +10,7 @@ apt-get install curl -y
 apt-get install apt-utils -y
 
 # "Etc" will cause installation error
-if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
+if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
 	# get time zone from URL 
 	URL="https://ipapi.co/timezone"
 	response=$(curl -s -w "%{http_code}" $URL)
@@ -24,6 +24,10 @@ if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then
 		echo "Set default time zone as UTC/GMT. "
 		ln -fs /usr/share/zoneinfo/UTC/GMT /etc/localtime
 	fi
+
+	export DEBIAN_FRONTEND=noninteractive
+	apt-get install -y tzdata
+	dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
 apt-get -q install software-properties-common -y
@@ -67,6 +71,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
+	/usr/local/bin/python3 -m pip install --upgrade pip
 	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/bin/python3 -m pip install IPython censusdata
 fi
