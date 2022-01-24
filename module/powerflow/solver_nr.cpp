@@ -342,10 +342,11 @@ int64 solver_nr(unsigned int bus_count,
 		if ( solver_python_init() == 0 )
 		{
 			Iteration = solver_python_solve(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
-			if ( Iteration >= 0 )
+			if ( Iteration == 0 )
 			{		
 					return Iteration;
 			}
+			// else <0 proceed with NR solver
 		}
 	}
 	catch (const char *msg)

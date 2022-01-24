@@ -1165,6 +1165,13 @@ unsigned long long get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, 
     return hashcode;
 }
 
+// Run python solver
+//
+// Returns:
+//   -1 call NR and initialize with guess
+//    0 use guess and proceed without running NR
+//   <-1 error encountered, run NR and don't use the guess
+//
 int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
@@ -1192,7 +1199,7 @@ int solver_python_solve (
 		else if ( pResult && PyLong_Check(pResult) )
 		{
 			result = PyLong_AsLong(pResult);
-			if ( result >= 0 )
+			if ( result == -1 || result == 0 ) // -1 means no solution but guess is ok, 0 means solution is ok
 			{
 				sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			}
