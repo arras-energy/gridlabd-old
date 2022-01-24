@@ -5,18 +5,29 @@
 apt-get -q update
 
 
-# In windows wsl/debain, the default timezone is Etc/GMT+X
-# Enforce user to update local timezone
-if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then
-	chsh -s /bin/bash
-	apt-get install dialog -y
-	export DEBIAN_FRONTEND=dialog
-	dpkg-reconfigure tzdata
+apt-get install tzdata -y
+apt-get install curl -y
+apt-get install apt-utils -y
+
+# "Etc" will cause installation error
+if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
+	# get time zone from URL 
+	URL="https://ipapi.co/timezone"
+	response=$(curl -s -w "%{http_code}" $URL)
+	http_code=$(tail -n1 <<< "${response: -3}")  # get the last 3 digits
+	if [ $http_code == "200" ]; then 
+		time_zone=$(sed 's/.\{3\}$//' <<< "${response}") # remove the last 3 digits
+		echo "successful get timezone from  $URL , Set time zone as $time_zone"
+		ln -fs /usr/share/zoneinfo/$time_zone /etc/localtime
+	else 
+		echo "Can not get timezone from $URL , http_code is $http_code "
+		echo "Set default time zone as UTC/GMT. "
+		ln -fs /usr/share/zoneinfo/UTC/GMT /etc/localtime
+	fi
 fi
 
-
 apt-get -q install software-properties-common -y
-apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl -y
+apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 
 # install system build tools needed by gridlabd
 
