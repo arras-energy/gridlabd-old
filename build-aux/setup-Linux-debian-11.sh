@@ -23,6 +23,10 @@ if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then
 		echo "Set default time zone as UTC/GMT. "
 		ln -fs /usr/share/zoneinfo/UTC/GMT /etc/localtime
 	fi
+	
+	export DEBIAN_FRONTEND=noninteractive
+	apt-get install -y tzdata
+	dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
 apt-get -q install software-properties-common -y
