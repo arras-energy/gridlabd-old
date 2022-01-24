@@ -9,7 +9,7 @@ apt-get install curl -y
 apt-get install apt-utils -y
 
 # "Etc" will cause installation error
-if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
+if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
 	# get time zone from URL 
 	URL="https://ipapi.co/timezone"
 	response=$(curl -s -w "%{http_code}" $URL)
@@ -23,7 +23,7 @@ if [ "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then
 		echo "Set default time zone as UTC/GMT. "
 		ln -fs /usr/share/zoneinfo/UTC/GMT /etc/localtime
 	fi
-	
+
 	export DEBIAN_FRONTEND=noninteractive
 	apt-get install -y tzdata
 	dpkg-reconfigure --frontend noninteractive tzdata
