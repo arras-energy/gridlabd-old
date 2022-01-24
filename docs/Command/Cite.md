@@ -3,12 +3,14 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd --cite
+bash$ gridlabd --cite[=FORMAT]
 ~~~
 
 # Description
 
-The `--cite` command line option is used to obtain the citation for the current version of GridLAB-D. See the project README file for details on how to correctly cite GridLAB-D.
+The `--cite` command line option is used to obtain the plain text citation for the current version of GridLAB-D. See the project README file for details on how to correctly cite GridLAB-D.
+
+Supported formats are `json` and `bibtex`.
 
 # Example
 

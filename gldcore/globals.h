@@ -86,6 +86,7 @@ typedef enum e_exitcode
 	XC_SVRKLL = 8,
 	XC_IOERR = 9,
 	XC_LDERR = 10,
+	XC_TMERR = 11,
 	XC_SHFAILED = 127,
 	XC_SIGNAL = 128,
 	XC_SIGINT = (XC_SIGNAL|SIGINT),
@@ -498,22 +499,22 @@ typedef enum {
 	MLS_LOCKED = 4, /**< main loop is locked (possible deadlock) */
 } MAINLOOPSTATE; /**< identifies the main loop state */
 
-/* Variable:  */
+/* Variable: global_mainloopstate */
 GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state */
 
-/* Variable:  */
+/* Variable: global_mainlooppauseat */
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
-/* Variable:  */
+/* Variable: global_infourl */
 GLOBAL char global_infourl[1024] INIT("http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search="); /**< URL for info calls */
 
-/* Variable:  */
+/* Variable: global_hostname */
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
 
-/* Variable:  */
+/* Variable: global_hostaddr */
 GLOBAL char global_hostaddr[32] INIT("127.0.0.1"); /**< machine ip addr */
 
-/* Variable:  */
+/* Variable: global_autostartgui */
 GLOBAL int global_autostartgui INIT(1); /**< autostart GUI when no command args are given */
 
 /* delta mode support */
@@ -529,7 +530,7 @@ typedef enum {
 	DMF_SOFTEVENT	= 0x01,/**< event is soft */
 } DELTAMODEFLAGS; /**< delta mode flags */
 
-/* Variable:  */
+/* Variable: global_simulation_mode */
 GLOBAL SIMULATIONMODE global_simulation_mode INIT(SM_INIT); /**< simulation mode */
 
 /* Variable: global_deltamode_allowed 
@@ -538,40 +539,40 @@ GLOBAL SIMULATIONMODE global_simulation_mode INIT(SM_INIT); /**< simulation mode
 */
 GLOBAL bool global_deltamode_allowed INIT(FALSE);
 
-/* Variable:  */
+/* Variable: global_deltamode_timestep */
 GLOBAL DT global_deltamode_timestep INIT(10000000); /**< delta mode time step in ns (default is 10ms) */
 
-/* Variable:  */
+/* Variable: global_deltamode_maximumtime */
 GLOBAL DELTAT global_deltamode_maximumtime INIT(3600000000000); /**< the maximum time (in ns) delta mode is allowed to run without an event (default is 1 hour) */
 
-/* Variable:  */
+/* Variable: global_deltaclock */
 GLOBAL DELTAT global_deltaclock INIT(0); /**< the cumulative delta runtime with respect to the global clock */
 
-/* Variable:  */
+/* Variable: global_delta_curr_clock */
 GLOBAL double global_delta_curr_clock INIT(0.0);	/**< Deltamode clock offset by main clock (not just delta offset) */
 
-/* Variable:  */
+/* Variable: global_deltamode_updateorder */
 GLOBAL char global_deltamode_updateorder[1025] INIT(""); /**< the order in which modules are updated */
 
-/* Variable:  */
+/* Variable: global_deltamode_iteration_limit */
 GLOBAL unsigned int global_deltamode_iteration_limit INIT(10);	/**< Global iteration limit for each delta timestep (object and interupdate calls) */
 
-/* Variable:  */
+/* Variable: global_deltamode_forced_extra_timesteps */
 GLOBAL unsigned int global_deltamode_forced_extra_timesteps INIT(0);	/**< Deltamode forced extra time steps -- once all items want SM_EVENT, this will force this many more updates */
 
-/* Variable:  */
+/* Variable: global_deltamode_forced_always */
 GLOBAL bool global_deltamode_forced_always INIT(false);	/**< Deltamode flag - prevents exit from deltamode (no SM_EVENT) -- mainly for debugging purposes */
 
-/* Variable:  */
+/* Variable: global_master */
 GLOBAL char global_master[1024] INIT(""); /**< master hostname */
 
-/* Variable:  */
+/* Variable: global_master_port */
 GLOBAL unsigned int64 global_master_port INIT(0);	/**< master port/mmap/shmem info */
 
-/* Variable:  */
+/* Variable: global_slave_port */
 GLOBAL int16 global_slave_port INIT(6267); /**< default port for slaves to listen on. slaves will not run in server mode, but multiple slaves per node will require changing this. */
 
-/* Variable:  */
+/* Variable: global_slave_id */
 GLOBAL unsigned int64 global_slave_id INIT(0); /**< ID number used by remote slave to identify itself when connecting to the master */
 typedef enum {
 	MRM_STANDALONE, /**< multirun is not enabled (standalone run) */
@@ -580,7 +581,7 @@ typedef enum {
 	MRM_LIBRARY,	/**< running as a library in another system */
 } MULTIRUNMODE; /**< determines the type of run */
 
-/* Variable:  */
+/* Variable: global_multirun_mode */
 GLOBAL MULTIRUNMODE global_multirun_mode INIT(MRM_STANDALONE);	/**< multirun mode */
 typedef enum {
 	MRC_NONE,	/**< isn't actually connected upwards */
@@ -588,19 +589,19 @@ typedef enum {
 	MRC_SOCKET,	/**< use a socket */
 } MULTIRUNCONNECTION;	/**< determines the connection mode for a slave run */
 
-/* Variable:  */
+/* Variable: global_multirun_connection */
 GLOBAL MULTIRUNCONNECTION global_multirun_connection INIT(MRC_NONE);	/**< multirun mode connection */
 
-/* Variable:  */
+/* Variable: global_signal_timeout */
 GLOBAL int32 global_signal_timeout INIT(5000); /**< signal timeout in milliseconds (-1 is infinite) */
 
-/* Variable:  */
+/* Variable: global_return_code */
 GLOBAL int global_return_code INIT(0); /**< return code from last system call */
 
-/* Variable:  */
+/* Variable: global_exit_code */
 GLOBAL EXITCODE global_exit_code INIT(XC_SUCCESS);
 
-/* Variable:  */
+/* Variable: global_init_max_defer */
 GLOBAL int global_init_max_defer INIT(64); /**< maximum number of times objects will be deferred for initialization */
 
 /* remote data access */
@@ -616,61 +617,61 @@ typedef enum {
 	MC_VERBOSE  = 0x08, /**< verbose output */
 } MODULECOMPILEFLAGS;
 
-/* Variable:  */
+/* Variable: global_module_compiler_flags */
 GLOBAL MODULECOMPILEFLAGS global_module_compiler_flags INIT(MC_NONE); /** module compiler flags */
 
-/* Variable:  */
+/* Variable: global_mt_analysis */
 GLOBAL unsigned int global_mt_analysis INIT(0); /**< perform multithread analysis (requires profiler) */
 
-/* Variable:  */
+/* Variable: global_inline_block_size */
 GLOBAL unsigned int global_inline_block_size INIT(16*65536); /**< inline code block size */
 
-/* Variable:  */
+/* Variable: global_runaway_time */
 GLOBAL TIMESTAMP global_runaway_time INIT(2209017600); /**< signal runaway clock on 1/1/2040 */
 
-/* Variable:  */
+/* Variable: global_validateoptions */
 GLOBAL set global_validateoptions INIT(VO_TSTSTD|VO_RPTALL); /**< validation options */
 
-/* Variable:  */
+/* Variable: global_sanitizeoptions */
 GLOBAL set global_sanitizeoptions INIT(SO_NAMES|SO_GEOCOORDS); /**< sanitizing options */
 
-/* Variable:  */
+/* Variable: global_sanitizeprefix */
 GLOBAL char8 global_sanitizeprefix INIT("GLD_"); /**< sanitized name prefix */
 
-/* Variable:  */
+/* Variable: global_sanitizeindex */
 GLOBAL char1024 global_sanitizeindex INIT(".txt"); /**< sanitize index file spec */
 
-/* Variable:  */
+/* Variable: global_sanitizeoffset */
 GLOBAL char32 global_sanitizeoffset INIT(""); /**< sanitize lat/lon offset */
 
-/* Variable:  */
+/* Variable: global_run_powerworld */
 GLOBAL bool global_run_powerworld INIT(false);
 
-/* Variable:  */
+/* Variable: global_bigranks */
 GLOBAL bool global_bigranks INIT(true); /**< enable non-recursive set_rank function (good for very deep models) */
 
-/* Variable:  */
+/* Variable: global_svnroot */
 GLOBAL char1024 global_svnroot INIT("http://gridlab-d.svn.sourceforge.net/svnroot/gridlab-d");
 
-/* Variable:  */
+/* Variable: global_github */
 GLOBAL char1024 global_github INIT("https://github.com/gridlab-d");
 
-/* Variable:  */
+/* Variable: global_gitraw */
 GLOBAL char1024 global_gitraw INIT("https://raw.githubusercontent.com/gridlab-d");
 
-/* Variable:  */
+/* Variable: global_wget_options */
 GLOBAL char1024 global_wget_options INIT("maxsize:100MB;update:newer"); /**< maximum size of wget request */
 
-/* Variable:  */
+/* Variable: global_reinclude */
 GLOBAL bool global_reinclude INIT(false); /**< allow the same include file to be included multiple times */
 
-/* Variable:  */
+/* Variable: global_relax_undefined_if */
 GLOBAL bool global_relax_undefined_if INIT(false); /**< allow #if macro to handle undefined global variables */
 
-/* Variable:  */
+/* Variable: global_literal_if */
 GLOBAL bool global_literal_if INIT(true); /**< do not interpret lhs of #if as a variable name */
 
-/* Variable:  */
+/* Variable: global_allow_variant_aggregates */
 GLOBAL bool global_allow_variant_aggregates INIT(false); /* allow aggregates to include time varying results */
 
 /* Variable:  */
@@ -688,8 +689,13 @@ GLOBAL char1024 global_loader_filename INIT("");
 /* Variable: global_loader_linenum */
 GLOBAL int32 global_loader_linenum INIT(0);
 
+/* Variable: global_country */
 GLOBAL char8 global_country INIT("US");
+
+/* Variable: global_region */
 GLOBAL char32 global_region INIT("CA");
+
+/* Variable: global_organization */
 GLOBAL char1024 global_organization INIT("SLAC");
 
 /* Variable: global_json_complex_format */
@@ -840,6 +846,9 @@ typedef enum
 	POF_JSON = 0x0002,
 } PROFILEOUTPUTFORMAT;
 GLOBAL set global_profile_output_format INIT(POF_TEXT);
+
+/* Variable: global_maximum_runtime */
+GLOBAL int64 global_maximum_runtime INIT(0);
 
 #undef GLOBAL
 #undef INIT

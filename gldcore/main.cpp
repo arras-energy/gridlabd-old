@@ -93,6 +93,7 @@ GldMain::GldMain(int argc, const char *argv[])
 	gui(this),
 	loader(this)
 {
+	starttime = time(NULL);
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
 	my_instance = this;
@@ -888,6 +889,24 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	free(command);
 	return rc;
+}
+
+bool GldMain::check_runtime(bool use_exception)
+{
+	time_t now = time(NULL);
+	if ( global_maximum_runtime > 0 && (now-starttime) > global_maximum_runtime )
+	{
+		if ( use_exception )
+		{
+			throw_exception("GldMain::check_runtime(): maximum runtime %lld reached", (int64)global_maximum_runtime);
+		}
+		else
+		{
+			output_error("maximum runtime of %lld seconds reached", (int64)global_maximum_runtime);
+			return false;
+		}
+	}
+	return true;
 }
 
 /** @} **/

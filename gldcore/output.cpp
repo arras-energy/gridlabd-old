@@ -794,16 +794,16 @@ int output_progress()
 	}
 	else if ( global_keep_progress )
 	{
-		res = output_raw("%sProcessing %s (%.1f%% done)...\n", prefix, ts, fractional_progress*100);
+		res = output_raw_error("%sProcessing %s (%.1f%% done)...\n", prefix, ts, fractional_progress*100);
 	}
 	else if ( global_show_progress )
 	{
 		static int len=0;
-		int i=len, slen = (int)strlen(ts)+15;
-		while (i--) putchar(' ');
-		putchar('\r');
+		int i=len, slen = (int)strlen(ts)+25;
+		while (i--) putc(' ',redirect.error?redirect.error:stderr);
+		putc('\r',redirect.error?redirect.error:stderr);
 		if (slen>len) len=slen;
-		res = output_raw("%sProcessing %s (%.1f%% done)...\r", prefix, ts, fractional_progress*100);
+		res = fprintf(redirect.error?redirect.error:stderr,"%sProcessing %s (%.1f%% done)...\r", prefix, ts, fractional_progress*100);
 	}
 	return res;
 }
@@ -831,12 +831,37 @@ int output_raw(const char *format,...) /**< \bprintf style argument list */
 				result =  len;
 			}
 			else
+				result = (*printstd)("%s%s",prefix, buffer);
+		wunlock(&output_lock);
+		return result;
+	}
+	return 0;
+}
+int output_raw_error(const char *format,...) /**< \bprintf style argument list */
+{
+	if (!global_quiet_mode)
+	{
+		va_list ptr;
+		int result = 0;
+		wlock(&output_lock);
+
+		va_start(ptr,format);
+		vsprintf(buffer,format,ptr); /* note the lack of check on buffer overrun */
+		va_end(ptr);
+
+			if (redirect.error)
+			{	int len = fprintf(redirect.error,"%s%s", prefix, buffer);
+				fflush(redirect.error);
+				result =  len;
+			}
+			else
 				result = (*printerr)("%s%s",prefix, buffer);
 		wunlock(&output_lock);
 		return result;
 	}
 	return 0;
 }
+
 
 #include "module.h"
 

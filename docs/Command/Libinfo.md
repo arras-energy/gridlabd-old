@@ -3,10 +3,10 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd --libinfo|-L <module>                                   
+bash$ gridlabd -L|--libinfo[=FORMAT] <module>                                   
 ~~~
 
 # Description
 
-Displays information about a module.
+Displays information about a module in plain text. Supported format is `json`.
 

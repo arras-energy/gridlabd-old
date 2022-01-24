@@ -222,7 +222,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 		char blank[1024];
 		memset(blank,32,len);
 		blank[len]='\0';
-		len = output_raw("%s\rProcessing %s...\r",blank,name)-len; 
+		len = output_raw_error("%s\rProcessing %s...\r",blank,name)-len; 
 	}
 	int64 dt = my_instance->get_exec()->clock();
 	unsigned int code = vsystem("%s %s %s ", 

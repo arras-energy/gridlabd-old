@@ -776,7 +776,7 @@ void fault_check::reset_support_check(void)
 
 void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 {
-	unsigned int index, ret_value;
+	unsigned int index;
 	DATETIME temp_time;
 	bool headerwritten = false;
 	bool supportheaderwritten = false;
@@ -829,7 +829,7 @@ void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 					if (deltamodeflag == true)
 					{
 						//Convert the current time to an output
-						ret_value = gl_printtimedelta(tval_delta,deltaprint_buffer,64);
+						gl_printtimedelta(tval_delta,deltaprint_buffer,64);
 
 						//Write it
 						fprintf(FPOutput,"Unsupported at timestamp %0.9f - %s =\n\n",tval_delta,deltaprint_buffer);
@@ -925,7 +925,7 @@ void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 						if (deltamodeflag == true)
 						{
 							//Convert the current time to an output
-							ret_value = gl_printtimedelta(tval_delta,deltaprint_buffer,64);
+							gl_printtimedelta(tval_delta,deltaprint_buffer,64);
 
 							//Write it
 							fprintf(FPOutput,"Supported at timestamp %0.9f - %s =\n",tval_delta,deltaprint_buffer);
@@ -2227,13 +2227,12 @@ void fault_check::search_associated_grids(unsigned int node_int, int grid_counte
 //Function to remove a divergent island
 STATUS fault_check::disable_island(int island_number)
 {
-	int index_value;
+	unsigned int index_value;
 	TIMESTAMP curr_time_val_TS;
 	double curr_time_val_DBL;
 	FILE *FPOutput;
 	DATETIME temp_time;
 	char deltaprint_buffer[64];
-	unsigned int ret_value;
 	bool deltamodeflag;
 
 	//Preliminary check - see if we're even in the right mode
@@ -2306,7 +2305,7 @@ STATUS fault_check::disable_island(int island_number)
 		if (deltamodeflag == true)
 		{
 			//Convert the current time to an output
-			ret_value = gl_printtimedelta(curr_time_val_DBL,deltaprint_buffer,64);
+			gl_printtimedelta(curr_time_val_DBL,deltaprint_buffer,64);
 
 			//Write it
 			fprintf(FPOutput,"Island %d removed from powerflow at timestamp %0.9f - %s =\n\n",(island_number+1),curr_time_val_DBL,deltaprint_buffer);
