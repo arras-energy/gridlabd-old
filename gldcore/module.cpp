@@ -1086,7 +1086,7 @@ int module_check(MODULE *mod)
 	return (*mod->check)();
 }
 
-void module_libinfo(const char *module_name)
+void module_libinfo(const char *module_name, bool as_json)
 {
 	MODULE *mod = module_load(module_name,0,NULL);
 	if (mod!=NULL)
@@ -1094,38 +1094,81 @@ void module_libinfo(const char *module_name)
 		CLASS *c;
 		PROPERTY *p;
 		GLOBALVAR *v=NULL;
-		output_raw("Module name....... %s\n", mod->name);
-		output_raw("Major version..... %d\n", mod->major);
-		output_raw("Minor version..... %d\n", mod->minor);
-		output_raw("Classes........... ");
-		for (c=mod->oclass; c!=NULL; c=c->next)
-			output_raw("%s%s", c->name, c->next!=NULL?", ":"");
-		output_raw("\n");
-		output_raw("Implementations... ");
-		if (mod->cmdargs!=NULL) output_raw("cmdargs ");
-		if (mod->getvar!=NULL) output_raw("getvar ");
-		if (mod->setvar!=NULL) output_raw("setvar ");
-		if (mod->import_file!=NULL) output_raw("import_file ");
-		if (mod->export_file!=NULL) output_raw("export_file ");
-		if (mod->check!=NULL) output_raw("check ");
-		if (mod->kmldump!=NULL) output_raw("kmldump ");
-		if (mod->stream!=NULL) output_raw("stream ");
-		output_raw("\nGlobals........... ");
-		for (p=mod->globals; p!=NULL; p=p->next)
-			output_raw("%s ", p->name);
-		while ((v=global_getnext(v))!=NULL)
+		if ( as_json )
 		{
-			if (strncmp(v->prop->name,module_name,strlen(module_name))==0)
+			output_raw("{");
+			output_raw("  \"name\" : \"%s\",\n", mod->name);
+			output_raw("  \"version\" : %d.%d,\n", mod->major, mod->minor);
+			output_raw("  \"classes\" : [\n");
+			for (c=mod->oclass; c!=NULL; c=c->next)
+				output_raw("    \"%s\"%s\n", c->name, c->next!=NULL?",":"");
+			output_raw("  ],\n");
+			output_raw("  \"methods\" : [\n");
+			if (mod->cmdargs!=NULL) output_raw("    \"cmdargs\",\n");
+			if (mod->getvar!=NULL) output_raw("    \"getvar\",\n");
+			if (mod->setvar!=NULL) output_raw("    \"setvar\",\n");
+			if (mod->import_file!=NULL) output_raw("    \"import_file\",\n");
+			if (mod->export_file!=NULL) output_raw("    \"export_file\",\n");
+			if (mod->check!=NULL) output_raw("    \"check\",\n");
+			if (mod->kmldump!=NULL) output_raw("    \"kmldump\",\n");
+			if (mod->stream!=NULL) output_raw("    \"stream\",\n");
+			output_raw("    null],\n");
+			output_raw("  \"globals\" : [\n");
+			for (p=mod->globals; p!=NULL; p=p->next)
+				output_raw("    \"%s\"%s\n", p->name,p->next?",":"");
+			while ((v=global_getnext(v))!=NULL)
 			{
-				const char *vn = strstr(v->prop->name,"::");
-				if (vn!=NULL)
-					output_raw("%s ", vn+2);
+				if (strncmp(v->prop->name,module_name,strlen(module_name))==0)
+				{
+					const char *vn = strstr(v->prop->name,"::");
+					if ( vn!=NULL )
+						output_raw("    \"%s\"%s\n", vn+2, v->prop->next?",":"");
+				}
 			}
+			output_raw("    ]\n}\n");
 		}
-		output_raw("\n");
+		else
+		{
+			output_raw("Module name....... %s\n", mod->name);
+			output_raw("Major version..... %d\n", mod->major);
+			output_raw("Minor version..... %d\n", mod->minor);
+			output_raw("Classes........... ");
+			for (c=mod->oclass; c!=NULL; c=c->next)
+				output_raw("%s%s", c->name, c->next!=NULL?", ":"");
+			output_raw("\n");
+			output_raw("Implementations... ");
+			if (mod->cmdargs!=NULL) output_raw("cmdargs ");
+			if (mod->getvar!=NULL) output_raw("getvar ");
+			if (mod->setvar!=NULL) output_raw("setvar ");
+			if (mod->import_file!=NULL) output_raw("import_file ");
+			if (mod->export_file!=NULL) output_raw("export_file ");
+			if (mod->check!=NULL) output_raw("check ");
+			if (mod->kmldump!=NULL) output_raw("kmldump ");
+			if (mod->stream!=NULL) output_raw("stream ");
+			output_raw("\nGlobals........... ");
+			for (p=mod->globals; p!=NULL; p=p->next)
+				output_raw("%s ", p->name);
+			while ((v=global_getnext(v))!=NULL)
+			{
+				if (strncmp(v->prop->name,module_name,strlen(module_name))==0)
+				{
+					const char *vn = strstr(v->prop->name,"::");
+					if (vn!=NULL)
+						output_raw("%s ", vn+2);
+				}
+			}
+			output_raw("\n");
+		}
+	}
+	else if ( as_json )
+	{
+		output_raw("{}");
+		output_error("Module %s load failed", module_name);
 	}
 	else
+	{
 		output_error("Module %s load failed", module_name);
+	}
 }
 
 int module_cmdargs(int argc, const char **argv)

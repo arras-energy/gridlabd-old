@@ -113,9 +113,9 @@ public:
 				}
 				memset(blank,' ',len);
 				blank[len]='\0';
-				output_raw("%s\r",blank);
+				output_raw_error("%s\r",blank);
 			}
-			len = output_raw("Processing %s...\r",ptr)-1; 
+			len = output_raw_error("Processing %s...\r",ptr)-1; 
 			if ( len < 0 )
 			{
 				len = 0;

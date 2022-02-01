@@ -1,9 +1,8 @@
 #ifexist "../config.csv"
-#define DIR=..
+#system cp ../config.csv .
 #endif
 
-#define TEST1=X
-#input "${DIR:-.}/config.csv" -f config -t config -p relax=FALSE
+#input "config.csv" -f config -t config relax=FALSE
 
 #if ${TEST1:-X} == A
 #print ok

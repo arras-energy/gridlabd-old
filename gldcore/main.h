@@ -112,6 +112,7 @@ public:
 private:
 	static unsigned int next_id; // next instance id
 	unsigned int id; // this instance id
+	time_t starttime; // wallclock start time of this simulation
 
 public:		
 	/*	Constructor: GldMain
@@ -226,6 +227,9 @@ public:
 		>=0 command exit code
 	 */
 	int subcommand(const char *format,...);
+
+	// Method: check_runtime
+	bool check_runtime(bool use_exception=false);
 };
 
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
