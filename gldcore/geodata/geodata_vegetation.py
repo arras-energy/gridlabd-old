@@ -1,6 +1,63 @@
 """GridLAB-D Geodata Vegetation Package
 
 The vegetation geodata package obtains the vegetation at locations.
+
+INPUT
+
+    latitude - the latitude field (required)
+
+    longitude - the longitude field (required)
+
+OUTPUT
+
+    base - vegetation base height
+
+    cover - vegetation cover fraction
+
+    height - vegetation top height
+
+OPTIONS
+
+    units - specifies the units in which output is given (default is meters). 
+    Valid units are "m", "meters", "ft", and "feet".
+
+    precision - dictionary of output precisions
+
+        vegetation - precision of vegetation data (default is 0 decimals).
+
+    year - year for which data is returned (default is 2020)
+
+CONFIGURATION
+
+    nan_error -  Return NaN values instead of raising exceptions on bad data (default is False)
+    
+    cachedir - Location of local data cache (default is "/usr/local/share/gridlabd/geodata/vegetation")
+    
+    repourl - Location of remote vegetation data (default is "http://geodata.gridlabd.us/vegetation")
+    
+    layers - Layers to collect from data repository (default is "base,cover,height")
+    
+    layer_units - Dictionary of layer units to use (default is {"base":"m","cover":"%","height":"m"})
+    
+    vegetation - Dictionary of vegetation access information.
+    
+        username -  Username for access credentials (usually an email, default is "")
+    
+        password - Password for access credentials (usually a token, default is "")
+    
+        provider - Data provider name (default is "cfo")
+    
+        usecache - Enable caching of data (default is True)
+    
+    maximum_image_size - Maximum size of remote data block (default is 2e9 bytes)
+
+EXAMPLES
+
+    The following command retrieves the vegetation someplace in the Santa Cruz Mountains:
+
+        % gridlabd geodata merge -D vegetation 37.4,-122.3 --vegetation.username=YOUREMAIL --vegetation.password=YOURPWD
+    id,latitude,longitude,base,cover,height
+    0,37.4,-122.3,2.0,0.57,17.0
 """
 
 version = 1 # specify API version
@@ -107,9 +164,9 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
 
     """
 
-    if not config["vegetation.username"] and not config["vegetation.password"]:
+    if not config["vegetation"]["username"] or not config["vegetation"]["password"]:
         warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users (see {config['repourl']} to register)")
-    elif config["vegetation"]["provider"] and not eval(config["vegetation"]["provider"])(username=config["vegetation.username"],password=config["vegetation.password"],usecache=config["vegetation"]["usecache"]):
+    elif config["vegetation"]["provider"] and not eval(config["vegetation"]["provider"])(username=config["vegetation"]["username"],password=config["vegetation"]["password"],usecache=config["vegetation"]["usecache"]):
         warning(f"vegetation data provider authentication failed")
 
     # convert lat,lon to address
