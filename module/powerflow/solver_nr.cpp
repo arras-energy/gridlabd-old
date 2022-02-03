@@ -52,12 +52,13 @@ using namespace std;
 #include <stdio.h>
 #include <string.h>
 
-char1024 solver_profile_filename =  "solver_nr_profile.csv";
-char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
+char1024 solver_profile_filename =  "solver_nr_profile.txt";
 static FILE * nr_profile = NULL;
+const char *solver_headers = "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
 bool solver_dump_enable = false;
+bool solver_profile_csv = false;
 
 //SuperLU variable structure
 //These are the working variables, but structured for island implementation
@@ -71,8 +72,8 @@ typedef struct {
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
-	if (solver_profile_enable) 
-	{
+	if ( solver_profile_enable ) 
+	{	
 		nr_profile = fopen(solver_profile_filename,"w");
 		if ( nr_profile == NULL ) 
 		{
@@ -83,7 +84,16 @@ void sparse_init(SPARSE* sm, int nels, int ncols)
 		}
 		else if ( solver_profile_headers_included )
 		{
-			fprintf(nr_profile,"%s\n",(const char*)solver_headers);
+			if ( solver_profile_csv )
+			{
+
+				fprintf(nr_profile,"%s\n",solver_headers);
+			}
+			else
+			{
+				fprintf(nr_profile,"timestamp               duration[microsec] iteration bus_count branch_count error\n");
+				fprintf(nr_profile,"----------------------- ------------------ --------- --------- ------------ -----\n");
+			}
 		}
 	}
 	int indexval;
@@ -5065,7 +5075,16 @@ int64 solver_nr(unsigned int bus_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
+			{
+				if ( solver_profile_csv )
+				{
+					fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%d\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? 0 : 1);
+				}
+				else
+				{
+					fprintf(nr_profile, "%s %18.1f %9lld %9d %12d %s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "no" : "yes");
+				}
+			}
 		}
 				
 		//Return the maximum iteration count
