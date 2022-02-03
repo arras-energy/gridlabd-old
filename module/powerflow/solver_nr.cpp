@@ -5065,7 +5065,7 @@ int64 solver_nr(unsigned int bus_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, return_value_for_solver_NR == 0 ? 1 : return_value_for_solver_NR,bus_count,branch_count,bad_computations ? "false" : "true");
+				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
 		}
 				
 		//Return the maximum iteration count
