@@ -123,7 +123,7 @@ function index()
 	if [ $# == 0 ]; then
 		cat $INDEX
 	else
-		grep "$1" $INDEX
+		grep -i "$1" $INDEX
 	fi
 }
 
