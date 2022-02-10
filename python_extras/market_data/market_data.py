@@ -144,7 +144,7 @@ def merge_market_data(market, lmp_df, demand_df):
     :return:
     """
     if market == "caiso":
-        lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"]
+        lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"].reset_index(drop=True)
         lmp_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             lmp_df["INTERVALSTARTTIME_GMT"]
         )
@@ -154,7 +154,7 @@ def merge_market_data(market, lmp_df, demand_df):
         lmp_df = lmp_df.rename(columns={"VALUE": "LMP", "NODE": "LMP_NODE"})
         lmp_df = lmp_df[["START_TIME_PST", "LMP_NODE", "LMP"]]
 
-        demand_df = demand_df[demand_df["TAC_AREA_NAME"] == "CA ISO-TAC"]
+        demand_df = demand_df[demand_df["TAC_AREA_NAME"] == "CA ISO-TAC"].reset_index(drop=True)
         demand_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             demand_df["INTERVALSTARTTIME_GMT"]
         )
