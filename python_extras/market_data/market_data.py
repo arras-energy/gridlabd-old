@@ -5,10 +5,12 @@ import os
 import re
 import requests
 from requests.auth import HTTPBasicAuth
-import pandas as pd
 import pytz
 import getpass
 import json
+import pandas as pd
+from io import BytesIO
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -24,6 +26,10 @@ Sample node for ISO-NE: 4001
 
 
 def get_credentials():
+    """
+    Get the username and password from the local credentials.json file
+    :return: dict - Dictionary with username and password
+    """
     credentials_path = f"{os.getcwd()}/credentials.json"
     if os.path.exists(credentials_path) and os.path.getsize(credentials_path) > 0:
         with open(credentials_path) as credentials_file:
@@ -67,7 +73,7 @@ def format_date(market, date_dt):
     """
     Reformats the date string into the format required by the API.
     :param market: str - Market of pulled data
-    :param date_str: str - Date in format returned by convert_timezone function
+    :param date_dt: datetime - Date in format returned by convert_timezone function
     :return: str - Date in format required by the API
     """
     if market == "caiso":
@@ -79,7 +85,7 @@ def format_date(market, date_dt):
 
 def get_dates(start_date_str, end_date_str, max_interval):
     """
-    Returns a list of dicts, where each dict has 2 keys: 'start_date_str' and 'end_date_str'. The different between
+    Returns a list of dicts, where each dict has 2 keys: 'start_date_str' and 'end_date_str'. The difference between
     the two is the max interval of dates allowed in an API query (ex. 31 days). Each dict in the list should be used
     to formulate a separate query to the API.
     :param start_date_str: str - Date in format entered by user (YYYYMMDD)
@@ -111,43 +117,69 @@ def get_dates(start_date_str, end_date_str, max_interval):
     return dates_list
 
 
-def create_folder(data_type, market, start_date, end_date):
+def extract_zip(url):
     """
-    Create a folder to store the output data.
-    :param data_type: str - Type of pulled data ('lmp' or 'demand')
-    :param market: str - Market of pulled data ('caiso' or 'isone')
-    :param start_date: str - Start date of pulled data
-    :param end_date: str - End date of pulled data
-    :return: str - Relative path to created folder
-    """
-    # Create folder to store the output data
-    folder = f"output/{market}_{data_type}_{start_date}-{end_date}"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    return folder
-
-
-def extract_zip(url, folder):
-    """
-    Get a zip file from a url and extract it into the given folder
+    Get a zip file from a url and read it into a dataframe.
     :param url: str - URL to query
     :param folder: str - folder to save contents of zip file to
+    :return: df - dataframe of extracted contents from url
     """
     # Download the file from the URL
     zip_resp = urlopen(url)
-
-    # Create new file on hard drive and write contents to it
-    temp_zip = open("/tmp/tempfile.zip", "wb")
-    temp_zip.write(zip_resp.read())
-    temp_zip.close()
-
-    # Extract contents into given path
-    zf = ZipFile("/tmp/tempfile.zip")
-    zf.extractall(path=os.getcwd() + "/" + folder)
-    zf.close()
+    zf = ZipFile(BytesIO(zip_resp.read()))
+    data = pd.read_csv(zf.open(ZipFile.namelist(zf)[0]))
 
     # Wait
     time.sleep(3)
+
+    return data
+
+
+def merge_market_data(market, lmp_df, demand_df):
+    """
+    Merge the LMP and demand dataframes into a cleaned, single dataframe
+    :param market: str - Market of pulled data
+    :param lmp_df: dataframe - LMP df directly from API query
+    :param demand_df: dataframe - Demand df directly from API query
+    :return:
+    """
+    if market == "caiso":
+        lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"]
+        lmp_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
+            lmp_df["INTERVALSTARTTIME_GMT"]
+        )
+        lmp_df["START_TIME_PST"] = lmp_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
+            "US/Pacific"
+        )
+        lmp_df = lmp_df.rename(columns={"VALUE": "LMP", "NODE": "LMP_NODE"})
+        lmp_df = lmp_df[["START_TIME_PST", "LMP_NODE", "LMP"]]
+
+        demand_df = demand_df[demand_df["TAC_AREA_NAME"] == "CA ISO-TAC"]
+        demand_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
+            demand_df["INTERVALSTARTTIME_GMT"]
+        )
+        demand_df["START_TIME_PST"] = demand_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
+            "US/Pacific"
+        )
+        demand_df = demand_df[["START_TIME_PST", "MW"]]
+
+        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_PST")
+        market_data_df = market_data_df.sort_values("START_TIME_PST")
+        market_data_df["MW"] = market_data_df["MW"].fillna(method="ffill")
+
+    if market == "isone":
+        lmp_df["START_TIME_EST"] = pd.to_datetime(lmp_df["BeginDate"])
+        lmp_df = lmp_df.rename(columns={"Location": "LMP_NODE", "LmpTotal": "LMP"})
+        lmp_df = lmp_df[["START_TIME_EST", "LMP_NODE", "LMP"]]
+
+        demand_df["START_TIME_EST"] = pd.to_datetime(demand_df["BeginDate"])
+        demand_df = demand_df.rename(columns={"LoadMw": "MW"})
+        demand_df = demand_df[["START_TIME_EST", "MW"]]
+
+        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_EST")
+        market_data_df = market_data_df.sort_values("START_TIME_EST")
+
+    return market_data_df
 
 
 def get_caiso_data(node, start_date, end_date):
@@ -156,46 +188,47 @@ def get_caiso_data(node, start_date, end_date):
     :param node: str - CAISO node as input by the user
     :param start_date: str - Start date of data to pull
     :param end_date: str - End date of data to pull
+    :return: dict - Keys are the names of the dfs, values are the dfs (lmp_df, demand_df)
     """
     print(f"Pulling CAISO data from {start_date} to {end_date}")
-
-    lmp_folder = create_folder(
-        data_type="lmp", market="caiso", start_date=start_date, end_date=end_date
-    )
-    demand_folder = create_folder(
-        data_type="demand", market="caiso", start_date=start_date, end_date=end_date
-    )
 
     # Formulate components of the URL request
     base_url = "http://oasis.caiso.com/oasisapi/SingleZip"
     result_format = "6"
 
     # If start and end date are >31 days apart, break them up (CAISO API requirement)
+    lmp_df_list = []
+    demand_df_list = []
     dates_list = get_dates(
         start_date_str=start_date, end_date_str=end_date, max_interval=31
     )
+
     for dates_dict in dates_list:
-        start_date = dates_dict["start_date_str"]
-        end_date = dates_dict["end_date_str"]
+        temp_start_date = dates_dict["start_date_str"]
+        temp_end_date = dates_dict["end_date_str"]
 
         # Get LMP data
         query_name = "PRC_INTVL_LMP"
         market_run_id = "RTM"
         version = "3"
-        lmp_url = f"{base_url}?resultformat={result_format}&queryname={query_name}&startdatetime={start_date}&enddatetime={end_date}&version={version}&market_run_id={market_run_id}&node={node}"
-        extract_zip(url=lmp_url, folder=lmp_folder)
+        lmp_url = f"{base_url}?resultformat={result_format}&queryname={query_name}&startdatetime={temp_start_date}&enddatetime={temp_end_date}&version={version}&market_run_id={market_run_id}&node={node}"
+        lmp_df = extract_zip(url=lmp_url)
+        lmp_df_list.append(lmp_df)
 
         # Get demand data
         query_name = "SLD_FCST"
-        market_run_id = "RTM"
-        execution_type = "RTD"
+        market_run_id = "ACTUAL"
         version = "1"
-        demand_url = f"{base_url}?resultformat={result_format}&queryname={query_name}&startdatetime={start_date}&enddatetime={end_date}&version={version}&market_run_id={market_run_id}&execution_type={execution_type}"
-        extract_zip(url=demand_url, folder=demand_folder)
+        demand_url = f"{base_url}?resultformat={result_format}&queryname={query_name}&startdatetime={temp_start_date}&enddatetime={temp_end_date}&version={version}&market_run_id={market_run_id}"
+        demand_df = extract_zip(url=demand_url)
+        demand_df_list.append(demand_df)
 
-    print(
-        f"Process complete. Data saved in output/caiso_<data_type>_{start_date}-{end_date}."
+    market_data = merge_market_data(
+        market="caiso",
+        lmp_df=pd.concat(lmp_df_list),
+        demand_df=pd.concat(demand_df_list),
     )
+    return market_data
 
 
 def get_isone_data(node, start_date, end_date):
@@ -208,26 +241,22 @@ def get_isone_data(node, start_date, end_date):
     print(f"Pulling ISONE data from {start_date} to {end_date}")
     credentials_dict = get_credentials()
 
-    # Create folders to store the output data
-    lmp_folder = create_folder(
-        data_type="lmp", market="isone", start_date=start_date, end_date=end_date
-    )
-    demand_folder = create_folder(
-        data_type="demand", market="isone", start_date=start_date, end_date=end_date
-    )
-
     # Formulate components of the URL request
     base_url = "https://webservices.iso-ne.com/api/v1.1"
     file_type = ".json"
 
-    # Loop through all dates in range, one at a time (ISONE API requirement)
-    start_date_dt = dt.datetime.strptime(start_date, "%Y%m%d")
-    end_date_dt = dt.datetime.strptime(end_date, "%Y%m%d")
-    while start_date_dt <= end_date_dt:
+    # Loop through all dates in range, one day at a time (ISONE API requirement)
+    lmp_df_list = []
+    demand_df_list = []
+    dates_list = get_dates(
+        start_date_str=start_date, end_date_str=end_date, max_interval=1
+    )
+
+    for dates_dict in dates_list:
+        temp_start_date = dates_dict["start_date_str"]
+
         # Get LMP data
-        endpoint = (
-            f"/fiveminutelmp/day/{start_date_dt.strftime('%Y%m%d')}/location/{node}"
-        )
+        endpoint = f"/fiveminutelmp/day/{temp_start_date}/location/{node}"
         response = requests.get(
             base_url + endpoint + file_type,
             auth=HTTPBasicAuth(credentials_dict["user"], credentials_dict["pwd"]),
@@ -236,12 +265,10 @@ def get_isone_data(node, start_date, end_date):
         lmp_df = pd.concat(
             [pd.DataFrame(v) for k, v in response_dict.items()], keys=response_dict
         )
-        lmp_df.to_csv(
-            f"{lmp_folder}/isone_fiveminlmp_{start_date_dt.strftime('%Y%m%d')}.csv"
-        )
+        lmp_df_list.append(lmp_df)
 
         # Get 5 min RT demand data
-        endpoint = f"/fiveminutesystemload/day/{start_date_dt.strftime('%Y%m%d')}"
+        endpoint = f"/fiveminutesystemload/day/{temp_start_date}"
         response = requests.get(
             base_url + endpoint + file_type,
             auth=HTTPBasicAuth(credentials_dict["user"], credentials_dict["pwd"]),
@@ -250,23 +277,107 @@ def get_isone_data(node, start_date, end_date):
         demand_df = pd.concat(
             [pd.DataFrame(v) for k, v in response_dict.items()], keys=response_dict
         )
-        demand_df.to_csv(
-            f"{demand_folder}/isone_fivemindemand_{start_date_dt.strftime('%Y%m%d')}.csv"
-        )
+        demand_df_list.append(demand_df)
 
-        # Run again for the next day in range
-        start_date_dt += dt.timedelta(days=1)
-
-    print(
-        f"Process complete. Data saved in output/isone_<data_type>_{start_date}-{end_date}."
+    market_data = merge_market_data(
+        market="isone",
+        lmp_df=pd.concat(lmp_df_list),
+        demand_df=pd.concat(demand_df_list),
     )
+    return market_data
 
 
 def get_market_data(market, node, start_date, end_date):
+    """
+    Get market data (LMP and demand data) for the given market, node, and date range.
+    :param market: str - Market of pulled data
+    :param node: str - Node as input by the user
+    :param start_date: str - Start date of data to pull
+    :param end_date: str - End date of data to pull
+    :return: dataframe - df of complete market data
+    """
     if market == "caiso":
-        get_caiso_data(node=node, start_date=start_date, end_date=end_date)
+        market_data = get_caiso_data(
+            node=node, start_date=start_date, end_date=end_date
+        )
     elif market == "isone":
-        get_isone_data(node=node, start_date=start_date, end_date=end_date)
+        market_data = get_isone_data(
+            node=node, start_date=start_date, end_date=end_date
+        )
+    return market_data
+
+
+def writeglm(
+    market, node, start_date, end_date, market_data, glm=None, name=None, csv=None
+):
+    """Write market data object.
+    name is name of obj in gld
+    Default GLM and CSV values are handled as follows
+    GLM    CSV    Output
+    ------ ------ ------
+    None   None   CSV->stdout
+    GLM    None   GLM, CSV->GLM/.glm/.csv
+    None   CSV    GLM->stdout, CSV
+    GLM    CSV    GLM, CSV
+    The default name is "market_data@<market>_<node>_<start_date>-<end_date>"
+    The WEATHER global is set to the list of weather object names.
+    """
+    float_format = "%.1f"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    if not name:
+        name = f"market_data@{market}_{node}_{start_date}-{end_date}"
+    if not csv and not glm:
+        market_data.to_csv(
+            "/dev/stdout",
+            header=True,
+            float_format=float_format,
+            date_format=date_format,
+        )
+        return dict(glm=None, csv="/dev/stdout", name=None)
+    if not glm:
+        glm = "/dev/stdout"
+    if not csv:
+        csv = f"{name}.csv"
+    with open(glm, "w") as f:
+        f.write("class market_data\n{\n")
+        for column in market_data.columns:
+            dtype = market_data[column].dtype
+            if dtype == object:
+                gld_dtype = "obj"
+            elif dtype == int:
+                gld_dtype = "int"
+            elif dtype == float:
+                gld_dtype = "float"
+            elif is_datetime(market_data[column]):
+                gld_dtype = "datetime"
+            else:
+                error(
+                    f"Datatype <{dtype}> in column <{column}> does not have a corresponding datatype for GLD."
+                )
+            f.write(f"\t{gld_dtype} {column};\n")
+        f.write("}\n")
+        market_data.columns = list(map(lambda x: x.split("[")[0], market_data.columns))
+        f.write("module tape;\n")
+        f.write("#ifdef MARKET_DATA\n")
+        f.write(
+            f"#set MARKET_DATA=$MARKET_DATA {name}\n"
+        )  # add curly braces around MARKET_DATA
+        f.write("#else\n")
+        f.write(f"#define MARKET_DATA={name}\n")
+        f.write("#endif\n")
+        f.write("object market_data\n{\n")
+        f.write(f'\tname "{name}";\n')
+        f.write(f"\tmarket {market};\n")
+        f.write(f"\tnode {node};\n")
+        f.write("\tobject player\n\t{\n")
+        f.write(f'\t\tfile "{csv}";\n')
+        f.write(f"\t\tproperty \"{','.join(market_data.columns)}\";\n")
+        f.write("\t};\n")
+        f.write("}\n")
+
+    market_data.to_csv(csv, header=False, float_format=float_format, date_format="%s")
+    return dict(glm=glm, csv=csv, name=name)
 
 
 def error(msg, code=None):
@@ -353,8 +464,18 @@ if __name__ == "__main__":
         else:
             error(f"option '{token}' is not valid")
     if None not in (market, node, start_date, end_date):
-        get_market_data(
+        market_data = get_market_data(
             market=market, node=node, start_date=start_date, end_date=end_date
+        )
+        writeglm(
+            market=market,
+            node=node,
+            start_date=start_date,
+            end_date=end_date,
+            market_data=market_data,
+            glm=glm,
+            csv=csv,
+            name=name,
         )
     else:
         error(
