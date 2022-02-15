@@ -1,0 +1,14 @@
+clock
+{
+	timezone PST+8PDT;
+	timezone "US/CA/Los Angeles";
+	timezone ${SHELL gridlabd timezone local};
+}
+
+#assert $(gridlabd timezone 37.5,-122.2) == "America/Los_Angeles"
+#assert $(gridlabd timezone 33,-110) == "America/Phoenix"
+#assert $(gridlabd timezone 36,-110) == "America/Denver"
+#assert $(gridlabd timezone 40,-100) == "America/Chicago"
+#assert $(gridlabd timezone 40,-80) == "America/New_York"
+#assert $(gridlabd timezone 50,-120) == "America/Vancouver"
+#assert $(gridlabd timezone 37.5,-122.2 -f=TZSPEC) == "PST+8PDT"

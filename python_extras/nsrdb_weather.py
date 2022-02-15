@@ -190,7 +190,7 @@ def getemail():
     """Get the default email"""
     global email
     if not email:
-        keys = getkeys().keys()
+        keys = getkeys(new=True).keys()
         if keys:
             email = list(getkeys().keys())[0]
         else:
@@ -235,7 +235,10 @@ def getkey(email=None):
     if not email:
         email = getemail()
     if email:
-        return getkeys()[email]
+        try:
+            return getkeys()[email]
+        except:
+            return {}
     else:
         return None
 
@@ -569,7 +572,7 @@ if __name__ == "__main__":
         elif token == "--signup":
             if not value:
                 error("you must provide an email address for the new credential",1)
-            credentials = getkeys()
+            credentials = getkeys(new=True)
             if getemail() in credentials.keys():
                 error(f"you already have credentials for {value}",1)
             else:
@@ -601,10 +604,7 @@ if __name__ == "__main__":
             shutil.rmtree(cachedir)
         else:
             error(f"option '{token}' is not valid",1)
-    if position and year:
-        data = getyears(year,float(position[0]),float(position[1]))
-        writeglm(data,glm,name,csv)
-
+ 
     if position and year:
         try:
             data = getyears(year,float(position[0]),float(position[1]))
