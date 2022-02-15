@@ -131,15 +131,15 @@ EST+5EDT,M4.5.0/02:00,M10.5.0/02:00 ; Eastern, DST 2am last Sun/Apr to last Sun/
  America/Washington
  America/Atlanta
  America/Boston
- America/New York
+ America/New_York
  America/Baltimore
 CST+6CDT,M4.5.0/02:00,M10.5.0/02:00 ; Central, DST 2am last Sun/Apr to last Sun/Oct
  US/IL/Chicago
  America/Chicago
  US/LA/New Orleans
- America/New Orleans
+ America/New_Orleans
  US/MO/St Louis
- America/St Louis
+ America/St_Louis
 MST+7MDT,M4.5.0/02:00,M10.5.0/02:00 ; Mountain, DST 2am last Sun/Apr to last Sun/Oct
  CA/AB/Calgary
  US/CO/Denver
@@ -151,8 +151,9 @@ PST+8PDT,M4.5.0/02:00,M10.5.0/02:00 ; Pacific, DST 2am last Sun/Apr to last Sun/
  US/OR/Portland
  US/WA/Seattle
  America/Los_Angeles
- America/San Francisco
+ America/San_Francisco
  America/Seattle
+ America/Vancouver
 AST+9ADT,M4.5.0/02:00,M10.5.0/02:00 ; Alaska DST 2am last Sun/Apr to last Sun/Oct
  US/AK/Anchorage
  America/Anchorage
