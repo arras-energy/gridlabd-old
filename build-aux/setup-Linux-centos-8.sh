@@ -12,20 +12,32 @@ yum -q install which -y
 yum -q install svn -y
 
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version) != "Python 3.9.0" ]; then
-	yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel -y
+if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Python 3.9.6" ]; then
+	echo "install python 3.9.6"	
+	
 	cd /usr/local/src
-	curl https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz | tar xz
-	cd Python-3.9.0
+	yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel  xz-devel  -y
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	cd Python-3.9.6
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 	make -j $(nproc)
 	make altinstall
+	
 	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
 	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
 	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
-	/usr/local/bin/python3 pip -m install mysql-connector matplotlib numpy pandas Pillow
+	# install python packages
+	/usr/local/bin/python3 -m pip install --upgrade pip
+<<<<<<< HEAD
+	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+=======
+	/usr/local/bin/python3 -m pip install mysql-connector matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
+>>>>>>> 13db67f9f90774b9ca73620eb394a1d9c37e5c08
+	/usr/local/bin/python3 -m pip install IPython censusdata
+
+
 fi
 
 # latex
@@ -49,8 +61,8 @@ fi
 
 # mono
 if [ ! -f /usr/bin/mono ]; then
-	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
-	curl -s https://download.mono-project.com/repo/centos8-stable.repo | tee /etc/yum.repos.d/mono-centos8-stable.repo
+	rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+	su -c 'curl https://download.mono-project.com/repo/centos8-stable.repo | tee /etc/yum.repos.d/mono-centos8-stable.repo'
 	yum -q install mono-devel -y
 fi
 
