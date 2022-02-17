@@ -1,4 +1,4 @@
-FROM slacgismo/gridlabd_dockerhub_base:211105
+FROM slacgismo/gridlabd_dockerhub_base:220217
 
 
 ENV container docker
@@ -14,7 +14,8 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
-RUN yum update -y 
+RUN yum clean all 
+RUN yum update -y
 RUN yum install git -y
 COPY gridlabd.sh /tmp/
 RUN chmod +wx *.sh
