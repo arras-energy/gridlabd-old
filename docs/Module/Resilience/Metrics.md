@@ -21,7 +21,7 @@ object metrics
 
 # Description
 
-The `assert` module support classes that are used to verify that properties have specified values under given conditions.
+The `metrics` objects collects resilience metrics data from objects that observe outage, repair cost, and emergency services impacts.
 
 ## Properties
 
