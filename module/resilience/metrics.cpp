@@ -84,10 +84,10 @@ int metrics::init(OBJECT *parent)
 
 TIMESTAMP metrics::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
-	if ( t1%86400 )
+	DATETIME dt;
+	gl_localtime(gl_globalclock, &dt);
+	if ( dt.hour == 0 && dt.minute == 0 && dt.second == 0 )
 	{
-		DATETIME dt;
-		gl_localtime(gl_globalclock, &dt);
 		bool need_update = false;
 		switch ( report_frequency )
 		{
@@ -98,13 +98,13 @@ TIMESTAMP metrics::commit(TIMESTAMP t1, TIMESTAMP t2)
 			need_update = ( dt.weekday == 0 );
 			break;
 		case MRF_MONTHLY:
-			need_update = ( dt.day == 0 );
+			need_update = ( (dt.day-1) == 0 );
 			break;
 		case MRF_SEASONALLY:
-			need_update = ( dt.month%3 == 0 && dt.weekday == 0 );
+			need_update = ( (dt.day-1) == 0 && (dt.month-1)%3 == 0 );
 			break;
 		case MRF_ANNUALLY:
-			need_update = ( dt.month == 0 );
+			need_update = ( (dt.day-1) == 0 && (dt.month-1) == 0 );
 			break;
 		default:
 			break;
