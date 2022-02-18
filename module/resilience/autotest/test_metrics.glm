@@ -5,14 +5,44 @@ clock
 	stoptime "2021-01-01 00:00:00 PST";
 }
 
+module powerflow;
+
+object triplex_meter
+{
+	name "meter_1";
+	bustype SWING;
+	nominal_voltage 120 V;
+	phases AS;
+	object triplex_load
+	{
+		nominal_voltage 120 V;
+		phases AS;
+		constant_power_12 1200+100j VA;
+	};
+}
+
 module resilience;
 
 object metrics
 {
-	report_file "test_metrics.csv";
+	report_file "test_metrics_report.csv";
 	report_frequency "MONTHLY";
 }
 
+module tape
+{
+	csv_header_type NAME;
+}
+
+object recorder
+{
+	parent "meter_1";
+	property "measured_power";
+	file "test_metrics_meter.csv";
+	interval 3600;
+}
+
 #ifexist ../test_metrics.csv
-#on_exit 0 diff -q ../test_metrics.csv test_metrics.csv
+#on_exit 0 diff -q ../test_metrics_report.csv test_metrics_report.csv
+#on_exit 0 diff -q ../test_metrics_meter.csv test_metrics_meter.csv
 #endif

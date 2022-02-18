@@ -84,49 +84,42 @@ int metrics::init(OBJECT *parent)
 
 TIMESTAMP metrics::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
-	DATETIME dt;
-	gl_localtime(gl_globalclock, &dt);
-	if (dt.hour!=0 && dt.minute!=0 && dt.second!=0)
+	if ( t1%86400 )
 	{
-		return TS_NEVER;
+		DATETIME dt;
+		gl_localtime(gl_globalclock, &dt);
+		bool need_update = false;
+		switch ( report_frequency )
+		{
+		case MRF_DAILY:
+			need_update = true;
+			break;
+		case MRF_WEEKLY:
+			need_update = ( dt.weekday == 0 );
+			break;
+		case MRF_MONTHLY:
+			need_update = ( dt.day == 0 );
+			break;
+		case MRF_SEASONALLY:
+			need_update = ( dt.month%3 == 0 && dt.weekday == 0 );
+			break;
+		case MRF_ANNUALLY:
+			need_update = ( dt.month == 0 );
+			break;
+		default:
+			break;
+		}
+		if ( need_update )
+		{
+			update_report();
+		}
 	}
-	bool need_update = false;
-	TIMESTAMP t3 = TS_NEVER;
-	switch ( report_frequency )
-	{
-	case MRF_DAILY:
-		need_update = true;
-		t3 = t2 + 86400;
-		break;
-	case MRF_WEEKLY:
-		need_update = (dt.weekday==0);
-		t3 = t2 + 86400;
-		break;
-	case MRF_MONTHLY:
-		need_update = (dt.day==0);
-		t3 = t2 + 86400;
-		break;
-	case MRF_SEASONALLY:
-		need_update = (dt.month%3==0 && dt.weekday==0);
-		t3 = t2 + 86400;
-		break;
-	case MRF_ANNUALLY:
-		need_update = (dt.month==0);
-		t3 = t2 + 86400;
-		break;
-	default:
-		break;
-	}
-	if ( need_update )
-	{
-		update_report();
-	}
-	return t3;
+	return (t1/86400+1)*86400;
 }
 
 int metrics::finalize(void)
 {
-	update_report();
+	update_report(true);
 	return 1;
 }
 
