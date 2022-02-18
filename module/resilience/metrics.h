@@ -14,23 +14,33 @@
 
 class metrics : public gld_object 
 {
+
 private:
+
 	GL_ATOMIC(double,outage); 
 	GL_ATOMIC(double,cost);		
 	GL_ATOMIC(int32,impact);
 	GL_STRING(char1024,report_file);
 	GL_ATOMIC(enumeration,report_frequency);
 
+private:
+
+	FILE *report_fh;
+	void update_report(bool final=false);
+
 public:
-	/* required implementations */
+
 	metrics(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
+	int finalize(void);
 
 public:
+
 	static CLASS *oclass;
 	static metrics *defaults;
+
 };
 
 #endif // _GRIDLABD_MODULE_RESILIENCE_METRICS_H

@@ -1,0 +1,18 @@
+clock
+{
+	timezone "US/CA/Los Angeles";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+
+module resilience;
+
+object metrics
+{
+	report_file "test_metrics.csv";
+	report_frequency "MONTHLY";
+}
+
+#ifexist ../test_metrics.csv
+#on_exit 0 diff -q ../test_metrics.csv test_metrics.csv
+#endif
