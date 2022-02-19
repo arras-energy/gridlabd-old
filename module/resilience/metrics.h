@@ -26,6 +26,7 @@ private:
 private:
 
 	FILE *report_fh;
+	TIMESTAMP last_report;
 	void update_report(bool final=false);
 	void reset_metrics(void);
 

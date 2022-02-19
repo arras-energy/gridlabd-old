@@ -65,6 +65,7 @@ int metrics::create(void)
 {
 	memset(report_file,0,sizeof(report_file));
 	report_fh = NULL;
+	last_report = TS_NEVER;
 	reset_metrics();
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -151,13 +152,17 @@ void metrics::update_report(bool final)
 	if ( report_fh )
 	{
 		char buffer[64];
-		if ( gl_strftime(gl_globalclock,buffer,sizeof(buffer)-1) )
+		if ( last_report != gl_globalclock )
 		{
-			fprintf(report_fh,"%s,%.1f,%.2f,%d\n",buffer,outage,cost,impact);
-		}
-		else
-		{
-			fprintf(report_fh,"%lld,%.1f,%.2f,%d\n",gl_globalclock,outage,cost,impact);
+			if ( gl_strftime(gl_globalclock,buffer,sizeof(buffer)-1) )
+			{
+				fprintf(report_fh,"%s,%.1f,%.2f,%d\n",buffer,outage,cost,impact);
+			}
+			else
+			{
+				fprintf(report_fh,"%lld,%.1f,%.2f,%d\n",gl_globalclock,outage,cost,impact);
+			}
+			last_report = gl_globalclock;
 		}
 		if ( final )
 		{
