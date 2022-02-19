@@ -4,7 +4,7 @@
 #ifndef _GRIDLABD_MODULE_RESILIENCE_METRICS_H
 #define _GRIDLABD_MODULE_RESILIENCE_METRICS_H
 
-#include "gridlabd.h"
+#include "resilience.h"
 
 #define MRF_ANNUALLY 0
 #define MRF_SEASONALLY 1

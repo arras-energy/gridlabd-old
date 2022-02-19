@@ -4,7 +4,7 @@
 #ifndef _GRIDLABD_MODULE_RESILIENCE_IMPACT_H
 #define _GRIDLABD_MODULE_RESILIENCE_IMPACT_H
 
-#include "gridlabd.h"
+#include "resilience.h"
 
 class impact : public gld_object 
 {

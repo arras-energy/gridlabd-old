@@ -25,7 +25,10 @@ object triplex_meter
 	};
 }
 
-module resilience;
+module resilience
+{
+	metrics_cost_data "${DIR:-.}/test_metrics_cost_data.csv";
+}
 
 object metrics
 {
@@ -33,11 +36,11 @@ object metrics
 	report_frequency "MONTHLY";
 	object outage
 	{
-
+		asset_class "triplex_meter";
 	};
 	object cost
 	{
-
+		asset_class "triplex_meter";
 	};
 	object impact
 	{

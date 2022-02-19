@@ -6,6 +6,14 @@
 
 #include "gridlabd.h"
 
+typedef struct s_asset
+{
+    OBJECT *obj;
+    TIMESTAMP start;
+    set *status;
+    struct s_asset *next;
+} ASSET;
+
 #include "metrics.h"
 #include "outage.h"
 #include "cost.h"
