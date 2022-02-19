@@ -27,6 +27,18 @@ object metrics
 {
 	report_file "test_metrics_report.csv";
 	report_frequency "MONTHLY";
+	object outage
+	{
+
+	};
+	object cost
+	{
+
+	};
+	object impact
+	{
+		
+	};
 }
 
 module tape
