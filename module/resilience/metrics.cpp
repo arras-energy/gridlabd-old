@@ -54,13 +54,18 @@ metrics::metrics(MODULE *module)
 	}
 }
 
-int metrics::create(void) 
+void metrics::reset_metrics(void)
 {
 	outage = 0.0;
 	cost = 0.0;
 	impact = 0;
+}
+
+int metrics::create(void) 
+{
 	memset(report_file,0,sizeof(report_file));
 	report_fh = NULL;
+	reset_metrics();
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -123,6 +128,24 @@ int metrics::finalize(void)
 	return 1;
 }
 
+void metrics::report_impact(int n)
+{
+	gld_wlock(my());
+	impact += n;
+}
+
+void metrics::report_cost(double x)
+{
+	gld_wlock(my());
+	cost += x;
+}
+
+void metrics::report_outage(double t)
+{
+	gld_wlock(my());
+	outage += t;
+}
+
 void metrics::update_report(bool final)
 {
 	if ( report_fh )
@@ -140,6 +163,10 @@ void metrics::update_report(bool final)
 		{
 			fclose(report_fh);
 			report_fh = NULL;
+		}
+		else
+		{
+			reset_metrics();
 		}
 	}
 }

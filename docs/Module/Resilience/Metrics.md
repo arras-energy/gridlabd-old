@@ -5,6 +5,10 @@
 GLM:
 
 ~~~
+module resilience
+{
+	double default_impact_duration[h];
+}
 class metrics {
 	double outage[unit*day]; 
 	double cost[$]; 
@@ -47,7 +51,7 @@ The frequency with which metric data is recorded.
 
 # See also
 
-* [[/Module/Resilience/Outage]]
 * [[/Module/Resilience/Cost]]
 * [[/Module/Resilience/Impact]]
+* [[/Module/Resilience/Outage]]
 

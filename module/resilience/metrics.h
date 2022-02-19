@@ -27,6 +27,13 @@ private:
 
 	FILE *report_fh;
 	void update_report(bool final=false);
+	void reset_metrics(void);
+
+public:
+	
+	void report_impact(int n);
+	void report_cost(double x);
+	void report_outage(double t);
 
 public:
 

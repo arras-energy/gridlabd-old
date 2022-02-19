@@ -1,3 +1,7 @@
+#ifexist "../test_metrics_meter_violation_detected.csv"
+#define DIR=".."
+#endif
+
 clock
 {
 	timezone "US/CA/Los Angeles";
@@ -37,7 +41,7 @@ object metrics
 	};
 	object impact
 	{
-		
+		node "meter_1";
 	};
 }
 
@@ -46,6 +50,12 @@ module tape
 	csv_header_type NAME;
 }
 
+object player
+{
+	parent "meter_1";
+	property "violation_detected";
+	file "${DIR:-.}/test_metrics_meter_violation_detected.csv";
+}
 object recorder
 {
 	parent "meter_1";

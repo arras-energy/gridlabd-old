@@ -8,8 +8,15 @@
 
 class impact : public gld_object 
 {
-	GL_ATOMIC(char256,asset_class); 
+public:
+
+	static double default_impact_duration;
+
+private:
+
+	GL_ATOMIC(object,node); 
 	GL_ATOMIC(double,value);
+	GL_ATOMIC(double,duration);
 
 public:
 	/* required implementations */
@@ -17,6 +24,10 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
+
+public:
+	TIMESTAMP start;
+	set *status;
 
 public:
 	static CLASS *oclass;
