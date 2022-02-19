@@ -25,8 +25,8 @@ outage::outage(MODULE *module)
 		defaults = this;
 		if (gl_publish_variable(oclass,
 
-			PT_double, "value[unit*day]", get_value_offset(),
-				PT_DESCRIPTION, "number of customer outage days",
+			PT_double, "value[unit*h]", get_value_offset(),
+				PT_DESCRIPTION, "number of customer outage hours",
 
 			PT_char256, "asset_class", get_asset_class_offset(),
 				PT_DEFAULT, "powerflow_object",
@@ -70,8 +70,8 @@ TIMESTAMP outage::commit(TIMESTAMP t1, TIMESTAMP t2)
 			TIMESTAMP duration = gl_globalclock - get_asset_start(asset);
 			reset_asset_start(asset,gl_globalclock);
 			metrics* pMetrics = (metrics*)get_parent();
-			pMetrics->report_outage(duration/86400.0);
-			value += duration/86400.0;
+			pMetrics->report_outage(duration/3600.0);
+			value += duration/3600.0;
 		}
 		else if ( get_asset_status(asset) != 0 && get_asset_start(asset) == TS_ZERO )
 		{
