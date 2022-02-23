@@ -1,4 +1,4 @@
-FROM slacgismo/gridlabd_dockerhub_base:220217
+FROM slacgismo/gridlabd_dockerhub_base:220223
 
 
 ENV container docker
