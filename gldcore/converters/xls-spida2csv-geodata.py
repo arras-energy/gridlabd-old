@@ -5,7 +5,18 @@ import re
 import gridlabd
 import numpy as np
 
-"""Convert AMI data in CSV to an CEUS GLM object
+"""Convert XLS SPIDAcalc pole data to geodata
+
+SYNOPSIS
+
+	GLM:
+		#convert SPIDACALC.xls GEODATA.csv -f xls-spida -t csv-geodata
+
+DESCRIPTION
+
+	This converter extracts pole geodata from a SPIDAcalc pole asset report spreadsheet
+	and generates a GriDLAB-D geodata CSV file.
+	
 """
 import pandas
 
