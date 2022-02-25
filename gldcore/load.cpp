@@ -7981,31 +7981,6 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if (strncmp(line,"#exec",5)==0)
-	{
-		char *term = strchr(line+5,' ');
-		char value[1024];
-		if (term==NULL)
-		{
-			syntax_error(filename,linenum,"#system missing system call");
-			strcpy(line,"\n");
-			return FALSE;
-		}
-		strcpy(value, strip_right_white(term+1));
-		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
-		global_return_code = system(value);
-		if( global_return_code != 0 )
-		{
-			syntax_error(filename,linenum,"error executing system(char *cmd='%s') -> non-zero exit code (status=%d)", value, global_return_code);
-			strcpy(line,"\n");
-			return FALSE;
-		}
-		else
-		{
-			strcpy(line,"\n");
-			return TRUE;
-		}
-	}
 	else if (strncmp(line,"#gridlabd",9)==0)
 	{
 		char *term = strchr(line+9,' ');
