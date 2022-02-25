@@ -39,18 +39,33 @@ When the `--credentials` option is used with parameters, the user is queried
 for a username and password. The output is the credentials data that must be
 stored for later use when credentials are needed.  The default credentials
 files is `credentials.json`.  When FILENAME is provided with the credentials
-option, the credentials are loaded from the specified file instead.
+option, the credentials are loaded from the specified file instead. Currently
+only the  ISONE API requires credentials. To generate the credentials data, run
+
+    bash$ gridlabd market_data --credentials > credential.json
+
+By default the CSV data is output to the stdout, which may be redirected to a
+file.  If no GLM file is specified, then the CSV will contain a header row
+indicating which columns contain the price and quantity data.  If a GLM file
+is specified, then the CSV data must be output to a file.  By default the
+GridLAB-D object name for the market data is generated automatically to
+ensure it is unique.  The object name may be specified using the `--name`
+option.
 
 EXAMPLES
 
-    bash$ gridlabd market_data -m=CAISO -d=0096WD_7_N001 -s=22220222 -e=22220223
+    bash$ gridlabd market_data -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223
+    START_TIME_PST,LMP,MW
+    2022-02-22 00:00:00,50.0,21372.0
+    2022-02-22 00:05:00,50.9,21372.0
+    2022-02-22 00:10:00,50.3,21372.0
+    2022-02-22 00:15:00,49.8,21372.0
+    ...
 
 SEE ALSO
 
 * [CAISO](https://caiso.com/)
 * [ISONO](https://isone.com/)
-
-- MARKETNAME can be "caiso" or "isone"
 
 - NODE is needed for LMP data; For a list of CAISO nodes, download the
   latest 'Full Network Model Pricing Node Mapping' from the CAISO website.
@@ -59,10 +74,6 @@ SEE ALSO
     - Sample node for CAISO: 0096WD_7_N001
     - Sample node for ISO-NE: 4001
 
-- STARTDATE & ENDDATE should be in YYYYMMDD
-
-The ISONE API requires credentials. To generate the credentials data, run:
-    bash$ python market_data.py --credentials > credential.json
 """
 
 import datetime as dt
@@ -136,17 +147,21 @@ def main(argv):
             else:
                 error("Date syntax: YYYYMMDD", code=1)
         elif token in ["--credentials"]:
-            if not market in  ["isone"]:
+            if not market:
+                error(f"no market specified",code=1)
+            if not market in ["isone"]:
                 error(f"{market.upper()} does not require credentials",code=1)
             elif sys.stdin.isatty():
-                if not os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'"):
+                if os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'") != 0:
                     error(
                         "unable to open a browser window to get credentials, please visit \n "
                         "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
                         "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
                     )
-                user = getpass.getpass(prompt="Username: ")
+                else:
+                    print(f"Opening a browser window to register your credentials for {market.upper()}.")
+                user = input("Username: ")
                 pwd = getpass.getpass(prompt="Password: ")
                 with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
                     credentials = {"username": user, "password": pwd}
