@@ -35,14 +35,17 @@ price nodes.  For ISONE see https://www.iso-ne.com/markets-operations/settlement
 
 The STARTDATE and ENDDATE value must be specified in the form "YYYYMMDD".
 
-When the `--credentials` option is used with parameters, the user is queried
-for a username and password. The output is the credentials data that must be
-stored for later use when credentials are needed.  The default credentials
-files is `credentials.json`.  When FILENAME is provided with the credentials
-option, the credentials are loaded from the specified file instead. Currently
-only the  ISONE API requires credentials. To generate the credentials data, run
+When the `--credentials` option is used without parameters, the user is
+prompted for a username and password. When run from a terminal window, a
+browser window is automatically opened for the specific ISO website to
+facilitate obtaining the username and password. The result is stored in the
+default credentials file for GridLAB-D ISO credentials
+(i.e., `$HOME/.gridlabd/iso_credentials.json`).  When FILENAME is provided
+with the credentials option, the credentials are loaded from the specified
+file instead. Currently only the  ISONE API requires credentials. For
+example, to generate credentials for ISONE, use the command
 
-    bash$ gridlabd market_data --credentials > credential.json
+    bash$ gridlabd market_data -m=ISONE --credentials
 
 By default the CSV data is output to the stdout, which may be redirected to a
 file.  If no GLM file is specified, then the CSV will contain a header row
