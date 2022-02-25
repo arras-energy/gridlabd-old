@@ -1,3 +1,70 @@
+"""ISO Market Data tool
+
+SYNOPSIS
+
+Shell:
+
+    bash$ gridlabd market_data [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdate=STARTDATE]
+    [-e|--enddate=ENDDATE] [-h|--help|help] [--credentials[=FILENAME.json]]
+    [-n|--name=OBJNAME] [-c|--csv=CSVFILE] [-g|--glm=GLMFILE]
+
+GLM:
+
+    #market_data [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdate=STARTDATE]
+    [-e|--enddate=ENDDATE] [-h|--help|help] [--credentials[=FILENAME.json]]
+    [-n|--name=OBJNAME] [-c|--csv=CSVFILE] [-g|--glm=GLMFILE]
+
+Python:
+
+    bash$ gridlabd python
+    >>> import market_data as md
+    >>> data = md.get_market_data(MARKETNAME,NODE,STARTDATE,ENDDATE[,CREDENTIALS])
+    >>> md.write_csv(data,CSVNAME)
+    >>> md.write_glm(data,GLMNAME,[NAME])
+
+DESCRIPTION
+
+The market_data tool obtain wholesale electricity market price data from
+independent system operators (ISO).  The ISO must be specified using the
+MARKETNAME parameter. Currently supported markets are "CAISO" and "ISONE". 
+
+In addition, the NODE must be specified when obtaining locational price data.
+Lists of node names may be obtained from the market websites.  For CAISO see
+http://www.caiso.com/TodaysOutlook/Pages/prices.html for a map of available
+price nodes.  For ISONE see https://www.iso-ne.com/markets-operations/settlements/pricing-node-tables/
+
+The STARTDATE and ENDDATE value must be specified in the form "YYYYMMDD".
+
+When the `--credentials` option is used with parameters, the user is queried
+for a username and password. The output is the credentials data that must be
+stored for later use when credentials are needed.  The default credentials
+files is `credentials.json`.  When FILENAME is provided with the credentials
+option, the credentials are loaded from the specified file instead.
+
+EXAMPLES
+
+    bash$ gridlabd market_data -m=CAISO -d
+
+SEE ALSO
+
+* [CAISO](https://caiso.com/)
+* [ISONO](https://isone.com/)
+
+- MARKETNAME can be "caiso" or "isone"
+
+- NODE is needed for LMP data; For a list of CAISO nodes, download the
+  latest 'Full Network Model Pricing Node Mapping' from the CAISO website.
+  For a list of ISONE nodes, downloaded the latest 'PNODE Table' from the
+  ISONE website.
+    - Sample node for CAISO: 0096WD_7_N001
+    - Sample node for ISO-NE: 4001
+
+- STARTDATE & ENDDATE should be in YYYYMMDD
+
+The ISONE API requires credentials. To generate the credentials data, run:
+    bash$ python market_data.py --credentials > credential.json
+"""
+
 import datetime as dt
 import time
 import sys
@@ -15,21 +82,9 @@ from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-"""
-Shell:
-    bash$ python market_data.py [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdt=STARTDATETIME]
-    [-e|--enddt=ENDDATETIME] [-h|--help|help] [--credentials]
-
-- MARKETNAME can be <caiso> or <isone>
-- NODE is needed for LMP data; For a list of CAISO nodes, download the latest 'Full Network Model Pricing Node Mapping' from the CAISO website. For a list of ISONE nodes, downloaded the latest 'PNODE Table' from the ISONE website.
-    - Sample node for CAISO: 0096WD_7_N001
-    - Sample node for ISO-NE: 4001
-- STARTDATETIME & ENDDATETIME should be in YYYYMMDD
-
-The ISONE API requires credentials. To generate the credentials.json file, run:
-    bash$ python market_data.py --credentials
-"""
-
+verbose_enable = False
+warning_enable = True
+quiet_enable = False
 
 def get_credentials():
     """
@@ -37,16 +92,13 @@ def get_credentials():
     :return: dict - Dictionary with username and password
     """
     credentials_path = f"{os.getcwd()}/credentials.json"
-    if os.path.exists(credentials_path) and os.path.getsize(credentials_path) > 0:
+    try:
         with open(credentials_path) as credentials_file:
             credentials_dict = json.load(credentials_file)
             user = credentials_dict["username"]
             pwd = credentials_dict["password"]
-    else:
-        print(
-            f"There is no valid credentials file at path {credentials_path}. Run 'python {os.path.basename(sys.argv[0])} --credentials' to create the file."
-        )
-        exit(1)
+    except Exception as err:
+        error(f"unable to load credentials file {credentials_path} ({msg})",E_INVALID)
     return {"user": user, "pwd": pwd}
 
 
@@ -89,7 +141,7 @@ def format_date(market, date_dt):
     return formatted_str
 
 
-def get_dates(start_date_str, end_date_str, max_interval):
+def get_dates(market,start_date_str, end_date_str, max_interval):
     """
     Returns a list of dicts, where each dict has 2 keys: 'start_date_str' and 'end_date_str'. The difference between
     the two is the max interval of dates allowed in an API query (ex. 31 days). Each dict in the list should be used
@@ -229,7 +281,7 @@ def get_caiso_data(node, start_date, end_date):
     :param end_date: str - End date of data to pull
     :return: dict - Keys are the names of the dfs, values are the dfs (lmp_df, demand_df)
     """
-    print(f"Pulling CAISO data from {start_date} to {end_date}")
+    verbose(f"Pulling CAISO data from {start_date} to {end_date}")
 
     # Formulate components of the URL request
     base_url = "http://oasis.caiso.com/oasisapi/SingleZip"
@@ -238,7 +290,7 @@ def get_caiso_data(node, start_date, end_date):
     # If start and end date are >31 days apart, break them up (CAISO API requirement)
     lmp_df_list = []
     demand_df_list = []
-    dates_list = get_dates(
+    dates_list = get_dates("caiso",
         start_date_str=start_date, end_date_str=end_date, max_interval=31
     )
 
@@ -277,7 +329,7 @@ def get_isone_data(node, start_date, end_date):
     :param start_date: str - Start date of data to pull
     :param end_date: str - End date of data to pull
     """
-    print(f"Pulling ISONE data from {start_date} to {end_date}")
+    verbose(f"Pulling ISONE data from {start_date} to {end_date}")
     credentials_dict = get_credentials()
 
     # Formulate components of the URL request
@@ -287,7 +339,7 @@ def get_isone_data(node, start_date, end_date):
     # Loop through all dates in range, one day at a time (ISONE API requirement)
     lmp_df_list = []
     demand_df_list = []
-    dates_list = get_dates(
+    dates_list = get_dates("isone",
         start_date_str=start_date, end_date_str=end_date, max_interval=1
     )
 
@@ -408,12 +460,20 @@ def writeglm(
 
 def error(msg, code=None):
     """Display and error message and exit if code is a number."""
-    if code != None:
-        print(f"ERROR [market_data.py]: {msg}", file=sys.stderr)
-        exit(code)
-    else:
+    if debug_enable:
         raise Exception(msg)
+    if not quiet_enable:
+        print(f"ERROR [market_data]: {msg}", file=sys.stderr)
+    if type(code) is int:
+        exit(code)
 
+def warning(msg):
+    if warning_enable:
+        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
+
+def verbose(msg):
+    if verbose_enable:
+        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
 
 def syntax(code=0):
     """Display docs (code=0) or syntax help (code!=0) and exit."""
@@ -422,7 +482,7 @@ def syntax(code=0):
     else:
         print(
             f"Syntax: {os.path.basename(sys.argv[0]).replace('.py', '')} [-m|--market=MARKETNAME] [-d|--node=NODE] ["
-            f"-s|--startdt=STARTDATETIME] [-e|--enddt=ENDDATETIME] [-h|--help|help]"
+            f"-s|--startdate=STARTDATETIME] [-e|--enddate=ENDDATETIME] [-h|--help|help]"
         )
     exit(code)
 
@@ -453,32 +513,39 @@ if __name__ == "__main__":
 
         if token in ["-h", "--help", "help"]:
             syntax()
-        elif token in ["-m", "--market", "market"]:
+        elif token in ["-m", "--market"]:
             market = value.lower()
-        elif token in ["-d", "--node", "node"]:
+        elif token in ["-d", "--node"]:
             node = value
-        elif token in ["-s", "--startdate", "startdate"]:
+        elif token in ["-s", "--startdate"]:
             if bool(re.match(r"\d{8}", value)):
                 start_date = value
             else:
                 error("Date syntax: YYYYMMDD", code=1)
-        elif token in ["-e", "--enddate", "enddate"]:
+        elif token in ["-e", "--enddate"]:
             if bool(re.match(r"\d{8}", value)):
                 end_date = value
             else:
                 error("Date syntax: YYYYMMDD", code=1)
         elif token in ["--credentials"]:
-            print(
-                "ISONE API requires credentials. If you do not have them, please apply for access at: \n "
-                "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
-            )
-            user = getpass.getpass(prompt="Username: ")
-            pwd = getpass.getpass(prompt="Password: ")
-            with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
-                credentials = {"username": user, "password": pwd}
-                json.dump(credentials, outfile)
-            exit()
+            if not market in  ["isone"]:
+                error(f"{market.upper()} does not require credentials",E_INVALID)
+            elif sys.stdin.isatty():
+                if not os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'"):
+                    error(
+                        "unable to open a browser window to get credentials, please visit \n "
+                        "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                        "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
+                    )
+                user = getpass.getpass(prompt="Username: ")
+                pwd = getpass.getpass(prompt="Password: ")
+                with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
+                    credentials = {"username": user, "password": pwd}
+                    json.dump(credentials, outfile)
+                exit(E_OK)
+            else:
+                error("cannot get credentials (not a tty)",code=2)
 
         elif token in ["-g", "--glm"]:
             glm = value
