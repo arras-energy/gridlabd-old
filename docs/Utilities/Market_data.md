@@ -10,7 +10,7 @@ Shell:
 
 GLM:
 
-    #gridlabd ${GLD_ETC}/market_data.py [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdate=STARTDATE]
+    #python ${GLD_ETC}/market_data.py [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdate=STARTDATE]
     [-e|--enddate=ENDDATE] [-h|--help|help] [--credentials[=FILENAME.json]]
     [-n|--name=OBJNAME] [-c|--csv=CSVFILE] [-g|--glm=GLMFILE]
 
