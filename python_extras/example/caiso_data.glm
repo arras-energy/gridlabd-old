@@ -1,6 +1,6 @@
 // example market_data from CAISO
 
-#python ${GLD_ETC}/market_data.py -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223 -c=/tmp/test.csv -g=/tmp/test.glm
+#python -m market_data -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223 -c=/tmp/test.csv -g=/tmp/test.glm
 
 clock 
 {
