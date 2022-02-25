@@ -367,7 +367,20 @@ def clean_market_data(market, lmp_df, demand_df):
 
         # Only consider LMP data
         if not "XML_DATA_ITEM" in lmp_df.columns:
-            error(f"data not formatted as expected ({''.join(lmp_df.iloc[:,0].values)}",code=3)
+            data = ''.join(lmp_df.columns) + ''.join(lmp_df.iloc[:,0].values)
+            try:
+                import xml.etree.ElementTree as xt
+                xml = xt.fromstring(data)
+            except:
+                xml = None
+                pass
+            if not xml:
+                error(f"error data not formatted as expected ({data}",code=3)
+            else:
+                err_desc = [x for x in xml.iter('{http://www.caiso.com/soa/OASISReport_v1.xsd}ERR_DESC')]
+                err_code = [x for x in xml.iter('{http://www.caiso.com/soa/OASISReport_v1.xsd}ERR_CODE')]
+                error(f"OASIS report '{err_desc[0].text}' (code {err_code[0].text})",code=3)
+
         lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"].reset_index(drop=True)
 
         # Only consider CAISO-wide demand
