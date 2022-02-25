@@ -17,11 +17,17 @@ from zipfile import ZipFile
 
 """
 Shell:
-    bash$ gridlabd market_data [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdt=STARTDATETIME]
+    bash$ python market_data.py [-m|--market=MARKETNAME] [-d|--node=NODE] [-s|--startdt=STARTDATETIME]
     [-e|--enddt=ENDDATETIME] [-h|--help|help] [--credentials]
 
-Sample node for CAISO: 0096WD_7_N001
-Sample node for ISO-NE: 4001
+- MARKETNAME can be <caiso> or <isone>
+- NODE is needed for LMP data; For a list of CAISO nodes, download the latest 'Full Network Model Pricing Node Mapping' from the CAISO website. For a list of ISONE nodes, downloaded the latest 'PNODE Table' from the ISONE website.
+    - Sample node for CAISO: 0096WD_7_N001
+    - Sample node for ISO-NE: 4001
+- STARTDATETIME & ENDDATETIME should be in YYYYMMDD
+
+The ISONE API requires credentials. To generate the credentials.json file, run:
+    bash$ python market_data.py --credentials
 """
 
 
@@ -71,7 +77,7 @@ def convert_timezone(market, date_str):
 
 def format_date(market, date_dt):
     """
-    Reformats the date string into the format required by the API.
+    Reformat the date string into the format required by the API.
     :param market: str - Market of pulled data
     :param date_dt: datetime - Date in format returned by convert_timezone function
     :return: str - Date in format required by the API
@@ -135,7 +141,20 @@ def extract_zip(url):
     return data
 
 
-def merge_market_data(market, lmp_df, demand_df):
+def check_missing_data(datetime_col, start_datetime, end_datetime, freq):
+    """
+    Check whether there are any missing timestamps in the pulled data.
+    :param datetime_col: pd.Series - column of datetimes from pulled data
+    :start_datetime: pd.datetime - starting datetime of range
+    :end_datetime: pd.datetime - ending datetime of range
+    :freq: str - frequency of data (5T = 5 min, H = hourly)
+    """
+    missing_timestamps = (pd.date_range(start_datetime, end_datetime, freq=freq).difference(datetime_col))
+    if len(missing_timestamps) > 0:
+        error(f'Missing timestamps {missing_timestamps} in data', 1)
+
+
+def clean_market_data(market, lmp_df, demand_df):
     """
     Merge the LMP and demand dataframes into a cleaned, single dataframe
     :param market: str - Market of pulled data
@@ -144,38 +163,58 @@ def merge_market_data(market, lmp_df, demand_df):
     :return:
     """
     if market == "caiso":
+        # Only consider LMP data
         lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"].reset_index(drop=True)
+
+        # Only consider CAISO-wide demand
+        demand_df = demand_df[demand_df["TAC_AREA_NAME"] == "CA ISO-TAC"].reset_index(drop=True)
+
+        # Convert timestamp to local timezone and check for missing timestamps
         lmp_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             lmp_df["INTERVALSTARTTIME_GMT"]
         )
         lmp_df["START_TIME_PST"] = lmp_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
             "US/Pacific"
         )
-        lmp_df = lmp_df.rename(columns={"VALUE": "LMP", "NODE": "LMP_NODE"})
-        lmp_df = lmp_df[["START_TIME_PST", "LMP_NODE", "LMP"]]
+        check_missing_data(lmp_df['START_TIME_PST'], lmp_df['START_TIME_PST'].iloc[0], lmp_df['START_TIME_PST'].iloc[-1], '5T')
 
-        demand_df = demand_df[demand_df["TAC_AREA_NAME"] == "CA ISO-TAC"].reset_index(drop=True)
         demand_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             demand_df["INTERVALSTARTTIME_GMT"]
         )
         demand_df["START_TIME_PST"] = demand_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
             "US/Pacific"
         )
+        check_missing_data(demand_df['START_TIME_PST'], demand_df['START_TIME_PST'].iloc[0], demand_df['START_TIME_PST'].iloc[-1], 'H')
+
+        # Drop unnecessary columns
+        lmp_df = lmp_df.rename(columns={"VALUE": "LMP"})
+        lmp_df = lmp_df[["START_TIME_PST", "LMP"]]
+
         demand_df = demand_df[["START_TIME_PST", "MW"]]
 
+        # Merge lmp and demand dfs
         market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_PST")
         market_data_df = market_data_df.sort_values("START_TIME_PST")
-        market_data_df["MW"] = market_data_df["MW"].fillna(method="ffill")
+
+        # Front fill data
+        market_data_df = market_data_df.ffill()
 
     if market == "isone":
+        # Convert timestamp to local timezone and check for missing timestamps
         lmp_df["START_TIME_EST"] = pd.to_datetime(lmp_df["BeginDate"])
-        lmp_df = lmp_df.rename(columns={"Location": "LMP_NODE", "LmpTotal": "LMP"})
-        lmp_df = lmp_df[["START_TIME_EST", "LMP_NODE", "LMP"]]
+        check_missing_data(lmp_df['START_TIME_EST'], lmp_df['START_TIME_EST'].iloc[0], lmp_df['START_TIME_EST'].iloc[-1], '5T')
 
         demand_df["START_TIME_EST"] = pd.to_datetime(demand_df["BeginDate"])
+        check_missing_data(demand_df['START_TIME_EST'], demand_df['START_TIME_EST'].iloc[0], demand_df['START_TIME_EST'].iloc[-1], '5T')
+
+        # Drop unnecessary columns
+        lmp_df = lmp_df.rename(columns={"LmpTotal": "LMP"})
+        lmp_df = lmp_df[["START_TIME_EST", "LMP"]]
+
         demand_df = demand_df.rename(columns={"LoadMw": "MW"})
         demand_df = demand_df[["START_TIME_EST", "MW"]]
 
+        # Merge lmp and demand dfs
         market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_EST")
         market_data_df = market_data_df.sort_values("START_TIME_EST")
 
@@ -223,12 +262,12 @@ def get_caiso_data(node, start_date, end_date):
         demand_df = extract_zip(url=demand_url)
         demand_df_list.append(demand_df)
 
-    market_data = merge_market_data(
+    market_data_df = clean_market_data(
         market="caiso",
         lmp_df=pd.concat(lmp_df_list),
         demand_df=pd.concat(demand_df_list),
     )
-    return market_data
+    return market_data_df
 
 
 def get_isone_data(node, start_date, end_date):
@@ -279,12 +318,12 @@ def get_isone_data(node, start_date, end_date):
         )
         demand_df_list.append(demand_df)
 
-    market_data = merge_market_data(
+    market_data_df = clean_market_data(
         market="isone",
         lmp_df=pd.concat(lmp_df_list),
         demand_df=pd.concat(demand_df_list),
     )
-    return market_data
+    return market_data_df
 
 
 def get_market_data(market, node, start_date, end_date):
@@ -297,19 +336,18 @@ def get_market_data(market, node, start_date, end_date):
     :return: dataframe - df of complete market data
     """
     if market == "caiso":
-        market_data = get_caiso_data(
+        market_data_df = get_caiso_data(
             node=node, start_date=start_date, end_date=end_date
         )
     elif market == "isone":
-        market_data = get_isone_data(
+        market_data_df = get_isone_data(
             node=node, start_date=start_date, end_date=end_date
         )
-    return market_data
+    return market_data_df
 
 
 def writeglm(
-    market, node, start_date, end_date, market_data, glm=None, name=None, csv=None
-):
+    market, node, start_date, end_date, market_data):
     """Write market data object.
     name is name of obj in gld
     Default GLM and CSV values are handled as follows
@@ -320,37 +358,25 @@ def writeglm(
     None   CSV    GLM->stdout, CSV
     GLM    CSV    GLM, CSV
     The default name is "market_data@<market>_<node>_<start_date>-<end_date>"
-    The WEATHER global is set to the list of weather object names.
     """
     float_format = "%.1f"
     date_format = "%Y-%m-%d %H:%M:%S"
+    name = f"market_data@{market}_{node}_{start_date}-{end_date}"
+    glm = f"{market}_{node}_{start_date}-{end_date}.glm"
+    csv = f"{market}_{node}_{start_date}-{end_date}.csv"
 
-    if not name:
-        name = f"market_data@{market}_{node}_{start_date}-{end_date}"
-    if not csv and not glm:
-        market_data.to_csv(
-            "/dev/stdout",
-            header=True,
-            float_format=float_format,
-            date_format=date_format,
-        )
-        return dict(glm=None, csv="/dev/stdout", name=None)
-    if not glm:
-        glm = "/dev/stdout"
-    if not csv:
-        csv = f"{name}.csv"
     with open(glm, "w") as f:
-        f.write("class market_data\n{\n")
+        f.write(f"class market_data\n{{\n")
         for column in market_data.columns:
             dtype = market_data[column].dtype
             if dtype == object:
-                gld_dtype = "obj"
+                gld_dtype = "char1024"
             elif dtype == int:
-                gld_dtype = "int"
+                gld_dtype = "int64"
             elif dtype == float:
-                gld_dtype = "float"
+                gld_dtype = "double"
             elif is_datetime(market_data[column]):
-                gld_dtype = "datetime"
+                gld_dtype = "timestamp"
             else:
                 error(
                     f"Datatype <{dtype}> in column <{column}> does not have a corresponding datatype for GLD."
@@ -359,14 +385,14 @@ def writeglm(
         f.write("}\n")
         market_data.columns = list(map(lambda x: x.split("[")[0], market_data.columns))
         f.write("module tape;\n")
-        f.write("#ifdef MARKET_DATA\n")
+        f.write(f"#ifdef MARKET_DATA\n")
         f.write(
             f"#set MARKET_DATA=$MARKET_DATA {name}\n"
         )  # add curly braces around MARKET_DATA
         f.write("#else\n")
         f.write(f"#define MARKET_DATA={name}\n")
         f.write("#endif\n")
-        f.write("object market_data\n{\n")
+        f.write(f"object market_data\n{{\n")
         f.write(f'\tname "{name}";\n')
         f.write(f"\tmarket {market};\n")
         f.write(f"\tnode {node};\n")
@@ -376,7 +402,7 @@ def writeglm(
         f.write("\t};\n")
         f.write("}\n")
 
-    market_data.to_csv(csv, header=False, float_format=float_format, date_format="%s")
+    market_data.to_csv(csv, float_format=float_format, date_format=date_format)
     return dict(glm=glm, csv=csv, name=name)
 
 
@@ -394,7 +420,6 @@ def syntax(code=0):
     if code == 0:
         print(__doc__)
     else:
-        # TODO: Fix this syntax
         print(
             f"Syntax: {os.path.basename(sys.argv[0]).replace('.py', '')} [-m|--market=MARKETNAME] [-d|--node=NODE] ["
             f"-s|--startdt=STARTDATETIME] [-e|--enddt=ENDDATETIME] [-h|--help|help]"
@@ -428,7 +453,7 @@ if __name__ == "__main__":
 
         if token in ["-h", "--help", "help"]:
             syntax()
-        if token in ["-m", "--market", "market"]:
+        elif token in ["-m", "--market", "market"]:
             market = value.lower()
         elif token in ["-d", "--node", "node"]:
             node = value
@@ -464,7 +489,7 @@ if __name__ == "__main__":
         else:
             error(f"option '{token}' is not valid")
     if None not in (market, node, start_date, end_date):
-        market_data = get_market_data(
+        market_data_df = get_market_data(
             market=market, node=node, start_date=start_date, end_date=end_date
         )
         writeglm(
@@ -472,10 +497,7 @@ if __name__ == "__main__":
             node=node,
             start_date=start_date,
             end_date=end_date,
-            market_data=market_data,
-            glm=glm,
-            csv=csv,
-            name=name,
+            market_data=market_data_df,
         )
     else:
         error(
