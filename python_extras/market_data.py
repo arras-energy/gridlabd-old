@@ -66,14 +66,6 @@ SEE ALSO
 
 * [CAISO](https://caiso.com/)
 * [ISONO](https://isone.com/)
-
-- NODE is needed for LMP data; For a list of CAISO nodes, download the
-  latest 'Full Network Model Pricing Node Mapping' from the CAISO website.
-  For a list of ISONE nodes, downloaded the latest 'PNODE Table' from the
-  ISONE website.
-    - Sample node for CAISO: 0096WD_7_N001
-    - Sample node for ISO-NE: 4001
-
 """
 
 import datetime as dt
@@ -97,6 +89,7 @@ verbose_enable = False
 warning_enable = True
 quiet_enable = False
 debug_enable = False
+credentials_path = f"{os.getenv('HOME')}/.gridlabd/iso_credentials.json"
 
 def main(argv):
     market = None
@@ -147,28 +140,34 @@ def main(argv):
             else:
                 error("Date syntax: YYYYMMDD", code=1)
         elif token in ["--credentials"]:
-            if not market:
-                error(f"no market specified",code=1)
-            if not market in ["isone"]:
-                error(f"{market.upper()} does not require credentials",code=1)
-            elif sys.stdin.isatty():
-                if os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'") != 0:
-                    error(
-                        "unable to open a browser window to get credentials, please visit \n "
-                        "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                        "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
-                    )
+            if not value:
+                if not market:
+                    error(f"no market specified",code=1)
+                if not market in ["isone"]:
+                    error(f"{market.upper()} does not require credentials",code=1)
+                elif sys.stdin.isatty():
+                    if os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                        "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'") != 0:
+                        error(
+                            "unable to open a browser window to get credentials, please visit \n "
+                            "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                            "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
+                        )
+                    else:
+                        print(f"Opening a browser window to register your credentials for {market.upper()}.")
+                    user = input("Username: ")
+                    pwd = getpass.getpass(prompt="Password: ")
+                    global credentials_path
+                    with open(credentials_path, "w") as outfile:
+                        credentials = {
+                            market : {"username": user, "password": pwd}
+                            }
+                        json.dump(credentials, outfile)
+                    exit(0)
                 else:
-                    print(f"Opening a browser window to register your credentials for {market.upper()}.")
-                user = input("Username: ")
-                pwd = getpass.getpass(prompt="Password: ")
-                with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
-                    credentials = {"username": user, "password": pwd}
-                    json.dump(credentials, outfile)
-                exit(0)
+                    error("cannot get credentials (not a tty)",code=2)
             else:
-                error("cannot get credentials (not a tty)",code=2)
+                credentials_path = value
 
         elif token in ["-g", "--glm"]:
             glm = value
@@ -250,19 +249,18 @@ def syntax(code=0):
         )
     exit(code)
 
-def get_credentials():
+def get_credentials(market):
     """
     Get the username and password from the local credentials.json file
     :return: dict - Dictionary with username and password
     """
-    credentials_path = f"{os.getcwd()}/credentials.json"
     try:
         with open(credentials_path) as credentials_file:
             credentials_dict = json.load(credentials_file)
-            user = credentials_dict["username"]
-            pwd = credentials_dict["password"]
+            user = credentials_dict[market]["username"]
+            pwd = credentials_dict[market]["password"]
     except Exception as err:
-        error(f"unable to load credentials file {credentials_path} ({msg})",code=1)
+        error(f"unable to load credentials for {market} from {credentials_path} ({msg})",code=1)
     return {"user": user, "pwd": pwd}
 
 
@@ -511,7 +509,7 @@ def get_isone_data(node, start_date, end_date):
     :param end_date: str - End date of data to pull
     """
     verbose(f"Pulling ISONE data from {start_date} to {end_date}")
-    credentials_dict = get_credentials()
+    credentials_dict = get_credentials("isone")
 
     # Formulate components of the URL request
     base_url = "https://webservices.iso-ne.com/api/v1.1"
