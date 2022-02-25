@@ -85,6 +85,7 @@ from zipfile import ZipFile
 verbose_enable = False
 warning_enable = True
 quiet_enable = False
+debug_enable = False
 
 def get_credentials():
     """
@@ -513,6 +514,14 @@ if __name__ == "__main__":
 
         if token in ["-h", "--help", "help"]:
             syntax()
+        elif token in ["-v","--verbose"]:
+            verbose_enable = True
+        elif token in ["--debug"]:
+            debug_enable = True
+        elif token in ["-w","--warning"]:
+            warning_enable = False
+        elif token in ["-q","--quiet"]:
+            quiet_enable = True
         elif token in ["-m", "--market"]:
             market = value.lower()
         elif token in ["-d", "--node"]:
