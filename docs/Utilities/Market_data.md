@@ -1,6 +1,6 @@
 [[/Utilities/Market_data]] - ISO market data download tool
 
-SYNOPSIS
+# Synopsis
 
 Shell:
 
@@ -22,7 +22,7 @@ Python:
     >>> md.write_csv(data,CSVNAME)
     >>> md.write_glm(data,GLMNAME,[NAME])
 
-DESCRIPTION
+# Description
 
 The market_data tool obtain wholesale electricity market price data from
 independent system operators (ISO).  The ISO must be specified using the
@@ -55,7 +55,7 @@ GridLAB-D object name for the market data is generated automatically to
 ensure it is unique.  The object name may be specified using the `--name`
 option.
 
-EXAMPLE
+# Example
 
     bash$ gridlabd market_data -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223
     START_TIME_PST,LMP,MW
@@ -65,7 +65,7 @@ EXAMPLE
     2022-02-22 00:15:00,49.8,21372.0
     ...
 
-SEE ALSO
+# See also
 
 * [CAISO](https://caiso.com/)
 * [ISONO](https://isone.com/)
