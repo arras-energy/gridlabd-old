@@ -43,7 +43,7 @@ option, the credentials are loaded from the specified file instead.
 
 EXAMPLES
 
-    bash$ gridlabd market_data -m=CAISO -d
+    bash$ gridlabd market_data -m=CAISO -d=0096WD_7_N001 -s=22220222 -e=22220223
 
 SEE ALSO
 
@@ -87,6 +87,154 @@ warning_enable = True
 quiet_enable = False
 debug_enable = False
 
+def main(argv):
+    market = None
+    node = None
+    start_date = None
+    end_date = None
+    glm = None
+    name = None
+    csv = None
+
+    if len(argv) == 1:
+        syntax(1)
+
+    for arg in argv[1:]:
+        args = arg.split("=")
+        if type(args) is list and len(args) > 1:
+            token = args[0]
+            value = args[1]
+        elif type(args) is list:
+            token = args[0]
+            value = None
+        else:
+            token = args
+            value = None
+
+        if token in ["-h", "--help", "help"]:
+            syntax()
+        elif token in ["-v","--verbose"]:
+            verbose_enable = True
+        elif token in ["--debug"]:
+            debug_enable = True
+        elif token in ["-w","--warning"]:
+            warning_enable = False
+        elif token in ["-q","--quiet"]:
+            quiet_enable = True
+        elif token in ["-m", "--market"]:
+            market = value.lower()
+        elif token in ["-d", "--node"]:
+            node = value
+        elif token in ["-s", "--startdate"]:
+            if bool(re.match(r"\d{8}", value)):
+                start_date = value
+            else:
+                error("Date syntax: YYYYMMDD", code=1)
+        elif token in ["-e", "--enddate"]:
+            if bool(re.match(r"\d{8}", value)):
+                end_date = value
+            else:
+                error("Date syntax: YYYYMMDD", code=1)
+        elif token in ["--credentials"]:
+            if not market in  ["isone"]:
+                error(f"{market.upper()} does not require credentials",code=1)
+            elif sys.stdin.isatty():
+                if not os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'"):
+                    error(
+                        "unable to open a browser window to get credentials, please visit \n "
+                        "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
+                        "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
+                    )
+                user = getpass.getpass(prompt="Username: ")
+                pwd = getpass.getpass(prompt="Password: ")
+                with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
+                    credentials = {"username": user, "password": pwd}
+                    json.dump(credentials, outfile)
+                exit(0)
+            else:
+                error("cannot get credentials (not a tty)",code=2)
+
+        elif token in ["-g", "--glm"]:
+            glm = value
+        elif token in ["-n", "--name"]:
+            name = value
+        elif token in ["-c", "--csv"]:
+            csv = value
+        else:
+            error(f"option '{token}' is not valid")
+
+    if None not in (market, node, start_date, end_date):
+
+        try:
+
+            market_data_df = get_market_data(
+                market=market, node=node, start_date=start_date, end_date=end_date
+            )
+
+        except Exception as err:
+
+            etype, evalue, etrace = sys.exc_info()
+            error(f"unable to get market data ({etype.__name__} {evalue})",code=2)
+
+        writeglm(
+            market = market,
+            node = node,
+            start_date = start_date,
+            end_date = end_date,
+            market_data = market_data_df,
+            csv = csv,
+            glm = glm,
+            name = name
+        )
+
+    else:
+
+        error(
+            "market (-m), node (-d), start date (-s), and end date (-e) are required parameters"
+        )
+
+        if market is None:
+
+            error("Markets can be: 'caiso', 'isone'", code=1)
+
+        elif node is None:
+
+            error(
+                "User must indicate a node. For a list of CAISO nodes, download the latest 'Full Network Model "
+                "Pricing Node Mapping' from the CAISO website. For a list of ISONE nodes, downloaded the latest "
+                "'PNODE Table' from the ISONE website.",
+                code=1,
+            )
+
+def error(msg, code=None, exception=None):
+    """Display and error message and exit if code is a number."""
+    if debug_enable:
+        raise Exception(msg) from exception
+    if not quiet_enable:
+        print(f"ERROR [market_data]: {msg}", file=sys.stderr)
+    if type(code) is int:
+        exit(code)
+
+def warning(msg):
+    if warning_enable:
+        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
+
+def verbose(msg):
+    if verbose_enable:
+        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
+
+def syntax(code=0):
+    """Display docs (code=0) or syntax help (code!=0) and exit."""
+    if code == 0:
+        print(__doc__)
+    else:
+        print(
+            f"Syntax: {os.path.basename(sys.argv[0]).replace('.py', '')} [-m|--market=MARKETNAME] [-d|--node=NODE] ["
+            f"-s|--startdate=STARTDATETIME] [-e|--enddate=ENDDATETIME] [-h|--help|help]", file=sys.stderr
+        )
+    exit(code)
+
 def get_credentials():
     """
     Get the username and password from the local credentials.json file
@@ -99,7 +247,7 @@ def get_credentials():
             user = credentials_dict["username"]
             pwd = credentials_dict["password"]
     except Exception as err:
-        error(f"unable to load credentials file {credentials_path} ({msg})",E_INVALID)
+        error(f"unable to load credentials file {credentials_path} ({msg})",code=1)
     return {"user": user, "pwd": pwd}
 
 
@@ -216,7 +364,10 @@ def clean_market_data(market, lmp_df, demand_df):
     :return:
     """
     if market == "caiso":
+
         # Only consider LMP data
+        if not "XML_DATA_ITEM" in lmp_df.columns:
+            error(f"data not formatted as expected ({''.join(lmp_df.iloc[:,0].values)}",code=3)
         lmp_df = lmp_df[lmp_df["XML_DATA_ITEM"] == "LMP_PRC"].reset_index(drop=True)
 
         # Only consider CAISO-wide demand
@@ -247,12 +398,13 @@ def clean_market_data(market, lmp_df, demand_df):
 
         # Merge lmp and demand dfs
         market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_PST")
-        market_data_df = market_data_df.sort_values("START_TIME_PST")
+        market_data_df = market_data_df.set_index("START_TIME_PST").sort_index()
 
         # Front fill data
         market_data_df = market_data_df.ffill()
 
-    if market == "isone":
+    elif market == "isone":
+
         # Convert timestamp to local timezone and check for missing timestamps
         lmp_df["START_TIME_EST"] = pd.to_datetime(lmp_df["BeginDate"])
         check_missing_data(lmp_df['START_TIME_EST'], lmp_df['START_TIME_EST'].iloc[0], lmp_df['START_TIME_EST'].iloc[-1], '5T')
@@ -269,7 +421,7 @@ def clean_market_data(market, lmp_df, demand_df):
 
         # Merge lmp and demand dfs
         market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_EST")
-        market_data_df = market_data_df.sort_values("START_TIME_EST")
+        market_data_df = market_data_df.set_index("START_TIME_EST").sort_index()
 
     return market_data_df
 
@@ -400,7 +552,7 @@ def get_market_data(market, node, start_date, end_date):
 
 
 def writeglm(
-    market, node, start_date, end_date, market_data):
+    market, node, start_date, end_date, market_data, csv=None, glm=None, name=None):
     """Write market data object.
     name is name of obj in gld
     Default GLM and CSV values are handled as follows
@@ -414,12 +566,19 @@ def writeglm(
     """
     float_format = "%.1f"
     date_format = "%Y-%m-%d %H:%M:%S"
-    name = f"market_data@{market}_{node}_{start_date}-{end_date}"
-    glm = f"{market}_{node}_{start_date}-{end_date}.glm"
-    csv = f"{market}_{node}_{start_date}-{end_date}.csv"
+    if not csv:
+        csv = "/dev/stdout"
+    if not glm:
+        glm = "/dev/null"
+    if not name:
+        name = f"market_data@{market}_{node}_{start_date}-{end_date}"
+    if csv == "/dev/stdout" and glm != "/dev/null":
+        error("cannot create GLM when CSV is not a file",code=1)
 
     with open(glm, "w") as f:
         f.write(f"class market_data\n{{\n")
+        f.write("\tchar32 market;\n");
+        f.write("\tchar256 node;\n");
         for column in market_data.columns:
             dtype = market_data[column].dtype
             if dtype == object:
@@ -455,136 +614,9 @@ def writeglm(
         f.write("\t};\n")
         f.write("}\n")
 
-    market_data.to_csv(csv, float_format=float_format, date_format=date_format)
+    market_data.to_csv(csv, float_format=float_format, date_format=date_format,header=(glm=="/dev/null"))
+
     return dict(glm=glm, csv=csv, name=name)
 
-
-def error(msg, code=None):
-    """Display and error message and exit if code is a number."""
-    if debug_enable:
-        raise Exception(msg)
-    if not quiet_enable:
-        print(f"ERROR [market_data]: {msg}", file=sys.stderr)
-    if type(code) is int:
-        exit(code)
-
-def warning(msg):
-    if warning_enable:
-        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
-
-def verbose(msg):
-    if verbose_enable:
-        print(f"VERBOSE [market_data]: {msg}",file=sys.stderr)
-
-def syntax(code=0):
-    """Display docs (code=0) or syntax help (code!=0) and exit."""
-    if code == 0:
-        print(__doc__)
-    else:
-        print(
-            f"Syntax: {os.path.basename(sys.argv[0]).replace('.py', '')} [-m|--market=MARKETNAME] [-d|--node=NODE] ["
-            f"-s|--startdate=STARTDATETIME] [-e|--enddate=ENDDATETIME] [-h|--help|help]"
-        )
-    exit(code)
-
-
 if __name__ == "__main__":
-    market = None
-    node = None
-    start_date = None
-    end_date = None
-    glm = None
-    name = None
-    csv = None
-
-    if len(sys.argv) == 1:
-        syntax(1)
-
-    for arg in sys.argv[1:]:
-        args = arg.split("=")
-        if type(args) is list and len(args) > 1:
-            token = args[0]
-            value = args[1]
-        elif type(args) is list:
-            token = args[0]
-            value = None
-        else:
-            token = args
-            value = None
-
-        if token in ["-h", "--help", "help"]:
-            syntax()
-        elif token in ["-v","--verbose"]:
-            verbose_enable = True
-        elif token in ["--debug"]:
-            debug_enable = True
-        elif token in ["-w","--warning"]:
-            warning_enable = False
-        elif token in ["-q","--quiet"]:
-            quiet_enable = True
-        elif token in ["-m", "--market"]:
-            market = value.lower()
-        elif token in ["-d", "--node"]:
-            node = value
-        elif token in ["-s", "--startdate"]:
-            if bool(re.match(r"\d{8}", value)):
-                start_date = value
-            else:
-                error("Date syntax: YYYYMMDD", code=1)
-        elif token in ["-e", "--enddate"]:
-            if bool(re.match(r"\d{8}", value)):
-                end_date = value
-            else:
-                error("Date syntax: YYYYMMDD", code=1)
-        elif token in ["--credentials"]:
-            if not market in  ["isone"]:
-                error(f"{market.upper()} does not require credentials",E_INVALID)
-            elif sys.stdin.isatty():
-                if not os.system("open 'https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                    "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account'"):
-                    error(
-                        "unable to open a browser window to get credentials, please visit \n "
-                        "https://www.iso-ne.com/isoexpress/login?p_p_id=58&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view"
-                        "&saveLastPath=0&_58_struts_action=%2Flogin%2Fcreate_account"
-                    )
-                user = getpass.getpass(prompt="Username: ")
-                pwd = getpass.getpass(prompt="Password: ")
-                with open(f"{os.getcwd()}/credentials.json", "w") as outfile:
-                    credentials = {"username": user, "password": pwd}
-                    json.dump(credentials, outfile)
-                exit(E_OK)
-            else:
-                error("cannot get credentials (not a tty)",code=2)
-
-        elif token in ["-g", "--glm"]:
-            glm = value
-        elif token in ["-n", "--name"]:
-            name = value
-        elif token in ["-c", "--csv"]:
-            csv = value
-        else:
-            error(f"option '{token}' is not valid")
-    if None not in (market, node, start_date, end_date):
-        market_data_df = get_market_data(
-            market=market, node=node, start_date=start_date, end_date=end_date
-        )
-        writeglm(
-            market=market,
-            node=node,
-            start_date=start_date,
-            end_date=end_date,
-            market_data=market_data_df,
-        )
-    else:
-        error(
-            "market (-m), node (-d), start date (-s), and end date (-e) are required parameters"
-        )
-        if market is None:
-            error("Markets can be: 'caiso', 'isone'", code=1)
-        elif node is None:
-            error(
-                "User must indicate a node. For a list of CAISO nodes, download the latest 'Full Network Model "
-                "Pricing Node Mapping' from the CAISO website. For a list of ISONE nodes, downloaded the latest "
-                "'PNODE Table' from the ISONE website.",
-                code=1,
-            )
+    main(sys.argv)
