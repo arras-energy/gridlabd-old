@@ -17,12 +17,12 @@ module tape
 #include "/tmp/test.glm"
 
 #for MARKET in ${MARKET_DATA}
-#print Recording output to /tmp/test_${MARKET}.csv
 object recorder
 {
 	parent ${MARKET};
 	property "LMP,MW";
 	file "/tmp/test_${MARKET}.csv";
 }
+#print saved ${MARKET} LMP and MW to /tmp/test_${MARKET}.csv
 #done
 
