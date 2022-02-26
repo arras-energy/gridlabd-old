@@ -431,5 +431,4 @@ def debug(msg):
         print(f"DEBUG [clean]: {msg}",file=sys.stderr)
 
 if __name__ == "__main__":
-
     main(sys.argv)
