@@ -17,10 +17,10 @@ GLM:
 Python:
 
     bash$ gridlabd python
-    >>> import market_data as md
-    >>> data = md.get_market_data(MARKETNAME,NODE,STARTDATE,ENDDATE[,CREDENTIALS])
-    >>> md.write_csv(data,CSVNAME)
-    >>> md.write_glm(data,GLMNAME,[NAME])
+    # >>> import market_data as md
+    # >>> data = md.get_market_data(MARKETNAME,NODE,STARTDATE,ENDDATE[,CREDENTIALS])
+    # >>> md.write_csv(data,CSVNAME)
+    # >>> md.write_glm(data,GLMNAME,[NAME])
 
 DESCRIPTION
 
@@ -58,7 +58,7 @@ option.
 EXAMPLES
 
     bash$ gridlabd market_data -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223
-    START_TIME_PST,LMP,MW
+    START_TIME_LOCAL,LMP,MW
     2022-02-22 00:00:00,50.0,21372.0
     2022-02-22 00:05:00,50.9,21372.0
     2022-02-22 00:10:00,50.3,21372.0
@@ -406,28 +406,28 @@ def clean_market_data(market, lmp_df, demand_df):
         lmp_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             lmp_df["INTERVALSTARTTIME_GMT"]
         )
-        lmp_df["START_TIME_PST"] = lmp_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
+        lmp_df["START_TIME_LOCAL"] = lmp_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
             "US/Pacific"
         )
-        check_missing_data(lmp_df['START_TIME_PST'], lmp_df['START_TIME_PST'].iloc[0], lmp_df['START_TIME_PST'].iloc[-1], '5T')
+        check_missing_data(lmp_df['START_TIME_LOCAL'], lmp_df['START_TIME_LOCAL'].iloc[0], lmp_df['START_TIME_LOCAL'].iloc[-1], '5T')
 
         demand_df["INTERVALSTARTTIME_GMT"] = pd.to_datetime(
             demand_df["INTERVALSTARTTIME_GMT"]
         )
-        demand_df["START_TIME_PST"] = demand_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
+        demand_df["START_TIME_LOCAL"] = demand_df["INTERVALSTARTTIME_GMT"].dt.tz_convert(
             "US/Pacific"
         )
-        check_missing_data(demand_df['START_TIME_PST'], demand_df['START_TIME_PST'].iloc[0], demand_df['START_TIME_PST'].iloc[-1], 'H')
+        check_missing_data(demand_df['START_TIME_LOCAL'], demand_df['START_TIME_LOCAL'].iloc[0], demand_df['START_TIME_LOCAL'].iloc[-1], 'H')
 
         # Drop unnecessary columns
         lmp_df = lmp_df.rename(columns={"VALUE": "LMP"})
-        lmp_df = lmp_df[["START_TIME_PST", "LMP"]]
+        lmp_df = lmp_df[["START_TIME_LOCAL", "LMP"]]
 
-        demand_df = demand_df[["START_TIME_PST", "MW"]]
+        demand_df = demand_df[["START_TIME_LOCAL", "MW"]]
 
         # Merge lmp and demand dfs
-        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_PST")
-        market_data_df = market_data_df.set_index("START_TIME_PST").sort_index()
+        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_LOCAL")
+        market_data_df = market_data_df.set_index("START_TIME_LOCAL").sort_index()
 
         # Front fill data
         market_data_df = market_data_df.ffill()
@@ -435,22 +435,22 @@ def clean_market_data(market, lmp_df, demand_df):
     elif market == "isone":
 
         # Convert timestamp to local timezone and check for missing timestamps
-        lmp_df["START_TIME_EST"] = pd.to_datetime(lmp_df["BeginDate"])
-        check_missing_data(lmp_df['START_TIME_EST'], lmp_df['START_TIME_EST'].iloc[0], lmp_df['START_TIME_EST'].iloc[-1], '5T')
+        lmp_df["START_TIME_LOCAL"] = pd.to_datetime(lmp_df["BeginDate"])
+        check_missing_data(lmp_df['START_TIME_LOCAL'], lmp_df['START_TIME_LOCAL'].iloc[0], lmp_df['START_TIME_LOCAL'].iloc[-1], '5T')
 
-        demand_df["START_TIME_EST"] = pd.to_datetime(demand_df["BeginDate"])
-        check_missing_data(demand_df['START_TIME_EST'], demand_df['START_TIME_EST'].iloc[0], demand_df['START_TIME_EST'].iloc[-1], '5T')
+        demand_df["START_TIME_LOCAL"] = pd.to_datetime(demand_df["BeginDate"])
+        check_missing_data(demand_df['START_TIME_LOCAL'], demand_df['START_TIME_LOCAL'].iloc[0], demand_df['START_TIME_LOCAL'].iloc[-1], '5T')
 
         # Drop unnecessary columns
         lmp_df = lmp_df.rename(columns={"LmpTotal": "LMP"})
-        lmp_df = lmp_df[["START_TIME_EST", "LMP"]]
+        lmp_df = lmp_df[["START_TIME_LOCAL", "LMP"]]
 
         demand_df = demand_df.rename(columns={"LoadMw": "MW"})
-        demand_df = demand_df[["START_TIME_EST", "MW"]]
+        demand_df = demand_df[["START_TIME_LOCAL", "MW"]]
 
         # Merge lmp and demand dfs
-        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_EST")
-        market_data_df = market_data_df.set_index("START_TIME_EST").sort_index()
+        market_data_df = pd.merge(lmp_df, demand_df, how="outer", on="START_TIME_LOCAL")
+        market_data_df = market_data_df.set_index("START_TIME_LOCAL").sort_index()
 
     return market_data_df
 
