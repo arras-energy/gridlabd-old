@@ -133,17 +133,26 @@ GLM output:
     }
 
 The following example resamples the input data to obtain the maximum value
-in each day
+in each day.
 
-    bash$ gridlabd python -m clean -i=example/power.csv -o=/dev/stdout#header:1 --resample=max@1:0:0 
-
-CSV output:
-
+    bash$ gridlabd python -m clean -i=example/power.csv -o=/dev/stdout#header \
+    --resample=max@1:0:0 
     datetime,real_power
     2014-10-01 00:00:00,1782.63
     2014-10-01 01:00:00,1701.61
     2014-10-01 02:00:00,1634.6
     2014-10-01 03:00:00,1640.41
+
+The following example merges two input files into a single dataset and renames
+the columns.
+
+    bash$ gridlabd python -m create_player -i=example/power.csv,example/weather.csv \
+    -o=/dev/stdout#header:power,solar_global,air_temperature#index_label:timestamp
+    timestamp,power,solar_global,air_temperature
+    2014-10-01 00:00:00,1798.85,0,47.8
+    2014-10-01 01:00:00,1701.61,0,47.8
+    2014-10-01 02:00:00,1628.14,0,47.8
+    2014-10-01 03:00:00,1606.77,0,47.8
 
 SEE ALSO
 
@@ -182,7 +191,7 @@ READOPTIONS = {
 WRITEOPTIONS = {
     "index_label" : "datetime",
     "date_format" : "%Y-%m-%d %H:%M:%S",
-    "header" : False,
+    "header" : [],
     "float_format" : "%.6g",
     }
 
@@ -233,7 +242,7 @@ def main(argv):
         elif tag in ["-o","--output"]:
             global OUTPUTCSV
             if type(value) is list:
-                error(f"only one output file can be specified ({len(list)} specified)",E_INVALID)
+                OUTPUTCSV = ','.join(value)
             else:
                 OUTPUTCSV = value
         elif tag in ["-p","--player"]:
@@ -286,7 +295,7 @@ def main(argv):
                 READOPTIONS[opt[0]] = otype(opt[1])
             DATA.append(pd.read_csv(file,**READOPTIONS))
         
-        # run collation first
+        # collate 
         if OPTIONS["collation"] == "concat":
             DATA = pd.concat(DATA)
         elif OPTIONS["collation"] == "merge" or OPTIONS["collation"].startswith("merge:"):
@@ -303,7 +312,7 @@ def main(argv):
             error(f"collation '{OPTIONS['collation']}' is invalid",E_INVALID)
         del OPTIONS["collation"]
 
-        # next resample
+        # resample
         if "resample" in OPTIONS.keys():
             value = OPTIONS["resample"]
             freq = dt.timedelta(hours=1)
@@ -325,7 +334,7 @@ def main(argv):
             DATA = getattr(sampler,method)()
             del OPTIONS["resample"]
 
-        # next handle NA
+        # fill NA
         if "fillna" in OPTIONS.keys():
 
             if OPTIONS["fillna"] == None:
@@ -336,6 +345,7 @@ def main(argv):
                 DATA.fillna(value=float(OPTIONS["fillna"]),inplace=True)
             del OPTIONS["fillna"]
         
+        # drop NA
         elif "dropna" in OPTIONS.keys():
 
             if OPTIONS["dropna"] in ["any","all"]:
@@ -357,11 +367,16 @@ def main(argv):
         for item in specs[1:]:
             opt = item.split(":")
             if len(opt) == 1:
-                opt.append(True)
+                opt.append('true')
             elif len(opt) > 2:
                 opt = [opt[0],':'.join(opt[1:])]
             if opt[0] in WRITEOPTIONS.keys():
                 otype = type(WRITEOPTIONS[opt[0]])
+            if opt[1].lower() in ['true','false','yes','no']:
+                opt[1] = ( opt[1].lower() in ['true','yes'] )
+                otype = bool
+            elif otype is list:
+                opt[1] = opt[1].split(',')
             else:
                 otype = str
             WRITEOPTIONS[opt[0]] = otype(opt[1])
@@ -391,6 +406,13 @@ object player {{
         # generate CSV output
         DATA.sort_index().to_csv(OUTPUTCSV,**WRITEOPTIONS)
 
+    except BrokenPipeError:
+
+        pass
+
+    except KeyboardInterrupt:
+
+        error("keyboard interrupt",E_FAILED)
 
     except Exception as err:
 
