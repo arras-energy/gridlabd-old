@@ -18,21 +18,21 @@ GLM:
 
 Options:
 
-    --collation=METHOD  input collation method. Valid methods are `merge`
-                        or `concat`. If `merge` is specified, the method
-                        of joining data can be specified using METHOD:JOIN.
-                        Value join methods are `left`, `right`, `outer`,
-                        `inner`, or `cross` (the default is "merge:inner").
+--collation=METHOD  input collation method. Valid methods are `merge`
+                    or `concat`. If `merge` is specified, the method
+                    of joining data can be specified using METHOD:JOIN.
+                    Value join methods are `left`, `right`, `outer`,
+                    `inner`, or `cross` (the default is "merge:inner").
 
-    --resample[=SPEC]   resample the data with the specification SPEC.
-                        SPEC=[METHOD]@[FREQ] where FREQ is of the form
-                        [[[[[WEEKS:]DAYS:]HOURS:]MINUTES:]SECONDS]
-                        ('mean@1:0:0' by default)
+--resample[=SPEC]   resample the data with the specification SPEC.
+                    SPEC=[METHOD]@[FREQ] where FREQ is of the form
+                    [[[[[WEEKS:]DAYS:]HOURS:]MINUTES:]SECONDS]
+                    ('mean@1:0:0' by default)
 
-    --dropna[=AXIS]     remove rows (AXIS=0 by default) or columns
-                        (AXIS=1) with NA values
+--dropna[=AXIS]     remove rows (AXIS=0 by default) or columns
+                    (AXIS=1) with NA values
 
-    --fillna[=VALUE]    replace NA values with value (VALUE=0 by default)
+--fillna[=VALUE]    replace NA values with value (VALUE=0 by default)
 
 # Description
 
@@ -56,27 +56,27 @@ the type of VALUE is assumed to be `str`.
 The following READOPTIONS are given by default (see Pandas read_csv for
 details):
 
-    delimiter : ','
+   - `delimiter` : ','
 
-    header : 0
+   - `header` : 0
     
-    index_col : 0
+   - `index_col` : 0
     
-    parse_dates : [0]
+   - `parse_dates` : [0]
 
-    infer_datetime_format : True
+   - `infer_datetime_format` : True
     
-    dayfirst : False
+   - `dayfirst` : False
 
 The follow WRITEOPIONS are given by default (see Pandas to_csv for details):
 
-    index_label : "datetime"
+   - `index_label` : "datetime"
 
-    date_format : "%Y-%m-%d %H:%M:%S"
+   - `date_format` : "%Y-%m-%d %H:%M:%S"
 
-    header : False
+   - `header` : False
 
-    float_format : "%.6g"
+   - `float_format` : "%.6g"
     
 # Output
 
