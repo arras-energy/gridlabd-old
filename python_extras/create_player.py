@@ -4,14 +4,14 @@ SYNOPSIS
 
 Shell:
 
-    bash$ gridlabd clean [-i|--input=INPUTCSV[#READOPTION[#...]][,...]]]
+    bash$ gridlabd create_player [-i|--input=INPUTCSV[#READOPTION[#...]][,...]]]
         [-o|--output=OUTPUTCSV[#WRITEOPTION[#...]]]
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
 
 GLM:
 
-    #clean -i|--input=INPUTCSV[#READOPTION[#...]][,...]]
+    #create_player -i|--input=INPUTCSV[#READOPTION[#...]][,...]]
         -o|--output=OUTPUTCSV [#WRITEOPTION[#...]]
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
@@ -116,7 +116,7 @@ Input CSV:
 
 Command:
 
-    bash$ gridlabd python -m clean -i=example/weather.csv \
+    bash$ gridlabd python -m create_player -i=example/weather.csv \
     -p=/tmp/test.glm -o=/tmp/test.csv -t=test 
 
 CSV output:
@@ -142,7 +142,7 @@ GLM output:
 The following example resamples the input data to obtain the maximum value
 in each day.
 
-    bash$ gridlabd python -m clean -i=example/power.csv -o=/dev/stdout#header \
+    bash$ gridlabd python -m create_player -i=example/power.csv -o=/dev/stdout#header \
     --resample=max@1:0:0 
     datetime,real_power
     2014-10-01 00:00:00,1782.63
@@ -220,7 +220,7 @@ def main(argv):
 
     # no arguments provided
     if len(argv) == 1:
-        print("""Syntax: gridlabd clean [-i|--input=INPUTCSV[#READOPTIONS[#...]][,...]] 
+        print("""Syntax: gridlabd create_player [-i|--input=INPUTCSV[#READOPTIONS[#...]][,...]] 
         [-o|--output=OUTPUTCSV[#WRITEOPTIONS[#...]] 
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]""",file=sys.stderr)
@@ -473,21 +473,21 @@ def error(msg,code=None,exception=None):
     if DEBUG:
         raise Exception(msg) from exception
     elif not QUIET:
-        print(f"ERROR [clean]: {msg}",file=sys.stderr)
+        print(f"ERROR [create_player]: {msg}",file=sys.stderr)
     if type(code) is int:
         exit(code)
 
 def warning(msg):
     if WARNING:
-        print(f"WARNING [clean]: {msg}",file=sys.stderr)
+        print(f"WARNING [create_player]: {msg}",file=sys.stderr)
 
 def verbose(msg):
     if VERBOSE:
-        print(f"VERBOSE [clean]: {msg}",file=sys.stderr)
+        print(f"VERBOSE [create_player]: {msg}",file=sys.stderr)
 
 def debug(msg):
     if DEBUG:
-        print(f"DEBUG [clean]: {msg}",file=sys.stderr)
+        print(f"DEBUG [create_player]: {msg}",file=sys.stderr)
 
 if __name__ == "__main__":
     main(sys.argv)
