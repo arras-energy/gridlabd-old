@@ -24,6 +24,13 @@ Options:
                         Value join methods are `left`, `right`, `outer`,
                         `inner`, or `cross` (the default is "merge:inner").
 
+    --stack[=NAME[#FORMAT]] 
+                        stack input columns after collating using column names
+                        as times. NAME specifies the name of the resulting
+                        column. FORMAT specifies the format of the time
+                        columns (e.g., "%H", "%H:%M", etc.). The default NAME
+                        is `value` and the default format is `%H`.
+
     --resample[=SPEC]   resample the data with the specification SPEC.
                         SPEC=[METHOD]@[FREQ] where FREQ is of the form
                         [[[[[WEEKS:]DAYS:]HOURS:]MINUTES:]SECONDS]
@@ -154,6 +161,15 @@ the columns.
     2014-10-01 02:00:00,1628.14,0,47.8
     2014-10-01 03:00:00,1606.77,0,47.8
 
+The following example stacks input from a file with hours in columns.
+
+    bash$ gridlabd python -m create_player -i=example/power_panel.csv --stack
+    datetime,value
+    2014-10-01 00:00:00,1747.52
+    2014-10-01 01:00:00,1669.69
+    2014-10-01 02:00:00,1621.81
+    ...
+
 SEE ALSO
 
 * [[/Module/Tape/Player]]
@@ -178,6 +194,7 @@ OUTPUTCSV = "/dev/stdout"
 PLAYERGLM = None
 PLAYERNAME = None
 TARGETNAME = None
+STACKINPUT = ''
 
 READOPTIONS = {
     "delimiter" : ',',
@@ -263,6 +280,12 @@ def main(argv):
                 error(f"only one target object name can be specified ({len(list)} specified)",E_INVALID)
             else:
                 TARGETNAME = value
+        elif tag == "--stack":
+            global STACKINPUT
+            if value:
+                STACKINPUT = value
+            else:
+                STACKINPUT = "value"
         elif tag[0:2] == "--":
             global OPTIONS
             OPTIONS.update({tag[2:]:value})
@@ -311,6 +334,18 @@ def main(argv):
         else:
             error(f"collation '{OPTIONS['collation']}' is invalid",E_INVALID)
         del OPTIONS["collation"]
+
+        # stack
+        if STACKINPUT:
+            specs = STACKINPUT.split("#")
+            if len(specs) == 1:
+                specs.append("%H")
+            DATA = DATA.stack().reset_index()
+            dt0 = dt.datetime.strptime("0","%H")
+            DATA[DATA.columns[0]] += pd.Series(map(lambda x: dt.datetime.strptime(x,specs[1])-dt0,DATA["level_1"]))
+            DATA.set_index(DATA.columns[0],inplace=True)
+            DATA.drop(DATA.columns[0],axis=1,inplace=True)
+            DATA.columns = [specs[0]]
 
         # resample
         if "resample" in OPTIONS.keys():
@@ -404,6 +439,8 @@ object player {{
 ''')
 
         # generate CSV output
+        if not WRITEOPTIONS["header"]:
+            WRITEOPTIONS["header"] = DATA.columns
         DATA.sort_index().to_csv(OUTPUTCSV,**WRITEOPTIONS)
 
     except BrokenPipeError:
