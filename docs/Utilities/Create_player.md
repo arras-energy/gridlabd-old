@@ -4,14 +4,14 @@
 
 Shell:
 
-    bash$ gridlabd clean [-i|--input=INPUTCSV[#READOPTION[#...]][,...]]]
+    bash$ gridlabd create_player [-i|--input=INPUTCSV[#READOPTION[#...]][,...]]]
         [-o|--output=OUTPUTCSV[#WRITEOPTION[#...]]] [--stack[=NAME[#FORMAT]]] 
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
 
 GLM:
 
-    #clean -i|--input=INPUTCSV[#READOPTION[#...]][,...]]
+    #create_player -i|--input=INPUTCSV[#READOPTION[#...]][,...]]
         -o|--output=OUTPUTCSV [#WRITEOPTION[#...]] [--stack[=NAME[#FORMAT]]] 
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
@@ -116,7 +116,7 @@ Input CSV:
 
 Command:
 
-    bash$ gridlabd python -m clean -i=example/weather.csv \
+    bash$ gridlabd create_player -i=example/weather.csv \
     -p=/tmp/test.glm -o=/tmp/test.csv -t=test 
 
 CSV output:
@@ -142,7 +142,7 @@ GLM output:
 The following example resamples the input data to obtain the maximum value
 in each day
 
-    bash$ gridlabd python -m clean -i=example/power.csv -o=/dev/stdout#header:1 --resample=max@1:0:0 
+    bash$ gridlabd create_player -i=example/power.csv -o=/dev/stdout#header:1 --resample=max@1:0:0 
 
 CSV output:
 
@@ -154,7 +154,7 @@ CSV output:
 
 The following example stacks input from a file with hours in columns.
 
-    bash$ gridlabd python -m create_player -i=example/power_panel.csv --stack
+    bash$ gridlabd create_player -i=example/power_panel.csv --stack
     datetime,value
     2014-10-01 00:00:00,1747.52
     2014-10-01 01:00:00,1669.69
