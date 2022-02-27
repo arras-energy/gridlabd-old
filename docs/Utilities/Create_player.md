@@ -5,14 +5,14 @@
 Shell:
 
     bash$ gridlabd clean [-i|--input=INPUTCSV[#READOPTION[#...]][,...]]]
-        [-o|--output=OUTPUTCSV[#WRITEOPTION[#...]]]
+        [-o|--output=OUTPUTCSV[#WRITEOPTION[#...]]] [--stack[=NAME[#FORMAT]]] 
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
 
 GLM:
 
     #clean -i|--input=INPUTCSV[#READOPTION[#...]][,...]]
-        -o|--output=OUTPUTCSV [#WRITEOPTION[#...]]
+        -o|--output=OUTPUTCSV [#WRITEOPTION[#...]] [--stack[=NAME[#FORMAT]]] 
         [-p|--player=OUTPUTGLM] [-n|--name=OBJNAME] [-t|--target=TARGETNAME]
         [OPTIONS ...]
 
@@ -23,6 +23,13 @@ Options:
                     of joining data can be specified using METHOD:JOIN.
                     Value join methods are `left`, `right`, `outer`,
                     `inner`, or `cross` (the default is "merge:inner").
+
+--stack[=NAME[#FORMAT]] 
+                    stack input columns after collating using column names
+                    as times. NAME specifies the name of the resulting
+                    column. FORMAT specifies the format of the time
+                    columns (e.g., "%H", "%H:%M", etc.). The default NAME
+                    is `value` and the default format is `%H`.
 
 --resample[=SPEC]   resample the data with the specification SPEC.
                     SPEC=[METHOD]@[FREQ] where FREQ is of the form
@@ -144,6 +151,15 @@ CSV output:
     2014-10-01 01:00:00,1701.61
     2014-10-01 02:00:00,1634.6
     2014-10-01 03:00:00,1640.41
+
+The following example stacks input from a file with hours in columns.
+
+    bash$ gridlabd python -m create_player -i=example/power_panel.csv --stack
+    datetime,value
+    2014-10-01 00:00:00,1747.52
+    2014-10-01 01:00:00,1669.69
+    2014-10-01 02:00:00,1621.81
+    ...
 
 # See Also
 
