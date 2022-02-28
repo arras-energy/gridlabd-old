@@ -18,28 +18,25 @@ GLM:
 
 Options:
 
---collation=METHOD  input collation method. Valid methods are `merge`
-                    or `concat`. If `merge` is specified, the method
-                    of joining data can be specified using METHOD:JOIN.
-                    Value join methods are `left`, `right`, `outer`,
-                    `inner`, or `cross` (the default is "merge:inner").
+    - `--collation=METHOD`: input collation method. Valid methods are `merge`
+      or `concat`. If `merge` is specified, the method of joining data can be
+      specified using METHOD:JOIN. Value join methods are `left`, `right`,
+      `outer`, `inner`, or `cross` (the default is "merge:inner").
 
---stack[=NAME[#FORMAT]] 
-                    stack input columns after collating using column names
-                    as times. NAME specifies the name of the resulting
-                    column. FORMAT specifies the format of the time
-                    columns (e.g., "%H", "%H:%M", etc.). The default NAME
-                    is `value` and the default format is `%H`.
+    - `--stack[=NAME[#FORMAT]]`: stack input columns after collating using
+      column names as times. NAME specifies the name of the resulting column.
+      FORMAT specifies the format of the time columns
+      (e.g., "%H", "%H:%M", etc.). The default NAME is `value` and the
+      default format is `%H`.
 
---resample[=SPEC]   resample the data with the specification SPEC.
-                    SPEC=[METHOD]@[FREQ] where FREQ is of the form
-                    [[[[[WEEKS:]DAYS:]HOURS:]MINUTES:]SECONDS]
-                    ('mean@1:0:0' by default)
+    - `--resample[=SPEC]`: resample the data with the specification SPEC.
+      SPEC=[METHOD]@[FREQ] where FREQ is of the form[[[[
+      [WEEKS:]DAYS:]HOURS:]MINUTES:]SECONDS]('mean@1:0:0' by default)
 
---dropna[=AXIS]     remove rows (AXIS=0 by default) or columns
-                    (AXIS=1) with NA values
+    - `--dropna[=AXIS]`: remove rows (AXIS=0 by default) or columns
+      (AXIS=1) with NA values
 
---fillna[=VALUE]    replace NA values with value (VALUE=0 by default)
+    - `--fillna[=VALUE]`: replace NA values with value (VALUE=0 by default)
 
 # Description
 
