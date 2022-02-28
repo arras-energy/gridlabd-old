@@ -12,19 +12,19 @@ GLM:
 
 Options:
 
-    `[-c|--continuous]`: flag to indicate numerator and denominator are in continuous time
+    `-c|--continuous`: flag to indicate numerator and denominator are in continuous time
 
-    `[-m|--minimum=MINIMUM]`: specify the minimum output value (default is none)
+    `-m|--minimum=MINIMUM`: specify the minimum output value (default is none)
 
-    `[-M|--maximum=MAXIMUM]`: specify the maximum output value (default is none)
+    `-M|--maximum=MAXIMUM`: specify the maximum output value (default is none)
 
-    `[-o|--output=GLMFILE]`: specify the output GLM file name (default is `/dev/stdout`)
+    `-o|--output=GLMFILE`: specify the output GLM file name (default is `/dev/stdout`)
 
-    `[-r|--resolution=RESOLUTION]`: specify the output resolution (default is none)
+    `-r|--resolution=RESOLUTION`: specify the output resolution (default is none)
 
-    `[-s|--skewtime=SKEW]`: specify the time skew (default is 0)
+    `-s|--skewtime=SKEW`: specify the time skew (default is 0)
 
-    `[-t|--timestep=TIMESTEP]`: specify the time step (default is 1s)
+    `-t|--timestep=TIMESTEP`: specify the time step (default is 1s)
 
 DESCRIPTION
 
