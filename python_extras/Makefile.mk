@@ -1,3 +1,4 @@
+dist_pkgdata_DATA += python_extras/create_filter.py
 dist_pkgdata_DATA += python_extras/create_poles.py
 dist_pkgdata_DATA += python_extras/csv_merge/csv_merge.py
 dist_pkgdata_DATA += python_extras/dataframe.py
