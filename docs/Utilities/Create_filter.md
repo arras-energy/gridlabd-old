@@ -41,8 +41,8 @@ When RESOLUTION is specified, then both MINIMUM and MAXIMUM must also be specifi
 The following example creates a filter, from a second-order continuous-time
 model, with 8 bits of resolution and a dynamic range of (0,1):
 
-    bash% gridlabd create_filter test 1,2,3 4,5,6 -r=8 -m=0 -M=1
-    filter test(z,1s,0,resolution=8,minimum=0.0,maximum=1.0) = (+4+5z+6z^2) / (+1+2z+3z^2);
+    bash% gridlabd create_filter test 1,2,3 4,5,6 -r=8 -m=0 -M=1 -c
+    filter test(z,1,0,resolution=8,minimum=0.0,maximum=1.0) = (+1-0.529623z+0.286505z^2) / (+0.25+0.0651926z+0.0632483z^2);
 
 # See also
 

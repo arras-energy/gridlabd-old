@@ -1,4 +1,4 @@
-"""Create filter tool
+"""[[/Utilities/Create_filter]] - Create a filter from a transfer function
 
 SYNOPSIS
 
@@ -41,8 +41,8 @@ EXAMPLE
 The following example creates a filter, from a second-order continuous-time
 model, with 8 bits of resolution and a dynamic range of (0,1):
 
-    bash% gridlabd create_filter test 1 1,0.2 -c -r=8 -m=0 -M=1
-    TODO
+    bash% gridlabd create_filter test 1 1,0.2 -c -r=8 -m=0 -M=1 -c
+    filter test(z,1,0,resolution=8,minimum=0.0,maximum=1.0) = (+1-0.529623z+0.286505z^2) / (+0.25+0.0651926z+0.0632483z^2);
 
 SEE ALSO
 
@@ -50,6 +50,7 @@ SEE ALSO
 """
 
 import sys, os
+import control
 
 E_OK = 0 # success
 E_INVALID = 1 # invalid command option
@@ -66,7 +67,7 @@ MAXIMUM = None
 OUTPUTGLM = "/dev/stdout"
 RESOLUTION = None
 SKEW = None
-TIMESTEP = '1s'
+TIMESTEP = '1'
 FLOAT_FORMAT = '+g'
 
 def main(argv={}):
@@ -116,8 +117,11 @@ def main(argv={}):
                 OUTPUTGLM = value
             elif tag in ["-c","--continuous"]:
                 global CONTINUOUS
-                if value.lower() in ["true","false","yes","no"]:
-                    CONTINUOUS = ( value.lower() in ["true","yes"])
+                if value != None:
+                    if value.lower() in ["true","false","yes","no"]:
+                        CONTINUOUS = ( value.lower() in ["true","yes"])
+                    else:
+                        error(f"value '{VALUE}' for continuous flag is not boolean")
                 elif value == None:
                     CONTINUOUS = True
                 else:
@@ -139,6 +143,13 @@ def main(argv={}):
                 TIMESTEP = value
             else:
                 error(f"option '{'='.join(arg)}' is not valid",E_INVALID)
+
+    if CONTINUOUS:
+
+        H = control.tf(NUMERATOR,DENOMINATOR)
+        G = control.c2d(H,float(TIMESTEP))
+        NUMERATOR = G.num[0][0].tolist()
+        DENOMINATOR = G.den[0][0].tolist()
 
     with open(OUTPUTGLM,"w") as glm:
         SPEC = f"z,{TIMESTEP}"
