@@ -65,7 +65,7 @@ for opt, arg in opts:
         options["module"] = arg.strip()
     elif opt in ("-O","--option"):
         specs = arg.split(":")
-        options[specs[0]] = ':'.join(specs[1])
+        options[specs[0]] = ':'.join(specs[1:])
     else:
         error(f"{opt}={arg} is not a valid option");
 
