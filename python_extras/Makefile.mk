@@ -10,6 +10,7 @@ dist_pkgdata_DATA += python_extras/fit_filter.py
 dist_pkgdata_DATA += python_extras/gridlabd-editor.png
 dist_pkgdata_DATA += python_extras/gridlabd-editor.py
 dist_pkgdata_DATA += python_extras/insights.py
+dist_pkgdata_DATA += python_extras/market_data.py
 dist_pkgdata_DATA += python_extras/metar2glm.py
 dist_pkgdata_DATA += python_extras/noaa_forecast.py
 dist_pkgdata_DATA += python_extras/nsrdb_weather.py
