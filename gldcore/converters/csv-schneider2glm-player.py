@@ -54,6 +54,8 @@ def convert(inputfile,outputfile,options=default_options):
 
     PATHNAME = os.path.splitext(outputfile)[0]
     BASENAME = os.path.basename(PATHNAME)
+    if options['csv_compression']:
+        BASENAME = os.path.basename(BASENAME)
     PLAYERFILE = PATHNAME+options['player_suffix']
     GLMFILE = BASENAME + ".glm"
 
