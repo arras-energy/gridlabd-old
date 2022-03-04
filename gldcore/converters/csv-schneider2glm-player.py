@@ -26,7 +26,7 @@ def convert(inputfile,outputfile,options=default_options):
     data = data.loc[:,[csv_real_power,csv_reactive_power]]
     data.columns = [player_real_power,player_reactive_power]
 
-    data.to_csv(pathname+".csv",header=False,index=player_index)
+    data.to_csv(pathname+"_player.csv",header=False,index=player_index)
 
 
 
