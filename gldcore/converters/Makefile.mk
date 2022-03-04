@@ -19,6 +19,9 @@ dist_pkgdata_DATA += gldcore/converters/csv-table2glm-object.py
 dist_pkgdata_DATA += gldcore/converters/csv-visualcrossing-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv2glm.py
 
+# gz -> glm
+dist_pkgdata_DATA += gldcore/converters/gz2glm.py
+
 # mdb -> glm
 dist_pkgdata_DATA += gldcore/converters/mdb2glm.py
 dist_pkgdata_DATA += gldcore/converters/mdb-cyme2glm.py
