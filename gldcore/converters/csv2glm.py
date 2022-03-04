@@ -23,6 +23,7 @@ def help():
     print(f'  -p|--property  : [OPTIONAL] property option')
     print(f'  -C|--class     : [OPTIONAL] default class definition when generating GLM objects')
     print(f'  -M|--module    : [OPTIONAL] default module definition when generating GLM objects')
+    print(f'  -O|--option=KEY:VALUE : [OPTIONAL] set converter option KEY=VALUE')
 
 def error(msg):
     print(f'ERROR    [{config["input"]}2{config["output"]}]: {msg}')
@@ -34,7 +35,7 @@ output_file = None
 output_type = None
 options = {}
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:M:",["help","config","ifile=","ofile=","from=","type=","property=","class="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:M:O:",["help","config","ifile=","ofile=","from=","type=","property=","class=","option="])
 
 if not opts : 
     help()
@@ -62,6 +63,9 @@ for opt, arg in opts:
         options["class"] = arg.strip()
     elif opt in ("-M","--module"):
         options["module"] = arg.strip()
+    elif opt in ("-O","--option"):
+        specs = arg.split(":")
+        options[specs[0]] = ':'.join(specs[1])
     else:
         error(f"{opt}={arg} is not a valid option");
 
