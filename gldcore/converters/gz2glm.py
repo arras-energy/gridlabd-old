@@ -23,6 +23,7 @@ def help():
     print(f'  -p|--property  : [OPTIONAL] property option')
     print(f'  -C|--class     : [OPTIONAL] default class definition when generating GLM objects')
     print(f'  -M|--module    : [OPTIONAL] default module definition when generating GLM objects')
+    print(f'  -O|--option=KEY:VALUE : [OPTIONAL] set converter option KEY=VALUE')
 
 def error(msg):
     print(f'ERROR    [{config["input"]}2{config["output"]}]: {msg}')
@@ -32,9 +33,9 @@ input_file = None
 input_type = None
 output_file = None
 output_type = None
-options = {}
+options = {"csv_compression" : "gzip"}
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:M:",["help","config","ifile=","ofile=","from=","type=","property=","class="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:M:O:",["help","config","ifile=","ofile=","from=","type=","property=","class=","option="])
 
 if not opts : 
     help()
@@ -62,6 +63,9 @@ for opt, arg in opts:
         options["class"] = arg.strip()
     elif opt in ("-M","--module"):
         options["module"] = arg.strip()
+    elif opt in ("-O","--option"):
+        specs = arg.split(":")
+        options[specs[0]] = ':'.join(specs[1:])
     else:
         error(f"{opt}={arg} is not a valid option");
 
@@ -74,10 +78,10 @@ elif input_type == None:
 elif output_type == None:
     error("missing output data type")
 
-modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'{config["input"]}-{input_type}2{config["output"]}-{output_type}.py')
+modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'csv-{input_type}2{config["output"]}-{output_type}.py')
 if os.path.exists(modname):
     modspec = util.spec_from_file_location(output_type, f"{modname}.py")
-    mod = importlib.import_module(f'{config["input"]}-{input_type}2{config["output"]}-{output_type}')
+    mod = importlib.import_module(f'csv-{input_type}2{config["output"]}-{output_type}')
     mod.convert(input_file,output_file,options)
 else:
     error(f"{modname} not found")
