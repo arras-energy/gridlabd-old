@@ -94,3 +94,6 @@ omits the LMP data in the input file.
 
     $ python market_model -f=caiso_20220101-20220201.csv -i=LMP -o=MW -k=24 -l=3
 
+# See also
+
+* [[/Utilities/Market_data]]
