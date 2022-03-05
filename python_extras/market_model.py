@@ -1,4 +1,4 @@
-"""Create filters from data
+"""Create market model from ISO data
 
 SYNTAX
 
