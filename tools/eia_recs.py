@@ -7,6 +7,7 @@ import openpyxl
 import requests
 import datetime
 import pandas
+import uuid
 
 microdata_url = "https://www.eia.gov/consumption/residential/data/2015/csv/recs2015_public_v4.csv"
 hc_baseurl = "https://www.eia.gov/consumption/residential/data/2015/hc/"
@@ -276,7 +277,7 @@ class Microdata(pandas.DataFrame):
     }
     def __init__(self):
         """Data frame constructor"""
-        csvname = f"hc_raw.csv"
+        csvname = f".hc_{str(uuid.uuid4().hex)}.csv"
         if not os.path.exists(csvname):
             req = requests.get(microdata_url)
             if req.status_code != 200:
@@ -284,6 +285,7 @@ class Microdata(pandas.DataFrame):
             with open(csvname,"wb") as f:
                 f.write(req.content)
         pandas.DataFrame.__init__(self,pandas.read_csv(csvname))
+        os.unlink(csvname)
     
     @classmethod
     def get_division(cls,statecodes=[]):
