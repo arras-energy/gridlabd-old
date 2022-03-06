@@ -56,7 +56,7 @@ docs_targets =
 # required modules
 include $(top_srcdir)/third_party/Makefile.mk
 include $(top_srcdir)/gldcore/Makefile.mk
-include $(top_srcdir)/python_extras/Makefile.mk
+include $(top_srcdir)/tools/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
 include $(top_srcdir)/utilities/Makefile.mk
 
