@@ -10,5 +10,5 @@
 #include "test_create_poles_opt.glm"
 
 #ifexist test_create_poles_opt.glm
-#on_exit 0 diff -I '^//.*' ${DIR:-.}/test_create_poles_opt.glm test_create_poles_opt.glm > gridlabd.diff
+#on_exit 0 diff -I '^[#/].*' ${DIR:-.}/test_create_poles_opt.glm test_create_poles_opt.glm > gridlabd.diff
 #endif

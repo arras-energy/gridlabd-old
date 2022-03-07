@@ -9,5 +9,5 @@
 #include "test_fit_filter_opt.glm"
 
 #ifexist ../test_fit_filter_opt.glm
-#on_exit 0 diff -I '^//.*' ../test_fit_filter_opt.glm test_fit_filter_opt.glm > gridlabd.diff
+#on_exit 0 diff -I '^[#/].*' ../test_fit_filter_opt.glm test_fit_filter_opt.glm > gridlabd.diff
 #endif
