@@ -7,7 +7,7 @@ Shell:
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
 
 GLM:
-    #system gridlabd noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
+    #python -m noaa_forecast -p|-position=LAT,LON [-i|--interpolate=TIME|METHOD]
         [-g|--glm=GLMNAME] [-n|--name=OBJECTNAME] [-c|--csv=CSVNAME] [--test] [-h|--help|help]
     #include "GLMNAME"
 
@@ -162,6 +162,9 @@ def writeglm(data, glm=sys.stdout, name=None, csv=None,download_now=True):
         glm.write("}\n")
         data.columns = list(map(lambda x:x.split('[')[0],data.columns))
         glm.write("module tape;\n")
+        glm.write("#define NOAA_FORECAST_TIMEZONE=${SHELL gridlabd timezone local}\n")
+        glm.write(f"#define NOAA_FORECAST_STARTTIME={data.index.min().isoformat('T')}\n")
+        glm.write(f"#define NOAA_FORECAST_STOPTIME={data.index.max().isoformat('T')}\n")
         glm.write("object forecast\n{\n")
         if name:
             glm.write(f"\tname \"{name}\";\n")
