@@ -139,7 +139,7 @@ object_profile.txt
 fault_check.txt
 
 # specific outputs that should be ignored
-gldcore/link/python/example.png
+python/example.png
 models/ieee123/config/local.glm
 gldcore/converters/autotest/IEEE-*-cyme/*
 gridlabd.glm
@@ -156,11 +156,11 @@ gldcore/converters/test_data.glm
 gldcore/converters/autotest/weather_recorder.csv
 gldcore/converters/noaa.csv
 gldcore/converters/noaa.glm
-gldcore/link/python/examples/example_2/example.png
-gldcore/link/python/examples/example_3/example.png
-gldcore/link/python/examples/example_3/x.csv
-gldcore/link/python/examples/example_1/example.png
-gldcore/link/python/examples/example_1/x.csv
+python/examples/example_2/example.png
+python/examples/example_3/example.png
+python/examples/example_3/x.csv
+python/examples/example_1/example.png
+python/examples/example_1/x.csv
 gldcore/autotest/test.glm
 powerflow/autotest/test_IEEE13_pole_output.csv
 gridlabd-core.*
@@ -180,6 +180,7 @@ gldcore/autotest/output.csv
 python_extras/example/output.csv
 *.egg
 gridlabd.egg-info/
-gldcore/link/python/dist/
-gldcore/link/python/gridlabd.egg-info/
+python/dist/*.whl
+python/dist/*.tar.gz
+python/gridlabd.egg-info/
 gridlabd.egg-*
