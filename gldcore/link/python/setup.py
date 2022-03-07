@@ -139,14 +139,19 @@ def get_version(path=None):
 						build = int(info[2])
 					elif info[1] == "BRANCH":
 						branch = info[2].replace('"','')
-	except:
-		build = 0
-	# TODO: this needs to be revised to match PEP 440
-	return '%d.%d.%d-%d-%s' % (major,minor,patch,build,branch)
 
-setup (	name = 'gridlabd',
-		version = get_version(),
-		description = 'HiPAS GridLAB-D',
-		author = 'SLAC Gismo',
-		author_email = 'gridlabd@gmail.com',
-		ext_modules = [gridlabd])
+		from hashlib import blake2b
+		h = blake2b(digest_size=8)
+		h.update(branch.encode())
+		return '%d.%d.%d.%d.%d' % (major,minor,patch,build,int(h.hexdigest(),16))
+	except:
+		return '0.0.0'
+
+setup (	
+	name = 'gridlabd',
+	version = get_version(),
+	description = 'HiPAS GridLAB-D',
+	author = 'SLAC Gismo',
+	author_email = 'gridlabd@gmail.com',
+	ext_modules = [gridlabd],
+	url = "https://www.gridlabd.us/")

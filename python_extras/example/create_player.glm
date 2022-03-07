@@ -1,0 +1,35 @@
+// Example: create_player.glm
+//
+// Load a panel of hourly loads as a CSV player
+//
+
+#python -m create_player -i=power_panel.csv --stack -o=/tmp/test_power.csv -p=/tmp/test_power.glm -t=test
+
+class test
+{
+    double value;
+}
+
+module tape
+{
+    csv_header_type NONE;
+}
+
+object test
+{
+    name test;
+    object recorder
+    {
+        property "value";
+        file "/tmp/test_power_out.csv";
+    };
+}
+
+#include "/tmp/test_power.glm"
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime ${power_panel_startdate};
+    stoptime ${power_panel_stopdate};
+}
