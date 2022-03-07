@@ -1,0 +1,3 @@
+classname,violation,fixedcost,variablecost
+triplex_meter,31,100.0,1.0
+meter,31,1000.0,10.0
