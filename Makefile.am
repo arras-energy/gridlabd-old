@@ -59,6 +59,7 @@ include $(top_srcdir)/gldcore/Makefile.mk
 include $(top_srcdir)/python_extras/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
 include $(top_srcdir)/utilities/Makefile.mk
+include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk
