@@ -36,8 +36,18 @@ if len(sys.argv) == 1:
 	exit(1)
 n = 1
 while n < len(sys.argv):
-	if sys.argv[n] in ['-h','--help']:
-		print(SYNTAX)
+	if sys.argv[n] in ['-h','--help',"help"]:
+		if n+1 < len(sys.argv):
+			modname = f'{MODPATH}/{sys.argv[n+1]}.py'
+			if os.path.exists(modname):
+				verbose(f"loading '{modname}'")
+				# modspec = util.spec_from_file_location({modname.split('2')[1]}, modname)
+				mod = importlib.import_module(f'{sys.argv[n+1]}')
+				print(mod.__doc__)
+			else:
+				error(f"{modname} not found",E_MISSING)
+		else:
+			print(SYNTAX)
 		exit(0)
 	elif sys.argv[n] in ['-v','--verbose']:
 		VERBOSE = True
@@ -91,7 +101,6 @@ elif not OUTPUTTYPE:
 modname = f'{MODPATH}/{INPUTTYPE}2{OUTPUTTYPE}.py'
 if os.path.exists(modname):
 	verbose(f"loading '{modname}'")
-	modspec = util.spec_from_file_location(OUTPUTTYPE, f"{modname}.py")
 	mod = importlib.import_module(f'{INPUTTYPE}2{OUTPUTTYPE}')
 	verbose(f"calling {modname}.convert({INPUTFILE.__repr__()},{OUTPUTFILE.__repr__()},{OPTIONS.__repr__()})")
 	try:

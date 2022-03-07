@@ -6,7 +6,7 @@ import importlib, copy
 from importlib import util
 
 config = {
-    "input" : "csv",
+    "input" : "gz",
     "output" : "glm",
     "from" : ["ami","scada","onpoint-weather", "table"],
     "type" : ["ceus","rbsa","climate", "object"],
@@ -33,7 +33,7 @@ input_file = None
 input_type = None
 output_file = None
 output_type = None
-options = {}
+options = {"csv_compression" : "gzip"}
 
 opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:M:O:",["help","config","ifile=","ofile=","from=","type=","property=","class=","option="])
 
@@ -78,10 +78,10 @@ elif input_type == None:
 elif output_type == None:
     error("missing output data type")
 
-modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'{config["input"]}-{input_type}2{config["output"]}-{output_type}.py')
+modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'csv-{input_type}2{config["output"]}-{output_type}.py')
 if os.path.exists(modname):
     modspec = util.spec_from_file_location(output_type, f"{modname}.py")
-    mod = importlib.import_module(f'{config["input"]}-{input_type}2{config["output"]}-{output_type}')
+    mod = importlib.import_module(f'csv-{input_type}2{config["output"]}-{output_type}')
     mod.convert(input_file,output_file,options)
 else:
     error(f"{modname} not found")
