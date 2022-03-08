@@ -1,0 +1,28 @@
+// example market_data from CAISO
+
+#python -m market_data -m=CAISO -d=0096WD_7_N001 -s=20220222 -e=20220223 -c=/tmp/test.csv -g=/tmp/test.glm
+
+clock 
+{
+	timezone "PST+8PDT";
+	starttime "2022-02-22 00:00:00 PST";
+	stoptime "2022-02-23 00:00:00 PST";
+}
+
+module tape
+{
+	csv_header_type NAME;
+}
+
+#include "/tmp/test.glm"
+
+#for MARKET in ${MARKET_DATA}
+object recorder
+{
+	parent ${MARKET};
+	property "LMP,MW";
+	file "/tmp/test_${MARKET}.csv";
+}
+#print saved ${MARKET} LMP and MW to /tmp/test_${MARKET}.csv
+#done
+
