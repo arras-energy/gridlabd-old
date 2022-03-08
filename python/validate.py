@@ -1,7 +1,7 @@
 """GridLAB-D Python validation routine
 
 This script runs the full gridlabd validate test suite using
-the Python module build from the gldcore/link/python folder.
+the Python module build from the python folder.
 
 Syntax: python3 validate.py [options]
 
@@ -106,7 +106,7 @@ def runtest(workdir,glmname) :
 	run_command("cp %s.glm %s" % (workdir,workdir))
 	run_command("cd %s" % workdir)
 	print("Running %s..." % glmname)
-	rc = run_command("/usr/local/bin/python3 %s/gldcore/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
+	rc = run_command("/usr/local/bin/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
 	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 	show_failure = (not "--quiet" in sys.argv)
 	save_output = (not "--no-save" in sys.argv)
 	debug("sys.argv=%s" % sys.argv)
-	srcdir = os.path.abspath(sys.argv[0]).replace("/gldcore/link/python/validate.py","")
+	srcdir = os.path.abspath(sys.argv[0]).replace("/source/link/python/validate.py","")
 	debug("srcdir=%s" % srcdir)
 	gridlabd = subprocess.check_output(["which","gridlabd"]).decode()
 	if not gridlabd : raise Exception("unable to locate gridlabd in $PATH (which return '%s')" % gridlabd)
@@ -164,7 +164,7 @@ if __name__ == '__main__':
 	incpath = install + "/include/gridlabd"
 	if not os.path.isdir(incpath) : raise Exception("include folder %s is not found" % incpath)
 	debug("incpath=%s" % incpath)
-	exename = "python3 "+srcdir + "/gldcore/link/python/gridlabd_python.py"
+	exename = "python3 "+srcdir + "/source/link/python/gridlabd_python.py"
 	print(exename[0:7])
 	if exename[0:7] != "python3" and not os.path.isfile(exename) : raise Exception("gridlabd program %s is not found" % exename)
 	debug("exename=%s" % exename)

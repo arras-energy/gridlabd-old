@@ -1,4 +1,4 @@
-$(top_srcdir)/python/dist/gridlabd-$(notdir $(prefix))-.tar.gz: gldcore/build.h
+$(top_srcdir)/python/dist/gridlabd-$(notdir $(prefix))-.tar.gz: source/build.h
 	@echo "building $@"
 	@python3 -m pip install build 1>/dev/null
 	@( export SRCDIR=$(realpath $(top_srcdir)) ; python3 -m build $(top_srcdir)/python 1>/dev/null )

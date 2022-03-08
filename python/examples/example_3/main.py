@@ -1,4 +1,4 @@
-""" gldcore/python/link/examples/example_3/main.py
+""" python/examples/example_3/main.py
 
 This is an example of a main Python module that runs a simulation and plots
 the collected data to a PNG file.  This process is completed in two parts.

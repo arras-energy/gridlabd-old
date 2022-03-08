@@ -1,4 +1,4 @@
-""" gldcore/python/link/examples/example_2/main.py
+""" link/examples/example_2/main.py
 """
 
 import sys

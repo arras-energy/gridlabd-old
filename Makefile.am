@@ -18,17 +18,17 @@ CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
 AM_CPPFLAGS = -Wall -fPIC
-AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
+AM_CPPFLAGS += -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
 AM_CFLAGS = -Wall
-AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
+AM_CFLAGS +=  -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
+AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/source
 
 AM_CXXFLAGS = -Wall -fPIC
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
+AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/source
 
 AM_LDFLAGS =
 AM_LDFLAGS += -no-undefined
@@ -55,7 +55,7 @@ docs_targets =
 
 # required modules
 include $(top_srcdir)/third_party/Makefile.mk
-include $(top_srcdir)/gldcore/Makefile.mk
+include $(top_srcdir)/source/Makefile.mk
 include $(top_srcdir)/runtime/Makefile.mk
 include $(top_srcdir)/converters/Makefile.mk
 include $(top_srcdir)/tools/Makefile.mk
@@ -172,11 +172,11 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 
 $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
-	test -d $@/gldcore || mkdir -p $@/gldcore
-	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/gldcore
+	test -d $@/source || mkdir -p $@/source
+	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/source
 	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
-	mv $@/gldcore/usr/local/include $@/devel/usr/local/include
-	mv $@/gldcore/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
+	mv $@/source/usr/local/include $@/devel/usr/local/include
+	mv $@/source/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
@@ -335,14 +335,14 @@ html-local: module-html developer-html troubleshooting-html
 	@mkdir -p $(prefix)/share/doc/developer
 	@cp $(top_srcdir)/documents/index.html $(prefix)/share/doc/index.html
 	@cp -R $(top_srcdir)/documents/html/* $(prefix)/share/doc/
-	@cp -R $(top_srcdir)/gldcore/html/* $(prefix)/share/doc/developer/
+	@cp -R $(top_srcdir)/source/html/* $(prefix)/share/doc/developer/
 
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
-	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
+	@(cd $(top_srcdir)/source/html ; natural_docs . ; cd - > /dev/null )
 
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/

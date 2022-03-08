@@ -1,4 +1,4 @@
-""" gldcore/link/python/examples/example_1/handlers.py
+""" python/examples/example_1/handlers.py
 
 This module illustrates how to implement handlers for a gridlabd model using a
 'on_init' and 'commit' handlers to share collected data with the  main python

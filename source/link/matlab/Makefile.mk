@@ -11,4 +11,4 @@ gldcore_link_matlab_glxmatlab_la_LDFLAGS += $(AM_LDFLAGS)
 gldcore_link_matlab_glxmatlab_la_LIBADD =
 gldcore_link_matlab_glxmatlab_la_LIBADD += $(MATLAB_LIBS)
 
-gldcore_link_matlab_glxmatlab_la_SOURCES = gldcore/link/matlab/matlab.cpp
+gldcore_link_matlab_glxmatlab_la_SOURCES = source/link/matlab/matlab.cpp

@@ -17,13 +17,13 @@ build-aux/compile
 build-aux/config.guess
 build-aux/config.sub
 build-aux/depcomp
-gldcore/config.h.in
-gldcore/config.h
+source/config.h.in
+source/config.h
 /configure.scan
 build-aux/install-sh
 build-aux/ltmain.sh
 build-aux/missing
-gldcore/stamp-h1
+source/stamp-h1
 
 # Prerequisites
 *.d
@@ -84,7 +84,7 @@ config.log
 config.status
 configure
 configure~
-gldcore/gridlabd
+source/gridlabd
 gridlabd.spec
 libtool
 m4/libtool.m4
@@ -93,8 +93,8 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 m4/lt-obsolete.m4
-gldcore/build.h
-gldcore/config.h.in~
+source/build.h
+source/config.h.in~
 gridlabd.bin
 install/
 third_party/xerces*/*
@@ -129,9 +129,9 @@ autotest/test_*/
 */autotest/test_*/
 */*/autotest/test_*/
 */*/*/autotest/test_*/
-gldcore/autotest/ceus.glm
-gldcore/autotest/ica_test.glm
-gldcore/autotest/test_output_save.csv
+source/autotest/ceus.glm
+source/autotest/ica_test.glm
+source/autotest/test_output_save.csv
 converters/autotest/IEEE-13-cyme.glm
 
 # widely found generic output files
@@ -146,8 +146,8 @@ python/example.png
 models/ieee123/config/local.glm
 converters/autotest/IEEE-*-cyme/*
 gridlabd.glm
-gldcore/autotest/config.glm
-gldcore/autotest/modify.glm
+source/autotest/config.glm
+source/autotest/modify.glm
 validate.zip.gz
 converters/autotest/*.png
 validate.tar.gz
@@ -159,12 +159,12 @@ converters/test_data.glm
 converters/autotest/weather_recorder.csv
 converters/noaa.csv
 converters/noaa.glm
-gldcore/link/python/examples/example_2/example.png
-gldcore/link/python/examples/example_3/example.png
-gldcore/link/python/examples/example_3/x.csv
-gldcore/link/python/examples/example_1/example.png
-gldcore/link/python/examples/example_1/x.csv
-gldcore/autotest/test.glm
+source/link/python/examples/example_2/example.png
+source/link/python/examples/example_3/example.png
+source/link/python/examples/example_3/x.csv
+source/link/python/examples/example_1/example.png
+source/link/python/examples/example_1/x.csv
+source/autotest/test.glm
 powerflow/autotest/test_IEEE13_pole_output.csv
 gridlabd-core.*
 documents/gridlabd.md
@@ -176,10 +176,10 @@ converters/autotest/solver_nr_profile.csv
 converters/autotest/table2glm_input_noclass.glm
 converters/autotest/table2glm_input_noname.glm
 converters/autotest/table2glm_input.glm
-gldcore/geodata/docs/geodata.conf
-gldcore/gridlabd.in
+source/geodata/docs/geodata.conf
+source/gridlabd.in
 geodata.conf
-gldcore/autotest/output.csv
+source/autotest/output.csv
 python_extras/example/output.csv
 *.egg
 gridlabd.egg-info/

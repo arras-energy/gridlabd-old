@@ -6,7 +6,7 @@ To add a new subcommand script you must do the following:
 
 2. Add the full name subcommand script filename to `Makefile.mk`, e.g.,
 ~~~
-bin_SCRIPTS += gldcore/scripts/gridlabd-<subcommand>
+bin_SCRIPTS += subcommands/gridlabd-<subcommand>
 ~~~
 
 3. The subcommand will receive all the command line arguments given after the subcommand name. These may be use in any way you wish. However there are some conventions to observe.

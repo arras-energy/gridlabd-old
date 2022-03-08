@@ -1,4 +1,4 @@
-// gldcore/link/python/examples/example_2/model.glm
+// python/examples/example_2/model.glm
 //
 // This model illustrates how to use a python module to collect a
 // timeseries of lognormal values using the 'on_commit' event handler.
