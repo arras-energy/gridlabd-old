@@ -60,6 +60,7 @@ include $(top_srcdir)/python_extras/Makefile.mk
 include $(top_srcdir)/converters/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
 include $(top_srcdir)/utilities/Makefile.mk
+include $(top_srcdir)/python/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk

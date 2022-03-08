@@ -1,6 +1,5 @@
 include gldcore/link/engine/Makefile.mk
 include gldcore/link/matlab/Makefile.mk
-include gldcore/link/python/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
@@ -75,7 +74,7 @@ gridlabd_bin_SOURCES += gldcore/transform.cpp gldcore/transform.h
 gridlabd_bin_SOURCES += gldcore/unit.cpp gldcore/unit.h
 gridlabd_bin_SOURCES += gldcore/validate.cpp gldcore/validate.h
 gridlabd_bin_SOURCES += gldcore/version.cpp gldcore/version.h
-gridlabd_bin_SOURCES += gldcore/link/python/python.cpp
+gridlabd_bin_SOURCES += python/python.cpp
 
 EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += gldcore/cmex.c gldcore/cmex.h

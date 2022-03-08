@@ -139,7 +139,7 @@ object_profile.txt
 fault_check.txt
 
 # specific outputs that should be ignored
-gldcore/link/python/example.png
+python/example.png
 models/ieee123/config/local.glm
 converters/autotest/IEEE-*-cyme/*
 gridlabd.glm
@@ -180,6 +180,7 @@ gldcore/autotest/output.csv
 python_extras/example/output.csv
 *.egg
 gridlabd.egg-info/
-gldcore/link/python/dist/
-gldcore/link/python/gridlabd.egg-info/
+python/dist/*.whl
+python/dist/*.tar.gz
+python/gridlabd.egg-info/
 gridlabd.egg-*

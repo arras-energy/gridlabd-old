@@ -6,18 +6,18 @@ The gridlabd module is automatically installed as part of a full gridlabd instal
 To build only the python module use the following command can be run after gridlabd is installed
 
   bash% export SRCDIR=$PWD
-  bash% python gldcore/link/python/setup.py build
+  bash% python python/setup.py build
 
 
 To install the python module use the following command:
 
   bash% export SRCDIR=$PWD
-  bash% python gldcore/link/python/setup.py install
+  bash% python python/setup.py install
 
 To uninstall the python module, you must save the list of installed files
 
   bash% export SRCDIR=$PWD
-  bash% python gldcore/link/python/setup.py install --record files.txt
+  bash% python python/setup.py install --record files.txt
 
 Then you can uninstall gridlabd's python module using the command
 
@@ -47,10 +47,10 @@ compile_options.extend(['-I%s/gldcore'%srcdir,'-Igldcore','-Igldcore/rt',"-fPIC"
 
 from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
-	include_dirs = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python','gldcore'])),
+	include_dirs = list(map(lambda x: srcdir+'/'+x,['python','gldcore'])),
 	extra_compile_args = compile_options,
 	libraries = ['ncurses', 'curl'],
-	sources = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python/python.cpp',
+	sources = list(map(lambda x: srcdir+'/'+x,['python/python.cpp',
 		'gldcore/aggregate.cpp',
 		'gldcore/class.cpp',
 		'gldcore/cmdarg.cpp',
