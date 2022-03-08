@@ -2,7 +2,6 @@ include gldcore/link/engine/Makefile.mk
 include gldcore/link/matlab/Makefile.mk
 include gldcore/link/python/Makefile.mk
 include gldcore/rt/Makefile.mk
-include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include gldcore/geodata/Makefile.mk
