@@ -63,6 +63,7 @@ include $(top_srcdir)/cloud/Makefile.mk
 include $(top_srcdir)/utilities/Makefile.mk
 include $(top_srcdir)/python/Makefile.mk
 include $(top_srcdir)/geodata/Makefile.mk
+include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk
