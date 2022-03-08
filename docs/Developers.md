@@ -8,6 +8,7 @@ Software developers and engineers are welcome to contribute to HiPAS GridLAB-D. 
   - [Projects](https://github.com/slacgismo/gridlabd/projects)
   - [Wiki](https://github.com/slacgismo/gridlabd)
   - [Team Discussions](https://github.com/slacgismo/teams/gridlab-d/discussions)
+  - [HiPAS GridLAB-D URLs](hhttps://s3.us-west-1.amazonaws.com/gridlabd.us/websites.txt)
 
 Developers should consult the [[/Developer/README]] for information about modifying and contributing to HiPAS GridLAB-D.
 
