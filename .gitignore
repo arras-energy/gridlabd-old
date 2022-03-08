@@ -132,7 +132,7 @@ autotest/test_*/
 gldcore/autotest/ceus.glm
 gldcore/autotest/ica_test.glm
 gldcore/autotest/test_output_save.csv
-gldcore/converters/autotest/IEEE-13-cyme.glm
+converters/autotest/IEEE-13-cyme.glm
 
 # widely found generic output files
 object_profile.txt
@@ -141,21 +141,21 @@ fault_check.txt
 # specific outputs that should be ignored
 gldcore/link/python/example.png
 models/ieee123/config/local.glm
-gldcore/converters/autotest/IEEE-*-cyme/*
+converters/autotest/IEEE-*-cyme/*
 gridlabd.glm
 gldcore/autotest/config.glm
 gldcore/autotest/modify.glm
 validate.zip.gz
-gldcore/converters/autotest/*.png
+converters/autotest/*.png
 validate.tar.gz
-gldcore/converters/autotest/weather_recorder.csv
-gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.csv
-gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.glm
-gldcore/converters/test_data.csv
-gldcore/converters/test_data.glm
-gldcore/converters/autotest/weather_recorder.csv
-gldcore/converters/noaa.csv
-gldcore/converters/noaa.glm
+converters/autotest/weather_recorder.csv
+converters/onpoint_history_postal-code_hour_201801010000-201812312359.csv
+converters/onpoint_history_postal-code_hour_201801010000-201812312359.glm
+converters/test_data.csv
+converters/test_data.glm
+converters/autotest/weather_recorder.csv
+converters/noaa.csv
+converters/noaa.glm
 gldcore/link/python/examples/example_2/example.png
 gldcore/link/python/examples/example_3/example.png
 gldcore/link/python/examples/example_3/x.csv
@@ -168,11 +168,11 @@ documents/gridlabd.md
 documents/gridlabd.pdf
 openfido.err
 test_*.html
-gldcore/converters/autotest/IEEE-123.html
-gldcore/converters/autotest/solver_nr_profile.csv
-gldcore/converters/autotest/table2glm_input_noclass.glm
-gldcore/converters/autotest/table2glm_input_noname.glm
-gldcore/converters/autotest/table2glm_input.glm
+converters/autotest/IEEE-123.html
+converters/autotest/solver_nr_profile.csv
+converters/autotest/table2glm_input_noclass.glm
+converters/autotest/table2glm_input_noname.glm
+converters/autotest/table2glm_input.glm
 gldcore/geodata/docs/geodata.conf
 gldcore/gridlabd.in
 geodata.conf
