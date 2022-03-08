@@ -138,6 +138,9 @@ converters/autotest/IEEE-13-cyme.glm
 object_profile.txt
 fault_check.txt
 
+# files that should be ignored by git
+*_ignore.*
+
 # specific outputs that should be ignored
 python/example.png
 models/ieee123/config/local.glm

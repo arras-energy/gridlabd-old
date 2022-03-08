@@ -1,0 +1,43 @@
+// Example: create_player.glm
+//
+// Load a panel of hourly loads as a CSV player
+//
+
+#ifexist ../test_create_player.csv
+#define DIR=..
+#endif
+
+#python -m create_player -i=${DIR:-.}/test_create_player.csv --stack -o=test_create_player_power_opt_ignore.csv -p=test_create_player_power_opt_ignore.glm -t=test
+
+class test
+{
+    double value;
+}
+
+module tape
+{
+    csv_header_type NONE;
+}
+
+object test
+{
+    name test;
+    object recorder
+    {
+        property "value";
+        file "test_create_player_out.csv";
+    };
+}
+
+#include "test_create_player_power_opt_ignore.glm"
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime ${test_create_player_startdate};
+    stoptime ${test_create_player_stopdate};
+}
+
+#ifexist ../test_create_player_out.csv
+#on_exit 0 diff ../test_create_player_out.csv test_create_player_out.csv > gridlabd.diff
+#endif
