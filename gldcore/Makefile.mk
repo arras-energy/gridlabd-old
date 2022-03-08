@@ -1,15 +1,10 @@
 include gldcore/link/engine/Makefile.mk
 include gldcore/link/matlab/Makefile.mk
 include gldcore/link/python/Makefile.mk
-include gldcore/rt/Makefile.mk
 include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include gldcore/geodata/Makefile.mk
-
-dist_pkgdata_DATA += gldcore/tzinfo.txt
-dist_pkgdata_DATA += gldcore/unitfile.txt
-dist_pkgdata_DATA += gldcore/gridlabd.cnf
 
 gridlabd_bin_SOURCES = 
 gridlabd_bin_SOURCES += gldcore/aggregate.cpp gldcore/aggregate.h
