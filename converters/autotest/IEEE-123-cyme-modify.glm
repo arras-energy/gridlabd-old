@@ -1,0 +1,2 @@
+// modifications to IEEE-123.mdb model to make it solve
+modify ND_610.nominal_voltage "277V";
