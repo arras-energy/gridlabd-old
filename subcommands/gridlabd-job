@@ -66,6 +66,7 @@ def runjob(jobid):
 		args.append(MODFILE)
 	elif MODFILE != "gridlabd-modify.glm":
 		error(1,f"{MODFILE} does not exist")
+		return 1
 	verbose(f"running '{' '.join(args)}'")
 	result = subprocess.run(args,capture_output=True,encoding="utf-8")
 	if result.stdout:
@@ -74,7 +75,7 @@ def runjob(jobid):
 		error(result.returncode,result.stderr.strip())
 	else:
 		error(None,result.stderr.strip())
-	return result
+	return result.returncode
 
 def initializer(verbose,debug,quiet,jobfile,cfgfile,modfile,workdir,glmlist,jobdata):
 	global VERBOSE
@@ -160,7 +161,10 @@ if __name__ == "__main__":
 				JOBDATA,
 				])
 			verbose(f"starting pool for {JOBDATA.index}")
-			JOBPOOL.map(runjob,JOBDATA.index)
+			results = JOBPOOL.map(runjob,JOBDATA.index)
+			for n in results:
+				if n != 0:
+					exit(n)
 		else:
 			for jobid in JOBDATA.index:
 				runjob(jobid)
