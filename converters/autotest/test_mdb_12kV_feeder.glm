@@ -1,0 +1,9 @@
+
+clock
+{
+	timezone "US/CA/Los Angeles";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2020-01-02 00:00:00 PST";
+}
+
+#input "sce_feeder_12kV.mdb" -t cyme TABLE:;POSTPROC:write_glm.py,network_graph.py;EXTRACT:non-empty;PNG_FIGSIZE:50x50;PNG_FONTSIZE:16;PNG_NODESIZE:30;PNG_NODECOLOR:byphase;PNG_LAYOUT:nodexy;GLM_MODIFY:test_mdb_12kV_feeder_modify.csv;GLM_ASSUMPTIONS:include
