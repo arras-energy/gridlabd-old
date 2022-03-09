@@ -26,12 +26,13 @@ NMSGS=0
 JOBDATA=None
 
 def error(code,msg):
-	text = f"ERROR [job]: {msg}"
-	if DEBUG or code == None:
+	text = f"ERROR [job]: {msg} (code {code})"
+	if DEBUG and code != 0:
 		raise Exception(text)
 	else:
 		print(text,file=sys.stderr)
-	exit(code)
+	if type(code) is int:
+		exit(code)
 
 def warning(msg):
 	if not QUIET:
@@ -62,12 +63,14 @@ def runjob(jobid):
 	if os.path.exists(MODFILE):
 		args.append(MODFILE)
 	elif MODFILE != "gridlabd-modify.glm":
-		error(f"{MODFILE} does not exist")
+		error(1,f"{MODFILE} does not exist")
 	verbose(f"running '{' '.join(args)}'")
 	result = subprocess.run(args,capture_output=True,encoding="utf-8")
 	if result.stdout:
 		output(result.stdout.strip())
-	if result.stderr:
+	if result.stderr and result.returncode != 0:
+		error(result.returncode,result.stderr.strip())
+	else:
 		error(None,result.stderr.strip())
 	return result
 
@@ -92,6 +95,7 @@ def initializer(verbose,debug,quiet,jobfile,cfgfile,modfile,workdir,glmlist,jobd
 	JOBDATA = jobdata
 
 if __name__ == "__main__":
+	freeze_support()
 	n = 1
 	while n < len(sys.argv):
 		if sys.argv[n] in ["-h","--help"]:
@@ -137,7 +141,6 @@ if __name__ == "__main__":
 		os.chdir(WORKDIR)
 		verbose(f"reading '{JOBFILE}'")
 		JOBDATA = pd.read_csv(JOBFILE)
-		freeze_support()
 		if THREADS == 0:
 			THREADS = os.cpu_count()
 		elif THREADS > os.cpu_count():
