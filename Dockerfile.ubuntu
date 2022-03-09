@@ -1,4 +1,4 @@
-FROM debian:11
+FROM ubuntu:20.04
 
 RUN apt-get -q update
 
@@ -48,7 +48,7 @@ RUN	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 RUN	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 
 # config gdal
-# RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
+RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
 RUN	/usr/local/bin/python3 -m pip install --upgrade pip
 RUN	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
@@ -60,14 +60,13 @@ WORKDIR /usr/local/src
 
 # RUN	/usr/local/bin/python3 -m pip install geopandas
 
-RUN git clone -b develop https://github.com/slacgismo/gridlabd.git
+RUN git clone https://github.com/slacgismo/gridlabd.git
 
 WORKDIR /usr/local/src/gridlabd
 # COPY ./requirements.txt ./requirements.txt
 # COPY ./gldcore/geodata/geodata_utility.py ./gldcore/geodata/geodata_utility.py 
 # COPY ./gldcore/geodata/requirements.txt ./gldcore/geodata/requirements.txt
 # COPY ./gldcore/scripts/requirements.txt ./gldcore/scripts/requirements.txt
-COPY ./subcommands/autotest/test_matrix_linalg.glm ./subcommands/autotest/test_matrix_linalg.glm 
-
+COPY ./install.sh ./install.sh
 RUN autoreconf -isf && ./configure
 RUN make -j6 system
