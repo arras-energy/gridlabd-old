@@ -31,8 +31,10 @@ def error(code,msg):
 		raise Exception(text)
 	else:
 		print(text,file=sys.stderr)
-	if type(code) is int:
+	try:
 		exit(code)
+	except:
+		return None
 
 def warning(msg):
 	if not QUIET:
