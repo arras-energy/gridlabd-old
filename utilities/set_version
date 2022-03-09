@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE="gldcore/version.h"
+FILE="source/version.h"
 PACKAGE_NAME=`cat $FILE | sed -En 's/#define PACKAGE_NAME "([-A-Za-z ]+).*"/\1/p' | tr -d '\n'`
 PACKAGE=`cat $FILE | sed -En 's/#define PACKAGE "([a-z]+).*"/\1/p' | tr -d '\n'`
 REV_MAJOR=`cat $FILE | sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' | tr -d '\n'`
