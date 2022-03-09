@@ -3,6 +3,6 @@ SUBLIME_SOURCE = utilities/sublime/GLM.sublime-syntax
 
 sublime-syntax: $(SUBLIME_SYNTAX)
 
-$(SUBLIME_SYNTAX): gldcore/load.cpp
+$(SUBLIME_SYNTAX): source/load.cpp
 	@echo "Updating sublime syntax"
 	@gridlabd --sublime_syntax > "$@" || echo "ERROR: you need to install sublime package manager first"

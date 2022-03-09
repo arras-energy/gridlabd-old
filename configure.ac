@@ -44,8 +44,8 @@ m4_define([pkgorigin],sbuild_m4_esyscmd_s([git rev-parse --abbrev-ref HEAD]))
 
 AC_PREREQ([2.63])
 AC_INIT(pkgname, pkgversion, [gridlabd@gmail.com], pkg)
-AC_CONFIG_SRCDIR([gldcore/gridlabd.h])
-AC_CONFIG_HEADER([gldcore/config.h])
+AC_CONFIG_SRCDIR([source/gridlabd.h])
+AC_CONFIG_HEADER([source/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -644,5 +644,5 @@ LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
-AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
+AC_CONFIG_FILES([source/gridlabd], [chmod +x source/gridlabd])
 AC_OUTPUT
