@@ -114,9 +114,9 @@ pkginclude_HEADERS += source/version.h
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 
-source/gridlabd.in: source/gridlabd.m4sh
-	@autom4te -l m4sh $< > $@
-	@echo "$@ updated, please run 'make reconfigure && make TARGET' again" && false
+# source/gridlabd.in: source/gridlabd.m4sh
+# 	@autom4te -l m4sh $< > $@
+# 	@echo "$@ updated, please run 'make reconfigure && make TARGET' again" && false
 
 source/build.h: buildnum
 
