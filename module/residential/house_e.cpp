@@ -28,6 +28,9 @@ double house_e::sump_humidity_factor = 0.01; // pu/h/%
 double house_e::sump_rainfall_factor = 1.0; // pu/in/day
 double house_e::sump_snowmelt_factor = 0.1; // pu/in/day
 
+// curtailment (default only things occupants control directly -- no automation)
+set house_e::curtailment_enduses = IEU_DISHWASHER|IEU_MICROWAVE|IEU_RANGE|IEU_EVCHARGER|IEU_CLOTHESWASHER|IEU_DRYER;
+
 static char *strlwr(char *s)
 {
 	for ( char *r = s ; *r != '\0' ; r++ ) 
@@ -981,6 +984,25 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			NULL);
 		gl_global_create("residential::sump_snowmelt_factor",PT_double,&sump_snowmelt_factor,PT_UNITS,"pu/in/day",
 			PT_DESCRIPTION, "the rate at which the sump level rises as a function of snowmelt",
+			NULL);
+		gl_global_create("residential::curtailment_enduses",PT_set,&curtailment_enduses,
+			PT_KEYWORD, "ALL", (set)IEU_ALL,
+			PT_KEYWORD, "TYPICAL", (set)IEU_TYPICAL,
+			PT_KEYWORD, "LIGHTS", (set)IEU_LIGHTS,
+			PT_KEYWORD, "PLUGS", (set)IEU_PLUGS,
+			PT_KEYWORD, "OCCUPANCY", (set)IEU_OCCUPANCY,
+			PT_KEYWORD, "DISHWASHER", (set)IEU_DISHWASHER,
+			PT_KEYWORD, "MICROWAVE", (set)IEU_MICROWAVE,
+			PT_KEYWORD, "FREEZER", (set)IEU_FREEZER,
+			PT_KEYWORD, "REFRIGERATOR", (set)IEU_REFRIGERATOR,
+			PT_KEYWORD, "RANGE", (set)IEU_RANGE,
+			PT_KEYWORD, "EVCHARGER", (set)IEU_EVCHARGER,
+			PT_KEYWORD, "WATERHEATER", (set)IEU_WATERHEATER,
+			PT_KEYWORD, "CLOTHESWASHER", (set)IEU_CLOTHESWASHER,
+			PT_KEYWORD, "DRYER", (set)IEU_DRYER,
+			PT_KEYWORD, "SUMP", (set)IEU_SUMP,
+			PT_KEYWORD, "NONE", (set)0,
+			PT_DESCRIPTION, "list of implicit enduses that are active in houses",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)

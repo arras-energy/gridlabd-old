@@ -74,7 +74,9 @@ EXPORT SIMULATIONMODE interupdate_house_e(OBJECT *obj, unsigned int64 delta_time
 EXPORT STATUS postupdate_house_e(OBJECT *obj);
 
 class house_e : public residential_enduse { /*inherits due to HVAC being a load */
+
 public:
+
 	object weather; ///< reference to the climate
 	PANEL panel; ///< main house_e panel
 	/// Get voltage on a circuit
@@ -95,7 +97,10 @@ public:
 	static double sump_humidity_factor; ///< humidity coefficient for sump level rise (pu/h/%)
 	static double sump_rainfall_factor; ///< rainfall coefficient for sump level rise (pu/in/day)
 	static double sump_snowmelt_factor; ///< snowmelt coefficient for sump level rise (pu/in/day)
+	static set curtailment_enduses; ///< enduses which are curtailable
+
 public:
+
 	// building design variables
 	double floor_area;							///< house_e floor area (ft^2)
 	double envelope_UA;							///< envelope UA (BTU.sq.ft/hr.ft2)
