@@ -104,21 +104,23 @@ def look_ahead(M, Y, K, l):
     return Y, M
 
 
-def identify(Y, X, K=24, l=0):
+def identify(Y, U, K=24, l=0):
     """
     Fit a discrete time transfer function of the form
-    FILL IN
-    to known value of X and Y.
+    Y(z) = -a1*Y(z^-1) - a2*Y(z^-2) - ... - aK*Y(z^-K) + b0*U(z) + b1*U(z-1) + ... + bK*U(z^-k)
+    to known value of U and Y.
 
     ARGUMENTS:
 
         Y (matrix) is the output (Lx1)
-        X (matrix) are the inputs (LxKxM) where M is the number of input variables
+        U (matrix) are the inputs (LxKxM) where M is the number of input variables
         K (int) is the desired order of the transfer function
     """
     length = len(Y)
+    if length < K:
+        warning("There is insufficient data for the specified K value.")
     M = np.hstack([np.hstack([Y[n:length - K + n] for n in range(1, K + 1)]),
-                   np.hstack([X[n:length - K + n] for n in range(K + 1)])])
+                   np.hstack([U[n:length - K + n] for n in range(K + 1)])])
 
     Y, M = look_ahead(M, Y, K, l)
     x = np.linalg.lstsq(M, Y)[0]
@@ -391,7 +393,6 @@ if __name__ == '__main__':
                 U = []
                 for input_name in input_names:
                     U.append(np.matrix(data[input_name]).transpose())
-                plot_results(Y, U, K)
                 x, Y, M = identify(Y, np.hstack(U), K, lookahead)
 
             except Exception as err:
