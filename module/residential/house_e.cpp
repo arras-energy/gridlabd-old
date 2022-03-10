@@ -19,7 +19,7 @@ double paneldump_resolution = 0.1; // minimum change measurement can detect
 FILE *paneldump_fh = NULL;
 
 // list of enduses that are implicitly active
-set house_e::implicit_enduses_active = IEU_ALL;
+set house_e::implicit_enduses_active = IEU_TYPICAL;
 enumeration house_e::implicit_enduse_source = IES_ELCAP1990;
 static double aux_cutin_temperature = 10;
 
@@ -903,6 +903,8 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 
 		gl_publish_function(oclass,	"attach_enduse", (FUNCTIONADDR)attach_enduse_house_e);
 		gl_global_create("residential::implicit_enduses",PT_set,&implicit_enduses_active,
+			PT_KEYWORD, "ALL", (set)IEU_ALL,
+			PT_KEYWORD, "TYPICAL", (set)IEU_TYPICAL,
 			PT_KEYWORD, "LIGHTS", (set)IEU_LIGHTS,
 			PT_KEYWORD, "PLUGS", (set)IEU_PLUGS,
 			PT_KEYWORD, "OCCUPANCY", (set)IEU_OCCUPANCY,
@@ -915,6 +917,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD, "WATERHEATER", (set)IEU_WATERHEATER,
 			PT_KEYWORD, "CLOTHESWASHER", (set)IEU_CLOTHESWASHER,
 			PT_KEYWORD, "DRYER", (set)IEU_DRYER,
+			PT_KEYWORD, "SUMP", (set)IEU_SUMP,
 			PT_KEYWORD, "NONE", (set)0,
 			PT_DESCRIPTION, "list of implicit enduses that are active in houses",
 			NULL);

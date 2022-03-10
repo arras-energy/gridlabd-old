@@ -45,9 +45,11 @@ typedef enum e_implicit_enduse_flag {
 	// queued loads (queued aperiodic loads) - bits 48-63
 	IEU_CLOTHESWASHER	= 0x01000000, ///< implicit clotheswasher load
 	IEU_DRYER			= 0x02000000, ///< implicit dryer load
+	IEU_SUMP	        = 0x04000000, ///< implicit sump pump load
 
 	/// @todo add other implicit enduse flags as they are defined
-	IEU_ALL				= 0x03170303, ///< all (needed to filter)
+	IEU_TYPICAL			= 0x03170303, ///< typical (default)
+	IEU_ALL				= 0x071f0307, ///< all (needed to filter)
 } IMPLICITENDUSEFLAGS; ///< values for implicit_enduses_active set
 
 typedef enum e_implicit_enduse_source {
