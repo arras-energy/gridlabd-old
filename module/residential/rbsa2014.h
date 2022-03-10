@@ -401,12 +401,6 @@ static IMPLICITENDUSEDATA rbsa2014[] = {
 		"* 20 * 10-3 6-0 0.050;	* 21 * 10-3 6-0 0.033; * 22 * 10-3 6-0 0.022; * 23 * 10-3 6-0 0.014"
 		"}"
 	},
-	{	"SUMP",
-		{20,false,{0,0,1},0.9,0.0},
-		"type:analog; schedule: residential-sump-default; power: 0.8 kW",
-		"residential-sump-default",
-		"positive; nonzero; interpolated; * * * * * 1.0;"
-	},
 	/// @todo add other implicit enduse schedules and shapes as they are defined
 	{NULL}
 };
