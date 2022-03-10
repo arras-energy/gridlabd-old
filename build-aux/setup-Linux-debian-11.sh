@@ -49,6 +49,8 @@ apt-get install liblzma-dev -y
 apt-get install libbz2-dev -y
 apt-get install libncursesw5-dev -y
 apt-get install xz-utils -y
+# Install gdal for mac osx m1 platform.
+apt-get install libgdal-dev -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
