@@ -1,0 +1,9 @@
+#ifexist ../test_xls-spida2csv-geodata.xls
+#define DIR=..
+#endif
+
+#convert --debug ${DIR:-.}/test_xls-spida2csv-geodata.xls test_xls-spida2csv-geodata.csv -f xls-spida -t csv-geodata
+
+#ifdef ../test_xls-spida2csv-geodata.xls
+#on_exit 0 diff -q ${DIR:-.}/test_xls-spida2csv-geodata.csv test_xls-spida2csv-geodata.csv 
+#endif

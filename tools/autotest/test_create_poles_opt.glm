@@ -1,0 +1,1532 @@
+// automatically generated model from command `/usr/local/opt/gridlabd/4.2.31-220305-develop_fix_repo_structure/share/gridlabd/create_poles.py ./ieee13.glm --spacing=100 --pole_type=WOOD-EC-45/4 --weather=example --mount_data=./test_create_poles_mounts.csv --pole_data=./test_create_poles.csv --ignore_location --output=test_create_poles_opt.glm` on 2022-03-06 08:08:57 
+#include "/usr/local/opt/gridlabd/4.2.31-220305-develop_fix_repo_structure/share/gridlabd/library/US/CA/SLAC/pole_configuration.glm"
+object pole
+{
+    name "pole_Load671";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_switch1";
+        equipment "switch1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line5_Load671";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line6_Load671";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line7_Load671";
+        equipment "overhead_line7";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node633";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_XFMR1";
+        equipment "XFMR1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "10 sf";
+        direction "0 deg";
+        weight "350 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line11_Node633";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node650";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_Reg1";
+        equipment "Reg1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node632";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_Node632";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line3_Node632";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line4_Node632";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line11_Node632";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line1_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "2 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_100";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line1_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "2 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_200";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line1_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "2 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_300";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line1_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "2 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_400";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Load645";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "1 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line1_Load645";
+        equipment "overhead_line1";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line2_Load645";
+        equipment "overhead_line2";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line2_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "1 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line2_100";
+        equipment "overhead_line2";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line2_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "1 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line2_200";
+        equipment "overhead_line2";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Load646";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2010";
+    tilt_angle "1 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line2_Load646";
+        equipment "overhead_line2";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node630";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_Node630";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_100";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_200";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_300";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_400";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_500";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_500";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_600";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_600";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_700";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_700";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_800";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_800";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_900";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_900";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1000";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1000";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1100";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1200";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1300";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1400";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1500";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1500";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1600";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1600";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1700";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1700";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1800";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1800";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line3_1900";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line3_1900";
+        equipment "overhead_line3";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line4_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line4_100";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line4_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line4_200";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line4_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line4_300";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line4_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line4_400";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Load6321";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line4_Load6321";
+        equipment "overhead_line4";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line5_Load6321";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_100";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_200";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_300";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_400";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_500";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_500";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_600";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_600";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_700";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_700";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_800";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_800";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_900";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_900";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_1000";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_1000";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_1100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_1100";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_1200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_1200";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_1300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_1300";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line5_1400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line5_1400";
+        equipment "overhead_line5";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_100";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_200";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_300";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_400";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_500";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_500";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_600";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_600";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_700";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_700";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_800";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_800";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line6_900";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_900";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node680";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line6_Node680";
+        equipment "overhead_line6";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line7_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line7_100";
+        equipment "overhead_line7";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line7_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line7_200";
+        equipment "overhead_line7";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Node684";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line7_Node684";
+        equipment "overhead_line7";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+    object pole_mount
+    {
+        name "mount_overhead_line8_Node684";
+        equipment "overhead_line8";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line8_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line8_100";
+        equipment "overhead_line8";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line8_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line8_200";
+        equipment "overhead_line8";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_Load611";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line8_Load611";
+        equipment "overhead_line8";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line11_100";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line11_100";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line11_200";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line11_200";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line11_300";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line11_300";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}
+object pole
+{
+    name "pole_overhead_line11_400";
+    configuration "WOOD-EC-45/4";
+    weather "example";
+    install_year "2000";
+    tilt_angle "0 deg";
+    tilt_direction "0 deg";
+    object pole_mount
+    {
+        name "mount_overhead_line11_400";
+        equipment "overhead_line11";
+        pole_spacing "100.0 ft";
+        height "40 ft";
+        offset "0 ft";
+        area "0 sf";
+        direction "0 deg";
+        weight "0 lb";
+    };
+}

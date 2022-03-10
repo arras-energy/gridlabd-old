@@ -1,0 +1,73 @@
+#ifexist "../test_metrics_meter_violation_detected.csv"
+#define DIR=".."
+#endif
+
+clock
+{
+	timezone "US/CA/Los Angeles";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+
+module powerflow;
+
+object triplex_meter
+{
+	name "meter_1";
+	bustype SWING;
+	nominal_voltage 120 V;
+	phases AS;
+	object triplex_load
+	{
+		nominal_voltage 120 V;
+		phases AS;
+		constant_power_12 1200+100j VA;
+	};
+}
+
+module resilience
+{
+	metrics_cost_data "${DIR:-.}/test_metrics_cost_data.csv";
+}
+
+object metrics
+{
+	report_file "test_metrics_report.csv";
+	report_frequency "MONTHLY";
+	object outage
+	{
+		asset_class "triplex_meter";
+	};
+	object cost
+	{
+		asset_class "triplex_meter";
+	};
+	object impact
+	{
+		node "meter_1";
+	};
+}
+
+module tape
+{
+	csv_header_type NAME;
+}
+
+object player
+{
+	parent "meter_1";
+	property "violation_detected";
+	file "${DIR:-.}/test_metrics_meter_violation_detected.csv";
+}
+object recorder
+{
+	parent "meter_1";
+	property "measured_power";
+	file "test_metrics_meter.csv";
+	interval 3600;
+}
+
+#ifexist ../test_metrics.csv
+#on_exit 0 diff -q ../test_metrics_report.csv test_metrics_report.csv
+#on_exit 0 diff -q ../test_metrics_meter.csv test_metrics_meter.csv
+#endif
