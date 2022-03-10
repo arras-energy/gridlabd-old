@@ -29,7 +29,8 @@ double house_e::sump_rainfall_factor = 1.0; // pu/in/day
 double house_e::sump_snowmelt_factor = 0.1; // pu/in/day
 
 // curtailment (default only things occupants control directly -- no automation)
-set house_e::curtailment_enduses = IEU_DISHWASHER|IEU_MICROWAVE|IEU_RANGE|IEU_EVCHARGER|IEU_CLOTHESWASHER|IEU_DRYER;
+char1024 house_e::curtailment_enduses = "DISHWASHER|MICROWAVE|RANGE|EVCHARGER|CLOTHESWASHER|DRYER";
+bool house_e::curtailment_active = FALSE;
 
 static char *strlwr(char *s)
 {
@@ -985,24 +986,11 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 		gl_global_create("residential::sump_snowmelt_factor",PT_double,&sump_snowmelt_factor,PT_UNITS,"pu/in/day",
 			PT_DESCRIPTION, "the rate at which the sump level rises as a function of snowmelt",
 			NULL);
-		gl_global_create("residential::curtailment_enduses",PT_set,&curtailment_enduses,
-			PT_KEYWORD, "ALL", (set)IEU_ALL,
-			PT_KEYWORD, "TYPICAL", (set)IEU_TYPICAL,
-			PT_KEYWORD, "LIGHTS", (set)IEU_LIGHTS,
-			PT_KEYWORD, "PLUGS", (set)IEU_PLUGS,
-			PT_KEYWORD, "OCCUPANCY", (set)IEU_OCCUPANCY,
-			PT_KEYWORD, "DISHWASHER", (set)IEU_DISHWASHER,
-			PT_KEYWORD, "MICROWAVE", (set)IEU_MICROWAVE,
-			PT_KEYWORD, "FREEZER", (set)IEU_FREEZER,
-			PT_KEYWORD, "REFRIGERATOR", (set)IEU_REFRIGERATOR,
-			PT_KEYWORD, "RANGE", (set)IEU_RANGE,
-			PT_KEYWORD, "EVCHARGER", (set)IEU_EVCHARGER,
-			PT_KEYWORD, "WATERHEATER", (set)IEU_WATERHEATER,
-			PT_KEYWORD, "CLOTHESWASHER", (set)IEU_CLOTHESWASHER,
-			PT_KEYWORD, "DRYER", (set)IEU_DRYER,
-			PT_KEYWORD, "SUMP", (set)IEU_SUMP,
-			PT_KEYWORD, "NONE", (set)0,
+		gl_global_create("residential::curtailment_enduses",PT_char1024,(const char*)curtailment_enduses,
 			PT_DESCRIPTION, "list of implicit enduses that are active in houses",
+			NULL);
+		gl_global_create("residential::curtailment_active",PT_bool,&curtailment_active,
+			PT_DESCRIPTION, "flag to indicate that enduse curtailment is active",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)
@@ -2086,10 +2074,10 @@ int house_e::init(OBJECT *parent)
 		}
 	}
 
-	// zero out gas enduses
 	CIRCUIT *circuit;
 	for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
 	{
+		// zero out gas enduses
 		if ( circuit->pLoad && circuit->pLoad->name )
 		{
 			if ( strstr(gas_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
@@ -2101,6 +2089,19 @@ int house_e::init(OBJECT *parent)
 			{
 				debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
 				circuit->pLoad->gas_fraction = 0.0;
+			}
+		}
+
+		// flag curtailable enduses
+		if ( circuit->pLoad && circuit->pLoad->name )
+		{
+			if ( strstr(curtailment_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
+			{
+				circuit->pLoad->curtailment_fraction = 1.0;
+			}
+			else
+			{
+				circuit->pLoad->curtailment_fraction = 0.0;
 			}
 		}
 	}
@@ -3521,39 +3522,36 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			}
 
 			// add to panel current
-			else
+			else 
 			{
+				double curtailment = ( curtailment_active ? c->pLoad->curtailment_fraction : 0.0 );
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
 				if ( (int)c->type == 0 )	//1-2 240 V load
 				{
-					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 				else if ( (int)c->type == 1 )	//2-N 120 V load
 				{
-					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 				else	//n has to equal 2 here (checked above) - 1-N 120 V load
 				{
-					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 
-				//load_values[0][1] += c->pLoad->power * 1000.0;
-				//load_values[1][1] += ~(c->pLoad->current * 1000.0 / V);
-				//load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (V*V));
-
-				total.total += c->pLoad->total;
-				total.power += c->pLoad->power;
-				total.current += c->pLoad->current;
-				total.admittance += c->pLoad->admittance;
-				if((t0 != 0 && t1 > t0) || (!heat_start))
+				total.total += c->pLoad->total * curtailment;
+				total.power += c->pLoad->power * curtailment;
+				total.current += c->pLoad->current * curtailment;
+				total.admittance += c->pLoad->admittance * curtailment;
+				if ( ( t0 != 0 && t1 > t0 ) || ( ! heat_start ) )
 				{
 					total.heatgain += c->pLoad->heatgain;
 				}
@@ -3561,7 +3559,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 
 				// perform measurements
 				c->measurement[0].t = t1;
-				c->measurement[0].power = actual_power;
+				c->measurement[0].power = actual_power * curtailment;
 				if ( c->measurement[1].t == 0 ) // reset energy accumulator (for diff interval measurements)
 				{
 					c->measurement[0].energy = 0;

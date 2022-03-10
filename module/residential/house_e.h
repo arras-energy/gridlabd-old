@@ -97,7 +97,8 @@ public:
 	static double sump_humidity_factor; ///< humidity coefficient for sump level rise (pu/h/%)
 	static double sump_rainfall_factor; ///< rainfall coefficient for sump level rise (pu/in/day)
 	static double sump_snowmelt_factor; ///< snowmelt coefficient for sump level rise (pu/in/day)
-	static set curtailment_enduses; ///< enduses which are curtailable
+	static char1024 curtailment_enduses; ///< enduses which are curtailable
+	static bool curtailment_active; ///< flag to indicate enduses should be curtailed
 
 public:
 
@@ -238,6 +239,7 @@ public:
 
 	/* inherited res_enduse::load is hvac system load */
 	double hvac_load;
+	double sump_load;
 	double total_load;
 	enduse total; /* total load */
 	double heating_demand;
