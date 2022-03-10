@@ -14,8 +14,7 @@
 #assert $(gridlabd matrix -f linalg.det "1,2;-2,5") == '9'
 
 // linalg.eig <matrix>
-#assert $(gridlabd matrix -f linalg.eig "1,2;-2,5" | head -n 1) == '3+2.9802322e-08j,3-2.9802322e-08'
-// #assert $(gridlabd matrix -f linalg.eig "1,2;-2,5" | tr '\n' ';') == '3+2.9802322e-08j,3-2.9802322e-08j;0.70710678+0j,0.70710678-0j;0.70710678+1.0536712e-08j,0.70710678-1.0536712e-08j;'
+#assert $(gridlabd matrix -f linalg.eig "1,2;-2,5" | gridlabd matrix real) == '3,3'
 
 // linalg.eigh <matrix> UPLO=<str>
 #assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' | tr '\n' ';') == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
@@ -23,7 +22,7 @@
 #assert $(gridlabd matrix -f linalg.eigh '1,2;-2,5' UPLO=L | tr '\n' ';') == '0.17157288,5.8284271;-0.92387953,-0.38268343;-0.38268343,0.92387953;'
 
 // linalg.eigvals <matrix>
-#assert $(gridlabd matrix -f linalg.eigvals "1,2;-2,5") == '3+2.9802322e-08j,3-2.9802322e-08j'
+#assert $(gridlabd matrix -f linalg.eigvals "1,2;-2,5"| gridlabd matrix real) == '3,3'
 
 // linalg.eigvalsh <matrix> UPLO=<str>
 #assert $(gridlabd matrix -f linalg.eigvalsh "1,2;-2,5") == '0.17157288,5.8284271'
