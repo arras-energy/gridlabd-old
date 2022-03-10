@@ -92,6 +92,9 @@ public:
 	IMPLICITENDUSE *implicit_enduse_list;	///< implicit enduses
 	static set implicit_enduses_active;		///< implicit enduses that are to be activated
 	static enumeration implicit_enduse_source; ///< source of implicit enduses (e.g., ELCAP1990, ELCAP2010, RBSA2014)
+	static double sump_humidity_factor; ///< humidity coefficient for sump level rise (pu/h/%)
+	static double sump_rainfall_factor; ///< rainfall coefficient for sump level rise (pu/in/day)
+	static double sump_snowmelt_factor; ///< snowmelt coefficient for sump level rise (pu/in/day)
 public:
 	// building design variables
 	double floor_area;							///< house_e floor area (ft^2)
@@ -250,6 +253,19 @@ public:
 	/* Energy Storage Variable */
 	double thermal_storage_present;		//Indication of if thermal storage is present and available for drawing
 	double thermal_storage_inuse;		//Flag to indicate thermal storage is being pulled at the moment
+
+	/* Sump pump variables */
+	double sump_runtime; // average runtime of the sump pump when the level is 1.0
+	double sump_state; // sump level (0.0 is empty, 1.0 is full)
+	double sump_power; // sump power
+	enumeration sump_status; // sump run statue (0=OFF, 1=ON)
+
+	typedef enum e_sump_status
+	{
+		SS_NONE = 0,
+		SS_OFF = 1,
+		SS_ON = 2,
+	} SUMPSTATUS;
 
 	typedef enum e_system_type {
 		ST_NONE = 0x00000000,	///< flag to indicate no system is installed
@@ -460,6 +476,7 @@ public:
 	TIMESTAMP sync_enduses(TIMESTAMP t0, TIMESTAMP t1);
 	void update_system(double dt=0);
 	void update_model(double dt=0);
+	void update_sump(double dt=0);
 	void check_controls(void);
 	void update_Tevent(void);
 

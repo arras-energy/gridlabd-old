@@ -23,6 +23,11 @@ set house_e::implicit_enduses_active = IEU_TYPICAL;
 enumeration house_e::implicit_enduse_source = IES_ELCAP1990;
 static double aux_cutin_temperature = 10;
 
+// sump pump level rate factors
+double house_e::sump_humidity_factor = 0.01; // pu/h/%
+double house_e::sump_rainfall_factor = 1.0; // pu/in/day
+double house_e::sump_snowmelt_factor = 0.1; // pu/in/day
+
 static char *strlwr(char *s)
 {
 	for ( char *r = s ; *r != '\0' ; r++ ) 
@@ -800,6 +805,21 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"hvac_duty_cycle",PADDR(hvac_duty_cycle), 
 				PT_OUTPUT, 
 
+			PT_double,"sump_runtime[s]",PADDR(sump_runtime),
+				PT_DEFAULT,"+1 s",
+				PT_DESCRIPTION,"sump pump runtime when sump_level reaches 1.0",
+			PT_double,"sump_state[pu]",PADDR(sump_state),
+				PT_DESCRIPTION,"sump pit fill state",
+			PT_double,"sump_power[W]",PADDR(sump_power),
+				PT_DEFAULT, "+800 W",
+				PT_DESCRIPTION,"sump pump rated power",
+			PT_enumeration,"sump_status",PADDR(sump_status),
+				PT_DEFAULT,"NONE",
+				PT_DESCRIPTION,"sump running status",
+				PT_KEYWORD,"NONE",(enumeration)SS_NONE,
+				PT_KEYWORD,"ON",(enumeration)SS_ON,
+				PT_KEYWORD,"OFF",(enumeration)SS_OFF,
+
 			// these are hidden so we can spy on ETP
 			PT_double,"a",PADDR(a),
 				PT_OUTPUT, 
@@ -951,6 +971,16 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			NULL);
 		gl_global_create("residential::paneldump_resolution",PT_double,&paneldump_interval,
 			PT_DESCRIPTION, "the resolution at which the paneldump is performed (differences less than this are ignored)",
+			NULL);
+
+		gl_global_create("residential::sump_humidity_factor",PT_double,&sump_humidity_factor,PT_UNITS,"pu/%/h",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of relative humidity",
+			NULL);
+		gl_global_create("residential::sump_rainfall_factor",PT_double,&sump_rainfall_factor,PT_UNITS,"pu/in/day",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of rainfall",
+			NULL);
+		gl_global_create("residential::sump_snowmelt_factor",PT_double,&sump_snowmelt_factor,PT_UNITS,"pu/in/day",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of snowmelt",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)
@@ -1900,7 +1930,25 @@ int house_e::init(OBJECT *parent)
 				break;
 		}
 	}
-				
+	
+	// Sump pump
+	if ( sump_runtime <= 0 )
+	{
+		error("sump runtime must be positive");
+	}
+	if ( sump_state == 0 )
+	{
+		sump_state = gl_random_uniform(RNGSTATE,0.0,1.0);
+	}
+	else if ( sump_state < 0 )
+	{
+		// random uniform value between 0 and -STATE
+		sump_state = gl_random_uniform(RNGSTATE,0.0,-sump_state);
+	}
+	if ( sump_power <= 0 )
+	{
+		error("sump power must be positive");
+	}
 
 	// calculate thermal constants
 #define Ca (air_thermal_mass)
@@ -1947,10 +1995,12 @@ int house_e::init(OBJECT *parent)
 	// connect any implicit loads
 	attach_implicit_enduses();
 	update_system();
-	if(error_flag == 1){
+	if ( error_flag == 1 )
+	{
 		return 0;
 	}
 	update_model();
+	update_sump();
 	
 	// attach the house_e HVAC to the panel
 	if (hvac_breaker_rating == 0)
@@ -2608,6 +2658,35 @@ void house_e::update_system(double dt)
 	}
 }
 
+void house_e::update_sump(double dt)
+{
+	if ( sump_status == SS_NONE )
+	{
+		return;
+	}
+	if ( dt > 0 )
+	{
+		// TODO: get humidity, rainfall, and snowmelt from climate object
+		if ( sump_status == SS_ON )
+		{
+			double humidity = 0.0;
+			double rainfall = 0.0;
+			double snowmelt = 0.0;
+			double dstate = humidity*sump_humidity_factor + rainfall*sump_rainfall_factor/24 + snowmelt*sump_snowmelt_factor/24;
+			sump_state += dstate * dt/3600;
+		}
+	}
+	if ( sump_state > 1.0 )
+	{
+		sump_status = SS_ON;
+	}
+	else if ( sump_state <= 0 )
+	{
+		sump_state = 0.0;
+		sump_status = SS_OFF;
+	}
+}
+
 /**  Updates the aggregated power from all end uses, calculates the HVAC kWh use for the next synch time
 **/
 TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1) 
@@ -2840,7 +2919,9 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 		// update the state of the system
 		update_system(dt1);
-		if(error_flag == 1){
+		update_sump(dt1);
+		if ( error_flag == 1 )
+		{
 			return TS_INVALID;
 		}
 	}
