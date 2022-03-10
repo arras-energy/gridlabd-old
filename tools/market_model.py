@@ -92,39 +92,47 @@ import pandas as pd
 from datetime import datetime, timedelta
 import random
 
-np.set_printoptions(edgeitems=12, linewidth=1000, formatter={"float_kind": (lambda x: f"{x:7.4g}")})
+np.set_printoptions(
+    edgeitems=12, linewidth=1000, formatter={"float_kind": (lambda x: f"{x:7.4g}")}
+)
 
 
 def look_ahead(M, Y, K, l):
-    """Modify the Y and M matrices to forecast for 'l' days ahead. """
+    """Modify the Y and M matrices to forecast for 'l' days ahead."""
     Y = Y[:-K]
     for n in range(l - 1):
         Y = np.insert(Y, 0, M[:, n].T, axis=1)
-    M = M[:, l - 1:]
+    M = M[:, l - 1 :]
     return Y, M
 
 
-def identify(Y, X, K=24, l=0):
+def identify(Y, U, K=24, l=0):
     """
     Fit a discrete time transfer function of the form
-    FILL IN
-    to known value of X and Y.
+    Y(z) = -a1*Y(z^-1) - a2*Y(z^-2) - ... - aK*Y(z^-K) + b0*U(z) + b1*U(z-1) + ... + bK*U(z^-k)
+    to known value of U and Y.
 
     ARGUMENTS:
 
         Y (matrix) is the output (Lx1)
-        X (matrix) are the inputs (LxKxM) where M is the number of input variables
+        U (matrix) are the inputs (LxKxM) where M is the number of input variables
         K (int) is the desired order of the transfer function
     """
     length = len(Y)
-    M = np.hstack([np.hstack([Y[n:length - K + n] for n in range(1, K + 1)]),
-                   np.hstack([X[n:length - K + n] for n in range(K + 1)])])
+    if length < K:
+        warning("There is insufficient data for the specified K value.")
+    M = np.hstack(
+        [
+            np.hstack([Y[n : length - K + n] for n in range(1, K + 1)]),
+            np.hstack([U[n : length - K + n] for n in range(K + 1)]),
+        ]
+    )
 
     Y, M = look_ahead(M, Y, K, l)
     x = np.linalg.lstsq(M, Y)[0]
 
     if debug_enabled:
-        print(np.hstack([M, Y[K + 1:]]), file=sys.stderr)
+        print(np.hstack([M, Y[K + 1 :]]), file=sys.stderr)
         print(x.transpose(), file=sys.stderr)
 
     return x, Y, M
@@ -132,7 +140,7 @@ def identify(Y, X, K=24, l=0):
 
 def plot_results(Y, U, K):
     """Plot the predicted vs actual results when model is trained on first 75% of data, and tested on last 25%. Use a
-    lookahead value of 3. """
+    lookahead value of 3."""
     l = 3
 
     # Split into train and test
@@ -150,18 +158,29 @@ def plot_results(Y, U, K):
 
     # Use the train x vector on the test M to calculate predicted y
     Y_pred = np.matmul(M_test, x_train)
-    Y_pred_df = pd.DataFrame(Y_pred, columns=[f"{n}hr_ahead_pred" for n in range(1, l + 1)])
-    Y_test_df = pd.DataFrame(Y_test, columns=[f"{n}hr_ahead_actual" for n in range(1, l + 1)])
+    Y_pred_df = pd.DataFrame(
+        Y_pred, columns=[f"{n}hr_ahead_pred" for n in range(1, l + 1)]
+    )
+    Y_test_df = pd.DataFrame(
+        Y_test, columns=[f"{n}hr_ahead_actual" for n in range(1, l + 1)]
+    )
 
     # Plot
-    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:blue', 'tab:orange', 'tab:green']
-    styles = ['-', '-', '-', ':', ':', ':']
+    colors = [
+        "tab:blue",
+        "tab:orange",
+        "tab:green",
+        "tab:blue",
+        "tab:orange",
+        "tab:green",
+    ]
+    styles = ["-", "-", "-", ":", ":", ":"]
     Y_test_df.join(Y_pred_df).plot(color=colors, style=styles)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    basename = os.path.basename(sys.argv[0]).replace('.py', '')
+    basename = os.path.basename(sys.argv[0]).replace(".py", "")
 
     K = 24
     inputs = None
@@ -197,7 +216,6 @@ if __name__ == '__main__':
     E_CONFIG = 4  # invalid configuration
     E_OPTION = 5  # invalid options
 
-
     def error(msg, code=None):
         if not quiet_enabled:
             print(f"ERROR [{basename}]: {msg}", file=sys.stderr)
@@ -205,7 +223,6 @@ if __name__ == '__main__':
             exit(code)
         elif debug_enabled:
             raise
-
 
     def syntax(code=0):
         if code == 0:
@@ -216,32 +233,29 @@ if __name__ == '__main__':
                 f"[-l | --lookahead = LOOKAHEAD] [-k | --order] [-g | --glm = GLMNAME] [-I | --init = ISODATETIME] ["
                 f"-M | --module = MODULENAME] [-C | --class =CLASSNAME][-N | --name=OBJNAME] [-P | --player["
                 f"=PLAYERCSV]][-R | --recorder=RECORDERCSV] [--{{by, with}}_{{hour, day, month, year}}] [-v | "
-                f"--verbose][-w | --warning][-q | --quiet][-d | --debug] [-h | --help | help]")
+                f"--verbose][-w | --warning][-q | --quiet][-d | --debug] [-h | --help | help]"
+            )
         exit(code)
-
 
     def verbose(msg):
         if verbose_enabled:
             print(f"VERBOSE [{basename}]: {msg}", file=sys.stderr)
 
-
     def warning(msg):
         if warning_enabled:
             print(f"WARNINGS [{basename}]: {msg}", file=sys.stderr)
-
 
     class converters:
         def real(x):
             try:
                 return float(x)
             except:
-                return float('NAN')
+                return float("NAN")
 
         def datetime(x):
             return datetime.strptime(x, "%Y-%m-%d %H:%M:%S")
 
-        cols = {"START_TIME_LOCAL": datetime, 'MW': real, 'LMP': real}
-
+        cols = {"START_TIME_LOCAL": datetime, "MW": real, "LMP": real}
 
     for arg in sys.argv[1:]:
         args = arg.split("=")
@@ -321,7 +335,9 @@ if __name__ == '__main__':
         # set output
         if glmname != "/dev/stdout":
             if not glmname.endswith(".glm"):
-                error(f"output file '{glmname}' is not a supported file format", E_INVALID)
+                error(
+                    f"output file '{glmname}' is not a supported file format", E_INVALID
+                )
             try:
                 sys.stdout = open(glmname, "w")
             except Exception as err:
@@ -329,36 +345,52 @@ if __name__ == '__main__':
 
         # load data
         try:
-            original_data = pd.read_csv(data_file, usecols=converters.cols.keys(), converters=converters.cols)
-            outputs.insert(0, 'START_TIME_LOCAL')
+            original_data = pd.read_csv(
+                data_file, usecols=converters.cols.keys(), converters=converters.cols
+            )
+            outputs.insert(0, "START_TIME_LOCAL")
             output_data = original_data[outputs]
             output_names = output_data.columns[1:]
-            ndx = list(map(lambda t: datetime(t.year, t.month, t.day, t.hour),
-                           pd.DatetimeIndex(output_data[output_data.columns[0]])))
+            ndx = list(
+                map(
+                    lambda t: datetime(t.year, t.month, t.day, t.hour),
+                    pd.DatetimeIndex(output_data[output_data.columns[0]]),
+                )
+            )
             data = pd.DataFrame(output_data.groupby(ndx)[output_data.columns[1]].mean())
             verbose(data)
 
-            inputs.insert(0, 'START_TIME_LOCAL')
+            inputs.insert(0, "START_TIME_LOCAL")
             input_data = original_data[inputs]
             col0 = input_data.columns[0]
             if with_day:
                 weekdays = list(map(lambda x: x.weekday(), input_data[col0]))
                 for weekday in set(weekdays):
-                    input_data[f"weekday{weekday}"] = list(map(lambda x: int(x == weekday), weekdays))
+                    input_data[f"weekday{weekday}"] = list(
+                        map(lambda x: int(x == weekday), weekdays)
+                    )
             if with_weekend:
                 weekdays = list(map(lambda x: x.weekday(), input_data[col0]))
                 input_data["weekday"] = list(map(lambda x: int(x < 5), weekdays))
             if with_hour:
                 hours = list(map(lambda x: x.hour, input_data[col0]))
                 for hour in set(hours):
-                    input_data[f"hour{hour}"] = list(map(lambda x: int(x == hour), hours))
+                    input_data[f"hour{hour}"] = list(
+                        map(lambda x: int(x == hour), hours)
+                    )
             if with_month:
                 months = list(map(lambda x: x.month, input_data[col0]))
                 for month in set(months):
-                    input_data[f"month{month}"] = list(map(lambda x: int(x == month), months))
+                    input_data[f"month{month}"] = list(
+                        map(lambda x: int(x == month), months)
+                    )
             input_names = input_data.columns[1:]
-            ndx = list(map(lambda t: datetime(t.year, t.month, t.day, t.hour),
-                           pd.DatetimeIndex(input_data[input_data.columns[0]])))
+            ndx = list(
+                map(
+                    lambda t: datetime(t.year, t.month, t.day, t.hour),
+                    pd.DatetimeIndex(input_data[input_data.columns[0]]),
+                )
+            )
             data = input_data.groupby(ndx).mean().join(data).dropna()
             data = data.sort_index(ascending=False)
             verbose(data)
@@ -370,15 +402,25 @@ if __name__ == '__main__':
 
         if init_time:
             back_time = init_time - timedelta(hours=K + 1)
-            print(f"\n// initial input and state vector from {back_time} to {init_time}")
-            U0 = data[input_names][back_time:init_time - timedelta(hours=1)].to_dict('list')
+            print(
+                f"\n// initial input and state vector from {back_time} to {init_time}"
+            )
+            U0 = data[input_names][back_time : init_time - timedelta(hours=1)].to_dict(
+                "list"
+            )
             for name in input_names:
-                print(f"#define U0_{name}={','.join(list(map(lambda z: str(z), U0[name])))}")
+                print(
+                    f"#define U0_{name}={','.join(list(map(lambda z: str(z), U0[name])))}"
+                )
                 print(f"#define T0_{name}={data.index[0]}")
                 print(f"#define TN_{name}={data.index[-1]}")
-            X0 = data[output_names][back_time:init_time - timedelta(hours=1)].to_dict('list')
+            X0 = data[output_names][back_time : init_time - timedelta(hours=1)].to_dict(
+                "list"
+            )
             for name in output_names:
-                print(f"#define X0_{name}={','.join(list(map(lambda z: str(z), X0[name])))}")
+                print(
+                    f"#define X0_{name}={','.join(list(map(lambda z: str(z), X0[name])))}"
+                )
                 print(f"#define T0_{name}={data.index[0]}")
                 print(f"#define TN_{name}={data.index[-1]}")
 
@@ -391,7 +433,6 @@ if __name__ == '__main__':
                 U = []
                 for input_name in input_names:
                     U.append(np.matrix(data[input_name]).transpose())
-                plot_results(Y, U, K)
                 x, Y, M = identify(Y, np.hstack(U), K, lookahead)
 
             except Exception as err:
@@ -403,7 +444,9 @@ if __name__ == '__main__':
                 print("")
                 print(f"// input = {M}".replace("\n", "\n//         "))
                 print(f"// output = {Y[K + 1:]}".replace("\n", "\n//          "))
-                print(f"\n// model = [{','.join(list(map(lambda z: str(z), x.transpose().round(2).tolist()[0])))}]")
+                print(
+                    f"\n// model = [{','.join(list(map(lambda z: str(z), x.transpose().round(2).tolist()[0])))}]"
+                )
 
             opts = ["0"]
             if resolution:
@@ -411,13 +454,18 @@ if __name__ == '__main__':
             if constraint:
                 mean = data[output_name].mean()
                 std = data[output_name].std()
-                opts.append(f"minimum={mean - constraint * std},maximum={mean + constraint * std}")
+                opts.append(
+                    f"minimum={mean - constraint * std},maximum={mean + constraint * std}"
+                )
 
             n_inputs = len(data.columns) - 1
             for n in range(n_inputs):
                 # TODO: Review formulas
                 print(f"\n// {data.columns[n]} --> {output_name}")
-                print(f"filter {output_name}_{data.columns[n]}(z,1h,{','.join(opts)}) = (", end="")
+                print(
+                    f"filter {output_name}_{data.columns[n]}(z,1h,{','.join(opts)}) = (",
+                    end="",
+                )
                 for k in range(0, K + 1):
                     print(f"{x[-k * n_inputs - 1, 0]:+f}z^{K - k:.0f}", end="")
                 print(f"{x[K + n, 0]:+f} ) / (z^{K:.0f}", end="")
@@ -436,7 +484,7 @@ if __name__ == '__main__':
                 print("object input {")
                 print("   ", "name", input_object, end=";\n")
                 print("   ", "object", "player", "{")
-                print("   ", "   ", "file", f"\"{playername}\"", end=";\n")
+                print("   ", "   ", "file", f'"{playername}"', end=";\n")
                 print("   ", "}", end=";\n")
                 print("}")
 
@@ -455,18 +503,22 @@ if __name__ == '__main__':
                     print("object", classname, "{")
                     print("   ", "name", f"{objname}", end=";\n")
                     for input_name in input_names:
-                        print("   ", output_name,
-                              f"{output_name}_{input_name}({input_object}:{input_name},:U0_{input_name},:X0_{output_name})",
-                              end=";\n")
+                        print(
+                            "   ",
+                            output_name,
+                            f"{output_name}_{input_name}({input_object}:{input_name},:U0_{input_name},:X0_{output_name})",
+                            end=";\n",
+                        )
                     if recordername:
                         print("   ", "object", "recorder", "{")
                         print("   ", "    ", "file", recordername, end=";\n")
-                        print("   ", "    ", "property", ",".join(output_names), end=";\n");
+                        print(
+                            "   ", "    ", "property", ",".join(output_names), end=";\n"
+                        )
                         print("   ", "    ", "interval", -1, end=";\n")
                         print("   ", "}", end=";\n")
                     print("}")
 
     else:
         syntax(1)
-    pd.DataFrame(x).to_csv('x.csv')
-
+    pd.DataFrame(x).to_csv("x.csv")
