@@ -455,6 +455,12 @@ int local_datetime_delta(double tsdbl, DATETIME *dt)
 	return 1;
 }
 
+TIMESTAMP timestamp(unsigned short year,unsigned short month,unsigned short day,unsigned short hour,unsigned short minute,unsigned short second,unsigned short nanosecond,unsigned short isdst,const char *tz)
+{
+	DATETIME dt = {year,month,day,hour,minute,second,nanosecond,isdst};
+	strncpy(dt.tz,tz,sizeof(dt.tz));
+	return mkdatetime(&dt);
+}
 
 /** Convert a datetime struct into a GMT timestamp
  **/
@@ -510,7 +516,7 @@ TIMESTAMP mkdatetime(DATETIME *dt)
 		strcpy(dt->tz, (isdst(ts) ? tzdst : tzstd));
 	}
 	/* adjust for GMT (or unspecified) */
-	if (strcmp(dt->tz, "GMT") == 0 ) {
+	if ( strcmp(dt->tz, "GMT") == 0 || strcmp(dt->tz,"UTC") == 0 ) {
 		return ts;
 	} else if ( strcmp(dt->tz, tzstd) == 0 || ((strcmp(dt->tz, "")==0 && !isdst(ts) && (ts < dststart[dt->year - YEAR0] || ts >= dstend[dt->year - YEAR0]))) ) {
 		/* adjust to standard local time */

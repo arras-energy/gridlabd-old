@@ -2264,39 +2264,80 @@ DEPRECATED static int sublime_syntax(void *main, int argc, const char *argv[])
 
 DEPRECATED static int csvloadshape(void *main, int argc, const char *argv[])
 {
-	global_compileonly = TRUE;
-	if ( argc == 1 )
+	FILE *fh = stdout;
+	if ( strchr(argv[0],'=') )
 	{
-		// show load shapes
+		const char *fname = strchr(argv[0],'=') + 1;
+		fh = fopen(fname,"w");
+		if ( fh == NULL )
+		{
+			output_error("unable to open '%s' for write",fname);
+		}
+	}
+	char schedules[65536] = "";
+	if ( argc == 1 || strcmp(argv[1],"*") == 0 )
+	{
 		for ( SCHEDULE *sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
 		{
-			fprintf(stdout,"%s\n",sch->name);
+			if ( schedules[0] != '\0' )
+			{
+				strcat(schedules,",");
+			}
+			strcat(schedules,sch->name);
 		}
-		return 0;
 	}
-	else if ( argc < 3 )
+	else
 	{
-		output_error("--loadshape requires a schedule name and a year");
-		return CMDERR;
+		strncpy(schedules,argv[1],sizeof(schedules));
 	}
 
-	SCHEDULE *sch = schedule_find_byname(argv[1]);
-	if ( sch == NULL )
+	SCHEDULE *schedule_list[1024];
+	unsigned int n_schedules = 0;
+	char *next = NULL, *last = NULL;
+	for ( next = strtok_r(schedules,",",&last) ; next != NULL && n_schedules < sizeof(schedule_list)/sizeof(schedule_list[0]) ; next = strtok_r(NULL,",",&last) )
 	{
-		output_error("schedule '%s' not found",argv[1]);
-		return CMDERR;
+		SCHEDULE *schedule = schedule_find_byname(next);
+		if ( schedule == NULL )
+		{
+			output_error("schedule '%s' not found",next);
+			return CMDERR;
+		}
+		schedule_list[n_schedules++] = schedule;
 	}
 
-	int year = atoi(argv[2]);
-	if ( year < 1970 || year > 2999 )
+	fprintf(fh,"%s","timestamp");
+	for ( unsigned int n = 0 ; n < n_schedules ; n++ )
 	{
-		output_error("year '%s' is not valid",argv[2]);
+		fprintf(fh,",%s",schedule_list[n]->name);
 	}
+	fprintf(fh,"%s","\n");
 
-	// TODO generate CSV of loadshape based on schedule
-
-	output_error("not implemented");
-	return CMDERR;
+	for ( TIMESTAMP ts = global_starttime ; ts < global_stoptime ; )
+	{
+		char tmp[64];
+		if ( convert_from_timestamp(ts,tmp,sizeof(tmp)-1) )
+		{
+			fprintf(fh,"%s",tmp);
+		}
+		TIMESTAMP tn = global_stoptime;
+		for ( unsigned int n = 0 ; n < n_schedules ; n++ )
+		{
+			SCHEDULEINDEX ndx = schedule_index(schedule_list[n],ts);
+			TIMESTAMP t = ts + schedule_dtnext(schedule_list[n],ndx)*60;
+			if ( t < tn )
+			{
+				tn = t;
+			}
+		}
+		for ( unsigned int n = 0 ; n < n_schedules ; n++ )
+		{
+			SCHEDULEINDEX ndx = schedule_index(schedule_list[n],tn);
+			fprintf(fh,",%g",schedule_value(schedule_list[n],ndx));
+		}
+		fprintf(fh,"%s","\n");
+		ts = tn;
+	}
+	return argc;
 }
 
 /*********************************************/
@@ -2421,9 +2462,16 @@ int GldCmdarg::runoption(const char *value)
 	int m = strcspn(buffer," \t");
 	char *args[2] = {buffer,buffer[m]=='\0'?NULL:buffer+m+1};
 	buffer[m] = '\0';
+	char opt[64];
+	strcpy(opt,args[0]);
+	char *cut = strchr(opt,'=');
+	if ( cut )
+	{
+		*cut = '\0';
+	}
 	for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 	{
-		if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,args[0])==0 )
+		if ( main_commands[i].lopt != NULL && strcmp(opt,main_commands[i].lopt)==0 )
 		{
 			return main_commands[i].call(instance,args[1]==NULL?1:2,(const char**)args);
 		}
