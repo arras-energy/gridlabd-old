@@ -2262,6 +2262,43 @@ DEPRECATED static int sublime_syntax(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int csvloadshape(void *main, int argc, const char *argv[])
+{
+	global_compileonly = TRUE;
+	if ( argc == 1 )
+	{
+		// show load shapes
+		for ( SCHEDULE *sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+		{
+			fprintf(stdout,"%s\n",sch->name);
+		}
+		return 0;
+	}
+	else if ( argc < 3 )
+	{
+		output_error("--loadshape requires a schedule name and a year");
+		return CMDERR;
+	}
+
+	SCHEDULE *sch = schedule_find_byname(argv[1]);
+	if ( sch == NULL )
+	{
+		output_error("schedule '%s' not found",argv[1]);
+		return CMDERR;
+	}
+
+	int year = atoi(argv[2]);
+	if ( year < 1970 || year > 2999 )
+	{
+		output_error("year '%s' is not valid",argv[2]);
+	}
+
+	// TODO generate CSV of loadshape based on schedule
+
+	output_error("not implemented");
+	return CMDERR;
+}
+
 /*********************************************/
 /* ADD NEW CMDARG PROCESSORS ABOVE THIS HERE */
 /* Then make the appropriate entry in the    */
@@ -2337,6 +2374,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"modlist",		NULL,	modlist,		NULL, "Display list of available modules"},
 	{"example",		NULL,	example,		"module:class", "Display an example of an instance of the class after init" },
 	{"mclassdef",	NULL,	mclassdef,		"module:class", "Generate Matlab classdef of an instance of the class after init" },
+	{"loadshape",   NULL,   csvloadshape,   "name:year", "Generate the named schedule as a timeseries for given year"},
 
 	{NULL,NULL,NULL,NULL, "Process control"},
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
