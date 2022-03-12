@@ -94,11 +94,11 @@ public:
 	IMPLICITENDUSE *implicit_enduse_list;	///< implicit enduses
 	static set implicit_enduses_active;		///< implicit enduses that are to be activated
 	static enumeration implicit_enduse_source; ///< source of implicit enduses (e.g., ELCAP1990, ELCAP2010, RBSA2014)
-	static double sump_humidity_factor; ///< humidity coefficient for sump level rise (pu/h/%)
-	static double sump_rainfall_factor; ///< rainfall coefficient for sump level rise (pu/in/day)
-	static double sump_snowmelt_factor; ///< snowmelt coefficient for sump level rise (pu/in/day)
-	static char1024 curtailment_enduses; ///< enduses which are curtailable
-	static bool curtailment_active; ///< flag to indicate enduses should be curtailed
+	static double sump_humidity_factor; 	///< humidity coefficient for sump level rise (pu/h/%)
+	static double sump_rainfall_factor; 	///< rainfall coefficient for sump level rise (pu/in/day)
+	static double sump_snowmelt_factor; 	///< snowmelt coefficient for sump level rise (pu/in/day)
+	static char1024 curtailment_enduses; 	///< enduses which are curtailable
+	static bool curtailment_active; 		///< flag to indicate all curtailable enduses should be curtailed
 
 public:
 
@@ -238,41 +238,51 @@ public:
 	complex hvac_power;				///< actual power draw of the hvac system (includes fan and motor where applicable)
 
 	/* inherited res_enduse::load is hvac system load */
-	double hvac_load;
-	double sump_load;
-	double total_load;
-	enduse total; /* total load */
-	double heating_demand;
-	double cooling_demand;
-	double last_heating_load; ///< stores the previous heater load for use in the controller
-	double last_cooling_load; ///< stores the previous A/C load for use in the controller
-	bool	compressor_on;
-	int64	compressor_count;
+	double hvac_load;				///< HVAC only load
+	double sump_load;				///< sump pump only load
+	double total_load;				///< total systems load
+	enduse total; 					///< total load enduse data
+	double heating_demand;			///< HVAC demand during heating
+	double cooling_demand;			///< HVAC demand during cooling
+	double last_heating_load;		///< stores the previous heater load for use in the controller
+	double last_cooling_load;		///< stores the previous A/C load for use in the controller
+	bool	compressor_on;			///< HVAC compressor status
+	int64	compressor_count;		///< HVAC compressor runcount
 	
 	/* cycle tracking values */
-	TIMESTAMP hvac_last_on;
-	TIMESTAMP hvac_last_off;
-	double hvac_period_on;
-	double hvac_period_off;
-	double hvac_period_length; // minutes
-	double hvac_duty_cycle;
+	TIMESTAMP hvac_last_on;			///< last time HVAC turned on
+	TIMESTAMP hvac_last_off;		///< last time HVAC turned off
+	double hvac_period_on;			///< period of HVAC on
+	double hvac_period_off;			///< period of HVAC off
+	double hvac_period_length;		///< total period of HVAC (in minutes)
+	double hvac_duty_cycle;			///< HVAC duty cycle
 
 	/* Energy Storage Variable */
-	double thermal_storage_present;		//Indication of if thermal storage is present and available for drawing
-	double thermal_storage_inuse;		//Flag to indicate thermal storage is being pulled at the moment
+	double thermal_storage_present;	///< Indication of if thermal storage is present and available for drawing
+	double thermal_storage_inuse;	///< Flag to indicate thermal storage is being pulled at the moment
 
 	/* Sump pump variables */
-	double sump_runtime; // average runtime of the sump pump when the level is 1.0
-	double sump_state; // sump level (0.0 is empty, 1.0 is full)
-	double sump_power; // sump power
-	enumeration sump_status; // sump run statue (0=OFF, 1=ON)
+	double sump_runtime;			///< average runtime of the sump pump when the level is 1.0
+	double sump_state;				///< sump level (0.0 is empty, 1.0 is full)
+	double sump_power;				///< sump power
+	enumeration sump_status;		///< sump run status (0=OFF, 1=ON)
+
+	/* Curtailment status */
+	enumeration curtailment_status; 	///< curtailment status (0=NONE, 1=CURTAILED, 2=RECOVERING)
 
 	typedef enum e_sump_status
 	{
-		SS_NONE = 0,
-		SS_OFF = 1,
-		SS_ON = 2,
+		SS_NONE = 0,			///< no sump pump present
+		SS_OFF = 1,				///< sump pump is off
+		SS_ON = 2,				///< sump pump is on
 	} SUMPSTATUS;
+
+	typedef enum e_recovery_status
+	{
+		CS_NONE = 0,			///< no curtailment in progress
+		CS_CURTAILED = 1,		///< active curtailment in progress
+		CS_RECOVERING = 2,		///< curtailment recovery in progress
+	} RECOVERYSTATUS;
 
 	typedef enum e_system_type {
 		ST_NONE = 0x00000000,	///< flag to indicate no system is installed

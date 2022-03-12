@@ -824,6 +824,13 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 				PT_KEYWORD,"ON",(enumeration)SS_ON,
 				PT_KEYWORD,"OFF",(enumeration)SS_OFF,
 
+			PT_enumeration,"curtailment",PADDR(curtailment_status),
+				PT_DEFAULT,"NONE",
+				PT_DESCRIPTION,"curtailment status",
+				PT_KEYWORD,"NONE",(enumeration)CS_NONE,
+				PT_KEYWORD,"CURTAILED",(enumeration)CS_CURTAILED,
+				PT_KEYWORD,"RECOVERING",(enumeration)CS_RECOVERING,
+
 			// these are hidden so we can spy on ETP
 			PT_double,"a",PADDR(a),
 				PT_OUTPUT, 
@@ -2092,16 +2099,16 @@ int house_e::init(OBJECT *parent)
 			}
 		}
 
-		// flag curtailable enduses
+		// reduce curtailed enduses
 		if ( circuit->pLoad && circuit->pLoad->name )
 		{
 			if ( strstr(curtailment_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
 			{
-				circuit->pLoad->curtailment_fraction = 1.0;
+				circuit->pLoad->curtailment_fraction = 0.0;
 			}
 			else
 			{
-				circuit->pLoad->curtailment_fraction = 0.0;
+				circuit->pLoad->curtailment_fraction = 1.0;
 			}
 		}
 	}
@@ -3524,7 +3531,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			// add to panel current
 			else 
 			{
-				double curtailment = ( curtailment_active ? c->pLoad->curtailment_fraction : 0.0 );
+				double curtailment = ( curtailment_active || curtailment_status == CS_CURTAILED ? c->pLoad->curtailment_fraction : 1.0 );
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
