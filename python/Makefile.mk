@@ -1,9 +1,12 @@
-$(top_srcdir)/python/dist/gridlabd-$(notdir $(prefix))-.tar.gz: source/build.h
+PYTHONVERSION=$(shell python3 $(top_srcdir)/python/setup.py --version)
+
+$(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: source/build.h
 	@echo "building $@"
+	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
 	@python3 -m pip install build 1>/dev/null
 	@( export SRCDIR=$(realpath $(top_srcdir)) ; python3 -m build $(top_srcdir)/python 1>/dev/null )
 
-python-install: $(top_srcdir)/python/dist/gridlabd-$(notdir $(prefix))-.tar.gz
+python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
 	@echo "installing $@"
 	@python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
 
