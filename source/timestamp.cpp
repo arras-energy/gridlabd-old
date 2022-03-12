@@ -458,7 +458,7 @@ int local_datetime_delta(double tsdbl, DATETIME *dt)
 TIMESTAMP timestamp(unsigned short year,unsigned short month,unsigned short day,unsigned short hour,unsigned short minute,unsigned short second,unsigned short nanosecond,unsigned short isdst,const char *tz)
 {
 	DATETIME dt = {year,month,day,hour,minute,second,nanosecond,isdst};
-	strncpy(dt.tz,tz,sizeof(dt.tz));
+	strncpy(dt.tz,tz,sizeof(dt.tz)-1);
 	return mkdatetime(&dt);
 }
 

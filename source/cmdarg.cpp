@@ -2288,7 +2288,7 @@ DEPRECATED static int csvloadshape(void *main, int argc, const char *argv[])
 	}
 	else
 	{
-		strncpy(schedules,argv[1],sizeof(schedules));
+		strncpy(schedules,argv[1],sizeof(schedules)-1);
 	}
 
 	SCHEDULE *schedule_list[1024];
