@@ -383,9 +383,9 @@ static IMPLICITENDUSEDATA elcap1990[] = {
 		},
 	{	"SUMP",
 		{20,false,{0,0,1},0.9,0.0},
-		"type:analog; schedule: residential-sump-default; power: 0.8 kW",
+		"type:analog; schedule: residential-sump-default; power: 0.8 W",
 		"residential-sump-default",
-		"positive; nonzero; interpolated; * * * * * 0.001;"
+		"positive; nonzero; interpolated; * * * * * 1.0;"
 	},
 	/// @todo add other implicit enduse schedules and shapes as they are defined
 	{NULL}

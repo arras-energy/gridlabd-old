@@ -20,7 +20,7 @@ FILE *paneldump_fh = NULL;
 
 // list of enduses that are implicitly active
 set house_e::implicit_enduses_active = IEU_TYPICAL;
-enumeration house_e::implicit_enduse_source = IES_ELCAP1990;
+enumeration house_e::implicit_enduse_source = IES_RBSA2014;
 static double aux_cutin_temperature = 10;
 
 // sump pump level rate factors
@@ -3800,7 +3800,7 @@ bool circuit_measurement(const char *timestamp,
 						 bool integral)			// flag to indicate integral sampling
 {
 	// check/open panel dump file
-	if ( paneldump_fh == NULL )
+	if ( paneldump_fh == NULL && paneldump_interval != 0 )
 	{
 		paneldump_fh = fopen(paneldump_filename,"w");
 		if ( paneldump_fh == NULL )
