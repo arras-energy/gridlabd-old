@@ -1,6 +1,7 @@
 // $Id: test_dishwasher.glm 4738 2014-07-03 00:55:39Z dchassin $
-// Test standalone waterheater objects
-
+// Test standalone dishwasher objects
+//
+// This test is optional because it is not working correctly and fails validation
 
 clock {
 	timezone PST+8PDT;
