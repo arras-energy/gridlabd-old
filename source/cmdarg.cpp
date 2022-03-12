@@ -2337,6 +2337,14 @@ DEPRECATED static int csvloadshape(void *main, int argc, const char *argv[])
 		fprintf(fh,"%s","\n");
 		ts = tn;
 	}
+	if ( fh != stdout )
+	{
+		fclose(fh);
+	}
+	else
+	{
+		fflush(fh);
+	}
 	return argc;
 }
 
