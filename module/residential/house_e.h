@@ -262,10 +262,9 @@ public:
 	double thermal_storage_inuse;	///< Flag to indicate thermal storage is being pulled at the moment
 
 	/* Sump pump variables */
-	double sump_runtime;			///< average runtime of the sump pump when the level is 1.0
-	double sump_state;				///< sump level (0.0 is empty, 1.0 is full)
-	double sump_power;				///< sump power
-	double sump_rate;				///< sump rate (pu/min)
+	double sump_state;				///< sump pit level (0.0 is empty, 1.0 is full)
+	double sump_power;				///< sump pump power
+	double sump_rate;				///< sump drain rate (pu/min)
 	enumeration sump_status;		///< sump run status (0=OFF, 1=ON)
 
 	/* Curtailment status */

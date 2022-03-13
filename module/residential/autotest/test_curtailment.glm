@@ -7,8 +7,9 @@ clock
 
 module residential
 {
-    implicit_enduses TYPICAL;
-    curtailment_enduses TYPICAL;
+    implicit_enduses "DISHWASHER|MICROWAVE|RANGE|CLOTHESWASHER|DRYER";
+    curtailment_enduses "DISHWASHER|MICROWAVE|RANGE|CLOTHESWASHER|DRYER";
+    curtailment_active TRUE;
 }
 
 module tape

@@ -809,9 +809,6 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"hvac_duty_cycle",PADDR(hvac_duty_cycle), 
 				PT_OUTPUT, 
 
-			PT_double,"sump_runtime[s]",PADDR(sump_runtime),
-				PT_DEFAULT,"+1 s",
-				PT_DESCRIPTION,"sump pump runtime when sump_level reaches 1.0",
 			PT_double,"sump_state[pu]",PADDR(sump_state),
 				PT_DESCRIPTION,"sump pit fill state",
 			PT_double,"sump_power[W]",PADDR(sump_power),
@@ -819,10 +816,10 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 				PT_DESCRIPTION,"sump pump rated power",
 			PT_double,"sump_rate[pu/min]",PADDR(sump_rate),
 				PT_DEFAULT,"2.0 pu/min",
-				PT_DESCRIPTION,"sump pump well drainage rate",
+				PT_DESCRIPTION,"sump pump pit drainage rate",
 			PT_enumeration,"sump_status",PADDR(sump_status),
 				PT_DEFAULT,"NONE",
-				PT_DESCRIPTION,"sump running status",
+				PT_DESCRIPTION,"sump pump running status",
 				PT_KEYWORD,"NONE",(enumeration)SS_NONE,
 				PT_KEYWORD,"ON",(enumeration)SS_ON,
 				PT_KEYWORD,"OFF",(enumeration)SS_OFF,
@@ -1960,9 +1957,9 @@ int house_e::init(OBJECT *parent)
 	}
 	
 	// Sump pump
-	if ( sump_runtime <= 0 )
+	if ( sump_rate <= 0 )
 	{
-		error("sump runtime must be positive");
+		error("sump rate must be positive");
 	}
 	if ( sump_state == 0 )
 	{
