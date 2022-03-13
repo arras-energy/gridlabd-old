@@ -265,6 +265,7 @@ public:
 	double sump_runtime;			///< average runtime of the sump pump when the level is 1.0
 	double sump_state;				///< sump level (0.0 is empty, 1.0 is full)
 	double sump_power;				///< sump power
+	double sump_rate;				///< sump rate (pu/min)
 	enumeration sump_status;		///< sump run status (0=OFF, 1=ON)
 
 	/* Curtailment status */
@@ -437,6 +438,8 @@ public:
 	double *pTout;	// pointer to outdoor temperature (see climate)
 	double *pRhout;	// pointer to outdoor humidity (see climate)
 	double *pSolar;	// pointer to solar radiation array (see climate)
+	double *pRainfall; // pointer to rainfall (see climate)
+	double *pSnowdepth; // pointer to snow depth (see climate)
 	double incident_solar_radiation;///< This variable hold the average incident solar radiation hitting the house in Btu/(hr*sf)
 
 	double Tair;

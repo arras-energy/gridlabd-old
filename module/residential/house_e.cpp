@@ -20,7 +20,7 @@ FILE *paneldump_fh = NULL;
 
 // list of enduses that are implicitly active
 set house_e::implicit_enduses_active = IEU_TYPICAL;
-enumeration house_e::implicit_enduse_source = IES_RBSA2014;
+enumeration house_e::implicit_enduse_source = IES_ELCAP2010;
 static double aux_cutin_temperature = 10;
 
 // sump pump level rate factors
@@ -815,8 +815,11 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"sump_state[pu]",PADDR(sump_state),
 				PT_DESCRIPTION,"sump pit fill state",
 			PT_double,"sump_power[W]",PADDR(sump_power),
-				PT_DEFAULT, "+800 W",
+				PT_DEFAULT,"+800 W",
 				PT_DESCRIPTION,"sump pump rated power",
+			PT_double,"sump_rate[pu/min]",PADDR(sump_rate),
+				PT_DEFAULT,"2.0 pu/min",
+				PT_DESCRIPTION,"sump pump well drainage rate",
 			PT_enumeration,"sump_status",PADDR(sump_status),
 				PT_DEFAULT,"NONE",
 				PT_DESCRIPTION,"sump running status",
@@ -1120,6 +1123,10 @@ int house_e::init_climate()
 {
 	OBJECT *hdr = THISOBJECTHDR;
 
+	extern double default_outdoor_temperature, default_humidity, default_solar[9];
+	static double default_rainfall = 0.0;
+	static double default_snowdepth = 0.0;
+
 	// link to climate data
 	static FINDLIST *climates = NULL;
 	int not_found = 0;
@@ -1132,10 +1139,11 @@ int house_e::init_climate()
 			warning("house_e: no climate data found, using static data");
 
 			//default to mock data
-			extern double default_outdoor_temperature, default_humidity, default_solar[9];
 			pTout = &default_outdoor_temperature;
 			pRhout = &default_humidity;
 			pSolar = &default_solar[0];
+			pRainfall = &default_rainfall;
+			pSnowdepth = &default_snowdepth;
 		}
 		else if (climates->hit_count>1 && weather != 0)
 		{
@@ -1147,10 +1155,11 @@ int house_e::init_climate()
 		if (climates->hit_count==0)
 		{
 			//default to mock data
-			extern double default_outdoor_temperature, default_humidity, default_solar[9];
 			pTout = &default_outdoor_temperature;
 			pRhout = &default_humidity;
 			pSolar = &default_solar[0];
+			pRainfall = &default_rainfall;
+			pSnowdepth = &default_snowdepth;
 		}
 		else //climate data was found
 		{
@@ -1167,6 +1176,8 @@ int house_e::init_climate()
 			pTout = (double*)GETADDR(obj,gl_get_property(obj,"temperature"));
 			pRhout = (double*)GETADDR(obj,gl_get_property(obj,"humidity"));
 			pSolar = (double*)GETADDR(obj,gl_get_property(obj,"solar_flux"));
+			pRainfall = (double*)GETADDR(obj,gl_get_property(obj,"rainfall"));
+			pSnowdepth = (double*)GETADDR(obj,gl_get_property(obj,"snowdepth"));
 			struct {
 				const char *name;
 				double *dst;
@@ -2696,24 +2707,30 @@ void house_e::update_sump(double dt)
 	}
 	if ( dt > 0 )
 	{
-		// TODO: get humidity, rainfall, and snowmelt from climate object
+		double humidity = ( pRhout ? *pRhout : 0.0 );
+		double rainfall = ( pRainfall ? *pRainfall : 0.0 );
+		//double snowdepth = ( *pSnowdepth ? *pSnowdepth : 0.0 );
+		double snowmelt = 0.0; // TODO calculate the snow melt rate for the change in depth
+		double dstate = humidity*sump_humidity_factor + rainfall*sump_rainfall_factor/24 + snowmelt*sump_snowmelt_factor/24;
+		sump_state += dstate * dt/3600;
 		if ( sump_status == SS_ON )
 		{
-			double humidity = 0.0;
-			double rainfall = 0.0;
-			double snowmelt = 0.0;
-			double dstate = humidity*sump_humidity_factor + rainfall*sump_rainfall_factor/24 + snowmelt*sump_snowmelt_factor/24;
-			sump_state += dstate * dt/3600;
+			sump_state -= dt*sump_rate/60;
 		}
 	}
-	if ( sump_state > 1.0 )
+	if ( sump_status == SS_ON )
+	{
+		if ( sump_state <= 0 )
+		{
+			sump_state = 0.0;
+			sump_status = SS_OFF;
+			sump_load = 0.0;
+		}		
+	}
+	else if ( sump_status == SS_OFF && sump_state > 1.0 )
 	{
 		sump_status = SS_ON;
-	}
-	else if ( sump_state <= 0 )
-	{
-		sump_state = 0.0;
-		sump_status = SS_OFF;
+		sump_load = sump_power;
 	}
 }
 
@@ -3583,11 +3600,13 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 		if (t2 > c->reclose)
 			t2 = c->reclose;
 	}
-	/* using an enduse structure for the total is more a matter of having all the values add up for the house,
-	 * and it should not sync the struct! ~MH */
-	//TIMESTAMP t = gl_enduse_sync(&total,t1); if (t<t2) t2 = t;
 
+	// system loads
 	total_load = total.total.Mag();
+	if ( sump_status == SS_ON )
+	{
+		load_values[0][0] += sump_power;
+	}
 
 	// compute line currents and post to meter
 	if (obj->parent != NULL)

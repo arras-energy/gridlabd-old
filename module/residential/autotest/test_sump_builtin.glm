@@ -1,0 +1,32 @@
+#define CSVFILE=${modelname/glm/csv}
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2020-02-01 00:00:00 PST";
+}
+module residential
+{
+    implicit_enduses NONE;
+    paneldump_interval 3600;
+    paneldump_filename "test_sump_builtin_paneldump.csv";
+}
+module tape
+{
+    csv_header_type NAME;
+}
+object house
+{
+    sump_status "OFF";
+    object recorder
+    {
+        file "${CSVFILE}";
+        property "panel.power[W]";
+        interval -1;
+    };
+}
+
+#ifdef ../${CSVFILE}
+#on_exit 0 diff ../${CSVFILE} ${CSVFILE} > gridlabd.diff
+#endif
