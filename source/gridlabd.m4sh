@@ -25,12 +25,13 @@ if test "x$1" = "xdocker" ; then :
     echo "  enable <image>   enable a docker image as the active image"
     echo "  disable          disable the active image"
     echo "  status           list the gridlabd images (active image is called 'gridlabd')"
+    echo "  fix-tsc          fix the docker configuration TSC performance option"
     exit 0
   elif test "x$2" = "xenable"; then :
     if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
       TSC=`grep '^tsc=' /Applications/Docker.app/Contents/Resources/linuxkit/cmdline | cut -f2 -d=`
       if test "x$TSC" != "xreliable"; then :
-        echo "WARNING: docker performance is poor if TSC is not 'reliable'. Use 'gridlabd docker fix' to correct this problem." > /dev/stderr
+        echo "WARNING: docker performance is poor if TSC is not 'reliable'. Use 'gridlabd docker fix-tsc' to correct this problem." > /dev/stderr
       fi
     fi
     if test $# -eq 3; then :
@@ -43,7 +44,7 @@ if test "x$1" = "xdocker" ; then :
       echo "ERROR: missing docker image name" > /dev/stderr
       exit 1
     fi
-  elif test "x$2" = "xfix"; then :
+  elif test "x$2" = "xfix-tsc"; then :
     if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
       echo "tsc=reliable" >> "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"
       exit 0
