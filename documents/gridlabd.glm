@@ -16,6 +16,7 @@ module optimize;
 module powerflow;
 module reliability;
 module residential;
+module resilience;
 module revenue;
 module tape;
 
