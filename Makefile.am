@@ -347,7 +347,7 @@ documents/gridlabd.pdf: documents/gridlabd.glm
 	(cd documents ; gridlabd gridlabd.glm)
 	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
 
-docs: $(docs_targets)
+docs: $(docs_targets) documents/gridlabd.pdf
 
 docs_toc:
 	utilities/regen_toc >'docs/User manual/0 - Cover/1 - Contents.md'
