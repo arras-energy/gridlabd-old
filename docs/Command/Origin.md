@@ -27,17 +27,17 @@ The following example includes diff output resulting from local changes to the c
 
 ~~~
 # https://github.com/slacgismo/gridlabd/commits/ff655ab92b650b2373d02b44bf884334d40faf06
-#  M gldcore/Makefile.mk
+#  M source/Makefile.mk
 #  M utilities/build_number
 # ?? utilities/update_origin.sh
-diff --git a/gldcore/Makefile.mk b/gldcore/Makefile.mk
+diff --git a/source/Makefile.mk b/source/Makefile.mk
 index 45a36610..b2e627ed 100644
---- a/gldcore/Makefile.mk
-+++ b/gldcore/Makefile.mk
-@@ -155,4 +155,4 @@ gldcore/build.h: buildnum
+--- a/source/Makefile.mk
++++ b/source/Makefile.mk
+@@ -155,4 +155,4 @@ source/build.h: buildnum
  
  buildnum: utilities/build_number
- 	/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
+ 	/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) source/build.h"
 -	(git remote -v ; git log -n 1 ; git status -s ; git diff ) > origin.txt
 +	/bin/bash -c "source utilities/update_origin.sh" > origin.txt
 diff --git a/utilities/build_number b/utilities/build_number

@@ -65,4 +65,5 @@ Introducing more than one clock directive in a model is allowed. However, all el
 
 # See also
 
-* [share/tzinfo.txt](https://github.com/slacgismo/gridlabd/blob/master/gldcore/tzinfo.txt)
+* [share/tzinfo.txt](https://github.com/slacgismo/gridlabd/blob/master/runtime/tzinfo.txt)
+* [[/Subcommand/Timezone]]
