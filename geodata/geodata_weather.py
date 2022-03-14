@@ -143,4 +143,5 @@ if __name__ == '__main__':
             print(result)
             # self.assertEqual(result["wind"][1],12.0)
 
-    unittest.main()
+    if os.path.exists("~/.nsrdb/credentials.json"):
+        unittest.main()
