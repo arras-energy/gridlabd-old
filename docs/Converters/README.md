@@ -25,6 +25,7 @@ HiPAS GridLAB-D automatically converts input and output files based on their ext
 * [[/Converters/Import/Csv_files]]
 * [[/Converters/Import/Mdb_files]]
 * [[/Converters/Import/Tmy3_files]]
+* [[/Converters/Import/Xls_files]]
 * [[/Converters/Import/Zip_files]]
 * [[/Converters/Output/Csv_files]]
 * [[/Converters/Output/Png_files]]
