@@ -121,6 +121,7 @@ def identify(Y, U, K=24, l=0):
     length = len(Y)
     if length < K:
         warning("There is insufficient data for the specified K value.")
+
     M = np.hstack(
         [
             np.hstack([Y[n : length - K + n] for n in range(1, K + 1)]),
