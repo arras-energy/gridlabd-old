@@ -1,3 +1,5 @@
+"""Convert MDB table to a GLM object list
+"""
 import sys, os
 from datetime import datetime, timedelta
 import pandas
@@ -23,8 +25,9 @@ def error(msg,code=None):
 
 def convert(input_name,
             output_name = None,
-            target_list = None):
-
+            options = {}):
+    """Convert MDB table to a GLM object list
+    """
     verbose(f"reading {input_name}")
     records = mdb.read(input_name)
     meter = []
