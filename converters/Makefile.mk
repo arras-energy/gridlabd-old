@@ -8,6 +8,7 @@ python_requirements += converters/requirements.txt
 dist_pkgdata_DATA += converters/csv-ami2glm-ceus.py
 dist_pkgdata_DATA += converters/csv-ami2glm-rbsa.py
 dist_pkgdata_DATA += converters/csv-ceus2glm-ceus.py
+dist_pkgdata_DATA += converters/csv-geodata2kml.py
 dist_pkgdata_DATA += converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += converters/csv-noaa-weather2glm-weather.py
 dist_pkgdata_DATA += converters/csv-onpoint-weather2glm-weather.py
