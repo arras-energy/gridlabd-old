@@ -521,4 +521,3 @@ if __name__ == "__main__":
 
     else:
         syntax(1)
-    pd.DataFrame(x).to_csv("x.csv")
