@@ -142,7 +142,7 @@ def identify(Y, U, K=24, l=0):
 def plot_results(Y, U, K):
     """Plot the predicted vs actual results when model is trained on first 75% of data, and tested on last 25%. Use a
     lookahead value of 3."""
-    l = 3
+    l = 1
 
     # Split into train and test
     train_size = int(len(Y) * 0.75)
@@ -192,6 +192,7 @@ if __name__ == "__main__":
     objname = None
     playername = None
     recordername = None
+    lookahead = 1
     verbose_enabled = False
     warning_enabled = True
     debug_enabled = False
@@ -434,7 +435,12 @@ if __name__ == "__main__":
                 U = []
                 for input_name in input_names:
                     U.append(np.matrix(data[input_name]).transpose())
+                plot_results(Y, U, K)
+
                 x, Y, M = identify(Y, np.hstack(U), K, lookahead)
+                # pd.DataFrame(x).to_csv('x.csv')
+                # pd.DataFrame(Y).to_csv('Y.csv')
+                # pd.DataFrame(M).to_csv('M.csv')
 
             except Exception as err:
 
