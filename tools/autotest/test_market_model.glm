@@ -1,2 +1,9 @@
-#python -m market_data -m=CAISO -d=0096WD_7_N001 -s=20220101 -e=20220201 -c=caiso_20220101-20220201.csv
-#python -m market_model -f=caiso_20220101-20220201.csv -i=LMP -o=MW -k=24 -l=3
+#ifexist ../test_market_model.csv
+#define DIR=..
+#endif
+
+#python -m market_model -f=${DIR:-.}/test_market_model.csv -i=LMP -o=MW -k=24 -l=3 -g=test_market_model_opt.glm
+
+#ifexist ../test_market_model_opt.glm
+#on_exit 0 diff ../test_market_model_opt.glm test_market_model_opt.glm > gridlabd.diff
+#endif
