@@ -123,9 +123,9 @@ def getforecast(lat,lon):
         "wind_dir[deg]" : [],
     }
     if not "properties" in data.keys():
-        raise Exception("data does not contain required properties information")
+        raise Exception(f"data does not contain required properties information (data={data})")
     if not "periods" in data["properties"]:
-        raise Exception("data does not contain required period information")
+        raise Exception(f"data does not contain required period information (data={data})")
     for item in data["properties"]["periods"]:
         result["datetime"].append(dateutil.parser.parse(item["startTime"])+datetime.timedelta(hours=item["number"]))
         result["temperature[degF]"].append(float(item["temperature"]))
