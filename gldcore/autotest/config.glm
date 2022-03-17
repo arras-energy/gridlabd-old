@@ -1,0 +1,3 @@
+#set strictnames=FALSE
+#define TEST1=A
+#define TEST2=B
