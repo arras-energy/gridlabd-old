@@ -14,13 +14,11 @@ COMMAND
 
 Valid commands are
 
-- `version`: display version of MDB file
+- `class REGEX`: create GLM classes from table data
 
-- `schema TABLENAME`: display DDL for TABLENAME
+- `tables [REGEX]`: display list of tables matching pattern (all by default)
 
-- `tables [PATTERN]`: display list of tables matching pattern (all by default)
-
-- `export PATTERN`: convert table to CSV format
+- `export REGEX`: convert table to CSV format
 
 DESCRIPTION
 
@@ -31,8 +29,8 @@ SEE ALSO
 """
 import sys, os
 from datetime import datetime, timedelta
-import pandas
-from meza import io as mdb
+import pandas_access as mdb
+import re
 
 DEBUG = False
 VERBOSE = False
@@ -63,53 +61,36 @@ def error(msg,code=None):
         exit(code)
 
 def main(argv):
-    verbose(f"reading {input_name}")
-    records = mdb.read(input_name)
-    meter = []
-    date = []
-    value = []
-    verbose(f"scanning records")
-    try:
-        for row in records:
-            structure_no = row["Structure_No"]
-            if not target_list or structure_no in target_list:
-                meter.append(structure_no)
-                date.append(datetime.strptime(row["Usage_Date"],"%m/%d/%y %H:%M:%S") + timedelta(hours=int(row["Hour_Num"])))
-                value.append(round(float(row["SUM_of_Usage"]),2))
-    except Exception as err:
-        verbose(f"iteration stopped ({err})")
 
-    data = pandas.DataFrame({"meter":meter,"usage":value},index=date)
-    data.sort_index(inplace=True)
-    data.index.name = "# datetime"
-    return data
+    if len(argv) < 3:
+        print("Syntax: gridlabd mdb_info MDBFILE COMMAND [ARGS ...]",file=sys.stderr)
+        exit(1)
 
-    if not reload and os.path.exists(csvfile):
-        verbose("loading csv data")
-        data = pandas.read_csv(csvfile)
+    MDBFILE = argv[1]
+    COMMAND = argv[2]
+
+    if COMMAND == "tables":
+
+        if len(argv) > 3:
+            REGEX = argv[3]
+        else:
+            REGEX = ".*"
+        for TABLE in mdb.list_tables(MDBFILE):
+            if re.match(REGEX,TABLE):
+                print(TABLE)
+    
+    elif COMMAND == "export":
+    
+        if len(argv) < 3:
+            error(f"missing export table name",1)
+        REGEX = argv[3]
+        for TABLE in mdb.list_tables(MDBFILE):
+            if re.match(REGEX,TABLE):
+                DF = mdb.read_table(MDBFILE,TABLE)
+                DF.to_csv(TABLE+".csv")
+
     else:
-        data = convert(mdbfile,target_list=[meter])
-        verbose("saving csv data")
-        data.to_csv(csvfile)
-
-    meter = data[data["meter"]==meter].drop("meter",axis=1)
-    meter.columns = ["# datetime","measured_real_power"]
-    meter.set_index("# datetime",inplace=True)
-    meter.to_csv(player)
-
-    with open(csvfile.replace(".csv",".glm"),"w") as glm:
-        print("module powerflow;",file=glm);
-        print("module tape;",file=glm)
-        print("object triplex_meter",file=glm)
-        print("{",file=glm)
-        print("  phases AS;",file=glm)
-        print("  nominal_voltage 120 V;",file=glm)
-        print("  object player",file=glm)
-        print("  {",file=glm)
-        print(f"    file \"{csvfile}\";",file=glm)
-        print("    property \"measured_real_power\";",file=glm)
-        print("  };",file=glm)
-        print("}",file=glm)
-
+        error(f"commmand '{COMMAND}' is not valid",2)
+ 
 if __name__ == "__main__":
     main(sys.argv)
