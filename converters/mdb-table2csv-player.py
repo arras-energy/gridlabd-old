@@ -2,8 +2,7 @@
 """
 import sys, os
 from datetime import datetime, timedelta
-import pandas
-from meza import io as mdb
+import pandas_access
 
 meter = "1252657E"
 player = f"/Users/dchassin/Downloads/{meter}.csv"

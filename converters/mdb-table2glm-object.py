@@ -1,25 +1,47 @@
-"""Convert MDB table to a GLM object list
+"""Convert MDB table to a GLM objects
+
+Options:
+
+- `class=CLASS`: specify the class name to use if not found in columns
+- `module=MODULE`: specify module to load if not found in columns
+- `name=NAMECOL`: specify column to use as object name
+- `parent=PARENTCOL`: specify column to use as object parent
+- `withclass={true,false,yes,no,0,1}`: specify that class definition should be generated from columns
+- `chunksize=INTEGER`: specify the chunksize for processing data (default 1000)
 """
 import sys, os
 from datetime import datetime, timedelta
-import pandas
-from meza import io as mdb
+import pandas_access as mdb
 
-meter = "1252657E"
-player = f"/Users/dchassin/Downloads/{meter}.csv"
-mdbfile = "/Users/dchassin/Downloads/AMI_KWH.mdb"
-csvfile = mdbfile.replace(".mdb",".csv")
+EXENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+DATATYPES = {
+    "object" : "char1024",
+    "int64" : "int64",
+    "float64" : "double",
+    "bool" : "bool",
+    "datetime64" : "timestamp",
+    "timedelta" : "double",
+    "category" : "enumeration",
+}
 
-reload = False
+# options
+CHUNKSIZE = 1000
+CLASS = None
+WITHCLASS = False
 
 def verbose(msg):
-    print(f"VERBOSE: {msg}",file=sys.stderr,flush=True)
+    print(f"VERBOSE [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def warning(msg):
-    print(f"WARNING: {msg}",file=sys.stderr,flush=True)
+    print(f"WARNING [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def error(msg,code=None):
-    print(f"ERROR: {msg}",file=sys.stderr,flush=True)
+    if msg == None:
+        etype, evalue, etrace = sys.exc_info()
+        ename = etype.__name__
+        msg = f"{ename} {evalue}"
+    else:
+        print(f"ERROR [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
     if type(code) != type(None):
         exit(code)
 
@@ -28,50 +50,64 @@ def convert(input_name,
             options = {}):
     """Convert MDB table to a GLM object list
     """
-    verbose(f"reading {input_name}")
-    records = mdb.read(input_name)
-    meter = []
-    date = []
-    value = []
-    verbose(f"scanning records")
+
+    # options
+    if "class" in options.keys():
+        global CLASS
+        CLASS = options["class"]
+    if "withclass" in options.keys():
+        global WITHCLASS
+        WITHCLASS = options["withclass"]
+    if "chunksize" in options.keys():
+        global CHUNKSIZE
+        CHUNKSIZE = options["chunksize"].lower() in ["true","yes","1"]
+
+    # load data
+    if "table" not in options.keys():
+        error(f"table not specified",1)
+    else:
+        TABLE = options["table"]
+    objects = []
     try:
-        for row in records:
-            structure_no = row["Structure_No"]
-            if not target_list or structure_no in target_list:
-                meter.append(structure_no)
-                date.append(datetime.strptime(row["Usage_Date"],"%m/%d/%y %H:%M:%S") + timedelta(hours=int(row["Hour_Num"])))
-                value.append(round(float(row["SUM_of_Usage"]),2))
+        DB = mdb.read_table(input_name,TABLE,chunksize=CHUNKSIZE)
     except Exception as err:
-        verbose(f"iteration stopped ({err})")
+        error(f"{input_name} open failed ({err})",1)
+    for chunk in DB:
+        objects.append(chunk)
 
-    data = pandas.DataFrame({"meter":meter,"usage":value},index=date)
-    data.sort_index(inplace=True)
-    data.index.name = "# datetime"
-    return data
+    # check for class
+    if not CLASS and "class" not in DB.columns:
+        error("class must be specified if not found in data",1)
 
-if not reload and os.path.exists(csvfile):
-    verbose("loading csv data")
-    data = pandas.read_csv(csvfile)
-else:
-    data = convert(mdbfile,target_list=[meter])
-    verbose("saving csv data")
-    data.to_csv(csvfile)
+    # save data
+    if not output_name:
+        output_name = TABLE.lower() + ".glm"
+    try:
+        GLM = open(output_name,"w")
+    except Exception as err:
+        error(f"{output_name} open failed ({err})",1)
 
-meter = data[data["meter"]==meter].drop("meter",axis=1)
-meter.columns = ["# datetime","measured_real_power"]
-meter.set_index("# datetime",inplace=True)
-meter.to_csv(player)
+    classes = []
+    for obj in objects:
+        if CLASS:
+            classname = CLASS
+        elif "class" in obj.columns:
+            classname = obj["class"]
+        if WITHCLASS and classname not in classes:
+            classes.append(classname)            
+            GLM.write(f'class {classname} {{\n')
+            for item, dtype in zip(obj.columns,obj.dtypes):
+                if str(dtype) not in DATATYPES.keys():
+                    dtype = "object"
+                else:
+                    dtype = DATATYPES[str(dtype)]
+                GLM.write(f'\t{dtype} {item};\n')
+            GLM.write('}\n')
 
-with open(csvfile.replace(".csv",".glm"),"w") as glm:
-    print("module powerflow;",file=glm);
-    print("module tape;",file=glm)
-    print("object triplex_meter",file=glm)
-    print("{",file=glm)
-    print("  phases AS;",file=glm)
-    print("  nominal_voltage 120 V;",file=glm)
-    print("  object player",file=glm)
-    print("  {",file=glm)
-    print(f"    file \"{csvfile}\";",file=glm)
-    print("    property \"measured_real_power\";",file=glm)
-    print("  };",file=glm)
-    print("}",file=glm)
+        for num, values in obj.to_dict('index').items():
+            GLM.write(f'object {classname} {{\n')
+            for key, value in values.items():
+                GLM.write(f'\t{key} "{value}";\n')
+            GLM.write('}\n')
+
+convert("autotest/IEEE-123-cyme.mdb",None,{"table":"CYMLOAD","class":"test","withclass":True})
