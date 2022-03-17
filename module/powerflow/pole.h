@@ -35,12 +35,20 @@ public:
     GL_ATOMIC(double, wind_gusts);
     GL_ATOMIC(double, pole_moment);		// (see Section D)
 	GL_ATOMIC(double, pole_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, pole_moment_wind); 
     GL_ATOMIC(double, resisting_moment); 	// (see Section B)
 	GL_ATOMIC(double, equipment_moment);	// (see Section E)
+	GL_ATOMIC(double, equipment_weight);	// (see Section E)
 	GL_ATOMIC(double, equipment_moment_nowind); // wire moment without the wind component for wind speed at failure calc
-    GL_ATOMIC(double, wire_load);		// (see Section F)
+    GL_ATOMIC(double, wire_wind);		// (see Section F)
 	GL_ATOMIC(double, wire_load_nowind); // wire moment without the wind component for wind speed at failure calc
-	GL_ATOMIC(double, wire_moment);		// (see Section F)
+	GL_ATOMIC(double, wire_weight);		// (see Section F)
+	GL_ATOMIC(double, wire_moment_x);		// wire moment in x-axis due to tension and wind load
+	GL_ATOMIC(double, wire_moment_y);		// wire moment in y-axis due to tension and wind load
+	GL_ATOMIC(double, wire_moment_z);		// wire moment in z-axis due to weight
+	GL_ATOMIC(double, equipment_moment_x);	// equipment moment in x-axis due to wind load
+	GL_ATOMIC(double, equipment_moment_y);	// equipment moment in y-axis due to wind load
+	GL_ATOMIC(double, equipment_moment_z);	// equipment moment in z-axis due to weight
 	GL_ATOMIC(double, wire_moment_nowind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, wind_pressure);		// (see Section D)
 	GL_ATOMIC(double, wire_tension);	// (see Section G)
@@ -48,7 +56,7 @@ public:
 	GL_ATOMIC(double, pole_stress_polynomial_a); //polynomial components of pole stress function
 	GL_ATOMIC(double, pole_stress_polynomial_b); //polynomial components of pole stress function
 	GL_ATOMIC(double, pole_stress_polynomial_c); //polynomial components of pole stress function
-	GL_ATOMIC(double, susceptibility);	// d(pole_stress)/d(wind_speed)
+	GL_ATOMIC(double, susceptibility);	// d(total_moment)/d(wind_speed)
 	GL_ATOMIC(double, total_moment);
 	GL_ATOMIC(double, critical_wind_speed);
 	GL_ATOMIC(bool, is_deadend);
