@@ -21,6 +21,7 @@ def help():
     print('  -o|--ofile     : [REQUIRED] glm output file name.')
     print('  -t|--type      : [REQUIRED] specify input type')
     print('  -f|--format    : [OPTIONAL] specify output format')
+    print('  -p|--property  : [OPTIONAL] specify a converter option/property')
     print('Input types')
     print('  cyme           : cyme input');
 
@@ -31,7 +32,7 @@ output_type = ""
 options = {}
 
 try : 
-    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:cf:",["help","ifile=","ofile=","type=","config","format"])
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:cf:p:",["help","ifile=","ofile=","type=","config","format","property"])
 except getopt.GetoptError:
     print("ERROR    [mdb2glm.py]: command line options not valid")
     sys.exit(2)
@@ -62,7 +63,7 @@ for opt, arg in opts:
         else:
             print(f"ERROR [mdb2glm]: '{arg}'' is not a valid output format")
             sys.exit(1)
-    else:
+    elif opt in ("-p","--property"):
         spec = arg.split("=")
         if len(spec) == 1:
             options[spec[0]] = True

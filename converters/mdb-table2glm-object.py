@@ -2,18 +2,28 @@
 
 Options:
 
-- `class=CLASS`: specify the class name to use if not found in columns
-- `module=MODULE`: specify module to load if not found in columns
-- `name=NAMECOL`: specify column to use as object name
-- `parent=PARENTCOL`: specify column to use as object parent
-- `withclass={true,false,yes,no,0,1}`: specify that class definition should be generated from columns
+- `table=TABLE`: specify the table to read
+
+- `class=CLASS`: specify the class name to use if not found in columns (default None)
+
+- `modules=MODULE`: specify module to load if not found in columns (default [])
+
+- `columns=COLUMN:PROPERTY[,...]`: specify column mappings (default {})
+
+- `dtypes=PROPERTY:TYPE[,...]`: specify property types (default {})
+
 - `chunksize=INTEGER`: specify the chunksize for processing data (default 1000)
 """
-import sys, os
+import sys, os, subprocess
 from datetime import datetime, timedelta
 import pandas_access as mdb
 
 EXENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+VERBOSE = False
+WARNING = True
+DEBUG = False
+QUIET = False
+
 DATATYPES = {
     "object" : "char1024",
     "int64" : "int64",
@@ -27,23 +37,33 @@ DATATYPES = {
 # options
 CHUNKSIZE = 1000
 CLASS = None
-WITHCLASS = False
+MODULES = []
+COLUMNS = {}
+DTYPES = {}
 
 def verbose(msg):
-    print(f"VERBOSE [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
+    if VERBOSE:
+        print(f"VERBOSE [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def warning(msg):
-    print(f"WARNING [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
+    if WARNING:
+        print(f"WARNING [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def error(msg,code=None):
     if msg == None:
         etype, evalue, etrace = sys.exc_info()
         ename = etype.__name__
         msg = f"{ename} {evalue}"
-    else:
+    elif DEBUG:
+        raise Exception(msg)
+    elif not QUIET:
         print(f"ERROR [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
     if type(code) != type(None):
         exit(code)
+
+def debug(msg):
+    if DEBUG:
+        print(f"DEBUG [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def convert(input_name,
             output_name = None,
@@ -51,33 +71,67 @@ def convert(input_name,
     """Convert MDB table to a GLM object list
     """
 
+    debug(f"input_name = '{input_name}'")
+    debug(f"output_name = '{output_name}'")
+    debug(f"options = '{options}'")
+
     # options
     if "class" in options.keys():
         global CLASS
-        CLASS = options["class"]
-    if "withclass" in options.keys():
-        global WITHCLASS
-        WITHCLASS = options["withclass"]
+        CLASS = options.pop("class")
+    if "modules" in options.keys():
+        global MODULES
+        MODULES = options.pop("modules").split(",")
     if "chunksize" in options.keys():
         global CHUNKSIZE
-        CHUNKSIZE = options["chunksize"].lower() in ["true","yes","1"]
+        CHUNKSIZE = options.pop("chunksize").lower() in ["true","yes","1"]
+    if "columns" in options.keys():
+        global COLUMNS
+        columns = options.pop("columns").split(",")
+        COLUMNS = {}
+        for column in columns:
+            spec = column.split(":")
+            if len(spec) != 2:
+                error(f"columns spec '{spec}'' is invalid",1)
+            COLUMNS[spec[0]] = spec[1]
+    if "dtypes" in options.keys():
+        global DTYPES
+        dtypes = options.pop("dtypes").split(",")
+        DTYPES = {}
+        for dtype in dtypes:
+            spec = dtype.split(":")
+            if len(spec) != 2:
+                error(f"dtype spec '{spec}'' is invalid",1)
+            DTYPES[spec[0]] = spec[1]
+    if "table" in options.keys():
+        global TABLE
+        TABLE = options.pop("table")
+    if options:
+        error(f"option '{list(options.keys())[0]}' not valid",1)
+
+    # check mdb name
+    if not os.path.exists(input_name):
+        error(f"'{input_name}' not found",1)
+    debug(f"file '{input_name}' ok")
+
+    # check schema
+    schema = mdb.read_schema(input_name)
+    if TABLE not in schema.keys():
+        error(f"table '{TABLE}' not found")
+    debug(f"table '{TABLE}' ok")
+
+    # check for class
+    if not CLASS and "class" not in schema.keys():
+        error("class must be specified if not found in data",1)
 
     # load data
-    if "table" not in options.keys():
-        error(f"table not specified",1)
-    else:
-        TABLE = options["table"]
-    objects = []
     try:
         DB = mdb.read_table(input_name,TABLE,chunksize=CHUNKSIZE)
     except Exception as err:
         error(f"{input_name} open failed ({err})",1)
+    objects = []
     for chunk in DB:
         objects.append(chunk)
-
-    # check for class
-    if not CLASS and "class" not in DB.columns:
-        error("class must be specified if not found in data",1)
 
     # save data
     if not output_name:
@@ -86,28 +140,54 @@ def convert(input_name,
         GLM = open(output_name,"w")
     except Exception as err:
         error(f"{output_name} open failed ({err})",1)
+    GLM.write(f"// generated by '{' '.join(sys.argv)}'\n")
+    for module in MODULES:
+        GLM.write(f'module {module};\n')
 
+    # process records
     classes = []
+    modules = MODULES
     for obj in objects:
-        if CLASS:
-            classname = CLASS
-        elif "class" in obj.columns:
+
+        # write module (first time only)
+        if "module" in obj.columns:
+            module = obj["module"]
+        else:
+            module = None
+        if module and module not in modules:
+            modules.append(module)
+            GLM.write(f'module {module};\n')
+
+        # write class (first time only)
+        if "class" in obj.columns:
             classname = obj["class"]
-        if WITHCLASS and classname not in classes:
+        elif CLASS:
+            classname = CLASS
+        else:
+            error(f"no class specified (obj={obj})",2)
+        if classname not in classes and not module:
             classes.append(classname)            
             GLM.write(f'class {classname} {{\n')
             for item, dtype in zip(obj.columns,obj.dtypes):
-                if str(dtype) not in DATATYPES.keys():
+                if item in COLUMNS.keys():
+                    item = COLUMNS[item]
+                if item in ["id","class","groupid","name","next","parent","child_count","rank","valid_to_","schedule_skew","latitude","longitude","in_svc","out_svc","rng_state","heartbeat","guid","flags"]:
+                    continue
+                if item in DTYPES.keys():
+                    dtype = DTYPES[item]
+                elif str(dtype) not in DATATYPES.keys():
                     dtype = "object"
                 else:
                     dtype = DATATYPES[str(dtype)]
                 GLM.write(f'\t{dtype} {item};\n')
             GLM.write('}\n')
 
+        # write object
         for num, values in obj.to_dict('index').items():
             GLM.write(f'object {classname} {{\n')
             for key, value in values.items():
-                GLM.write(f'\t{key} "{value}";\n')
+                if key in COLUMNS.keys():
+                    GLM.write(f'\t{COLUMNS[key]} "{value}";\n')
+                else:
+                    GLM.write(f'\t{key} "{value}";\n')
             GLM.write('}\n')
-
-convert("autotest/IEEE-123-cyme.mdb",None,{"table":"CYMLOAD","class":"test","withclass":True})
