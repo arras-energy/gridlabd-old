@@ -1,0 +1,17 @@
+#set relax_naming_rules=TRUE
+
+class test
+{
+	double value;
+}
+
+#input "ami_data.mdb" -t table -f player -p table=AMI -p csvfile=ami -p index=Usage_Date,Hour_Num -p parent=Structure_No -p scale=1000 -p values=SUM_of_Usage -p properties=value
+
+module powerflow;
+
+#for OBJ in ${AMI_PLAYERS}
+object test
+{
+	name ${OBJ};
+}
+#done

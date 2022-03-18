@@ -8134,7 +8134,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	else if ( strncmp(line, "#for",4) == 0 )
 	{
 		char var[64], range[1024];
-		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		if ( line[0] == '"' ) line++;
+		char *end = line + strlen(line);
+		if ( end[-1] == '"') end[-1] = '\0';
+		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) == 2 )
 		{
 			strcpy(line,"\n");
 			return for_open(var,range) ? TRUE : FALSE;

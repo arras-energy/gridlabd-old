@@ -84,7 +84,7 @@ def convert(input_name,
         MODULES = options.pop("modules").split(",")
     if "chunksize" in options.keys():
         global CHUNKSIZE
-        CHUNKSIZE = options.pop("chunksize").lower() in ["true","yes","1"]
+        CHUNKSIZE = int(options.pop("chunksize"))
     if "columns" in options.keys():
         global COLUMNS
         columns = options.pop("columns").split(",")

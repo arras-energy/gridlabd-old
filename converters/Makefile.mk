@@ -27,7 +27,7 @@ dist_pkgdata_DATA += converters/gz2glm.py
 dist_pkgdata_DATA += converters/mdb2glm.py
 dist_pkgdata_DATA += converters/mdb-cyme2glm.py
 dist_pkgdata_DATA += converters/mdb-table2glm-object.py
-dist_pkgdata_DATA += converters/mdb-table2csv-player.py
+dist_pkgdata_DATA += converters/mdb-table2glm-player.py
 
 # omd -> glm
 dist_pkgdata_DATA += converters/omd2glm.py
