@@ -1,76 +1,193 @@
-"""Convert MDB table to a CSV player
+"""Convert MDB table to a GLM objects
+
+Options:
+
+- `table=TABLE`: specify the table to read
+
+- `class=CLASS`: specify the class name to use if not found in columns (default None)
+
+- `modules=MODULE`: specify module to load if not found in columns (default [])
+
+- `columns=COLUMN:PROPERTY[,...]`: specify column mappings (default {})
+
+- `dtypes=PROPERTY:TYPE[,...]`: specify property types (default {})
+
+- `chunksize=INTEGER`: specify the chunksize for processing data (default 1000)
 """
-import sys, os
+import sys, os, subprocess
 from datetime import datetime, timedelta
-import pandas_access
+import pandas_access as mdb
 
-meter = "1252657E"
-player = f"/Users/dchassin/Downloads/{meter}.csv"
-mdbfile = "/Users/dchassin/Downloads/AMI_KWH.mdb"
-csvfile = mdbfile.replace(".mdb",".csv")
+EXENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+VERBOSE = False
+WARNING = True
+DEBUG = False
+QUIET = False
 
-reload = False
+DATATYPES = {
+    "object" : "char1024",
+    "int64" : "int64",
+    "float64" : "double",
+    "bool" : "bool",
+    "datetime64" : "timestamp",
+    "timedelta" : "double",
+    "category" : "enumeration",
+}
+
+# options
+CHUNKSIZE = 1000
+CLASS = None
+MODULES = []
+COLUMNS = {}
+DTYPES = {}
 
 def verbose(msg):
-    print(f"VERBOSE: {msg}",file=sys.stderr,flush=True)
+    if VERBOSE:
+        print(f"VERBOSE [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def warning(msg):
-    print(f"WARNING: {msg}",file=sys.stderr,flush=True)
+    if WARNING:
+        print(f"WARNING [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def error(msg,code=None):
-    print(f"ERROR: {msg}",file=sys.stderr,flush=True)
+    if msg == None:
+        etype, evalue, etrace = sys.exc_info()
+        ename = etype.__name__
+        msg = f"{ename} {evalue}"
+    elif DEBUG:
+        raise Exception(msg)
+    elif not QUIET:
+        print(f"ERROR [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
     if type(code) != type(None):
         exit(code)
+
+def debug(msg):
+    if DEBUG:
+        print(f"DEBUG [{EXENAME}]: {msg}",file=sys.stderr,flush=True)
 
 def convert(input_name,
             output_name = None,
             options = {}):
-    """Convert MDB table to a CSV player
+    """Convert MDB table to a GLM object list
     """
-    verbose(f"reading {input_name}")
-    records = mdb.read(input_name)
-    meter = []
-    date = []
-    value = []
-    verbose(f"scanning records")
+
+    debug(f"input_name = '{input_name}'")
+    debug(f"output_name = '{output_name}'")
+    debug(f"options = '{options}'")
+
+    # options
+    if "class" in options.keys():
+        global CLASS
+        CLASS = options.pop("class")
+    if "modules" in options.keys():
+        global MODULES
+        MODULES = options.pop("modules").split(",")
+    if "chunksize" in options.keys():
+        global CHUNKSIZE
+        CHUNKSIZE = options.pop("chunksize").lower() in ["true","yes","1"]
+    if "columns" in options.keys():
+        global COLUMNS
+        columns = options.pop("columns").split(",")
+        COLUMNS = {}
+        for column in columns:
+            spec = column.split(":")
+            if len(spec) != 2:
+                error(f"columns spec '{spec}'' is invalid",1)
+            COLUMNS[spec[0]] = spec[1]
+    if "dtypes" in options.keys():
+        global DTYPES
+        dtypes = options.pop("dtypes").split(",")
+        DTYPES = {}
+        for dtype in dtypes:
+            spec = dtype.split(":")
+            if len(spec) != 2:
+                error(f"dtype spec '{spec}'' is invalid",1)
+            DTYPES[spec[0]] = spec[1]
+    if "table" in options.keys():
+        global TABLE
+        TABLE = options.pop("table")
+    if options:
+        error(f"option '{list(options.keys())[0]}' not valid",1)
+
+    # check mdb name
+    if not os.path.exists(input_name):
+        error(f"'{input_name}' not found",1)
+    debug(f"file '{input_name}' ok")
+
+    # check schema
+    schema = mdb.read_schema(input_name)
+    if TABLE not in schema.keys():
+        error(f"table '{TABLE}' not found")
+    debug(f"table '{TABLE}' ok")
+
+    # check for class
+    if not CLASS and "class" not in schema.keys():
+        error("class must be specified if not found in data",1)
+
+    # load data
     try:
-        for row in records:
-            structure_no = row["Structure_No"]
-            if not target_list or structure_no in target_list:
-                meter.append(structure_no)
-                date.append(datetime.strptime(row["Usage_Date"],"%m/%d/%y %H:%M:%S") + timedelta(hours=int(row["Hour_Num"])))
-                value.append(round(float(row["SUM_of_Usage"]),2))
+        DB = mdb.read_table(input_name,TABLE,chunksize=CHUNKSIZE)
     except Exception as err:
-        verbose(f"iteration stopped ({err})")
+        error(f"{input_name} open failed ({err})",1)
+    objects = []
+    for chunk in DB:
+        objects.append(chunk)
 
-    data = pandas.DataFrame({"meter":meter,"usage":value},index=date)
-    data.sort_index(inplace=True)
-    data.index.name = "# datetime"
-    return data
+    # save data
+    if not output_name:
+        output_name = TABLE.lower() + ".glm"
+    try:
+        GLM = open(output_name,"w")
+    except Exception as err:
+        error(f"{output_name} open failed ({err})",1)
+    GLM.write(f"// generated by '{' '.join(sys.argv)}'\n")
+    for module in MODULES:
+        GLM.write(f'module {module};\n')
 
-if not reload and os.path.exists(csvfile):
-    verbose("loading csv data")
-    data = pandas.read_csv(csvfile)
-else:
-    data = convert(mdbfile,target_list=[meter])
-    verbose("saving csv data")
-    data.to_csv(csvfile)
+    # process records
+    classes = []
+    modules = MODULES
+    for obj in objects:
 
-meter = data[data["meter"]==meter].drop("meter",axis=1)
-meter.columns = ["# datetime","measured_real_power"]
-meter.set_index("# datetime",inplace=True)
-meter.to_csv(player)
+        # write module (first time only)
+        if "module" in obj.columns:
+            module = obj["module"]
+        else:
+            module = None
+        if module and module not in modules:
+            modules.append(module)
+            GLM.write(f'module {module};\n')
 
-with open(csvfile.replace(".csv",".glm"),"w") as glm:
-    print("module powerflow;",file=glm);
-    print("module tape;",file=glm)
-    print("object triplex_meter",file=glm)
-    print("{",file=glm)
-    print("  phases AS;",file=glm)
-    print("  nominal_voltage 120 V;",file=glm)
-    print("  object player",file=glm)
-    print("  {",file=glm)
-    print(f"    file \"{csvfile}\";",file=glm)
-    print("    property \"measured_real_power\";",file=glm)
-    print("  };",file=glm)
-    print("}",file=glm)
+        # write class (first time only)
+        if "class" in obj.columns:
+            classname = obj["class"]
+        elif CLASS:
+            classname = CLASS
+        else:
+            error(f"no class specified (obj={obj})",2)
+        if classname not in classes and not module:
+            classes.append(classname)            
+            GLM.write(f'class {classname} {{\n')
+            for item, dtype in zip(obj.columns,obj.dtypes):
+                if item in COLUMNS.keys():
+                    item = COLUMNS[item]
+                if item in ["id","class","groupid","name","next","parent","child_count","rank","valid_to_","schedule_skew","latitude","longitude","in_svc","out_svc","rng_state","heartbeat","guid","flags"]:
+                    continue
+                if item in DTYPES.keys():
+                    dtype = DTYPES[item]
+                elif str(dtype) not in DATATYPES.keys():
+                    dtype = "object"
+                else:
+                    dtype = DATATYPES[str(dtype)]
+                GLM.write(f'\t{dtype} {item};\n')
+            GLM.write('}\n')
+
+        # write object
+        for num, values in obj.to_dict('index').items():
+            GLM.write(f'object {classname} {{\n')
+            for key, value in values.items():
+                if key in COLUMNS.keys():
+                    GLM.write(f'\t{COLUMNS[key]} "{value}";\n')
+                else:
+                    GLM.write(f'\t{key} "{value}";\n')
+            GLM.write('}\n')
