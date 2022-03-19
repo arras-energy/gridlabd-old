@@ -1195,7 +1195,7 @@ int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='-' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1205,7 +1205,7 @@ int GldLoader::name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if (isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1214,7 +1214,7 @@ int GldLoader::namelist(PARSER, char *result, int size)
 {	/* basic list of names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p=='@' || *_p==' ' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1223,7 +1223,7 @@ int GldLoader::variable_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1233,7 +1233,7 @@ int GldLoader::property_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_' || *_p==':') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -8189,6 +8189,33 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	else if ( strncmp(line, "#wait", 5) == 0 )
 	{
 		wait_processes();
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	else if ( strncmp(line,"#resolve",8) == 0 )
+	{
+		char opt[1024];
+		bool deferred = true;
+		if ( sscanf(line+8,"%s",opt) == 1 )
+		{
+			if ( strcmp(opt,"defer") == 0 )
+			{
+				deferred = true;
+			}
+			else if ( strcmp(opt,"now") == 0 )
+			{
+				deferred = false;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"resolve option '%s' is invalid",opt);
+				return FALSE;
+			}
+		}
+		if ( ! resolve_list(first_unresolved,deferred) )
+		{
+			output_error("unable to resolve all object references");
+		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
