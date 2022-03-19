@@ -6,7 +6,7 @@
 //
 //   https://github.com/dchassin/camden_model
 //
-// To access this data you must read, agree to, and sign the NDA covering this data
+// To access this data you must read, agree to, and sign the NDA covering this data.
 //
 
 #ifmissing ami_data.mdb
@@ -34,18 +34,42 @@
 
 class test
 {
-	double value;
+	double power[W];
 }
 
-#input "ami_data.mdb" -t table -f player -p table=AMI -p csvfile=ami -p index=Usage_Date,Hour_Num -p parent=Structure_No -p scale=1000 -p values=SUM_of_Usage -p properties=value
+#input "ami_data.mdb" -t table -f player -p table=AMI -p csvfile=ami -p index=Usage_Date,Hour_Num -p parent=Structure_No -p scale=1000 -p values=SUM_of_Usage -p properties=power
+
+clock 
+{
+	timezone "PST+8PDT";
+	starttime ${AMI_STARTTIME};
+	stoptime ${AMI_STOPTIME};
+}
 
 module powerflow;
 
 #for OBJ in ${AMI_PLAYERS}
 object test
 {
-	name ${OBJ};
+	name "${OBJ}";
+	power 0.0;
 }
 #done
 
-#endif
+module tape
+{
+	csv_header_type NONE;
+}
+object collector
+{
+	file "test_mdbtable2glmplayer.csv";
+	group "class=test";
+	property "sum(power)";
+	interval -1;
+}
+
+#ifexist ../test_mdbtable2glmplayer.csv
+#on_exit 0 diff ../test_mdbtable2glmplayer.csv test_mdbtable2glmplayer.csv > gridlabd.diff
+#endif // exist ../test_mdbtable2glmplayer.csv
+
+#endif // exist ami_data.mdb
