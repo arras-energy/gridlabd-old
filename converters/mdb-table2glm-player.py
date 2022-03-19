@@ -29,7 +29,7 @@ import pandas
 EXENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 VERBOSE = False
 WARNING = True
-DEBUG = True
+DEBUG = False
 QUIET = False
 
 # option defaults
@@ -39,6 +39,7 @@ CSVFILE = None
 INDEXCOLS = None
 PARENTCOL = None
 SCALE = 1.0
+ROUND = 1
 VALUECOLS = None
 DATEFORMAT = "%m/%d/%y %H:%M:%S"
 PROPERTIES = []
@@ -82,34 +83,49 @@ def convert(input_name,
     if "chunksize" in options.keys():
         global CHUNKSIZE
         CHUNKSIZE = int(options.pop("chunksize"))
+        debug(f"chunksize = {CHUNKSIZE}")
     if "table" in options.keys():
         global TABLE
         TABLE = options.pop("table")
+        debug(f"table = {TABLE}")
     if "index" in options.keys():
         global INDEXCOLS
         INDEXCOLS = options.pop("index").split(",")
+        debug(f"index = {INDEXCOLS}")
     if "parent" in options.keys():
         global PARENTCOL
         PARENTCOL = options.pop("parent")
+        debug(f"parent = {PARENTCOL}")
     if "values" in options.keys():
         global VALUECOLS
         VALUECOLS = options.pop("values").split(",")
         PROPERTIES = VALUECOLS
+        debug(f"values = {VALUECOLS}")
     if "csvfile" in options.keys():
         global CSVFILE
         CSVFILE = options.pop("csvfile")
+        debug(f"csvfile = {CSVFILE}")
     if "scale" in options.keys():
         global SCALE
         SCALE = options.pop("scale").split(",")
         try:
             SCALE = list(map(lambda x:float(x),SCALE))
         except Exception as err:
-            error(f"scale is invalid",1)
+            error(f"scale is invalid ({err})",1)
         debug(f"scale = {SCALE}")
+    if "round" in options.keys():
+        global ROUND
+        ROUND = options.pop("round)").split(",")
+        try:
+            ROUND = list(map(lambda x:int(x),ROUND))
+        except Exception as err:
+            error(f"round is invalid ({err}),1)")
+        debug(f"round = {ROUND}")
     if "properties" in options.keys():
         PROPERTIES = options.pop("properties").split(",")
         if len(PROPERTIES) != len(VALUECOLS):
             error("incorrect number of properties",1)
+        debug(f"properties = {PROPERTIES}")
     if options:
         error(f"option '{list(options.keys())[0]}' not valid",1)
 
@@ -156,7 +172,13 @@ def convert(input_name,
         elif n > len(SCALE):
             data[name] *= SCALE[-1]
         else:
-            data[name] += SCALE[n]
+            data[name] *= SCALE[n]
+        if type(ROUND) == int:
+            data[name] = data[name].round(ROUND)
+        elif n > len(SCALE):
+            data[name] = data[name].round(ROUND[-1])
+        else:
+            data[name] = data[name].round(ROUND[n])
 
     # write player object
     if not output_name:
