@@ -1003,13 +1003,14 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 {
 	UNRESOLVED *next;
 	const char *filename = NULL;
-	while (item!=NULL)
+	while ( item != NULL )
 	{
 		// context file name changes
 		if (item->file!=NULL)
 		{
 			// free last context file name
-			if (filename!=NULL){
+			if ( ! deferred && filename!=NULL )
+			{
 				free((void*)filename); // last one - not used again
 				filename = NULL;
 			}
@@ -1021,7 +1022,7 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 		// handle different reference types
 		switch (item->ptype) {
 		case PT_object:
-			if (resolve_object(item, filename, deferred)==FAILED)
+			if ( resolve_object(item, filename, deferred)==FAILED )
 				return FAILED;
 			break;
 		case PT_double:
@@ -1036,18 +1037,26 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 			break;
 		}
 		next = item->next;
-		free(item);
+		if ( ! deferred )
+		{
+			free(item);
+		}
 		item=next;
 	}
-	if ( filename!=NULL )
+	if ( ! deferred && filename != NULL )
+	{
 		free((void*)filename);
+	}
 	return SUCCESS;
 }
 
 STATUS GldLoader::load_resolve_all(bool deferred)
 {
 	STATUS result = resolve_list(first_unresolved,deferred);
-	first_unresolved = NULL;
+	if ( ! deferred )
+	{
+		first_unresolved = NULL;
+	}
 	return result;
 }
 
