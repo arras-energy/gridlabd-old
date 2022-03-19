@@ -1,3 +1,35 @@
+// converters/autotest/test_mdbtable2glmplayer.glm
+//
+// NOTE
+//
+// This test can only be run by users who have access to the AMI data stored in
+//
+//   https://github.com/dchassin/camden_model
+//
+// To access this data you must read, agree to, and sign the NDA covering this data
+//
+
+#ifmissing ami_data.mdb
+
+#ifmissing ami_data.mdb.zip
+
+#ifdef GITHUB_TOKEN
+#system curl -sL -o ami_data.mdb.zip --header "Authorization: token ${GITHUB_TOKEN}" 'https://raw.githubusercontent.com/dchassin/camden_model/master/AMI_KWH.mdb.zip'
+#else
+#warning unable to download AMI data from secure repo without GITHUB_TOKEN environment variable defined
+#endif // GITHUB_TOKEN
+
+#endif // missing zip
+
+#ifexist ami_data.mdb.zip
+#exec unzip ami_data.mdb AMI_KWH.mdb >/dev/null
+#system mv AMI_KWH.mdb ami_data.mdb
+#system rm -f ami_data.mdb.zip
+#endif // exist zip
+
+#endif // missing mdb
+
+#ifexist ami_data.mdb
 #set relax_naming_rules=TRUE
 
 class test
@@ -15,3 +47,5 @@ object test
 	name ${OBJ};
 }
 #done
+
+#endif
