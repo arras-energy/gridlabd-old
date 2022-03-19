@@ -789,6 +789,7 @@ GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype,
 	item->line = line;
 	item->next = first_unresolved;
 	item->flags = flags;
+	item->resolved = false;
 	first_unresolved = item;
 	return item;
 }
@@ -908,6 +909,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool defer
 		return FAILED;
 	}
 	*(OBJECT**)(item->ref) = obj;
+	item->resolved = true;
 	if ( (item->flags&UR_RANKS) == UR_RANKS )
 	{
 		object_set_rank(obj,item->by->rank);
@@ -992,8 +994,8 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 			return FAILED;
 		}
 
+		item->resolved = true;
 		IN_MYCONTEXT output_debug("reference '%s' resolved ok", item->id);
-
 		return SUCCESS;
 	}
 	return FAILED;
@@ -1006,7 +1008,7 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 	while ( item != NULL )
 	{
 		// context file name changes
-		if (item->file!=NULL)
+		if ( item->file != NULL )
 		{
 			// free last context file name
 			if ( ! deferred && filename!=NULL )
@@ -1019,22 +1021,29 @@ STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 			filename = item->file;
 		}
 
-		// handle different reference types
-		switch (item->ptype) {
-		case PT_object:
-			if ( resolve_object(item, filename, deferred)==FAILED )
-				return FAILED;
-			break;
-		case PT_double:
-		case PT_complex:
-		case PT_loadshape:
-		case PT_enduse:
-			if (resolve_double(item, filename, deferred)==FAILED)
-				return FAILED;
-			break;
-		default:
-			syntax_error(filename,item->line,"unresolved reference to property '%s' uses unsupported type (ptype=%d)", item->id, item->ptype);
-			break;
+		if ( ! item->resolved )
+		{
+			// handle different reference types
+			switch (item->ptype) {
+			case PT_object:
+				if ( resolve_object(item, filename, deferred) == FAILED && ! deferred )
+				{
+					return FAILED;
+				}
+				break;
+			case PT_double:
+			case PT_complex:
+			case PT_loadshape:
+			case PT_enduse:
+				if (resolve_double(item, filename, deferred) == FAILED && ! deferred )
+				{
+					return FAILED;
+				}
+				break;
+			default:
+				syntax_error(filename,item->line,"unresolved reference to property '%s' uses unsupported type (ptype=%d)", item->id, item->ptype);
+				break;
+			}
 		}
 		next = item->next;
 		if ( ! deferred )

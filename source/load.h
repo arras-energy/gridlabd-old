@@ -96,6 +96,7 @@ private:
 		const char *id;
 		const char *file;
 		unsigned int line;
+		bool resolved;
 		struct s_unresolved *next;
 	} UNRESOLVED;
 
