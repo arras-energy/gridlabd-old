@@ -1,1 +1,9 @@
-#input "IEEE-13-cyme.mdb" -t table -f object -p table=CYMLOAD -p class=test -p modules=powerflow,residential -p columns=DeviceNumber:name -p dtypes=NetworkId:int32
+#ifexist ../IEEE-13-cyme.mdb
+#define DIR=..
+#endif
+
+#input "${DIR:-.}/IEEE-13-cyme.mdb" -t table -f object -p table=CYMLOAD -p class=test -p modules=powerflow,residential -p columns=DeviceNumber:name -p dtypes=NetworkId:int32
+
+#ifexist ../IEEE-13-cyme.glm
+#on_exit 0 diff ../IEEE-13-cyme.glm IEEE-13-cyme.glm > gridlabd.diff
+#endif
