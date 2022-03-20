@@ -1,5 +1,4 @@
 include source/link/engine/Makefile.mk
-include source/link/matlab/Makefile.mk
 include source/solvers/Makefile.mk
 
 gridlabd_bin_SOURCES = 
