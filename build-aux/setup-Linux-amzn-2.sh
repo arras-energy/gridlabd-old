@@ -22,6 +22,7 @@ yum -q install cmake -y
 yum -q install ncurses-devel -y
 #yum -q install epel-release -y
 yum -q install libcurl-devel -y
+yum -q install mdbtools -y
 
 # python3.9.x support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then

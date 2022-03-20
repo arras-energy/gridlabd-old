@@ -30,14 +30,19 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version)" != "Py
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 	# install python packages
 	/usr/local/bin/python3 -m pip install --upgrade pip
-<<<<<<< HEAD
-	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
-=======
 	/usr/local/bin/python3 -m pip install mysql-connector matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd 
->>>>>>> 13db67f9f90774b9ca73620eb394a1d9c37e5c08
 	/usr/local/bin/python3 -m pip install IPython censusdata
 
-
+# mdbtools
+if [ ! -x /usr/local/bin/mdb-schema ]; then
+	echo "install mdbtools"
+	
+	cd /usr/local/src
+	git clone https://github.com/brianb/mdbtools.git mdbtools
+	cd mdbtools
+	autoreconf -isf
+	./configure
+	make install
 fi
 
 # latex

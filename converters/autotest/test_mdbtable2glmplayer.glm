@@ -9,6 +9,12 @@
 // To access this data you must read, agree to, and sign the NDA covering this data.
 //
 
+#ifmissing /usr/local/bin/mdb-schema
+
+#warning mdbtools is not available
+
+#else
+
 #ifmissing ami_data.mdb
 
 #ifmissing ami_data.mdb.zip
@@ -73,3 +79,5 @@ object collector
 #endif // exist ../test_mdbtable2glmplayer.csv
 
 #endif // exist ami_data.mdb
+
+#endif // missing /usr/local/bin/mdb-schema

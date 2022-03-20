@@ -131,19 +131,19 @@ int metrics::finalize(void)
 
 void metrics::report_impact(int n)
 {
-	gld_wlock(my);
+	gld_wlock(my());
 	impact += n;
 }
 
 void metrics::report_cost(double x)
 {
-	gld_wlock(my);
+	gld_wlock(my());
 	cost += x;
 }
 
 void metrics::report_outage(double t)
 {
-	gld_wlock(my);
+	gld_wlock(my());
 	outage += t;
 }
 
