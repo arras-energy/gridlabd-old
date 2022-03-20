@@ -776,21 +776,42 @@ GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype,
 	item->ref = ref;
 	item->oclass = oclass;
 	item->id = strdup(id);
-	if ( first_unresolved != NULL && strcmp(first_unresolved->file,file) == 0 )
-	{
-		item->file = first_unresolved->file; // means keep using the same file
-		first_unresolved->file = NULL;
-	}
-	else
-	{
-		item->file = (char*)malloc(strlen(file)+1);
-		item->file = strdup(file);
-	}
+	item->file = strdup(file);
 	item->line = line;
-	item->next = first_unresolved;
 	item->flags = flags;
+	item->prev = NULL;
+	item->next = first_unresolved;
+	if ( first_unresolved != NULL )
+	{
+		first_unresolved->prev = item;
+	}
 	first_unresolved = item;
 	return item;
+}
+
+GldLoader::UNRESOLVED *GldLoader::del_unresolved(GldLoader::UNRESOLVED *item)
+{
+	free((void*)item->id);
+	if ( item->file != NULL )
+	{
+		free((void*)(item->file));
+	}
+	if ( item->prev != NULL ) 
+	{
+		item->prev->next = item->next;
+	}
+	else if ( first_unresolved == item )
+	{
+		first_unresolved = item->next;
+	}
+	if ( item->next != NULL )
+	{
+		item->next->prev = item->prev;
+	}
+	UNRESOLVED *next = item->next;
+	free((void*)item);
+	return next;
+
 }
 
 int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool deferred)
@@ -858,8 +879,11 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool defer
 			obj = object_find_name(item->id);
 			if ( obj == NULL )
 			{
-				syntax_error(filename,item->line,"cannot resolve implicit reference from %s to %s",
-					format_object(item->by).c_str(), item->id);
+				if ( ! deferred )
+				{
+					syntax_error(filename,item->line,"cannot resolve implicit reference from %s to %s",
+						format_object(item->by).c_str(), item->id);
+				}
 				return FAILED;
 			}
 		}
@@ -873,9 +897,11 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool defer
 		}
 		if ( obj == NULL )
 		{
-			if ( deferred ) return SUCCESS;
-			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
-				format_object(item->by).c_str(), item->id);
+			if ( ! deferred )
+			{
+				syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
+					format_object(item->by).c_str(), item->id);
+			}
 			return FAILED;
 		}
 		if ( strcmp(obj->oclass->name,classname) !=0 && strcmp("id", classname) != 0 )
@@ -891,9 +917,11 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool defer
 		obj = get_next_unlinked(oclass);
 		if ( obj == NULL )
 		{
-			if ( deferred ) return SUCCESS;
-			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
-				format_object(item->by).c_str(), item->id);
+			if ( deferred )
+			{
+				syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
+					format_object(item->by).c_str(), item->id);
+			}
 			return FAILED;
 		}
 	}
@@ -903,8 +931,10 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename, bool defer
 	}
 	else
 	{
-		if ( deferred ) return SUCCESS;
-		syntax_error(filename,item->line,"'%s' not found", item->id);
+		if ( ! deferred )
+		{
+			syntax_error(filename,item->line,"'%s' not found", item->id);
+		}
 		return FAILED;
 	}
 	*(OBJECT**)(item->ref) = obj;
@@ -932,7 +962,10 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 		obj = object_find_name(oname);
 		if (obj==NULL)
 		{
-			syntax_error(filename,item->line,"object '%s' not found", oname);
+			if ( ! deferred )
+			{
+				syntax_error(filename,item->line,"object '%s' not found", oname);
+			}
 			return FAILED;
 		}
 
@@ -940,7 +973,10 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 		prop = object_get_property(obj,pname,NULL);
 		if (prop==NULL)
 		{
-			syntax_error(filename,item->line,"property '%s' not found", pname);
+			if ( ! deferred )
+			{
+				syntax_error(filename,item->line,"property '%s' not found", pname);
+			}
 			return FAILED;
 		}
 
@@ -959,8 +995,10 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 			}
 			if ( ref == NULL )
 			{
-				if ( deferred ) return SUCCESS;
-				syntax_error(filename,item->line,"transform reference not found");
+				if ( ! deferred )
+				{
+					syntax_error(filename,item->line,"transform reference not found");
+				}
 				return FAILED;
 			}
 		}
@@ -993,7 +1031,6 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 		}
 
 		IN_MYCONTEXT output_debug("reference '%s' resolved ok", item->id);
-
 		return SUCCESS;
 	}
 	return FAILED;
@@ -1001,53 +1038,54 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context, bool deferr
 
 STATUS GldLoader::resolve_list(UNRESOLVED *item, bool deferred)
 {
-	UNRESOLVED *next;
-	const char *filename = NULL;
-	while (item!=NULL)
+	while ( item != NULL )
 	{
-		// context file name changes
-		if (item->file!=NULL)
-		{
-			// free last context file name
-			if (filename!=NULL){
-				free((void*)filename); // last one - not used again
-				filename = NULL;
-			}
-
-			// get next context file name
-			filename = item->file;
-		}
+		output_debug("GldLoader::resolve_list(UNRESOLVED *item=<0x%x> '%s', bool deferred=%s) starting",item,item->id,deferred?"true":"false");
+		bool resolved = false;
 
 		// handle different reference types
 		switch (item->ptype) {
 		case PT_object:
-			if (resolve_object(item, filename, deferred)==FAILED)
-				return FAILED;
+			resolved = resolve_object(item, filename, deferred);
 			break;
 		case PT_double:
 		case PT_complex:
 		case PT_loadshape:
 		case PT_enduse:
-			if (resolve_double(item, filename, deferred)==FAILED)
-				return FAILED;
+			resolved = resolve_double(item, filename, deferred);
 			break;
 		default:
-			syntax_error(filename,item->line,"unresolved reference to property '%s' uses unsupported type (ptype=%d)", item->id, item->ptype);
+			syntax_error(item->file,item->line,"unresolved reference to property '%s' uses unsupported type (ptype=%d)", item->id, item->ptype);
 			break;
 		}
-		next = item->next;
-		free(item);
-		item=next;
+		if ( resolved )
+		{
+			item = del_unresolved(item);
+			output_debug("resolved ok, next is item <0x%x>", item);
+		}
+		else if ( ! deferred )
+		{
+			// unresolved with no deferred resolution
+			output_debug("unresolved");
+			return FAILED;
+		}
+		else
+		{
+			// unresolved with deferred resolution
+			item = item->next;
+			output_debug("resolution deferred, next is item <0x%x>",item);
+		}
 	}
-	if ( filename!=NULL )
-		free((void*)filename);
 	return SUCCESS;
 }
 
 STATUS GldLoader::load_resolve_all(bool deferred)
 {
 	STATUS result = resolve_list(first_unresolved,deferred);
-	first_unresolved = NULL;
+	if ( deferred )
+	{
+		return SUCCESS;
+	}
 	return result;
 }
 
@@ -1195,7 +1233,7 @@ int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='-' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1205,7 +1243,7 @@ int GldLoader::name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if (isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1214,7 +1252,7 @@ int GldLoader::namelist(PARSER, char *result, int size)
 {	/* basic list of names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p=='@' || *_p==' ' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1223,7 +1261,7 @@ int GldLoader::variable_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -1233,7 +1271,7 @@ int GldLoader::property_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
-	if (isdigit(*_p)) return 0;
+	if ( isdigit(*_p) && ! global_relax_naming_rules ) return 0;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_' || *_p==':') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -8134,6 +8172,9 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	else if ( strncmp(line, "#for",4) == 0 )
 	{
 		char var[64], range[1024];
+		if ( line[0] == '"' ) line++;
+		char *end = line + strlen(line);
+		if ( end[-1] == '"') end[-1] = '\0';
 		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) == 2 )
 		{
 			strcpy(line,"\n");
@@ -8186,6 +8227,33 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	else if ( strncmp(line, "#wait", 5) == 0 )
 	{
 		wait_processes();
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	else if ( strncmp(line,"#resolve",8) == 0 )
+	{
+		char opt[1024];
+		bool deferred = true;
+		if ( sscanf(line+8,"%s",opt) == 1 )
+		{
+			if ( strcmp(opt,"defer") == 0 )
+			{
+				deferred = true;
+			}
+			else if ( strcmp(opt,"now") == 0 )
+			{
+				deferred = false;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"resolve option '%s' is invalid",opt);
+				return FALSE;
+			}
+		}
+		if ( ! resolve_list(first_unresolved,deferred) )
+		{
+			output_error("unable to resolve all object references");
+		}
 		strcpy(line,"\n");
 		return TRUE;
 	}

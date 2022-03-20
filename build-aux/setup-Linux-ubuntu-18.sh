@@ -34,6 +34,7 @@ apt-get -q install bison -y
 apt-get -q install libcurl4-gnutls-dev -y
 apt-get -q install libncurses5-dev -y
 apt-get -q install subversion -y
+apt-get -q install mdbtools -y
 
 # doxgygen
 apt-get -q install gawk -y
