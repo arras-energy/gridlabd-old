@@ -1,4 +1,4 @@
-pkglib_LTLIBRARIES += gldcore/link/matlab/glxmatlab.la
+pkglib_LTLIBRARIES += source/link/matlab/glxmatlab.la
 
 gldcore_link_matlab_glxmatlab_la_CPPFLAGS =
 gldcore_link_matlab_glxmatlab_la_CPPFLAGS += $(MATLAB_CPPFLAGS)

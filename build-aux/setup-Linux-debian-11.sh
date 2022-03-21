@@ -45,12 +45,13 @@ apt-get -q install bison -y
 apt-get -q install libcurl4-gnutls-dev -y
 apt-get -q install subversion -y
 apt-get -q install util-linux -y
-apt-get install liblzma-dev -y
-apt-get install libbz2-dev -y
-apt-get install libncursesw5-dev -y
-apt-get install xz-utils -y
+apt-get -q install liblzma-dev -y
+apt-get -q install libbz2-dev -y
+apt-get -q install libncursesw5-dev -y
+apt-get -q install xz-utils -y
+apt-get -q install mdbtools -y
 # Install gdal for mac osx m1 platform.
-apt-get install libgdal-dev -y
+apt-get -q install libgdal-dev -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2

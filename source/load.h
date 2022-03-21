@@ -96,6 +96,7 @@ private:
 		const char *id;
 		const char *file;
 		unsigned int line;
+		struct s_unresolved *prev;
 		struct s_unresolved *next;
 	} UNRESOLVED;
 
@@ -235,6 +236,7 @@ private:
 	OBJECT *get_next_unlinked(CLASS *oclass);
 	void free_index(void);	
 	UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
+	UNRESOLVED *del_unresolved(UNRESOLVED *item);
 	int resolve_object(UNRESOLVED *item, const char *filename, bool deferred);
 	int resolve_double(UNRESOLVED *item, const char *context, bool deferred);
 	STATUS resolve_list(UNRESOLVED *item, bool deferred);

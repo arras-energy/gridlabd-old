@@ -19,9 +19,18 @@ double paneldump_resolution = 0.1; // minimum change measurement can detect
 FILE *paneldump_fh = NULL;
 
 // list of enduses that are implicitly active
-set house_e::implicit_enduses_active = IEU_ALL;
-enumeration house_e::implicit_enduse_source = IES_ELCAP1990;
+set house_e::implicit_enduses_active = IEU_TYPICAL;
+enumeration house_e::implicit_enduse_source = IES_ELCAP2010;
 static double aux_cutin_temperature = 10;
+
+// sump pump level rate factors
+double house_e::sump_humidity_factor = 0.01; // pu/h/%
+double house_e::sump_rainfall_factor = 1.0; // pu/in/day
+double house_e::sump_snowmelt_factor = 0.1; // pu/in/day
+
+// curtailment (default only things occupants control directly -- no automation)
+char1024 house_e::curtailment_enduses = "DISHWASHER|MICROWAVE|RANGE|EVCHARGER|CLOTHESWASHER|DRYER";
+bool house_e::curtailment_active = FALSE;
 
 static char *strlwr(char *s)
 {
@@ -800,6 +809,28 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"hvac_duty_cycle",PADDR(hvac_duty_cycle), 
 				PT_OUTPUT, 
 
+			PT_double,"sump_state[pu]",PADDR(sump_state),
+				PT_DESCRIPTION,"sump pit fill state",
+			PT_double,"sump_power[W]",PADDR(sump_power),
+				PT_DEFAULT,"+800 W",
+				PT_DESCRIPTION,"sump pump rated power",
+			PT_double,"sump_rate[pu/min]",PADDR(sump_rate),
+				PT_DEFAULT,"2.0 pu/min",
+				PT_DESCRIPTION,"sump pump pit drainage rate",
+			PT_enumeration,"sump_status",PADDR(sump_status),
+				PT_DEFAULT,"NONE",
+				PT_DESCRIPTION,"sump pump running status",
+				PT_KEYWORD,"NONE",(enumeration)SS_NONE,
+				PT_KEYWORD,"ON",(enumeration)SS_ON,
+				PT_KEYWORD,"OFF",(enumeration)SS_OFF,
+
+			PT_enumeration,"curtailment",PADDR(curtailment_status),
+				PT_DEFAULT,"NONE",
+				PT_DESCRIPTION,"curtailment status",
+				PT_KEYWORD,"NONE",(enumeration)CS_NONE,
+				PT_KEYWORD,"CURTAILED",(enumeration)CS_CURTAILED,
+				PT_KEYWORD,"RECOVERING",(enumeration)CS_RECOVERING,
+
 			// these are hidden so we can spy on ETP
 			PT_double,"a",PADDR(a),
 				PT_OUTPUT, 
@@ -903,6 +934,8 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 
 		gl_publish_function(oclass,	"attach_enduse", (FUNCTIONADDR)attach_enduse_house_e);
 		gl_global_create("residential::implicit_enduses",PT_set,&implicit_enduses_active,
+			PT_KEYWORD, "ALL", (set)IEU_ALL,
+			PT_KEYWORD, "TYPICAL", (set)IEU_TYPICAL,
 			PT_KEYWORD, "LIGHTS", (set)IEU_LIGHTS,
 			PT_KEYWORD, "PLUGS", (set)IEU_PLUGS,
 			PT_KEYWORD, "OCCUPANCY", (set)IEU_OCCUPANCY,
@@ -915,6 +948,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD, "WATERHEATER", (set)IEU_WATERHEATER,
 			PT_KEYWORD, "CLOTHESWASHER", (set)IEU_CLOTHESWASHER,
 			PT_KEYWORD, "DRYER", (set)IEU_DRYER,
+			PT_KEYWORD, "SUMP", (set)IEU_SUMP,
 			PT_KEYWORD, "NONE", (set)0,
 			PT_DESCRIPTION, "list of implicit enduses that are active in houses",
 			NULL);
@@ -948,6 +982,22 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			NULL);
 		gl_global_create("residential::paneldump_resolution",PT_double,&paneldump_interval,
 			PT_DESCRIPTION, "the resolution at which the paneldump is performed (differences less than this are ignored)",
+			NULL);
+
+		gl_global_create("residential::sump_humidity_factor",PT_double,&sump_humidity_factor,PT_UNITS,"pu/%/h",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of relative humidity",
+			NULL);
+		gl_global_create("residential::sump_rainfall_factor",PT_double,&sump_rainfall_factor,PT_UNITS,"pu/in/day",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of rainfall",
+			NULL);
+		gl_global_create("residential::sump_snowmelt_factor",PT_double,&sump_snowmelt_factor,PT_UNITS,"pu/in/day",
+			PT_DESCRIPTION, "the rate at which the sump level rises as a function of snowmelt",
+			NULL);
+		gl_global_create("residential::curtailment_enduses",PT_char1024,(const char*)curtailment_enduses,
+			PT_DESCRIPTION, "list of implicit enduses that are active in houses",
+			NULL);
+		gl_global_create("residential::curtailment_active",PT_bool,&curtailment_active,
+			PT_DESCRIPTION, "flag to indicate that enduse curtailment is active",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)
@@ -1070,6 +1120,10 @@ int house_e::init_climate()
 {
 	OBJECT *hdr = THISOBJECTHDR;
 
+	extern double default_outdoor_temperature, default_humidity, default_solar[9];
+	static double default_rainfall = 0.0;
+	static double default_snowdepth = 0.0;
+
 	// link to climate data
 	static FINDLIST *climates = NULL;
 	int not_found = 0;
@@ -1082,10 +1136,11 @@ int house_e::init_climate()
 			warning("house_e: no climate data found, using static data");
 
 			//default to mock data
-			extern double default_outdoor_temperature, default_humidity, default_solar[9];
 			pTout = &default_outdoor_temperature;
 			pRhout = &default_humidity;
 			pSolar = &default_solar[0];
+			pRainfall = &default_rainfall;
+			pSnowdepth = &default_snowdepth;
 		}
 		else if (climates->hit_count>1 && weather != 0)
 		{
@@ -1097,10 +1152,11 @@ int house_e::init_climate()
 		if (climates->hit_count==0)
 		{
 			//default to mock data
-			extern double default_outdoor_temperature, default_humidity, default_solar[9];
 			pTout = &default_outdoor_temperature;
 			pRhout = &default_humidity;
 			pSolar = &default_solar[0];
+			pRainfall = &default_rainfall;
+			pSnowdepth = &default_snowdepth;
 		}
 		else //climate data was found
 		{
@@ -1117,6 +1173,8 @@ int house_e::init_climate()
 			pTout = (double*)GETADDR(obj,gl_get_property(obj,"temperature"));
 			pRhout = (double*)GETADDR(obj,gl_get_property(obj,"humidity"));
 			pSolar = (double*)GETADDR(obj,gl_get_property(obj,"solar_flux"));
+			pRainfall = (double*)GETADDR(obj,gl_get_property(obj,"rainfall"));
+			pSnowdepth = (double*)GETADDR(obj,gl_get_property(obj,"snowdepth"));
 			struct {
 				const char *name;
 				double *dst;
@@ -1897,7 +1955,25 @@ int house_e::init(OBJECT *parent)
 				break;
 		}
 	}
-				
+	
+	// Sump pump
+	if ( sump_rate <= 0 )
+	{
+		error("sump rate must be positive");
+	}
+	if ( sump_state == 0 )
+	{
+		sump_state = gl_random_uniform(RNGSTATE,0.0,1.0);
+	}
+	else if ( sump_state < 0 )
+	{
+		// random uniform value between 0 and -STATE
+		sump_state = gl_random_uniform(RNGSTATE,0.0,-sump_state);
+	}
+	if ( sump_power <= 0 )
+	{
+		error("sump power must be positive");
+	}
 
 	// calculate thermal constants
 #define Ca (air_thermal_mass)
@@ -1944,10 +2020,12 @@ int house_e::init(OBJECT *parent)
 	// connect any implicit loads
 	attach_implicit_enduses();
 	update_system();
-	if(error_flag == 1){
+	if ( error_flag == 1 )
+	{
 		return 0;
 	}
 	update_model();
+	update_sump();
 	
 	// attach the house_e HVAC to the panel
 	if (hvac_breaker_rating == 0)
@@ -2011,10 +2089,10 @@ int house_e::init(OBJECT *parent)
 		}
 	}
 
-	// zero out gas enduses
 	CIRCUIT *circuit;
 	for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
 	{
+		// zero out gas enduses
 		if ( circuit->pLoad && circuit->pLoad->name )
 		{
 			if ( strstr(gas_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
@@ -2026,6 +2104,19 @@ int house_e::init(OBJECT *parent)
 			{
 				debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
 				circuit->pLoad->gas_fraction = 0.0;
+			}
+		}
+
+		// reduce curtailed enduses
+		if ( circuit->pLoad && circuit->pLoad->name )
+		{
+			if ( strstr(curtailment_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
+			{
+				circuit->pLoad->curtailment_fraction = 0.0;
+			}
+			else
+			{
+				circuit->pLoad->curtailment_fraction = 1.0;
 			}
 		}
 	}
@@ -2605,6 +2696,41 @@ void house_e::update_system(double dt)
 	}
 }
 
+void house_e::update_sump(double dt)
+{
+	if ( sump_status == SS_NONE )
+	{
+		return;
+	}
+	if ( dt > 0 )
+	{
+		double humidity = ( pRhout ? *pRhout : 0.0 );
+		double rainfall = ( pRainfall ? *pRainfall : 0.0 );
+		//double snowdepth = ( *pSnowdepth ? *pSnowdepth : 0.0 );
+		double snowmelt = 0.0; // TODO calculate the snow melt rate for the change in depth
+		double dstate = humidity*sump_humidity_factor + rainfall*sump_rainfall_factor/24 + snowmelt*sump_snowmelt_factor/24;
+		sump_state += dstate * dt/3600;
+		if ( sump_status == SS_ON )
+		{
+			sump_state -= dt*sump_rate/60;
+		}
+	}
+	if ( sump_status == SS_ON )
+	{
+		if ( sump_state <= 0 )
+		{
+			sump_state = 0.0;
+			sump_status = SS_OFF;
+			sump_load = 0.0;
+		}		
+	}
+	else if ( sump_status == SS_OFF && sump_state > 1.0 )
+	{
+		sump_status = SS_ON;
+		sump_load = sump_power;
+	}
+}
+
 /**  Updates the aggregated power from all end uses, calculates the HVAC kWh use for the next synch time
 **/
 TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1) 
@@ -2837,7 +2963,9 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 		// update the state of the system
 		update_system(dt1);
-		if(error_flag == 1){
+		update_sump(dt1);
+		if ( error_flag == 1 )
+		{
 			return TS_INVALID;
 		}
 	}
@@ -3415,39 +3543,36 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			}
 
 			// add to panel current
-			else
+			else 
 			{
+				double curtailment = ( curtailment_active || curtailment_status == CS_CURTAILED ? c->pLoad->curtailment_fraction : 1.0 );
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
 				if ( (int)c->type == 0 )	//1-2 240 V load
 				{
-					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 				else if ( (int)c->type == 1 )	//2-N 120 V load
 				{
-					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 				else	//n has to equal 2 here (checked above) - 1-N 120 V load
 				{
-					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
-					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
-					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
+					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction) * curtailment;
+					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction) * curtailment;
 				}
 
-				//load_values[0][1] += c->pLoad->power * 1000.0;
-				//load_values[1][1] += ~(c->pLoad->current * 1000.0 / V);
-				//load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (V*V));
-
-				total.total += c->pLoad->total;
-				total.power += c->pLoad->power;
-				total.current += c->pLoad->current;
-				total.admittance += c->pLoad->admittance;
-				if((t0 != 0 && t1 > t0) || (!heat_start))
+				total.total += c->pLoad->total * curtailment;
+				total.power += c->pLoad->power * curtailment;
+				total.current += c->pLoad->current * curtailment;
+				total.admittance += c->pLoad->admittance * curtailment;
+				if ( ( t0 != 0 && t1 > t0 ) || ( ! heat_start ) )
 				{
 					total.heatgain += c->pLoad->heatgain;
 				}
@@ -3455,7 +3580,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 
 				// perform measurements
 				c->measurement[0].t = t1;
-				c->measurement[0].power = actual_power;
+				c->measurement[0].power = actual_power * curtailment;
 				if ( c->measurement[1].t == 0 ) // reset energy accumulator (for diff interval measurements)
 				{
 					c->measurement[0].energy = 0;
@@ -3472,11 +3597,13 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 		if (t2 > c->reclose)
 			t2 = c->reclose;
 	}
-	/* using an enduse structure for the total is more a matter of having all the values add up for the house,
-	 * and it should not sync the struct! ~MH */
-	//TIMESTAMP t = gl_enduse_sync(&total,t1); if (t<t2) t2 = t;
 
+	// system loads
 	total_load = total.total.Mag();
+	if ( sump_status == SS_ON )
+	{
+		load_values[0][0] += sump_power;
+	}
 
 	// compute line currents and post to meter
 	if (obj->parent != NULL)
@@ -3689,7 +3816,7 @@ bool circuit_measurement(const char *timestamp,
 						 bool integral)			// flag to indicate integral sampling
 {
 	// check/open panel dump file
-	if ( paneldump_fh == NULL )
+	if ( paneldump_fh == NULL && paneldump_interval != 0 )
 	{
 		paneldump_fh = fopen(paneldump_filename,"w");
 		if ( paneldump_fh == NULL )
