@@ -2262,6 +2262,92 @@ DEPRECATED static int sublime_syntax(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int csvloadshape(void *main, int argc, const char *argv[])
+{
+	FILE *fh = stdout;
+	if ( strchr(argv[0],'=') )
+	{
+		const char *fname = strchr(argv[0],'=') + 1;
+		fh = fopen(fname,"w");
+		if ( fh == NULL )
+		{
+			output_error("unable to open '%s' for write",fname);
+		}
+	}
+	char schedules[65536] = "";
+	if ( argc == 1 || strcmp(argv[1],"*") == 0 )
+	{
+		for ( SCHEDULE *sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+		{
+			if ( schedules[0] != '\0' )
+			{
+				strcat(schedules,",");
+			}
+			strcat(schedules,sch->name);
+		}
+	}
+	else
+	{
+		strncpy(schedules,argv[1],sizeof(schedules)-1);
+	}
+
+	SCHEDULE *schedule_list[1024];
+	unsigned int n_schedules = 0;
+	char *next = NULL, *last = NULL;
+	for ( next = strtok_r(schedules,",",&last) ; next != NULL && n_schedules < sizeof(schedule_list)/sizeof(schedule_list[0]) ; next = strtok_r(NULL,",",&last) )
+	{
+		SCHEDULE *schedule = schedule_find_byname(next);
+		if ( schedule == NULL )
+		{
+			output_error("schedule '%s' not found",next);
+			return CMDERR;
+		}
+		schedule_list[n_schedules++] = schedule;
+	}
+
+	fprintf(fh,"%s","timestamp");
+	for ( unsigned int n = 0 ; n < n_schedules ; n++ )
+	{
+		fprintf(fh,",%s",schedule_list[n]->name);
+	}
+	fprintf(fh,"%s","\n");
+
+	for ( TIMESTAMP ts = global_starttime ; ts < global_stoptime ; )
+	{
+		char tmp[64];
+		if ( convert_from_timestamp(ts,tmp,sizeof(tmp)-1) )
+		{
+			fprintf(fh,"%s",tmp);
+		}
+		TIMESTAMP tn = global_stoptime;
+		for ( unsigned int n = 0 ; n < n_schedules ; n++ )
+		{
+			SCHEDULEINDEX ndx = schedule_index(schedule_list[n],ts);
+			TIMESTAMP t = ts + schedule_dtnext(schedule_list[n],ndx)*60;
+			if ( t < tn )
+			{
+				tn = t;
+			}
+		}
+		for ( unsigned int n = 0 ; n < n_schedules ; n++ )
+		{
+			SCHEDULEINDEX ndx = schedule_index(schedule_list[n],tn);
+			fprintf(fh,",%g",schedule_value(schedule_list[n],ndx));
+		}
+		fprintf(fh,"%s","\n");
+		ts = tn;
+	}
+	if ( fh != stdout )
+	{
+		fclose(fh);
+	}
+	else
+	{
+		fflush(fh);
+	}
+	return argc;
+}
+
 /*********************************************/
 /* ADD NEW CMDARG PROCESSORS ABOVE THIS HERE */
 /* Then make the appropriate entry in the    */
@@ -2337,6 +2423,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"modlist",		NULL,	modlist,		NULL, "Display list of available modules"},
 	{"example",		NULL,	example,		"module:class", "Display an example of an instance of the class after init" },
 	{"mclassdef",	NULL,	mclassdef,		"module:class", "Generate Matlab classdef of an instance of the class after init" },
+	{"loadshape",   NULL,   csvloadshape,   "name:year", "Generate the named schedule as a timeseries for given year"},
 
 	{NULL,NULL,NULL,NULL, "Process control"},
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
@@ -2383,9 +2470,16 @@ int GldCmdarg::runoption(const char *value)
 	int m = strcspn(buffer," \t");
 	char *args[2] = {buffer,buffer[m]=='\0'?NULL:buffer+m+1};
 	buffer[m] = '\0';
+	char opt[64];
+	strcpy(opt,args[0]);
+	char *cut = strchr(opt,'=');
+	if ( cut )
+	{
+		*cut = '\0';
+	}
 	for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 	{
-		if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,args[0])==0 )
+		if ( main_commands[i].lopt != NULL && strcmp(opt,main_commands[i].lopt)==0 )
 		{
 			return main_commands[i].call(instance,args[1]==NULL?1:2,(const char**)args);
 		}
