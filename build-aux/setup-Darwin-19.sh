@@ -13,6 +13,9 @@ brew install autoconf automake libtool gnu-sed gawk
 # install python3
 brew install python3
 
+# mdbtools
+brew install mdbtools
+
 # docs generators
 brew install mono
 brew install naturaldocs

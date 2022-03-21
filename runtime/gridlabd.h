@@ -973,6 +973,7 @@ typedef struct s_enduse {
 	double cumulative_heatgain;  /* internal cumulative heat gain from load (Btu) */ 
 	double heatgain_fraction;	/* fraction of power that goes to internal heat (pu Btu/h) */
 	double gas_fraction;		/* fraction of energy that comes from natural gas */
+	double curtailment_fraction;
 
 	/* misc info */
 	char *name;
