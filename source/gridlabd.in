@@ -280,6 +280,9 @@ HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
 if test "x$1" = "xdocker" ; then :
   if test "x$HAS_DOCKER" = "xno"; then :
+    if "x$2" = "disable" : then
+      exit 0 # disable is harmless and should be ignored on systems without docker
+    fi
     echo "ERROR: docker is not installed" > /dev/stderr
     exit 1
   elif test "x$2" = "xhelp"; then :
