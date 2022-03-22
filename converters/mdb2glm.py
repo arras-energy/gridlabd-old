@@ -8,27 +8,31 @@ from importlib import util
 config = {
     "input" : "mdb",
     "output" : "glm",
-    "type" : ["cyme"],
+    "type" : ["cyme","table"],
+    "format" : ["player","object"],
     "options" : {},
 }
 
 def help():
     print('Syntax:')
-    print('mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type>')
+    print('mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type> -f|--format <output-type>')
     print('  -c|--config    : [OPTIONAL] print converter configuration')
     print('  -i|--ifile     : [REQUIRED] mdb input file name.')
     print('  -o|--ofile     : [REQUIRED] glm output file name.')
     print('  -t|--type      : [REQUIRED] specify input type')
+    print('  -f|--format    : [OPTIONAL] specify output format')
+    print('  -p|--property  : [OPTIONAL] specify a converter option/property')
     print('Input types')
     print('  cyme           : cyme input');
 
 input_name = None
 output_name = None
 input_type = None
-options = []
+output_type = ""
+options = {}
 
 try : 
-    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:c",["help","ifile=","ofile=","type=","config"])
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:cf:p:",["help","ifile=","ofile=","type=","config","format","property"])
 except getopt.GetoptError:
     print("ERROR    [mdb2glm.py]: command line options not valid")
     sys.exit(2)
@@ -48,28 +52,37 @@ for opt, arg in opts:
     elif opt in ("-o", "--ofile"):
         output_name = arg.strip()
     elif opt in ("-t","--type"):
-        types = arg.strip().split(" ")
-        input_type = types[0];
-        options.extend(types[1:])
-    else:
-        options.append(arg.strip())
+        if arg in config["type"]:
+            input_type = arg
+        else:
+            print(f"ERROR [mdb2glm]: '{arg}'' is not a valid input data type")
+            sys.exit(1)
+    elif opt in ("-f","--format"):
+        if arg in config["format"]:
+            output_type = arg
+        else:
+            print(f"ERROR [mdb2glm]: '{arg}'' is not a valid output format")
+            sys.exit(1)
+    elif opt in ("-p","--property"):
+        spec = arg.split("=")
+        if len(spec) == 1:
+            options[spec[0]] = True
+        else:
+            options[spec[0]] = "=".join(spec[1:])
 
-if input_type is None:
+if not input_type:
     print("ERROR    [mdb2glm.py]: conversion type not specified (-t <type> option is missing)")
     sys.exit(1)
+if output_type:
+    output_type = "-" + output_type 
 
-modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm.py")
+modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm{output_type}.py")
 if os.path.exists(modname):
 
     util.spec_from_file_location(input_type, modname)
-    mod = importlib.import_module(f"mdb-{input_type}2glm")
+    mod = importlib.import_module(f"mdb-{input_type}2glm{output_type}")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
-    # try:
-    #     mod.convert(input_name,output_name,options)
-    # except Exception as err:
-    #     print(f"ERROR    [{os.path.basename(modname)}]: {err}");
-    #     sys.exit(1)
     mod.convert(input_name,output_name,options)
 
 else:
