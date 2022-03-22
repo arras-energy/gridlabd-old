@@ -202,27 +202,37 @@ def parse_length(cell_string, current_column, current_row):
 
 	# Keeps track of the units that are in the cell. Whichever unit is listed first in length_units AND is present in the string is the unit that will be used as the output.
 	cell_units = []
-	
+	units_positions = []
+	num_strings = []
 	for key in length_units.keys():
 		if key in cell_string:
-			cell_units.append(length_units[key]) 
-
-	cell_numbers = re.findall('\d+[\.]?[\d+]*', cell_string)
+			cell_units.append(length_units[key])
+			units_positions.append(cell_string.find(key))
+	last_pos = 0
+	for units_position in units_positions:
+		num_strings.append(cell_string[last_pos:units_position])
+		last_pos = units_position+1
 
 	if len(cell_units) == 0: 
 		raise ValueError(f'Please specify valid units for {cell_string} in column: {current_column}, row {current_row}.')
 
-	if len(cell_numbers) != len(cell_units):
+	if len(num_strings) != len(cell_units):
 		raise ValueError(f'Please make sure there are the same number of numbers and units for value {cell_string} in column: {current_column}, row {current_row}')
 
-
-
+	cell_numbers = re.findall('\d+[\./]?[\d+]*', cell_string)
 
 	# Convert all the units and values in the cell to one unit and value.
 	total_cell_value = 0
-	for i in range(0,len(cell_numbers)):
-		convert_to = length_conversions[cell_units[0]]
-		total_cell_value += float(cell_numbers[i]) * convert_to[cell_units[i]]
+	convert_to = length_conversions[cell_units[0]]
+	for i in range(len(num_strings)):
+		num_unit_strings = re.findall('\d+[\./]?[\d+]*', num_strings[i])
+		total_num_value = 0
+		for num_unit_string in num_unit_strings:
+			if "/" in num_unit_string:
+				total_num_value += float(num_unit_string.split('/')[0])/float(num_unit_string.split('/')[1])
+			else:
+				total_num_value += float(num_unit_string)
+		total_cell_value += total_num_value * convert_to[cell_units[i]]
 		
 
 	return str(round(total_cell_value,precision)) + " " + cell_units[0]
