@@ -30,6 +30,7 @@ output_name = None
 input_type = None
 output_type = ""
 options = {}
+
 try : 
     opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:cf:p:",["help","ifile=","ofile=","type=","config","format","property"])
 except getopt.GetoptError:
@@ -82,6 +83,7 @@ if os.path.exists(modname):
     mod = importlib.import_module(f"mdb-{input_type}2glm{output_type}")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
+
     try:
         mod.convert(input_name,output_name,options)
     except:
