@@ -23,6 +23,7 @@ mkdir -p ${PREFIX%/*}
 if [ ! -d $PREFIX ]; then
     cd ${PREFIX%/*} 
     curl -sL http://install.gridlabd.us/python39-debian11.tarz | tar xz
+    cd Python-3.9.6
 fi
 if [ ! -d $PREFIX ]; then
     cd /usr/local/src
@@ -32,8 +33,8 @@ if [ ! -d $PREFIX ]; then
     export MAKEFLAGS=-j$(($(nproc)*3))
     export PYTHONSETUPFLAGS="-j $(($(nproc)*3))"
     make --silent
-    make altinstall --silent
 fi
+make altinstall --silent
 echo "Linking python3..."
 ln -sf $PREFIX/bin/python3.9 /usr/local/bin/python3
 ln -sf $PREFIX/bin/python3.9 /usr/local/bin/python3.9
