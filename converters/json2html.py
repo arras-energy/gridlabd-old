@@ -260,6 +260,11 @@ def get_color(tag):
     except Exception as err:
         pass
 
+    # try pole scheme
+    try:
+        return pole_colors[tag['status']]
+    except:
+        pass
     return 'gray'
 
 def get_popup(name,tag):
