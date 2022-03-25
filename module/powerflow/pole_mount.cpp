@@ -280,7 +280,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
     {
         if ( equipment_is_line )
         {
-            line_moment_wind = line_moment_nowind * 0.00256 * (2.24*wind_speed) * (2.24*wind_speed) * sin(abs(wind_direction-direction)*PI/180); // 2.24 account for m/s to mph conversion
+            line_moment_wind = line_moment_nowind * 0.00256 * (2.24*wind_speed) * (2.24*wind_speed) * abs(sin((wind_direction-direction)*PI/180)); // 2.24 account for m/s to mph conversion
             verbose("wire wind_speed = %g m/s",wind_speed);
             verbose("line_moment_wind = %g ft*lb",line_moment_wind); // the line moment due to wind
             mount->set_wire_wind(mount->get_wire_wind() + line_moment_wind ); // moment due to wind load on wires
