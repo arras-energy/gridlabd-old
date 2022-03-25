@@ -103,7 +103,7 @@ def convert(input_file, output_file, options={}):
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
 	df_pole_library.loc[:,'name'] = pole_name
-	df_pole_library.loc[:,'weather'] = 'weather'
+	df_pole_library.loc[:,'wind_speed'] = '0 m/s'
 	df_pole_library.loc[:,'flags'] = 'NONE'
 	df['Design - Pole']= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
 
