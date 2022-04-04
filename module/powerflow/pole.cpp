@@ -334,8 +334,8 @@ int pole::init(OBJECT *parent)
     verbose("height = %g ft",height);
 
 	// calculation resisting moment
-    double diameter = config->ground_diameter 
-        - height/(config->pole_length - config->pole_depth)
+    double diameter = config->top_diameter 
+        + height/(config->pole_length - config->pole_depth)
             *(config->ground_diameter-config->top_diameter);
 	resisting_moment = 0.008186
 		* config->strength_factor_250b_wood
@@ -344,7 +344,7 @@ int pole::init(OBJECT *parent)
 	verbose("resisting_moment = %.0f ft*lb (not aged)",resisting_moment);
 
     // pole moment per unit of wind pressure
-	pole_moment_nowind = height * height * (diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general * sin(tilt_angle/180*PI);
+	pole_moment_nowind = height * height * (diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general * cos(tilt_angle/180*PI);
     verbose("pole_moment_nowind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_nowind);
 
     // check install year
