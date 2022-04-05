@@ -73,12 +73,33 @@ Before using a build of gridlabd, you should always validate it using `gridlabd 
 
 1) Open PowerShell as administrator
 2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
-3) Update `apt` and install `git`
-4) Clone `gridlabd`
-5) Run `autoconf`
-6) Run `configure`
-7) Make `system`
-8) Validate `gridlabd`.
+3) Change directory to `/usr/local/src`
+4) Update `apt` and install `git`
+~~~
+  root@host:/usr/local/src# apt update -y
+  root@host:/usr/local/src# apt install git -y
+~~~
+5) Clone `gridlabd` and change to the `gridlabd` directory
+~~~
+  root@host:/usr/local/src# git clone https://source.gridlabd.us/
+  root@host:/usr/local/src# cd gridlabd
+~~~
+6) Run `autoconf`
+~~~
+  root@host:/usr/local/src/gridlabd# autoreconf -isf
+~~~
+7) Run `configure`
+~~~
+  root@host:/usr/local/src/gridlabd# ./configure
+~~~
+8) Make `system`
+~~~
+  root@host:/usr/local/src/gridlabd# make system
+~~~
+9) Validate `gridlabd`
+~~~
+  root@host:/usr/local/src/gridlabd# gridlabd --validate
+~~~
 
 ## Building and Debugging
 
