@@ -71,6 +71,8 @@ Before using a build of gridlabd, you should always validate it using `gridlabd 
 
 ## Windows WSL
 
+Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. You can build, install, and run GridLAB-D in WSL as well by doing the following:
+
 1) Open PowerShell as administrator
 2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
 3) Change directory to `/usr/local/src`
