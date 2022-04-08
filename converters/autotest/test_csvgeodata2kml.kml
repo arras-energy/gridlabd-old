@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="1">
+        <Placemark id="3">
+            <name>pole_267462S</name>
+            <description>&lt;TABLE&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Class&lt;/TH&gt;&lt;TD&gt;pole&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Length&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Depth&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Ground Diameter&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Fiber Strength&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Name&lt;/TH&gt;&lt;TD&gt;pole_267462S&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Angle&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Direction&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Latitude&lt;/TH&gt;&lt;TD&gt;34.4002833340685&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Longitude&lt;/TH&gt;&lt;TD&gt;-116.962349732192&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Configuration&lt;/TH&gt;&lt;TD&gt;pole_configuration_267462S&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Weather&lt;/TH&gt;&lt;TD&gt;weather&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Flags&lt;/TH&gt;&lt;TD&gt;NONE&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</description>
+            <Point id="2">
+                <coordinates>-116.962349732192,34.4002833340685,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="5">
+            <name>pole_280565E</name>
+            <description>&lt;TABLE&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Class&lt;/TH&gt;&lt;TD&gt;pole&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Length&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Depth&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Ground Diameter&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Fiber Strength&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Name&lt;/TH&gt;&lt;TD&gt;pole_280565E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Angle&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Direction&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Latitude&lt;/TH&gt;&lt;TD&gt;33.9459351039498&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Longitude&lt;/TH&gt;&lt;TD&gt;-117.89696127071501&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Configuration&lt;/TH&gt;&lt;TD&gt;pole_configuration_280565E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Weather&lt;/TH&gt;&lt;TD&gt;weather&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Flags&lt;/TH&gt;&lt;TD&gt;NONE&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</description>
+            <Point id="4">
+                <coordinates>-117.89696127071501,33.9459351039498,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="7">
+            <name>pole_306771E</name>
+            <description>&lt;TABLE&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Class&lt;/TH&gt;&lt;TD&gt;pole&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Length&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Depth&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Ground Diameter&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Fiber Strength&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Name&lt;/TH&gt;&lt;TD&gt;pole_306771E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Angle&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Direction&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Latitude&lt;/TH&gt;&lt;TD&gt;33.531826810884105&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Longitude&lt;/TH&gt;&lt;TD&gt;-117.76761465808501&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Configuration&lt;/TH&gt;&lt;TD&gt;pole_configuration_306771E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Weather&lt;/TH&gt;&lt;TD&gt;weather&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Flags&lt;/TH&gt;&lt;TD&gt;NONE&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</description>
+            <Point id="6">
+                <coordinates>-117.76761465808501,33.531826810884105,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="9">
+            <name>pole_311032S</name>
+            <description>&lt;TABLE&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Class&lt;/TH&gt;&lt;TD&gt;pole&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Length&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Depth&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Ground Diameter&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Fiber Strength&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Name&lt;/TH&gt;&lt;TD&gt;pole_311032S&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Angle&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Direction&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Latitude&lt;/TH&gt;&lt;TD&gt;33.84445388&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Longitude&lt;/TH&gt;&lt;TD&gt;-117.28241728&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Configuration&lt;/TH&gt;&lt;TD&gt;pole_configuration_311032S&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Weather&lt;/TH&gt;&lt;TD&gt;weather&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Flags&lt;/TH&gt;&lt;TD&gt;NONE&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</description>
+            <Point id="8">
+                <coordinates>-117.28241728,33.84445388,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="11">
+            <name>pole_312148E</name>
+            <description>&lt;TABLE&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Class&lt;/TH&gt;&lt;TD&gt;pole&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Length&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Pole Depth&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Ground Diameter&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Fiber Strength&lt;/TH&gt;&lt;TD&gt;-&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Name&lt;/TH&gt;&lt;TD&gt;pole_312148E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Angle&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Tilt Direction&lt;/TH&gt;&lt;TD&gt;0 deg&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Latitude&lt;/TH&gt;&lt;TD&gt;36.1926329370634&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Longitude&lt;/TH&gt;&lt;TD&gt;-119.158966357457&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Configuration&lt;/TH&gt;&lt;TD&gt;pole_configuration_312148E&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Weather&lt;/TH&gt;&lt;TD&gt;weather&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TH ALIGN=LEFT&gt;Flags&lt;/TH&gt;&lt;TD&gt;NONE&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</description>
+            <Point id="10">
+                <coordinates>-119.158966357457,36.1926329370634,0.0</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

@@ -73,6 +73,8 @@ transformer::transformer(MODULE *mod) : link_object(mod)
 				PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the secondary side of the transformer during saturation calculations",
 			PT_double, "phase_C_secondary_flux_value[Wb]", PADDR(flux_vals_inst[5]),
 				PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the secondary side of the transformer during saturation calculations",
+			PT_double, "degradation_factor[pu]", PADDR(degradation_factor),
+				PT_DESCRIPTION, "turns ratio degradataion factor (0 means no degradation)", 
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 			if (gl_publish_function(oclass,"power_calculation",(FUNCTIONADDR)power_calculation)==NULL)
@@ -181,8 +183,12 @@ int transformer::init(OBJECT *parent)
 
 	OBJECT *obj = THISOBJECTHDR;
 
-	V_base = config->V_secondary;
-	voltage_ratio = nt = config->V_primary / config->V_secondary;
+	V_base = config->V_secondary/(1-degradation_factor);
+	if ( degradation_factor < 0 || degradation_factor >= 1 )
+	{
+		error("degradation_factor must be between 0 and 1 pu");
+	}
+	voltage_ratio = nt = config->V_primary / config->V_secondary * (1-degradation_factor);
 	zt = (config->impedance * V_base * V_base) / (config->kVA_rating * 1000.0);
 	zc =  complex(V_base * V_base,0) / (config->kVA_rating * 1000.0) * complex(config->shunt_impedance.Re(),0) * complex(0,config->shunt_impedance.Im()) / complex(config->shunt_impedance.Re(),config->shunt_impedance.Im());
 
@@ -1371,12 +1377,12 @@ int transformer::transformer_inrush_mat_update(void)
 
 	//Get the voltage levels
 	Np = config->V_primary/sqrt(3.0);
-	Ns = config->V_secondary/sqrt(3.0);
+	Ns = config->V_secondary/(1-degradation_factor)/sqrt(3.0);
 
 	//Get base impedance values
-	Rd = config->impedance.Re()*config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0);
-	Xd = config->impedance.Im()*config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0*2.0);	//Where'd this /2 come from?  Fixed in later version!?!
-	XM = config->V_secondary*config->V_secondary/(config->kVA_rating*1000.0*config->IM_pu)-Xd;
+	Rd = config->impedance.Re()*config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0);
+	Xd = config->impedance.Im()*config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0*2.0);	//Where'd this /2 come from?  Fixed in later version!?!
+	XM = config->V_secondary/(1-degradation_factor)*config->V_secondary/(1-degradation_factor)/(config->kVA_rating*1000.0*config->IM_pu)-Xd;
 
 	//******************** DEBUG NOTE - these may need to be moved, depending on where I populate things
 	//Compute saturation constants
@@ -1404,8 +1410,8 @@ int transformer::transformer_inrush_mat_update(void)
 		phi_base_Pri = config->V_primary / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
 		I_base_Pri = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_primary);
 
-		phi_base_Sec = config->V_secondary / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
-		I_base_Sec = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_secondary);
+		phi_base_Sec = config->V_secondary/(1-degradation_factor) / (sqrt(3.0) * 2.0 * PI * nominal_frequency);
+		I_base_Sec = (config->kVA_rating*1000.0) / (sqrt(3.0) * config->V_secondary/(1-degradation_factor));
 	}//Saturation enabled
 	else	//set to 0, so they cause problems if anyone uses them
 	{

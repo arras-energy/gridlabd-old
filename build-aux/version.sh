@@ -3,7 +3,7 @@
 # It is assumed that this script is run from the top-level srcdir.
 EXE=$0
 TOP=$(cd ${EXE/version.sh/..}; pwd)
-FIL="${TOP}/gldcore/version.h"
+FIL="${TOP}/source/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`

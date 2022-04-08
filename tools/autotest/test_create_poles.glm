@@ -1,0 +1,25 @@
+// autotest/test_create_poles.glm
+
+#ifexist ../test_create_poles_opt.glm
+#define DIR=..
+#endif
+
+class weather
+{
+    double temperature[degF];
+    double wind_speed[mph];
+    double wind_dir[deg];
+}
+
+object weather
+{
+    name "example";
+}
+#python -m create_poles ${DIR:-.}/ieee13.glm --spacing=100 --pole_type=WOOD-EC-45/4 --weather=example --mount_data=${DIR:-.}/test_create_poles_mounts.csv --pole_data=${DIR:-.}/test_create_poles.csv --ignore_location --output=test_create_poles_opt.glm
+
+#include "${DIR:-.}/ieee13.glm"
+#include "test_create_poles_opt.glm"
+
+#ifexist test_create_poles_opt.glm
+#on_exit 0 diff -I '^[#/].*' ${DIR:-.}/test_create_poles_opt.glm test_create_poles_opt.glm > gridlabd.diff
+#endif

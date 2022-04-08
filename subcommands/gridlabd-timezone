@@ -1,0 +1,154 @@
+#!/usr/local/bin/python3
+"""Syntax: gridlabd timezone [OPTIONS...] LOCATION
+
+The gridlabd timezone subcommand obtains the timezone for the location given
+by LOCATION, which may be in the form `LATITUDE,LONGITUDE`, `local`, or an IP
+address of the form `A.B.C.D`.
+
+OPTIONS:
+
+  -d|--debug             output debugging output on error
+  -h|--help|help         print full documentation
+  -v|--verbose           output intermediate results
+  -f|--format[=FORMAT]   change timezone format
+
+FORMATS
+
+	TZINFO   Timezone database standard (default, e.g., "America/Los_Angeles")
+
+	TZSPEC   Timezone abbreviation standard (e.g., "PST+8PDT")
+
+EXAMPLES:
+
+The following command obtains the timezone for the current location as
+determine by the IP address of the host machine:
+
+  shell$ gridlabd timezone local
+  America/Los_Angeles
+
+The following command obtains the timezone for the location specified:
+
+  shell$ gridlabd timezone 37.5,-122.2
+  America/Los_Angeles
+
+The following GLM directive sets the model timezone to the local timezone:
+
+  clock
+  {
+	timezone ${SHELL gridlabd timezone local};
+  }
+"""
+
+import sys, os, subprocess
+
+verbose = False
+debug = False
+location = None
+tz_format = 'TZINFO'
+
+E_OK = 0
+E_SYNTAX = 1
+E_INVALID = 2
+E_FAILED = 3
+
+shared = os.getenv("GLD_ETC")
+if not shared:
+	shared = "/usr/local/share/gridlabd/"
+elif shared[-1] != '/':
+	shared += '/'
+
+def output_verbose(msg):
+	if verbose:
+		print(f"VERBOSE [{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
+
+def output_error(msg,code=None):
+	print(f"ERROR [{os.path.basename(sys.argv[0])}]: {msg}",file=sys.stderr)
+	if type(code) is int:
+		exit(code)
+
+def output_help():
+	print(__doc__)
+	exit(E_OK)
+
+def output_syntax():
+	print(__doc__.split("\n")[0])
+	exit(E_SYNTAX)
+
+def timezone_format(tz_info,tz_format=tz_format):
+
+	if tz_format == 'TZINFO':
+		return tz_info	
+	elif tz_format == 'TZSPEC':
+		tzinfo_file = shared+"tzinfo.txt"
+		with open(tzinfo_file,"r") as f:
+			rule = None
+			found = False
+			for line in f.readlines():
+				if not line or line[0] == ';' or line[0] == '\n':
+					continue
+				elif line[0] != ' ':
+					rule = line
+				elif line.strip() == tz_info:
+					found = True
+					break
+			if found:
+				return rule.split(";")[0].split(",")[0]
+			else:
+				output_error(f"{tz_info} not found in {tzinfo_file}",E_FAILED)
+	else:
+		output_error(f"timezone format '{tz_format}' is not valid",E_INVALID)
+
+try:
+	from timezonefinder import TimezoneFinder
+	import geocoder as gc
+
+	if len(sys.argv) == 1:
+		output_syntax()
+
+	while len(sys.argv) > 1:
+		args = sys.argv[1].split("=")
+		if len(args) == 1:
+			arg = args[0]
+			value = None
+		else:
+			arg = args[0]
+			value = '='.join(args[1:])
+		if arg in ["-d","--debug"]:
+			debug = True
+		elif arg in ["-v","--verbose"]:
+			verbose = True
+		elif arg in ["-h","--help","help"]:
+			output_help()
+		elif arg in ["-f","--format"]:
+			if value:
+				tz_format = value
+		elif arg[0] == '-':
+			output_error(f"option '{sys.argv[1]}' is not valid",E_SYNTAX)
+		else:
+			location = sys.argv[1]
+		del sys.argv[1]
+
+	if not location:
+		output_error("no location specified",E_SYNTAX)
+	elif location == 'local':
+		latlon = gc.ip('me').latlng
+	elif location.find(",") > 0:
+		latlon = list(map(lambda x:float(x),location.split(",")))
+	else:
+		latlon = gc.ip(location).latlng
+	if not type(latlon) is list or len(latlon) != 2 \
+			or type(latlon[0]) != float or type(latlon[1]) != float:
+		output_error("latlon format is not valid",E_INVALID)
+	output_verbose(f"latlon = {latlon}")
+
+	tz_info = TimezoneFinder().timezone_at(lat=latlon[0],lng=latlon[1])
+	print(timezone_format(tz_info,tz_format),file=sys.stdout)
+
+	exit(E_OK)
+
+except Exception as err:
+
+	if debug:
+		raise
+	else:
+		output_error(str(err),E_FAILED)

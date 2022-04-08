@@ -211,6 +211,12 @@ GLM:
     configuration "[IS220|IS110]";
     override "{OFF,ON,NORMAL}";
     power_state "{UNKNOWN,ON,OFF}";
+    sump_runtime "<double> s";
+    sump_state "<double> pu";
+    sump_power "<double> W";
+    sump_rate "<double> pu/min";
+    sump_status "{NONE,ON,OFF}";
+    curtailment "{NONE,ACTIVE,RECOVERING}";
   }
 ~~~
 
@@ -1860,6 +1866,46 @@ TODO
 
 TODO
 
+### `sump_state`
+
+~~~
+    sump_state "<double> pu";
+~~~
+
+Sump pit fill state. 0 is empty, 1 is full.
+
+### `sump_power`
+
+~~~
+    sump_power "<double> W";
+~~~
+
+Nominal power demand of the sump pump.
+
+### `sump_rate`
+
+~~~
+    sump_rate "<double> pu/min";
+~~~
+
+Rate at which sump pump drain the sump pit.
+
+### `sump_status`
+
+~~~
+    sump_status "{NONE,ON,OFF}";
+~~~
+
+Status of the sump pump.
+
+### `curtailment`
+
+~~~
+    curtailment "{NONE,ACTIVE,RECOVERING}";
+~~~
+
+Curtailment status of the house.
+
 # Example
 
 ~~~
@@ -2032,6 +2078,11 @@ TODO
     gas_enduses "";
     override "0";
     power_state "0";
+    sump_state "<double> pu";
+    sump_power "<double> W";
+    sump_rate "<double> pu/min";
+    sump_status "{NONE,ON,OFF}";
+    curtailment "{NONE,ACTIVE,RECOVERING}";
   }
 ~~~
 

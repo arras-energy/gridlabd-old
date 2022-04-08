@@ -8,7 +8,7 @@ fi
 EXE=$0
 TOP=$(cd ${EXE/build_number/..}; pwd)
 VER="$TOP/build-aux/version.sh"
-FIL="$TOP/gldcore/build.h"
+FIL="$TOP/source/build.h"
 if [ -d $TOP/.git ]; then
 
 	# git info is available
