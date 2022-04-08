@@ -108,6 +108,14 @@ current_colors = {
 }
 
 #
+# Pole colors are based on value of status property
+#
+pole_colors = {
+    'OK' : 'black',
+    'FAILED' : 'red'
+}
+
+#
 # Hidden properties
 #
 hidden_properties = ['rank','clock','rng_state','flags']

@@ -429,7 +429,7 @@ def main(inputfile,**options):
     for name in list(objects.keys()):
         data = model["objects"][name]
         if "from" in data.keys() and "to" in data.keys() and \
-                ( not "length" in data.keys() or int(data["length"].split()[0]) < short_line_length ):
+                ( not "length" in data.keys() or float(data["length"].split()[0]) < short_line_length ):
             fromname = data["from"]
             toname = data["to"]
 
