@@ -1,0 +1,11 @@
+class,pole_length,pole_depth,ground_diameter,fiber_strength,name,tilt_angle,tilt_direction,latitude,longitude,configuration,weather,flags
+pole_configuration,40.0 ft,5.5 ft,9.87 in,8000 psi,pole_configuration_267462S,,,,,,,
+pole_configuration,50.0 ft,7.5 ft,,8000 psi,pole_configuration_280565E,,,,,,,
+pole_configuration,45.0 ft,6.5 ft,12.41 in,8000 psi,pole_configuration_306771E,,,,,,,
+pole_configuration,50.0 ft,8.5 ft,,8000 psi,pole_configuration_311032S,,,,,,,
+pole_configuration,45.0 ft,7.67 ft,12.41 in,8000 psi,pole_configuration_312148E,,,,,,,
+pole,,,,,pole_267462S,0 deg,0 deg,34.4002833340685,-116.962349732192,pole_configuration_267462S,weather,NONE
+pole,,,,,pole_280565E,0 deg,0 deg,33.9459351039498,-117.896961270715,pole_configuration_280565E,weather,NONE
+pole,,,,,pole_306771E,0 deg,0 deg,33.5318268108841,-117.767614658085,pole_configuration_306771E,weather,NONE
+pole,,,,,pole_311032S,0 deg,0 deg,33.84445388,-117.28241728,pole_configuration_311032S,weather,NONE
+pole,,,,,pole_312148E,0 deg,0 deg,36.1926329370634,-119.158966357457,pole_configuration_312148E,weather,NONE

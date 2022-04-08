@@ -21,6 +21,7 @@ apt-get -q install libssl-dev -y
 apt-get -q install libbz2-dev -y
 apt-get -q install libffi-dev -y
 apt-get -q install zlib1g-dev -y
+apt-get -q install mdbtools -y
 
 # install python 3.9
 if [ ! -x /usr/local/bin/python3 -o $(/usr/local/bin/python3 --version | cut -f-2 -d.) != "Python 3.9" ]; then

@@ -1,0 +1,6 @@
+// /usr/local/opt/gridlabd/4.2.27-210909-develop_add_cyme_converter/share/gridlabd/csv-table2glm-object.py ../table2glm_input_noclass.csv ../table2glm_input_noclass.glm {'class': 'climate'} 
+object climate { 
+	name "weather";
+	wind_speed 4 m/s;
+	temperature 95 degF;
+}

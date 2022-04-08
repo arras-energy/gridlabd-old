@@ -110,8 +110,9 @@ int pole_configuration::create(void)
     // defaults from chart 4 - type 45/5 pole dimensions
     pole_length = 45.0;
     pole_depth = 4.5;
-    top_diameter = 19/3.14;
     ground_diameter = 32.5/3.14;
+    // top_diameter = 19/3.14;
+    top_diameter = 0.58*ground_diameter;
 
     // defaults from chart 5 - southern yellow pine
     fiber_strength = 8000;
