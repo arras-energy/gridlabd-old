@@ -4,6 +4,7 @@
 import sys, os
 import pandas
 import requests
+import re
 
 class FireIncidentReportFailed(Exception):
 	pass
@@ -14,7 +15,15 @@ class FireInvalidCommandOption(Exception):
 class FireMissingCommandOption(Exception):
 	pass
 
-CACHE = ".cache"
+class FireMissingData(Exception):
+	pass
+
+ETC = os.getenv("GLD_ETC")
+if not ETC:
+	ETC = "."
+if not ETC.endswith("/"):
+	ETC += "/"
+CACHE = f"{ETC}/fire_report/"
 URLINFO = {
 	"CA" : {
 		"PGE" : "https://www.cpuc.ca.gov/-/media/cpuc-website/divisions/safety-and-enforcement-division/reports/fire-incidents/{YEAR}_pge-fire-incident-data-collection-report.xlsx",
@@ -52,7 +61,17 @@ def get_data(state,utility,year,engine="openpyxl",skiprows=1,**kwargs):
 		with open(filename,"wb") as fh:
 			for chunk in response.iter_content(chunk_size=1024):
 				fh.write(chunk)
-	return pandas.read_excel(filename,engine=engine,skiprows=skiprows,**kwargs).drop("Unnamed: 0",axis=1)
+	data = pandas.read_excel(filename,engine=engine,skiprows=skiprows,**kwargs)
+	try:
+		columns = list(data.columns)
+		datecol = columns.index("Date")
+		timecol = columns.index("Time")
+		latcol = columns.index("Latitude")
+		loncol = columns.index("Longitude")
+	except Exception as err:
+		raise FireMissingData(err) from Exception
+	data.drop(data.columns[0:min([datecol,timecol,latcol,loncol])],axis=1,inplace=True)
+	return data
 
 def main(args):
 
@@ -98,15 +117,12 @@ def main(args):
 	if not os.path.exists(csvname):
 
 		data = get_data(STATE,UTILITY,YEAR)
-		columns = []
-		for column in data.columns:
-			columns.append(column.lower().replace(" ","_"))
-		data.columns = columns
-
+		data.columns = [re.sub(r'[^a-z0-9]+','_',col.lower()) for col in list(data.columns)]
 		data.to_csv(csvname,index=False)
 
 	data = pandas.read_csv(csvname,index_col=0,parse_dates=[[0,1]])
 	data.index.name = "datetime"
+	data.dropna(how="all",inplace=True)
 
 	data.to_csv(OUTPUT)
 
