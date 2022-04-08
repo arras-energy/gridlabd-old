@@ -26,7 +26,7 @@ URLINFO = {
 YEAR = None
 STATE = None
 UTILITY = None
-OUTPUT = None
+OUTPUT = sys.stdout
 
 def get_data(state,utility,year,engine="openpyxl",skiprows=1,**kwargs):
 	"""Get fire incident report data
