@@ -219,23 +219,28 @@ def main(args=[],**kwargs):
 
 	result = []
 	for years in YEAR.split(","):
-		startstop = years.split("-")
-		if len(startstop) == 1:
-			startstop = [int(startstop[0])]
-		elif len(startstop) == 2:
-			startstop = list(range(int(startstop[0]),int(startstop[1])+1))
-		else:
-			raise FireInvalidCommandOption(years)
-		for year in startstop:
-			csvname = f"{CACHE}/{STATE}_{UTILITY}_{year}.csv"
-			if not os.path.exists(csvname) or REFRESH:
-				data = get_data(STATE,UTILITY,year)
-				data.columns = [re.sub(r'[^a-z0-9]+','_',col.lower()) for col in list(data.columns)]
-				data.to_csv(csvname,index=False)
-			data = pandas.read_csv(csvname,index_col=0,parse_dates=[[0,1]])
-			data.index.name = "datetime"
-			data.dropna(how="all",inplace=True)
-			result.append(data)
+		try:
+			startstop = years.split("-")
+			if len(startstop) == 1:
+				startstop = [int(startstop[0])]
+			elif len(startstop) == 2:
+				startstop = list(range(int(startstop[0]),int(startstop[1])+1))
+			else:
+				raise FireInvalidCommandOption(years)
+			for year in startstop:
+				csvname = f"{CACHE}/{STATE}_{UTILITY}_{year}.csv"
+				if not os.path.exists(csvname) or REFRESH:
+					data = get_data(STATE,UTILITY,year)
+					data.columns = [re.sub(r'[^a-z0-9]+','_',col.lower()) for col in list(data.columns)]
+					data.to_csv(csvname,index=False)
+				data = pandas.read_csv(csvname,index_col=0,parse_dates=[[0,1]])
+				data.index.name = "datetime"
+				data.dropna(how="all",inplace=True)
+				result.append(data)
+		except FireMissingData as err:
+			print(f"WARNING [fire_report]: {csvname} cannot be loaded due to missing data error ({err})",file=sys.stderr)
+		except Exception as err:		
+			print(f"WARNING [fire_report]: {csvname} cannot be loaded due to processing error ({err})",file=sys.stderr)
 	pandas.concat(result).to_csv(OUTPUT)
 
 if __name__ == "__main__":
