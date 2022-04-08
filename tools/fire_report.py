@@ -35,6 +35,7 @@ URLINFO = {
 YEAR = None
 STATE = None
 UTILITY = None
+REFRESH = False
 OUTPUT = sys.stdout
 
 def get_data(state,utility,year,engine="openpyxl",skiprows=1,**kwargs):
@@ -54,14 +55,32 @@ def get_data(state,utility,year,engine="openpyxl",skiprows=1,**kwargs):
 	"""
 	url = URLINFO[state][utility].format(YEAR=year)
 	filename = f"{CACHE}/{os.path.basename(url)}"
-	if not os.path.exists(filename):
+	if not os.path.exists(filename) or REFRESH:
 		response = requests.get(url, stream=True)
 		if not 200 <= response.status_code <= 299:
 			raise FireIncidentReportFailed(response.text)
 		with open(filename,"wb") as fh:
 			for chunk in response.iter_content(chunk_size=1024):
 				fh.write(chunk)
-	data = pandas.read_excel(filename,engine=engine,skiprows=skiprows,**kwargs)
+
+	def from_xldate(d):
+		try:
+			return f"{d.year:04d}-{d.month:02d}-{d.day:02d}"
+		except:
+			return d
+		
+	def from_xltime(t):
+		try:
+			return f"{t.hour:02d}:{t.minute:02d}.{t.second:02d}"
+		except:
+			return t
+	
+	data = pandas.read_excel(filename,engine=engine,skiprows=skiprows,
+		converters = {
+			"Date" : from_xldate,
+			"Time" : from_xltime,
+		},
+		**kwargs)
 	try:
 		columns = list(data.columns)
 		datecol = columns.index("Date")
@@ -98,6 +117,8 @@ def main(args):
 			STATE = value
 		elif tag in ["-o","--output"]:
 			OUTPUT = open(value,"w")
+		elif tag in ["-r","--refresh"]:
+			REFRESH = True
 		else:
 			raise FireInvalidCommandOption(arg)	
 
@@ -114,7 +135,7 @@ def main(args):
 
 	csvname = f"{CACHE}/{STATE}_{UTILITY}_{YEAR}.csv"
 
-	if not os.path.exists(csvname):
+	if not os.path.exists(csvname) or REFRESH:
 
 		data = get_data(STATE,UTILITY,YEAR)
 		data.columns = [re.sub(r'[^a-z0-9]+','_',col.lower()) for col in list(data.columns)]
