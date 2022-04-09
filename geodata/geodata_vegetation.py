@@ -187,8 +187,9 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
     unit = float(units[options["units"]])
     result = {}
     for pos in path:
-        try:
-            values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
+        if math.isnan(pos[0]) or math.isnan(pos[1]):
+            warning(f"field of 'latitude' or 'longitude' is missing, use -1 for vegetation data.")
+            values={'base': [-1], 'cover': [-1.0], 'height': [-1]}
             for key, value in values.items():
                 if config["layer_units"][key] == "m":
                     value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
@@ -198,11 +199,35 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
                     result[key].extend(value)
                 else:
                     result[key] = value
-        except Exception as err:
-            if config["nan_error"]:
-                elev.append(float("nan"))
-            else:
-                raise
+        elif "California" not in os.popen(f"gridlabd geodata merge -D address {pos[0]},{pos[1]}").read():
+            warning(f"'latitude'/'longitude' is outside of California, use -2 for vegetation data")
+            values={'base': [-2], 'cover': [-2.0], 'height': [-2]}
+            for key, value in values.items():
+                if config["layer_units"][key] == "m":
+                    value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
+                elif config["layer_units"][key] == "%":
+                    value = list(map(lambda x:round(float(x),int(precision+2)),value))
+                if key in result.keys():
+                    result[key].extend(value)
+                else:
+                    result[key] = value
+        else:
+            try:
+                values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
+                for key, value in values.items():
+                    if config["layer_units"][key] == "m":
+                        value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
+                    elif config["layer_units"][key] == "%":
+                        value = list(map(lambda x:round(float(x),int(precision+2)),value))
+                    if key in result.keys():
+                        result[key].extend(value)
+                    else:
+                        result[key] = value
+            except Exception as err:
+                if config["nan_error"]:
+                    elev.append(float("nan"))
+                else:
+                    raise
     for key, values in result.items():
         data[key] = values
     return data
@@ -238,8 +263,8 @@ def get_rowcol(pos,data):
     """Get the row and column location in a 1 degree^2 image tile"""
     height = len(data)
     width = len(data[0])
-    row = height-int(math.modf(abs(pos[0]))[0]*height)
-    col = width-int(math.modf(abs(pos[1]))[0]*width)
+    row = height-math.ceil(math.modf(abs(pos[0]))[0]*height)
+    col = width-math.ceil(math.modf(abs(pos[1]))[0]*width)
 
     return row, col
 
