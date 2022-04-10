@@ -188,20 +188,8 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
     result = {}
     for pos in path:
         if math.isnan(pos[0]) or math.isnan(pos[1]):
-            warning(f"field of 'latitude' or 'longitude' is missing, use -1 for vegetation data.")
-            values={'base': [-1], 'cover': [-1.0], 'height': [-1]}
-            for key, value in values.items():
-                if config["layer_units"][key] == "m":
-                    value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
-                elif config["layer_units"][key] == "%":
-                    value = list(map(lambda x:round(float(x),int(precision+2)),value))
-                if key in result.keys():
-                    result[key].extend(value)
-                else:
-                    result[key] = value
-        elif "California" not in os.popen(f"gridlabd geodata merge -D address {pos[0]},{pos[1]}").read():
-            warning(f"'latitude'/'longitude' is outside of California, use -2 for vegetation data")
-            values={'base': [-2], 'cover': [-2.0], 'height': [-2]}
+            warning(f"field of 'latitude' or 'longitude' is missing, use 'nan' for vegetation data.")
+            values={'base': [numpy.nan], 'cover': [numpy.nan], 'height': [numpy.nan]}
             for key, value in values.items():
                 if config["layer_units"][key] == "m":
                     value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
@@ -213,7 +201,7 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
                     result[key] = value
         else:
             try:
-                values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
+                values = get_vegetation(pos,lambda x:warning(x),repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
                 for key, value in values.items():
                     if config["layer_units"][key] == "m":
                         value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
@@ -232,7 +220,7 @@ def apply(data, options=default_options, config=default_config, warning=lambda x
         data[key] = values
     return data
 
-def get_vegetation(pos,
+def get_vegetation(pos,warning=lambda x:print(x,file=sys.stderr),
         repourl = default_config["repourl"],
         cachedir = default_config["cachedir"],
         layers = default_config["layers"],
@@ -251,21 +239,19 @@ def get_vegetation(pos,
     """
     result = {}
     for layer in layers:
-        name,data = get_imagedata(layer,pos,repourl,cachedir,year)
+        name,data = get_imagedata(layer,pos,repourl,cachedir,warning,year)
         data = layer_process[layer](data)
         row,col = get_rowcol(pos,data)
 
         result[layer] = [data[row][col]]
-
     return result
 
 def get_rowcol(pos,data):
     """Get the row and column location in a 1 degree^2 image tile"""
     height = len(data)
     width = len(data[0])
-    row = height-math.ceil(math.modf(abs(pos[0]))[0]*height)
-    col = width-math.ceil(math.modf(abs(pos[1]))[0]*width)
-
+    row = height-math.floor(math.modf(abs(pos[0]))[0]*height)-1
+    col = width-math.floor(math.modf(abs(pos[1]))[0]*width)-1
     return row, col
 
 def get_position(pos):
@@ -331,7 +317,7 @@ def get_imagename(layer,pos):
 
 vegetation_data = {}
 
-def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximum_image_size=default_config['maximum_image_size']):
+def get_imagedata(layer,pos,repourl,cachedir,warning=lambda x:print(x,file=sys.stderr),year=default_options['year'],maximum_image_size=default_config['maximum_image_size']):
 
     """Get the image data for a location
 
@@ -355,11 +341,14 @@ def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximu
         if not os.path.exists(dstname):
             response = requests.get(srcname,stream=True)
             if response.status_code != 200:
-                raise Exception(f"'GET {srcname}' --> HTTP error code {response.status_code}")
-            with open(dstname,"wb") as fh:
-                for chunk in response.iter_content(chunk_size=1024*1024):
-                    if chunk:
-                        fh.write(chunk)
+                warning(f"'GET {srcname}' --> HTTP error code {response.status_code}, use 'nan' for vegetation data.")
+                im = Image.fromarray(numpy.full((1, 1), numpy.nan))
+                im.save(dstname)
+            else:
+                with open(dstname,"wb") as fh:
+                    for chunk in response.iter_content(chunk_size=1024*1024):
+                        if chunk:
+                            fh.write(chunk)
 
         Image.MAX_IMAGE_PIXELS = maximum_image_size
         vegetation_data[tifname] = numpy.array(Image.open(dstname))
