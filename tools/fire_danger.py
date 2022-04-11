@@ -17,7 +17,7 @@ from io import BytesIO
 import zipfile
 import datetime
 
-CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger/"
+CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/wfpi-forecast-{DAYAHEAD}/emodis-wfpi-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
 
 class FireDangerBadRequest(Exception):
@@ -38,9 +38,11 @@ def get_data(dayahead,date,url=USGSURL,cachedir=CACHEDIR):
 		archive = zipfile.ZipFile(BytesIO(reply.content),mode="r")
 
 		os.makedirs(cachedir,exist_ok=True)
-		archive.extract(f"emodis-wfpi_data_{date}_{date}.tiff",f"{cachedir}")
-		os.rename(f"{cachedir}/emodis-wfpi_data_{date}_{date}.tiff",f"{cachedir}/forecast_{date}_{dayahead}.tif")
-	
+		cachename = f"emodis-wfpi_data_{date}_{date}.tiff"
+		archive.extract(cachename,f"{cachedir}")
+		filename = f"{cachedir}/forecast_{date}_{dayahead}.tif"
+		os.rename(f"{cachedir}/{cachename}",filename)
+		return filename
 	else:
 	
 		raise FireDangerBadRequest(f"{usgsurl} (code {reply.status_code}")
@@ -73,10 +75,14 @@ def main(args):
 	if not DATE:
 		raise FireDangerMissingOption("-d|--date=YYYY-MM-DD")
 
-	get_data(str(DAYAHEAD),DATE.strftime("%Y%m%d"))
-
+	filename = get_data(str(DAYAHEAD),DATE.strftime("%Y%m%d"))
+	print(filename)
 
 if __name__ == "__main__":
 
-	BASENAME = sys.argv[0]
-	main(sys.argv[1:])
+	BASENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	try:
+		main(sys.argv[1:])
+	except Exception as err:
+		etype,evalue,etrace = sys.exc_info()
+		print(f"ERROR [{BASENAME}]: {etype.__name__} {evalue}",file=sys.stderr)
