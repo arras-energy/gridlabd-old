@@ -23,9 +23,9 @@ in which case, all the combination of the specified values are downloaded.
 DAY may specified as 1 through 7.  DATE must be specified using the format
 YYYY-MM-DD. Valid TYPE values are:
 
-fpi - Fire Potential Index
-lfp - Large Fire Probability
-fsp - Fire Spread Probability
+	fpi - Fire Potential Index
+	lfp - Large Fire Probability
+	fsp - Fire Spread Probability
 """
 
 import sys, os
@@ -93,6 +93,7 @@ def main(args):
 			TYPE = value
 		elif tag in ["-h","--help","help"]:
 			print(__doc__,file=sys.stdout)
+			return
 		elif tag in ["-r","--refresh"]:
 			REFRESH = True
 		else:
