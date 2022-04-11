@@ -1,3 +1,4 @@
+#set tmp=.
 module optimize;
 module tape
 {

@@ -17,6 +17,7 @@ public:
     static overhead_line *defaults;
 public:
     GL_ATOMIC(double,ice_thickness);
+    GL_ATOMIC(bool,is_covered);
 public:
 	void recalc(void);
 public:

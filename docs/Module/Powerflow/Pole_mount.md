@@ -10,9 +10,14 @@ object pole_mount
     equipment link_id;
     height 0.0 ft;
     offset 0.0 ft;
+    area 0.0 ft;
     direction 0.0 deg;
     weight 0.0 lbs;
-    area 0.0 ft;
+    pole_spacing 0.0 ft;
+    angle 0.0 deg;
+    weather <climate-object>;
+    wind_speed 0.0 m/s;
+    wind_direction 0.0 deg;
 }
 ~~~
 
@@ -41,6 +46,7 @@ object pole
     object pole_mount
     {
         equipment "line123";
+        weather "weather";
     };
 }
 ~~~
