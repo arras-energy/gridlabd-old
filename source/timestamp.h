@@ -88,6 +88,7 @@ TIMESTAMP convert_to_timestamp(const char *value);
 TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanoseconds, double *dbl_time_value);
 int local_datetime(TIMESTAMP ts, DATETIME *dt);
 int local_datetime_delta(double tsdbl, DATETIME *dt);
+TIMESTAMP timestamp(unsigned short year,unsigned short month=1,unsigned short day=1,unsigned short hour=0,unsigned short minute=0,unsigned short second=0,unsigned short nanosecond=0,unsigned short isdst=0,const char *tz="UTC");
 
 int timestamp_test(void);
 

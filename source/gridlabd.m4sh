@@ -16,7 +16,7 @@ HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
 if test "x$1" = "xdocker" ; then :
   if test "x$HAS_DOCKER" = "xno"; then :
-    echo "ERROR: docker is not installed"
+    echo "ERROR: docker is not installed" > /dev/stderr
     exit 1
   elif test "x$2" = "xhelp"; then :
     echo "Syntax: gridlabd docker <command>"
@@ -25,8 +25,15 @@ if test "x$1" = "xdocker" ; then :
     echo "  enable <image>   enable a docker image as the active image"
     echo "  disable          disable the active image"
     echo "  status           list the gridlabd images (active image is called 'gridlabd')"
+    echo "  fix-tsc          fix the docker configuration TSC performance option"
     exit 0
   elif test "x$2" = "xenable"; then :
+    if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
+      TSC=`grep '^tsc=' /Applications/Docker.app/Contents/Resources/linuxkit/cmdline | cut -f2 -d=`
+      if test "x$TSC" != "xreliable"; then :
+        echo "WARNING: docker performance is poor if TSC is not 'reliable'. Use 'gridlabd docker fix-tsc' to correct this problem." > /dev/stderr
+      fi
+    fi
     if test $# -eq 3; then :
       docker inspect $3 > /dev/null 2>&1 || docker pull $3
       docker tag $3 gridlabd
@@ -34,7 +41,15 @@ if test "x$1" = "xdocker" ; then :
       docker images | grep gridlabd
       exit 0
     else
-      echo "ERROR: missing docker image name"
+      echo "ERROR: missing docker image name" > /dev/stderr
+      exit 1
+    fi
+  elif test "x$2" = "xfix-tsc"; then :
+    if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
+      echo "tsc=reliable" >> "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"
+      exit 0
+    else
+      echo "ERROR: /Applications/Docker.app/Contents/Resources/linuxkit/cmdline does not exist" > /dev/stderr
       exit 1
     fi
   elif test "x$2" = "xdisable" ; then :
@@ -47,7 +62,7 @@ if test "x$1" = "xdocker" ; then :
     docker images | grep gridlabd
     exit 0
   else
-    echo "Syntax: gridlabd --docker <command>|help"
+    echo "Syntax: gridlabd --docker <command>|help" > /dev/stderr
     exit 1
   fi
 fi

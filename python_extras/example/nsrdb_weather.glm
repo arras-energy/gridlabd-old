@@ -1,6 +1,0 @@
-// This example illustrates how to download data from the NREL NSRDB database and generate a GLM file to load it
-
-#ifmissing "/tmp/test.csv"
-#system gridlabd nsrdb_weather -y=2018-2020 -p=37.4,-122.2 -i=5 -g=/tmp/test.glm -c=/tmp/test.csv -n=test
-#endif
-#include "/tmp/test.glm"
