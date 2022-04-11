@@ -20,7 +20,7 @@ the file name `TYPE_DATE_DAY.tif`. The output is the full pathname where the
 data is stored. DAY, DATE, and TYPE may be specified as comma delimited values,
 in which case, all the combination of the specified values are downloaded.
 
-DAY may specified as 1 through 7.  DATE must be specified using the format
+DAY may be specified as 1 through 7.  DATE must be specified using the format
 YYYY-MM-DD. Valid TYPE values are:
 
 	fpi - Fire Potential Index
