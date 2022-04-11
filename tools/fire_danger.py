@@ -11,6 +11,7 @@ OPTIONS:
 
 	-h|--help|help   display this help
 	-r|--refresh     force refresh of files in the cache
+	-s|--show        show image instead of print image name
 
 DESCRIPTION
 
