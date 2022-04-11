@@ -1,4 +1,14 @@
 """Fize danger forecast tool
+
+SYNTAX
+
+	gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD
+
+DESCRIPTION
+
+Downloads the USGS fire danger DAYAHEAD forecast map for the date YYYY-MM-DD.
+The map is stored in the CACHEDIR (by default `$GLD_ETC/usgs/firedanger/`)
+using the name `forecast_DAYAHEAD_DATE.tif`.
 """
 
 import sys, os
