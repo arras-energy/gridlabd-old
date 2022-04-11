@@ -2,7 +2,7 @@
 
 SYNTAX
 
-	$ gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD
+	$ gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD -t|--type=TYPE
 
 DESCRIPTION
 
@@ -11,6 +11,12 @@ The map is stored in the CACHEDIR (by default `$GLD_ETC/usgs/firedanger/`)
 using the name `forecast_DAYAHEAD_DATE.tif`.
 
 The output is the full pathname where the data is stored.
+
+Valid TYPE values are:
+
+fpi - Fire Potential Index
+lfp - Large Fire Probability
+fsp - Fire Spread Probability
 """
 
 import sys, os
@@ -20,7 +26,7 @@ import zipfile
 import datetime
 
 CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
-USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/wfpi-forecast-{DAYAHEAD}/emodis-wfpi-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
+USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
 
 class FireDangerBadRequest(Exception):
 	pass
@@ -31,32 +37,33 @@ class FireDangerInvalidOption(Exception):
 class FireDangerMissingOption(Exception):
 	pass
 
-def get_data(dayahead,date,url=USGSURL,cachedir=CACHEDIR):
+def get_data(dayahead,date,maptype,url=USGSURL,cachedir=CACHEDIR):
 
-	usgsurl = url.format(DAYAHEAD=dayahead,DATE=date)
-	reply = requests.get(usgsurl,stream=True)
-	if 200 <= reply.status_code < 300:
+	filename = f"{cachedir}/{maptype}_{date}_{dayahead}.tif"
+	if not os.path.exists(filename):
+		usgsurl = url.format(DAYAHEAD=dayahead,DATE=date,TYPE=maptype)
+		reply = requests.get(usgsurl,stream=True)
+		if 200 <= reply.status_code < 300:
 
-		archive = zipfile.ZipFile(BytesIO(reply.content),mode="r")
+			archive = zipfile.ZipFile(BytesIO(reply.content),mode="r")
 
-		os.makedirs(cachedir,exist_ok=True)
-		cachename = f"emodis-wfpi_data_{date}_{date}.tiff"
-		archive.extract(cachename,f"{cachedir}")
-		filename = f"{cachedir}/forecast_{date}_{dayahead}.tif"
-		os.rename(f"{cachedir}/{cachename}",filename)
-		return filename
-	else:
-	
-		raise FireDangerBadRequest(f"{usgsurl} (code {reply.status_code}")
+			os.makedirs(cachedir,exist_ok=True)
+			cachename = f"emodis-w{maptype}_data_{date}_{date}.tiff"
+			archive.extract(cachename,f"{cachedir}")
+			os.rename(f"{cachedir}/{cachename}",filename)
+		else:		
+			raise FireDangerBadRequest(f"{usgsurl} (code {reply.status_code})")
+	return filename
 
 def main(args):
 
 	if not args:
-		print("Syntax: gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD",file=sys.stderr)
+		print("Syntax: gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD -t|--type=TYPE",file=sys.stderr)
 		return
 
 	DAYAHEAD = None
 	DATE = None
+	TYPE = None
 	for arg in args:
 		spec = arg.split("=")
 		if len(spec) == 1:
@@ -69,9 +76,11 @@ def main(args):
 			tag = spec[0]
 			value = "=".join(spec[1:])
 		if tag in ["-d","--date"]:
-			DATE = datetime.datetime.strptime(value,"%Y-%m-%d")
+			DATE = value
 		elif tag in ["-f","--forecast"]:
-			DAYAHEAD = int(value)
+			DAYAHEAD = value
+		elif tag in ["-t","--type"]:
+			TYPE = value
 		elif tag in ["-h","--help","help"]:
 			print(__doc__,file=sys.stdout)
 		else:
@@ -83,8 +92,14 @@ def main(args):
 	if not DATE:
 		raise FireDangerMissingOption("-d|--date=YYYY-MM-DD")
 
-	filename = get_data(str(DAYAHEAD),DATE.strftime("%Y%m%d"))
-	print(filename,file=sys.stdout)
+	if not TYPE:
+		raise FireDangerMissingOption("-t|--type=TYPE")
+
+	for day in DAYAHEAD.split(","):
+		for date in DATE.split(","):
+			for mtype in TYPE.split(","):
+				filename = get_data(day,datetime.datetime.strptime(date,"%Y-%m-%d").strftime("%Y%m%d"),mtype)
+				print(filename,file=sys.stdout)
 
 if __name__ == "__main__":
 
