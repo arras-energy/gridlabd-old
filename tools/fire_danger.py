@@ -1,4 +1,4 @@
-"""Fize danger forecast tool
+"""Fire danger forecast data tool
 
 SYNTAX
 
