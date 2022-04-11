@@ -2,17 +2,26 @@
 
 SYNTAX
 
-	$ gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD -t|--type=TYPE
+	$ gridlabd fire_danger [OPTIONS ...]
+		-f|--forecast=DAY1[,DAY2[,...] 
+		-d|--date=DATE1[,DATE2[,...]] 
+		-t|--type=TYPE1[,TYPE2[,...]]  
+
+OPTIONS:
+
+	-h|--help|help   display this help
+	-r|--refresh     force refresh of files in the cache
 
 DESCRIPTION
 
-Downloads the USGS fire danger DAYAHEAD forecast map for the date YYYY-MM-DD.
-The map is stored in the CACHEDIR (by default `$GLD_ETC/usgs/firedanger/`)
-using the name `forecast_DAYAHEAD_DATE.tif`.
+Downloads the USGS fire danger DAY ahead forecast map for the DATE given. The
+map is stored in the CACHEDIR (by default `$GLD_ETC/usgs/firedanger/`) using
+the file name `TYPE_DATE_DAY.tif`. The output is the full pathname where the
+data is stored. DAY, DATE, and TYPE may be specified as comma delimited values,
+in which case, all the combination of the specified values are downloaded.
 
-The output is the full pathname where the data is stored.
-
-Valid TYPE values are:
+DAY may specified as 1 through 7.  DATE must be specified using the format
+YYYY-MM-DD. Valid TYPE values are:
 
 fpi - Fire Potential Index
 lfp - Large Fire Probability
@@ -27,6 +36,7 @@ import datetime
 
 CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
+REFRESH = False
 
 class FireDangerBadRequest(Exception):
 	pass
@@ -40,7 +50,7 @@ class FireDangerMissingOption(Exception):
 def get_data(dayahead,date,maptype,url=USGSURL,cachedir=CACHEDIR):
 
 	filename = f"{cachedir}/{maptype}_{date}_{dayahead}.tif"
-	if not os.path.exists(filename):
+	if not os.path.exists(filename) or REFRESH:
 		usgsurl = url.format(DAYAHEAD=dayahead,DATE=date,TYPE=maptype)
 		reply = requests.get(usgsurl,stream=True)
 		if 200 <= reply.status_code < 300:
@@ -58,7 +68,7 @@ def get_data(dayahead,date,maptype,url=USGSURL,cachedir=CACHEDIR):
 def main(args):
 
 	if not args:
-		print("Syntax: gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD -t|--type=TYPE",file=sys.stderr)
+		print("Syntax: gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD -t|--type=TYPE [OPTIONS ...]",file=sys.stderr)
 		return
 
 	DAYAHEAD = None
@@ -83,6 +93,8 @@ def main(args):
 			TYPE = value
 		elif tag in ["-h","--help","help"]:
 			print(__doc__,file=sys.stdout)
+		elif tag in ["-r","--refresh"]:
+			REFRESH = True
 		else:
 			raise FireDangerInvalidOption(arg)
 
