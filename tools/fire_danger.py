@@ -33,10 +33,13 @@ import requests
 from io import BytesIO
 import zipfile
 import datetime
+import rasterio
+from rasterio.plot import show
 
 CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
 REFRESH = False
+SHOW = False
 
 class FireDangerBadRequest(Exception):
 	pass
@@ -54,9 +57,7 @@ def get_data(dayahead,date,maptype,url=USGSURL,cachedir=CACHEDIR):
 		usgsurl = url.format(DAYAHEAD=dayahead,DATE=date,TYPE=maptype)
 		reply = requests.get(usgsurl,stream=True)
 		if 200 <= reply.status_code < 300:
-
 			archive = zipfile.ZipFile(BytesIO(reply.content),mode="r")
-
 			os.makedirs(cachedir,exist_ok=True)
 			cachename = f"emodis-w{maptype}_data_{date}_{date}.tiff"
 			archive.extract(cachename,f"{cachedir}")
@@ -95,7 +96,11 @@ def main(args):
 			print(__doc__,file=sys.stdout)
 			return
 		elif tag in ["-r","--refresh"]:
+			global REFRESH
 			REFRESH = True
+		elif tag in ["-s","--show"]:
+			global SHOW
+			SHOW = True
 		else:
 			raise FireDangerInvalidOption(arg)
 
@@ -111,8 +116,12 @@ def main(args):
 	for day in DAYAHEAD.split(","):
 		for date in DATE.split(","):
 			for mtype in TYPE.split(","):
-				filename = get_data(day,datetime.datetime.strptime(date,"%Y-%m-%d").strftime("%Y%m%d"),mtype)
-				print(filename,file=sys.stdout)
+				filename = get_data(day,datetime.datetime.strptime(date,"%Y-%m-%d").strftime("%Y%m%d"),mtype)		
+				if SHOW:
+					show(rasterio.open(filename))
+				else:
+					print(filename,file=sys.stdout)
+
 
 if __name__ == "__main__":
 
