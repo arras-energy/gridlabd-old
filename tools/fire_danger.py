@@ -2,13 +2,15 @@
 
 SYNTAX
 
-	gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD
+	$ gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD
 
 DESCRIPTION
 
 Downloads the USGS fire danger DAYAHEAD forecast map for the date YYYY-MM-DD.
 The map is stored in the CACHEDIR (by default `$GLD_ETC/usgs/firedanger/`)
 using the name `forecast_DAYAHEAD_DATE.tif`.
+
+The output is the full pathname where the data is stored.
 """
 
 import sys, os
@@ -49,6 +51,10 @@ def get_data(dayahead,date,url=USGSURL,cachedir=CACHEDIR):
 
 def main(args):
 
+	if not args:
+		print("Syntax: gridlabd fire_danger -f|--forecast=DAYAHEAD -d|--date=YYYY-MM-DD",file=sys.stderr)
+		return
+
 	DAYAHEAD = None
 	DATE = None
 	for arg in args:
@@ -66,6 +72,8 @@ def main(args):
 			DATE = datetime.datetime.strptime(value,"%Y-%m-%d")
 		elif tag in ["-f","--forecast"]:
 			DAYAHEAD = int(value)
+		elif tag in ["-h","--help","help"]:
+			print(__doc__,file=sys.stdout)
 		else:
 			raise FireDangerInvalidOption(arg)
 
@@ -76,7 +84,7 @@ def main(args):
 		raise FireDangerMissingOption("-d|--date=YYYY-MM-DD")
 
 	filename = get_data(str(DAYAHEAD),DATE.strftime("%Y%m%d"))
-	print(filename)
+	print(filename,file=sys.stdout)
 
 if __name__ == "__main__":
 
