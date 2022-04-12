@@ -1,0 +1,9 @@
+#ifexist ../test_market_model.csv
+#define DIR=..
+#endif
+
+#python -m market_model -f=${DIR:-.}/test_market_model.csv -i=LMP -o=MW -k=24 -l=3 -g=test_market_model_opt.glm
+
+#ifexist ../test_market_model_opt.glm
+#on_exit 0 diff ../test_market_model_opt.glm test_market_model_opt.glm > gridlabd.diff
+#endif

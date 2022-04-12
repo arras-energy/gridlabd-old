@@ -2,6 +2,7 @@
 
 //#set profiler=1;
 //#set pauseatexit=1;
+
 clock {
      //timezone PST+8PDT;
 	 timezone PST8;
@@ -119,31 +120,19 @@ object house {
 		tank_volume 20;
 		location INSIDE;
 		tank_UA 3.3;
-#ifndef RECORD
-		object double_assert {
-			target "temperature";
-			object player {
-				property value;
-				file ../test_wh_explicit_1_temperature.player;
-			};
-			within 1;
-		};
-#else
 		object recorder {
-			file "../test_wh_explicit_1_temperature.player";
+			file "test_waterheater_explicit_1.csv";
 			property temperature;
 			interval -1;
 			limit 2880;
 		};
+     };
+}
+
+#ifdef ../test_waterheater_explicit_1.csv
+#on_exit 0 diff ../test_waterheater_explicit_1.csv test_waterheater_explicit_1.csv > gridlabd.diff
 #endif
-};
- };
-// object multi_recorder {
-		// file "multirecorder.csv";
-		// property house1:air_temperature,w1:temperature,w1:height,w1:demand,w1:is_waterheater_on,w1:actual_load,w1:tank_UA;
-		// interval 300;
-		// limit 288;
-// };
+
 //Misc objects - prevent rank issue
 object triplex_line_conductor {     
       name triplex_4/0 AA;    

@@ -1,0 +1,9 @@
+#ifexist ../test_csvgeodata2kml.csv
+#define DIR=..
+#endif
+
+#convert ${DIR:-.}/test_csvgeodata2kml.csv -f csv-geodata -t kml -o test_csvgeodata2kml.kml
+
+#ifexist ../test_csvgeodata2kml.kml
+#on_exit 0 diff ../test_csvgeodata2kml.kml test_csvgeodata2kml.kml
+#endif

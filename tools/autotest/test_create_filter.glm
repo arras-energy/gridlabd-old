@@ -1,0 +1,6 @@
+
+#python -m create_filter test 1 1,0.2 -c -r=8 -m=0 -M=1 -c > test_create_filter_opt.glm
+
+#ifexist ../test_create_filter_opt.glm
+#on_exit 0 diff -I '^[#/].*' ../test_create_filter_opt.glm test_create_filter_opt.glm > gridlabd.diff
+#endif
