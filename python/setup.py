@@ -149,11 +149,7 @@ def get_version(path=None):
 		return '0.0.0'
 
 if len(sys.argv) > 1 and sys.argv[1] == "--version":
-<<<<<<< HEAD
-	print(get_version())
-=======
 	get_version()
->>>>>>> a0415dadfe6f0bf19b85c5c7affd5ecd6b5f52ad
 else:
 	setup (	
 		name = 'gridlabd',
