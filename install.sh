@@ -300,7 +300,6 @@ function docker-build ()
 	
 	# append command line
 	export DOCKER_BUILDKIT=0
-	chmod +rwx $LOG 
 	docker build \
 		-f ./docker/Dockerfile."$BASEIMAGE" \
 		-t slacgismo/gridlabd:latest \
