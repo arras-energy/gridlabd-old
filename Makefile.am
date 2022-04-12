@@ -291,7 +291,7 @@ install-exec-hook: index python-requirements docs
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
 	@echo "To include this version in your command path:"
-	@echo "  export PATH=$(DESTDIR)$(bindir):$$PATH"
+	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
 	@echo ""
 	@echo "To run this version directly without using the command path:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
