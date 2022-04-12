@@ -95,6 +95,7 @@ function info()
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
 	echo "DOCKER=$DOCKER" 
+	echo "IMAGENAME=$IMAGENAME"
 	echo "BRANCH=$BRANCH"
 }
 
@@ -107,7 +108,7 @@ function help()
 	       --info            Print information about this install
 	  -c   --no-check        Do not check system for requirements
 	  -d   --no-docs         Do not install documentation
-	  -f   --force           Force install into existing target folder (Compatible with --docker-build option)
+	  -f   --force           Force install into existing target folder
 	  -i   --no-index        Do not index data archives (Compatible with --docker-build option)
 	  -l   --no-link         Do not link new install to activate it
 	  -t   --no-test         Do not run validation tests (Compatible with --docker-build option)
@@ -120,9 +121,9 @@ function help()
 	  -q   --quick           Run only updates instead of a clean install
 	  -s   --silent          Run without showing commands
 	  -v   --verbose         Run showing log output
-	       --validate        Run validation tests
+	       --validate        Run validation tests (Compatible with --docker-build option)
 	       --version <name>  Override the default version name
-		   --docker-build	 Build docker image. 
+		   --docker-build <imagename> Build docker image. default imagename=slacgismo/gridlabd:latest.
 		   --branch			 Define the branch of the gridlabd repsitory. Default branch is "master". (Compatible with --docker-build option)
 	END
 }
@@ -203,6 +204,11 @@ while [ $# -gt 0 ]; do
 		;;
 	(--docker-build)
 		DOCKER="yes"
+		IMAGENAME="$2"
+		if [ -z "$2" ]; then
+			IMAGENAME="slacgismo/gridlabd:latest"
+		fi
+		shift 1
 		;;
 	(--branch)
 		BRANCH="$2"
@@ -221,9 +227,19 @@ done
 
 NPROC=1
 SYSTEM=$(uname -s)
-RELEASE=$(uname -r | cut -f1 -d.)
+SETUP_FILE="build-aux/setup-debian-11.sh"
+
+if [ "$SYSTEM" == "Linux" ]; then
+	source "/etc/os-release"
+	RELEASE=$(echo $VERSION_ID | cut -f1 -d.)
+	SETUP_FILE="build-aux/setup-$SYSTEM-$ID-$RELEASE.sh"
+elif [ "$SYSTEM" == "Darwin" ]; then
+	RELEASE=$(uname -r | cut -f1 -d.)
+	SETUP_FILE="build-aux/setup-$SYSTEM-$RELEASE.sh"
+fi
 
 
+echo "******** SYSTEM=$SYSTEM , RELEASE = $RELEASE SETUP_FILE=$SETUP_FILE"
 if [ "$PARALLEL" == "yes" ]; then
 	if [ "$SYSTEM" == "Linux" ]; then
 		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
@@ -238,7 +254,8 @@ log clear
 log "START: $(date)"
 log "COMMAND: $0 $*"
 log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
-log "SYSTEM: $(uname -a)"
+log "SYSTEM: $SYSTEM"
+log "SYSTEM ID: $SYSTEM_ID"
 log "SYSTEM VERSION: $RELEASE"
 log "NPROC: $NPROC"
 log "$(info | sed -e '1,$s/=/: /')"
@@ -296,7 +313,7 @@ function docker-build ()
 	fi
 	
 	echo "--build-arg RUN_VALIDATION=$RUN_VALIDATION, NPROC=$NPROC, BRANCH=$BRANCH"	
-	docker build -f ./docker/docker-build/Dockerfile -t gismo/gridlabd \
+	docker build -f ./docker/docker-build/Dockerfile -t $IMAGENAME \
 			--build-arg GET_WEATHER=$GET_WEATHER \
 			--build-arg	RUN_VALIDATION=$RUN_VALIDATION \
 			--build-arg	NPROC=$NPROC \
@@ -316,12 +333,15 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
+
+
 	SOK="$VAR/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
-		SETUP_FILE=${build-aux/.sh/-$SYSTEM-$RELEASE.sh}
+		log "********* SETUP_FILE=$SETUP_FILE ******* "
 		if [ ! -f "${SETUP_FILE}" ] ; then 
-			echo "no $SETUP_FILE run docker build command instead"
+			log "no $SETUP_FILE run docker build command instead"
 			DOCKER="yes"
+			
 		else
 			run ${SETUP_FILE}
 		fi

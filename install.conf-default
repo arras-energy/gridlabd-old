@@ -107,6 +107,12 @@ VERBOSE="no"
 DOCKER="no"
 
 #
+# Enable an option command after --docker-build. This option command defines docker build image name. 
+# If no argument is passed after --docker-build command, the default value is "slacgismo/gridlabd:latest".
+#
+IMAGENAME="slacgismo/gridlabd:latest"
+
+#
 # Define the branch of repo used by the docker build command. The default branch is the "master" of 
 # REPO:https://github.com/slacgismo/gridlabd. The docker create command is enabled when the 
 # systems are not listed inside the "/build-aux/" folder.

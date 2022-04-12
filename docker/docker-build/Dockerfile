@@ -23,7 +23,7 @@ RUN  ./build-aux/setup-Linux-debian-11.sh
 RUN autoreconf -isf && ./configure 
 RUN  make -j${NPROC} system
 
-RUN export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
+# RUN export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
 
 # # get weather
 RUN if [ "${GET_WEATHER:-yes}" == "yes" ]; then \ make index ; fi 
