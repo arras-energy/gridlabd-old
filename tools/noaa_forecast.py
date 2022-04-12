@@ -14,7 +14,7 @@ GLM:
 Python:
     bash$ gridlabd python
     >>> import noaa_forecast as nf
-    >>> ns.getforecast(37.5,-122.3)
+    >>> nf.getforecast(37.5,-122.3)
                                    temperature[degF]  wind_speed[m/s]  wind_dir[deg]
     2021-10-21 14:00:00-07:00          68.000000         4.470400     202.500000
     2021-10-21 15:00:00-07:00          65.327601         4.275738     201.983153

@@ -69,6 +69,40 @@ You use `make install` to build only. To use an inactive build run the `gridlabd
 
 Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
 
+## Windows WSL
+
+Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. You can build, install, and run GridLAB-D in WSL as well by doing the following:
+
+1) Open PowerShell as administrator
+2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
+3) Change directory to `/usr/local/src`
+4) Update `apt` and install `git`
+~~~
+  root@host:/usr/local/src# apt update -y
+  root@host:/usr/local/src# apt install git -y
+~~~
+5) Clone `gridlabd` and change to the `gridlabd` directory
+~~~
+  root@host:/usr/local/src# git clone https://source.gridlabd.us/
+  root@host:/usr/local/src# cd gridlabd
+~~~
+6) Run `autoconf`
+~~~
+  root@host:/usr/local/src/gridlabd# autoreconf -isf
+~~~
+7) Run `configure`
+~~~
+  root@host:/usr/local/src/gridlabd# ./configure
+~~~
+8) Make `system`
+~~~
+  root@host:/usr/local/src/gridlabd# make system
+~~~
+9) Validate `gridlabd`
+~~~
+  root@host:/usr/local/src/gridlabd# gridlabd --validate
+~~~
+
 ## Building and Debugging
 
 You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
