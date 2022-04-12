@@ -80,43 +80,43 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	/usr/local/bin/python3 -m pip install IPython censusdata
 fi
 
-# # install latex
-# apt-get install texlive -y
+# install latex
+apt-get install texlive -y
 
-# # doxgygen
-# apt-get -q install gawk -y
-# if [ ! -x /usr/bin/doxygen ]; then
-# 	if [ ! -d /usr/local/src/doxygen ]; then
-# 		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
-# 	fi
-# 	if [ ! -d /usr/local/src/doxygen/build ]; then
-# 		mkdir /usr/local/src/doxygen/build
-# 	fi
-# 	cd /usr/local/src/doxygen/build
-# 	cmake -G "Unix Makefiles" ..
-# 	make
-# 	make install
-# fi
+# doxgygen
+apt-get -q install gawk -y
+if [ ! -x /usr/bin/doxygen ]; then
+	if [ ! -d /usr/local/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
+	fi
+	if [ ! -d /usr/local/src/doxygen/build ]; then
+		mkdir /usr/local/src/doxygen/build
+	fi
+	cd /usr/local/src/doxygen/build
+	cmake -G "Unix Makefiles" ..
+	make
+	make install
+fi
 
-# # # # mono
+# # # mono
 
-# if [ ! -f /usr/bin/mono ]; then
-# 	cd /tmp
-# 	apt install apt-transport-https dirmngr gnupg ca-certificates -y
-# 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-# 	echo "deb https://download.mono-project.com/repo/debian stable-bustergrid main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-# 	apt-get -q update -y
-# 	apt-get -q install mono-devel -y
-# fi
+if [ ! -f /usr/bin/mono ]; then
+	cd /tmp
+	apt install apt-transport-https dirmngr gnupg ca-certificates -y
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+	echo "deb https://download.mono-project.com/repo/debian stable-bustergrid main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+	apt-get -q update -y
+	apt-get -q install mono-devel -y
+fi
 
-# # # natural_docs
-# if [ ! -x /usr/local/bin/natural_docs ]; then
-# 	cd /usr/local
-# 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
-# 	unzip -qq natural_docs
-# 	rm -f natural_docs.zip
-# 	mv Natural\ Docs natural_docs
-# 	echo '#!/bin/bash
-# mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
-# 	chmod a+x /usr/local/bin/natural_docs
-# fi
+# # natural_docs
+if [ ! -x /usr/local/bin/natural_docs ]; then
+	cd /usr/local
+	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+	unzip -qq natural_docs
+	rm -f natural_docs.zip
+	mv Natural\ Docs natural_docs
+	echo '#!/bin/bash
+mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
+	chmod a+x /usr/local/bin/natural_docs
+fi

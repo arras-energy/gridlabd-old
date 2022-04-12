@@ -329,6 +329,7 @@ fi
 
 # run setup
 
+
 if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
@@ -340,10 +341,10 @@ if [ "$SETUP" == "yes" ]; then
 		log "********* SETUP_FILE=$SETUP_FILE ******* "
 		if [ ! -f "${SETUP_FILE}" ] ; then 
 			log "no $SETUP_FILE run docker build command instead"
-			DOCKER="yes"
-			
+			DOCKER="yes"	
 		else
-			run ${SETUP_FILE}
+			run build-aux/setup.sh
+			date > "$SOK"
 		fi
 		# run build-aux/setup.sh
 		date > "$SOK"
@@ -365,6 +366,7 @@ fi
 require git
 VERSION=${VERSION:-`build-aux/version.sh --name`}
 INSTALL=${INSTALL:-$PREFIX/opt/gridlabd/$VERSION}
+echo "********** VERSION : $ERSION INSTALL=$INSTALL"
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
