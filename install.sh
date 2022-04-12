@@ -94,6 +94,9 @@ function info()
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
+	echo "BASEIMAGE=$BASEIMAGE"
+	echo "BRANCH=$BRANCH"
+	echo "DOCKER=$DOCKER"
 }
 
 function help()
@@ -120,58 +123,76 @@ function help()
 	  -v   --verbose         Run showing log output
 	       --validate        Run validation tests
 	       --version <name>  Override the default version name
+		   --use-docker <baseimage> --branch <branchname> 
+		   					 Build docker image from github repository. default baseimage=debian:11.
+		   					 Define the branch of the gridlabd repsitory. Default branch is "master". 
 	END
 }
-
+DOCKER_COMMANDLINE="./install.sh "
 # process command line options
 while [ $# -gt 0 ]; do
 	case "$1" in
 	(-q|--quick)
 		QUICK="yes"
+		DOCKER_COMMANDLINE+=" -q"
 		;;
 	(--validate)
 		TEST="yes"
+		DOCKER_COMMANDLINE+=" --validate"
 		;;
 	(-i|--no-index)
 		INDEX="no"
+		DOCKER_COMMANDLINE+=" -i"
 		;;
 	(-c|--no-check)
 		CHECK="no"
+		DOCKER_COMMANDLINE+=" -c"
 		;;
 	(-t|--no-test)
 		TEST="no"
+		DOCKER_COMMANDLINE+=" -t"
 		;;
 	(-l|--no-link)
 		LINK="no"
+		DOCKER_COMMANDLINE+=" -l"
 		;;
 	(-d|--no-docs)
 		DOCS="no"
+		DOCKER_COMMANDLINE+=" -d"
 		;;
 	(-u|--no-update)
 		UPDATE="no"
+		DOCKER_COMMANDLINE+=" -u"
 		;;
 	(-s|--silent)
 		SILENT="yes"
+		DOCKER_COMMANDLINE+=" -s"
 		;;
 	(-v|--verbose)
 		VERBOSE="yes"
+		DOCKER_COMMANDLINE+=" -v"
 		;;
 	(-p|--parallel)
 		PARALLEL="yes"
+		DOCKER_COMMANDLINE+=" --parallel"
 		;;
 	(--prefix)
 		PREFIX="$2"
+		DOCKER_COMMANDLINE+=" --prefix $2"
 		if [ ! -d "$PREFIX" ]; then
 			error "$PREFIX does not exist"
 		fi
 		INSTALL="$PREFIX/$VERSION"
+		
 		shift 1
 		;;
     (--no-setup)
         SETUP="no"
+		DOCKER_COMMANDLINE+=" --no-setup"
         ;;
     (-f|--force)
     	FORCE="yes"
+		DOCKER_COMMANDLINE+=" -f"
     	;;
 	(--save)
 		info > "install.conf"
@@ -191,10 +212,35 @@ while [ $# -gt 0 ]; do
 		;;
 	(--version)
 		VERSION="$2"
+		DOCKER_COMMANDLINE+=" --version $2"
 		shift 1
 		;;
 	(--install)
 		INSTALL="$2"
+		DOCKER_COMMANDLINE+=" --install $2"
+		shift 1
+		;;
+	(--use-docker)
+		DOCKER="yes"
+		BASEIMAGE=$2
+		if [ "${BASEIMAGE::1}" == "-" ] || [ -z "$2" ]; then 
+			BASEIMAGE="debian"
+		elif [ "$BASEIMAGE"  == "debian" ]; then 
+			BASEIMAGE="debian"
+			shift 1
+		elif [ "$BASEIMAGE"  == "ubuntu" ]; then 
+			BASEIMAGE="ubuntu"
+			shift 1
+		else
+			echo "$2 platform does not support" 
+			exit 1
+		fi
+		;;
+	(--branch)
+		BRANCH="$2"
+		if [ -z "$2" ]; then
+			error "--branch input does not exist"
+		fi
 		shift 1
 		;;
 	(*)
@@ -232,9 +278,49 @@ function run ()
 	log "OK: done in $((T1-T0)) seconds"
 }
 
+
+# define docker-build 
+function docker-build ()
+{
+	
+	echo "check docker .."
+	#check docker installation
+	if [[ $(which docker) && $(docker --version) ]]; then
+		echo "docker is installed "
+		# command
+	else
+		error "docker is not installed"
+		# command
+	fi
+
+	# check docker service 
+	if ! docker info > /dev/null 2>&1; then
+	error "This script uses docker, and it isn't running - please start docker and try again!"
+	fi
+	
+	
+	# append command line
+	echo "DOCKER_COMMANDLINE = $DOCKER_COMMANDLINE, ****  LOG=$LOG" 
+	export DOCKER_BUILDKIT=0
+	# docker buildx create --use --name larger_log --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=50000000
+	docker build \
+		-f ./docker/Dockerfile."$BASEIMAGE" \
+		-t slacgismo/gridlabd:latest \
+		--build-arg DOCKER_COMMANDLINE="$DOCKER_COMMANDLINE" \
+		--build-arg BRANCH="$BRANCH" \
+		--progress plain . > $LOG 
+}
+
+
 # enable verbose logging
 if [ "$VERBOSE" == "yes" ]; then
 	tail -f -n 10000 $LOG 2>/dev/null &
+fi
+
+
+if [ "$DOCKER" == "yes" ]; then
+	docker-build
+	exit 0
 fi
 
 # run setup

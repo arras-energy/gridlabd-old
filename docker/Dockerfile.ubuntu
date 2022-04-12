@@ -1,0 +1,14 @@
+
+FROM ubuntu:20.04 AS base
+
+ENV REPO=https://github.com/slacgismo/gridlabd
+
+ARG BRANCH=${BRANCH}
+ARG DOCKER_COMMANDLINE=${DOCKER_COMMANDLINE}
+RUN apt-get -q update -y && apt-get install procps -y
+RUN apt-get install git -y
+WORKDIR /usr/local/src
+RUN git clone $REPO -b $BRANCH
+WORKDIR /usr/local/src/gridlabd
+RUN echo "INATALLATION COMMAND: $DOCKER_COMMANDLINE"
+RUN $DOCKER_COMMANDLINE

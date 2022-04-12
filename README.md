@@ -42,6 +42,19 @@ Normally on Linux and Mac OS X developers should use the `install.sh` script to 
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
+
+### Build Docker Image
+
+~~~
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% gridlabd/install.sh --use-docker <baseimage>  <--branch branchname>
+host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+~~~
+
+The default value of `--branch` option command is `master`
+If second argument of `--use-docker` is empty, the default value of `<baseimage>` is `debian`. Only `debian` and `ubuntu` are supported as base image for current docker build command.
+
+
 ### AWS EC2 Installation 
 1) Set the path variable
 ~~~
@@ -68,6 +81,40 @@ You may use the `gridlabd version` command to manage which version is active on 
 You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
 
 Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
+
+## Windows WSL
+
+Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. You can build, install, and run GridLAB-D in WSL as well by doing the following:
+
+1) Open PowerShell as administrator
+2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
+3) Change directory to `/usr/local/src`
+4) Update `apt` and install `git`
+~~~
+  root@host:/usr/local/src# apt update -y
+  root@host:/usr/local/src# apt install git -y
+~~~
+5) Clone `gridlabd` and change to the `gridlabd` directory
+~~~
+  root@host:/usr/local/src# git clone https://source.gridlabd.us/
+  root@host:/usr/local/src# cd gridlabd
+~~~
+6) Run `autoconf`
+~~~
+  root@host:/usr/local/src/gridlabd# autoreconf -isf
+~~~
+7) Run `configure`
+~~~
+  root@host:/usr/local/src/gridlabd# ./configure
+~~~
+8) Make `system`
+~~~
+  root@host:/usr/local/src/gridlabd# make system
+~~~
+9) Validate `gridlabd`
+~~~
+  root@host:/usr/local/src/gridlabd# gridlabd --validate
+~~~
 
 ## Building and Debugging
 
