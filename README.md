@@ -42,6 +42,20 @@ Normally on Linux and Mac OS X developers should use the `install.sh` script to 
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
+If the running system config file cannot be found in `/build-aux/*.sh`, the installation process would be redirected to the `gridlabd/install.sh --docker-build` command instead.
+### Build Docker Image
+
+
+~~~
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% gridlabd/install.sh --docker-build <imagename>  <--branch branchname>
+host% docker run -it -v $PWD:/model <imagename> gridlabd -W /model [load-options] [filename.glm] [run-options] 
+~~~
+
+The default value of `--branch` option command is `master`
+The default value of `--imagename` option command is `slacgismo/gridlabd`
+
+
 ### AWS EC2 Installation 
 1) Set the path variable
 ~~~
