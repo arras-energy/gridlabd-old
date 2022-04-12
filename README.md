@@ -33,6 +33,13 @@ On many systems, an alias can be used to make this a simple command that resembl
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
 
+Windows users can accomplish something similar using a small batch file named `gridlabd.bat` containing the following 3 lines:
+~~~
+@echo off
+for /f "delims=" %%i in ('cd') do set PWD=%%i
+docker run -it -v "%PWD%:/tmp" slacgismo/gridlabd:latest gridlabd %*
+~~~
+
 # Developer quick start
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
