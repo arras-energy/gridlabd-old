@@ -298,11 +298,8 @@ function docker-build ()
 	error "This script uses docker, and it isn't running - please start docker and try again!"
 	fi
 	
-	
 	# append command line
-	echo "DOCKER_COMMANDLINE = $DOCKER_COMMANDLINE, ****  LOG=$LOG" 
 	export DOCKER_BUILDKIT=0
-	# docker buildx create --use --name larger_log --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=50000000
 	docker build \
 		-f ./docker/Dockerfile."$BASEIMAGE" \
 		-t slacgismo/gridlabd:latest \
