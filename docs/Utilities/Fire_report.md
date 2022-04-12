@@ -23,12 +23,12 @@ Python:
 
 # Description
 
-The fire_report tool retrieve annual fire report data delivered to state
-regulators.  The current only support California Public Utility Commission
+The `fire_report` tool retrieves annual fire report data delivered to state
+regulators.  The current tool only supports California Public Utility Commission
 reporting (`state=CA`) for Pacific Gas and Electric (`utility=PGE`), Southern
 California Edison (`utility=SCE`), and San Diego Gas and Electric (`utility=SDGE`).
 
-The data is available reported years, starting in 2014. The `YEARS` parameters may
+The data is available for reported years, starting in 2014. The `YEARS` parameters may
 be specified as a sequence of comma-delimited years or range of years, e.g.,
 `2014,2015,2018,2019,2020,2021` or `2014,2015,2018-2021`.
 
