@@ -94,7 +94,8 @@ function info()
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
-	echo "DOCKER=$DOCKER"
+	echo "DOCKER=$DOCKER" 
+	echo "BRANCH=$BRANCH"
 }
 
 function help()
@@ -107,11 +108,11 @@ function help()
 	  -c   --no-check        Do not check system for requirements
 	  -d   --no-docs         Do not install documentation
 	  -f   --force           Force install into existing target folder
-	  -i   --no-index        Do not index data archives
+	  -i   --no-index        Do not index data archives (Compatable with --docker-build option)
 	  -l   --no-link         Do not link new install to activate it
-	  -t   --no-test         Do not run validation tests
+	  -t   --no-test         Do not run validation tests (Compatable with --docker-build option)
 	  -u   --no-update       Do not update system to meet requirements
-	  -p   --parallel        Enable parallelism when possible
+	  -p   --parallel        Enable parallelism when possible (Compatable with --docker-build option)
 	       --prefix <path>   Set install prefix
 	       --save            Save the current configuration as default
 	       --no-setup        Perform system setup
@@ -121,8 +122,8 @@ function help()
 	  -v   --verbose         Run showing log output
 	       --validate        Run validation tests
 	       --version <name>  Override the default version name
-	  -b   --docker <branch> Installation via docker container with optional branch name
-	  	   
+		   --docker-build	 Build docker image. 
+		   --branch			 Define the branch of the gridlabd repsitory. Default branch is "master".
 	END
 }
 
@@ -162,11 +163,6 @@ while [ $# -gt 0 ]; do
 	(-p|--parallel)
 		PARALLEL="yes"
 		;;
-	(-b|--docker)
-		DOCKER="yes"
-		BRANCH="$2"
-		shift 1
-		;;
 	(--prefix)
 		PREFIX="$2"
 		if [ ! -d "$PREFIX" ]; then
@@ -205,6 +201,16 @@ while [ $# -gt 0 ]; do
 		INSTALL="$2"
 		shift 1
 		;;
+	(--docker-build)
+		DOCKER="yes"
+		;;
+	(--branch)
+		BRANCH="$2"
+		if [ -z "$2" ]; then
+			error "--branch input does not exist"
+		fi
+		shift 1
+		;;
 	(*)
 		error "'$1' is not a valid option"
 		exit 1
@@ -213,13 +219,31 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 
+NPROC=1
+SYSTEM=$(uname -s)
+RELEASE=$(uname -r | cut -f1 -d.)
+
+
+if [ "$PARALLEL" == "yes" ]; then
+	if [ "$SYSTEM" == "Linux" ]; then
+		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
+	elif [ "$SYSTEM" == "Darwin" ]; then
+		NPROC=$(sysctl -n machdep.cpu.thread_count)
+	fi
+fi
+
+
 # start logging
 log clear
 log "START: $(date)"
 log "COMMAND: $0 $*"
 log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
 log "SYSTEM: $(uname -a)"
+log "SYSTEM VERSION: $RELEASE"
+log "NPROC: $NPROC"
 log "$(info | sed -e '1,$s/=/: /')"
+
+
 
 # define functions used during install processing
 function run ()
@@ -240,53 +264,88 @@ function run ()
 	log "OK: done in $((T1-T0)) seconds"
 }
 
+
+# define docker-build 
+function docker-build ()
+{
+	
+	echo "check docker .."
+	#check docker installation
+	if [[ $(which docker) && $(docker --version) ]]; then
+		echo "docker is installed "
+		# command
+	else
+		error "docker is not installed"
+		# command
+	fi
+
+	# check docker service 
+	if ! docker info > /dev/null 2>&1; then
+	error "This script uses docker, and it isn't running - please start docker and try again!"
+	fi
+
+
+		# docker variables
+	RUN_VALIDATION=no
+	if [ "$TEST" == "yes" ]; then
+		RUN_VALIDATION=$TEST
+	fi
+
+	GET_WEATHER=no
+	if [ "$INDEX" == "yes" ]; then
+		GET_WEATHER=$INDEX
+	fi
+
+
+	
+	echo "--build-arg RUN_VALIDATION=$RUN_VALIDATION, NPROC=$NPROC, BRANCH=$BRANCH"	
+	docker build -f ./docker/docker-build/Dockerfile -t gismo/gridlabd \
+			--build-arg GET_WEATHER=$GET_WEATHER \
+			--build-arg	RUN_VALIDATION=$RUN_VALIDATION \
+			--build-arg	NPROC=$NPROC \
+			--build-arg BRANCH=$BRANCH .
+}
+
+
+
 # enable verbose logging
 if [ "$VERBOSE" == "yes" ]; then
 	tail -f -n 10000 $LOG 2>/dev/null &
 fi
 
-
-# check system
-NPROC=1
-SYSTEM=$(uname -s)
-if [ "$PARALLEL" == "yes" ]; then
-	if [ "$SYSTEM" == "Linux" ]; then
-		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
-	elif [ "$SYSTEM" == "Darwin" ]; then
-		NPROC=$(sysctl -n machdep.cpu.thread_count)
-	fi
-fi
-
-
-
-# define docker-build 
-function docker ()
-{	
-	# pass variable to setup-Linux-docker-build.sh and execute the file
-	NPROC=$NPROC BRANCH=$BRANCH RUN_VALIDATION=$TEST ./build-aux/setup-Linux-docker-build.sh
-	exit 0
-}
-
-# run setup docker build
-if [ "$DOCKER" == "yes" ]; then
-	docker
-	exit 0
-fi
-
 # run setup
+
 if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
+
+
 	SOK="$VAR/setup.ok"
+	echo "********INSTALL_SETUP =$INSTALL_SETUP"
+
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
-		run build-aux/setup.sh
+		SETUP_FILE=${build-aux/.sh/-$SYSTEM-$RELEASE.sh}
+		if [ ! -f "${SETUP_FILE}" ] ; then 
+			echo "no $SETUP_FILE run docker build command instead"
+			DOCKER="yes"
+		else
+			run ${SETUP_FILE}
+		fi
+		# run build-aux/setup.sh
 		date > "$SOK"
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
 	else
 		log "SETUP: skipping"
 	fi
+
+fi
+
+
+if [ "$DOCKER" == "yes" ]; then
+	docker-build
+	exit 0
 fi
 
 # dynamic variables
@@ -349,6 +408,7 @@ mkdir -p "$INSTALL" || ( run sudo mkdir -p "$INSTALL" && run sudo chown -R "${US
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
     run ./configure --prefix="$INSTALL" $*
 fi
+
 
 
 # build everything
