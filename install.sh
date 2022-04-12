@@ -299,6 +299,7 @@ function docker-build ()
 	fi
 	
 	# append command line
+	echo "LOG ---> $LOG"
 	export DOCKER_BUILDKIT=0
 	docker build \
 		-f ./docker/Dockerfile."$BASEIMAGE" \

@@ -47,14 +47,17 @@ host% gridlabd/install.sh
 
 ~~~
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
-host% gridlabd/install.sh --use-docker <baseimage>  <--branch branchname>
-host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+host% sudo gridlabd/install.sh --use-docker <baseimage>  <--branch branchname> 
+host% sudo docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~
 
 The default value of `--branch` option command is `master`
 If second argument of `--use-docker` is empty, the default value of `<baseimage>` is `debian`. Only `debian` and `ubuntu` are supported as base image for current docker build command.
-
-
+The option installation command can be passed with `--use-docker` command. For example:
+~~~
+host% sudo gridlabd/install.sh --use-docker debian --branch develop -v -t --parallel -i
+~~~
+The above command creates a docker image named `slacgismo/gridlabd:latest` from `develop` branch and the base image of docker is `debian:11`. The default installation log file is located in `/usr/local/var/gridlabd/install.log`
 ### AWS EC2 Installation 
 1) Set the path variable
 ~~~
