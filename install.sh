@@ -107,12 +107,12 @@ function help()
 	       --info            Print information about this install
 	  -c   --no-check        Do not check system for requirements
 	  -d   --no-docs         Do not install documentation
-	  -f   --force           Force install into existing target folder
-	  -i   --no-index        Do not index data archives (Compatable with --docker-build option)
+	  -f   --force           Force install into existing target folder (Compatible with --docker-build option)
+	  -i   --no-index        Do not index data archives (Compatible with --docker-build option)
 	  -l   --no-link         Do not link new install to activate it
-	  -t   --no-test         Do not run validation tests (Compatable with --docker-build option)
+	  -t   --no-test         Do not run validation tests (Compatible with --docker-build option)
 	  -u   --no-update       Do not update system to meet requirements
-	  -p   --parallel        Enable parallelism when possible (Compatable with --docker-build option)
+	  -p   --parallel        Enable parallelism when possible (Compatible with --docker-build option)
 	       --prefix <path>   Set install prefix
 	       --save            Save the current configuration as default
 	       --no-setup        Perform system setup
@@ -123,7 +123,7 @@ function help()
 	       --validate        Run validation tests
 	       --version <name>  Override the default version name
 		   --docker-build	 Build docker image. 
-		   --branch			 Define the branch of the gridlabd repsitory. Default branch is "master".
+		   --branch			 Define the branch of the gridlabd repsitory. Default branch is "master". (Compatible with --docker-build option)
 	END
 }
 
@@ -284,8 +284,7 @@ function docker-build ()
 	error "This script uses docker, and it isn't running - please start docker and try again!"
 	fi
 
-
-		# docker variables
+	# docker variables
 	RUN_VALIDATION=no
 	if [ "$TEST" == "yes" ]; then
 		RUN_VALIDATION=$TEST
@@ -295,8 +294,6 @@ function docker-build ()
 	if [ "$INDEX" == "yes" ]; then
 		GET_WEATHER=$INDEX
 	fi
-
-
 	
 	echo "--build-arg RUN_VALIDATION=$RUN_VALIDATION, NPROC=$NPROC, BRANCH=$BRANCH"	
 	docker build -f ./docker/docker-build/Dockerfile -t gismo/gridlabd \
@@ -319,8 +316,6 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
-
-
 	SOK="$VAR/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		SETUP_FILE=${build-aux/.sh/-$SYSTEM-$RELEASE.sh}

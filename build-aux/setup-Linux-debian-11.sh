@@ -50,6 +50,10 @@ apt-get -q install libbz2-dev -y
 apt-get -q install libncursesw5-dev -y
 apt-get -q install xz-utils -y
 apt-get -q install mdbtools -y
+# Install gdal for mac osx m1 platform.
+apt-get -q install libgdal-dev -y
+# config gdal
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
 
 # Install python 3.9.6
 # python3 support needed as of 4.2

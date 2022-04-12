@@ -100,14 +100,15 @@ VERBOSE="no"
 
 #
 # Enable the docker build command and run installation inside the docker image. 
-# The image is pulled from the REPO:https://github.com/slacgismo/gridlabd and defualt 
-# branch is "master". By default the dokcer build command was disable. This 
+# The image is pulled from the REPO: "https://github.com/slacgismo/gridlabd/", and the default 
+# branch is "master." By default, the docker build command was disabled. This 
 # option can be enabled using the "--docker-build" option. 
 #
 DOCKER="no"
 
 #
-# Define the branch of repo used by docker build command. The defaut branch is "master" of 
-# REPO:https://github.com/slacgismo/gridlabd. The docker build command is enabled when the 
-# systems are not listed inside "/build-aux/" folder.
+# Define the branch of repo used by the docker build command. The default branch is the "master" of 
+# REPO:https://github.com/slacgismo/gridlabd. The docker create command is enabled when the 
+# systems are not listed inside the "/build-aux/" folder.
+#
 BRANCH="master"
