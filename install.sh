@@ -322,8 +322,6 @@ if [ "$SETUP" == "yes" ]; then
 
 
 	SOK="$VAR/setup.ok"
-	echo "********INSTALL_SETUP =$INSTALL_SETUP"
-
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		SETUP_FILE=${build-aux/.sh/-$SYSTEM-$RELEASE.sh}
 		if [ ! -f "${SETUP_FILE}" ] ; then 
