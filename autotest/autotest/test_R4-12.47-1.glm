@@ -9,7 +9,7 @@
 // off by more than 1 at certain nodes; node 50 logs values for 
 // voltage_A/C when the should be 0; search for @off
 clock{
-	timezone EST+8EDT;
+	timezone EST+5EDT;
 	timestamp '2000-01-01 0:00:00';
 	stoptime '2000-01-01 1:00:00';
 }

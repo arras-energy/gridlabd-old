@@ -12,7 +12,7 @@
 
 // off by 10-12 on several triplex nodes for NR vs FBS; search for @off
 clock{
-	timezone EST+8EDT;
+	timezone EST+5EDT;
 	timestamp '2000-01-01 0:00:00';
 	stoptime '2000-01-01 1:00:00';
 }
