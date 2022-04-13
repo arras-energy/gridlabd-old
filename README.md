@@ -47,8 +47,8 @@ host% gridlabd/install.sh
 
 ~~~
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
-host% sudo gridlabd/install.sh --use-docker <baseimage>  <--branch branchname> 
-host% sudo docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+host% gridlabd/install.sh --use-docker <baseimage>  <--branch branchname> 
+host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~
 
 The default value of `--branch` option command is `master`
