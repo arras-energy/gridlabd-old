@@ -124,8 +124,8 @@ function help()
 	       --validate        Run validation tests
 	       --version <name>  Override the default version name
 		   --use-docker <baseimage> --branch <branchname> 
-		   					 Build docker image from github repository. default baseimage=debian:11.
-		   					 Define the branch of the gridlabd repsitory. Default branch is "master". 
+		   				   	 Build docker image from GitHub repository. default 	baseimage=debian:11.
+   							 Define the branch of the gridlabd repository. The default branch is "master". 
 	END
 }
 DOCKER_COMMANDLINE="./install.sh "
