@@ -14,7 +14,7 @@ GLM:
 Python:
     bash$ gridlabd python
     >>> import noaa_forecast as nf
-    >>> ns.getforecast(37.5,-122.3)
+    >>> nf.getforecast(37.5,-122.3)
                                    temperature[degF]  wind_speed[m/s]  wind_dir[deg]
     2021-10-21 14:00:00-07:00          68.000000         4.470400     202.500000
     2021-10-21 15:00:00-07:00          65.327601         4.275738     201.983153
@@ -123,9 +123,9 @@ def getforecast(lat,lon):
         "wind_dir[deg]" : [],
     }
     if not "properties" in data.keys():
-        raise Exception("data does not contain required properties information")
+        raise Exception(f"data does not contain required properties information (data={data})")
     if not "periods" in data["properties"]:
-        raise Exception("data does not contain required period information")
+        raise Exception(f"data does not contain required period information (data={data})")
     for item in data["properties"]["periods"]:
         result["datetime"].append(dateutil.parser.parse(item["startTime"])+datetime.timedelta(hours=item["number"]))
         result["temperature[degF]"].append(float(item["temperature"]))

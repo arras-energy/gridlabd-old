@@ -8,6 +8,7 @@ python_requirements += converters/requirements.txt
 dist_pkgdata_DATA += converters/csv-ami2glm-ceus.py
 dist_pkgdata_DATA += converters/csv-ami2glm-rbsa.py
 dist_pkgdata_DATA += converters/csv-ceus2glm-ceus.py
+dist_pkgdata_DATA += converters/csv-geodata2kml.py
 dist_pkgdata_DATA += converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += converters/csv-noaa-weather2glm-weather.py
 dist_pkgdata_DATA += converters/csv-onpoint-weather2glm-weather.py
@@ -25,6 +26,8 @@ dist_pkgdata_DATA += converters/gz2glm.py
 # mdb -> glm
 dist_pkgdata_DATA += converters/mdb2glm.py
 dist_pkgdata_DATA += converters/mdb-cyme2glm.py
+dist_pkgdata_DATA += converters/mdb-table2glm-object.py
+dist_pkgdata_DATA += converters/mdb-table2glm-player.py
 
 # omd -> glm
 dist_pkgdata_DATA += converters/omd2glm.py

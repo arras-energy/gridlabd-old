@@ -187,3 +187,4 @@ python/dist/*.whl
 python/dist/*.tar.gz
 python/gridlabd.egg-info/
 gridlabd.egg-*
+module/resilience/docs/output.csv

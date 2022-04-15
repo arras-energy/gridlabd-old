@@ -55,9 +55,12 @@ default_options = {
     }
 }
 
+GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share/gridlabd"
 default_config = {
     "nan_error" : False,
-    "cachedir" : "/usr/local/share/gridlabd/geodata/elevation/10m",
+    "cachedir" : f"{GLD_ETC}/geodata/elevation/10m",
     "repourl" : "http://geodata.gridlabd.us/elevation/10m",
 }
 
