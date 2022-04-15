@@ -99,10 +99,14 @@ object triplex_line {
 object triplex_meter {
 	name load_node;
      phases AS;
-	 impedance_1 1.4+0.5j;
-	 impedance_2  0.9+0.4j;
-	 impedance_12 2.0+1.2j;
      nominal_voltage 120.00;
+     object triplex_load {
+	     phases AS;
+	     nominal_voltage 120.00;
+		impedance_1 1.4+0.5j;
+		impedance_2  0.9+0.4j;
+		impedance_12 2.0+1.2j;
+	};
 	//triplex_node asserts
 	object complex_assert {
 		target voltage_1;
