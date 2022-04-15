@@ -350,7 +350,7 @@ troubleshooting-html:
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
 
 documents/gridlabd.pdf: documents/gridlabd.glm
-	(cd documents ; gridlabd gridlabd.glm)
+	(cd documents ; /usr/local/bin/gridlabd gridlabd.glm)
 	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
 
 docs: $(docs_targets) documents/gridlabd.pdf
