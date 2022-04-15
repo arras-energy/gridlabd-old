@@ -557,7 +557,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"heating_COP[pu]",PADDR(heating_COP), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system heating performance coefficient",
-			PT_double,"cooling_COP[Btu/kWh]",PADDR(cooling_COP), 
+			PT_double,"cooling_COP[pu]",PADDR(cooling_COP), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system cooling performance coefficient",
 			PT_double,"air_temperature[degF]",PADDR(Tair), 
