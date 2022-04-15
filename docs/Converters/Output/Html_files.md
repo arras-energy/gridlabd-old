@@ -53,7 +53,7 @@ object node
 The following example compiles the IEEE-123 model into an interactive map and opens it in the default browser:
 
 ~~~
-$ gridlabd -W gldcore/converters/autotest -I IEEE-123.glm -o /tmp/IEEE-123.html -D html_save_options="--show --cluster"
+$ gridlabd -W converters/autotest -I IEEE-123.glm -o /tmp/IEEE-123.html -D html_save_options="--show --cluster"
 ~~~
 
 # See also

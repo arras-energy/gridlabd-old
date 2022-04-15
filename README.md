@@ -33,6 +33,13 @@ On many systems, an alias can be used to make this a simple command that resembl
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
 
+Windows users can accomplish something similar using a small batch file named `gridlabd.bat` containing the following 3 lines:
+~~~
+@echo off
+for /f "delims=" %%i in ('cd') do set PWD=%%i
+docker run -it -v "%PWD%:/tmp" slacgismo/gridlabd:latest gridlabd %*
+~~~
+
 # Developer quick start
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
@@ -42,7 +49,21 @@ Normally on Linux and Mac OS X developers should use the `install.sh` script to 
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
-
+### AWS EC2 Installation 
+1) Set the path variable
+~~~
+host% sudo su
+host% export PATH=/usr/local/bin:$PATH
+~~~
+2) Change work dictionary and clone GitHub repository
+~~~
+host% cd /usr/local/src
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
+~~~
+3) Run installation 
+~~~ 
+host% gridlabd/install.sh
+~~~
 To rebuild the source code and install again, use the `make system` command.  You can use parallel builds using the `make -j<nproc> system` command.
 
 If you have modified the branch name or version information, you must reconfigure your build using the `make reconfigure` command before using `make system`.
@@ -54,6 +75,40 @@ You may use the `gridlabd version` command to manage which version is active on 
 You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
 
 Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
+
+## Windows WSL
+
+Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. You can build, install, and run GridLAB-D in WSL as well by doing the following:
+
+1) Open PowerShell as administrator
+2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
+3) Change directory to `/usr/local/src`
+4) Update `apt` and install `git`
+~~~
+  root@host:/usr/local/src# apt update -y
+  root@host:/usr/local/src# apt install git -y
+~~~
+5) Clone `gridlabd` and change to the `gridlabd` directory
+~~~
+  root@host:/usr/local/src# git clone https://source.gridlabd.us/
+  root@host:/usr/local/src# cd gridlabd
+~~~
+6) Run `autoconf`
+~~~
+  root@host:/usr/local/src/gridlabd# autoreconf -isf
+~~~
+7) Run `configure`
+~~~
+  root@host:/usr/local/src/gridlabd# ./configure
+~~~
+8) Make `system`
+~~~
+  root@host:/usr/local/src/gridlabd# make system
+~~~
+9) Validate `gridlabd`
+~~~
+  root@host:/usr/local/src/gridlabd# gridlabd --validate
+~~~
 
 ## Building and Debugging
 

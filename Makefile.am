@@ -10,25 +10,26 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-AM_INIT_AUTOMAKE = subdir-objects
+AM_INIT_AUTOMAKE = subdir-objects 
+AUTOMAKE_OPTIONS = -Wno-portability
 ACLOCAL_AMFLAGS = -I m4
 
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
 AM_CPPFLAGS = -Wall -fPIC
-AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
+AM_CPPFLAGS += -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
 AM_CFLAGS = -Wall
-AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
+AM_CFLAGS +=  -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
+AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/source
 
 AM_CXXFLAGS = -Wall -fPIC
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
 AM_CXXFLAGS += -I/usr/include -I/usr/local/include
-AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
+AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/source
 
 AM_LDFLAGS =
 AM_LDFLAGS += -no-undefined
@@ -50,15 +51,21 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
-python_requirements = requirements.txt
+python_requirements = $(shell find $(top_srcdir) -name requirements.txt -print)
 
 docs_targets =
 
 # required modules
 include $(top_srcdir)/third_party/Makefile.mk
-include $(top_srcdir)/gldcore/Makefile.mk
-include $(top_srcdir)/python_extras/Makefile.mk
+include $(top_srcdir)/source/Makefile.mk
+include $(top_srcdir)/runtime/Makefile.mk
+include $(top_srcdir)/converters/Makefile.mk
+include $(top_srcdir)/tools/Makefile.mk
 include $(top_srcdir)/cloud/Makefile.mk
+include $(top_srcdir)/utilities/Makefile.mk
+include $(top_srcdir)/python/Makefile.mk
+include $(top_srcdir)/geodata/Makefile.mk
+include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
 include $(top_srcdir)/modules.mk
@@ -167,11 +174,11 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 
 $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
-	test -d $@/gldcore || mkdir -p $@/gldcore
-	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/gldcore
+	test -d $@/source || mkdir -p $@/source
+	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/source
 	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
-	mv $@/gldcore/usr/local/include $@/devel/usr/local/include
-	mv $@/gldcore/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
+	mv $@/source/usr/local/include $@/devel/usr/local/include
+	mv $@/source/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
@@ -287,7 +294,7 @@ install-exec-hook: index python-requirements docs
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
 	@echo "To include this version in your command path:"
-	@echo "  export PATH=$(DESTDIR)$(bindir):$$PATH"
+	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
 	@echo ""
 	@echo "To run this version directly without using the command path:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
@@ -298,7 +305,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@cat $(addprefix $(top_srcdir)/,$(python_requirements)) | python3 -m pip install -q -r /dev/stdin
+	@python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
@@ -332,6 +339,7 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 
 system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
+#   @$(DESTDIR)$(bindir)/gridlabd docker disable > /dev/null
 	@$(DESTDIR)$(bindir)/gridlabd version set
 	@if [ ! "$$(gridlabd --version=install)" == "$$($(top_srcdir)/build-aux/version.sh --install)" ]; then \
 		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
@@ -343,14 +351,14 @@ html-local: module-html developer-html troubleshooting-html
 	@mkdir -p $(prefix)/share/doc/developer
 	@cp $(top_srcdir)/documents/index.html $(prefix)/share/doc/index.html
 	@cp -R $(top_srcdir)/documents/html/* $(prefix)/share/doc/
-	@cp -R $(top_srcdir)/gldcore/html/* $(prefix)/share/doc/developer/
+	@cp -R $(top_srcdir)/source/html/* $(prefix)/share/doc/developer/
 
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
-	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
+	@(cd $(top_srcdir)/source/html ; natural_docs . ; cd - > /dev/null )
 
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/

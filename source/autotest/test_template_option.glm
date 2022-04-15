@@ -1,0 +1,3 @@
+#template get ica_analysis
+#system ls -l ${GLD_ETC}/template/${country}
+#option template ica_analysis

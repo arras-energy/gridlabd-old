@@ -49,7 +49,7 @@ Additional learn data available includes the following
   - `Y_diag_update`
   - `Y_Amatrix`
 
-Please see `gldcore/powerflow/solver_nr.h` in the code for details on the meaning and structure of this data.
+Please see `module/powerflow/solver_nr.h` in the code for details on the meaning and structure of this data.
 
 # Profiler
 

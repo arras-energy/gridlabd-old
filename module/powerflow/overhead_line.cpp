@@ -32,6 +32,9 @@ overhead_line::overhead_line(MODULE *mod) : line(mod)
             PT_double, "ice_thickness[in]", get_ice_thickness_offset(),
                 PT_DESCRIPTION, "thickness of ice build-up on lines",
 
+            PT_bool, "is_covered", get_is_covered_offset(),
+            	PT_DESCRIPTION, "flag to indicate whether conductor is covered",
+
 			NULL) < 1) GL_THROW("unable to publish overhead_line properties in %s",__FILE__);
 
 		if (gl_publish_function(oclass,	"create_fault", (FUNCTIONADDR)create_fault_ohline)==NULL)

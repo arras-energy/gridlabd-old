@@ -32,29 +32,37 @@ const double Cp = 1;					// Btu/lbm-F
 #define MAX(A,B) ((A)>(B)?(A):(B))
 #define MIN(A,B) ((A)<(B)?(A):(B))
 
-typedef enum {	BRK_OPEN=0,		///< breaker open
-				BRK_CLOSED=1,	///< breaker closed
-				BRK_FAULT=-1,	///< breaker faulted
+typedef enum e_breakerstatus
+{
+	BRK_OPEN=0,		///< breaker open
+	BRK_CLOSED=1,	///< breaker closed
+	BRK_FAULT=-1,	///< breaker faulted
 } BREAKERSTATUS; ///< breaker state
-typedef enum {	X12=0,	///< circuit from line 1 to line 2    (240V)
-				X23=1,	///< circuit from line 2 to line 3(N) (120V)
-				X13=2,	///< circuit from line 1 to line 3(N) (120V)
+
+typedef enum e_circuittype
+{	
+	X12=0,	///< circuit from line 1 to line 2    (240V)
+	X23=1,	///< circuit from line 2 to line 3(N) (120V)
+	X13=2,	///< circuit from line 1 to line 3(N) (120V)
 } CIRCUITTYPE; ///< circuit type
 
-typedef struct s_smartfuse {
+typedef struct s_smartfuse 
+{
 	double powerRef; // power reference for smart-dim-fuse (0=disable)
 	double vFactor; // voltage factor for smart-dim-fuse (1.0 by default)
 	double vMin;
 	double vMax;
 } SMARTFUSE;
 
-typedef struct s_circuitmeasurement {
+typedef struct s_circuitmeasurement 
+{
 	TIMESTAMP t;
 	complex power;
 	complex energy;
 } CIRCUITMEASUREMENT;
 
-typedef struct s_circuit {
+typedef struct s_circuit 
+{
 	CIRCUITTYPE type;	///< circuit type
 	enduse *pLoad;	///< pointer to the load struct (ENDUSELOAD* in house_a, enduse* in house_e)
 	complex *pV; ///< pointer to circuit voltage
@@ -67,10 +75,10 @@ typedef struct s_circuit {
 	SMARTFUSE *smartfuse; ///< SmartFuse info
 	CIRCUITMEASUREMENT measurement[2]; // 0=current measurement, 1=last measurement 
 	struct s_circuit *next; ///< next circuit in list
-	// DPC: commented this out until the rest of house_e is updated
 } CIRCUIT; ///< circuit definition
 
-typedef struct s_panel {
+typedef struct s_panel 
+{
 	double max_amps; ///< maximum panel amps
 	BREAKERSTATUS status; ///< panel breaker status
 	TIMESTAMP reclose; ///< time at which breaker is reclosed
@@ -79,7 +87,19 @@ typedef struct s_panel {
 
 typedef	CIRCUIT *(*ATTACHFUNCTION)(OBJECT *, enduse *, double , int is220); ///< type definition for attach function
 
-typedef enum {HORIZONTAL, NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST,N_SOLAR_SURFACES} ORIENTATION;
+typedef enum e_orientation 
+{
+	HORIZONTAL = 0, 
+	NORTH = 1, 
+	NORTH_EAST = 2, 
+	EAST = 3, 
+	SOUTH_EAST = 4, 
+	SOUTH = 5, 
+	SOUTH_WEST = 6, 
+	WEST = 7, 
+	NORTH_WEST = 8,
+	N_SOLAR_SURFACES = 9,
+} ORIENTATION; ///< solar orientations
 
 //////////////////////////////////////////////////////////////////////////
 // implicit loadshapes - these are enabled by using implicit_enduses global
