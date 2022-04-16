@@ -168,7 +168,7 @@ In the event of an error, the JSON response is of the form
 
 ## Real-time models
 
-Server mode is essential to the realtime mode. Together this allows a web-based application to access the global variable and properties of named objects of a real-time simulation to emulate a control room.  See the [IEEE-123 Model](https://github.com/slacgismo/gridlabd/models/ieee123) for an example.
+Server mode is essential to the realtime mode. Together this allows a web-based application to access the global variable and properties of named objects of a real-time simulation to emulate a control room.  See the [IEEE-123 Model](https://github.com/hipas/gridlabd-models/tree/master/ieee123) for an example.
 
 # See also
 
