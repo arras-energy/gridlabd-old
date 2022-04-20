@@ -22,12 +22,6 @@ OPTIONS:
 
 """
 
-# testdir='/Users/kamrantehranchi/Documents/GradSchool/Research/WildfireRiskData'
-# #Find fire danger file
-# dir='/usr/local/opt/gridlabd/4.3.1-220412-develop_add_fire_danger_tool/share/gridlabd/usgs/firedanger'
-# fileName= 'fpi_20220415_1.tif'
-# filePath= os.path.join(dir,fileName)
-
 import sys
 import os
 from click import option
@@ -73,9 +67,9 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
         options (dict)
 
-            days ahead of forecast date
-            date of forecast
-            type of forecast
+            'day' = # of days ahead of forecast date
+            'date'= date of forecast given in format 'YYYYMMDD'
+            'type'= type of forecast (fpi, lfp, fsp)
 
         config (dict)
 
@@ -83,15 +77,14 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     RETURNS:
 
-        pandas.DataFrame
+        list object of fire_danger values
 
             The specified fire danger value for the geocodes provided.
 
     """
-    CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
     USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
     
-    filePath= fire_danger.get_data(options['day'],options['date'],options['type'],USGSURL,CACHEDIR)
+    filePath= fire_danger.get_data(options['day'],options['date'],options['type'],USGSURL,config['cachedir'])
     with rio.open(filePath) as usgsMap:
         transformer= Transformer.from_crs("epsg:4326",usgsMap.crs)
         coords= [transformer.transform(x, y) for x,y in data.itertuples(index=False)]
@@ -100,8 +93,6 @@ def apply(data, options=default_options, config=default_config, warning=print):
         for x, y in coords:            
             row,col= usgsMap.index(x,y)
             coordsRC.append(band[row,col])
-
-    # rio.plot.show(dataset, title = "firerisk")
     return coordsRC
 
 #
@@ -113,15 +104,14 @@ if __name__ == '__main__':
 
     class TestFireRisk(unittest.TestCase):
 
-        def test_firerisk():
+        def test_firerisk(self):
             testData = pandas.DataFrame({
                 "lat":[34.8020,36.636],
                 "long":[-104.1632, -121.9298],
                 })
-            testOptions=dict(day="5",date=today,type="fpi")
+            testOptions=dict(day="4",date='20220415',type="fpi")
             result = apply(data=testData,options=testOptions)
-            print(result) 
-        test_firerisk()
+            # print(result) 
+            self.assertEqual(result,[114,0])
 
-    # if os.path.exists("~/.nsrdb/credentials.json"):
-    #     unittest.main()
+    unittest.main()
