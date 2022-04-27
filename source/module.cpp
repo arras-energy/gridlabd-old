@@ -527,6 +527,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->on_term = NULL;
 	strcpy(mod->name,file);
 	mod->templates_loaded = false;
+	mod->no_templates = false;
 	mod->next = NULL;
 
 	/* check the module version before trying to initialize */
@@ -2940,7 +2941,7 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 
 void module_load_templates(MODULE *mod)
 {
-	if ( mod->templates_loaded )
+	if ( mod->templates_loaded || mod->no_templates )
 	{
 		return;
 	}

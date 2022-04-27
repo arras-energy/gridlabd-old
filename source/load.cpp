@@ -2766,6 +2766,11 @@ int GldLoader::module_properties(PARSER, MODULE *mod)
 			REJECT;
 		}
 	}
+	OR if ( LITERAL("no_templates") && (WHITE,LITERAL(";")) )
+	{
+		mod->no_templates = true;
+		ACCEPT;
+	}
 	OR if (TERM(name(HERE,propname,sizeof(propname))) && (WHITE))
 	{
 		current_object = NULL; /* object context */
