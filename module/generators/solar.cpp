@@ -100,7 +100,6 @@ solar::solar(MODULE *module)
 			PT_double, "derating[pu]", PADDR(derating_factor), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION, "Panel derating to account for manufacturing variances",
 			PT_double, "Tcell[degC]", PADDR(Tcell), PT_DEFAULT,"69.8 degF",
 
-			PT_double, "Rated_kVA[kVA]", PADDR(Rated_kVA), PT_DEPRECATED, PT_DESCRIPTION, "This variable has issues with inconsistent handling in the code, so we will deprecate this in the future (VA maps to kVA, for example).",
 			PT_double, "rated_power[W]", PADDR(Max_P), PT_DESCRIPTION, "Used to define the size of the solar panel in power rather than square footage.", 
 			PT_complex, "P_Out[kW]", PADDR(P_Out),
 			PT_complex, "V_Out[V]", PADDR(V_Out),
@@ -119,13 +118,6 @@ solar::solar(MODULE *module)
 				//PT_KEYWORD, "ONE_AXIS", ONE_AXIS,			//To be implemented later
 				//PT_KEYWORD, "TWO_AXIS", TWO_AXIS,			//To be implemented later
 				//PT_KEYWORD, "AZIMUTH_AXIS", AZIMUTH_AXIS,	//To be implemented later
-
-		    PT_set, "phases", PADDR(phases), PT_DEPRECATED, //Solar doesn't need phase information for anything.
-				PT_KEYWORD, "A",(set)PHASE_A,
-				PT_KEYWORD, "B",(set)PHASE_B,
-				PT_KEYWORD, "C",(set)PHASE_C,
-				PT_KEYWORD, "N",(set)PHASE_N,
-				PT_KEYWORD, "S",(set)PHASE_S,
 
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 

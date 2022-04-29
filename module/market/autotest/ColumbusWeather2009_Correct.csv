@@ -2,7 +2,7 @@
 # data obtained from http://www.wunderground.com/history/airport/KCMH,,,,,,
 $state_name=Ohio,,,,,,
 $city_name=Columbus,,,,,,
-temperature,humidity,wind_speed,solar_dir,solar_diff,solar_global,
+temperature,humidity,wind_speed,solar_direct,solar_diffuse,solar_global,
 01:01:00:51:00,21.9,0.1,4.6,0,0,0
 01:01:01:51:00,21.9,0.1,4.6,0,0,0
 01:01:02:51:00,21,0.1,0,0,0,0
