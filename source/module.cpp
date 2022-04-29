@@ -526,6 +526,8 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->on_commit = NULL;
 	mod->on_term = NULL;
 	strcpy(mod->name,file);
+	mod->templates_loaded = false;
+	mod->no_templates = false;
 	mod->next = NULL;
 
 	/* check the module version before trying to initialize */
@@ -589,7 +591,9 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			}
 		}
 	}
-	return module_add(mod);
+	module_add(mod);
+	module_load_templates(mod);
+	return last_module;
 }
 
 MODULE *module_add(MODULE *mod)
@@ -2933,6 +2937,52 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		}
 	}
 	output_raw("\n");
+}
+
+void module_load_templates(MODULE *mod)
+{
+	if ( mod->templates_loaded || mod->no_templates )
+	{
+		return;
+	}
+	char loadpath[1024];
+	sprintf(loadpath,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
+	DIR *dp;
+	struct dirent *entry;
+	struct stat statbuf;
+	if ( (dp=opendir(loadpath)) != NULL )
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): reading shared module templates folder '%s'",mod->name,loadpath);
+		while ( (entry=readdir(dp)) )
+		{
+			char file[1024];
+			sprintf(file,"%s/%s",loadpath,entry->d_name);
+			output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+			if ( lstat(file,&statbuf) != 0 )
+			{
+				output_warning("module_load_templates(MODULE *mod=<%s>): unable to get status of '%s'",mod->name,file);
+			}
+			else if ( S_ISDIR(statbuf.st_mode) )
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): '%s' is a directory -- ignoring",mod->name,file);
+			}
+			else
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+				if ( my_instance->get_loader()->loadall_glm(file) != SUCCESS )
+				{
+					output_error("module template '%s' load failed",file);
+				}
+			}
+		}
+		closedir(dp);
+		mod->templates_loaded = true;
+	}
+	else
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): shared module templates folder '%s' not found",mod->name,loadpath);
+	}
+	return;
 }
 
 /**@}*/

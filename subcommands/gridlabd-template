@@ -291,6 +291,12 @@ function get()
         fi
         FOUND=$((${FOUND}+1))
     done
+    for FILE in $(cd $DSTDIR; ls -1 module_*.glm 2>/dev/null); do
+        GLMNAME=${FILE/module_/}
+        MODNAME=${GLMNAME/.glm/}
+        mkdir -p $GLD_ETC/module.d/$MODNAME
+        ln -sf $DSTDIR/$FILE $GLD_ETC/module.d/$MODNAME/$TEMPLATE.glm
+    done
     if [ ${FOUND} -eq 0 ]; then
         error 1 "no template(s) not found"
     fi
