@@ -30,7 +30,7 @@ _Note_: When a merge is performed, the PR is automatically closed and the branch
 
 ## Documentation changes
 
-All documentation changes arising from new features and capabilities should be made to this repository's wiki pages at https://github.com/slacgismo/gridlabd/wiki. Fixes or correction to GridLAB-D's online documentation should be made to https://gridlab-d.shoutwiki.org/, subject to review and approval by the PNNL team.
+All documentation changes arising from new features and capabilities should be made to this repository's wiki pages at https://source.gridlabd.us/wiki. Fixes or correction to GridLAB-D's online documentation should be made to https://gridlab-d.shoutwiki.org/, subject to review and approval by the PNNL team.
 
 # Coding Conventions
 
