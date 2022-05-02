@@ -145,7 +145,7 @@ static pthread_t check_version_thread_id;
 void *check_version_proc(void *ptr)
 {
 	int patch, build;
-	const char *url = "https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/versions.txt";
+	const char *url = "https://code.gridlabd.us/master/source/versions.txt";
 	HTTPRESULT *result = http_read(url,0x1000);
 	char target[32];
 	char *pv = NULL, *nv = NULL;
