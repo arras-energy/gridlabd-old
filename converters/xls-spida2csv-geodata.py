@@ -17,6 +17,14 @@ DESCRIPTION
 
 	This converter extracts pole geodata from a SPIDAcalc pole asset report spreadsheet
 	and generates a GriDLAB-D geodata CSV file.
+
+OPTIONS:
+
+- `precision=2`: specify the number of digits in a number and function ROUND will be used (default 2)
+
+- `extract_equipment=yes`: enable the conversion of pole-mounted equipment, dummy values will be used for equipment properties (default None)
+
+- `include_network=yes`: enable the generation of a bus-type feeder, dummy values will be used for properties of feeder and equipment (default None)
 	
 """
 import pandas
