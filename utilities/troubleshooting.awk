@@ -82,7 +82,7 @@ BEGIN { # this is executed before any files are processed
 			}
 			while ( index($0,"*/") == 0 )
 			
-			info = explanation "<cite>See <a href=\"http://github.com/slacgismo/gridlabd/blob/master/" module "/" filename "#L" tag "\">" id "</a>.</cite>"
+			info = explanation "<cite>See <a href=\"http://source.gridlabd.us/blob/master/" module "/" filename "#L" tag "\">" id "</a>.</cite>"
 			
 			# add message and TROUBLESHOOT text to appropriate array
 			if ( group == "Warnings" ) {

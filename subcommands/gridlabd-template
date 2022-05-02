@@ -14,7 +14,7 @@ GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 if [ "${ORGANIZATION}" == "" ]; then
     export ORGANIZATION="US/CA/SLAC"
 fi
-GITUSER=slacgismo
+GITUSER=hipas
 GITREPO="gridlabd-template"
 GITBRANCH="master"
 DATADIR="$GLD_ETC/template/$ORGANIZATION"
@@ -290,6 +290,12 @@ function get()
             debug "documentation file $TEMPLATE.md ok"
         fi
         FOUND=$((${FOUND}+1))
+    done
+    for FILE in $(cd $DSTDIR; ls -1 module_*.glm 2>/dev/null); do
+        GLMNAME=${FILE/module_/}
+        MODNAME=${GLMNAME/.glm/}
+        mkdir -p $GLD_ETC/module.d/$MODNAME
+        ln -sf $DSTDIR/$FILE $GLD_ETC/module.d/$MODNAME/$TEMPLATE.glm
     done
     if [ ${FOUND} -eq 0 ]; then
         error 1 "no template(s) not found"

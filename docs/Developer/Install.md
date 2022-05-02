@@ -47,7 +47,7 @@ bash$ curl -L http://code.gridlabd.us/<branch>/install.sh | bash
 Manual installation is discouraged because the process is complex, highly error-prone, and varies widely from one platform to another.  However, it is necessary on platforms that are not supported by the automated installation script.  The general approach is roughly as follows, keeping in mind that the specific will vary from one system to another, and you may need to install certain tools and libraries to be successful.
 
 ~~~
-bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
+bash$ git clone https://source.gridlabd.us/ gridlabd
 bash$ cd gridlabd
 bash$ autoreconf -isf
 bash$ ./configure

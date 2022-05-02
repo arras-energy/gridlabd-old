@@ -4,4 +4,4 @@ The HiPAS GridLAB-D Technical Advisory Committee Meetings and User Workshops are
 
 # Recent Updates
 
-A list of recent updates to the master release of HiPAS GridLAB-D may be found at the [GitHub repository](https://github.com/slacgismo/gridlabd/commits/master).
+A list of recent releases of HiPAS GridLAB-D may be found at the [GitHub repository](https://source.gridlabd.us/discussions).
