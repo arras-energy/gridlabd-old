@@ -262,6 +262,10 @@ meter::meter(MODULE *mod) : node(mod)
 			PT_double, "third_tier_energy[kWh]", PADDR(tier_energy[2]),
 				PT_DESCRIPTION,"switching point between second tier price and third tier price",
 
+			PT_bool, "is_critical", PADDR(is_critical),
+				PT_DEFAULT,"FALSE",
+				PT_DESCRIPTION,"indicates whether the meter is for a facility that provide critical/emergency services (used by resilience module)",
+
 			//PT_double, "measured_reactive[kVar]", PADDR(measured_reactive), has not implemented yet
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 

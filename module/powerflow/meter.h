@@ -42,6 +42,7 @@ public:
 	bool meter_interrupted;			///< Reliability flag - goes active if the customer is in an "interrupted" state
 	bool meter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in an "secondary interrupted" state - i.e., momentary
 	bool meter_NR_servered;			///< Flag for NR solver, server mode (not standalone), and SWING designation
+	bool is_critical; ///< flag whether the facility is provide critical/emergency services (used by resilience module)
 	TIMESTAMP next_time;
 	TIMESTAMP dt;
 	TIMESTAMP last_t;
