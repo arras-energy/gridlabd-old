@@ -19,16 +19,11 @@ void GldMain::pause_at_exit(void)
 {
 	if (global_pauseatexit)
 	{
-		int rc =
-#if defined WIN32
-		system("pause");
-#else
-		system("read -p 'Press [RETURN] to end... ");
-#endif
-		if ( rc != 0 )
-		{
-			fprintf(stderr,"non-zero exit code (rc=%d) from system pause\n",rc);
-		}
+		output_verbose("pausing at exit");
+		fprintf(stdout,"Press [RETURN] to exit... ");
+		fflush(stdout);
+		char buffer[80];
+		fgets(buffer,sizeof(buffer)-1,stdin);
 	}
 }
 
@@ -378,17 +373,6 @@ int GldMain::run_on_exit(int return_code)
 
 	/* restore locale */
 	locale_pop();
-
-	/* if pause enabled */
-#ifndef WIN32
-	if (global_pauseatexit)
-	{
-		IN_MYCONTEXT output_verbose("pausing at exit");
-		while (true) {
-			sleep(5);
-		}
-	}
-#endif
 
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());

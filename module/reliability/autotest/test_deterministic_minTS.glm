@@ -1424,9 +1424,13 @@ object triplex_meter {
 	groupid METERTEST;
 	name trip_load_node;
     phases AS;
-	power_1 1200.0;
-	power_2 1300.0;
-	power_12 400.0;
+    object triplex_load {
+	    phases AS;
+	    nominal_voltage 120.00;
+		constant_power_1 1200.0;
+		constant_power_2 1300.0;
+		constant_power_12 400.0;
+	};
     nominal_voltage 120.00;
 }
 

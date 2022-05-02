@@ -653,6 +653,8 @@ struct s_module_list {
 	TIMESTAMP (*on_postsync)(TIMESTAMP t);
 	bool (*on_commit)(TIMESTAMP t);
 	void (*on_term)(void);
+	bool templates_loaded;
+	bool no_templates;
 	MODULE *next;
 };
 

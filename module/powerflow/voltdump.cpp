@@ -36,9 +36,6 @@ voltdump::voltdump(MODULE *mod)
 			PT_char256,"filename",PADDR(filename),
 				PT_REQUIRED,
 				PT_DESCRIPTION,"the file to dump the voltage data into", // must keep this for compatibility
-			PT_char256,"file",PADDR(filename),
-				PT_DEPRECATED,
-				PT_DESCRIPTION,"the file to dump the voltage data into", // added 2012-07-10, adds convenience
 			PT_int32,"runcount",PADDR(runcount),
 				PT_ACCESS, PA_REFERENCE,
 				PT_DEFAULT, "0",

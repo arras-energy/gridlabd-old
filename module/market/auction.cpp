@@ -89,8 +89,6 @@ auction::auction(MODULE *module)
 			PT_int64, "market_id", PADDR(market_id), PT_ACCESS, PA_REFERENCE, PT_DESCRIPTION, "unique identifier of market clearing",
 /**/		PT_object, "network", PADDR(network), PT_DESCRIPTION, "the comm network used by object to talk to the market (if any)",
 			PT_bool, "verbose", PADDR(verbose), PT_DESCRIPTION, "enable verbose auction operations",
-			PT_object, "linkref", PADDR(linkref), PT_DEPRECATED, PT_DESCRIPTION, "reference to link object that has demand as power_out (only used when not all loads are bidding)",
-			PT_double, "pricecap", PADDR(pricecap), PT_DEPRECATED, PT_DESCRIPTION, "the maximum price (magnitude) allowed",
 			PT_double, "price_cap", PADDR(pricecap), PT_DESCRIPTION, "the maximum price (magnitude) allowed",
 
 			PT_enumeration, "special_mode", PADDR(special_mode),

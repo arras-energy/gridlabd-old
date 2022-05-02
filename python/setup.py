@@ -33,7 +33,9 @@ if not srcdir :
 	srcdir = os.path.realpath(sys.argv[0]).replace("/python/setup.py","")
 else:
 	srcdir = os.path.realpath(srcdir)
-
+blddir = os.getenv('BLDDIR')
+if not blddir:
+	blddir = os.getcwd()
 try:
 	from compile_options import *
 except:
@@ -44,7 +46,7 @@ except:
 		compile_options = None
 if not compile_options :
 	compile_options=['-Wall','-O3','-g']
-compile_options.extend(['-I%s/source'%srcdir,'-Isource','-Isource/rt',"-fPIC","-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
+compile_options.extend(['-I%s/source'%srcdir,'-I%s/python'%srcdir,'-I%s/runtime'%srcdir,'-I%s/source'%blddir,"-fPIC","-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
 
 from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
