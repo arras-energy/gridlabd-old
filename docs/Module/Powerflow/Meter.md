@@ -147,6 +147,7 @@ GLM:
     topological_parent "<string>";
     phases "[ABCDNSG]";
     nominal_voltage "<decimal> V";
+    is_critical <boolean>;
     supernode_name "<string>";
   }
 ~~~
@@ -1292,6 +1293,14 @@ TODO
 ~~~
 
 TODO
+
+### `is_critical`
+
+~~~
+  bool is_critical;
+~~~
+
+This flag indicates whether the meter serves a facility that provide critical/emergency services.  This is used by the resilience module to determine whether PSPS must consider the services as must-run/must-serve.
 
 # Example
 
