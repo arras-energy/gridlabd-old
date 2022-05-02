@@ -1,4 +1,3 @@
-from http.server import executable
 import sys
 import os
 import pandas as pd
@@ -16,17 +15,21 @@ import geodata_firerisk
 path= os.path.join(os.getcwd(),'example/ieee123.json')
 data = json2dfloadlocations.convert(input_file=path,output_file='')
 
+### Load and Convert JSON for IEEE123_pole.json
+path2= os.path.join(os.getcwd(),'example/IEEE123_pole.json')
+datapole = json2dfloadlocations.convert(input_file=path2,output_file='')
+
 ### filter nodes without lat/long information (these are triplex_nodes and swing substations)
 data= data[data['lat']!=''] 
 data.replace(r'^\s*$', np.nan, regex=True,inplace=True)
 
 ### Look up fire risk values at all points  ##### uncomment for final implementation
-# latlongs= data[['lat','long']]
-# firerisk= geodata_firerisk.apply(data=latlongs)
-# data['fireRisk']= firerisk
+latlongs= data[['lat','long']]
+firerisk= geodata_firerisk.apply(data=latlongs)
+data['fireRisk']= firerisk
 
 ###testing purposes###
-data['fireRisk']= np.random.randint(low=0, high=255, size=data.shape[0]) #random fire risk for testing purposes
+# data['fireRisk']= np.random.randint(low=0, high=255, size=data.shape[0]) #random fire risk for testing purposes
 # data.to_csv(os.path.join(os.getcwd(),'testlatlong.csv')) 
 # data= pd.read_csv(os.path.join(os.getcwd(),'testlatlong.csv')).drop(columns='Unnamed: 0')
 #######################
@@ -64,30 +67,63 @@ data.loc[(data['class']=='load') & (data['group_id']=="area_D"),'load']=4
 data.loc[(data['class']=='load') & (data['group_id']=="area_E"),'load']=5
 ###########################
 
-### Set
 import pyomo.environ as pyo
-model = pyo.ConcreteModel()
 
-### Param
 areaData= data.groupby(by='group_id').sum().drop(columns={'fireRisk','fireRiskWeight','load_x','length'})
-alpha= 0.5
 areas= areaData.index.values.tolist()
+fireRiskNormalized=(areaData.weightedFireRisk)/max(areaData.weightedFireRisk)
+loadNormalized=areaData.load/max(areaData.load)
 
-model.demand = pyo.Param(areaData['load'])
-model.fireRisk = pyo.Param(areaData['weightedFireRisk'])
+dfResults = pd.DataFrame(columns= ['alpha'])
+dfResults[areas]= ""
 
-### Var
-model.switch = pyo.Var(areas,within=pyo.NonNegativeIntegers, bounds=(0,1))
+for a in range(0,101,1):
 
-### Objective
-model.objective = pyo.Objective(expr= sum(model.switch[i] * areaData.load[i] * alpha + model.switch[i] * areaData.weightedFireRisk[i]*(1-alpha) for i in (model.switch.get_values())))
-### Constraints
+    model = pyo.ConcreteModel()
+    ### Param
+    alpha= a/100
 
-### Solver
-results= pyo.SolverFactory('cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model)
-results.write()
+    ### Var
+    model.switch = pyo.Var(areas,within=pyo.NonNegativeIntegers, bounds=(-.05,1.5))
+
+    ### Objective
+    model.objective = pyo.Objective(sense=1, expr= sum( (model.switch[i] * fireRiskNormalized[i]*(1-alpha)) - (model.switch[i] * loadNormalized[i] * alpha) for i in (model.switch.get_values())))
+
+    ### Constraints
+
+    ### Solver
+    results= pyo.SolverFactory('cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model)
+    # results.write()
+
+    # print("=================")
+    # model.pprint()
+
+    switches= [alpha]
+    for i in areas:
+        switches.append(model.switch[i].value)
+
+    dfResults.loc[len(dfResults)]= switches
+
+
+########################
+# Plot and Prepare Results
+########################
+dfResults.reset_index(drop=True)
+dfResults['LoadServed']= dfResults[areas].dot(areaData.load)
+dfResults['FireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
+dfResults['LoadServedNorm']= dfResults[areas].dot(loadNormalized)
+dfResults['FireRiskNorm']= dfResults[areas].dot(fireRiskNormalized)
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.regplot(x= dfResults['LoadServed'], y= dfResults['FireRisk'],fit_reg=False)
+plt.show()
+
 
 #TO-DO FOR LATER:
 #transform the points to region with higher fire risk
 #Split up line objects to pole objects then sum risk over those
 #weight the loads with critical loads
+
+# https://github.com/Pyomo/pyomo/issues/2241
