@@ -188,3 +188,8 @@ python/dist/*.tar.gz
 python/gridlabd.egg-info/
 gridlabd.egg-*
 module/resilience/docs/output.csv
+module/powerflow/autotest/controller_1.csv
+module/powerflow/autotest/switch_1.csv
+module/powerflow/autotest/switch_2.csv
+module/powerflow/autotest/switch_3.csv
+module/powerflow/autotest/switch_4.csv

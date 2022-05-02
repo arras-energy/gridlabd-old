@@ -90,12 +90,12 @@ gridlabd_bin_LDADD += -ldl -lcurl
 
 bin_SCRIPTS += source/gridlabd 
 
-gridlabd_bin_SOURCES += source/build.h
-BUILT_SOURCES += source/build.h
-CLEANFILES += source/build.h origin.txt
+gridlabd_bin_SOURCES += $(top_srcdir)/source/build.h
+BUILT_SOURCES += $(top_srcdir)/source/build.h
+CLEANFILES += $(top_srcdir)/source/build.h origin.txt
 
 pkginclude_HEADERS =
-pkginclude_HEADERS += source/build.h
+pkginclude_HEADERS += $(top_srcdir)/source/build.h
 pkginclude_HEADERS += source/class.h
 pkginclude_HEADERS += source/complex.h
 pkginclude_HEADERS += source/debug.h
@@ -117,7 +117,7 @@ gridlabd_DATA = origin.txt
 # 	@autom4te -l m4sh $< > $@
 # 	@echo "$@ updated, please run 'make reconfigure && make TARGET' again" && false
 
-source/build.h: buildnum
+$(top_srcdir)/source/build.h: buildnum
 
 buildnum: utilities/build_number
 	@/bin/bash -c "$(top_srcdir)/utilities/build_number"
