@@ -1,0 +1,6 @@
+timestamp,status,armed
+2011-01-01 00:00:00 UTC,ARMED,NONE
+2011-01-01 00:00:02 UTC,ARMED,switch_1
+2011-01-01 00:00:03 UTC,ARMED,switch_1|switch_2
+2011-01-01 00:00:05 UTC,ARMED,switch_1|switch_2|switch_3
+2011-01-01 00:00:08 UTC,ARMED,switch_1|switch_2|switch_3|switch_4

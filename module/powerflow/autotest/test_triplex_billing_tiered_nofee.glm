@@ -108,9 +108,13 @@ object triplex_meter {
 	monthly_fee 0;
 	price .5;
 	bill_day 1;
-	power_1 10;
-	power_2 10;
-	power_12 30;
+	object triplex_load {
+		phases AS;
+		nominal_voltage 124.00;
+		constant_power_1 10;
+		constant_power_2 10;
+		constant_power_12 30;
+	};
 	first_tier_price 1;
 	first_tier_energy 6;
 	second_tier_price 2;
