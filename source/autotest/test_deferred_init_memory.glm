@@ -15,7 +15,6 @@ module powerflow {
 }
 
 object solar {
-	phases BN;
 	generator_mode SUPPLY_DRIVEN;
 	name imasolar;
 	parent imainverter;

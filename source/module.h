@@ -54,6 +54,8 @@ struct s_module_list {
 	TIMESTAMP (*on_postsync)(TIMESTAMP t);
 	bool (*on_commit)(TIMESTAMP t);
 	void (*on_term)(void);
+	bool templates_loaded;
+	bool no_templates;
 	struct s_module_list *next;
 }; /* MODULE */
 
@@ -136,6 +138,8 @@ extern "C" {
 	int sched_getnproc(void);
 
 	void module_help_md(MODULE *mod, CLASS *oclass=NULL);
+
+	void module_load_templates(MODULE *mod);
 
 #ifdef __cplusplus
 }

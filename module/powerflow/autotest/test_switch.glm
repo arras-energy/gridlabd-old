@@ -1,0 +1,41 @@
+// test_switch.glm
+//
+// Verify that banked switch works correctly when opened
+//
+module powerflow;
+module assert;
+
+object meter 
+{
+    name "test";
+    phases ABC;
+    nominal_voltage 2400;
+    bustype SWING;
+    object assert
+    {
+        target measured_real_power;
+        value 2000;
+        within 1;
+    };
+}
+#for PHASE in A B C
+object load
+{
+    name "load_${PHASE}";
+    phases ${PHASE};
+    nominal_voltage 2400;
+    bustype SWING_PQ;
+    constant_power_${PHASE} 1000;
+}
+object switch
+{
+    phases ${PHASE};
+    name "switch_${PHASE}";
+    from "test";
+    to "load_${PHASE}";
+    operating_mode INDIVIDUAL;
+    phase_${PHASE}_state CLOSED;
+}
+#done
+
+modify switch_C.phase_C_state OPEN;
