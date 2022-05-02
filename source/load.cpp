@@ -2766,6 +2766,11 @@ int GldLoader::module_properties(PARSER, MODULE *mod)
 			REJECT;
 		}
 	}
+	OR if ( LITERAL("no_templates") && (WHITE,LITERAL(";")) )
+	{
+		mod->no_templates = true;
+		ACCEPT;
+	}
 	OR if (TERM(name(HERE,propname,sizeof(propname))) && (WHITE))
 	{
 		current_object = NULL; /* object context */
@@ -4356,7 +4361,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if ( object_set_complex_by_name(obj,propname,cval) == 0 )
 				{
-					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
+					syntax_error(filename,linenum,"complex property %s of %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else

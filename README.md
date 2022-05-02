@@ -1,5 +1,5 @@
-![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) 
-![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+![master](https://source.gridlabd.us/actions/workflows/master.yml/badge.svg?branch=master) 
+![develop](https://source.gridlabd.us/workflows/develop/badge.svg?branch=develop)
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 
@@ -21,17 +21,24 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
 
 # User quick start
 
-The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/slacgismo/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
-  host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+  host% docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~ 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 ~~~
-  host% alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
+  host% alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
+
+Windows users can accomplish something similar using a small batch file named `gridlabd.bat` containing the following 3 lines:
+~~~
+@echo off
+for /f "delims=" %%i in ('cd') do set PWD=%%i
+docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
+~~~
 
 # Developer quick start
 
@@ -39,7 +46,7 @@ Note that this alias will interfere with any host-based installation. You should
 
 Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
 ~~~
-host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% git clone https://source.gridlabd.us/ gridlabd
 host% gridlabd/install.sh
 ~~~
 ### AWS EC2 Installation 
@@ -51,7 +58,7 @@ host% export PATH=/usr/local/bin:$PATH
 2) Change work dictionary and clone GitHub repository
 ~~~
 host% cd /usr/local/src
-host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% git clone https://source.gridlabd.us/ gridlabd
 ~~~
 3) Run installation 
 ~~~ 
@@ -63,7 +70,7 @@ If you have modified the branch name or version information, you must reconfigur
 
 Each build of HiPAS GridLAB-D will be installed in `/usr/local/opt/gridlabd`. Links to the active version are added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`. Additional links are created in `/usr/local/lib` and `/usr/local/share`, as needed. 
 
-You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
+You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
 
 You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
 
@@ -105,7 +112,7 @@ Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually 
 
 ## Building and Debugging
 
-You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
+You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
 
 ## Notes
 - The version number should contain the _branch-name_.  If not, use the `which gridlabd` command to check that the path is correct.
@@ -129,10 +136,10 @@ Chassin, D.P., et al., "GridLAB-D Version _major_._minor_._patch_-_build_ (_bran
 You may use the `--cite` command option to obtain the correct citation for your version:
 ~~~
 host% gridlabd --cite
-Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://github.com/slacgismo/gridlabd/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
+Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://source.gridlabd.us/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
 ~~~
 This will allow anyone to identify the exact version you are using to obtain it from GitHub.
 
 ## Contributions
 
-Please see https://github.com/slacgismo/gridlabd/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
+Please see https://source.gridlabd.us/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
