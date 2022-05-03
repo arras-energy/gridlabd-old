@@ -43,6 +43,10 @@ typedef enum {
 
 class link_object : public powerflow_object
 {
+public:
+	static double default_continuous_rating;
+	static double default_emergency_rating;
+	
 public: /// @todo make this private and create interfaces to control values
 	complex a_mat[3][3];	// a_mat - 3x3 matrix, 'a' matrix
 	complex b_mat[3][3];	// b_mat - 3x3 matrix, 'b' matrix

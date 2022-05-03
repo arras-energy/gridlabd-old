@@ -93,6 +93,9 @@ using namespace std;
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;
 
+double link_object::default_continuous_rating = 1000;
+double link_object::default_emergency_rating = 2000;
+
 /**
 * constructor.  Class registration is only called once to register the class with the core.
 * @param mod the module struct that this class is registering in
@@ -231,6 +234,9 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 				PT_DESCRIPTION, "Tolerance, as change in line voltage drop between iterations, for deltamode in-rush completion",
 			NULL) < 1 && errno) GL_THROW("unable to publish link properties in %s",__FILE__);
 
+			gl_global_create("powerflow::default_continuous_rating[A]",PT_double,&default_continuous_rating,NULL);
+			gl_global_create("powerflow::default_emergency_rating[A]",PT_double,&default_emergency_rating,NULL);
+
 			//Publish deltamode functions
 			if (gl_publish_function(oclass,	"interupdate_pwr_object", (FUNCTIONADDR)interupdate_link)==NULL)
 				GL_THROW("Unable to publish link deltamode function");
@@ -279,8 +285,8 @@ int link_object::create(void)
 
 	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][1] = link_limits[1][2] = NULL;
 	
-	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = 1000;	//Replicates current defaults of line objects
-	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = 2000;
+	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = default_continuous_rating;	//Replicates current defaults of line objects
+	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = default_emergency_rating;
 
 	check_link_limits = false;
 
