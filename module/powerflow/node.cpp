@@ -85,6 +85,9 @@ CLASS *node::pclass = NULL;
 
 unsigned int node::n = 0; 
 double node::default_voltage_violation_threshold = 0.05;
+double node::voltage_fluctuation_threshold = 0.03;
+OBJECT* *node::DER_objectlist = NULL;
+unsigned int node::DER_nodecount = 0;
 
 node::node(MODULE *mod) : powerflow_object(mod)
 {
@@ -352,6 +355,9 @@ node::node(MODULE *mod) : powerflow_object(mod)
 			PT_double, "voltage_violation_threshold[pu]", PADDR(voltage_violation_threshold),
 				PT_DESCRIPTION,"voltage violation threshold (per unit nominal voltage)",
 
+			PT_complex, "DER_value[kVA]", PADDR(DER_value),
+				PT_DESCRIPTION,"DER power fluctuation value (per phase)",
+
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		gl_global_create("powerflow::voltage_violation_threshold[pu]",PT_double,&default_voltage_violation_threshold,NULL);
@@ -500,6 +506,20 @@ int node::init(OBJECT *parent)
 {
 	OBJECT *obj = THISOBJECTHDR;
 	violation_watch = violation_watchset&VW_NODE;
+
+	if ( DER_value.r != 0.0 || DER_value.i != 0.0 )
+	{
+		if ( solver_method != SM_NR )
+		{
+			warning("non-zero DER_value requires use of NR solver, solver_method set to NR");
+			solver_method = SM_NR;
+		}
+		if ( DER_objectlist == NULL )
+		{
+			DER_objectlist = (OBJECT**)malloc(sizeof(OBJECT*)*n);
+		}
+		DER_objectlist[DER_nodecount++] = obj;
+	}
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
 	if (has_phase(PHASE_S))
@@ -2781,6 +2801,32 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 				}
 				else
 					NR_retval=t1;
+
+				// process DER voltage fluctuations
+				for ( BUSDATA *bus = NR_busdata ; bus < NR_busdata+NR_bus_count ; bus++ )
+				{
+					node *data = OBJECTDATA(bus->obj,node);
+					if ( data->DER_value.r != 0.0 || data->DER_value.i != 0.0 )
+					{
+						complex Vb[] = {data->voltage[0],data->voltage[1],data->voltage[2]};
+						if (has_phase(PHASE_A)) bus->S[0] += data->DER_value;
+						if (has_phase(PHASE_B)) bus->S[1] += data->DER_value;
+						if (has_phase(PHASE_C)) bus->S[2] += data->DER_value;
+						int result = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);
+						if ( result>0 )
+						{
+							if ( ( has_phase(PHASE_A) && (bus->S[0]-data->DER_value).Mag()>voltage_fluctuation_threshold )
+							  || ( has_phase(PHASE_B) && (bus->S[1]-data->DER_value).Mag()>voltage_fluctuation_threshold )
+							  || ( has_phase(PHASE_C) && (bus->S[2]-data->DER_value).Mag()>voltage_fluctuation_threshold ) )
+							{
+								add_violation(VF_VOLTAGE,"%s phase A voltage is outside %.1f%% violation threshold", obj->oclass->name, voltage_fluctuation_threshold*100);
+							}
+						}
+						data->voltage[0] = Vb[0];
+						data->voltage[1] = Vb[1];
+						data->voltage[2] = Vb[2];
+					}
+				}
 
 				//See where we wanted to go
 				return NR_retval;

@@ -134,6 +134,12 @@ private:
 	bool VFD_attached;						///< Flag to indicate this is on the to-side of a VFD link
 	FUNCTIONADDR VFD_updating_function;		///< Address for VFD updating function, if it is present
 	OBJECT *VFD_object;						///< Object pointer for the VFD - for later function calls
+
+	// DER globals
+	static double voltage_fluctuation_threshold; ///< maximum voltage fluctuation permitted
+	static unsigned int DER_nodecount;		///< count of DER nodes
+	static OBJECT **DER_objectlist;			///< list of DER objects to examine for voltage fluctuations violations
+
 public:
 	double frequency;			///< frequency (only valid on reference bus) */
 	object reference_bus;		///< reference bus from which frequency is defined */
@@ -182,6 +188,9 @@ public:
 	double freq_sfm_Tf;	//Transducer time constant
 	double freq_pll_Kp;	//Proportional gain of PLL frequency measurement
 	double freq_pll_Ki;	//Integration gain of PLL frequency measurement
+
+	// DER functionality
+	complex DER_value; // DER fluctuation power value (0 for none)
 
 	//GFA functionality
 	bool GFA_enable;
