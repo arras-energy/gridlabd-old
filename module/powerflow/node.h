@@ -233,6 +233,9 @@ public:
 	int *NR_subnode_reference;	/// Pointer to parent node's reference in NR_busdata - just in case things get inited out of synch
 	unsigned char prev_phases;	/// Phase tracking variable for use in reliability calls
 
+	static double default_voltage_violation_threshold; 	// voltage deviation limit (pu)
+	double voltage_violation_threshold; 	// voltage deviation limit (pu)
+
 	inline bool is_split() {return (phases&PHASE_S)!=0;};
 public:
 	static CLASS *oclass;

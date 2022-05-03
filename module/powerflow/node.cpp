@@ -84,6 +84,7 @@ CLASS *node::oclass = NULL;
 CLASS *node::pclass = NULL;
 
 unsigned int node::n = 0; 
+double node::default_voltage_violation_threshold = 0.05;
 
 node::node(MODULE *mod) : powerflow_object(mod)
 {
@@ -347,7 +348,13 @@ node::node(MODULE *mod) : powerflow_object(mod)
 
 			PT_object, "topological_parent", PADDR(TopologicalParent),
 				PT_DESCRIPTION,"topological parent as per GLM configuration",
+
+			PT_double, "voltage_violation_threshold[pu]", PADDR(voltage_violation_threshold),
+				PT_DESCRIPTION,"voltage violation threshold (per unit nominal voltage)",
+
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
+
+		gl_global_create("powerflow::voltage_violation_threshold[pu]",PT_double,&default_voltage_violation_threshold,NULL);
 
 		if (gl_publish_function(oclass,	"delta_linkage_node", (FUNCTIONADDR)delta_linkage)==NULL)
 			GL_THROW("Unable to publish node delta_linkage function");
@@ -480,6 +487,11 @@ int node::create(void)
 
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
+
+	if ( voltage_violation_threshold == 0.0 )
+	{
+		voltage_violation_threshold = default_voltage_violation_threshold;
+	}
 
 	return result;
 }
@@ -3356,17 +3368,17 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
-	if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	if ( pNode->has_phase(PHASE_A) && fabs(pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
 	}
-	if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	if ( pNode->has_phase(PHASE_B) && fabs(pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
 	}
-	if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	if ( pNode->has_phase(PHASE_C) && fabs(pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
 	}
 
 	try {
