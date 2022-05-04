@@ -1176,7 +1176,7 @@ EXPORT TIMESTAMP commit_fuse(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 			link_object *plink = OBJECTDATA(obj,link_object);
 			plink->calculate_power();
 			
-			return (fsr->fuse_state(obj->parent) ? TS_NEVER : 0);
+			return (fsr->fuse_state(obj->parent) ? plink->commit(t1,t2) : 0);
 		}
 		else
 			return TS_NEVER;

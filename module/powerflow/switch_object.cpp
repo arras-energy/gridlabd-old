@@ -1888,12 +1888,12 @@ SIMULATIONMODE switch_object::inter_deltaupdate_switch(unsigned int64 delta_time
 */
 EXPORT TIMESTAMP commit_switch_object(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
+	switch_object *plink = OBJECTDATA(obj,switch_object);
 	if (solver_method==SM_FBS)
 	{
-		switch_object *plink = OBJECTDATA(obj,switch_object);
 		plink->calculate_power();
 	}
-	return TS_NEVER;
+	return plink->commit(t1,t2);
 }
 EXPORT int create_switch(OBJECT **obj, OBJECT *parent)
 {

@@ -96,6 +96,7 @@ public:
 	complex indiv_power_loss[3];///< power losses - individual quantities
 	int protect_locations[3];	///< Links to protection object for different phase faults - part of reliability
 	FUNCTIONADDR link_recalc_fxn;	///< Function address for link recalculation function - frequency dependence
+	double violation_rating; ///< maximum line flow before a violation occurs
 
 	int create(void);
 	int init(OBJECT *parent);
@@ -181,6 +182,8 @@ public:
 
 	//******************** Create a function from solver_nr to calculate Isat
 
+public:
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 };
 
 //Macros
