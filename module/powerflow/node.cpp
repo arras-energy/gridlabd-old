@@ -3437,15 +3437,15 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	node *pNode = OBJECTDATA(obj,node);
 	if ( pNode->has_phase(PHASE_A) && fabs(pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
+		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->voltage_violation_threshold*100);
 	}
 	if ( pNode->has_phase(PHASE_B) && fabs(pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
+		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->voltage_violation_threshold*100);
 	}
 	if ( pNode->has_phase(PHASE_C) && fabs(pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage_violation_threshold*100);
+		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->voltage_violation_threshold*100);
 	}
 
 	try {
