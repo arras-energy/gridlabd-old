@@ -232,6 +232,18 @@ int powerflow_object::init(OBJECT *parent)
 		phases ^= PHASE_N;
 	}
 
+	if ( violation_fh == NULL && violation_record[0] != '\0' )
+	{
+		violation_fh = fopen(violation_record,"w");
+		if ( violation_fh == NULL )
+		{
+			gl_error("unable to open violation record file '%s'", (const char*)violation_record);
+			violation_record[0] = '\0';
+			return 0;
+		}
+		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
+	}
+
 	return 1;
 }
 
@@ -294,17 +306,6 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 		return;
 	}
 	violation_detected |= vf_type;
-	if ( violation_fh == NULL && violation_record[0] != '\0' )
-	{
-		violation_fh = fopen(violation_record,"w");
-		if ( violation_fh == NULL )
-		{
-			gl_error("unable to open violation record file '%s'", (const char*)violation_record);
-			violation_record[0] = '\0';
-			return;
-		}
-		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
-	}
 
 	const char *vf_name[] = 
 	{
