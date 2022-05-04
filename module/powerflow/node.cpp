@@ -2803,29 +2803,50 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					NR_retval=t1;
 
 				// process DER voltage fluctuations
-				for ( BUSDATA *bus = NR_busdata ; bus < NR_busdata+NR_bus_count ; bus++ )
+				complex Vb[NR_bus_count][3];
+				for ( unsigned int b = 0 ; b < NR_bus_count ; b++ )
 				{
+					BUSDATA *bus = NR_busdata+b;
+					node *data = OBJECTDATA(bus->obj,node);
+					Vb[b][0] = data->voltage[0];
+					Vb[b][1] = data->voltage[1];
+					Vb[b][2] = data->voltage[2];
+				}
+				for ( unsigned int b = 0 ; b < NR_bus_count ; b++ )
+				{
+					BUSDATA *bus = NR_busdata+b;
 					node *data = OBJECTDATA(bus->obj,node);
 					if ( data->DER_value.r != 0.0 || data->DER_value.i != 0.0 )
 					{
-						complex Vb[] = {data->voltage[0],data->voltage[1],data->voltage[2]};
+						// test alternate solution with DER active
+						complex Pb[] = {bus->S[0],bus->S[1],bus->S[2]};
 						if (has_phase(PHASE_A)) bus->S[0] += data->DER_value;
 						if (has_phase(PHASE_B)) bus->S[1] += data->DER_value;
 						if (has_phase(PHASE_C)) bus->S[2] += data->DER_value;
-						int result = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);
-						if ( result>0 )
+						int test = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);
+						for ( unsigned int bb = 0 ; bb < NR_bus_count ; bb++ )
 						{
-							if ( ( has_phase(PHASE_A) && (bus->S[0]-data->DER_value).Mag()>voltage_fluctuation_threshold )
-							  || ( has_phase(PHASE_B) && (bus->S[1]-data->DER_value).Mag()>voltage_fluctuation_threshold )
-							  || ( has_phase(PHASE_C) && (bus->S[2]-data->DER_value).Mag()>voltage_fluctuation_threshold ) )
+							node *test_data = OBJECTDATA(NR_busdata[bb].obj,node);
+							if ( test > 0 )
 							{
-								add_violation(VF_VOLTAGE,"%s phase A voltage is outside %.1f%% violation threshold", obj->oclass->name, voltage_fluctuation_threshold*100);
+								if ( ( has_phase(PHASE_A) && fabs((Vb[bb][0]-test_data->voltage[0]).Mag()) / Vb[bb][0].Mag() > voltage_fluctuation_threshold )
+								  || ( has_phase(PHASE_B) && fabs((Vb[bb][1]-test_data->voltage[1]).Mag()) / Vb[bb][1].Mag() > voltage_fluctuation_threshold )
+								  || ( has_phase(PHASE_C) && fabs((Vb[bb][2]-test_data->voltage[2]).Mag()) / Vb[bb][2].Mag() > voltage_fluctuation_threshold ) )
+								{
+									add_violation(VF_VOLTAGE,"%s voltage(s) outside %.1f%% violation threshold for %s DER_value %.1f+%.1fj kVA", GldObject(NR_busdata[bb].obj).get_name().c_str(), GldObject(obj).get_name().c_str(), voltage_fluctuation_threshold*100, data->DER_value.r, data->DER_value.i);
+								}
+							}
+							else if ( test < 0 || bad_computation )
+							{
+									add_violation(VF_VOLTAGE,"%s DER_value %.1f+%.1fj kVA causes NR solver failure", GldObject(obj).get_name().c_str(),  data->DER_value.r, data->DER_value.i);
 							}
 						}
-						data->voltage[0] = Vb[0];
-						data->voltage[1] = Vb[1];
-						data->voltage[2] = Vb[2];
-					}
+
+						// restore original solution
+						bus->S[0] = Pb[0];
+						bus->S[1] = Pb[1];
+						bus->S[2] = Pb[2];
+						result = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);					}
 				}
 
 				//See where we wanted to go
