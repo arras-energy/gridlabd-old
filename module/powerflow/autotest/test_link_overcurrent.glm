@@ -1,0 +1,75 @@
+clock
+{
+	stoptime "2000-01-02 00:00:00";
+}
+
+module powerflow
+{
+	solver_method NR;
+	violation_record "test_link_overcurrent.csv";
+}
+
+object node {
+	name "bus_1";
+	bustype SWING;
+	nominal_voltage 2400 V;
+	phases ABCN;
+	voltage_A 2400 V;
+	voltage_B 2400 V;
+	voltage_C 2400 V;
+}
+
+object overhead_line_conductor
+{
+	name "ohl";
+	geometric_mean_radius 0.031300;
+	diameter 0.927 in;
+	resistance 0.185900;
+}
+
+object line_spacing {
+	name "ls";
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 5.656854;
+	distance_AN 4.272002;
+	distance_CN 5.0;
+	distance_AE 28.0;
+	distance_BE 28.0;
+	distance_CE 28.0;
+	distance_NE 24.0;
+}
+
+object line_configuration {
+	name "lc";
+	conductor_A "ohl";
+	conductor_B "ohl";
+	conductor_C "ohl";
+	conductor_N "ohl";
+	spacing "ls";
+}
+
+object overhead_line
+{
+	phases ABCN;
+	from "bus_1";
+	to "bus_2";
+	length 1 mile;
+	configuration "lc";
+	violation_rating 100 A;
+}
+
+object load 
+{
+	phases ABCN;
+	nominal_voltage 2400 V;
+	name "bus_2";
+	constant_power_A 0.5 MW;
+	constant_power_B 0.5 MW;
+	constant_power_C 0.5 MW;
+}
+
+#ifexist ../test_link_overcurrent.csv
+#on_exit 0 diff -q ../test_link_overcurrent.csv test_link_overcurrent.csv >gridlabd.diff
+#endif
