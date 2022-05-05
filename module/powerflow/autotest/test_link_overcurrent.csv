@@ -1,3 +1,3 @@
 timestamp,object,type,description
-1999-12-31 16:00:00 PST,overhead_line:4,CURRENT,"line current is 128.4 A and exceeds violation rating on phase B"
-1999-12-31 16:00:00 PST,overhead_line:4,CURRENT,"line current is 215.7 A and exceeds violation rating on phase C"
+2000-01-01 00:00:00 UTC,overhead_line:4,CURRENT,"line current is 128.4 A and exceeds violation rating on phase B"
+2000-01-01 00:00:00 UTC,overhead_line:4,CURRENT,"line current is 215.7 A and exceeds violation rating on phase C"

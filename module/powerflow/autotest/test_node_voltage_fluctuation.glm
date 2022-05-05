@@ -1,3 +1,10 @@
+clock
+{
+	timezone "UTC0";
+	stoptime "2000-01-01 00:00:00 UTC";
+	stoptime "2001-01-01 00:00:00 UTC";
+}
+
 module powerflow
 {
 	solver_method NR;
