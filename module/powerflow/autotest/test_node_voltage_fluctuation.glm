@@ -5,13 +5,14 @@ module powerflow
 }
 
 object node {
-	name "bus_1";
+	name "main";
 	bustype SWING;
 	nominal_voltage 2400 V;
 	phases ABCN;
 	voltage_A 2400 V;
 	voltage_B 2400 V;
 	voltage_C 2400 V;
+	flags DEBUG;
 }
 
 object overhead_line_conductor
@@ -48,8 +49,8 @@ object line_configuration {
 object overhead_line
 {
 	phases ABCN;
-	from "bus_1";
-	to "bus_2";
+	from "main";
+	to "load_1";
 	length 1 mile;
 	configuration "lc";
 }
@@ -58,18 +59,18 @@ object load
 {
 	phases ABCN;
 	nominal_voltage 2400 V;
-	name "bus_2";
+	name "load_1";
 	constant_power_A 0.2 MW;
 	constant_power_B 0.2 MW;
 	constant_power_C 0.2 MW;
-	DER_value 1 MW;
+	DER_value 50 kW;
 }
 
 object overhead_line
 {
 	phases ABCN;
-	from "bus_2";
-	to "bus_3";
+	from "load_1";
+	to "load_2";
 	length 1 mile;
 	configuration "lc";
 }
@@ -78,13 +79,14 @@ object load
 {
 	phases ABCN;
 	nominal_voltage 2400 V;
-	name "bus_3";
+	name "load_2";
 	constant_power_A 0.2 MW;
 	constant_power_B 0.2 MW;
 	constant_power_C 0.2 MW;
-	DER_value 1 MW;
+	DER_value 100 kW;
 }
 
 #ifexist ../test_node_voltage_fluctuation.csv
 #on_exit 0 diff -q ../test_node_voltage_fluctuation.csv test_node_voltage_fluctuation.csv >gridlabd.diff
 #endif
+
