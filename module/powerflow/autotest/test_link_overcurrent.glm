@@ -65,8 +65,8 @@ object load
 	phases ABCN;
 	nominal_voltage 2400 V;
 	name "bus_2";
-	constant_power_A 0.5 MW;
-	constant_power_B 0.5 MW;
+	constant_power_A 0.1 MW;
+	constant_power_B 0.3 MW;
 	constant_power_C 0.5 MW;
 }
 
