@@ -83,6 +83,7 @@
  **/
 
 #include "powerflow.h"
+#include <time.h>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
@@ -315,7 +316,9 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 	if ( violation_fh != NULL )
 	{
 		char ts[64];
-		gl_strftime(t,ts,sizeof(ts)-1);
+		long tt = (t&0xffffffff);
+		struct tm *dt = gmtime(&tt);
+		strftime(ts,sizeof(ts)-1,"%Y-%m-%d %H:%M:%S",dt);
 		if ( obj->name != NULL )
 		{
 			fprintf(violation_fh,"%s,%s,%s,\"%s\"\n",ts,obj->name,vf_name[vf_type&0x0f],message);
