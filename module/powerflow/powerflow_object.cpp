@@ -287,6 +287,16 @@ int powerflow_object::kmldump(FILE *fp)
 	return 1; /* 1 means output default if it wasn't handled */
 }
 
+void powerflow_object::clear_violations(void)
+{
+	violation_active = 0;
+}
+
+void powerflow_object::clear_violation(void)
+{
+	violation_detected = VW_NONE;
+}
+
 void powerflow_object::add_violation(int vf_type, const char *format, ...)
 {
 	if ( violation_watch )

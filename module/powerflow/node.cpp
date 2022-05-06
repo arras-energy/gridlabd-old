@@ -2828,6 +2828,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					{
 						BUSDATA *der_bus = NR_busdata + der;
 						node *der_data = OBJECTDATA(der_bus->obj,node);
+						der_data->clear_violation();
 
 						// DER is present on this bus
 						if ( der_data->DER_value.r != 0.0 || der_data->DER_value.i != 0.0 )
@@ -2860,27 +2861,27 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 									if ( has_phase(PHASE_A) && fabs((Vb[check_bus][0]-check_data->voltage[0]).Mag()) / Vb[check_bus][0].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase A voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+										check_data->add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
 									}
 									if ( has_phase(PHASE_B) && fabs((Vb[check_bus][1]-check_data->voltage[1]).Mag()) / Vb[check_bus][1].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase B voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+										check_data->add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
 
 									}
 									if ( has_phase(PHASE_C) && fabs((Vb[check_bus][2]-check_data->voltage[2]).Mag()) / Vb[check_bus][2].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase C voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+										check_data->add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
 									}
 								}
 							}
 							else if ( test < 0 || bad_computation )
 							{
-								add_violation(VF_VOLTAGE,"%s DER_value %.1f+%.1fj kVA causes NR solver failure", 
+								der_data->add_violation(VF_VOLTAGE,"%s DER_value %.1f+%.1fj kVA causes NR solver failure", 
 									GldObject(obj).get_name().c_str(),  der_data->DER_value.r, der_data->DER_value.i);
 							}
 

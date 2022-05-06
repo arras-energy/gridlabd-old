@@ -73,5 +73,5 @@ object load
 }
 
 #ifexist ../test_link_overcurrent.csv
-#on_exit 0 diff -q ../test_link_overcurrent.csv test_link_overcurrent.csv >gridlabd.diff
+#on_exit 0 diff ../test_link_overcurrent.csv test_link_overcurrent.csv >gridlabd.diff
 #endif

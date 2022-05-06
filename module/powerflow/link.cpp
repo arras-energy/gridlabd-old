@@ -2909,6 +2909,8 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 	//Set it to zero
 	temp_power_check = 0.0;
 
+	clear_violation();
+	
 	//Check to see if limits need to be checked
 	if ((use_link_limits==true) && (check_link_limits==true))
 	{

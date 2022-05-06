@@ -94,6 +94,6 @@ object load
 }
 
 #ifexist ../test_node_voltage_fluctuation.csv
-#on_exit 0 diff -q ../test_node_voltage_fluctuation.csv test_node_voltage_fluctuation.csv >gridlabd.diff
+#on_exit 0 diff ../test_node_voltage_fluctuation.csv test_node_voltage_fluctuation.csv >gridlabd.diff
 #endif
 
