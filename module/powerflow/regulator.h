@@ -75,6 +75,9 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0);
 	int isa(CLASSNAME classname);
 	int kmldata(int (*stream)(const char*,...));
+
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return link_object::commit(t1,t2); };
+
 };
 
 #endif // _REGULATOR_H
