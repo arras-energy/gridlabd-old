@@ -147,8 +147,7 @@ GLM:
     topological_parent "<string>";
     phases "[ABCDNSG]";
     nominal_voltage "<decimal> V";
-    is_critical <boolean>;
-    supernode_name "<string>";
+    service_level "{LOW,NORMAL,HIGH,CRITICAL}";
   }
 ~~~
 
@@ -1286,21 +1285,13 @@ TODO
 
 TODO
 
-### `supernode_name`
+### `service_level`
 
 ~~~
-  char1024 supernode_name;
+  enumeration {LOW,NORMAL,HIGH,CRITICAL} service_level;
 ~~~
 
-TODO
-
-### `is_critical`
-
-~~~
-  bool is_critical;
-~~~
-
-This flag indicates whether the meter serves a facility that provide critical/emergency services.  This is used by the resilience module to determine whether PSPS must consider the services as must-run/must-serve.
+This enumeration indicates whether the meter serves a facility requires a particular level of service reliability.  `LOW` should be used for customers that have relatively unlimited self-generation backup. `NORMAL` should be used for customers that have typical service reliability (i.e., no backup).  `HIGH` should be used for customer that need higher than normal reliability but do not provide critical life-support services or have sufficient backup to operate up to 48 hours on backup supply.  `CRITICAL` should be used for customers that need high than normal reliability, provide critical life-support services, and do not have sufficient backup resources to operate 48 hours on backup supply.  This is used by the resilience module to determine whether PSPS must consider the services as must-run/must-serve.
 
 # Example
 
@@ -1444,7 +1435,7 @@ This flag indicates whether the meter serves a facility that provide critical/em
     GFA_trip_method "0";
     phases "0";
     nominal_voltage "0.0";
-    supernode_name "";
+    service_level "NORMAL";
   }
 ~~~
 
