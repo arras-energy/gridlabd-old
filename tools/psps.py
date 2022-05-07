@@ -3,6 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib as plt
+from datetime import datetime
+import xarray as xr
+
 
 share = os.getenv("GLD_ETC")
 if not share:
@@ -18,7 +21,7 @@ import noaa_forecast as nf
 ###########################
 ### Load and Convert JSON to matrix of load points
 path= os.path.join(os.getcwd(),'example/ieee123.json')
-# path= os.path.join(os.getcwd(),'tools/example/ieee123.json')
+path= os.path.join(os.getcwd(),'tools/example/ieee123.json')
 # path= os.path.join(os.getcwd(),'example/Titanium_camden.json')
 data = json2dfloadlocations.convert(input_file=path,output_file='')
 
@@ -42,11 +45,26 @@ resilience_Metric= 0 #1 for KWh lost, 0 for customer-hours
 
 data.replace(r'^\s*$', np.nan, regex=True,inplace=True) # Replace Empty cells with Nan
 
-### Look up fire risk values at all points 
+### Import Fire Risk and set up Fire Risk Timeline Dataframe
 latlongs= data[['lat','long']]
-# firerisk= geodata_firerisk.apply(data=latlongs)
-# data['fireRisk']= firerisk
-data['fireRisk']= np.random.randint(low=0, high=255, size=data.shape[0]) #TESTING-random fire risk for testing purposes
+today= datetime.today().strftime('%Y%m%d')
+
+#One days worth of fireRisk
+fireRisk=[]
+for day in range(1,2):
+    fireRisk.append(geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=today,type='fpi')))
+data['fireRisk']= fireRisk[0]
+
+#Loading all sevendays of fireRisk as NP array
+firerisk7d=np.empty(shape=len(latlongs))
+for day in range(1,8):
+    fr=geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=today,type='fpi'))
+    firerisk7d= np.column_stack((firerisk7d, fr))
+firerisk7d=firerisk7d[:,1:]
+firerisk7dx= xr.DataArray(firerisk7d)
+firerisk7dx['node']=data.node
+
+# data['fireRisk']= np.random.randint(low=0, high=255, size=data.shape[0]) #TESTING-random fire risk for testing purposes
 
 ### Assign power lines to group_id Areas
 loadpoints= data[data['class']=="load"]
@@ -67,6 +85,10 @@ fireRiskClassWeights = dict(
 data['fireRiskWeight']= data['class'].map(fireRiskClassWeights)
 data['fireRiskWeight']= data['fireRiskWeight'] * data.length.fillna(1)
 data['weightedFireRisk']= data['fireRiskWeight'] * data['fireRisk']
+
+firerisk7dx['fireRiskWeight'] =data['fireRiskWeight']
+# firerisk7dx * data['fireRiskWeight'] 
+
 
 ### Sum the load within each meter group, then merge it to the corresponding load
 groups = data.groupby(by='class')
@@ -110,11 +132,11 @@ forecast
 data['wind']=forecast
 
 
-import plotly.express as px
-fig = px.line(forecast[0])
-fig2 = px.line(forecast[40])
+# import plotly.express as px
+# fig = px.line(forecast[0])
+# fig2 = px.line(forecast[40])
+# fig.show()
 
-fig.show()
 ###########################
 ###### Optimization ######
 ###########################
@@ -172,14 +194,14 @@ for a in range(0,101,1):
 ########################
 dfResults.reset_index(drop=True)
 dfResults['LoadServed']= dfResults[areas].dot(areaData.load)
-dfResults['FireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
+dfResults['fireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
 dfResults['LoadServedNorm']= dfResults[areas].dot(loadNormalized)
 dfResults['FireRiskNorm']= dfResults[areas].dot(fireRiskNormalized)
 
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-sns.regplot(x= dfResults['LoadServed'], y= dfResults['FireRisk'],fit_reg=False)
+sns.regplot(x= dfResults['LoadServed'], y= dfResults['fireRisk'],fit_reg=False)
 plt.show()
 
 alpha_Results =0.65
