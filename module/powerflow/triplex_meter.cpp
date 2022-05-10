@@ -115,6 +115,14 @@ triplex_meter::triplex_meter(MODULE *mod) : triplex_node(mod)
 			PT_double, "third_tier_price[$/kWh]", PADDR(tier_price[2]),PT_DESCRIPTION,"first tier price of energy greater than third tier energy",
 			PT_double, "third_tier_energy[kWh]", PADDR(tier_energy[2]),PT_DESCRIPTION,"price of energy on tier above second tier",
 
+			PT_enumeration, "service_level", PADDR(service_level),
+				PT_KEYWORD,"LOW", MSL_LOW,
+				PT_KEYWORD,"NORMAL", MSL_NORMAL,
+				PT_KEYWORD,"HIGH", MSL_HIGH,
+				PT_KEYWORD,"CRITICAL", MSL_CRITICAL,
+				PT_DEFAULT,"NORMAL",
+				PT_DESCRIPTION,"indicates the level of service required for the customer served by this meter",
+
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 			//Deltamode functions

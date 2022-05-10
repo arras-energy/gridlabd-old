@@ -1,0 +1,12 @@
+#ifexist ../test_xls-spida2csv-geodata.xls
+#define DIR=..
+#endif
+
+#convert --debug ${DIR:-.}/test_xls-spida2csv-geodata.xls test_xls-spida2csv-network.csv -f xls-spida -t csv-geodata extract_equipment=yes include_network=yes
+
+#ifdef ../test_xls-spida2csv-geodata.xls
+#on_exit 0 diff -q ${DIR:-.}/test_xls-spida2csv-network.csv test_xls-spida2csv-network.csv 
+#endif
+
+// gridlabd convert /Users/fxie2/github/gridlabd/converters/autotest/test_xls-spida2csv-network.csv -f csv-table -t glm-object -p module=powerflow -o /tmp/test_pole.glm
+// gridlabd /tmp/test_pole.glm
