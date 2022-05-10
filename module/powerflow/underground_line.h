@@ -23,6 +23,11 @@ public:
 	int create(void);
 private:
 	void test_phases(line_configuration *config, const char ph);
+
+public:
+	
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return line::commit(t1,t2); };
+
 };
 
 EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);

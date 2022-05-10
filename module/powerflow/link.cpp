@@ -1,97 +1,17 @@
-/** $Id: link.cpp 1211 2009-01-17 00:45:28Z d3x593 $
+/** module/powerflow/link.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file link.cpp
-	@addtogroup powerflow_link Link
-	@ingroup powerflow_object
-
-	@par Fault support
-
-	The following conditions are used to describe a fault impedance \e X (e.g., 1e-6), 
-	between phase \e x and neutral or group, or between phases \e x and \e y, and leaving
-	phase \e z unaffected at iteration \e t:
-
-	- \e phase-to-phase contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = V_y(t) = 0, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A and \e y = phase B;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & \frac{1}{X} & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A and \e y = phase B;
-    - \e phase-to-ground contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = 0, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 1 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & p & p \\
-				0 & p & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & p & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A;
-	- \e phase-to-neutral contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = -V_N, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 1 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & p & p \\
-				0 & p & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & p & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A;
-
-
-	@{
-*/
+ **/
 
 #include "powerflow.h"
 using namespace std;
 
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;
+
+double link_object::default_continuous_rating = 1000;
+double link_object::default_emergency_rating = 2000;
+
+EXPORT_COMMIT_C(link,link_object)
 
 /**
 * constructor.  Class registration is only called once to register the class with the core.
@@ -229,7 +149,14 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 				PT_DESCRIPTION, "Emergency rating for this link object (set individual line segments",
 			PT_double, "inrush_convergence_value[V]", PADDR(inrush_tol_value),
 				PT_DESCRIPTION, "Tolerance, as change in line voltage drop between iterations, for deltamode in-rush completion",
+
+			PT_double, "violation_rating[A]", PADDR(violation_rating),
+				PT_DESCRIPTION, "current violation rating for this link object",
+
 			NULL) < 1 && errno) GL_THROW("unable to publish link properties in %s",__FILE__);
+
+			gl_global_create("powerflow::default_continuous_rating[A]",PT_double,&default_continuous_rating,NULL);
+			gl_global_create("powerflow::default_emergency_rating[A]",PT_double,&default_emergency_rating,NULL);
 
 			//Publish deltamode functions
 			if (gl_publish_function(oclass,	"interupdate_pwr_object", (FUNCTIONADDR)interupdate_link)==NULL)
@@ -279,8 +206,8 @@ int link_object::create(void)
 
 	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][1] = link_limits[1][2] = NULL;
 	
-	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = 1000;	//Replicates current defaults of line objects
-	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = 2000;
+	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = default_continuous_rating;	//Replicates current defaults of line objects
+	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = default_emergency_rating;
 
 	check_link_limits = false;
 
@@ -945,6 +872,13 @@ int link_object::init(OBJECT *parent)
 	// KML support
 	set_latitude((from->latitude+to->latitude)/2);
 	set_longitude((from->longitude+to->longitude)/2);
+
+	// check violation_rating
+	if ( violation_rating < 0.0 )
+	{
+		error("negative violation_rating is not valid");
+		return 0;
+	}
 
 	return 1;
 }
@@ -2975,6 +2909,8 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 	//Set it to zero
 	temp_power_check = 0.0;
 
+	clear_violation();
+	
 	//Check to see if limits need to be checked
 	if ((use_link_limits==true) && (check_link_limits==true))
 	{
@@ -13963,5 +13899,25 @@ void lu_matrix_inverse(complex *input_mat, complex *output_mat, int size_val)
 	gl_free(x_vec);
 }
 
+TIMESTAMP link_object::commit(TIMESTAMP t1, TIMESTAMP t2)
+{
+	gl_debug("checking for %.1f A violation_rating",violation_rating);
+	
+	if ( violation_rating <= 0 )
+		return TS_NEVER;
 
-/**@}*/
+	if ( has_phase(PHASE_A) && read_I_in[0] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase A",read_I_out[0].Mag(), violation_rating);
+	} 
+	if ( has_phase(PHASE_B) && read_I_in[1] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase B",read_I_out[1].Mag(), violation_rating);
+	} 
+	if ( has_phase(PHASE_C) && read_I_in[2] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase C",read_I_out[2].Mag(), violation_rating);
+	} 
+
+	return TS_NEVER;
+}

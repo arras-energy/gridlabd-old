@@ -134,6 +134,8 @@ public:
 	void add_violation(int vf_type, const char *format, ...);
 	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message);
 	void del_violation(TIMESTAMP t, OBJECT *obj, int vf_type);
+	static void clear_violations(void);
+	void clear_violation(void);
 #ifdef SUPPORT_OUTAGES
 	/* is_normal checks whether the current operating condition is normal */
 	inline bool is_normal(void) const { return condition==OC_NORMAL;};
