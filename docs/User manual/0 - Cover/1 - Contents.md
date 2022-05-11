@@ -1,66 +1,72 @@
-# Table of Contents
+# Table of Contents 
 
-# 0 - Cover
-  0.1. [[/User manual/0 - Cover/0 - Front matter~]]
-  0.2. [[/User manual/0 - Cover/1 - Contents~]]
-  0.3. [[/User manual/0 - Cover/2 - Preface~]]
+## 0 - Cover 
 
-# 1 - Fundamentals
+   0.0 - [[//User manual/0 - Cover/0 - Front matter.md~]] 
 
-## 1 - Introduction
+   0.1 - [[//User manual/0 - Cover/1 - Contents.md~]] 
 
-  1.1. [[/User manual/1 - Introduction/1 - Theory~]]
-  1.2. [[/User manual/1 - Introduction/2 - Installation~]]
-  1.3. [[/User manual/1 - Introduction/3 - Online Documentation~]]
-  1.4. [[/User manual/1 - Introduction/4 - Runtime Documentation~]]
-  1.5. [[/User manual/1 - Introduction/5 - Subcommands~]]
-  1.6. [[/User manual/1 - Introduction/6 - Tools~]]
-  1.7. [[/User manual/1 - Introduction/7 - Data import~]]
-  1.8. [[/User manual/1 - Introduction/8 - Data export~]]
+   0.2 - [[//User manual/0 - Cover/2 - Preface.md~]] 
 
-## 2 - Modeling
+## 1 - Introduction 
 
-## 3 - Advanced Topics
+   1.1 - [[//User manual/1 - Introduction/1 - Getting Started.md~]] 
 
-## 4 - Model Optimization
+   1.2 - [[//User manual/1 - Introduction/2 - Theory of Operation.md~]] 
 
-## 5 - Programming in GridLAB-D
+   1.3 - [[//User manual/1 - Introduction/3 - Creating GLM Files.md~]] 
 
-## 6 - Extending GridLAB-D
+   1.4 - [[//User manual/1 - Introduction/4 - Data Collection.md~]] 
 
-# 2 - Designing GridLAB-D Models
+   1.5 - [[//User manual/1 - Introduction/5 - Programming in GridLAB-D.md~]] 
 
-## 1 - Modules
-  2.1.1. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Generators~]]
-  2.1.2. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Introduction~]]
-  2.1.3. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Loads~]]
-  2.1.4. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Power systems~]]
-  2.1.5. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Reliability~]]
-  2.1.6. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Tariff~]]
-  2.1.7. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Weather~]]
+   1.6 - [[//User manual/1 - Introduction/6 - Extending GridLAB-D.md~]] 
 
-## 2 - Classes
-  2.2.1. [[/User manual/2 - Designing GridLAB-D Models/Classes~]]
-  2.2.2. [[/User manual/2 - Designing GridLAB-D Models/Converters~]]
-  2.2.3. [[/User manual/2 - Designing GridLAB-D Models/Documentation~]]
-  2.2.4. [[/User manual/2 - Designing GridLAB-D Models/Events~]]
-  2.2.5. [[/User manual/2 - Designing GridLAB-D Models/Introduction~]]
-  2.2.6. [[/User manual/2 - Designing GridLAB-D Models/Modules~]]
-  2.2.7. [[/User manual/2 - Designing GridLAB-D Models/Scripts~]]
-  2.2.8. [[/User manual/2 - Designing GridLAB-D Models/Syntax~]]
+## 2 - Designing GridLAB-D Models 
 
-# 3 - Managing GridLAB-D Systems
+   2.1 - [[//User manual/2 - Designing GridLAB-D Models/1 - Introduction.md~]] 
 
-## 1 - Workstations
+   2.2 - [[//User manual/2 - Designing GridLAB-D Models/2 - Modules.md~]] 
 
-## 2 - Servers
+   2.3 - [[//User manual/2 - Designing GridLAB-D Models/3 - Classes.md~]] 
 
-## 3 - Cloud operations
+   2.4 - [[//User manual/2 - Designing GridLAB-D Models/4 - Event Handlers.md~]] 
 
-# A - Use cases
-  - [[/User manual/A - Use cases/1 - Introduction~]]
-  - [[/User manual/A - Use cases/2 - Integration capacity analysis~]]
-  - [[/User manual/A - Use cases/3 - Resilience analysis~]]
-  - [[/User manual/A - Use cases/4 - Tariff design~]]
-  - [[/User manual/A - Use cases/5 - Load electrification impacts~]]
+   2.5 - [[//User manual/2 - Designing GridLAB-D Models/5 - Template.md~]] 
+
+   2.6 - [[//User manual/2 - Designing GridLAB-D Models/6 - Documentation.md~]] 
+
+## 3 - Managing GridLAB-D Systems 
+
+   3.1 - [[//User manual/3 - Managing GridLAB-D Systems/1 - Workstation Setup.md~]] 
+
+   3.2 - [[//User manual/3 - Managing GridLAB-D Systems/2 - GridLAB-D Servers.md~]] 
+
+   3.3 - [[//User manual/3 - Managing GridLAB-D Systems/3 - GridLAB-D Cloud Operations.md~]] 
+
+## A - Use cases 
+
+   A.1 - [[//User manual/A - Use cases/1 - Hosting Capacity Analysis.md~]] 
+
+   A.2 - [[//User manual/A - Use cases/2 - Resilience Analysis.md~]] 
+
+   A.3 - [[//User manual/A - Use cases/3 - Tariff Design Analysis.md~]] 
+
+   A.4 - [[//User manual/A - Use cases/4 - Electrification Impact Analysis.md~]] 
+
+## B - Modules 
+
+   B.1 - [[//User manual/B - Modules/1 - Climate.md~]] 
+
+   B.2 - [[//User manual/B - Modules/2 - Power systems.md~]] 
+
+   B.3 - [[//User manual/B - Modules/3 - Generators.md~]] 
+
+   B.4 - [[//User manual/B - Modules/4 - Loads.md~]] 
+
+   B.5 - [[//User manual/B - Modules/5 - Reliability.md~]] 
+
+   B.6 - [[//User manual/B - Modules/6 - Revenue.md~]] 
+
+   B.7 - [[//User manual/B - Modules/7 - Resilience.md~]] 
 

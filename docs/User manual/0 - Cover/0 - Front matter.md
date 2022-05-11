@@ -1,4 +1,4 @@
-# GridLAB-D 4.2 User's Manual
+# HiPAS GridLAB-D 4.3 User's Manual
 
 By David P. Chassin, SLAC National Accelerator Laboratory
 

@@ -1,6 +1,6 @@
 # Preface
 
-This manual is designed for general engineering, policy, regulatory, and economics readers who are interested in using GridLAB-D to model and simulate the behavior of modern electricity delivery systems.  Historically power system simulation tools were either solvers that could determine the power flow at a moment in time or the dynamic response for a short period of time, or they were simulators that were designed to produce verisimilar real-time behavior that is necessary for training operators and testing new hardware.
+This manual is designed for general engineering, policy, regulatory, and economics readers who are interested in using HiPAS GridLAB-D to model and simulate the behavior of modern electricity delivery systems.  Historically power system simulation tools were either solvers that could determine the power flow at a moment in time or the dynamic response for a short period of time, or they were simulators that were designed to produce verisimilar real-time behavior that is necessary for training operators and testing new hardware.
 
 But the need to study and understand modern energy systems that are far more complex has given rise to a new generation of tools that can do more, including
 
