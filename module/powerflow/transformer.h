@@ -74,6 +74,11 @@ private:
 	double phi_base_Sec;
 	double I_base_Pri;
 	double I_base_Sec;
+
+public:
+
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return link_object::commit(t1,t2); };
+
 };
 EXPORT void power_calculation(OBJECT *thisobj);
 EXPORT int recalc_transformer_mat(OBJECT *obj);

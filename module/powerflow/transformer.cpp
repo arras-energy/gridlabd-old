@@ -24,6 +24,8 @@ CLASS* transformer::pclass = NULL;
 //Default temperature for thermal aging calculations
 double default_outdoor_temperature = 74;
 
+EXPORT_COMMIT(transformer)
+
 transformer::transformer(MODULE *mod) : link_object(mod)
 {
 	if(oclass == NULL)

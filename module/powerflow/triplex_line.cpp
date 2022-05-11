@@ -13,6 +13,8 @@ using namespace std;
 CLASS* triplex_line::oclass = NULL;
 CLASS* triplex_line::pclass = NULL;
 
+EXPORT_COMMIT(triplex_line)
+
 triplex_line::triplex_line(MODULE *mod) : line(mod)
 {
 	if(oclass == NULL)
