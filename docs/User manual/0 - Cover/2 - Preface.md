@@ -80,4 +80,4 @@ All the sample code is available for download at `code.gridlabd.us`.
 
 ## How to Contact the Authors
 
-For errata, please check the website docs.gridlabd.us first.  Feel free to contact the authors with any questions or comments at gridlabd@gmail.com. They will do what they can to help out or point you in the right direction.
+For errata, please check the website https://docs.gridlabd.us/ first.  Feel free to contact the authors with any questions or comments at gridlabd@gmail.com. They will do what they can to help out or point you in the right direction.
