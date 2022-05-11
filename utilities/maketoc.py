@@ -23,4 +23,4 @@ for CHAPTER in CHAPTERS:
 		spec = SECTION.split(" - ")
 		section = spec[0]
 		name = spec[1]
-		print("  ",f"{chapter}.{section} - [[/{PATH}{CHAPTER}/{SECTION}~]]","\n")
+		print("  ",f"[[/{PATH}{CHAPTER}/{name.replace('.md','~')}]]","\n")
