@@ -1,22 +1,22 @@
 # Table of Contents
 
 # 0 - Cover
-  - [[/User manual/0 - Cover/0 - Front matter~]]
-  - [[/User manual/0 - Cover/1 - Contents~]]
-  - [[/User manual/0 - Cover/2 - Preface~]]
+  0.1. [[/User manual/0 - Cover/0 - Front matter~]]
+  0.2. [[/User manual/0 - Cover/1 - Contents~]]
+  0.3. [[/User manual/0 - Cover/2 - Preface~]]
 
 # 1 - Fundamentals
 
 ## 1 - Introduction
 
-  - [[/User manual/1 - Introduction/1 - Theory~]]
-  - [[/User manual/1 - Introduction/2 - Installation~]]
-  - [[/User manual/1 - Introduction/3 - Online Documentation~]]
-  - [[/User manual/1 - Introduction/4 - Runtime Documentation~]]
-  - [[/User manual/1 - Introduction/5 - Subcommands~]]
-  - [[/User manual/1 - Introduction/6 - Tools~]]
-  - [[/User manual/1 - Introduction/7 - Data import~]]
-  - [[/User manual/1 - Introduction/8 - Data export~]]
+  1.1. [[/User manual/1 - Introduction/1 - Theory~]]
+  1.2. [[/User manual/1 - Introduction/2 - Installation~]]
+  1.3. [[/User manual/1 - Introduction/3 - Online Documentation~]]
+  1.4. [[/User manual/1 - Introduction/4 - Runtime Documentation~]]
+  1.5. [[/User manual/1 - Introduction/5 - Subcommands~]]
+  1.6. [[/User manual/1 - Introduction/6 - Tools~]]
+  1.7. [[/User manual/1 - Introduction/7 - Data import~]]
+  1.8. [[/User manual/1 - Introduction/8 - Data export~]]
 
 ## 2 - Modeling
 
@@ -31,23 +31,23 @@
 # 2 - Designing GridLAB-D Models
 
 ## 1 - Modules
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Generators~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Introduction~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Loads~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Power systems~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Reliability~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Tariff~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Weather~]]
+  2.1.1. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Generators~]]
+  2.1.2. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Introduction~]]
+  2.1.3. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Loads~]]
+  2.1.4. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Power systems~]]
+  2.1.5. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Reliability~]]
+  2.1.6. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Tariff~]]
+  2.1.7. [[/User manual/2 - Designing GridLAB-D Models/1 - Modules/Weather~]]
 
 ## 2 - Classes
-  - [[/User manual/2 - Designing GridLAB-D Models/Classes~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Converters~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Documentation~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Events~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Introduction~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Modules~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Scripts~]]
-  - [[/User manual/2 - Designing GridLAB-D Models/Syntax~]]
+  2.2.1. [[/User manual/2 - Designing GridLAB-D Models/Classes~]]
+  2.2.2. [[/User manual/2 - Designing GridLAB-D Models/Converters~]]
+  2.2.3. [[/User manual/2 - Designing GridLAB-D Models/Documentation~]]
+  2.2.4. [[/User manual/2 - Designing GridLAB-D Models/Events~]]
+  2.2.5. [[/User manual/2 - Designing GridLAB-D Models/Introduction~]]
+  2.2.6. [[/User manual/2 - Designing GridLAB-D Models/Modules~]]
+  2.2.7. [[/User manual/2 - Designing GridLAB-D Models/Scripts~]]
+  2.2.8. [[/User manual/2 - Designing GridLAB-D Models/Syntax~]]
 
 # 3 - Managing GridLAB-D Systems
 
