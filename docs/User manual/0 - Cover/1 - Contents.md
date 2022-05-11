@@ -2,71 +2,71 @@
 
 ## 0 - Cover 
 
-   [[//User manual/0 - Cover/Front matter~]] 
+   0.0. [[//User manual/0 - Cover/Front matter~]] 
 
-   [[//User manual/0 - Cover/Contents~]] 
+   0.1. [[//User manual/0 - Cover/Contents~]] 
 
-   [[//User manual/0 - Cover/Preface~]] 
+   0.2. [[//User manual/0 - Cover/Preface~]] 
 
 ## 1 - Introduction 
 
-   [[//User manual/1 - Introduction/Getting Started~]] 
+   1.1. [[//User manual/1 - Introduction/Getting Started~]] 
 
-   [[//User manual/1 - Introduction/Theory of Operation~]] 
+   1.2. [[//User manual/1 - Introduction/Theory of Operation~]] 
 
-   [[//User manual/1 - Introduction/Creating GLM Files~]] 
+   1.3. [[//User manual/1 - Introduction/Creating GLM Files~]] 
 
-   [[//User manual/1 - Introduction/Data Collection~]] 
+   1.4. [[//User manual/1 - Introduction/Data Collection~]] 
 
-   [[//User manual/1 - Introduction/Programming in GridLAB-D~]] 
+   1.5. [[//User manual/1 - Introduction/Programming in GridLAB-D~]] 
 
-   [[//User manual/1 - Introduction/Extending GridLAB-D~]] 
+   1.6. [[//User manual/1 - Introduction/Extending GridLAB-D~]] 
 
 ## 2 - Designing GridLAB-D Models 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Introduction~]] 
+   2.1. [[//User manual/2 - Designing GridLAB-D Models/Introduction~]] 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Modules~]] 
+   2.2. [[//User manual/2 - Designing GridLAB-D Models/Modules~]] 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Classes~]] 
+   2.3. [[//User manual/2 - Designing GridLAB-D Models/Classes~]] 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Event Handlers~]] 
+   2.4. [[//User manual/2 - Designing GridLAB-D Models/Event Handlers~]] 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Template~]] 
+   2.5. [[//User manual/2 - Designing GridLAB-D Models/Template~]] 
 
-   [[//User manual/2 - Designing GridLAB-D Models/Documentation~]] 
+   2.6. [[//User manual/2 - Designing GridLAB-D Models/Documentation~]] 
 
 ## 3 - Managing GridLAB-D Systems 
 
-   [[//User manual/3 - Managing GridLAB-D Systems/Workstation Setup~]] 
+   3.1. [[//User manual/3 - Managing GridLAB-D Systems/Workstation Setup~]] 
 
-   [[//User manual/3 - Managing GridLAB-D Systems/GridLAB-D Servers~]] 
+   3.2. [[//User manual/3 - Managing GridLAB-D Systems/GridLAB-D Servers~]] 
 
-   [[//User manual/3 - Managing GridLAB-D Systems/GridLAB-D Cloud Operations~]] 
+   3.3. [[//User manual/3 - Managing GridLAB-D Systems/GridLAB-D Cloud Operations~]] 
 
 ## A - Use cases 
 
-   [[//User manual/A - Use cases/Hosting Capacity Analysis~]] 
+   A.1. [[//User manual/A - Use cases/Hosting Capacity Analysis~]] 
 
-   [[//User manual/A - Use cases/Resilience Analysis~]] 
+   A.2. [[//User manual/A - Use cases/Resilience Analysis~]] 
 
-   [[//User manual/A - Use cases/Tariff Design Analysis~]] 
+   A.3. [[//User manual/A - Use cases/Tariff Design Analysis~]] 
 
-   [[//User manual/A - Use cases/Electrification Impact Analysis~]] 
+   A.4. [[//User manual/A - Use cases/Electrification Impact Analysis~]] 
 
 ## B - Modules 
 
-   [[//User manual/B - Modules/Climate~]] 
+   B.1. [[//User manual/B - Modules/Climate~]] 
 
-   [[//User manual/B - Modules/Power systems~]] 
+   B.2. [[//User manual/B - Modules/Power systems~]] 
 
-   [[//User manual/B - Modules/Generators~]] 
+   B.3. [[//User manual/B - Modules/Generators~]] 
 
-   [[//User manual/B - Modules/Loads~]] 
+   B.4. [[//User manual/B - Modules/Loads~]] 
 
-   [[//User manual/B - Modules/Reliability~]] 
+   B.5. [[//User manual/B - Modules/Reliability~]] 
 
-   [[//User manual/B - Modules/Revenue~]] 
+   B.6. [[//User manual/B - Modules/Revenue~]] 
 
-   [[//User manual/B - Modules/Resilience~]] 
+   B.7. [[//User manual/B - Modules/Resilience~]] 
 
