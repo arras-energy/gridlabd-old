@@ -136,7 +136,6 @@ private:
 	OBJECT *VFD_object;						///< Object pointer for the VFD - for later function calls
 
 	// DER globals
-	static double voltage_fluctuation_threshold; ///< maximum voltage fluctuation permitted
 	static unsigned int DER_nodecount;		///< count of DER nodes
 	static OBJECT **DER_objectlist;			///< list of DER objects to examine for voltage fluctuations violations
 
@@ -242,8 +241,15 @@ public:
 	int *NR_subnode_reference;	/// Pointer to parent node's reference in NR_busdata - just in case things get inited out of synch
 	unsigned char prev_phases;	/// Phase tracking variable for use in reliability calls
 
-	static double default_voltage_violation_threshold; 	// voltage deviation limit (pu)
-	double voltage_violation_threshold; 	// voltage deviation limit (pu)
+	static double default_voltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_overvoltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_undervoltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_voltage_fluctuation_threshold; // global voltage fluctuation limit (pu)
+
+	double voltage_violation_threshold; // object voltage deviation limit (pu)
+	double undervoltage_violation_threshold;  // object voltage deviation limit (pu)
+	double overvoltage_violation_threshold;  // object voltage deviation limit (pu)
+	double voltage_fluctuation_threshold; // object voltage fluctuation limit (pu)
 
 	inline bool is_split() {return (phases&PHASE_S)!=0;};
 public:
