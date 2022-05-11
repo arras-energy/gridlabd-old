@@ -22,6 +22,10 @@ public:
 	int isa(CLASSNAME classname);
 	int create(void);
 	void phase_conductor_checks(void);
+public:
+	
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return line::commit(t1,t2); };
+
 };
 
 EXPORT int recalc_triplex_line(OBJECT *obj);

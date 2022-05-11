@@ -258,7 +258,7 @@ int switch_coordinator::init(OBJECT *parent)
 	return 1;
 }
 
-int switch_coordinator::precommit(TIMESTAMP t1)
+TIMESTAMP switch_coordinator::precommit(TIMESTAMP t1)
 {
 	debug("switch_coordinator::precommit(TIMESTAMP t1='%s')", (const char*)gld_clock(t1).get_string());
 	if ( status==SCS_TOGGLE )
@@ -273,7 +273,7 @@ int switch_coordinator::precommit(TIMESTAMP t1)
 		}
 	}
 	debug("switch_coordinator::precommit(TIMESTAMP t1='%s') -> 1", (const char*)gld_clock(t1).get_string());
-	return 1;
+	return TS_NEVER;
 }
 
 TIMESTAMP switch_coordinator::sync(TIMESTAMP t1)
