@@ -361,6 +361,7 @@ node::node(MODULE *mod) : powerflow_object(mod)
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		gl_global_create("powerflow::voltage_violation_threshold[pu]",PT_double,&default_voltage_violation_threshold,NULL);
+		gl_global_create("powerflow::voltage_fluctuation_threshold[pu]",PT_double,&voltage_fluctuation_threshold,NULL);
 
 		if (gl_publish_function(oclass,	"delta_linkage_node", (FUNCTIONADDR)delta_linkage)==NULL)
 			GL_THROW("Unable to publish node delta_linkage function");

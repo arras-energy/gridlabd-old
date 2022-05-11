@@ -1,7 +1,4 @@
 timestamp,object,type,description
-2000-01-01 00:00:00,load_1,VOLTAGE,"load_1 phase A voltage magnitude 2252.6 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
-2000-01-01 00:00:00,load_1,VOLTAGE,"load_1 phase B voltage magnitude 2252.6 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
-2000-01-01 00:00:00,load_1,VOLTAGE,"load_1 phase C voltage magnitude 2252.6 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
-2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase A voltage magnitude 2184.0 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
-2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase B voltage magnitude 2184.0 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
-2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase C voltage magnitude 2184.0 V outside 3.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase A voltage magnitude 2184.0 V outside 4.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase B voltage magnitude 2184.0 V outside 4.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,load_2,VOLTAGE,"load_2 phase C voltage magnitude 2184.0 V outside 4.0% violation threshold for load_2 DER_value 100000.0+0.0j kVA"
