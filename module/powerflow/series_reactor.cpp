@@ -155,12 +155,12 @@ int series_reactor::init(OBJECT *parent)
 */
 EXPORT TIMESTAMP commit_series_reactor(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
+	series_reactor *plink = OBJECTDATA(obj,series_reactor);
 	if (solver_method==SM_FBS)
 	{
-		series_reactor *plink = OBJECTDATA(obj,series_reactor);
 		plink->calculate_power();
 	}
-	return TS_NEVER;
+	return plink->commit(t1,t2);
 }
 EXPORT int create_series_reactor(OBJECT **obj, OBJECT *parent)
 {

@@ -33,6 +33,11 @@ public:
 protected:
 	void load_matrix_based_configuration(complex Zabc_mat[3][3], complex Yabc_mat[3][3]);
 	void recalc_line_matricies(complex Zabc_mat[3][3], complex Yabc_mat[3][3]);
+
+public:
+	
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return link_object::commit(t1,t2); };
+
 };
 
 #endif // _LINE_H

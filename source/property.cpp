@@ -147,7 +147,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 	{
 		/* detect when a unit is associated with non-double/complex property */
 		if (prop->ptype!=PT_double && prop->ptype!=PT_complex)
-			output_error("property_malloc(oclass='%s',...): property %s cannot have unit '%s' because it is not a double or complex value",oclass->name, prop->name,unitspec);
+			output_error("property_malloc(oclass='%s',...): property %s cannot have unit '%s' because it is not a double or complex value",oclass?oclass->name:"<global>", prop->name,unitspec);
 			/*	TROUBLESHOOT
 				Only <b>double</b> and <b>complex</b> properties can have units.  
 				Either change the type of the property or remove the unit specification from the property's declaration.
@@ -157,7 +157,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 		else 
 		{
 			if ((prop->unit = unit_find(unitspec))==NULL)
-				throw_exception("property_malloc(oclass='%s',...): property %s unit '%s' is not recognized",oclass->name, prop->name,unitspec);
+				throw_exception("property_malloc(oclass='%s',...): property %s unit '%s' is not recognized",oclass?oclass->name:"<global>", prop->name,unitspec);
 				/*	TROUBLESHOOT
 					A class is attempting to publish a variable using a unit that is not defined.  
 					This is caused by an incorrect unit specification in a variable publication (in C++) or declaration (in GLM).
