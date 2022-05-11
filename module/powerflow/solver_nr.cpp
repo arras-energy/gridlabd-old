@@ -54,7 +54,7 @@ using namespace std;
 
 char1024 solver_profile_filename =  "solver_nr_profile.txt";
 static FILE * nr_profile = NULL;
-const char *solver_headers = "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
+char1024 solver_headers = "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
 bool solver_dump_enable = false;
@@ -87,7 +87,7 @@ void sparse_init(SPARSE* sm, int nels, int ncols)
 			if ( solver_profile_csv )
 			{
 
-				fprintf(nr_profile,"%s\n",solver_headers);
+				fprintf(nr_profile,"%s\n",(const char*)solver_headers);
 			}
 			else
 			{
