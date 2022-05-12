@@ -97,6 +97,7 @@ public:
 	int protect_locations[3];	///< Links to protection object for different phase faults - part of reliability
 	FUNCTIONADDR link_recalc_fxn;	///< Function address for link recalculation function - frequency dependence
 	double violation_rating; ///< maximum line flow before a violation occurs
+	static double default_violation_rating; /// default maximum line flow before a violation occurs
 
 	int create(void);
 	int init(OBJECT *parent);
