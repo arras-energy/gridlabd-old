@@ -2881,6 +2881,8 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					{
 						BUSDATA *der_bus = NR_busdata + der;
 						node *der_data = OBJECTDATA(der_bus->obj,node);
+						if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
+							continue; // ignore child nodes because they're already included in parent node DER_value
 						der_data->clear_violation();
 
 						// DER is present on this bus
