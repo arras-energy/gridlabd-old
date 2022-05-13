@@ -9,6 +9,8 @@ module powerflow
 {
 	solver_method NR;
 	violation_record "test_node_voltage_fluctuation.csv";
+	voltage_fluctuation_threshold 0.04;
+	DER_violation_test ALL;
 }
 
 object node {
@@ -77,13 +79,21 @@ object overhead_line
 {
 	phases ABCN;
 	from "load_1";
-	to "load_2";
+	to "node_2";
 	length 1 mile;
 	configuration "lc";
 }
 
+object node
+{
+	name "node_2";
+	phases ABCN;
+	nominal_voltage 2400 V;
+}
+
 object load
 {
+	parent "node_2";
 	phases ABCN;
 	nominal_voltage 2400 V;
 	name "load_2";
@@ -97,3 +107,4 @@ object load
 #on_exit 0 diff ../test_node_voltage_fluctuation.csv test_node_voltage_fluctuation.csv >gridlabd.diff
 #endif
 
+#set savefile=test_node_voltage_fluctuation.json

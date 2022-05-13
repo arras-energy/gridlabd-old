@@ -100,6 +100,8 @@ typedef struct {
 	double cosangmeas[3];	 //cos of bus voltage angle
 } FREQM_STATES;
 
+#define DVT_ANY ((enumeration)0x00)
+#define DVT_ALL ((enumeration)0x01)
 
 class node : public powerflow_object
 {
@@ -136,7 +138,6 @@ private:
 	OBJECT *VFD_object;						///< Object pointer for the VFD - for later function calls
 
 	// DER globals
-	static double voltage_fluctuation_threshold; ///< maximum voltage fluctuation permitted
 	static unsigned int DER_nodecount;		///< count of DER nodes
 	static OBJECT **DER_objectlist;			///< list of DER objects to examine for voltage fluctuations violations
 
@@ -191,6 +192,7 @@ public:
 
 	// DER functionality
 	complex DER_value; // DER fluctuation power value (0 for none)
+	static enumeration DER_violation_test; // flag indicates whether to test for any DER test or all DER violations
 
 	//GFA functionality
 	bool GFA_enable;
@@ -242,8 +244,15 @@ public:
 	int *NR_subnode_reference;	/// Pointer to parent node's reference in NR_busdata - just in case things get inited out of synch
 	unsigned char prev_phases;	/// Phase tracking variable for use in reliability calls
 
-	static double default_voltage_violation_threshold; 	// voltage deviation limit (pu)
-	double voltage_violation_threshold; 	// voltage deviation limit (pu)
+	static double default_voltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_overvoltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_undervoltage_violation_threshold; 	// global voltage deviation limit (pu)
+	static double default_voltage_fluctuation_threshold; // global voltage fluctuation limit (pu)
+
+	double voltage_violation_threshold; // object voltage deviation limit (pu)
+	double undervoltage_violation_threshold;  // object voltage deviation limit (pu)
+	double overvoltage_violation_threshold;  // object voltage deviation limit (pu)
+	double voltage_fluctuation_threshold; // object voltage fluctuation limit (pu)
 
 	inline bool is_split() {return (phases&PHASE_S)!=0;};
 public:
