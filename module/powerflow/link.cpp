@@ -10,6 +10,7 @@ CLASS* link_object::pclass = NULL;
 
 double link_object::default_continuous_rating = 1000;
 double link_object::default_emergency_rating = 2000;
+double link_object::default_violation_rating = 0.0;
 
 EXPORT_COMMIT_C(link,link_object)
 
@@ -157,6 +158,7 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 
 			gl_global_create("powerflow::default_continuous_rating[A]",PT_double,&default_continuous_rating,NULL);
 			gl_global_create("powerflow::default_emergency_rating[A]",PT_double,&default_emergency_rating,NULL);
+			gl_global_create("powerflow::default_violation_rating[A]",PT_double,&default_violation_rating,NULL);
 
 			//Publish deltamode functions
 			if (gl_publish_function(oclass,	"interupdate_pwr_object", (FUNCTIONADDR)interupdate_link)==NULL)
@@ -878,6 +880,10 @@ int link_object::init(OBJECT *parent)
 	{
 		error("negative violation_rating is not valid");
 		return 0;
+	}
+	else if ( violation_rating == 0 )
+	{
+		violation_rating = default_violation_rating;
 	}
 
 	return 1;

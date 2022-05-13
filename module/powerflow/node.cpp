@@ -85,9 +85,12 @@ CLASS *node::pclass = NULL;
 
 unsigned int node::n = 0; 
 double node::default_voltage_violation_threshold = 0.05;
-double node::voltage_fluctuation_threshold = 0.03;
+double node::default_overvoltage_violation_threshold = 0.00;
+double node::default_undervoltage_violation_threshold = 0.00;
+double node::default_voltage_fluctuation_threshold = 0.03;
 OBJECT* *node::DER_objectlist = NULL;
 unsigned int node::DER_nodecount = 0;
+enumeration node::DER_violation_test = DVT_ANY;
 
 node::node(MODULE *mod) : powerflow_object(mod)
 {
@@ -353,7 +356,17 @@ node::node(MODULE *mod) : powerflow_object(mod)
 				PT_DESCRIPTION,"topological parent as per GLM configuration",
 
 			PT_double, "voltage_violation_threshold[pu]", PADDR(voltage_violation_threshold),
+				PT_DEFAULT, "+0.0 pu",
 				PT_DESCRIPTION,"voltage violation threshold (per unit nominal voltage)",
+			PT_double, "undervoltage_violation_threshold[pu]", PADDR(undervoltage_violation_threshold),
+				PT_DEFAULT, "+0.0 pu",
+				PT_DESCRIPTION,"under-voltage violation threshold (per unit nominal voltage)",
+			PT_double, "overvoltage_violation_threshold[pu]", PADDR(overvoltage_violation_threshold),
+				PT_DEFAULT, "+0.0 pu",
+				PT_DESCRIPTION,"over-voltage violation threshold (per unit nominal voltage)",
+			PT_double, "voltage_fluctuation_threshold[pu]", PADDR(voltage_fluctuation_threshold),
+				PT_DEFAULT, "+0.0 pu",
+				PT_DESCRIPTION,"voltage fluctuation violation threshold (per unit nominal voltage)",
 
 			PT_complex, "DER_value[VA]", PADDR(DER_value),
 				PT_DESCRIPTION,"DER power fluctuation value (per phase)",
@@ -361,6 +374,10 @@ node::node(MODULE *mod) : powerflow_object(mod)
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		gl_global_create("powerflow::voltage_violation_threshold[pu]",PT_double,&default_voltage_violation_threshold,NULL);
+		gl_global_create("powerflow::undervoltage_violation_threshold[pu]",PT_double,&default_undervoltage_violation_threshold,NULL);
+		gl_global_create("powerflow::overvoltage_violation_threshold[pu]",PT_double,&default_overvoltage_violation_threshold,NULL);
+		gl_global_create("powerflow::voltage_fluctuation_threshold[pu]",PT_double,&default_voltage_fluctuation_threshold,NULL);
+		gl_global_create("powerflow::DER_violation_test",PT_enumeration,&DER_violation_test,PT_KEYWORD,"ANY",DVT_ANY,PT_KEYWORD,"ALL",DVT_ALL,NULL);
 
 		if (gl_publish_function(oclass,	"delta_linkage_node", (FUNCTIONADDR)delta_linkage)==NULL)
 			GL_THROW("Unable to publish node delta_linkage function");
@@ -494,9 +511,37 @@ int node::create(void)
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
 
-	if ( voltage_violation_threshold == 0.0 )
+	if ( voltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
 	{
 		voltage_violation_threshold = default_voltage_violation_threshold;
+	}
+	else if ( voltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		voltage_violation_threshold = 0.0;
+	}
+	if ( undervoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		undervoltage_violation_threshold = default_undervoltage_violation_threshold;
+	}
+	else if ( undervoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		undervoltage_violation_threshold = 0.0;
+	}
+	if ( overvoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		overvoltage_violation_threshold = default_overvoltage_violation_threshold;
+	}
+	else if ( overvoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		overvoltage_violation_threshold = 0.0;
+	}
+	if ( voltage_fluctuation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		voltage_fluctuation_threshold = default_voltage_fluctuation_threshold;
+	}
+	else if ( voltage_fluctuation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		voltage_fluctuation_threshold = 0.0;
 	}
 
 	return result;
@@ -519,6 +564,14 @@ int node::init(OBJECT *parent)
 			DER_objectlist = (OBJECT**)malloc(sizeof(OBJECT*)*n);
 		}
 		DER_objectlist[DER_nodecount++] = obj;
+
+		// add child DER_value to parent node
+		if ( gl_object_isa(parent,"node") )
+		{
+			gld_property parent_DER_value(parent,"DER_value");
+			complex value = parent_DER_value.get_complex() + DER_value;
+			parent_DER_value.setp(value);
+		}
 	}
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
@@ -2828,6 +2881,8 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					{
 						BUSDATA *der_bus = NR_busdata + der;
 						node *der_data = OBJECTDATA(der_bus->obj,node);
+						if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
+							continue; // ignore child nodes because they're already included in parent node DER_value
 						der_data->clear_violation();
 
 						// DER is present on this bus
@@ -2863,19 +2918,30 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 										debug("phase A voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 									if ( has_phase(PHASE_B) && fabs((Vb[check_bus][1]-check_data->voltage[1]).Mag()) / Vb[check_bus][1].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase B voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
-
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 									if ( has_phase(PHASE_C) && fabs((Vb[check_bus][2]-check_data->voltage[2]).Mag()) / Vb[check_bus][2].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase C voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 								}
 							}
@@ -3480,19 +3546,48 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
-	if ( pNode->has_phase(PHASE_A) && fabs(pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
+	if ( pNode->undervoltage_violation_threshold < pNode->overvoltage_violation_threshold )
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->voltage_violation_threshold*100);
+		if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->overvoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->overvoltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->undervoltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->overvoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->overvoltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->undervoltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->overvoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->overvoltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->undervoltage_violation_threshold*100);
+		}
 	}
-	if ( pNode->has_phase(PHASE_B) && fabs(pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
+	else
 	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->voltage_violation_threshold*100);
+		if ( pNode->has_phase(PHASE_A) && fabs(pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->voltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_B) && fabs(pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->voltage_violation_threshold*100);
+		}
+		if ( pNode->has_phase(PHASE_C) && fabs(pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
+		{
+			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->voltage_violation_threshold*100);
+		}
 	}
-	if ( pNode->has_phase(PHASE_C) && fabs(pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
-	{
-		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->voltage_violation_threshold*100);
-	}
-
 	try {
 		// This zeroes out all of the unused phases at each node in the FBS method
 		if (solver_method==SM_FBS)
