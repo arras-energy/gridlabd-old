@@ -3,9 +3,9 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib as plt
-from datetime import datetime
+from datetime import datetime, timedelta, tzinfo
 import xarray as xr
-
+from numpy import copy
 
 share = os.getenv("GLD_ETC")
 if not share:
@@ -21,7 +21,7 @@ import noaa_forecast as nf
 ###########################
 ### Load and Convert JSON to matrix of load points
 path= os.path.join(os.getcwd(),'example/ieee123.json')
-path= os.path.join(os.getcwd(),'tools/example/ieee123.json')
+# path= os.path.join(os.getcwd(),'tools/example/ieee123.json')
 # path= os.path.join(os.getcwd(),'example/Titanium_camden.json')
 data = json2dfloadlocations.convert(input_file=path,output_file='')
 
@@ -29,42 +29,35 @@ data = json2dfloadlocations.convert(input_file=path,output_file='')
 # path2= os.path.join(os.getcwd(),'example/IEEE123_pole.json')
 # data_poles = json2dfloadlocations.convert(input_file=path2,output_file='')
 
-
-
-###########################
-######## Set Options ######
-###########################
-resilience_Metric= 0 #1 for KWh lost, 0 for customer-hours
-
 ###########################
 ## Calculations/Edits #####
 ###########################
 
 ### Filter nodes without lat/long information (these are triplex_nodes and swing substations)
 # data= data[data['class']!='triplex_node'] 
-
 data.replace(r'^\s*$', np.nan, regex=True,inplace=True) # Replace Empty cells with Nan
 
 ### Import Fire Risk and set up Fire Risk Timeline Dataframe
 latlongs= data[['lat','long']]
-today= datetime.today().strftime('%Y%m%d')
+fireForecastStartDateDT= datetime.today()
+fireForecastStartDate= fireForecastStartDateDT.strftime('%Y%m%d')
 
 #One days worth of fireRisk
 fireRisk=[]
 for day in range(1,2):
-    fireRisk.append(geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=today,type='fpi')))
+    fireRisk.append(geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=fireForecastStartDate,type='fpi')))
 data['fireRisk']= fireRisk[0]
 
-#Loading all sevendays of fireRisk as NP array
+### Loading all sevendays of fireRisk as XARRAY
 firerisk7d=np.empty(shape=len(latlongs))
 for day in range(1,8):
-    fr=geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=today,type='fpi'))
+    fr=geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=fireForecastStartDate,type='fpi'))
     firerisk7d= np.column_stack((firerisk7d, fr))
 firerisk7d=firerisk7d[:,1:]
-firerisk7dx= xr.DataArray(firerisk7d)
-firerisk7dx['node']=data.node
-
-# data['fireRisk']= np.random.randint(low=0, high=255, size=data.shape[0]) #TESTING-random fire risk for testing purposes
+firerisk7dx= xr.DataArray(firerisk7d, dims=['index','time_fireRisk'])
+fireForecastCoords= pd.date_range( fireForecastStartDate, periods=firerisk7d.shape[1], freq=pd.DateOffset(days=1))
+firerisk7dx= firerisk7dx.assign_coords({'time_fireRisk':fireForecastCoords})
+firerisk7dx= firerisk7dx.resample(time_fireRisk="1h").interpolate("quadratic")
 
 ### Assign power lines to group_id Areas
 loadpoints= data[data['class']=="load"]
@@ -86,63 +79,75 @@ data['fireRiskWeight']= data['class'].map(fireRiskClassWeights)
 data['fireRiskWeight']= data['fireRiskWeight'] * data.length.fillna(1)
 data['weightedFireRisk']= data['fireRiskWeight'] * data['fireRisk']
 
-firerisk7dx['fireRiskWeight'] =data['fireRiskWeight']
-# firerisk7dx * data['fireRiskWeight'] 
 
+###### Converting Data to XARRAY to include more dimensions for forecasting
+### #adding fireRiskWeight to the dxArray
+dataX =data.to_xarray()
+dataX=dataX.set_coords(['lat','long'])
+dataX.long.data= dataX.long.data.astype(float)
+dataX.lat.data= dataX.lat.data.astype(float)
 
-### Sum the load within each meter group, then merge it to the corresponding load
-groups = data.groupby(by='class')
-df2 = groups.get_group('triplex_meter').groupby('group_id').sum()[['load']]
-data=data.merge(df2,left_on='node',right_on=df2.index,how='left')
-data=data[data['class']!="triplex_meter"].rename(columns={'load_y':'load'})
-data=data[data['group_id']!="nodevolts"]
+dataX['fireRisk7D']= firerisk7dx
+dataX['fireRisk7DW']= dataX.fireRisk7D * np.tile(data.fireRiskWeight, (firerisk7dx.data.shape[1],1)).T
 
-### Set example test loads to load points for testing purposes ####
-data.loc[(data['class']=='load') & (data['group_id']=="area_A"),'load']=1
-data.loc[(data['class']=='load') & (data['group_id']=="area_B"),'load']=2
-data.loc[(data['class']=='load') & (data['group_id']=="area_C"),'load']=3
-data.loc[(data['class']=='load') & (data['group_id']=="area_D"),'load']=4
-data.loc[(data['class']=='load') & (data['group_id']=="area_E"),'load']=5
+#instead of summing the loads of each meter point, I am reassigning the group_id to be the true group id
+dict_loadgroups = dict(zip(dataX.node.where(dataX['class']=='load').data, dataX.group_id.where(dataX['class']=='load').data))
+new_groupID = copy(dataX.group_id.data) # Create Placeholder new Group ID column
+for key, value in dict_loadgroups.items(): # Lookup the values from the dictionary
+    new_groupID[dataX.group_id.data==key] = value # Match the items and create new group ID
+dataX.group_id.data= new_groupID
+dataX
 
-data['customerCount'] = (data['load']>0).astype(int)
+#check if it contains word meter then assign to customer. This is a proxy for customer count.
+dataX['customerCount'] = dataX['node'].str.contains('meter_').astype(int)
 
-
-#Load Weather Data
-# latlongs.astype(int)
-# nf.interpolate = 5 #interpolation time
+### Load Weather Data
+nf.interpolate = 60 #interpolation time
 latlongsRound=latlongs.astype(float).round(decimals=3)
 latlongs=latlongs.astype(float)
 latlongDict= dict(tuple(latlongsRound.groupby(['lat','long'])))
 
-# forecast=[]
-# for lat,long in latlongDict:
-#     if np.isnan(lat):
-#         pass
-#     else:
-#         forecast.append(nf.getforecast(lat,long)['wind_speed[m/s]'])
-# forecast
-
-forecast=[]
+time_Coords= nf.getforecast(35.38706,-119.000517)['wind_speed[m/s]'].index.tz_localize(tz=None).to_pydatetime()
+Weather_forecast= np.ones(shape=len(time_Coords))
+forecastWeather= xr.DataArray(latlongs)
 for lat,long in latlongs.itertuples(index=False):
     if np.isnan(lat):
-        forecast.append(np.nan)
+        new=np.zeros_like(time_Coords)
+        Weather_forecast= np.row_stack((Weather_forecast, new))
     else:
-        forecast.append(nf.getforecast(lat,long)['wind_speed[m/s]'])
-forecast
-data['wind']=forecast
+        wind=nf.getforecast(lat,long)['wind_speed[m/s]']
+        windspeed= wind.values  
+        Weather_forecast= np.row_stack((Weather_forecast, windspeed))
+Weather_forecast= Weather_forecast[1:,:]
+WindX= xr.DataArray(Weather_forecast,dims=['index','time_wind'])
+dataX['wind']= WindX
+dataX.wind.data= dataX.wind.data.astype(float)
+dataX= dataX.assign_coords({'time_wind':time_Coords.tolist()})
 
 
-# import plotly.express as px
-# fig = px.line(forecast[0])
-# fig2 = px.line(forecast[40])
-# fig.show()
+### Combine the time axes for fireRisk forecast and the wind forecast
+fireRisk7DW_xr = dataX.fireRisk7DW.rename({'time_fireRisk':'time'})
+wind_xr = dataX.wind.rename({'time_wind':'time'})
+merged_xds = xr.combine_by_coords([fireRisk7DW_xr, wind_xr], coords=['index','lat', 'long', 'time'], join="inner")
+
+
+
+
+dataX_merged= xr.merge([dataX.drop_vars(names=['fireRisk7DW','wind']), merged_xds])
+
+dataX_merged.plot.scatter(x="long", y="lat",hue='wind')
+dataX_merged.wind.plot()
+dataX_merged.fireRisk7DW.plot()
 
 ###########################
 ###### Optimization ######
 ###########################
 
-import pyomo.environ as pyo
+### Set Options ####
+resilience_Metric= 0 #1 for KWh lost, 0 for customer-hours
 
+
+import pyomo.environ as pyo
 
 areaData= data.groupby(by='group_id').sum().drop(columns={'fireRisk','fireRiskWeight','load_x','length'})
 areas= areaData.index.values.tolist()
@@ -157,7 +162,6 @@ if resilience_Metric == 0:
 elif resilience_Metric ==1:
     #Use Load Lost Metric
     resilienceObjective= loadNormalized
-
 
 dfResults = pd.DataFrame(columns= ['alpha'])
 dfResults[areas]= ""
