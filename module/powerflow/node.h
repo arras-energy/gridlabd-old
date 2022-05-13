@@ -100,6 +100,8 @@ typedef struct {
 	double cosangmeas[3];	 //cos of bus voltage angle
 } FREQM_STATES;
 
+#define DVT_ANY ((enumeration)0x00)
+#define DVT_ALL ((enumeration)0x01)
 
 class node : public powerflow_object
 {
@@ -190,6 +192,7 @@ public:
 
 	// DER functionality
 	complex DER_value; // DER fluctuation power value (0 for none)
+	static enumeration DER_violation_test; // flag indicates whether to test for any DER test or all DER violations
 
 	//GFA functionality
 	bool GFA_enable;

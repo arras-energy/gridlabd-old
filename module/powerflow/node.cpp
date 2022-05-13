@@ -90,6 +90,7 @@ double node::default_undervoltage_violation_threshold = 0.00;
 double node::default_voltage_fluctuation_threshold = 0.03;
 OBJECT* *node::DER_objectlist = NULL;
 unsigned int node::DER_nodecount = 0;
+enumeration node::DER_violation_test = DVT_ANY;
 
 node::node(MODULE *mod) : powerflow_object(mod)
 {
@@ -376,6 +377,7 @@ node::node(MODULE *mod) : powerflow_object(mod)
 		gl_global_create("powerflow::undervoltage_violation_threshold[pu]",PT_double,&default_undervoltage_violation_threshold,NULL);
 		gl_global_create("powerflow::overvoltage_violation_threshold[pu]",PT_double,&default_overvoltage_violation_threshold,NULL);
 		gl_global_create("powerflow::voltage_fluctuation_threshold[pu]",PT_double,&default_voltage_fluctuation_threshold,NULL);
+		gl_global_create("powerflow::DER_violation_test",PT_enumeration,&DER_violation_test,PT_KEYWORD,"ANY",DVT_ANY,PT_KEYWORD,"ALL",DVT_ALL,NULL);
 
 		if (gl_publish_function(oclass,	"delta_linkage_node", (FUNCTIONADDR)delta_linkage)==NULL)
 			GL_THROW("Unable to publish node delta_linkage function");
@@ -2914,19 +2916,30 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 										debug("phase A voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 									if ( has_phase(PHASE_B) && fabs((Vb[check_bus][1]-check_data->voltage[1]).Mag()) / Vb[check_bus][1].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase B voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
-
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 									if ( has_phase(PHASE_C) && fabs((Vb[check_bus][2]-check_data->voltage[2]).Mag()) / Vb[check_bus][2].Mag() > voltage_fluctuation_threshold )
 									{
 										debug("phase C voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
 										check_data->add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
 											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+										if ( DER_violation_test == DVT_ANY )
+										{
+											break;
+										}
 									}
 								}
 							}

@@ -10,6 +10,7 @@ module powerflow
 	solver_method NR;
 	violation_record "test_node_voltage_fluctuation.csv";
 	voltage_fluctuation_threshold 0.04;
+	DER_violation_test ALL;
 }
 
 object node {
