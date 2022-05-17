@@ -52,10 +52,7 @@ function version-check()
 {
 	version=$(${BIN} --version)
 	branch=$(${BIN} --version=git-branch)
-	if [ $(git remote | wc -l) -gt 1 ]; then
-		warning "more than 1 git remote found, using '$(git remote | head -n 1)' for version check"
-	fi
-	origin=$(git remote get-url $(git remote | head -n 1) | cut -f4- -d/ | cut -f1 -d. )
+	origin=$(${BIN} --version=git-repo |cut -f4 -d/)
 	remote=$( (curl -sL "https://raw.githubusercontent.com/$origin/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
 	if [ "$remote" == "none" -o -z "$remote" ]; then
 		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "$version ($branch) branch not found on github"
