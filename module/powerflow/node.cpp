@@ -3552,7 +3552,7 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->overvoltage_violation_threshold*100);
 		}
-		if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < pNode->undervoltage_violation_threshold )
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase A voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[0].Mag(), pNode->undervoltage_violation_threshold*100);
 		}
@@ -3560,7 +3560,7 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->overvoltage_violation_threshold*100);
 		}
-		if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < pNode->undervoltage_violation_threshold )
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase B voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[1].Mag(), pNode->undervoltage_violation_threshold*100);
 		}
@@ -3568,12 +3568,12 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is above %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->overvoltage_violation_threshold*100);
 		}
-		if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < -pNode->undervoltage_violation_threshold )
+		if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage < pNode->undervoltage_violation_threshold )
 		{
 			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is below %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->undervoltage_violation_threshold*100);
 		}
 	}
-	else
+	else if ( pNode->voltage_violation_threshold > 0.0 )
 	{
 		if ( pNode->has_phase(PHASE_A) && fabs(pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > pNode->voltage_violation_threshold )
 		{
