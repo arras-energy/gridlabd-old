@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib as plt
+import matplotlib.pyplot as plt
 from datetime import datetime, timedelta, tzinfo
 import xarray as xr
 from numpy import copy
@@ -24,7 +25,6 @@ import noaa_forecast as nf
 ###########################
 ### Load and Convert JSON to matrix of load points
 path= os.path.join(os.getcwd(),'example/ieee123.json')
-# path= os.path.join(os.getcwd(),'tools/example/ieee123.json')
 # path= os.path.join(os.getcwd(),'example/Titanium_camden.json')
 data = json2dfloadlocations.convert(input_file=path,output_file='')
 
@@ -174,7 +174,7 @@ print("=======Optimizing==========")
 start= time.time()
 ### Set Options ####
 resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
-fireRiskAlpha=30
+fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
 
 resilienceObjective=""
 if resilienceMetricOption == 0:
@@ -192,7 +192,7 @@ model.areas = pyo.Set(initialize = areas)
 model.timestep = pyo.Set(initialize = areaDataX.time.data)
 
 ### Vars
-model.switch = pyo.Var(model.timestep,model.areas, domain=pyo.Binary)
+model.switch = pyo.Var(model.timestep,model.areas, within=pyo.Binary, bounds=(-.05,1.05)) #for some reason pyo.binary didnt work for me?
 # model.switch = pyo.Var(areas,within=pyo.NonNegativeIntegers, bounds=(-.05,1.05))
 
 ### Params
@@ -217,9 +217,9 @@ model.resilienceMetric = pyo.Param(model.timestep,model.areas,initialize=init_re
 
 
 ### Objective
-model.objective = pyo.Objective(sense=pyo.minimize, expr= sum(sum( (model.switch[t,a] * model.fireRisk[t,a]*(1-alpha_Fire)) - (model.switch[t,a] * model.resilienceMetric[t,a] * alpha_Fire) for a in model.areas) for t in model.timestep))
-
-
+def objective_rule(model):
+    return sum(sum( (model.switch[t,a] * model.fireRisk[t,a]*(1-alpha_Fire)) - (model.switch[t,a] * model.resilienceMetric[t,a] * alpha_Fire) for a in model.areas) for t in model.timestep)
+model.objective = pyo.Objective(sense=pyo.minimize, expr= objective_rule )
 
 ### Solver
 results= pyo.SolverFactory('cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model,tee=False)
@@ -238,39 +238,51 @@ for timestep in model.timestep:
 areaDataX['results'] = xr.DataArray(results,dims=['time','group_id'])
 
 ########################
-# Plot and Prepare Results
+# Plot Results
 ########################
-dfResults.reset_index(drop=True)
-dfResults['LoadServed']= dfResults[areas].dot(areaData.load)
-dfResults['fireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
-dfResults['LoadServedNorm']= dfResults[areas].dot(loadNormalized)
-dfResults['FireRiskNorm']= dfResults[areas].dot(fireRiskNormalized)
 
 
-import seaborn as sns
-import matplotlib.pyplot as plt
-sns.regplot(x= dfResults['LoadServed'], y= dfResults['fireRisk'],fit_reg=False)
+# plot_results = areaDataX.results.plot.line(x="time", col="group_id")
+plot_results = areaDataX.results.plot.line(x="time")
 plt.show()
 
-alpha_Results =0.65
+fireRiskNormalized.plot.line(x="time")
+plt.show()
 
-#Add results to dataframe
-switchResults= dfResults.loc[dfResults.alpha == alpha_Results][areas].to_dict('records')[0]
-data['switchResults']= data['group_id'].map(switchResults)
-data.lat =data.lat.astype(float) 
-data.long =data.long.astype(float) 
-lineData=data.loc[data['class'].str.contains(r'line')]
+resilienceMetric.plot.line(x='time')
+plt.show()
 
 
-### Plot Results on map ########
-import plotly.express as px
+# dfResults.reset_index(drop=True)
+# dfResults['LoadServed']= dfResults[areas].dot(areaData.load)
+# dfResults['fireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
+# dfResults['LoadServedNorm']= dfResults[areas].dot(loadNormalized)
+# dfResults['FireRiskNorm']= dfResults[areas].dot(fireRiskNormalized)
 
-color_discrete_map = {1.0: 'rgb(255,0,0)', 0.0: 'rgb(0,255,0)'}
-fig = px.scatter_mapbox(data, lat="lat", lon="long",color='switchResults', zoom=3, height=300,hover_name="node",color_discrete_map=color_discrete_map)
-fig.update_layout(mapbox_style="stamen-terrain", mapbox_zoom=14, margin={"r":0,"t":0,"l":0,"b":0})
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# sns.regplot(x= dfResults['LoadServed'], y= dfResults['fireRisk'],fit_reg=False)
+# plt.show()
 
-# fig2 = px.density_mapbox(data, lat='lat', lon='long', z='fireRisk', radius=10, zoom=14, mapbox_style="stamen-terrain")
-# fig.add_trace(fig2.data[0])
+# alpha_Results =0.65
 
-fig.update_mapboxes(accesstoken='pk.eyJ1Ijoia3RlaHJhbmNoaSIsImEiOiJjbDJzNW5kdHMwaGJzM2pudDBsazZ5am80In0.hQfjJnhiiO1-YcJEEpN-1A') 
-fig.show()
+# #Add results to dataframe
+# switchResults= dfResults.loc[dfResults.alpha == alpha_Results][areas].to_dict('records')[0]
+# data['switchResults']= data['group_id'].map(switchResults)
+# data.lat =data.lat.astype(float) 
+# data.long =data.long.astype(float) 
+# lineData=data.loc[data['class'].str.contains(r'line')]
+
+
+# ### Plot Results on map ########
+# import plotly.express as px
+
+# color_discrete_map = {1.0: 'rgb(255,0,0)', 0.0: 'rgb(0,255,0)'}
+# fig = px.scatter_mapbox(data, lat="lat", lon="long",color='switchResults', zoom=3, height=300,hover_name="node",color_discrete_map=color_discrete_map)
+# fig.update_layout(mapbox_style="stamen-terrain", mapbox_zoom=14, margin={"r":0,"t":0,"l":0,"b":0})
+
+# # fig2 = px.density_mapbox(data, lat='lat', lon='long', z='fireRisk', radius=10, zoom=14, mapbox_style="stamen-terrain")
+# # fig.add_trace(fig2.data[0])
+
+# fig.update_mapboxes(accesstoken='pk.eyJ1Ijoia3RlaHJhbmNoaSIsImEiOiJjbDJzNW5kdHMwaGJzM2pudDBsazZ5am80In0.hQfjJnhiiO1-YcJEEpN-1A') 
+# fig.show()
