@@ -6,6 +6,9 @@ import matplotlib as plt
 from datetime import datetime, timedelta, tzinfo
 import xarray as xr
 from numpy import copy
+import pyomo.environ as pyo
+import time
+
 
 share = os.getenv("GLD_ETC")
 if not share:
@@ -38,6 +41,9 @@ data = json2dfloadlocations.convert(input_file=path,output_file='')
 data.replace(r'^\s*$', np.nan, regex=True,inplace=True) # Replace Empty cells with Nan
 
 ### Import Fire Risk and set up Fire Risk Timeline Dataframe
+print("=======Importing FireRisk Data============")
+start = time.time()
+
 latlongs= data[['lat','long']]
 fireForecastStartDateDT= datetime.today()
 fireForecastStartDate= fireForecastStartDateDT.strftime('%Y%m%d')
@@ -90,18 +96,25 @@ dataX.lat.data= dataX.lat.data.astype(float)
 dataX['fireRisk7D']= firerisk7dx
 dataX['fireRisk7DW']= dataX.fireRisk7D * np.tile(data.fireRiskWeight, (firerisk7dx.data.shape[1],1)).T
 
-#instead of summing the loads of each meter point, I am reassigning the group_id to be the true group id
+#instead of summing the loads of each meter point, I am reassigning the group_id to be the true group id so that loads can be summed for houses to be incldued in optimization
 dict_loadgroups = dict(zip(dataX.node.where(dataX['class']=='load').data, dataX.group_id.where(dataX['class']=='load').data))
-new_groupID = copy(dataX.group_id.data) # Create Placeholder new Group ID column
-for key, value in dict_loadgroups.items(): # Lookup the values from the dictionary
-    new_groupID[dataX.group_id.data==key] = value # Match the items and create new group ID
+new_groupID = copy(dataX.group_id.data)                 # Create Placeholder new Group ID column
+for key, value in dict_loadgroups.items():              # Lookup the values from the dictionary
+    new_groupID[dataX.group_id.data==key] = value       # Match the items and create new group ID
 dataX.group_id.data= new_groupID
 dataX
 
 #check if it contains word meter then assign to customer. This is a proxy for customer count.
 dataX['customerCount'] = dataX['node'].str.contains('meter_').astype(int)
 
+
+end= time.time()
+print("Fire data import time: ", end-start)
+
 ### Load Weather Data
+print("=======Importing Weather Data============")
+start=time.time()
+
 nf.interpolate = 60 #interpolation time
 latlongsRound=latlongs.astype(float).round(decimals=3)
 latlongs=latlongs.astype(float)
@@ -124,74 +137,105 @@ dataX['wind']= WindX
 dataX.wind.data= dataX.wind.data.astype(float)
 dataX= dataX.assign_coords({'time_wind':time_Coords.tolist()})
 
+end= time.time()
+print("Weather Data import time: ", end-start)
 
 ### Combine the time axes for fireRisk forecast and the wind forecast
 fireRisk7DW_xr = dataX.fireRisk7DW.rename({'time_fireRisk':'time'})
 wind_xr = dataX.wind.rename({'time_wind':'time'})
 merged_xds = xr.combine_by_coords([fireRisk7DW_xr, wind_xr], coords=['index','lat', 'long', 'time'], join="inner")
-
-
-
-
 dataX_merged= xr.merge([dataX.drop_vars(names=['fireRisk7DW','wind']), merged_xds])
+time_Coords= dataX_merged.time
 
-dataX_merged.plot.scatter(x="long", y="lat",hue='wind')
-dataX_merged.wind.plot()
-dataX_merged.fireRisk7DW.plot()
+# #some plots
+# dataX_merged.plot.scatter(x="long", y="lat",hue='wind')
+# dataX_merged.wind.plot()
+# dataX_merged.fireRisk7DW.plot()
+# dataX_merged.groupby(group='group_id').sum()
+
+
+#Area Data Aggregation prep for optimization
+areaDataX = dataX_merged.groupby(group='group_id').sum().drop_sel(group_id = 'nodevolts')
+areaDataX = areaDataX.assign_coords({"time": np.arange(0,areaDataX.time.shape[0])})
+areas= areaDataX.group_id.values
+fireRiskNormalized=(areaDataX.fireRisk7DW)/areaDataX.fireRisk7DW.max()
+windNormalized=(areaDataX.wind)/areaDataX.wind.max()
+# loadNormalized=areaDataX.load/areaDataX['load'].max()
+# loadNormalized= np.tile(loadNormalized.data, (areaDataX.time.shape[0],1))
+
+customerCountNormalized = areaDataX.customerCount/areaDataX.customerCount.max()
+customerCountNormalized= np.tile(customerCountNormalized.data, (areaDataX.time.shape[0],1))
+areaDataX['customerCountNormalized'] = xr.DataArray(customerCountNormalized.T, dims=['group_id','time'])
 
 ###########################
 ###### Optimization ######
 ###########################
-
+print("=======Optimizing==========")
+start= time.time()
 ### Set Options ####
-resilience_Metric= 0 #1 for KWh lost, 0 for customer-hours
+resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
+fireRiskAlpha=30
 
-
-import pyomo.environ as pyo
-
-areaData= data.groupby(by='group_id').sum().drop(columns={'fireRisk','fireRiskWeight','load_x','length'})
-areas= areaData.index.values.tolist()
-fireRiskNormalized=(areaData.weightedFireRisk)/max(areaData.weightedFireRisk)
-loadNormalized=areaData.load/max(areaData.load)
-customerCountNormalized = areaData.customerCount/max(areaData.customerCount)
 resilienceObjective=""
+if resilienceMetricOption == 0:
+    resilienceMetric=areaDataX.customerCountNormalized     #Use Customer-hours Resilience Metric
+elif resilienceMetricOption ==1:
+    pass# resilienceMetric= loadNormalized             #Use Load Lost Metric
 
-if resilience_Metric == 0:
-    #Use Customer-hours Resilience Metric
-    resilienceObjective=customerCountNormalized
-elif resilience_Metric ==1:
-    #Use Load Lost Metric
-    resilienceObjective= loadNormalized
+# dfResults = pd.DataFrame(columns= ['alpha'])
+# dfResults[areas]= ""
+# for a in range(0,101,1):
 
-dfResults = pd.DataFrame(columns= ['alpha'])
-dfResults[areas]= ""
+model = pyo.ConcreteModel()
+### Sets
+model.areas = pyo.Set(initialize = areas)
+model.timestep = pyo.Set(initialize = areaDataX.time.data)
 
-for a in range(0,101,1):
+### Vars
+model.switch = pyo.Var(model.timestep,model.areas, domain=pyo.Binary)
+# model.switch = pyo.Var(areas,within=pyo.NonNegativeIntegers, bounds=(-.05,1.05))
 
-    model = pyo.ConcreteModel()
-    ### Param
-    alpha= a/100
+### Params
+alpha_Fire= fireRiskAlpha/100
 
-    ### Var
-    model.switch = pyo.Var(areas,within=pyo.NonNegativeIntegers, bounds=(-.05,1.05))
+#Fire Risk Forecast Paramater
+def init_fireRisk(model, i,j):
+    return fireRiskNormalized.sel(group_id=j,time=i).values
+model.fireRisk = pyo.Param(model.timestep,model.areas,initialize=init_fireRisk)
 
-    ### Objective
-    model.objective = pyo.Objective(sense=1, expr= sum( (model.switch[i] * fireRiskNormalized[i]*(1-alpha)) - (model.switch[i] * resilienceObjective[i] * alpha) for i in (model.switch.get_values())))
+#Wind Forecast Paramater
+def init_wind(model, i,j):
+    return windNormalized.sel(group_id=j,time=i).values
+model.wind = pyo.Param(model.timestep,model.areas,initialize=init_wind)
 
-    ### Constraints
+#Resilience Metric Paramater
+def init_resilienceMetric(model, i,j):
+    return resilienceMetric.sel(group_id=j,time=i).values
+model.resilienceMetric = pyo.Param(model.timestep,model.areas,initialize=init_resilienceMetric)
 
-    ### Solver
-    results= pyo.SolverFactory('cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model,tee=False)
-    # results.write()
-    # print("=================")
-    # model.pprint()
+### Constraints
 
-    switches= [alpha]
-    for i in areas:
-        switches.append(model.switch[i].value)
 
-    dfResults.loc[len(dfResults)]= switches
+### Objective
+model.objective = pyo.Objective(sense=pyo.minimize, expr= sum(sum( (model.switch[t,a] * model.fireRisk[t,a]*(1-alpha_Fire)) - (model.switch[t,a] * model.resilienceMetric[t,a] * alpha_Fire) for a in model.areas) for t in model.timestep))
 
+
+
+### Solver
+results= pyo.SolverFactory('cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model,tee=False)
+# results.write()
+end= time.time()
+print("Model Solved in: ",end-start)
+# model.pprint()
+
+results= []
+outputVariables_list =  [model.switch[timestep, group_id].value for timestep in model.timestep for group_id in model.areas]
+for timestep in model.timestep:
+    results_t =[]
+    for group_id in model.areas:
+        results_t.append(model.switch[timestep,group_id].value)
+    results.append(results_t)
+areaDataX['results'] = xr.DataArray(results,dims=['time','group_id'])
 
 ########################
 # Plot and Prepare Results
