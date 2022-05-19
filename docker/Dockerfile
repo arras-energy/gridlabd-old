@@ -2,7 +2,7 @@ FROM hipas/gridlabd_base:220322
 
 
 ENV container docker
-ENV REPO=https://source.gridlabd.us/
+ENV REPO=https://github.com/slacgismo/gridlabd
 ARG BRANCH
 RUN echo "Building $BRANCH"
 ENV ENABLE=gismo
