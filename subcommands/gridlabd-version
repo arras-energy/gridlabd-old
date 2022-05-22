@@ -7,13 +7,13 @@ function error()
 {
 	RC=$1
 	shift 1
-	echo "ERROR [$EXE] $*" > /dev/stderr
+	echo "ERROR [$EXE]: $*" > /dev/stderr
 	exit $RC
 }
 
 function warning()
 {
-	echo "WARNING [$EXE] $*" > /dev/stderr
+	echo "WARNING [$EXE]: $*" > /dev/stderr
 }
 
 case "$1" in
@@ -50,19 +50,23 @@ function version-help()
 
 function version-check()
 {
-	version=$(${BIN} --version)
+	version=$(${BIN} --version=number)
 	branch=$(${BIN} --version=git-branch)
-	origin=$(${BIN} --version=git-repo |cut -f4- -d/)
-	remote=$( (curl -sL "https://raw.githubusercontent.com/$origin/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
-	if [ "$remote" == "none" -o -z "$remote" ]; then
-		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "$version ($branch) branch not found on github $origin"
-		[ "$1" != "-q" ] && warning "$version ($branch) branch not found on github $origin"
+	check=($(curl -sL http://version.gridlabd.us/version/$branch 2>/dev/null | echo "none"))
+	if [ "${check[1]}" == "none" ]; then
+		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "branch $branch not registered at version.gridlabd.us"
+		[ "$1" != "-q" ] && warning "branch $branch not registered at version.gridlabd.us"
 		exit 0
 	fi
-	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
-	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && warning "$version ($branch) is outdated" ) ; exit 0 )
-	[ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
-	[ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/index.html?v=${version}&b=${branch}" >/dev/null & )
+	[ "$1" == "-v" ] && echo "hipas/gridlabd:$branch $check"
+	if [ ${BIN} --version="-ge ${check[1]}" 2>/dev/null ]; then
+		if [ "$1" != "-q" -a "$1" != "-w" ]; then
+			echo "$version ($branch) is ok"
+		fi
+	elif [ "$1" != "-q" -a "$1" != "-w" ]; then
+		warning "$version ($branch) is outdated"
+		exit 0
+	fi
 	exit 0
 }
 
