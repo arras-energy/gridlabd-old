@@ -25,6 +25,12 @@ git show $SOURCE/crontab.root > /tmp/crontab.root
 crontab -u root /tmp/crontab.root
 
 #
+# Install python modules
+#
+git show $SOURCE/aws_requirements.txt /tmp/requirements.txt
+python3 -m pip install -r /tmp/requirements.txt
+
+#
 # Restart services
 #
 service crond restart
