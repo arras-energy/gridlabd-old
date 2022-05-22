@@ -14,4 +14,4 @@ variable to the name of the source branch, e.g.,
 
 # Reading version check log
 
-The version check log may be read at https://version.gridlabd.us/access.csv.
+The version check log may be read at http://version.gridlabd.us/access.csv.
