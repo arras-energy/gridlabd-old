@@ -43,6 +43,7 @@ import json, gzip
 import haversine
 import pandas
 import datetime
+from pysolar.solar import get_altitude, radiation
 
 VERBOSE = False
 DEBUG = False
@@ -81,6 +82,37 @@ DATA_COLUMNS = [
   'condition_code', #    The weather condition code  Integer
 ]
 
+SOLAR_CONDITIONS = { # factor to reduce direct solar based on conditions
+    0 : 1.0, # unknown
+    1 : 1.0, # Clear
+    2 : 0.9, # Fair
+    3 : 0.7, # Cloudy
+    4 : 0.5, # Overcast
+    5 : 0.3, # Fog
+    6 : 0.2, # Freezing Fog
+    7 : 0.4, #  Light Rain
+    8 : 0.3, #  Rain
+    9 : 0.2, # Heavy Rain
+    10 : 0.3, # Freezing Rain
+    11 : 0.2, # Heavy Freezing Rain
+    12 : 0.3, # Sleet
+    13 : 0.2, # Heavy Sleet
+    14 : 0.3, # Light Snowfall
+    15 : 0.2, # Snowfall
+    16 : 0.2, # Heavy Snowfall
+    17 : 0.2, # Rain Shower
+    18 : 0.2, # Heavy Rain Shower
+    19 : 0.2, # Sleet Shower
+    20 : 0.2, # Heavy Sleet Shower
+    21 : 0.2, # Snow Shower
+    22 : 0.2, # Heavy Snow Shower
+    23 : 0.2, # Lightning
+    24 : 0.2, # Hail
+    25 : 0.2, # Thunderstorm
+    26 : 0.1, # Heavy Thunderstorm
+    27 : 0.2, # Storm
+}
+
 try:
     CACHE_DIR = getenv("GLD_ETC") + "/weather/meteostat"
 except:
@@ -94,7 +126,7 @@ class MeteostatError(Exception):
 
 def error(msg,code=None):
     if not QUIET:
-        print(f"ERROR [{BASENAME}]: {msg} (code {code})", file=sys.stderr)
+        print(f"ERROR [{BASENAME}]: {msg} (code {code})", file=sys.stderr, flush=True)
     if DEBUG:
         raise MeteostatError(msg)
     if type(code) == int:
@@ -102,11 +134,11 @@ def error(msg,code=None):
 
 def warning(msg):
     if WARNING:
-        print(f"WARNING [{BASENAME}]: {msg}", file=sys.stderr)
+        print(f"WARNING [{BASENAME}]: {msg}", file=sys.stderr, flush=True)
 
 def verbose(msg):
     if VERBOSE:
-        print(f"VERBOSE [{BASENAME}]: {msg}", file=sys.stderr)
+        print(f"VERBOSE [{BASENAME}]: {msg}", file=sys.stderr, flush=True)
 
 def get_stations(refresh=True):
 
@@ -141,12 +173,13 @@ def get_weather(station,start=None,stop=None):
     station_file = f"{CACHE_DIR}/{station}.csv.gz"
     if not os.path.exists(station_file):
         url = URL_HOURLY.format(station=station)
+        verbose(f"downloading data from {url}")
         reply = requests.get(url)
         if reply.status_code != 200:
             error(f"{url} error {reply.status_code}",E_INVALID)
         with open(station_file,"wb") as fh:
             fh.write(reply.content)
-    data = pandas.read_csv(station_file,names=DATA_COLUMNS,index_col=0,parse_dates=[DATA_COLUMNS[0:2]]).sort_index()
+    data = pandas.read_csv(station_file,names=DATA_COLUMNS,index_col=0,parse_dates=[DATA_COLUMNS[0:2]],).sort_index()
 
     # convert to gridlabd weather format/units
     data = change_column(data,"temperature[degC]","temperature[degF]",lambda x:round(x*9/5+32,1))
@@ -157,15 +190,38 @@ def get_weather(station,start=None,stop=None):
     data = change_column(data,"wind_gusts[km/h]","wind_gusts[mph]",lambda x:round(x*0.6213712,1))
     data = change_column(data,"air_pressure[hPa]","pressure[mbar]",lambda x:round(x,1))
     data = change_column(data,"wind_direction[deg]","wind_dir[deg]",lambda x:round(x,1))
+
+    if start:
+        if stop:
+            data = data.loc[start:stop]
+        else:
+            data = data.loc[start:]
+    elif stop:
+        data = data.loc[:stop]
+
     verbose(f"get_weather(station='{station}',start={start},stop={stop}) --> {len(data)} rows")
     return data
+
+def get_solar(data,latitude,longitude):
+    verbose(f"calculating solar data for position ({latitude},{longitude})")
+    solar_direct = []
+    data[pandas.isna(data["condition_code"])] = 0
+    for dt in data.index:
+        date = datetime.datetime.fromtimestamp(dt.timestamp(),datetime.timezone.utc)
+        altitude = get_altitude(latitude, longitude, date)
+        if altitude > 0:
+            condition_factor = SOLAR_CONDITIONS[int(data.loc[dt]["condition_code"])]
+            solar_direct.append(round(radiation.get_radiation_direct(date, altitude),1)*condition_factor/10.764)
+        else:
+            solar_direct.append(0.0)
+    return solar_direct # W/sf
 
 try:
 
     for arg in sys.argv[1:]:
         spec = arg.split("=")
         if len(spec) == 1:
-            value = True
+            value = None
         elif len(spec) == 2:
             value = spec[1]
         else:
@@ -188,31 +244,34 @@ try:
             LOCATION = list(map(lambda x:float(x),value.split(",")))
             if len(LOCATION) != 2:
                 error(f"position '{LOCATION}' is invalid",E_INVALID)
+        elif tag in ["-d","--debug"]:
+            DEBUG = True
+        elif tag in ["-v","--verbose"]:
+            VERBOSE = True
+        elif tag in ["-q","--quiet"]:
+            QUIET = True
+        elif tag in ["-v","--verbose"]:
+            WARNING = False
         else:
             error(f"option '{arg}' is invalid",E_INVALID)
-
 
     if not LOCATION:
         error("location not specified",E_MISSING)
 
     station_info = find_station(*LOCATION)
 
-    data = get_weather(station_info["id"])
+    data = get_weather(station_info["id"],START_TIME,END_TIME)
 
-    if START_TIME:
-        if END_TIME:
-            data = data.loc[START_TIME:END_TIME]
-        else:
-            data = data.loc[START_TIME:]
-    elif END_TIME:
-        data = data.loc[:END_TIME]
+    data['solar_direct[W/sf]'] = get_solar(data,*LOCATION)
 
     if not OUTPUT_NAME:
 
+        verbose("writing CSV to stdout")
         print(data.to_csv(),end='')
 
     elif os.path.splitext(OUTPUT_NAME)[1] == ".csv":
 
+        verbose(f"writing CSV to {OUTPUT_NAME}")
         data.to_csv(OUTPUT_NAME)
 
     elif os.path.splitext(OUTPUT_NAME)[1] == ".glm":
@@ -223,7 +282,10 @@ try:
         if not CSV_NAME:
             CSV_NAME = f"meteostat_{station_info['id']}.csv"
 
+        verbose(f"writing CSV to {CSV_NAME}")
         data.to_csv(CSV_NAME,header=None,na_rep="0")
+
+        verbose(f"writing GLM to {OUTPUT_NAME}")
         with open(OUTPUT_NAME,"w") as glm:
             print(f"// generated by {BASENAME} at {datetime.datetime.now()}",file=glm)
             print("\nmodule climate;",file=glm)
