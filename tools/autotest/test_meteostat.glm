@@ -19,6 +19,6 @@ object recorder
 {
     parent "test";
     file "test_meteostat.csv";
-    property "temperature,wind_speed,wind_dir,direct_solar";
+    property "temperature,dewpoint,humidity,solar_direct";
 }
 
