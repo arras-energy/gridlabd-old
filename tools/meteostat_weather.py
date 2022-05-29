@@ -205,13 +205,13 @@ def get_weather(station,start=None,stop=None):
 def get_solar(data,latitude,longitude):
     verbose(f"calculating solar data for position ({latitude},{longitude})")
     solar_direct = []
-    data[pandas.isna(data["condition_code"])] = 0
+    data["condition_code"] = data["condition_code"].fillna(0)
     for dt in data.index:
         date = datetime.datetime.fromtimestamp(dt.timestamp(),datetime.timezone.utc)
         altitude = get_altitude(latitude, longitude, date)
         if altitude > 0:
             condition_factor = SOLAR_CONDITIONS[int(data.loc[dt]["condition_code"])]
-            solar_direct.append(round(radiation.get_radiation_direct(date, altitude),1)*condition_factor/10.764)
+            solar_direct.append(round(radiation.get_radiation_direct(date, altitude)*condition_factor/10.764,1))
         else:
             solar_direct.append(0.0)
     return solar_direct # W/sf
