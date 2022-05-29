@@ -38,3 +38,8 @@ data is written to stdout.  Otherwise, the default `CSVNAME` is `meteostat_ID.cs
 `ID` is the station identifier provided by Meteostat.  The default weather object is
 also named `meteostat_ID`.  If the start date and/or end date are not specified, then
 the default is all available data.
+
+# See also
+
+* [https://dev.meteostat.net/]
+
