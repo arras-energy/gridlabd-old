@@ -4,11 +4,14 @@ import pandas as pd
 import numpy as np
 import matplotlib as plt
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime
+from datetime import timedelta, tzinfo
 import xarray as xr
 from numpy import copy
 import pyomo.environ as pyo
 import time
+import meteostat
+
 
 share = os.getenv("GLD_ETC")
 if not share:
@@ -18,6 +21,8 @@ if share not in sys.path:
 import json2dfloadlocations
 import geodata_firerisk
 import noaa_forecast as nf
+import nsrdb_weather as ns
+import meteostat_weather as mw
 
 ###########################
 ## Load Data Sources ######
@@ -35,15 +40,12 @@ def loadJsonData(path):
 
 def loadPGEData(path):
     ### Loading Example PGE Data
-    data = pd.read_csv(os.path.join(path, 'NapaFeederPoints-5m.csv' ))
-    data.rename(columns={'Latitude':'lat','Longitude':'long'},inplace=True)
+    data = pd.read_csv(os.path.join(path))
+    data.rename(columns={'Lat':'lat','Lon':'long','Feeder_Nam':'group_id'},inplace=True)
+    data['class'] = "overhead_line"
+    data['length'] = 1
+    data['customerCount'] = data.ResCust + data.ComCust + data.IndCust + data.AgrCust + data.OthCust
     return data
-
-#Function Calls
-path= os.path.join(os.getcwd(),'example/ieee123.json')
-data= loadJsonData(path)
-# pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders'
-# data = loadPGEData(pathPGE)
 
 ###########################
 ## Calculations/Edits #####
@@ -58,7 +60,7 @@ def assignGroupID_json(data):
     data['group_id'].fillna(lineGroupArea['from'].fillna(lineGroupArea['to']),inplace=True)
     return data
 
-def importFireRiskData(data):
+def importFireRiskData(data,fireForecastStartDateDT):
     '''
     #Import Fire Risk and set up Fire Risk Timeline DataArray via USGS fire potential index
     Input: 'data' dataframe with lat, long, class fields
@@ -71,7 +73,7 @@ def importFireRiskData(data):
     print("=======Importing FireRisk Data============")
     start = time.time()
     latlongs= data[['lat','long']]
-    fireForecastStartDateDT= datetime.today()
+    # fireForecastStartDateDT= datetime.today()
     fireForecastStartDate= fireForecastStartDateDT.strftime('%Y%m%d')
 
     #One days worth of fireRisk
@@ -83,7 +85,11 @@ def importFireRiskData(data):
     ### Loading all sevendays of fireRisk as XARRAY
     firerisk7d=np.empty(shape=len(latlongs))
     for day in range(1,8):
-        fr=geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=fireForecastStartDate,type='fpi'))
+        fireForecastDate = (fireForecastStartDateDT + timedelta(days=day-1)).strftime('%Y%m%d')
+        fr=geodata_firerisk.apply(data=latlongs,options=dict(day=day,date=fireForecastDate,type='fpi'))
+        #add segment on if type == fpi then cut off all vals >= 248 (set to zero)
+        #if type == lfp then cut off vals over 2000 (set to zero)
+        # if type == fsp then cut off above 200 (set to zero)
         firerisk7d= np.column_stack((firerisk7d, fr))
     firerisk7d=firerisk7d[:,1:]
     firerisk7dx= xr.DataArray(firerisk7d, dims=['index','time_fireRisk'])
@@ -133,15 +139,8 @@ def assignCustomerImpact(dataX):
     dataX['customerCount'] = dataX['node'].str.contains('meter_').astype(int)
     return dataX
 
-
-data = assignGroupID_json(data)
-data, dataX = importFireRiskData(data)
-dataX = assignLoadID(dataX)
-dataX = assignCustomerImpact(dataX)
-
-### Load Weather Data
-def importWeatherData(data,dataX):
-    print("=======Importing Weather Data============")
+def importWeatherForecastData(data,dataX):
+    print("=======Importing Weather Forecast Data============")
     start=time.time()
 
     nf.interpolate = 60 #interpolation time
@@ -171,6 +170,111 @@ def importWeatherData(data,dataX):
     print("Weather Data import time: ", end-start)
     return dataX
 
+def importHistoricalWeatherDataNSRDB(data,dataX,dateDT):
+    print("=======Importing Historical Weather Data============")
+    start_stopwatch=time.time()
+
+    latlongs= data[['lat','long']]
+    latlongs=latlongs.astype(float)
+
+    # dateDT=  datetime(year=2020,month=10,day=15,hour=0)
+    lat,long= 38.25552587,-122.348129
+
+    time_Coords= pd.concat(ns.getyear(dateDT.year,lat,long)['DataFrame'])['wind_speed[m/s]']
+    mask = (time_Coords.index > dateDT) & (time_Coords.index <= (dateDT + timedelta(days=7)))
+    time_Coords= time_Coords.loc[mask]
+
+    Weather_forecast= np.ones(shape=len(time_Coords))
+    for lat,long in latlongs.itertuples(index=False):
+        if np.isnan(lat):
+            new=np.zeros_like(time_Coords)
+            Weather_forecast= np.row_stack((Weather_forecast, new))
+        else:
+            wind= pd.concat(ns.getyear(dateDT.year,lat,long)['DataFrame'])['wind_speed[m/s]']
+            mask = (wind.index > dateDT) & (wind.index <= (dateDT + timedelta(days=7)))
+            wind= wind.loc[mask]
+            windspeed= wind.values  
+            Weather_forecast= np.row_stack((Weather_forecast, windspeed))
+    Weather_forecast= Weather_forecast[1:,:]
+    WindX= xr.DataArray(Weather_forecast,dims=['index','time_wind'])
+    dataX['wind']= WindX
+    dataX.wind.data= dataX.wind.data.astype(float)
+    dataX= dataX.assign_coords({'time_wind':time_Coords.tolist()})
+
+    end_stopwatch= time.time()
+    print("Weather Data import time: ", end_stopwatch-start_stopwatch)
+    return dataX
+
+
+def importHistoricalWeatherDataMeteostat(data,dataX,dateDT):
+    print("=======Importing Meteostat Weather Data============")
+    start_stopwatch=time.time()
+
+    latlongs= data[['lat','long']]
+    latlongs=latlongs.astype(float)
+
+    dateDT=  datetime(year=2020,month=10,day=15,hour=0)
+    lat,long= 38.25552587,-122.348129
+    # geopoint = Point(lat,long)
+    start= dateDT
+    end= dateDT +timedelta(days=8)
+
+    # station_info = mw.find_station(lat,long)
+    stations = meteostat.Stations()
+    stations = stations.nearby(lat,long)
+    station_info = stations.fetch(1)
+    station_info.reset_index(inplace=True)
+    old_station = station_info
+
+
+    data = mw.get_weather(station_info["id"],start,end)
+    time_Coords = data.index
+    Weather_forecast= np.ones(shape=len(time_Coords))
+    old_station = station_info
+    countReuse=0
+    countNewLoopUp =0
+    timing=0
+    for lat,long in latlongs.itertuples(index=False):
+        if np.isnan(lat):
+            new=np.zeros_like(time_Coords)
+            Weather_forecast= np.row_stack((Weather_forecast, new))
+        else:
+            start_loop = time.time()
+            # new_station = mw.find_station(lat,long)
+
+            stations = meteostat.Stations()
+            stations = stations.nearby(lat,long)
+            new_station = stations.fetch(1)
+
+            end_loop = time.time()
+            if new_station == old_station:
+                windspeed =  data['wind_speed[mph]'].values
+                countReuse+=1
+                # print("looking up an old point")
+            else:
+                data = mw.get_weather(new_station["id"],start,end)
+                windspeed = data['wind_speed[mph]'].values
+                old_station = new_station
+                countNewLoopUp+=1
+                # print("looking up a new point")
+            # wind = Hourly(geopoint, start, end)
+            # wind = pd.DataFrame(wind.fetch())['wspd']
+            # windspeed= wind.values  
+            Weather_forecast= np.row_stack((Weather_forecast, windspeed))
+            timing += start_loop-end_loop
+
+    print("Avg loop timing",timing/(countReuse+countNewLoopUp))
+    Weather_forecast= Weather_forecast[1:,:]
+    WindX= xr.DataArray(Weather_forecast,dims=['index','time_wind'])
+    dataX['wind']= WindX
+    dataX.wind.data= dataX.wind.data.astype(float)
+    dataX= dataX.assign_coords({'time_wind':time_Coords.tolist()})
+
+    end_stopwatch= time.time()
+    print("Weather Data import time: ", end_stopwatch-start_stopwatch)
+    print("reused lookUps %i , new look ups %i" % (countReuse,countNewLoopUp))
+    return dataX
+
 def aggregateAreaData(dataX):
     ### Combine the time axes for fireRisk forecast and the wind forecast
     fireRisk7DW_xr = dataX.fireRisk7DW.rename({'time_fireRisk':'time'})
@@ -179,8 +283,12 @@ def aggregateAreaData(dataX):
     dataX_merged= xr.merge([dataX.drop_vars(names=['fireRisk7DW','wind']), merged_xds])
     time_Coords= dataX_merged.time
 
-    #Area Data Aggregation prep for optimization
-    areaDataX = dataX_merged.groupby(group='group_id').sum().drop_sel(group_id = 'nodevolts')
+    #Area Data Aggregation prep for optimization. remove nodevolts groupIDs for GLM examples
+    if np.any(np.isin(dataX_merged.group_id.data,"nodevolts")):
+        areaDataX = dataX_merged.groupby(group='group_id').sum().drop_sel(group_id = 'nodevolts')
+    else:
+        areaDataX = dataX_merged.groupby(group='group_id').sum()
+
     areaDataX = areaDataX.assign_coords({"time": np.arange(0,areaDataX.time.shape[0])})
 
     fireRiskNormalized=(areaDataX.fireRisk7DW)/areaDataX.fireRisk7DW.max()
@@ -196,11 +304,6 @@ def aggregateAreaData(dataX):
     # loadNormalized=areaDataX.load/areaDataX['load'].max()
     # loadNormalized= np.tile(loadNormalized.data, (areaDataX.time.shape[0],1))
     return areaDataX
-
-
-dataX = importWeatherData(data,dataX)
-areaDataX = aggregateAreaData(dataX)
-
 
 ###########################
 ###### Optimization ######
@@ -264,11 +367,62 @@ def optimizeShutoff(areaDataX,resilienceMetricOption,fireRiskAlpha):
     return model, results
 
 
-### Run optimization ####
+########################
+### Run Program ########
+########################
+
+#Routine for IEEE123 Data
+IEEEpath= os.path.join(os.getcwd(),'example/ieee123.json')
+# dataStartDate = datetime.today() +timedelta(days=-1)
+dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+
+# #Load Data
+# data= loadJsonData(IEEEpath)
+# #Modify Data
+# data = assignGroupID_json(data) #do not need for historical GIS based analysis data
+# data, dataX = importFireRiskData(data,dataStartDate)
+
+# dataX = assignLoadID(dataX) #do not need for historical GIS based analysis data
+# dataX = assignCustomerImpact(dataX) #do not need for historical GIS based analysis data
+# # dataX = importWeatherForecastData(data,dataX) #do not need for historical GIS based analysis data
+# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# areaDataX = aggregateAreaData(dataX)
+# #Run optimization
+# resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
+# fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
+# model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha)
+# ###END
+
+
+
+#Routine for Historical Event Data
+# pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplify.csv'
+pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
+dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+#Load Data
+data = loadPGEData(pathPGE)
+
+data = data.head(20)
+#Modify Data
+data, dataX = importFireRiskData(data,dataStartDate)
+dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+
+areaDataX = aggregateAreaData(dataX)
+
+#Run optimization
 resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
 fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
 model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha)
+##END
 
+######
+
+
+##############
+# Plot Results
+##############
+
+#Get Results
 results= []
 # outputVariables_list =  [model.switch[timestep, group_id].value for timestep in model.timestep for group_id in model.areas]
 for timestep in model.timestep:
@@ -277,10 +431,6 @@ for timestep in model.timestep:
         results_t.append(model.switch[timestep,group_id].value)
     results.append(results_t)
 areaDataX['results'] = xr.DataArray(results,dims=['time','group_id'])
-
-########################
-# Plot Results
-########################
 
 # plot_results = areaDataX.results.plot.line(x="time", col="group_id")
 plot_results = areaDataX.results.plot.line(x="time")
@@ -293,6 +443,7 @@ areaDataX.customerCountNormalized.plot.line(x='time')
 plt.show()
 
 
+
 #create plot that shows the intersected weighting of firerisk and customer count
 
 # #some plots
@@ -300,28 +451,6 @@ plt.show()
 # dataX_merged.wind.plot()
 # dataX_merged.fireRisk7DW.plot()
 # dataX_merged.groupby(group='group_id').sum()
-
-
-# dfResults.reset_index(drop=True)
-# dfResults['LoadServed']= dfResults[areas].dot(areaData.load)
-# dfResults['fireRisk']= dfResults[areas].dot(areaData.weightedFireRisk)
-# dfResults['LoadServedNorm']= dfResults[areas].dot(loadNormalized)
-# dfResults['FireRiskNorm']= dfResults[areas].dot(fireRiskNormalized)
-
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# sns.regplot(x= dfResults['LoadServed'], y= dfResults['fireRisk'],fit_reg=False)
-# plt.show()
-
-# alpha_Results =0.65
-
-# #Add results to dataframe
-# switchResults= dfResults.loc[dfResults.alpha == alpha_Results][areas].to_dict('records')[0]
-# data['switchResults']= data['group_id'].map(switchResults)
-# data.lat =data.lat.astype(float) 
-# data.long =data.long.astype(float) 
-# lineData=data.loc[data['class'].str.contains(r'line')]
-
 
 # ### Plot Results on map ########
 # import plotly.express as px
