@@ -42,8 +42,15 @@ import requests
 import json, gzip
 import haversine
 import pandas
-import datetime
+import datetime, time
 from pysolar.solar import get_altitude, radiation
+
+share = os.getenv("GLD_ETC")
+if not share:
+    share = "/usr/local/share/gridlabd"
+if share not in sys.path:
+    sys.path.append("/usr/local/share/gridlabd")
+import nsrdb_weather
 
 VERBOSE = False
 DEBUG = False
@@ -53,6 +60,7 @@ WARNING = True
 E_OK = 0 # no error
 E_MISSING = 1 # missing argument
 E_INVALID = 2 # invalid data
+E_TIMEOUT = 3 # file lock timeout
 E_EXCEPTION = 9 # exception caught
 
 BASENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
@@ -65,6 +73,9 @@ OUTPUT_NAME = None
 CSV_NAME = None
 START_TIME = None
 END_TIME = None
+TIMEOUT = 10
+TIMESTEP = 0.1
+GEOHASH_RESOLUTION = 5
 
 DATA_COLUMNS = [
   'date', #    The date string (format: YYYY-MM-DD)    String
@@ -119,6 +130,7 @@ except:
     CACHE_DIR = "/tmp/meteostat"
 os.makedirs(CACHE_DIR,exist_ok=True)
 STATIONS_FILE = CACHE_DIR + "/stations.json.gz"
+STATIONS_RECENT = CACHE_DIR + "/stations.json"
 STATIONS = None
 
 class MeteostatError(Exception):
@@ -136,24 +148,63 @@ def warning(msg):
     if WARNING:
         print(f"WARNING [{BASENAME}]: {msg}", file=sys.stderr, flush=True)
 
+def file_lock(pathname,timeout=TIMEOUT,wait=TIMESTEP):
+    lockname = pathname + "-locked"
+    t0 = datetime.datetime.now()
+    ok = False
+    while not ok:
+        try:
+            os.mkdir(lockname)
+            ok = True
+        except:
+            if datetime.datetime.now() - t0 > datetime.timedelta(seconds=timeout):
+                error(f"file lock timeout for {pathname}",E_TIMEOUT)
+            time.sleep(wait)
+    return lockname
+
+def file_unlock(lockname):
+    os.rmdir(lockname)
+
 def verbose(msg):
     if VERBOSE:
         print(f"VERBOSE [{BASENAME}]: {msg}", file=sys.stderr, flush=True)
 
 def get_stations(refresh=True):
-
-    if not os.path.exists(STATIONS_FILE) or refresh:
-        reply = requests.get(URL_STATIONS)
-        if reply.status_code != 200:
-            error(f"{URL_STATIONS} error {reply.status_code}",E_INVALID)
-        with open(STATIONS_FILE,"wb") as fh:
-            fh.write(reply.content)
-    with gzip.open(STATIONS_FILE,"r") as fh:
-        STATIONS = json.load(fh)
-        return STATIONS
+    lockname = file_lock(STATIONS_FILE)
+    try:
+        if not os.path.exists(STATIONS_FILE) or refresh:
+            reply = requests.get(URL_STATIONS)
+            if reply.status_code != 200:
+                error(f"{URL_STATIONS} error {reply.status_code}",E_INVALID)
+            with open(STATIONS_FILE,"wb") as fh:
+                fh.write(reply.content)
+        with gzip.open(STATIONS_FILE,"r") as fh:
+            STATIONS = json.load(fh)
+            return STATIONS
+    except:
+        pass
+    finally:
+        file_unlock(lockname)
     error(f"{STATIONS_FILE} is not a valid jzon gz file",E_INVALID)
 
 def find_station(lat,lon):
+    try:
+        lockname = file_lock(STATIONS_RECENT)
+        geohash = nsrdb_weather.geohash(lat,lon,GEOHASH_RESOLUTION)
+        verbose(f"checking for geohash '{geohash}' in {STATIONS_RECENT}")
+        with open(STATIONS_RECENT,"r") as fh:
+            recents = json.load(fh)
+        if geohash in recents.keys():
+            best_station = recents[geohash]
+            verbose(f"find_station(lat={lat},lon={lon}) --> {best_station['id']} at geohash {geohash}")
+            return best_station
+        verbose(f"geohash '{geohash}' not in recents")
+    except:
+        recents = {}
+        verbose(f"no recents yet in {STATIONS_RECENT} ({sys.exc_info()})")
+    finally:
+        file_unlock(lockname)
+
     best_distance = None
     best_station = None
     for station in get_stations():
@@ -163,6 +214,24 @@ def find_station(lat,lon):
             best_distance = distance
             best_station = station
     verbose(f"find_station(lat={lat},lon={lon}) --> {best_station['id']}")
+    
+    lockname = file_lock(STATIONS_RECENT)
+    try:
+        try:
+            with open(STATIONS_RECENT,"r") as fh:
+                recents = json.load(fh)
+        except:
+            recents = {}
+        recents[geohash] = best_station
+        with open(STATIONS_RECENT,"w") as fh:
+            json.dump(recents,fh)
+    except:
+        e_type, e_value, e_trace = sys.exc_info()
+        e_file = os.path.basename(e_trace.tb_frame.f_code.co_filename)
+        e_line = e_trace.tb_lineno
+        warning(f"unable to update recent stations file {STATIONS_RECENT} ({e_file}@{e_line}: {e_type.__name__} {e_value})")
+    finally:
+        file_unlock(lockname)
     return best_station
 
 def change_column(data,from_name,to_name,transformation):
@@ -259,10 +328,19 @@ try:
         error("location not specified",E_MISSING)
 
     station_info = find_station(*LOCATION)
+    if not START_TIME:
+        START_TIME = station_info["inventory"]["hourly"]["start"]
+    if not END_TIME:
+        END_TIME = station_info["inventory"]["hourly"]["end"]
 
-    data = get_weather(station_info["id"],START_TIME,END_TIME)
-
-    data['solar_direct[W/sf]'] = get_solar(data,*LOCATION)
+    station_id = station_info["id"]
+    station_cache = CACHE_DIR + "/" + station_id + "_" + START_TIME + "_" + END_TIME + ".csv"
+    if os.path.exists(station_cache):
+        data = pandas.read_csv(station_cache)
+    else:
+        data = get_weather(station_id,START_TIME,END_TIME)
+        data['solar_direct[W/sf]'] = get_solar(data,*LOCATION)
+        data.to_csv(station_cache)
 
     if not OUTPUT_NAME:
 
