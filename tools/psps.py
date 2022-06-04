@@ -1,15 +1,3 @@
-
-share = os.getenv("GLD_ETC")
-if not share:
-    share = "/usr/local/share/gridlabd"
-if share not in sys.path:
-    sys.path.append("/usr/local/share/gridlabd")
-
-import meteostat_weather as mw
-import nsrdb_weather as ns
-import noaa_forecast as nf
-import geodata_firerisk
-import json2dfloadlocations
 import sys
 import os
 import pandas as pd
@@ -23,6 +11,21 @@ from numpy import copy
 import pyomo.environ as pyo
 import time
 import meteostat
+import pickle
+
+share = os.getenv("GLD_ETC")
+if not share:
+    share = "/usr/local/share/gridlabd"
+if share not in sys.path:
+    sys.path.append("/usr/local/share/gridlabd")
+
+import meteostat_weather as mw
+import nsrdb_weather as ns
+import noaa_forecast as nf
+import geodata_firerisk
+import json2dfloadlocations
+
+
 
 ###########################
 ## Load Data Sources ######
@@ -41,11 +44,9 @@ def loadPGEData(path):
     # Loading Example PGE Data
     data = pd.read_csv(os.path.join(path))
     data.rename(columns={'Lat': 'lat', 'Lon': 'long',
-                'Feeder_Nam': 'group_id'}, inplace=True)
+                'FeedSplID': 'group_id','LengthWtdCust':'customerCount'}, inplace=True)
     data['class'] = "overhead_line"
     data['length'] = 1
-    data['customerCount'] = data.ResCust + data.ComCust + \
-        data.IndCust + data.AgrCust + data.OthCust
     return data
 
 ###########################
@@ -133,7 +134,7 @@ def importFireRiskData(data, fireForecastStartDateDT):
         np.tile(data.fireRiskWeight, (firerisk7dx.data.shape[1], 1)).T
 
     end = time.time()
-    print("Fire data import time: ", end-start)
+    print("Fire data import time: ", round(end-start,2)," sec")
     return data, dataX
 
 
@@ -180,14 +181,17 @@ def importWeatherForecastData(data, dataX):
     WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
     dataX['wind'] = WindX
     dataX.wind.data = dataX.wind.data.astype(float)
+    dataX['WindW'] =dataX.wind * data.fireRiskWeight.values.reshape(-1,1)
+
+
     dataX = dataX.assign_coords({'time_wind': time_Coords.tolist()})
 
     end = time.time()
-    print("Weather Data import time: ", end-start)
+    print("Weather Data import time: ", round(end-start,2),' sec')
     return dataX
 
 def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
-    print("=======Importing Meteostat Weather Data============")
+    print("========Importing Meteostat Data=========")
     start_stopwatch = time.time()
 
     latlongs = data[['lat', 'long']]
@@ -231,32 +235,58 @@ def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
                 windspeed = weather_data['wind_speed[mph]'].values
                 old_station = new_station
                 countNewLoopUp += 1
+                print("looked up a new station", countNewLoopUp)
+                print("old: ", old_station)
+                print("new: ", new_station)
+
+
             Weather_forecast = np.row_stack((Weather_forecast, windspeed))
             timing += start_loop-end_loop
 
-    print("Avg loop timing", timing/(countReuse+countNewLoopUp))
+    print("Avg loop timing", round(timing/(countReuse+countNewLoopUp),2), " sec")
 
     Weather_forecast = Weather_forecast[1:, :]
     WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
     dataX['wind'] = WindX
     dataX.wind.data = dataX.wind.data.astype(float)
+
+    dataX['WindW'] =dataX.wind * data.fireRiskWeight.values.reshape(-1,1)
+
     dataX = dataX.assign_coords({'time_wind': time_Coords.tolist()})
 
     end_stopwatch = time.time()
-    print("Weather Data import time: ", end_stopwatch-start_stopwatch)
+    print("Weather Data import time: ", round(end_stopwatch-start_stopwatch,2)," sec")
     print("reused lookUps %i , new look ups %i" % (countReuse, countNewLoopUp))
     return dataX
 
+def ignitionProbModel(dataX):
+    # load the model from disk
+    filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
+    loaded_model = pickle.load(open(filepath, 'rb'))
+    prediction= np.empty(shape=(dataX.wind.time_wind.shape[0]))
+    for i in dataX.index:
+        kmhr_wind=dataX.wind[i].values.reshape(-1,1)/0.6213712 #mph to km/hr
+        result = loaded_model.predict_proba(pd.DataFrame(kmhr_wind,columns=['wind_speed']))
+        prediction = np.row_stack((prediction, result[:,1]))
+    prediction = prediction[1:, :]
+    igPred= xr.DataArray(prediction, dims=['index', 'time_wind'])
+    dataX['igProb']= igPred
+    dataX['igProbW'] =dataX.igProb * data.fireRiskWeight.values.reshape(-1,1)
+    return dataX
+
+
+
 def aggregateAreaData(dataX):
-    print("=======Aggregating Data for Optimization ============")
+    print("=====Aggregating for Optimization ======")
     # Combine the time axes for fireRisk forecast and the wind forecast
     fireRisk7DW_xr = dataX.fireRisk7DW.rename({'time_fireRisk': 'time'})
-    wind_xr = dataX.wind.rename({'time_wind': 'time'})
-    merged_xds = xr.combine_by_coords([fireRisk7DW_xr, wind_xr], coords=[
+    windW_xr = dataX.WindW.rename({'time_wind': 'time'})
+    igprob_xr = dataX.igProbW.rename({'time_wind': 'time'})
+
+    merged_xds = xr.combine_by_coords([fireRisk7DW_xr, windW_xr, igprob_xr], coords=[
                                       'index', 'lat', 'long', 'time'], join="inner")
     dataX_merged = xr.merge(
-        [dataX.drop_vars(names=['fireRisk7DW', 'wind']), merged_xds])
-    time_Coords = dataX_merged.time
+        [dataX.drop_vars(names=['fireRisk7DW', 'WindW', 'igProbW']), merged_xds])
 
     # Area Data Aggregation prep for optimization. remove nodevolts groupIDs for GLM examples
     if np.any(np.isin(dataX_merged.group_id.data, "nodevolts")):
@@ -271,8 +301,11 @@ def aggregateAreaData(dataX):
     fireRiskNormalized = (areaDataX.fireRisk7DW)/areaDataX.fireRisk7DW.max()
     areaDataX['fireRiskNormalized'] = fireRiskNormalized
 
-    windNormalized = (areaDataX.wind)/areaDataX.wind.max()
+    windNormalized = (areaDataX.WindW)/areaDataX.WindW.max()
     areaDataX['windNormalized'] = windNormalized
+
+    igProbNormalized = (areaDataX.igProb)/areaDataX.igProb.max()
+    areaDataX['igProbNormalized'] = igProbNormalized
 
     customerCountNormalized = areaDataX.customerCount/areaDataX.customerCount.max()
     customerCountNormalized = np.tile(
@@ -329,6 +362,11 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
         return areaDataX.windNormalized.sel(group_id=a, time=t).values
     model.wind = pyo.Param(model.timestep, model.areas, initialize=init_wind)
 
+    # # Ignition Potential Forecast Paramater
+    # def init_igProb(model, t, a):
+    #     return areaDataX.igProbW.sel(group_id=a, time=t).values
+    # model.igProb = pyo.Param(model.timestep, model.areas, initialize=init_igProb)
+
     # Resilience Metric Paramater
     def init_resilienceMetric(model, t, a):
         return resilienceMetric.sel(group_id=a, time=t).values
@@ -339,14 +377,24 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
         iterable = dependencies_df[dependencies_df.group_id.str.contains(a)].iloc[:,1:]
         expression = 0
         for header, dependencies in iterable.iteritems():
-            if 'area' in dependencies.iloc[0]:
-                expression = expression + model.switch[t,dependencies.iloc[0]]
-            else:
+            # if 'area' in str(dependencies.iloc[0]):
+            #     expression = expression + model.switch[t,dependencies.iloc[0]]
+            # else:
+            #     expression = expression + int(dependencies.iloc[0])
+
+            if dependencies.iloc[0] == 0  or dependencies.iloc[0]==1 :
                 expression = expression + int(dependencies.iloc[0])
-        print(a, " <= ", expression,'  ^^^^^    ')
+            else:
+                expression = expression + model.switch[t,dependencies.iloc[0]]
+
+        # print(a, " <= ", expression,'  ^^^^^    ')
         return (model.switch[t,a] <= expression)
     model.connection_constraint = pyo.Constraint(model.timestep, model.areas, rule= init_ConnectionConstraint)
 
+    # def init_igProbConstraint(model,t,a):
+    #     model.igProb[t,a] <= .1
+    #     return
+    # model.igProb_constraint = pyo.Constraint(model.timestep,model.areas,rule=init_igProbConstraint)
     # Objective
     def objective_rule(model):
         return sum(sum((model.switch[t, a] * model.fireRisk[t, a]*(1-alpha_Fire)) - (model.switch[t, a] * model.resilienceMetric[t, a] * alpha_Fire) for a in model.areas) for t in model.timestep)
@@ -357,63 +405,81 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
         'cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model, tee=False)
     # results.write()
     end = time.time()
-    print("Model Solved in: ", end-start)
+    print("Model Solved in: ", round(end-start,2), " sec")
     # model.pprint()
     return model, results
+
 
 
 ########################
 ### Run Program ########
 ########################
 
-# Routine for IEEE123 Data
-IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
-IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
-IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
-IEEEdep = pd.read_csv(IEEEdepPath)
+# # Routine for IEEE123 Data
+# IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
+# IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
+# IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
+# IEEEdep = pd.read_csv(IEEEdepPath)
 
 
-dataStartDate = datetime.today() + timedelta(days=-1)
-# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+# dataStartDate = datetime.today() + timedelta(days=-1)
+# # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 
-# Load Data
-data = loadJsonData(IEEEpath)
-# dataPoles= loadJsonData(IEEEpolespath)
+# # Load Data
+# data = loadJsonData(IEEEpath)
+# # dataPoles= loadJsonData(IEEEpolespath)
 
-# Modify Data
-data = assignGroupID_json(data)
-data, dataX = importFireRiskData(data, dataStartDate)
-dataX = assignLoadID(dataX)
-dataX = assignCustomerImpact(dataX)
-
-dataX = importWeatherForecastData(data, dataX)
-# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-areaDataX = aggregateAreaData(dataX)
-# Run optimization
-resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
-fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
-model, results = optimizeShutoff(
-    areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
-# END
-
-
-# #Routine for Historical Event Data
-# pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
-# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
-# #Load Data
-# data = loadPGEData(pathPGE)
-# data = data.head(2000)
-# #Modify Data
-# data, dataX = importFireRiskData(data,dataStartDate)
-# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# # Modify Data
+# data = assignGroupID_json(data)
+# data, dataX = importFireRiskData(data, dataStartDate)
+# dataX = assignLoadID(dataX)
+# dataX = assignCustomerImpact(dataX)
+# dataX = importWeatherForecastData(data, dataX)
+# # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# dataX= ignitionProbModel(dataX)
 
 # areaDataX = aggregateAreaData(dataX)
+# # Run optimization
+# resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
+# fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
+# model, results = optimizeShutoff(
+#     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
+# # END
 
-# #Run optimization
-# resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
-# fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
-# model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha)
-# ##END
+#Routine for Historical Event Data
+# pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
+pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m.csv')
+pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers.csv')
+napa=pd.read_csv(pathNapa)
+napaCustCount= pd.read_csv(pathNapaCustCount)
+napaCustCount= napaCustCount[['FeedSplID','LengthWtdCust']]
+napa= pd.merge(left=napa,right=napaCustCount,on='FeedSplID',how='left')
+pathNapa = os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
+napa.to_csv(pathNapa)
+
+
+NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
+Napadep = pd.read_csv(NapadepPath)
+Napadep.fillna(0,inplace=True)
+
+dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+#Load Data
+data = loadPGEData(pathNapa)
+data = data.head(2000)
+
+#Modify Data
+data, dataX = importFireRiskData(data,dataStartDate)
+dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+
+
+dataX= ignitionProbModel(dataX)
+areaDataX = aggregateAreaData(dataX)
+
+#Run optimization
+resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
+fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
+model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
+##END
 
 ######
 
