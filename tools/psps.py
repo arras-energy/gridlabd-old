@@ -203,47 +203,57 @@ def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
     start = dateDT
     end = dateDT + timedelta(days=8)
 
-    # station_info = mw.find_station(lat,long)
-    stations = meteostat.Stations()
-    stations = stations.nearby(lat, long)
-    station_info = stations.fetch(1)
-    station_info.reset_index(inplace=True)
+    station_info = mw.find_station(lat,long)
+    station_id = station_info['id']
+    weather_data = mw.get_weather(station_id, start, end)
 
-    weather_data = mw.get_weather(station_info["id"][0], start, end)
     time_Coords = weather_data.index
     Weather_forecast = np.ones(shape=len(time_Coords))
-    old_station = station_info
+    old_station_id = station_id
     countReuse = 0
     countNewLoopUp = 0
+    countLoop =0
     timing = 0
+    stop1_cum =0
+    stop2_cum =0
+    stop3_cum =0
+    stop4_cum =0
+
     for lat, long in latlongs.itertuples(index=False):
+        start_loop = time.time()
         if np.isnan(lat):
             new = np.zeros_like(time_Coords)
             Weather_forecast = np.row_stack((Weather_forecast, new))
+            stop1 = time.time()
+            stop1_cum += start_loop-stop1
         else:
-            start_loop = time.time()
-            # new_station = mw.find_station(lat,long)
-            stations = stations.nearby(lat, long)
-            new_station = stations.fetch(1)
-            new_station.reset_index(inplace=True)
-            end_loop = time.time()
-            if new_station.id[0] == old_station.id[0]:
+            new_station = mw.find_station(lat,long)
+            new_station_id = new_station['id']
+            stop2 = time.time()
+            stop2_cum += start_loop-stop2
+            if new_station_id == old_station_id:
                 windspeed = weather_data['wind_speed[mph]'].values
                 countReuse += 1
+                stop3 = time.time()
+                stop3_cum += stop2 -stop3
             else:
-                weather_data = mw.get_weather(new_station["id"][0], start, end)
+                weather_data = mw.get_weather(new_station_id, start, end)
                 windspeed = weather_data['wind_speed[mph]'].values
-                old_station = new_station
+                old_station_id = new_station_id
                 countNewLoopUp += 1
-                print("looked up a new station", countNewLoopUp)
-                print("old: ", old_station)
-                print("new: ", new_station)
-
-
+                stop4 = time.time()
+                stop4_cum += stop2 -stop4
             Weather_forecast = np.row_stack((Weather_forecast, windspeed))
-            timing += start_loop-end_loop
+        end_loop = time.time()
+        countLoop+=1
+        timing += start_loop-end_loop
 
-    print("Avg loop timing", round(timing/(countReuse+countNewLoopUp),2), " sec")
+    print("Avg loop timing", round(timing/(countLoop),5), " sec")
+    print("Part 1 avg time: ", round(stop1_cum/(countLoop),5), " sec")
+    print("Part 2 avg time: ", round(stop2_cum/(countLoop),5), " sec")
+    print("Part 3 avg time: ", round(stop3_cum/(countLoop),5), " sec")
+    print("Part 4 avg time: ", round(stop4_cum/(countLoop),5), " sec")
+
 
     Weather_forecast = Weather_forecast[1:, :]
     WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
@@ -259,7 +269,78 @@ def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
     print("reused lookUps %i , new look ups %i" % (countReuse, countNewLoopUp))
     return dataX
 
+def importHistoricalWeatherDataMeteostat_Fast(data, dataX, dateDT):
+    print("========Importing Meteostat Data=========")
+    start_stopwatch = time.time()
+    latlongs = data[['lat', 'long']]
+    latlongs = latlongs.astype(float)
+
+    # dateDT=  datetime(year=2020,month=10,day=15,hour=0)
+    lat, long = 38.25552587, -122.348129
+    start = dateDT
+    end = dateDT + timedelta(days=8)
+
+    station_info = mw.find_station(lat,long)
+    station_id = station_info['id']
+    weather_data = mw.get_weather(station_id, start, end)
+
+    time_Coords = weather_data.index
+    Weather_forecast = np.ones(shape=len(time_Coords))
+    stationList= []
+
+    for lat, long in latlongs.itertuples(index=False):
+        if np.isnan(lat):
+            stationList.append(-1)
+        else:
+            new_station = mw.find_station(lat,long)
+            new_station_id = new_station['id']
+            stationList.append(new_station_id)
+
+    stationSet = set(stationList)    
+    stationDict={}
+    for key in stationSet:
+        if key == -1:
+            stationDict[key]=np.zeros_like(time_Coords)
+        else:
+            weather_data = mw.get_weather(new_station_id, start, end)
+            windspeed = weather_data['wind_speed[mph]'].values
+            stationDict[key] = windspeed
+    #map unique forecasts to sequence
+    Weather_forecast =np.asarray([*map(stationDict.get, stationList)])
+
+    WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
+    dataX['wind'] = WindX
+    dataX.wind.data = dataX.wind.data.astype(float)
+    dataX['WindW'] =dataX.wind * data.fireRiskWeight.values.reshape(-1,1)
+    dataX = dataX.assign_coords({'time_wind': time_Coords.tolist()})
+    end_stopwatch = time.time()
+    print("Weather Data import time: ", round(end_stopwatch-start_stopwatch,2)," sec")
+
+
+    print("==== Calculating Ignition Probability Index ====")
+    # load the model from disk
+    filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
+    loaded_model = pickle.load(open(filepath, 'rb'))
+    predictionDict={}
+    for key in stationDict:
+        kmhr_wind=stationDict[key].reshape(-1,1)/0.6213712 #mph to km/hr
+        result = loaded_model.predict_proba(pd.DataFrame(kmhr_wind,columns=['wind_speed']))
+        predictionDict[key]=result[:,1]
+    ignitionProb =np.asarray([*map(predictionDict.get, stationList)])
+
+    igProb= xr.DataArray(ignitionProb, dims=['index', 'time_wind'])
+    dataX['igProb']= igProb
+    dataX['igProbW'] =dataX.igProb * data.fireRiskWeight.values.reshape(-1,1)
+
+    return dataX
+
+# def ignitionProbModel_Fast(stationDict):
+    
+#     return dataX
+
+
 def ignitionProbModel(dataX):
+    print("==== Calculating Ignition Probability Index ====")
     # load the model from disk
     filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
     loaded_model = pickle.load(open(filepath, 'rb'))
@@ -382,7 +463,7 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
             # else:
             #     expression = expression + int(dependencies.iloc[0])
 
-            if dependencies.iloc[0] == 0  or dependencies.iloc[0]==1 :
+            if str(dependencies.iloc[0]) == '0'  or str(dependencies.iloc[0]) == '1' :
                 expression = expression + int(dependencies.iloc[0])
             else:
                 expression = expression + model.switch[t,dependencies.iloc[0]]
@@ -465,14 +546,15 @@ Napadep.fillna(0,inplace=True)
 dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 #Load Data
 data = loadPGEData(pathNapa)
-data = data.head(2000)
+# data = data.head(5000)
 
 #Modify Data
 data, dataX = importFireRiskData(data,dataStartDate)
-dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+dataX = importHistoricalWeatherDataMeteostat_Fast(data,dataX,dataStartDate)
 
 
-dataX= ignitionProbModel(dataX)
+# dataX= ignitionProbModel(dataX)
 areaDataX = aggregateAreaData(dataX)
 
 #Run optimization
