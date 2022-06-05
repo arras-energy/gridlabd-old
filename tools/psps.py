@@ -97,9 +97,11 @@ def importFireRiskData(data, fireForecastStartDateDT):
         fr = geodata_firerisk.apply(data=latlongs, options=dict(
             day=day, date=fireForecastDate, type='fpi'))
         # add segment on if type == fpi then cut off all vals >= 248 (set to zero)
+        fr=[0 if x>=248 else x for x in fr]
         # if type == lfp then cut off vals over 2000 (set to zero)
         # if type == fsp then cut off above 200 (set to zero)
         firerisk7d = np.column_stack((firerisk7d, fr))
+
     firerisk7d = firerisk7d[:, 1:]
     firerisk7dx = xr.DataArray(firerisk7d, dims=['index', 'time_fireRisk'])
     fireForecastCoords = pd.date_range(
@@ -193,85 +195,6 @@ def importWeatherForecastData(data, dataX):
 def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
     print("========Importing Meteostat Data=========")
     start_stopwatch = time.time()
-
-    latlongs = data[['lat', 'long']]
-    latlongs = latlongs.astype(float)
-
-    # dateDT=  datetime(year=2020,month=10,day=15,hour=0)
-    lat, long = 38.25552587, -122.348129
-    # geopoint = Point(lat,long)
-    start = dateDT
-    end = dateDT + timedelta(days=8)
-
-    station_info = mw.find_station(lat,long)
-    station_id = station_info['id']
-    weather_data = mw.get_weather(station_id, start, end)
-
-    time_Coords = weather_data.index
-    Weather_forecast = np.ones(shape=len(time_Coords))
-    old_station_id = station_id
-    countReuse = 0
-    countNewLoopUp = 0
-    countLoop =0
-    timing = 0
-    stop1_cum =0
-    stop2_cum =0
-    stop3_cum =0
-    stop4_cum =0
-
-    for lat, long in latlongs.itertuples(index=False):
-        start_loop = time.time()
-        if np.isnan(lat):
-            new = np.zeros_like(time_Coords)
-            Weather_forecast = np.row_stack((Weather_forecast, new))
-            stop1 = time.time()
-            stop1_cum += start_loop-stop1
-        else:
-            new_station = mw.find_station(lat,long)
-            new_station_id = new_station['id']
-            stop2 = time.time()
-            stop2_cum += start_loop-stop2
-            if new_station_id == old_station_id:
-                windspeed = weather_data['wind_speed[mph]'].values
-                countReuse += 1
-                stop3 = time.time()
-                stop3_cum += stop2 -stop3
-            else:
-                weather_data = mw.get_weather(new_station_id, start, end)
-                windspeed = weather_data['wind_speed[mph]'].values
-                old_station_id = new_station_id
-                countNewLoopUp += 1
-                stop4 = time.time()
-                stop4_cum += stop2 -stop4
-            Weather_forecast = np.row_stack((Weather_forecast, windspeed))
-        end_loop = time.time()
-        countLoop+=1
-        timing += start_loop-end_loop
-
-    print("Avg loop timing", round(timing/(countLoop),5), " sec")
-    print("Part 1 avg time: ", round(stop1_cum/(countLoop),5), " sec")
-    print("Part 2 avg time: ", round(stop2_cum/(countLoop),5), " sec")
-    print("Part 3 avg time: ", round(stop3_cum/(countLoop),5), " sec")
-    print("Part 4 avg time: ", round(stop4_cum/(countLoop),5), " sec")
-
-
-    Weather_forecast = Weather_forecast[1:, :]
-    WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
-    dataX['wind'] = WindX
-    dataX.wind.data = dataX.wind.data.astype(float)
-
-    dataX['WindW'] =dataX.wind * data.fireRiskWeight.values.reshape(-1,1)
-
-    dataX = dataX.assign_coords({'time_wind': time_Coords.tolist()})
-
-    end_stopwatch = time.time()
-    print("Weather Data import time: ", round(end_stopwatch-start_stopwatch,2)," sec")
-    print("reused lookUps %i , new look ups %i" % (countReuse, countNewLoopUp))
-    return dataX
-
-def importHistoricalWeatherDataMeteostat_Fast(data, dataX, dateDT):
-    print("========Importing Meteostat Data=========")
-    start_stopwatch = time.time()
     latlongs = data[['lat', 'long']]
     latlongs = latlongs.astype(float)
 
@@ -327,35 +250,11 @@ def importHistoricalWeatherDataMeteostat_Fast(data, dataX, dateDT):
         result = loaded_model.predict_proba(pd.DataFrame(kmhr_wind,columns=['wind_speed']))
         predictionDict[key]=result[:,1]
     ignitionProb =np.asarray([*map(predictionDict.get, stationList)])
-
     igProb= xr.DataArray(ignitionProb, dims=['index', 'time_wind'])
     dataX['igProb']= igProb
     dataX['igProbW'] =dataX.igProb * data.fireRiskWeight.values.reshape(-1,1)
 
     return dataX
-
-# def ignitionProbModel_Fast(stationDict):
-    
-#     return dataX
-
-
-def ignitionProbModel(dataX):
-    print("==== Calculating Ignition Probability Index ====")
-    # load the model from disk
-    filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
-    loaded_model = pickle.load(open(filepath, 'rb'))
-    prediction= np.empty(shape=(dataX.wind.time_wind.shape[0]))
-    for i in dataX.index:
-        kmhr_wind=dataX.wind[i].values.reshape(-1,1)/0.6213712 #mph to km/hr
-        result = loaded_model.predict_proba(pd.DataFrame(kmhr_wind,columns=['wind_speed']))
-        prediction = np.row_stack((prediction, result[:,1]))
-    prediction = prediction[1:, :]
-    igPred= xr.DataArray(prediction, dims=['index', 'time_wind'])
-    dataX['igProb']= igPred
-    dataX['igProbW'] =dataX.igProb * data.fireRiskWeight.values.reshape(-1,1)
-    return dataX
-
-
 
 def aggregateAreaData(dataX):
     print("=====Aggregating for Optimization ======")
@@ -373,11 +272,10 @@ def aggregateAreaData(dataX):
     if np.any(np.isin(dataX_merged.group_id.data, "nodevolts")):
         areaDataX = dataX_merged.groupby(
             group='group_id').sum().drop_sel(group_id='nodevolts')
-    else:
+    else: #for non-glm based files... taking the average here since all items equally weighted.
         areaDataX = dataX_merged.groupby(group='group_id').sum()
 
-    areaDataX = areaDataX.assign_coords(
-        {"time": np.arange(0, areaDataX.time.shape[0])})
+    areaDataX = areaDataX.assign_coords({"time": np.arange(0, areaDataX.time.shape[0])})
 
     fireRiskNormalized = (areaDataX.fireRisk7DW)/areaDataX.fireRisk7DW.max()
     areaDataX['fireRiskNormalized'] = fireRiskNormalized
@@ -385,7 +283,7 @@ def aggregateAreaData(dataX):
     windNormalized = (areaDataX.WindW)/areaDataX.WindW.max()
     areaDataX['windNormalized'] = windNormalized
 
-    igProbNormalized = (areaDataX.igProb)/areaDataX.igProb.max()
+    igProbNormalized = (areaDataX.igProbW)/ areaDataX.igProbW.max()
     areaDataX['igProbNormalized'] = igProbNormalized
 
     customerCountNormalized = areaDataX.customerCount/areaDataX.customerCount.max()
@@ -443,10 +341,10 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
         return areaDataX.windNormalized.sel(group_id=a, time=t).values
     model.wind = pyo.Param(model.timestep, model.areas, initialize=init_wind)
 
-    # # Ignition Potential Forecast Paramater
-    # def init_igProb(model, t, a):
-    #     return areaDataX.igProbW.sel(group_id=a, time=t).values
-    # model.igProb = pyo.Param(model.timestep, model.areas, initialize=init_igProb)
+    # Ignition Potential Forecast Paramater
+    def init_igProb(model, t, a):
+        return areaDataX.igProbNormalized.sel(group_id=a, time=t).values
+    model.igProb = pyo.Param(model.timestep, model.areas, initialize=init_igProb)
 
     # Resilience Metric Paramater
     def init_resilienceMetric(model, t, a):
@@ -458,11 +356,6 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
         iterable = dependencies_df[dependencies_df.group_id.str.contains(a)].iloc[:,1:]
         expression = 0
         for header, dependencies in iterable.iteritems():
-            # if 'area' in str(dependencies.iloc[0]):
-            #     expression = expression + model.switch[t,dependencies.iloc[0]]
-            # else:
-            #     expression = expression + int(dependencies.iloc[0])
-
             if str(dependencies.iloc[0]) == '0'  or str(dependencies.iloc[0]) == '1' :
                 expression = expression + int(dependencies.iloc[0])
             else:
@@ -476,9 +369,10 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
     #     model.igProb[t,a] <= .1
     #     return
     # model.igProb_constraint = pyo.Constraint(model.timestep,model.areas,rule=init_igProbConstraint)
+
     # Objective
     def objective_rule(model):
-        return sum(sum((model.switch[t, a] * model.fireRisk[t, a]*(1-alpha_Fire)) - (model.switch[t, a] * model.resilienceMetric[t, a] * alpha_Fire) for a in model.areas) for t in model.timestep)
+        return sum(sum((model.switch[t, a] * model.fireRisk[t, a] * model.igProb[t,a]*(1-alpha_Fire)) - (model.switch[t, a] * model.resilienceMetric[t, a] * alpha_Fire) for a in model.areas) for t in model.timestep)
     model.objective = pyo.Objective(sense=pyo.minimize, expr=objective_rule)
 
     # Solver
@@ -517,7 +411,7 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 # dataX = assignCustomerImpact(dataX)
 # dataX = importWeatherForecastData(data, dataX)
 # # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-# dataX= ignitionProbModel(dataX)
+# # dataX= ignitionProbModel(dataX)
 
 # areaDataX = aggregateAreaData(dataX)
 # # Run optimization
@@ -551,10 +445,7 @@ data = loadPGEData(pathNapa)
 #Modify Data
 data, dataX = importFireRiskData(data,dataStartDate)
 # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-dataX = importHistoricalWeatherDataMeteostat_Fast(data,dataX,dataStartDate)
-
-
-# dataX= ignitionProbModel(dataX)
+dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
 areaDataX = aggregateAreaData(dataX)
 
 #Run optimization
@@ -564,13 +455,9 @@ model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,
 ##END
 
 ######
-
-
 ##############
 # Plot Results
 ##############
-
-# Get Results
 results = []
 # outputVariables_list =  [model.switch[timestep, group_id].value for timestep in model.timestep for group_id in model.areas]
 for timestep in model.timestep:
@@ -584,29 +471,52 @@ areaDataX['results'] = xr.DataArray(results, dims=['time', 'group_id'])
 from cycler import cycler
 plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y', 'c', 'k']) +
                            cycler('linestyle', ['-', '--', ':', '-.', '-', '--'])))
-plot_results = areaDataX.results.plot.line(x="time",alpha=0.7,lw=4)
+plot_results = areaDataX.results.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
 plt.show()
 
-areaDataX.fireRiskNormalized.plot.line(x="time",alpha=0.7,lw=4)
+areaDataX.fireRiskNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
 plt.show()
 
-areaDataX.customerCountNormalized.plot.line(x='time',alpha=0.7,lw=4)
+areaDataX.igProbNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
 plt.show()
 
-# dataX_merged.plot.scatter(x="long", y="lat",hue='wind')
-# dataX_merged.wind.plot()
-# dataX_merged.fireRisk7DW.plot()
-# dataX_merged.groupby(group='group_id').sum()
+areaDataX.customerCountNormalized.plot.line(x='time',alpha=0.7,lw=4,add_legend=False)
+plt.show()
 
-# ### Plot Results on map ########
-# import plotly.express as px
+### Plot Results on map ########
+#Add results to dataframe
+dataX= dataX.drop(['Unnamed: 0', 'VOLTNUM', 'SplitID','length'])
+areaDataX= areaDataX.drop(['Unnamed: 0', 'OBJECTID', 'VOLTNUM', 'SplitID','length'])
+dataX= dataX.reset_coords()
+df_groupid = dataX[['group_id','lat','long']].to_dataframe()
+df_results =areaDataX[['results','igProbNormalized','windNormalized','fireRiskNormalized','customerCountNormalized','WindW','fireRisk7DW','igProbW']].to_dataframe().reset_index()
+# df_results =areaDataX[['results']].to_dataframe().reset_index()
+resultsTimeSeries = pd.merge(df_results,df_groupid,how='left',on='group_id')
+windTimeSeries = dataX[['group_id','lat','long','igProbW','WindW']].to_dataframe().reset_index().rename(columns={'time_wind':'time'})
+# resultsTimeSeries.to_csv('/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/results.csv')
 
-# color_discrete_map = {1.0: 'rgb(255,0,0)', 0.0: 'rgb(0,255,0)'}
-# fig = px.scatter_mapbox(data, lat="lat", lon="long",color='switchResults', zoom=3, height=300,hover_name="node",color_discrete_map=color_discrete_map)
-# fig.update_layout(mapbox_style="stamen-terrain", mapbox_zoom=14, margin={"r":0,"t":0,"l":0,"b":0})
+import plotly.express as px
+def animate_map(time_col,df,col):
+    fig = px.scatter_mapbox(df,
+              lat="lat" ,
+              lon="long",
+              hover_name="group_id",
+              color=col,
+              animation_frame=time_col,
+              mapbox_style='stamen-terrain',
+              category_orders={
+              time_col:list(np.sort(df[time_col].values))
+              },                  
+              zoom=10,width=700, height=700,
+              range_color=[0,.2])
+    fig.update_layout(
+        margin=dict(l=20, r=20, t=20, b=20),
+        paper_bgcolor="LightSteelBlue",
+        )
+    fig.show()
 
-# # fig2 = px.density_mapbox(data, lat='lat', lon='long', z='fireRisk', radius=10, zoom=14, mapbox_style="stamen-terrain")
-# # fig.add_trace(fig2.data[0])
+plotdf= resultsTimeSeries.iloc[::20, :]
+animate_map(time_col='time',df=plotdf,col='igProbW')
 
-# fig.update_mapboxes(accesstoken='pk.eyJ1Ijoia3RlaHJhbmNoaSIsImEiOiJjbDJzNW5kdHMwaGJzM2pudDBsazZ5am80In0.hQfjJnhiiO1-YcJEEpN-1A')
-# fig.show()
+# plotdf= windTimeSeries.iloc[::20, :]
+# animate_map(time_col='time',df=plotdf,col='WindW')
