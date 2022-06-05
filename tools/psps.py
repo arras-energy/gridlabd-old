@@ -44,7 +44,7 @@ def loadPGEData(path):
     # Loading Example PGE Data
     data = pd.read_csv(os.path.join(path))
     data.rename(columns={'Lat': 'lat', 'Lon': 'long',
-                'FeedSplID': 'group_id','LengthWtdCust':'customerCount'}, inplace=True)
+                'FeedSplID': 'group_id','PopWtdCust':'customerCount'}, inplace=True)
     data['class'] = "overhead_line"
     data['length'] = 1
     return data
@@ -424,10 +424,10 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 #Routine for Historical Event Data
 # pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
 pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m.csv')
-pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers.csv')
+pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers_2.csv')
 napa=pd.read_csv(pathNapa)
 napaCustCount= pd.read_csv(pathNapaCustCount)
-napaCustCount= napaCustCount[['FeedSplID','LengthWtdCust']]
+napaCustCount= napaCustCount[['FeedSplID','PopWtdCust']]
 napa= pd.merge(left=napa,right=napaCustCount,on='FeedSplID',how='left')
 pathNapa = os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
 napa.to_csv(pathNapa)
@@ -496,7 +496,7 @@ windTimeSeries = dataX[['group_id','lat','long','igProbW','WindW']].to_dataframe
 # resultsTimeSeries.to_csv('/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/results.csv')
 
 import plotly.express as px
-def animate_map(time_col,df,col):
+def animate_map(time_col,df,col,scaleUL):
     fig = px.scatter_mapbox(df,
               lat="lat" ,
               lon="long",
@@ -507,8 +507,8 @@ def animate_map(time_col,df,col):
               category_orders={
               time_col:list(np.sort(df[time_col].values))
               },                  
-              zoom=10,width=700, height=700,
-              range_color=[0,.2])
+              zoom=6,width=700, height=700,
+              range_color=[0,scaleUL])
     fig.update_layout(
         margin=dict(l=20, r=20, t=20, b=20),
         paper_bgcolor="LightSteelBlue",
@@ -516,7 +516,9 @@ def animate_map(time_col,df,col):
     fig.show()
 
 plotdf= resultsTimeSeries.iloc[::20, :]
-animate_map(time_col='time',df=plotdf,col='igProbW')
+animate_map(time_col='time',df=plotdf,col='results',scaleUL= 1)
+animate_map(time_col='time',df=plotdf,col='igProbNormalized',scaleUL= 1)
+animate_map(time_col='time',df=plotdf,col='fireRiskNormalized',scaleUL= 1)
 
 # plotdf= windTimeSeries.iloc[::20, :]
 # animate_map(time_col='time',df=plotdf,col='WindW')
