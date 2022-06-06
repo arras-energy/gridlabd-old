@@ -1,0 +1,828 @@
+node,class,bustype,busflags,group_id,parent,from,to,load,lat,long,length,height
+ND_150,node,SWING,HASSOURCE,,,,,,,,,
+ND_28663,node,PQ,HASSOURCE,,,,,,,,,
+ND_RG_LK_RG1,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_200,overhead_line,,,,,ND_RG_LK_RG1,ND_149,,,,0.0328084,
+OL_LK_200,pole_mount,,,,OL_LK_200,,,,,,,40 ft
+OL_LK_200,pole_mount,,,,OL_LK_200,,,,,,,40 ft
+OL_LK_200,pole_mount,,,,OL_LK_200,,,,,,,40 ft
+ND_149,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_149_1,overhead_line,,,,,ND_149,ND_1,,,,400.0,
+OL_LK_CONFIG_1_149_1,pole_mount,,,,OL_LK_CONFIG_1_149_1,,,,,,,40 ft
+OL_LK_CONFIG_1_149_1,pole_mount,,,,OL_LK_CONFIG_1_149_1,,,,,,,40 ft
+OL_LK_CONFIG_1_149_1,pole_mount,,,,OL_LK_CONFIG_1_149_1,,,,,,,40 ft
+OL_LK_CONFIG_1_149_1,pole_mount,,,,OL_LK_CONFIG_1_149_1,,,,,,,40 ft
+OL_LK_CONFIG_1_149_1,pole_mount,,,,OL_LK_CONFIG_1_149_1,,,,,,,40 ft
+ND_1,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_1_3,overhead_line,,,,,ND_1,ND_3,,,,250.0,
+OL_LK_CONFIG_11_1_3,pole_mount,,,,OL_LK_CONFIG_11_1_3,,,,,,,40 ft
+OL_LK_CONFIG_11_1_3,pole_mount,,,,OL_LK_CONFIG_11_1_3,,,,,,,40 ft
+OL_LK_CONFIG_11_1_3,pole_mount,,,,OL_LK_CONFIG_11_1_3,,,,,,,40 ft
+OL_LK_CONFIG_11_1_3,pole_mount,,,,OL_LK_CONFIG_11_1_3,,,,,,,40 ft
+ND_3,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_3_5,overhead_line,,,,,ND_3,ND_5,,,,325.0,
+OL_LK_CONFIG_11_3_5,pole_mount,,,,OL_LK_CONFIG_11_3_5,,,,,,,40 ft
+OL_LK_CONFIG_11_3_5,pole_mount,,,,OL_LK_CONFIG_11_3_5,,,,,,,40 ft
+OL_LK_CONFIG_11_3_5,pole_mount,,,,OL_LK_CONFIG_11_3_5,,,,,,,40 ft
+OL_LK_CONFIG_11_3_5,pole_mount,,,,OL_LK_CONFIG_11_3_5,,,,,,,40 ft
+OL_LK_CONFIG_11_3_5,pole_mount,,,,OL_LK_CONFIG_11_3_5,,,,,,,40 ft
+ND_5,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_5_6,overhead_line,,,,,ND_5,ND_6,,,,250.0,
+OL_LK_CONFIG_11_5_6,pole_mount,,,,OL_LK_CONFIG_11_5_6,,,,,,,40 ft
+OL_LK_CONFIG_11_5_6,pole_mount,,,,OL_LK_CONFIG_11_5_6,,,,,,,40 ft
+OL_LK_CONFIG_11_5_6,pole_mount,,,,OL_LK_CONFIG_11_5_6,,,,,,,40 ft
+OL_LK_CONFIG_11_5_6,pole_mount,,,,OL_LK_CONFIG_11_5_6,,,,,,,40 ft
+ND_6,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_3_4,overhead_line,,,,,ND_3,ND_4,,,,200.0,
+OL_LK_CONFIG_11_3_4,pole_mount,,,,OL_LK_CONFIG_11_3_4,,,,,,,40 ft
+OL_LK_CONFIG_11_3_4,pole_mount,,,,OL_LK_CONFIG_11_3_4,,,,,,,40 ft
+OL_LK_CONFIG_11_3_4,pole_mount,,,,OL_LK_CONFIG_11_3_4,,,,,,,40 ft
+ND_4,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_1_2,overhead_line,,,,,ND_1,ND_2,,,,175.0,
+OL_LK_CONFIG_10_1_2,pole_mount,,,,OL_LK_CONFIG_10_1_2,,,,,,,40 ft
+OL_LK_CONFIG_10_1_2,pole_mount,,,,OL_LK_CONFIG_10_1_2,,,,,,,40 ft
+OL_LK_CONFIG_10_1_2,pole_mount,,,,OL_LK_CONFIG_10_1_2,,,,,,,40 ft
+ND_2,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_1_7,overhead_line,,,,,ND_1,ND_7,,,,300.0,
+OL_LK_CONFIG_1_1_7,pole_mount,,,,OL_LK_CONFIG_1_1_7,,,,,,,40 ft
+OL_LK_CONFIG_1_1_7,pole_mount,,,,OL_LK_CONFIG_1_1_7,,,,,,,40 ft
+OL_LK_CONFIG_1_1_7,pole_mount,,,,OL_LK_CONFIG_1_1_7,,,,,,,40 ft
+OL_LK_CONFIG_1_1_7,pole_mount,,,,OL_LK_CONFIG_1_1_7,,,,,,,40 ft
+ND_7,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_7_8,overhead_line,,,,,ND_7,ND_8,,,,200.0,
+OL_LK_CONFIG_1_7_8,pole_mount,,,,OL_LK_CONFIG_1_7_8,,,,,,,40 ft
+OL_LK_CONFIG_1_7_8,pole_mount,,,,OL_LK_CONFIG_1_7_8,,,,,,,40 ft
+OL_LK_CONFIG_1_7_8,pole_mount,,,,OL_LK_CONFIG_1_7_8,,,,,,,40 ft
+ND_8,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_8_13,overhead_line,,,,,ND_8,ND_13,,,,300.0,
+OL_LK_CONFIG_1_8_13,pole_mount,,,,OL_LK_CONFIG_1_8_13,,,,,,,40 ft
+OL_LK_CONFIG_1_8_13,pole_mount,,,,OL_LK_CONFIG_1_8_13,,,,,,,40 ft
+OL_LK_CONFIG_1_8_13,pole_mount,,,,OL_LK_CONFIG_1_8_13,,,,,,,40 ft
+OL_LK_CONFIG_1_8_13,pole_mount,,,,OL_LK_CONFIG_1_8_13,,,,,,,40 ft
+ND_13,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_13_34,overhead_line,,,,,ND_13,ND_34,,,,150.0,
+OL_LK_CONFIG_11_13_34,pole_mount,,,,OL_LK_CONFIG_11_13_34,,,,,,,40 ft
+OL_LK_CONFIG_11_13_34,pole_mount,,,,OL_LK_CONFIG_11_13_34,,,,,,,40 ft
+OL_LK_CONFIG_11_13_34,pole_mount,,,,OL_LK_CONFIG_11_13_34,,,,,,,40 ft
+ND_34,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_34_15,overhead_line,,,,,ND_34,ND_15,,,,100.0,
+OL_LK_CONFIG_11_34_15,pole_mount,,,,OL_LK_CONFIG_11_34_15,,,,,,,40 ft
+OL_LK_CONFIG_11_34_15,pole_mount,,,,OL_LK_CONFIG_11_34_15,,,,,,,40 ft
+ND_15,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_15_16,overhead_line,,,,,ND_15,ND_16,,,,375.0,
+OL_LK_CONFIG_11_15_16,pole_mount,,,,OL_LK_CONFIG_11_15_16,,,,,,,40 ft
+OL_LK_CONFIG_11_15_16,pole_mount,,,,OL_LK_CONFIG_11_15_16,,,,,,,40 ft
+OL_LK_CONFIG_11_15_16,pole_mount,,,,OL_LK_CONFIG_11_15_16,,,,,,,40 ft
+OL_LK_CONFIG_11_15_16,pole_mount,,,,OL_LK_CONFIG_11_15_16,,,,,,,40 ft
+OL_LK_CONFIG_11_15_16,pole_mount,,,,OL_LK_CONFIG_11_15_16,,,,,,,40 ft
+ND_16,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_15_17,overhead_line,,,,,ND_15,ND_17,,,,350.0,
+OL_LK_CONFIG_11_15_17,pole_mount,,,,OL_LK_CONFIG_11_15_17,,,,,,,40 ft
+OL_LK_CONFIG_11_15_17,pole_mount,,,,OL_LK_CONFIG_11_15_17,,,,,,,40 ft
+OL_LK_CONFIG_11_15_17,pole_mount,,,,OL_LK_CONFIG_11_15_17,,,,,,,40 ft
+OL_LK_CONFIG_11_15_17,pole_mount,,,,OL_LK_CONFIG_11_15_17,,,,,,,40 ft
+OL_LK_CONFIG_11_15_17,pole_mount,,,,OL_LK_CONFIG_11_15_17,,,,,,,40 ft
+ND_17,node,PQ,HASSOURCE,,,,,,,,,
+ND_152,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_152_52,overhead_line,,,,,ND_152,ND_52,,,,400.0,
+OL_LK_CONFIG_1_152_52,pole_mount,,,,OL_LK_CONFIG_1_152_52,,,,,,,40 ft
+OL_LK_CONFIG_1_152_52,pole_mount,,,,OL_LK_CONFIG_1_152_52,,,,,,,40 ft
+OL_LK_CONFIG_1_152_52,pole_mount,,,,OL_LK_CONFIG_1_152_52,,,,,,,40 ft
+OL_LK_CONFIG_1_152_52,pole_mount,,,,OL_LK_CONFIG_1_152_52,,,,,,,40 ft
+OL_LK_CONFIG_1_152_52,pole_mount,,,,OL_LK_CONFIG_1_152_52,,,,,,,40 ft
+ND_52,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_52_53,overhead_line,,,,,ND_52,ND_53,,,,200.0,
+OL_LK_CONFIG_1_52_53,pole_mount,,,,OL_LK_CONFIG_1_52_53,,,,,,,40 ft
+OL_LK_CONFIG_1_52_53,pole_mount,,,,OL_LK_CONFIG_1_52_53,,,,,,,40 ft
+OL_LK_CONFIG_1_52_53,pole_mount,,,,OL_LK_CONFIG_1_52_53,,,,,,,40 ft
+ND_53,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_53_54,overhead_line,,,,,ND_53,ND_54,,,,125.0,
+OL_LK_CONFIG_1_53_54,pole_mount,,,,OL_LK_CONFIG_1_53_54,,,,,,,40 ft
+OL_LK_CONFIG_1_53_54,pole_mount,,,,OL_LK_CONFIG_1_53_54,,,,,,,40 ft
+OL_LK_CONFIG_1_53_54,pole_mount,,,,OL_LK_CONFIG_1_53_54,,,,,,,40 ft
+ND_54,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_54_55,overhead_line,,,,,ND_54,ND_55,,,,275.0,
+OL_LK_CONFIG_1_54_55,pole_mount,,,,OL_LK_CONFIG_1_54_55,,,,,,,40 ft
+OL_LK_CONFIG_1_54_55,pole_mount,,,,OL_LK_CONFIG_1_54_55,,,,,,,40 ft
+OL_LK_CONFIG_1_54_55,pole_mount,,,,OL_LK_CONFIG_1_54_55,,,,,,,40 ft
+OL_LK_CONFIG_1_54_55,pole_mount,,,,OL_LK_CONFIG_1_54_55,,,,,,,40 ft
+ND_55,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_55_56,overhead_line,,,,,ND_55,ND_56,,,,275.0,
+OL_LK_CONFIG_1_55_56,pole_mount,,,,OL_LK_CONFIG_1_55_56,,,,,,,40 ft
+OL_LK_CONFIG_1_55_56,pole_mount,,,,OL_LK_CONFIG_1_55_56,,,,,,,40 ft
+OL_LK_CONFIG_1_55_56,pole_mount,,,,OL_LK_CONFIG_1_55_56,,,,,,,40 ft
+OL_LK_CONFIG_1_55_56,pole_mount,,,,OL_LK_CONFIG_1_55_56,,,,,,,40 ft
+ND_56,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_54_57,overhead_line,,,,,ND_54,ND_57,,,,350.0,
+OL_LK_CONFIG_3_54_57,pole_mount,,,,OL_LK_CONFIG_3_54_57,,,,,,,40 ft
+OL_LK_CONFIG_3_54_57,pole_mount,,,,OL_LK_CONFIG_3_54_57,,,,,,,40 ft
+OL_LK_CONFIG_3_54_57,pole_mount,,,,OL_LK_CONFIG_3_54_57,,,,,,,40 ft
+OL_LK_CONFIG_3_54_57,pole_mount,,,,OL_LK_CONFIG_3_54_57,,,,,,,40 ft
+OL_LK_CONFIG_3_54_57,pole_mount,,,,OL_LK_CONFIG_3_54_57,,,,,,,40 ft
+ND_57,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_57_58,overhead_line,,,,,ND_57,ND_58,,,,250.0,
+OL_LK_CONFIG_10_57_58,pole_mount,,,,OL_LK_CONFIG_10_57_58,,,,,,,40 ft
+OL_LK_CONFIG_10_57_58,pole_mount,,,,OL_LK_CONFIG_10_57_58,,,,,,,40 ft
+OL_LK_CONFIG_10_57_58,pole_mount,,,,OL_LK_CONFIG_10_57_58,,,,,,,40 ft
+OL_LK_CONFIG_10_57_58,pole_mount,,,,OL_LK_CONFIG_10_57_58,,,,,,,40 ft
+ND_58,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_58_59,overhead_line,,,,,ND_58,ND_59,,,,250.0,
+OL_LK_CONFIG_10_58_59,pole_mount,,,,OL_LK_CONFIG_10_58_59,,,,,,,40 ft
+OL_LK_CONFIG_10_58_59,pole_mount,,,,OL_LK_CONFIG_10_58_59,,,,,,,40 ft
+OL_LK_CONFIG_10_58_59,pole_mount,,,,OL_LK_CONFIG_10_58_59,,,,,,,40 ft
+OL_LK_CONFIG_10_58_59,pole_mount,,,,OL_LK_CONFIG_10_58_59,,,,,,,40 ft
+ND_59,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_57_60,overhead_line,,,,,ND_57,ND_60,,,,750.0,
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+OL_LK_CONFIG_3_57_60,pole_mount,,,,OL_LK_CONFIG_3_57_60,,,,,,,40 ft
+ND_60,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_5_60_61,overhead_line,,,,,ND_60,ND_61,,,,550.0,
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+OL_LK_CONFIG_5_60_61,pole_mount,,,,OL_LK_CONFIG_5_60_61,,,,,,,40 ft
+ND_61,node,PQ,HASSOURCE,,,,,,,,,
+ND_TF_LK_XF1,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_61_610,overhead_line,,,,,ND_TF_LK_XF1,ND_610,,,,0.0328084,
+OL_LK_61_610,pole_mount,,,,OL_LK_61_610,,,,,,,40 ft
+OL_LK_61_610,pole_mount,,,,OL_LK_61_610,,,,,,,40 ft
+OL_LK_61_610,pole_mount,,,,OL_LK_61_610,,,,,,,40 ft
+ND_610,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_12_60_62,overhead_line,,,,,ND_60,ND_62,,,,250.0,
+OL_LK_CONFIG_12_60_62,pole_mount,,,,OL_LK_CONFIG_12_60_62,,,,,,,40 ft
+OL_LK_CONFIG_12_60_62,pole_mount,,,,OL_LK_CONFIG_12_60_62,,,,,,,40 ft
+OL_LK_CONFIG_12_60_62,pole_mount,,,,OL_LK_CONFIG_12_60_62,,,,,,,40 ft
+OL_LK_CONFIG_12_60_62,pole_mount,,,,OL_LK_CONFIG_12_60_62,,,,,,,40 ft
+ND_62,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_12_62_63,overhead_line,,,,,ND_62,ND_63,,,,175.0,
+OL_LK_CONFIG_12_62_63,pole_mount,,,,OL_LK_CONFIG_12_62_63,,,,,,,40 ft
+OL_LK_CONFIG_12_62_63,pole_mount,,,,OL_LK_CONFIG_12_62_63,,,,,,,40 ft
+OL_LK_CONFIG_12_62_63,pole_mount,,,,OL_LK_CONFIG_12_62_63,,,,,,,40 ft
+ND_63,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_12_63_64,overhead_line,,,,,ND_63,ND_64,,,,350.0,
+OL_LK_CONFIG_12_63_64,pole_mount,,,,OL_LK_CONFIG_12_63_64,,,,,,,40 ft
+OL_LK_CONFIG_12_63_64,pole_mount,,,,OL_LK_CONFIG_12_63_64,,,,,,,40 ft
+OL_LK_CONFIG_12_63_64,pole_mount,,,,OL_LK_CONFIG_12_63_64,,,,,,,40 ft
+OL_LK_CONFIG_12_63_64,pole_mount,,,,OL_LK_CONFIG_12_63_64,,,,,,,40 ft
+OL_LK_CONFIG_12_63_64,pole_mount,,,,OL_LK_CONFIG_12_63_64,,,,,,,40 ft
+ND_64,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_12_64_65,overhead_line,,,,,ND_64,ND_65,,,,425.0,
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+OL_LK_CONFIG_12_64_65,pole_mount,,,,OL_LK_CONFIG_12_64_65,,,,,,,40 ft
+ND_65,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_12_65_66,overhead_line,,,,,ND_65,ND_66,,,,325.0,
+OL_LK_CONFIG_12_65_66,pole_mount,,,,OL_LK_CONFIG_12_65_66,,,,,,,40 ft
+OL_LK_CONFIG_12_65_66,pole_mount,,,,OL_LK_CONFIG_12_65_66,,,,,,,40 ft
+OL_LK_CONFIG_12_65_66,pole_mount,,,,OL_LK_CONFIG_12_65_66,,,,,,,40 ft
+OL_LK_CONFIG_12_65_66,pole_mount,,,,OL_LK_CONFIG_12_65_66,,,,,,,40 ft
+OL_LK_CONFIG_12_65_66,pole_mount,,,,OL_LK_CONFIG_12_65_66,,,,,,,40 ft
+ND_66,node,PQ,HASSOURCE,,,,,,,,,
+ND_160,node,PQ,HASSOURCE,,,,,,,,,
+ND_RG_LK_RG4,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_160_67,overhead_line,,,,,ND_RG_LK_RG4,ND_67,,,,350.0,
+OL_LK_CONFIG_6_160_67,pole_mount,,,,OL_LK_CONFIG_6_160_67,,,,,,,40 ft
+OL_LK_CONFIG_6_160_67,pole_mount,,,,OL_LK_CONFIG_6_160_67,,,,,,,40 ft
+OL_LK_CONFIG_6_160_67,pole_mount,,,,OL_LK_CONFIG_6_160_67,,,,,,,40 ft
+OL_LK_CONFIG_6_160_67,pole_mount,,,,OL_LK_CONFIG_6_160_67,,,,,,,40 ft
+OL_LK_CONFIG_6_160_67,pole_mount,,,,OL_LK_CONFIG_6_160_67,,,,,,,40 ft
+ND_67,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_67_72,overhead_line,,,,,ND_67,ND_72,,,,275.0,
+OL_LK_CONFIG_3_67_72,pole_mount,,,,OL_LK_CONFIG_3_67_72,,,,,,,40 ft
+OL_LK_CONFIG_3_67_72,pole_mount,,,,OL_LK_CONFIG_3_67_72,,,,,,,40 ft
+OL_LK_CONFIG_3_67_72,pole_mount,,,,OL_LK_CONFIG_3_67_72,,,,,,,40 ft
+OL_LK_CONFIG_3_67_72,pole_mount,,,,OL_LK_CONFIG_3_67_72,,,,,,,40 ft
+ND_72,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_72_76,overhead_line,,,,,ND_72,ND_76,,,,200.0,
+OL_LK_CONFIG_3_72_76,pole_mount,,,,OL_LK_CONFIG_3_72_76,,,,,,,40 ft
+OL_LK_CONFIG_3_72_76,pole_mount,,,,OL_LK_CONFIG_3_72_76,,,,,,,40 ft
+OL_LK_CONFIG_3_72_76,pole_mount,,,,OL_LK_CONFIG_3_72_76,,,,,,,40 ft
+ND_76,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_76_86,overhead_line,,,,,ND_76,ND_86,,,,700.0,
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+OL_LK_CONFIG_3_76_86,pole_mount,,,,OL_LK_CONFIG_3_76_86,,,,,,,40 ft
+ND_86,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_86_87,overhead_line,,,,,ND_86,ND_87,,,,450.0,
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+OL_LK_CONFIG_6_86_87,pole_mount,,,,OL_LK_CONFIG_6_86_87,,,,,,,40 ft
+ND_87,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_87_89,overhead_line,,,,,ND_87,ND_89,,,,275.0,
+OL_LK_CONFIG_6_87_89,pole_mount,,,,OL_LK_CONFIG_6_87_89,,,,,,,40 ft
+OL_LK_CONFIG_6_87_89,pole_mount,,,,OL_LK_CONFIG_6_87_89,,,,,,,40 ft
+OL_LK_CONFIG_6_87_89,pole_mount,,,,OL_LK_CONFIG_6_87_89,,,,,,,40 ft
+OL_LK_CONFIG_6_87_89,pole_mount,,,,OL_LK_CONFIG_6_87_89,,,,,,,40 ft
+ND_89,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_89_90,overhead_line,,,,,ND_89,ND_90,,,,225.0,
+OL_LK_CONFIG_10_89_90,pole_mount,,,,OL_LK_CONFIG_10_89_90,,,,,,,40 ft
+OL_LK_CONFIG_10_89_90,pole_mount,,,,OL_LK_CONFIG_10_89_90,,,,,,,40 ft
+OL_LK_CONFIG_10_89_90,pole_mount,,,,OL_LK_CONFIG_10_89_90,,,,,,,40 ft
+OL_LK_CONFIG_10_89_90,pole_mount,,,,OL_LK_CONFIG_10_89_90,,,,,,,40 ft
+ND_90,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_89_91,overhead_line,,,,,ND_89,ND_91,,,,225.0,
+OL_LK_CONFIG_6_89_91,pole_mount,,,,OL_LK_CONFIG_6_89_91,,,,,,,40 ft
+OL_LK_CONFIG_6_89_91,pole_mount,,,,OL_LK_CONFIG_6_89_91,,,,,,,40 ft
+OL_LK_CONFIG_6_89_91,pole_mount,,,,OL_LK_CONFIG_6_89_91,,,,,,,40 ft
+OL_LK_CONFIG_6_89_91,pole_mount,,,,OL_LK_CONFIG_6_89_91,,,,,,,40 ft
+ND_91,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_91_92,overhead_line,,,,,ND_91,ND_92,,,,300.0,
+OL_LK_CONFIG_11_91_92,pole_mount,,,,OL_LK_CONFIG_11_91_92,,,,,,,40 ft
+OL_LK_CONFIG_11_91_92,pole_mount,,,,OL_LK_CONFIG_11_91_92,,,,,,,40 ft
+OL_LK_CONFIG_11_91_92,pole_mount,,,,OL_LK_CONFIG_11_91_92,,,,,,,40 ft
+OL_LK_CONFIG_11_91_92,pole_mount,,,,OL_LK_CONFIG_11_91_92,,,,,,,40 ft
+ND_92,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_91_93,overhead_line,,,,,ND_91,ND_93,,,,225.0,
+OL_LK_CONFIG_6_91_93,pole_mount,,,,OL_LK_CONFIG_6_91_93,,,,,,,40 ft
+OL_LK_CONFIG_6_91_93,pole_mount,,,,OL_LK_CONFIG_6_91_93,,,,,,,40 ft
+OL_LK_CONFIG_6_91_93,pole_mount,,,,OL_LK_CONFIG_6_91_93,,,,,,,40 ft
+OL_LK_CONFIG_6_91_93,pole_mount,,,,OL_LK_CONFIG_6_91_93,,,,,,,40 ft
+ND_93,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_93_95,overhead_line,,,,,ND_93,ND_95,,,,300.0,
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+ND_95,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_95_96,overhead_line,,,,,ND_95,ND_96,,,,200.0,
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+ND_96,node,PQ,HASSOURCE,,,,,,,,,
+ND_228,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_87_88,overhead_line,,,,,ND_87,ND_88,,,,175.0,
+OL_LK_CONFIG_9_87_88,pole_mount,,,,OL_LK_CONFIG_9_87_88,,,,,,,40 ft
+OL_LK_CONFIG_9_87_88,pole_mount,,,,OL_LK_CONFIG_9_87_88,,,,,,,40 ft
+OL_LK_CONFIG_9_87_88,pole_mount,,,,OL_LK_CONFIG_9_87_88,,,,,,,40 ft
+ND_88,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_76_77,overhead_line,,,,,ND_76,ND_77,,,,400.0,
+OL_LK_CONFIG_6_76_77,pole_mount,,,,OL_LK_CONFIG_6_76_77,,,,,,,40 ft
+OL_LK_CONFIG_6_76_77,pole_mount,,,,OL_LK_CONFIG_6_76_77,,,,,,,40 ft
+OL_LK_CONFIG_6_76_77,pole_mount,,,,OL_LK_CONFIG_6_76_77,,,,,,,40 ft
+OL_LK_CONFIG_6_76_77,pole_mount,,,,OL_LK_CONFIG_6_76_77,,,,,,,40 ft
+OL_LK_CONFIG_6_76_77,pole_mount,,,,OL_LK_CONFIG_6_76_77,,,,,,,40 ft
+ND_77,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_77_78,overhead_line,,,,,ND_77,ND_78,,,,100.0,
+OL_LK_CONFIG_6_77_78,pole_mount,,,,OL_LK_CONFIG_6_77_78,,,,,,,40 ft
+OL_LK_CONFIG_6_77_78,pole_mount,,,,OL_LK_CONFIG_6_77_78,,,,,,,40 ft
+ND_78,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_78_80,overhead_line,,,,,ND_78,ND_80,,,,475.0,
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+OL_LK_CONFIG_6_78_80,pole_mount,,,,OL_LK_CONFIG_6_78_80,,,,,,,40 ft
+ND_80,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_80_81,overhead_line,,,,,ND_80,ND_81,,,,475.0,
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+OL_LK_CONFIG_6_80_81,pole_mount,,,,OL_LK_CONFIG_6_80_81,,,,,,,40 ft
+ND_81,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_81_82,overhead_line,,,,,ND_81,ND_82,,,,250.0,
+OL_LK_CONFIG_6_81_82,pole_mount,,,,OL_LK_CONFIG_6_81_82,,,,,,,40 ft
+OL_LK_CONFIG_6_81_82,pole_mount,,,,OL_LK_CONFIG_6_81_82,,,,,,,40 ft
+OL_LK_CONFIG_6_81_82,pole_mount,,,,OL_LK_CONFIG_6_81_82,,,,,,,40 ft
+OL_LK_CONFIG_6_81_82,pole_mount,,,,OL_LK_CONFIG_6_81_82,,,,,,,40 ft
+ND_82,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_82_83,overhead_line,,,,,ND_82,ND_83,,,,250.0,
+OL_LK_CONFIG_6_82_83,pole_mount,,,,OL_LK_CONFIG_6_82_83,,,,,,,40 ft
+OL_LK_CONFIG_6_82_83,pole_mount,,,,OL_LK_CONFIG_6_82_83,,,,,,,40 ft
+OL_LK_CONFIG_6_82_83,pole_mount,,,,OL_LK_CONFIG_6_82_83,,,,,,,40 ft
+OL_LK_CONFIG_6_82_83,pole_mount,,,,OL_LK_CONFIG_6_82_83,,,,,,,40 ft
+ND_83,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_81_84,overhead_line,,,,,ND_81,ND_84,,,,675.0,
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+OL_LK_CONFIG_11_81_84,pole_mount,,,,OL_LK_CONFIG_11_81_84,,,,,,,40 ft
+ND_84,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_84_85,overhead_line,,,,,ND_84,ND_85,,,,475.0,
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+OL_LK_CONFIG_11_84_85,pole_mount,,,,OL_LK_CONFIG_11_84_85,,,,,,,40 ft
+ND_85,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_78_79,overhead_line,,,,,ND_78,ND_79,,,,225.0,
+OL_LK_CONFIG_6_78_79,pole_mount,,,,OL_LK_CONFIG_6_78_79,,,,,,,40 ft
+OL_LK_CONFIG_6_78_79,pole_mount,,,,OL_LK_CONFIG_6_78_79,,,,,,,40 ft
+OL_LK_CONFIG_6_78_79,pole_mount,,,,OL_LK_CONFIG_6_78_79,,,,,,,40 ft
+OL_LK_CONFIG_6_78_79,pole_mount,,,,OL_LK_CONFIG_6_78_79,,,,,,,40 ft
+ND_79,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_72_73,overhead_line,,,,,ND_72,ND_73,,,,275.0,
+OL_LK_CONFIG_11_72_73,pole_mount,,,,OL_LK_CONFIG_11_72_73,,,,,,,40 ft
+OL_LK_CONFIG_11_72_73,pole_mount,,,,OL_LK_CONFIG_11_72_73,,,,,,,40 ft
+OL_LK_CONFIG_11_72_73,pole_mount,,,,OL_LK_CONFIG_11_72_73,,,,,,,40 ft
+OL_LK_CONFIG_11_72_73,pole_mount,,,,OL_LK_CONFIG_11_72_73,,,,,,,40 ft
+ND_73,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_73_74,overhead_line,,,,,ND_73,ND_74,,,,350.0,
+OL_LK_CONFIG_11_73_74,pole_mount,,,,OL_LK_CONFIG_11_73_74,,,,,,,40 ft
+OL_LK_CONFIG_11_73_74,pole_mount,,,,OL_LK_CONFIG_11_73_74,,,,,,,40 ft
+OL_LK_CONFIG_11_73_74,pole_mount,,,,OL_LK_CONFIG_11_73_74,,,,,,,40 ft
+OL_LK_CONFIG_11_73_74,pole_mount,,,,OL_LK_CONFIG_11_73_74,,,,,,,40 ft
+OL_LK_CONFIG_11_73_74,pole_mount,,,,OL_LK_CONFIG_11_73_74,,,,,,,40 ft
+ND_74,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_74_75,overhead_line,,,,,ND_74,ND_75,,,,400.0,
+OL_LK_CONFIG_11_74_75,pole_mount,,,,OL_LK_CONFIG_11_74_75,,,,,,,40 ft
+OL_LK_CONFIG_11_74_75,pole_mount,,,,OL_LK_CONFIG_11_74_75,,,,,,,40 ft
+OL_LK_CONFIG_11_74_75,pole_mount,,,,OL_LK_CONFIG_11_74_75,,,,,,,40 ft
+OL_LK_CONFIG_11_74_75,pole_mount,,,,OL_LK_CONFIG_11_74_75,,,,,,,40 ft
+OL_LK_CONFIG_11_74_75,pole_mount,,,,OL_LK_CONFIG_11_74_75,,,,,,,40 ft
+ND_75,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_67_97,overhead_line,,,,,ND_67,ND_97,,,,250.0,
+OL_LK_CONFIG_3_67_97,pole_mount,,,,OL_LK_CONFIG_3_67_97,,,,,,,40 ft
+OL_LK_CONFIG_3_67_97,pole_mount,,,,OL_LK_CONFIG_3_67_97,,,,,,,40 ft
+OL_LK_CONFIG_3_67_97,pole_mount,,,,OL_LK_CONFIG_3_67_97,,,,,,,40 ft
+OL_LK_CONFIG_3_67_97,pole_mount,,,,OL_LK_CONFIG_3_67_97,,,,,,,40 ft
+ND_97,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_97_98,overhead_line,,,,,ND_97,ND_98,,,,275.0,
+OL_LK_CONFIG_3_97_98,pole_mount,,,,OL_LK_CONFIG_3_97_98,,,,,,,40 ft
+OL_LK_CONFIG_3_97_98,pole_mount,,,,OL_LK_CONFIG_3_97_98,,,,,,,40 ft
+OL_LK_CONFIG_3_97_98,pole_mount,,,,OL_LK_CONFIG_3_97_98,,,,,,,40 ft
+OL_LK_CONFIG_3_97_98,pole_mount,,,,OL_LK_CONFIG_3_97_98,,,,,,,40 ft
+ND_98,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_98_99,overhead_line,,,,,ND_98,ND_99,,,,550.0,
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+OL_LK_CONFIG_3_98_99,pole_mount,,,,OL_LK_CONFIG_3_98_99,,,,,,,40 ft
+ND_99,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_99_100,overhead_line,,,,,ND_99,ND_100,,,,300.0,
+OL_LK_CONFIG_3_99_100,pole_mount,,,,OL_LK_CONFIG_3_99_100,,,,,,,40 ft
+OL_LK_CONFIG_3_99_100,pole_mount,,,,OL_LK_CONFIG_3_99_100,,,,,,,40 ft
+OL_LK_CONFIG_3_99_100,pole_mount,,,,OL_LK_CONFIG_3_99_100,,,,,,,40 ft
+OL_LK_CONFIG_3_99_100,pole_mount,,,,OL_LK_CONFIG_3_99_100,,,,,,,40 ft
+ND_100,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_100_450,overhead_line,,,,,ND_100,ND_450,,,,800.0,
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+OL_LK_CONFIG_3_100_450,pole_mount,,,,OL_LK_CONFIG_3_100_450,,,,,,,40 ft
+ND_450,node,PQ,HASSOURCE,,,,,,,,,
+ND_450_451,node,PQ,HASSOURCE,,,,,,,,,
+ND_197,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_197_101,overhead_line,,,,,ND_197,ND_101,,,,250.0,
+OL_LK_CONFIG_3_197_101,pole_mount,,,,OL_LK_CONFIG_3_197_101,,,,,,,40 ft
+OL_LK_CONFIG_3_197_101,pole_mount,,,,OL_LK_CONFIG_3_197_101,,,,,,,40 ft
+OL_LK_CONFIG_3_197_101,pole_mount,,,,OL_LK_CONFIG_3_197_101,,,,,,,40 ft
+OL_LK_CONFIG_3_197_101,pole_mount,,,,OL_LK_CONFIG_3_197_101,,,,,,,40 ft
+ND_101,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_101_102,overhead_line,,,,,ND_101,ND_102,,,,225.0,
+OL_LK_CONFIG_11_101_102,pole_mount,,,,OL_LK_CONFIG_11_101_102,,,,,,,40 ft
+OL_LK_CONFIG_11_101_102,pole_mount,,,,OL_LK_CONFIG_11_101_102,,,,,,,40 ft
+OL_LK_CONFIG_11_101_102,pole_mount,,,,OL_LK_CONFIG_11_101_102,,,,,,,40 ft
+OL_LK_CONFIG_11_101_102,pole_mount,,,,OL_LK_CONFIG_11_101_102,,,,,,,40 ft
+ND_102,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_102_103,overhead_line,,,,,ND_102,ND_103,,,,325.0,
+OL_LK_CONFIG_11_102_103,pole_mount,,,,OL_LK_CONFIG_11_102_103,,,,,,,40 ft
+OL_LK_CONFIG_11_102_103,pole_mount,,,,OL_LK_CONFIG_11_102_103,,,,,,,40 ft
+OL_LK_CONFIG_11_102_103,pole_mount,,,,OL_LK_CONFIG_11_102_103,,,,,,,40 ft
+OL_LK_CONFIG_11_102_103,pole_mount,,,,OL_LK_CONFIG_11_102_103,,,,,,,40 ft
+OL_LK_CONFIG_11_102_103,pole_mount,,,,OL_LK_CONFIG_11_102_103,,,,,,,40 ft
+ND_103,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_103_104,overhead_line,,,,,ND_103,ND_104,,,,700.0,
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+OL_LK_CONFIG_11_103_104,pole_mount,,,,OL_LK_CONFIG_11_103_104,,,,,,,40 ft
+ND_104,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_101_105,overhead_line,,,,,ND_101,ND_105,,,,275.0,
+OL_LK_CONFIG_3_101_105,pole_mount,,,,OL_LK_CONFIG_3_101_105,,,,,,,40 ft
+OL_LK_CONFIG_3_101_105,pole_mount,,,,OL_LK_CONFIG_3_101_105,,,,,,,40 ft
+OL_LK_CONFIG_3_101_105,pole_mount,,,,OL_LK_CONFIG_3_101_105,,,,,,,40 ft
+OL_LK_CONFIG_3_101_105,pole_mount,,,,OL_LK_CONFIG_3_101_105,,,,,,,40 ft
+ND_105,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_105_108,overhead_line,,,,,ND_105,ND_108,,,,325.0,
+OL_LK_CONFIG_3_105_108,pole_mount,,,,OL_LK_CONFIG_3_105_108,,,,,,,40 ft
+OL_LK_CONFIG_3_105_108,pole_mount,,,,OL_LK_CONFIG_3_105_108,,,,,,,40 ft
+OL_LK_CONFIG_3_105_108,pole_mount,,,,OL_LK_CONFIG_3_105_108,,,,,,,40 ft
+OL_LK_CONFIG_3_105_108,pole_mount,,,,OL_LK_CONFIG_3_105_108,,,,,,,40 ft
+OL_LK_CONFIG_3_105_108,pole_mount,,,,OL_LK_CONFIG_3_105_108,,,,,,,40 ft
+ND_108,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_108_109,overhead_line,,,,,ND_108,ND_109,,,,450.0,
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+OL_LK_CONFIG_9_108_109,pole_mount,,,,OL_LK_CONFIG_9_108_109,,,,,,,40 ft
+ND_109,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_109_110,overhead_line,,,,,ND_109,ND_110,,,,300.0,
+OL_LK_CONFIG_9_109_110,pole_mount,,,,OL_LK_CONFIG_9_109_110,,,,,,,40 ft
+OL_LK_CONFIG_9_109_110,pole_mount,,,,OL_LK_CONFIG_9_109_110,,,,,,,40 ft
+OL_LK_CONFIG_9_109_110,pole_mount,,,,OL_LK_CONFIG_9_109_110,,,,,,,40 ft
+OL_LK_CONFIG_9_109_110,pole_mount,,,,OL_LK_CONFIG_9_109_110,,,,,,,40 ft
+ND_110,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_110_112,overhead_line,,,,,ND_110,ND_112,,,,125.0,
+OL_LK_CONFIG_9_110_112,pole_mount,,,,OL_LK_CONFIG_9_110_112,,,,,,,40 ft
+OL_LK_CONFIG_9_110_112,pole_mount,,,,OL_LK_CONFIG_9_110_112,,,,,,,40 ft
+OL_LK_CONFIG_9_110_112,pole_mount,,,,OL_LK_CONFIG_9_110_112,,,,,,,40 ft
+ND_112,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_112_113,overhead_line,,,,,ND_112,ND_113,,,,525.0,
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+OL_LK_CONFIG_9_112_113,pole_mount,,,,OL_LK_CONFIG_9_112_113,,,,,,,40 ft
+ND_113,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_113_114,overhead_line,,,,,ND_113,ND_114,,,,325.0,
+OL_LK_CONFIG_9_113_114,pole_mount,,,,OL_LK_CONFIG_9_113_114,,,,,,,40 ft
+OL_LK_CONFIG_9_113_114,pole_mount,,,,OL_LK_CONFIG_9_113_114,,,,,,,40 ft
+OL_LK_CONFIG_9_113_114,pole_mount,,,,OL_LK_CONFIG_9_113_114,,,,,,,40 ft
+OL_LK_CONFIG_9_113_114,pole_mount,,,,OL_LK_CONFIG_9_113_114,,,,,,,40 ft
+OL_LK_CONFIG_9_113_114,pole_mount,,,,OL_LK_CONFIG_9_113_114,,,,,,,40 ft
+ND_114,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_110_111,overhead_line,,,,,ND_110,ND_111,,,,575.0,
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+OL_LK_CONFIG_9_110_111,pole_mount,,,,OL_LK_CONFIG_9_110_111,,,,,,,40 ft
+ND_111,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_3_108_300,overhead_line,,,,,ND_108,ND_300,,,,1000.0,
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+OL_LK_CONFIG_3_108_300,pole_mount,,,,OL_LK_CONFIG_3_108_300,,,,,,,40 ft
+ND_300,node,PQ,HASSOURCE,,,,,,,,,
+ND_350,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_105_106,overhead_line,,,,,ND_105,ND_106,,,,225.0,
+OL_LK_CONFIG_10_105_106,pole_mount,,,,OL_LK_CONFIG_10_105_106,,,,,,,40 ft
+OL_LK_CONFIG_10_105_106,pole_mount,,,,OL_LK_CONFIG_10_105_106,,,,,,,40 ft
+OL_LK_CONFIG_10_105_106,pole_mount,,,,OL_LK_CONFIG_10_105_106,,,,,,,40 ft
+OL_LK_CONFIG_10_105_106,pole_mount,,,,OL_LK_CONFIG_10_105_106,,,,,,,40 ft
+ND_106,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_106_107,overhead_line,,,,,ND_106,ND_107,,,,575.0,
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+OL_LK_CONFIG_10_106_107,pole_mount,,,,OL_LK_CONFIG_10_106_107,,,,,,,40 ft
+ND_107,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_67_68,overhead_line,,,,,ND_67,ND_68,,,,200.0,
+OL_LK_CONFIG_9_67_68,pole_mount,,,,OL_LK_CONFIG_9_67_68,,,,,,,40 ft
+OL_LK_CONFIG_9_67_68,pole_mount,,,,OL_LK_CONFIG_9_67_68,,,,,,,40 ft
+OL_LK_CONFIG_9_67_68,pole_mount,,,,OL_LK_CONFIG_9_67_68,,,,,,,40 ft
+ND_68,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_68_69,overhead_line,,,,,ND_68,ND_69,,,,275.0,
+OL_LK_CONFIG_9_68_69,pole_mount,,,,OL_LK_CONFIG_9_68_69,,,,,,,40 ft
+OL_LK_CONFIG_9_68_69,pole_mount,,,,OL_LK_CONFIG_9_68_69,,,,,,,40 ft
+OL_LK_CONFIG_9_68_69,pole_mount,,,,OL_LK_CONFIG_9_68_69,,,,,,,40 ft
+OL_LK_CONFIG_9_68_69,pole_mount,,,,OL_LK_CONFIG_9_68_69,,,,,,,40 ft
+ND_69,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_69_70,overhead_line,,,,,ND_69,ND_70,,,,325.0,
+OL_LK_CONFIG_9_69_70,pole_mount,,,,OL_LK_CONFIG_9_69_70,,,,,,,40 ft
+OL_LK_CONFIG_9_69_70,pole_mount,,,,OL_LK_CONFIG_9_69_70,,,,,,,40 ft
+OL_LK_CONFIG_9_69_70,pole_mount,,,,OL_LK_CONFIG_9_69_70,,,,,,,40 ft
+OL_LK_CONFIG_9_69_70,pole_mount,,,,OL_LK_CONFIG_9_69_70,,,,,,,40 ft
+OL_LK_CONFIG_9_69_70,pole_mount,,,,OL_LK_CONFIG_9_69_70,,,,,,,40 ft
+ND_70,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_70_71,overhead_line,,,,,ND_70,ND_71,,,,275.0,
+OL_LK_CONFIG_9_70_71,pole_mount,,,,OL_LK_CONFIG_9_70_71,,,,,,,40 ft
+OL_LK_CONFIG_9_70_71,pole_mount,,,,OL_LK_CONFIG_9_70_71,,,,,,,40 ft
+OL_LK_CONFIG_9_70_71,pole_mount,,,,OL_LK_CONFIG_9_70_71,,,,,,,40 ft
+OL_LK_CONFIG_9_70_71,pole_mount,,,,OL_LK_CONFIG_9_70_71,,,,,,,40 ft
+ND_71,node,PQ,HASSOURCE,,,,,,,,,
+ND_94,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_93_94,overhead_line,,,,,ND_94,ND_93,,,,275.0,
+OL_LK_CONFIG_9_93_94,pole_mount,,,,OL_LK_CONFIG_9_93_94,,,,,,,40 ft
+OL_LK_CONFIG_9_93_94,pole_mount,,,,OL_LK_CONFIG_9_93_94,,,,,,,40 ft
+OL_LK_CONFIG_9_93_94,pole_mount,,,,OL_LK_CONFIG_9_93_94,,,,,,,40 ft
+OL_LK_CONFIG_9_93_94,pole_mount,,,,OL_LK_CONFIG_9_93_94,,,,,,,40 ft
+ND_93,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_6_93_95,overhead_line,,,,,ND_93,ND_95,,,,300.0,
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+OL_LK_CONFIG_6_93_95,pole_mount,,,,OL_LK_CONFIG_6_93_95,,,,,,,40 ft
+ND_95,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_95_96,overhead_line,,,,,ND_95,ND_96,,,,200.0,
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+OL_LK_CONFIG_10_95_96,pole_mount,,,,OL_LK_CONFIG_10_95_96,,,,,,,40 ft
+ND_96,node,PQ,HASSOURCE,,,,,,,,,
+ND_228,node,PQ,HASSOURCE,,,,,,,,,
+ND_SW_LK_13_18,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_13_18,overhead_line,,,,,ND_SW_LK_13_18,ND_18,,,,825.0,
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+OL_LK_CONFIG_2_13_18,pole_mount,,,,OL_LK_CONFIG_2_13_18,,,,,,,40 ft
+ND_18,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_18_19,overhead_line,,,,,ND_18,ND_19,,,,250.0,
+OL_LK_CONFIG_9_18_19,pole_mount,,,,OL_LK_CONFIG_9_18_19,,,,,,,40 ft
+OL_LK_CONFIG_9_18_19,pole_mount,,,,OL_LK_CONFIG_9_18_19,,,,,,,40 ft
+OL_LK_CONFIG_9_18_19,pole_mount,,,,OL_LK_CONFIG_9_18_19,,,,,,,40 ft
+OL_LK_CONFIG_9_18_19,pole_mount,,,,OL_LK_CONFIG_9_18_19,,,,,,,40 ft
+ND_19,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_19_20,overhead_line,,,,,ND_19,ND_20,,,,325.0,
+OL_LK_CONFIG_9_19_20,pole_mount,,,,OL_LK_CONFIG_9_19_20,,,,,,,40 ft
+OL_LK_CONFIG_9_19_20,pole_mount,,,,OL_LK_CONFIG_9_19_20,,,,,,,40 ft
+OL_LK_CONFIG_9_19_20,pole_mount,,,,OL_LK_CONFIG_9_19_20,,,,,,,40 ft
+OL_LK_CONFIG_9_19_20,pole_mount,,,,OL_LK_CONFIG_9_19_20,,,,,,,40 ft
+OL_LK_CONFIG_9_19_20,pole_mount,,,,OL_LK_CONFIG_9_19_20,,,,,,,40 ft
+ND_20,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_18_21,overhead_line,,,,,ND_18,ND_21,,,,300.0,
+OL_LK_CONFIG_2_18_21,pole_mount,,,,OL_LK_CONFIG_2_18_21,,,,,,,40 ft
+OL_LK_CONFIG_2_18_21,pole_mount,,,,OL_LK_CONFIG_2_18_21,,,,,,,40 ft
+OL_LK_CONFIG_2_18_21,pole_mount,,,,OL_LK_CONFIG_2_18_21,,,,,,,40 ft
+OL_LK_CONFIG_2_18_21,pole_mount,,,,OL_LK_CONFIG_2_18_21,,,,,,,40 ft
+ND_21,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_21_23,overhead_line,,,,,ND_21,ND_23,,,,250.0,
+OL_LK_CONFIG_2_21_23,pole_mount,,,,OL_LK_CONFIG_2_21_23,,,,,,,40 ft
+OL_LK_CONFIG_2_21_23,pole_mount,,,,OL_LK_CONFIG_2_21_23,,,,,,,40 ft
+OL_LK_CONFIG_2_21_23,pole_mount,,,,OL_LK_CONFIG_2_21_23,,,,,,,40 ft
+OL_LK_CONFIG_2_21_23,pole_mount,,,,OL_LK_CONFIG_2_21_23,,,,,,,40 ft
+ND_23,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_23_24,overhead_line,,,,,ND_23,ND_24,,,,550.0,
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+OL_LK_CONFIG_11_23_24,pole_mount,,,,OL_LK_CONFIG_11_23_24,,,,,,,40 ft
+ND_24,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_23_25,overhead_line,,,,,ND_23,ND_25,,,,275.0,
+OL_LK_CONFIG_2_23_25,pole_mount,,,,OL_LK_CONFIG_2_23_25,,,,,,,40 ft
+OL_LK_CONFIG_2_23_25,pole_mount,,,,OL_LK_CONFIG_2_23_25,,,,,,,40 ft
+OL_LK_CONFIG_2_23_25,pole_mount,,,,OL_LK_CONFIG_2_23_25,,,,,,,40 ft
+OL_LK_CONFIG_2_23_25,pole_mount,,,,OL_LK_CONFIG_2_23_25,,,,,,,40 ft
+ND_25,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_25_28,overhead_line,,,,,ND_25,ND_28,,,,200.0,
+OL_LK_CONFIG_2_25_28,pole_mount,,,,OL_LK_CONFIG_2_25_28,,,,,,,40 ft
+OL_LK_CONFIG_2_25_28,pole_mount,,,,OL_LK_CONFIG_2_25_28,,,,,,,40 ft
+OL_LK_CONFIG_2_25_28,pole_mount,,,,OL_LK_CONFIG_2_25_28,,,,,,,40 ft
+ND_28,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_28_29,overhead_line,,,,,ND_28,ND_29,,,,300.0,
+OL_LK_CONFIG_2_28_29,pole_mount,,,,OL_LK_CONFIG_2_28_29,,,,,,,40 ft
+OL_LK_CONFIG_2_28_29,pole_mount,,,,OL_LK_CONFIG_2_28_29,,,,,,,40 ft
+OL_LK_CONFIG_2_28_29,pole_mount,,,,OL_LK_CONFIG_2_28_29,,,,,,,40 ft
+OL_LK_CONFIG_2_28_29,pole_mount,,,,OL_LK_CONFIG_2_28_29,,,,,,,40 ft
+ND_29,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_29_30,overhead_line,,,,,ND_29,ND_30,,,,350.0,
+OL_LK_CONFIG_2_29_30,pole_mount,,,,OL_LK_CONFIG_2_29_30,,,,,,,40 ft
+OL_LK_CONFIG_2_29_30,pole_mount,,,,OL_LK_CONFIG_2_29_30,,,,,,,40 ft
+OL_LK_CONFIG_2_29_30,pole_mount,,,,OL_LK_CONFIG_2_29_30,,,,,,,40 ft
+OL_LK_CONFIG_2_29_30,pole_mount,,,,OL_LK_CONFIG_2_29_30,,,,,,,40 ft
+OL_LK_CONFIG_2_29_30,pole_mount,,,,OL_LK_CONFIG_2_29_30,,,,,,,40 ft
+ND_30,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_2_30_250,overhead_line,,,,,ND_30,ND_250,,,,200.0,
+OL_LK_CONFIG_2_30_250,pole_mount,,,,OL_LK_CONFIG_2_30_250,,,,,,,40 ft
+OL_LK_CONFIG_2_30_250,pole_mount,,,,OL_LK_CONFIG_2_30_250,,,,,,,40 ft
+OL_LK_CONFIG_2_30_250,pole_mount,,,,OL_LK_CONFIG_2_30_250,,,,,,,40 ft
+ND_250,node,PQ,HASSOURCE,,,,,,,,,
+ND_251,node,PQ,HASSOURCE,,,,,,,,,
+ND_RG_LK_RG3,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_7_25_26,overhead_line,,,,,ND_RG_LK_RG3,ND_26,,,,350.0,
+OL_LK_CONFIG_7_25_26,pole_mount,,,,OL_LK_CONFIG_7_25_26,,,,,,,40 ft
+OL_LK_CONFIG_7_25_26,pole_mount,,,,OL_LK_CONFIG_7_25_26,,,,,,,40 ft
+OL_LK_CONFIG_7_25_26,pole_mount,,,,OL_LK_CONFIG_7_25_26,,,,,,,40 ft
+OL_LK_CONFIG_7_25_26,pole_mount,,,,OL_LK_CONFIG_7_25_26,,,,,,,40 ft
+OL_LK_CONFIG_7_25_26,pole_mount,,,,OL_LK_CONFIG_7_25_26,,,,,,,40 ft
+ND_26,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_7_26_27,overhead_line,,,,,ND_26,ND_27,,,,275.0,
+OL_LK_CONFIG_7_26_27,pole_mount,,,,OL_LK_CONFIG_7_26_27,,,,,,,40 ft
+OL_LK_CONFIG_7_26_27,pole_mount,,,,OL_LK_CONFIG_7_26_27,,,,,,,40 ft
+OL_LK_CONFIG_7_26_27,pole_mount,,,,OL_LK_CONFIG_7_26_27,,,,,,,40 ft
+OL_LK_CONFIG_7_26_27,pole_mount,,,,OL_LK_CONFIG_7_26_27,,,,,,,40 ft
+ND_27,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_27_33,overhead_line,,,,,ND_27,ND_33,,,,500.0,
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+OL_LK_CONFIG_9_27_33,pole_mount,,,,OL_LK_CONFIG_9_27_33,,,,,,,40 ft
+ND_33,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_26_31,overhead_line,,,,,ND_26,ND_31,,,,225.0,
+OL_LK_CONFIG_11_26_31,pole_mount,,,,OL_LK_CONFIG_11_26_31,,,,,,,40 ft
+OL_LK_CONFIG_11_26_31,pole_mount,,,,OL_LK_CONFIG_11_26_31,,,,,,,40 ft
+OL_LK_CONFIG_11_26_31,pole_mount,,,,OL_LK_CONFIG_11_26_31,,,,,,,40 ft
+OL_LK_CONFIG_11_26_31,pole_mount,,,,OL_LK_CONFIG_11_26_31,,,,,,,40 ft
+ND_31,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_31_32,overhead_line,,,,,ND_31,ND_32,,,,300.0,
+OL_LK_CONFIG_11_31_32,pole_mount,,,,OL_LK_CONFIG_11_31_32,,,,,,,40 ft
+OL_LK_CONFIG_11_31_32,pole_mount,,,,OL_LK_CONFIG_11_31_32,,,,,,,40 ft
+OL_LK_CONFIG_11_31_32,pole_mount,,,,OL_LK_CONFIG_11_31_32,,,,,,,40 ft
+OL_LK_CONFIG_11_31_32,pole_mount,,,,OL_LK_CONFIG_11_31_32,,,,,,,40 ft
+ND_32,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_21_22,overhead_line,,,,,ND_21,ND_22,,,,525.0,
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+OL_LK_CONFIG_10_21_22,pole_mount,,,,OL_LK_CONFIG_10_21_22,,,,,,,40 ft
+ND_22,node,PQ,HASSOURCE,,,,,,,,,
+ND_135,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_4_135_35,overhead_line,,,,,ND_135,ND_35,,,,375.0,
+OL_LK_CONFIG_4_135_35,pole_mount,,,,OL_LK_CONFIG_4_135_35,,,,,,,40 ft
+OL_LK_CONFIG_4_135_35,pole_mount,,,,OL_LK_CONFIG_4_135_35,,,,,,,40 ft
+OL_LK_CONFIG_4_135_35,pole_mount,,,,OL_LK_CONFIG_4_135_35,,,,,,,40 ft
+OL_LK_CONFIG_4_135_35,pole_mount,,,,OL_LK_CONFIG_4_135_35,,,,,,,40 ft
+OL_LK_CONFIG_4_135_35,pole_mount,,,,OL_LK_CONFIG_4_135_35,,,,,,,40 ft
+ND_35,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_8_35_36,overhead_line,,,,,ND_35,ND_36,,,,650.0,
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+OL_LK_CONFIG_8_35_36,pole_mount,,,,OL_LK_CONFIG_8_35_36,,,,,,,40 ft
+ND_36,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_36_38,overhead_line,,,,,ND_36,ND_38,,,,250.0,
+OL_LK_CONFIG_10_36_38,pole_mount,,,,OL_LK_CONFIG_10_36_38,,,,,,,40 ft
+OL_LK_CONFIG_10_36_38,pole_mount,,,,OL_LK_CONFIG_10_36_38,,,,,,,40 ft
+OL_LK_CONFIG_10_36_38,pole_mount,,,,OL_LK_CONFIG_10_36_38,,,,,,,40 ft
+OL_LK_CONFIG_10_36_38,pole_mount,,,,OL_LK_CONFIG_10_36_38,,,,,,,40 ft
+ND_38,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_38_39,overhead_line,,,,,ND_38,ND_39,,,,325.0,
+OL_LK_CONFIG_10_38_39,pole_mount,,,,OL_LK_CONFIG_10_38_39,,,,,,,40 ft
+OL_LK_CONFIG_10_38_39,pole_mount,,,,OL_LK_CONFIG_10_38_39,,,,,,,40 ft
+OL_LK_CONFIG_10_38_39,pole_mount,,,,OL_LK_CONFIG_10_38_39,,,,,,,40 ft
+OL_LK_CONFIG_10_38_39,pole_mount,,,,OL_LK_CONFIG_10_38_39,,,,,,,40 ft
+OL_LK_CONFIG_10_38_39,pole_mount,,,,OL_LK_CONFIG_10_38_39,,,,,,,40 ft
+ND_39,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_36_37,overhead_line,,,,,ND_36,ND_37,,,,300.0,
+OL_LK_CONFIG_9_36_37,pole_mount,,,,OL_LK_CONFIG_9_36_37,,,,,,,40 ft
+OL_LK_CONFIG_9_36_37,pole_mount,,,,OL_LK_CONFIG_9_36_37,,,,,,,40 ft
+OL_LK_CONFIG_9_36_37,pole_mount,,,,OL_LK_CONFIG_9_36_37,,,,,,,40 ft
+OL_LK_CONFIG_9_36_37,pole_mount,,,,OL_LK_CONFIG_9_36_37,,,,,,,40 ft
+ND_37,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_35_40,overhead_line,,,,,ND_35,ND_40,,,,250.0,
+OL_LK_CONFIG_1_35_40,pole_mount,,,,OL_LK_CONFIG_1_35_40,,,,,,,40 ft
+OL_LK_CONFIG_1_35_40,pole_mount,,,,OL_LK_CONFIG_1_35_40,,,,,,,40 ft
+OL_LK_CONFIG_1_35_40,pole_mount,,,,OL_LK_CONFIG_1_35_40,,,,,,,40 ft
+OL_LK_CONFIG_1_35_40,pole_mount,,,,OL_LK_CONFIG_1_35_40,,,,,,,40 ft
+ND_40,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_11_40_41,overhead_line,,,,,ND_40,ND_41,,,,325.0,
+OL_LK_CONFIG_11_40_41,pole_mount,,,,OL_LK_CONFIG_11_40_41,,,,,,,40 ft
+OL_LK_CONFIG_11_40_41,pole_mount,,,,OL_LK_CONFIG_11_40_41,,,,,,,40 ft
+OL_LK_CONFIG_11_40_41,pole_mount,,,,OL_LK_CONFIG_11_40_41,,,,,,,40 ft
+OL_LK_CONFIG_11_40_41,pole_mount,,,,OL_LK_CONFIG_11_40_41,,,,,,,40 ft
+OL_LK_CONFIG_11_40_41,pole_mount,,,,OL_LK_CONFIG_11_40_41,,,,,,,40 ft
+ND_41,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_40_42,overhead_line,,,,,ND_40,ND_42,,,,250.0,
+OL_LK_CONFIG_1_40_42,pole_mount,,,,OL_LK_CONFIG_1_40_42,,,,,,,40 ft
+OL_LK_CONFIG_1_40_42,pole_mount,,,,OL_LK_CONFIG_1_40_42,,,,,,,40 ft
+OL_LK_CONFIG_1_40_42,pole_mount,,,,OL_LK_CONFIG_1_40_42,,,,,,,40 ft
+OL_LK_CONFIG_1_40_42,pole_mount,,,,OL_LK_CONFIG_1_40_42,,,,,,,40 ft
+ND_42,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_42_43,overhead_line,,,,,ND_42,ND_43,,,,500.0,
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+OL_LK_CONFIG_10_42_43,pole_mount,,,,OL_LK_CONFIG_10_42_43,,,,,,,40 ft
+ND_43,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_42_44,overhead_line,,,,,ND_42,ND_44,,,,200.0,
+OL_LK_CONFIG_1_42_44,pole_mount,,,,OL_LK_CONFIG_1_42_44,,,,,,,40 ft
+OL_LK_CONFIG_1_42_44,pole_mount,,,,OL_LK_CONFIG_1_42_44,,,,,,,40 ft
+OL_LK_CONFIG_1_42_44,pole_mount,,,,OL_LK_CONFIG_1_42_44,,,,,,,40 ft
+ND_44,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_1_44_47,overhead_line,,,,,ND_44,ND_47,,,,250.0,
+OL_LK_CONFIG_1_44_47,pole_mount,,,,OL_LK_CONFIG_1_44_47,,,,,,,40 ft
+OL_LK_CONFIG_1_44_47,pole_mount,,,,OL_LK_CONFIG_1_44_47,,,,,,,40 ft
+OL_LK_CONFIG_1_44_47,pole_mount,,,,OL_LK_CONFIG_1_44_47,,,,,,,40 ft
+OL_LK_CONFIG_1_44_47,pole_mount,,,,OL_LK_CONFIG_1_44_47,,,,,,,40 ft
+ND_47,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_4_47_49,overhead_line,,,,,ND_47,ND_49,,,,250.0,
+OL_LK_CONFIG_4_47_49,pole_mount,,,,OL_LK_CONFIG_4_47_49,,,,,,,40 ft
+OL_LK_CONFIG_4_47_49,pole_mount,,,,OL_LK_CONFIG_4_47_49,,,,,,,40 ft
+OL_LK_CONFIG_4_47_49,pole_mount,,,,OL_LK_CONFIG_4_47_49,,,,,,,40 ft
+OL_LK_CONFIG_4_47_49,pole_mount,,,,OL_LK_CONFIG_4_47_49,,,,,,,40 ft
+ND_49,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_4_49_50,overhead_line,,,,,ND_49,ND_50,,,,250.0,
+OL_LK_CONFIG_4_49_50,pole_mount,,,,OL_LK_CONFIG_4_49_50,,,,,,,40 ft
+OL_LK_CONFIG_4_49_50,pole_mount,,,,OL_LK_CONFIG_4_49_50,,,,,,,40 ft
+OL_LK_CONFIG_4_49_50,pole_mount,,,,OL_LK_CONFIG_4_49_50,,,,,,,40 ft
+OL_LK_CONFIG_4_49_50,pole_mount,,,,OL_LK_CONFIG_4_49_50,,,,,,,40 ft
+ND_50,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_4_50_51,overhead_line,,,,,ND_50,ND_51,,,,250.0,
+OL_LK_CONFIG_4_50_51,pole_mount,,,,OL_LK_CONFIG_4_50_51,,,,,,,40 ft
+OL_LK_CONFIG_4_50_51,pole_mount,,,,OL_LK_CONFIG_4_50_51,,,,,,,40 ft
+OL_LK_CONFIG_4_50_51,pole_mount,,,,OL_LK_CONFIG_4_50_51,,,,,,,40 ft
+OL_LK_CONFIG_4_50_51,pole_mount,,,,OL_LK_CONFIG_4_50_51,,,,,,,40 ft
+ND_51,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG__51_151,overhead_line,,,,,ND_51,ND_151,,,,0.0328084,
+OL_LK_CONFIG__51_151,pole_mount,,,,OL_LK_CONFIG__51_151,,,,,,,40 ft
+OL_LK_CONFIG__51_151,pole_mount,,,,OL_LK_CONFIG__51_151,,,,,,,40 ft
+OL_LK_CONFIG__51_151,pole_mount,,,,OL_LK_CONFIG__51_151,,,,,,,40 ft
+ND_151,node,PQ,HASSOURCE,,,,,,,,,
+ND_300,node,PQ,HASSOURCE,,,,,,,,,
+ND_350,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_4_47_48,overhead_line,,,,,ND_47,ND_48,,,,150.0,
+OL_LK_CONFIG_4_47_48,pole_mount,,,,OL_LK_CONFIG_4_47_48,,,,,,,40 ft
+OL_LK_CONFIG_4_47_48,pole_mount,,,,OL_LK_CONFIG_4_47_48,,,,,,,40 ft
+OL_LK_CONFIG_4_47_48,pole_mount,,,,OL_LK_CONFIG_4_47_48,,,,,,,40 ft
+ND_48,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_44_45,overhead_line,,,,,ND_44,ND_45,,,,200.0,
+OL_LK_CONFIG_9_44_45,pole_mount,,,,OL_LK_CONFIG_9_44_45,,,,,,,40 ft
+OL_LK_CONFIG_9_44_45,pole_mount,,,,OL_LK_CONFIG_9_44_45,,,,,,,40 ft
+OL_LK_CONFIG_9_44_45,pole_mount,,,,OL_LK_CONFIG_9_44_45,,,,,,,40 ft
+ND_45,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_45_46,overhead_line,,,,,ND_45,ND_46,,,,300.0,
+OL_LK_CONFIG_9_45_46,pole_mount,,,,OL_LK_CONFIG_9_45_46,,,,,,,40 ft
+OL_LK_CONFIG_9_45_46,pole_mount,,,,OL_LK_CONFIG_9_45_46,,,,,,,40 ft
+OL_LK_CONFIG_9_45_46,pole_mount,,,,OL_LK_CONFIG_9_45_46,,,,,,,40 ft
+OL_LK_CONFIG_9_45_46,pole_mount,,,,OL_LK_CONFIG_9_45_46,,,,,,,40 ft
+ND_46,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_10_8_12,overhead_line,,,,,ND_8,ND_12,,,,225.0,
+OL_LK_CONFIG_10_8_12,pole_mount,,,,OL_LK_CONFIG_10_8_12,,,,,,,40 ft
+OL_LK_CONFIG_10_8_12,pole_mount,,,,OL_LK_CONFIG_10_8_12,,,,,,,40 ft
+OL_LK_CONFIG_10_8_12,pole_mount,,,,OL_LK_CONFIG_10_8_12,,,,,,,40 ft
+OL_LK_CONFIG_10_8_12,pole_mount,,,,OL_LK_CONFIG_10_8_12,,,,,,,40 ft
+ND_12,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9__8_9,overhead_line,,,,,ND_8,ND_9,,,,225.0,
+OL_LK_CONFIG_9__8_9,pole_mount,,,,OL_LK_CONFIG_9__8_9,,,,,,,40 ft
+OL_LK_CONFIG_9__8_9,pole_mount,,,,OL_LK_CONFIG_9__8_9,,,,,,,40 ft
+OL_LK_CONFIG_9__8_9,pole_mount,,,,OL_LK_CONFIG_9__8_9,,,,,,,40 ft
+OL_LK_CONFIG_9__8_9,pole_mount,,,,OL_LK_CONFIG_9__8_9,,,,,,,40 ft
+ND_9,node,PQ,HASSOURCE,,,,,,,,,
+ND_RG_LK_RG2,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_9_14,overhead_line,,,,,ND_RG_LK_RG2,ND_14,,,,425.0,
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+OL_LK_CONFIG_9_9_14,pole_mount,,,,OL_LK_CONFIG_9_9_14,,,,,,,40 ft
+ND_14,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_14_11,overhead_line,,,,,ND_14,ND_11,,,,250.0,
+OL_LK_CONFIG_9_14_11,pole_mount,,,,OL_LK_CONFIG_9_14_11,,,,,,,40 ft
+OL_LK_CONFIG_9_14_11,pole_mount,,,,OL_LK_CONFIG_9_14_11,,,,,,,40 ft
+OL_LK_CONFIG_9_14_11,pole_mount,,,,OL_LK_CONFIG_9_14_11,,,,,,,40 ft
+OL_LK_CONFIG_9_14_11,pole_mount,,,,OL_LK_CONFIG_9_14_11,,,,,,,40 ft
+ND_11,node,PQ,HASSOURCE,,,,,,,,,
+OL_LK_CONFIG_9_14_10,overhead_line,,,,,ND_14,ND_10,,,,250.0,
+OL_LK_CONFIG_9_14_10,pole_mount,,,,OL_LK_CONFIG_9_14_10,,,,,,,40 ft
+OL_LK_CONFIG_9_14_10,pole_mount,,,,OL_LK_CONFIG_9_14_10,,,,,,,40 ft
+OL_LK_CONFIG_9_14_10,pole_mount,,,,OL_LK_CONFIG_9_14_10,,,,,,,40 ft
+OL_LK_CONFIG_9_14_10,pole_mount,,,,OL_LK_CONFIG_9_14_10,,,,,,,40 ft
+ND_10,node,PQ,HASSOURCE,,,,,,,,,

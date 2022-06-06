@@ -158,6 +158,22 @@ def assignCustomerImpact(dataX):
     dataX['customerCount'] = dataX['node'].str.contains('meter_').astype(int)
     return dataX
 
+def loadIgnitionProb(dataX):
+    print("==== Calculating Ignition Probability Index ====")
+     # load the model from disk
+    filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
+    loaded_model = pickle.load(open(filepath, 'rb'))
+    prediction= np.empty(shape=(dataX.wind.time_wind.shape[0]))
+    for i in dataX.index:
+        kmhr_wind= dataX.wind[i].values.reshape(-1,1) *3.6 #m/s to km/hr
+        result = loaded_model.predict_proba(pd.DataFrame(kmhr_wind,columns=['wind_speed']))
+        prediction = np.row_stack((prediction, result[:,1]))
+    prediction = prediction[1:, :]
+    igPred= xr.DataArray(prediction, dims=['index', 'time_wind'])
+    dataX['igProb']= igPred
+    dataX['igProbW'] =dataX.igProb * data.fireRiskWeight.values.reshape(-1,1)
+    return dataX
+
 
 def importWeatherForecastData(data, dataX):
     print("=======Importing Weather Forecast Data============")
@@ -179,6 +195,7 @@ def importWeatherForecastData(data, dataX):
             wind = nf.getforecast(lat, long)['wind_speed[m/s]']
             windspeed = wind.values
             Weather_forecast = np.row_stack((Weather_forecast, windspeed))
+
     Weather_forecast = Weather_forecast[1:, :]
     WindX = xr.DataArray(Weather_forecast, dims=['index', 'time_wind'])
     dataX['wind'] = WindX
@@ -190,7 +207,10 @@ def importWeatherForecastData(data, dataX):
 
     end = time.time()
     print("Weather Data import time: ", round(end-start,2),' sec')
+    
+    dataX = loadIgnitionProb(dataX)
     return dataX
+
 
 def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
     print("========Importing Meteostat Data=========")
@@ -390,69 +410,68 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 ### Run Program ########
 ########################
 
-# # Routine for IEEE123 Data
-# IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
-# IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
-# IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
-# IEEEdep = pd.read_csv(IEEEdepPath)
+# Routine for IEEE123 Data
+IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
+IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
+IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
+IEEEdep = pd.read_csv(IEEEdepPath)
 
 
-# dataStartDate = datetime.today() + timedelta(days=-1)
-# # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+dataStartDate = datetime.today() + timedelta(days=-1)
+# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 
-# # Load Data
-# data = loadJsonData(IEEEpath)
-# # dataPoles= loadJsonData(IEEEpolespath)
+# Load Data
+data = loadJsonData(IEEEpath)
+# dataPoles= loadJsonData(IEEEpolespath)
 
-# # Modify Data
-# data = assignGroupID_json(data)
-# data, dataX = importFireRiskData(data, dataStartDate)
-# dataX = assignLoadID(dataX)
-# dataX = assignCustomerImpact(dataX)
-# dataX = importWeatherForecastData(data, dataX)
-# # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-# # dataX= ignitionProbModel(dataX)
-
-# areaDataX = aggregateAreaData(dataX)
-# # Run optimization
-# resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
-# fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
-# model, results = optimizeShutoff(
-#     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
-# # END
-
-#Routine for Historical Event Data
-# pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
-pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m.csv')
-pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers_2.csv')
-napa=pd.read_csv(pathNapa)
-napaCustCount= pd.read_csv(pathNapaCustCount)
-napaCustCount= napaCustCount[['FeedSplID','PopWtdCust']]
-napa= pd.merge(left=napa,right=napaCustCount,on='FeedSplID',how='left')
-pathNapa = os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
-napa.to_csv(pathNapa)
-
-
-NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
-Napadep = pd.read_csv(NapadepPath)
-Napadep.fillna(0,inplace=True)
-
-dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
-#Load Data
-data = loadPGEData(pathNapa)
-# data = data.head(5000)
-
-#Modify Data
-data, dataX = importFireRiskData(data,dataStartDate)
+# Modify Data
+data = assignGroupID_json(data)
+data, dataX = importFireRiskData(data, dataStartDate)
+dataX = assignLoadID(dataX)
+dataX = assignCustomerImpact(dataX)
+dataX = importWeatherForecastData(data, dataX)
 # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-areaDataX = aggregateAreaData(dataX)
+# dataX= ignitionProbModel(dataX)
 
-#Run optimization
-resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
-fireRiskAlpha=40 #higher number means you are more willing to accept fire risk
-model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
-##END
+areaDataX = aggregateAreaData(dataX)
+# Run optimization
+resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
+fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
+model, results = optimizeShutoff(
+    areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
+# END
+
+# #Routine for Historical Event Data
+# # pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
+# pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m.csv')
+# pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers_2.csv')
+# napa=pd.read_csv(pathNapa)
+# napaCustCount= pd.read_csv(pathNapaCustCount)
+# napaCustCount= napaCustCount[['FeedSplID','PopWtdCust']]
+# napa= pd.merge(left=napa,right=napaCustCount,on='FeedSplID',how='left')
+# pathNapa = os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
+# napa.to_csv(pathNapa)
+
+
+# NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
+# Napadep = pd.read_csv(NapadepPath)
+# Napadep.fillna(0,inplace=True)
+
+# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+# #Load Data
+# data = loadPGEData(pathNapa)
+# # data = data.head(5000)
+
+# #Modify Data
+# data, dataX = importFireRiskData(data,dataStartDate)
+# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# areaDataX = aggregateAreaData(dataX)
+
+# #Run optimization
+# resilienceMetricOption= 0 #1 for KWh lost, 0 for customer-hours
+# fireRiskAlpha=60 #higher number means you are more willing to accept fire risk
+# model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
+# ##END
 
 ######
 ##############
@@ -471,22 +490,35 @@ areaDataX['results'] = xr.DataArray(results, dims=['time', 'group_id'])
 from cycler import cycler
 plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y', 'c', 'k']) +
                            cycler('linestyle', ['-', '--', ':', '-.', '-', '--'])))
-plot_results = areaDataX.results.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
+plot_results = areaDataX.results.plot.line(x="time",alpha=0.4,lw=3,add_legend=False)
+plt.title("Napa County Switch Status")
+plt.xlim((50,140))
+plt.xlabel("Hours")
+plt.show()
+
+areaDataX.results.sum(dim='group_id').plot.line(x='time')
+plt.title("Sum of Switch Status")
+plt.xlabel("Hours")
 plt.show()
 
 areaDataX.fireRiskNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
+plt.title("Normalized Fire Risk")
+# plt.xlim((50,140))
+plt.xlabel("Hours")
 plt.show()
 
 areaDataX.igProbNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
+plt.title("Normalized Ignition Probability")
+plt.xlabel("Hours")
 plt.show()
 
 areaDataX.customerCountNormalized.plot.line(x='time',alpha=0.7,lw=4,add_legend=False)
+plt.title("Normalized Customer Hours")
+plt.xlabel("Hours")
 plt.show()
 
 ### Plot Results on map ########
 #Add results to dataframe
-dataX= dataX.drop(['Unnamed: 0', 'VOLTNUM', 'SplitID','length'])
-areaDataX= areaDataX.drop(['Unnamed: 0', 'OBJECTID', 'VOLTNUM', 'SplitID','length'])
 dataX= dataX.reset_coords()
 df_groupid = dataX[['group_id','lat','long']].to_dataframe()
 df_results =areaDataX[['results','igProbNormalized','windNormalized','fireRiskNormalized','customerCountNormalized','WindW','fireRisk7DW','igProbW']].to_dataframe().reset_index()
@@ -507,15 +539,15 @@ def animate_map(time_col,df,col,scaleUL):
               category_orders={
               time_col:list(np.sort(df[time_col].values))
               },                  
-              zoom=6,width=700, height=700,
+              zoom=9,width=700, height=700,
               range_color=[0,scaleUL])
     fig.update_layout(
-        margin=dict(l=20, r=20, t=20, b=20),
+        margin=dict(l=20, r=20, t=20, b=10),
         paper_bgcolor="LightSteelBlue",
         )
     fig.show()
 
-plotdf= resultsTimeSeries.iloc[::20, :]
+plotdf= resultsTimeSeries.iloc[::5, :]
 animate_map(time_col='time',df=plotdf,col='results',scaleUL= 1)
 animate_map(time_col='time',df=plotdf,col='igProbNormalized',scaleUL= 1)
 animate_map(time_col='time',df=plotdf,col='fireRiskNormalized',scaleUL= 1)
