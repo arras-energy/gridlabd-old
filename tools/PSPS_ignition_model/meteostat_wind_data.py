@@ -1,3 +1,9 @@
+'''
+This tool is used to pull both absence and precsence wind data given the PGE ignition vegetation ignition files
+
+I could have used the gridlab d meteostat package to accomplish this but I had already written much of this prior to that packages completion.
+'''
+
 from dataclasses import replace
 import pandas as pd
 from datetime import datetime, timedelta
