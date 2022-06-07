@@ -63,20 +63,24 @@ KEY_NAME = "IATA"
 
 URL_SOURCE = "https://www.partow.net/downloads/GlobalAirportDatabase.zip"
 OUTPUT = sys.stdout
-DATA = None
+ERROR = sys.stderr
+DATABASE = None
 
 class FindLocationError(Exception):
 	pass
 
 def error(msg):
 	if not QUIET:
-		print(f"ERROR [find_location]: {msg}",flush=True,file=sys.stderr)
+		print(f"ERROR [find_location]: {msg}",flush=True,file=ERROR)
 
 def verbose(msg):
 	if VERBOSE:
-		print(f"VERBOSE [find_location]: {msg}",flush=True,file=sys.stderr)
+		print(f"VERBOSE [find_location]: {msg}",flush=True,file=ERROR)
 
 def get_data():
+	"""Load airport database"""
+	global CACHEDIR
+	global URL_SOURCE
 	if not os.path.exists(CACHEDIR+"/airports.zip"):
 		verbose(f"downloading data from {URL_SOURCE}")
 		content = requests.get(URL_SOURCE).content
@@ -96,66 +100,108 @@ def get_data():
 	return data
 
 def get_location(key,value,data=None):
+	"""Get location information
+
+Arguments
+
+	key - the index name to search on (see KEY_NAME)
+
+	value - the value to search for in the index
+
+	data - the database to search (default is airport database)
+
+Return Value
+
+	DataFrame - location data (latitude, longitude, and any fields listed in SHOW_FIELDS)
+"""
+	global DATABASE
 	if not data:
-		data = DATA
+		data = DATABASE
 	if type(value) is list:
 		return data[data[key].str.lower().isin([x.lower() for x in value])][[key,*SHOW_FIELDS]].round(5).set_index(key)
 	else:
 		return data[data[key].str.lower()==value.lower()][[key,*SHOW_FIELDS]].round(5).set_index(key)
 
-try:
+def main(argv):
+	"""main function
 
-	DATA = get_data()
+Arguments
+
+	argv - argument list
+
+Return Value
+
+	None
+"""
+	global DATABASE
+	DATABASE = get_data()
+
+	global TARGET
 	TARGET = []
 
-	if len(sys.argv) == 1:
-		print("Syntax: find_location NAME",file=sys.stderr)
+	global KEY_NAME
+	global WITH_INDEX
+	global WITH_HEADER
+	if len(argv) == 1:
+		print("Syntax: find_location NAME",file=ERROR)
 	else:
-		for arg in sys.argv[1:]:
-			 specs = arg.split("=")
-			 if len(specs) == 1:
-			 	tag = specs[0]
-			 	value = None
-			 elif len(specs) == 2:
-			 	tag = specs[0]
-			 	value = specs[1]
-			 else:
-			 	tag = specs[0]
-			 	value = specs[1:]
-			 if tag in ["-h","--help","help"]:
-			 	print(__doc__)
-			 elif tag in ["-v","--verbose"]:
-			 	VERBOSE = True
-			 elif tag in ["-d","--debug"]:
-			 	DEBUG = True
-			 elif tag in ["-q","--quiet"]:
-			 	QUIET = True
-			 elif tag in ["-w","--warning"]:
-			 	WARNING = True
-			 elif tag in ["--with_header"]:
-			 	WITH_HEADER = True
-			 elif tag in ["--with_index"]:
-			 	WITH_INDEX = True
-			 elif tag in ["--show_fields"]:
-			 	SHOW_FIELDS.extend(value.split(","))
-			 elif tag in ["-k","--key"]:
-			 	KEY_NAME = value
-			 elif tag.startswith("-"):
-			 	raise FindLocationError(f"option '{arg}' is invalid")
-			 else:
-			 	TARGET.extend(arg.split(","))
+		for arg in argv[1:]:
+			specs = arg.split("=")
+			if len(specs) == 1:
+				tag = specs[0]
+				value = None
+			elif len(specs) == 2:
+				tag = specs[0]
+				value = specs[1]
+			else:
+				tag = specs[0]
+				value = specs[1:]
+			if tag in ["-h","--help","help"]:
+				print(__doc__)
+			elif tag in ["-v","--verbose"]:
+				global VERBOSE
+				VERBOSE = True
+			elif tag in ["-d","--debug"]:
+				global DEBUG
+				DEBUG = True
+			elif tag in ["-q","--quiet"]:
+				global QUIET
+				QUIET = True
+			elif tag in ["-w","--warning"]:
+				global WARNING
+				WARNING = True
+			elif tag in ["--with_header"]:
+				WITH_HEADER = True
+			elif tag in ["--with_index"]:
+				WITH_INDEX = True
+			elif tag in ["--show_fields"]:
+				global SHOW_FIELDS
+				SHOW_FIELDS.extend(value.split(","))
+			elif tag in ["-k","--key"]:
+				KEY_NAME = value
+			elif tag.startswith("-"):
+				raise FindLocationError(f"option '{arg}' is invalid")
+			else:
+				TARGET.extend(arg.split(","))
 		
 		if not TARGET:
 			raise FindLocationError("city/airport name not specified")
 		else:
+			global OUTPUT
 			result = get_location(KEY_NAME,TARGET)
 			result.to_csv(OUTPUT,header=WITH_HEADER,index=WITH_INDEX)
 
-except Exception as err:
+if __name__ == "__main__":
 
-	e_type, e_value, e_trace = sys.exc_info()
-	e_file = os.path.basename(e_trace.tb_frame.f_code.co_filename)
-	e_line = e_trace.tb_lineno
-	error(f"{err} ({e_type.__name__} {e_value}@{e_file}:{e_line}) ")
-	if DEBUG:
-		raise
+	try:
+
+		main(sys.argv)
+
+	except Exception as err:
+
+		e_type, e_value, e_trace = sys.exc_info()
+		e_file = os.path.basename(e_trace.tb_frame.f_code.co_filename)
+		e_line = e_trace.tb_lineno
+		error(f"{err} ({e_type.__name__} {e_value}@{e_file}:{e_line}) ")
+		if DEBUG:
+			raise
