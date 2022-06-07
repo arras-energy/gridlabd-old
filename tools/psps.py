@@ -33,12 +33,10 @@ import json2dfloadlocations
 '''
 Functions to load datasource... could combine these into one function and call based on the .json or .csv
 '''
-
 def loadJsonData(path):
     # Load and Convert JSON to matrix of load points
     data = json2dfloadlocations.convert(input_file=path, output_file='')
     return data
-
 
 def loadPGEData(path):
     # Loading Example PGE Data
@@ -319,8 +317,6 @@ def aggregateAreaData(dataX):
 ###########################
 ###### Optimization ######
 ###########################
-
-
 def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencies_df):
     print("=======Optimizing==========")
     start = time.time()
@@ -398,25 +394,19 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
     # Solver
     results = pyo.SolverFactory(
         'cbc', executable='/usr/local/Cellar/cbc/2.10.7_1/bin/cbc').solve(model, tee=False)
-    # results.write()
     end = time.time()
     print("Model Solved in: ", round(end-start,2), " sec")
-    # model.pprint()
     return model, results
 
-
-
-########################
-### Run Program ########
-########################
+# ########################
+# ### Run Program ########
+# ########################
 
 # Routine for IEEE123 Data
 IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
 IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
 IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
 IEEEdep = pd.read_csv(IEEEdepPath)
-
-
 dataStartDate = datetime.today() + timedelta(days=-1)
 # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 
@@ -441,18 +431,8 @@ model, results = optimizeShutoff(
     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
 # END
 
-# #Routine for Historical Event Data
-# # pathPGE = '/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/NapaFeeders/NapaFeederPoints-30m-NoSimplifyWGS84.csv'
-# pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m.csv')
-# pathNapaCustCount= os.path.join(os.getcwd(), 'example/NapaSubfeederCustomers_2.csv')
-# napa=pd.read_csv(pathNapa)
-# napaCustCount= pd.read_csv(pathNapaCustCount)
-# napaCustCount= napaCustCount[['FeedSplID','PopWtdCust']]
-# napa= pd.merge(left=napa,right=napaCustCount,on='FeedSplID',how='left')
-# pathNapa = os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
-# napa.to_csv(pathNapa)
-
-
+#Routine for Historical Event Data
+# pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
 # NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
 # Napadep = pd.read_csv(NapadepPath)
 # Napadep.fillna(0,inplace=True)
@@ -460,7 +440,7 @@ model, results = optimizeShutoff(
 # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 # #Load Data
 # data = loadPGEData(pathNapa)
-# # data = data.head(5000)
+# data = data.head(5000)
 
 # #Modify Data
 # data, dataX = importFireRiskData(data,dataStartDate)
@@ -473,12 +453,10 @@ model, results = optimizeShutoff(
 # model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
 # ##END
 
-######
 ##############
 # Plot Results
 ##############
 results = []
-# outputVariables_list =  [model.switch[timestep, group_id].value for timestep in model.timestep for group_id in model.areas]
 for timestep in model.timestep:
     results_t = []
     for group_id in model.areas:
@@ -522,7 +500,6 @@ plt.show()
 dataX= dataX.reset_coords()
 df_groupid = dataX[['group_id','lat','long']].to_dataframe()
 df_results =areaDataX[['results','igProbNormalized','windNormalized','fireRiskNormalized','customerCountNormalized','WindW','fireRisk7DW','igProbW']].to_dataframe().reset_index()
-# df_results =areaDataX[['results']].to_dataframe().reset_index()
 resultsTimeSeries = pd.merge(df_results,df_groupid,how='left',on='group_id')
 windTimeSeries = dataX[['group_id','lat','long','igProbW','WindW']].to_dataframe().reset_index().rename(columns={'time_wind':'time'})
 # resultsTimeSeries.to_csv('/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/results.csv')
