@@ -174,6 +174,7 @@ Return Value
 			value = specs[1:]
 		if tag in ["-h","--help","help"]:
 			print(__doc__)
+			return
 		elif tag in ["-v","--verbose"]:
 			global VERBOSE
 			VERBOSE = True
@@ -220,7 +221,8 @@ if __name__ == "__main__":
 			print("Syntax: find_location NAME",file=ERROR)
 		else:
 			result = main()
-			result.to_csv(OUTPUT,header=WITH_HEADER,index=WITH_INDEX)
+			if result:
+				result.to_csv(OUTPUT,header=WITH_HEADER,index=WITH_INDEX)
 
 	except Exception as err:
 
