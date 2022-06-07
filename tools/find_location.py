@@ -99,9 +99,9 @@ def get_location(key,value,data=None):
 	if not data:
 		data = DATA
 	if type(value) is list:
-		return data[data[key].isin(value)][[key,*SHOW_FIELDS]].round(5).set_index(key)
+		return data[data[key].str.lower().isin([x.lower() for x in value])][[key,*SHOW_FIELDS]].round(5).set_index(key)
 	else:
-		return data[data[key]==value][[key,*SHOW_FIELDS]].round(5).set_index(key)
+		return data[data[key].str.lower()==value.lower()][[key,*SHOW_FIELDS]].round(5).set_index(key)
 
 try:
 
