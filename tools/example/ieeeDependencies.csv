@@ -1,0 +1,6 @@
+﻿group_id,dep1,dep2
+area_B,area_A,area_E
+area_C,area_A,area_D
+area_D,area_C,area_E
+area_E,area_B,area_D
+area_A,1,0

@@ -1,5 +1,4 @@
 import json 
-from datetime import datetime 
 import pandas as pd
 import os
 
@@ -84,6 +83,12 @@ def convert(input_file,output_file=None, options={}):
 		class_name,bustype,busflags,groupid,parent,mre,latitude,longitude = get_load_vals(fromdata)
 		df.loc[len(df)]= [root,class_name,bustype,busflags,groupid,parent,"","",mre,latitude,longitude,"",""]
 		
+		#if it is a swing bus(starter bus), then find its child object. This modificiation
+		#is made for the camden meter test compared to IEEE which swingbus had a from field to which to begin the tree search
+		if fromdata['bustype']=='SWING':
+			for source in find(objects,"parent",root): 
+				gatherData(df,objects,source)
+
 		for meter in find(objects,"groupid",root):
 			meterdata = objects[meter]
 			class_name,bustype,busflags,groupid,parent,mre,latitude,longitude = get_load_vals(meterdata)
@@ -117,5 +122,5 @@ def convert(input_file,output_file=None, options={}):
 
 # ### Load and Convert JSON for IEEE123_pole.json
 # path= os.path.join(os.getcwd(),'example/IEEE123_pole.json')
-# # path= os.path.join(os.getcwd(),'tools/example/IEEE123_pole.json') # uncomment in debug mode
-# datapole = convert(input_file=path,output_file='')
+# path= os.path.join(os.getcwd(),'tools/example/Titanium_camden.json') # uncomment in debug mode
+# data = convert(input_file=path,output_file='')

@@ -293,7 +293,7 @@ def heat_index(T,RH):
             + 0.00085282*T*RH*RH \
             - 0.00000199*T*T*RH*RH
         if RH < 13 and T < 112:
-            return HI - ((13-RH)/4)*sqrt((17-fabs(T-95.))/17)
+            return HI - ((13-RH)/4)*numpy.sqrt((17-numpy.fabs(T-95.))/17)
         elif RH > 85 and T < 87:
             return HI + ((RH-85)/10) * ((87-T)/5)
         else:
@@ -614,3 +614,5 @@ if __name__ == "__main__":
                 error(err,1)
             raise
 
+interval = 30
+getyear(2014,45.62,-122.70)
