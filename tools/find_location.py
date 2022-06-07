@@ -3,7 +3,24 @@
 SYNOPSIS
 --------
 
+Shell:
+
   $ gridlabd find_location [OPTIONS] KEY
+
+GLM:
+
+  #define LOCATION=${SHELL python3 -m find_location PDX}
+
+Python:
+
+  >>> import sys, os
+  >>> sys.path.append(os.getenv("GLD_ETC"))
+  >>> import find_location
+  >>> find_location.OUTPUT=None
+  >>> find_location.main("PDX")
+        latitude  longitude
+  IATA                     
+  PDX     45.589   -122.597
 
 OPTIONS
 -------
@@ -122,7 +139,7 @@ Return Value
 	else:
 		return data[data[key].str.lower()==value.lower()][[key,*SHOW_FIELDS]].round(5).set_index(key)
 
-def main(argv):
+def main(*argv):
 	"""main function
 
 Arguments
@@ -131,71 +148,79 @@ Arguments
 
 Return Value
 
-	None
+	DataFrame - Result if OUTPUT is None
+
+	None - if OUTPUT is 
 """
+	if not argv:
+		argv = sys.argv[1:]
 	global DATABASE
-	DATABASE = get_data()
-
 	global TARGET
-	TARGET = []
-
 	global KEY_NAME
 	global WITH_INDEX
 	global WITH_HEADER
-	if len(argv) == 1:
-		print("Syntax: find_location NAME",file=ERROR)
-	else:
-		for arg in argv[1:]:
-			specs = arg.split("=")
-			if len(specs) == 1:
-				tag = specs[0]
-				value = None
-			elif len(specs) == 2:
-				tag = specs[0]
-				value = specs[1]
-			else:
-				tag = specs[0]
-				value = specs[1:]
-			if tag in ["-h","--help","help"]:
-				print(__doc__)
-			elif tag in ["-v","--verbose"]:
-				global VERBOSE
-				VERBOSE = True
-			elif tag in ["-d","--debug"]:
-				global DEBUG
-				DEBUG = True
-			elif tag in ["-q","--quiet"]:
-				global QUIET
-				QUIET = True
-			elif tag in ["-w","--warning"]:
-				global WARNING
-				WARNING = True
-			elif tag in ["--with_header"]:
-				WITH_HEADER = True
-			elif tag in ["--with_index"]:
-				WITH_INDEX = True
-			elif tag in ["--show_fields"]:
-				global SHOW_FIELDS
-				SHOW_FIELDS.extend(value.split(","))
-			elif tag in ["-k","--key"]:
-				KEY_NAME = value
-			elif tag.startswith("-"):
-				raise FindLocationError(f"option '{arg}' is invalid")
-			else:
-				TARGET.extend(arg.split(","))
-		
-		if not TARGET:
-			raise FindLocationError("city/airport name not specified")
+	global OUTPUT
+	TARGET = []
+	for arg in argv:
+		specs = arg.split("=")
+		if len(specs) == 1:
+			tag = specs[0]
+			value = None
+		elif len(specs) == 2:
+			tag = specs[0]
+			value = specs[1]
 		else:
-			global OUTPUT
-			result = get_location(KEY_NAME,TARGET)
-			result.to_csv(OUTPUT,header=WITH_HEADER,index=WITH_INDEX)
+			tag = specs[0]
+			value = specs[1:]
+		if tag in ["-h","--help","help"]:
+			print(__doc__)
+		elif tag in ["-v","--verbose"]:
+			global VERBOSE
+			VERBOSE = True
+		elif tag in ["-d","--debug"]:
+			global DEBUG
+			DEBUG = True
+		elif tag in ["-q","--quiet"]:
+			global QUIET
+			QUIET = True
+		elif tag in ["-w","--warning"]:
+			global WARNING
+			WARNING = True
+		elif tag in ["--with_header"]:
+			WITH_HEADER = True
+		elif tag in ["--with_index"]:
+			WITH_INDEX = True
+		elif tag in ["--show_fields"]:
+			global SHOW_FIELDS
+			SHOW_FIELDS.extend(value.split(","))
+		elif tag in ["-k","--key"]:
+			KEY_NAME = value
+		elif tag in ["-o","--output"]:
+			if value:
+				OUTPUT = open(value,"wt")
+			else:
+				OUTPUT = None
+		elif tag.startswith("-"):
+			raise FindLocationError(f"option '{arg}' is invalid")
+		else:
+			TARGET.extend(arg.split(","))
+	
+	if not TARGET:
+		raise FindLocationError("city/airport name not specified")
+	else:
+		global DATABASE
+		DATABASE = get_data()
+		return get_location(KEY_NAME,TARGET)
 
 if __name__ == "__main__":
 
 	try:
 
-		main(sys.argv)
+		if len(sys.argv) == 1:
+			print("Syntax: find_location NAME",file=ERROR)
+		else:
+			result = main()
+			result.to_csv(OUTPUT,header=WITH_HEADER,index=WITH_INDEX)
 
 	except Exception as err:
 
