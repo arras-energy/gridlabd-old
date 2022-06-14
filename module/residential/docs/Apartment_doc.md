@@ -43,9 +43,9 @@ This document provides the technical support manual for the multi-family apartme
   - [Energy Balance](#energy-balance)
   - [Heating/Cooling Solution Method](#heatingcooling-solution-method)
     - [Step 1 - Determine the system mode](#step-1---determine-the-system-mode)
-    - [Step 2 - Compute the equilibrium load](#step-2---compute-the-equilibrium-load)
-    - [Step 3 - Constrain the heat gain/loss](#step-3---constrain-the-heat-gainloss)
-    - [Step 4 - Compute the equilibrium temperature](#step-4---compute-the-equilibrium-temperature)
+    - [Step 2 - Compute the building mass equilibrium temperature](#step-2---compute-the-building-mass-equilibrium-temperature)
+    - [Step 3 - Compute the equilibrium load](#step-3---compute-the-equilibrium-load)
+    - [Step 4 - Constrain the heat gain/loss](#step-4---constrain-the-heat-gainloss)
     - [Step 5 - Compute the zone temperature changes](#step-5---compute-the-zone-temperature-changes)
 - [Heating/Cooling Design Conditions](#heatingcooling-design-conditions)
   - [Unit Capacity](#unit-capacity)
@@ -298,17 +298,16 @@ The apartment building that is being modeled is assumed to have certain items in
 
 <center>
 
-|         Zone         |     Content     | Quantity |
-| :------------------: | :-------------: | :------: |
-|  Occupied Apartment  |      Door       |    1     |
-|          -           |     Window      |    1     |
-| Unoccupied Apartment |      Door       |    1     |
-|          -           |     Window      |    1     |
-|    Building Core     |      Door       |    1     |
-|          -           |     Window      |    1     |
-|          -           | Apartment Doors |    M     |
-
 Table 1: Contents in each respective zone for thermal model
+| Zone | Content | Quantity |
+| :------------------: | :-------------: | :------: |
+| Occupied Apartment | Door | 1 |
+| - | Window | 1 |
+| Unoccupied Apartment | Door | 1 |
+| - | Window | 1 |
+| Building Core | Door | 1 |
+| - | Window | 1 |
+| - | Apartment Doors | M |
 
 </center>
 
@@ -320,15 +319,14 @@ The following zone variables are defined:
 
 <center>
 
-| Zone Name            | Temperature | Mass  | Heat  |
-| :------------------- | :---------: | :---: | :---: |
-| Occupied apartment   |    $T_A$    | $C_A$ | $Q_A$ |
-| Unoccupied apartment |    $T_U$    | $C_U$ | $Q_U$ |
-| Building core        |    $T_C$    | $C_C$ | $Q_C$ |
-| Building mass        |    $T_M$    | $C_M$ |   -   |
-| Outdoor air          |    $T_O$    |   -   |   -   |
-
 Table 2: Zone variables
+| Zone Name | Temperature | Mass | Heat |
+| :------------------- | :---------: | :---: | :---: |
+| Occupied apartment | $T_A$ | $C_A$ | $Q_A$ |
+| Unoccupied apartment | $T_U$ | $C_U$ | $Q_U$ |
+| Building core | $T_C$ | $C_C$ | $Q_C$ |
+| Building mass | $T_M$ | $C_M$ | - |
+| Outdoor air | $T_O$ | - | - |
 
 </center>
 
@@ -338,24 +336,24 @@ The following parameters are used to compute the thermal parameters for a buildi
 
 <center>
 
-| Parameter | Description                                          |
-| :-------: | :--------------------------------------------------- |
-|    $N$    | Number of floors (integer)                           |
-|  $N_{A}$  | # Occupied Apartments                                |
-|    $M$    | Number of units per floor (integer)                  |
-|   $K_X$   | Exterior core (no=0, yes=1)                          |
-|   $K_D$   | Core loading (0=one side, 1=both sides)              |
-| $\omega$  | Ratio of window area to wall area                    |
-|  $\beta$  | Fraction of units that are occupied out of all units |
-|    $X$    | Unit width (ft)                                      |
-|    $Y$    | Unit depth (ft)                                      |
-|    $Z$    | Unit height (ft)                                     |
-|    $W$    | Interior core width (ft)                             |
-|    $F$    | Floor thickness (ft)                                 |
-|    $I$    | Wall thickness (ft)                                  |
-|   $A_D$   | Unit door area (sf)                                  |
-
 Table 3: Building design parameters
+| Parameter | Description |
+| :-------: | :------------------------------------------------------------------------- |
+| $N$ | Number of floors (integer) |
+| $N_{A}$ | # Occupied Apartments |
+| $M$ | Number of units per floor (integer) |
+| $K_X$ | Exterior core (no=0, yes=1) |
+| $K_D$ | Core loading (0=one side, 1=both sides) |
+| $\omega$ | Ratio of window area to wall area |
+| $\beta$ | Fraction of units that are occupied out of all units |
+| $\alpha$ | Fraction of area in walls that is insulation compared to building material |
+| $X$ | Unit width (ft) |
+| $Y$ | Unit depth (ft) |
+| $Z$ | Unit height (ft) |
+| $W$ | Interior core width (ft) |
+| $F$ | Floor thickness (ft) |
+| $I$ | Wall thickness (ft) |
+| $A_D$ | Unit door area (sf) |
 
 </center>
 
@@ -363,45 +361,50 @@ Table 3: Building design parameters
 
 <center>
 
-|     Variable      |       Parameter        |                       Description                       |
-| :---------------: | :--------------------: | :-----------------------------------------------------: |
-|       $X_L$       | $MX(1-\frac{1}{2}K_D)$ | Length of entire building core for an entire floor (ft) |
-|       $A_L$       |         $X_LZ$         |       Area of long hallway wall for building core       |
-|        $A$        |         $X Y$          |                  Unit floor area (sf)                   |
-|  $A_{W_{unit}}$   |      $\omega X Z$      |                  Unit window area (sf)                  |
-|  $A_{W_{core}}$   |      $\omega W Z$      |             Building core window area (sf)              |
-|       $A_U$       |         $Y Z$          |            Interior unit-unit wall area (sf)            |
-|       $A_O$       |  $X Z - A_{W_{unit}}$  |              Exterior unit wall area (sf)               |
-|       $A_C$       |       $XZ - A_D$       |            Interior unit-core wall area (sf)            |
-|       $A_H$       |          $WZ$          |              Core exterior wall area (sf)               |
-|    $A_{H_{W}}$    |  $A_{H}-A_{W_{core}}$  |         Core exterior wall area w/ window (sf)          |
-|    $A_{H_{D}}$    |     $A_{H}-A_{D}$      |          Core exterior wall area w/ door (sf)           |
-|  $A_{C_{sides}}$  |     $2NA_H(1-K_X)$     |                                                         |
-| $A_{C_{aptwall}}$ |     $NA_L(K_D+1)$      |                                                         |
-|   $A_{C_{ext}}$   |  $NA_L(1-K_X)(1-K_D)$  |                                                         |
-|  $A_{C_{floor}}$  |        $NX_LW$         |                                                         |
-| $A_{C_{ceiling}}$ |        $NX_LW$         |                                                         |
-
 Table 4: Derived building dimension areas
+| Variable | Parameter | Description |
+| :---------------: | :--------------------: | :-----------------------------------------------------: |
+| $X_L$ | $MX(1-\frac{1}{2}K_D)$ | Length of entire building core for an entire floor (ft) |
+| $A_L$ | $X_LZ$ | Area of long hallway wall for building core |
+| $A$ | $X Y$ | Unit floor area (sf) |
+| $A_{W_{unit}}$ | $\omega X Z$ | Unit window area (sf) |
+| $A_{W_{core}}$ | $\omega W Z$ | Building core window area (sf) |
+| $A_U$ | $Y Z$ | Interior unit-unit wall area (sf) |
+| $A_O$ | $X Z - A_{W_{unit}}$ | Exterior unit wall area (sf) |
+| $A_C$ | $XZ - A_D$ | Interior unit-core wall area (sf) |
+| $A_H$ | $WZ$ | Core exterior wall area (sf) |
+| $A_{H_{W}}$ | $A_{H}-A_{W_{core}}$ | Core exterior wall area w/ window (sf) |
+| $A_{H_{D}}$ | $A_{H}-A_{D}$ | Core exterior wall area w/ door (sf) |
+| $A_{C_{sides}}$ | $2NA_H(1-K_X)$ | |
+| $A_{C_{aptwall}}$ | $NA_L(K_D+1)$ | |
+| $A_{C_{ext}}$ | $NA_L(1-K_X)(1-K_D)$ | |
+| $A_{C_{floor}}$ | $NX_LW$ | |
+| $A_{C_{ceiling}}$ | $NX_LW$ | |
 
 <!-- |   $N_{int walls}$   |  $2NM\beta(1-\beta)$   |                                                         |
 |   $N_{ext walls}$   |      $2N(K_D+1)$       |                                                         |
 | $N_{OA_{extwalls}}$ |    $2N\beta(1+K_D)$    |                                                         |
 | $N_{OU_{extwalls}}$ |  $2(1-\beta)(1+K_D)$   |                                                         | -->
 
-|     Parameter      |                                                 Calculation                                                  |              Description              |
-| :----------------: | :----------------------------------------------------------------------------------------------------------: | :-----------------------------------: |
-|        $V$         |                                                   $X Y Z$                                                    |           Unit volumne (cf)           |
-| $V_{outsidewalls}$ |                                       $2NI(A_L+A_U(K_D+1)+A_H(K_X-1))$                                       |   Total Volume of all outside walls   |
-|  $V_{innerwalls}$  |                                               $NI(M-1-K_D)A_U$                                               |    Total Volume of all inner walls    |
-|  $V_{unitfloors}$  |                                                    $NAF$                                                     |    Total Volume of all unit floors    |
-| $V_{unitceiling}$  |                                                     $AF$                                                     |   Total Volume of all unit ceilings   |
-|  $V_{corewalls}$   |                                        $NA_LI(2K_D + (1-K_D)(1-K_X))$                                        |    Total Volume of all core walls     |
-|  $V_{corefloor}$   |                                                   $NX_LWF$                                                   |    Total Volume of all core floor     |
-| $V_{coreceiling}$  |                                                   $X_LWF$                                                    |   Total Volume of all core ceiling    |
-|  $V_{totalwalls}$  | $V_{outsidewalls}+V_{innerwalls}+V_{unitfloors}+V_{unitceiling}+V_{corewalls}+V_{corefloor}+V_{coreceiling}$ | Total Volume of all walls in building |
-
 Table 5: Derived building dimension volumes
+| Parameter | Calculation | Description |
+| :----------------: | :------------------------------------------------------------: | :------------------------------------: |
+| $V$ | $X Y Z$ | Unit volumne (cf) |
+| $V_{outsidewalls}$ | $2NI(A_L+A_U(K_D+1)+A_H(K_X-1))$ | Total Volume of all outside walls |
+| $V_{innerwalls}$ | $NI(M-1-K_D)A_U$ | Total Volume of all inner walls |
+| $V_{unitfloors}$ | $NAF$ | Total Volume of all unit floors |
+| $V_{unitceiling}$ | $AF$ | Total Volume of all unit ceilings |
+| $V_{corewalls}$ | $NA_LI(2K_D + (1-K_D)(1-K_X))$ | Total Volume of all core walls |
+| $V_{corefloor}$ | $NX_LWF$ | Total Volume of all core floor |
+| $V_{coreceiling}$ | $X_LWF$ | Total Volume of all core ceiling |
+| $V_{totalwalls}$ | $V_{outsidewalls}+V_{innerwalls}+V_{corewalls}$ | Total Volume of all walls in building |
+| $V_{totalfloors}$ | $V_{unitfloors}+V_{unitceiling}+V_{corefloor}+V_{coreceiling}$ | Total Volume of all floors in building |
+
+Table 5: Derived building mass
+| Parameter | Calculation | Description |
+| :----------: | :----------------------------------------------------------------------: | :----------------------: |
+| $M_{walls}$ | $V_{totalwalls}(\alpha \rho_{insulation}+(1-\alpha)\rho_{wallmaterial})$ | Total Mass of all walls |
+| $M_{floors}$ | $V_{totalwalls}\rho_{floormaterial}$ | Total Mass of all floors |
 
 </center>
 
@@ -482,35 +485,32 @@ The heat gains for each zones are defined as follows
 
 <center>
 
-| Heat source      | Parameter        |
-| ---------------- | ---------------- |
-| HVAC             | $Q_{HVAC_{A}}$   |
-| Solar gain       | $Q_{Rad_{A}}$    |
-| Ventilation gain | $Q_{Vent_{A}}$   |
-| End-use gains    | $Q_{Enduse_{A}}$ |
-
 Table 6: Occupied apartment heat gains
+| Heat source | Parameter |
+| ---------------- | ---------------- |
+| HVAC | $Q_{HVAC_{A}}$ |
+| Solar gain | $Q_{Rad_{A}}$ |
+| Ventilation gain | $Q_{Vent_{A}}$ |
+| End-use gains | $Q_{Enduse_{A}}$ |
 
 ---
-
-| Heat source      | Parameter      |
-| ---------------- | -------------- |
-| HVAC             | $Q_{HVAC_{U}}$ |
-| Solar gain       | $Q_{Rad_{U}}$  |
-| Ventilation gain | $Q_{Vent_{U}}$ |
 
 Table 7: Unoccupied apartment heat gains
+| Heat source | Parameter |
+| ---------------- | -------------- |
+| HVAC | $Q_{HVAC_{U}}$ |
+| Solar gain | $Q_{Rad_{U}}$ |
+| Ventilation gain | $Q_{Vent_{U}}$ |
 
 ---
 
-| Heat source      | Parameter        |
-| ---------------- | ---------------- |
-| HVAC             | $Q_{HVAC_{C}}$   |
-| Solar gain       | $Q_{Rad_{C}}$    |
-| Ventilation gain | $Q_{Vent_{C}}$   |
-| End-use gain     | $Q_{Enduse_{C}}$ |
-
 Table 8: Building core heat gains
+| Heat source | Parameter |
+| ---------------- | ---------------- |
+| HVAC | $Q_{HVAC_{C}}$ |
+| Solar gain | $Q_{Rad_{C}}$ |
+| Ventilation gain | $Q_{Vent_{C}}$ |
+| End-use gain | $Q_{Enduse_{C}}$ |
 
 </center>
 
@@ -518,17 +518,16 @@ The following end-uses contribute to heat gain in building zones and are driven 
 
 <center>
 
-| End-use     | $Q_{Enduse_{A}}$ | $Q_{Enduse_{C}}$ |
-| ----------- | ---------------- | ---------------- |
-| Lights      | `lighting`       | `hallway`        |
-| Plugs       | `plugs`          | -                |
-| Cooking     | `cooking`        | -                |
-| Dishwashing | `dishwashing`    | -                |
-| Washing     | `washing`        | -                |
-| Drying      | `drying`         | -                |
-| Hotwater    | `hotwater`       | -                |
-
 Table 9: Zone end-use schedule source
+| End-use | $Q_{Enduse_{A}}$ | $Q_{Enduse_{C}}$ |
+| ----------- | ---------------- | ---------------- |
+| Lights | `lighting` | `hallway` |
+| Plugs | `plugs` | - |
+| Cooking | `cooking` | - |
+| Dishwashing | `dishwashing` | - |
+| Washing | `washing` | - |
+| Drying | `drying` | - |
+| Hotwater | `hotwater` | - |
 
 </center>
 
@@ -576,13 +575,12 @@ The following thermostat setpoints are use to control HVAC
 
 <center>
 
-| Zone      | Heating  | Cooling  |
-| --------- | -------- | -------- |
-| Occupied  | $T_{AH}$ | $T_{AC}$ |
-| Unccupied | $T_{UH}$ | $T_{UC}$ |
-| Core      | $T_{CH}$ | $T_{CC}$ |
-
 Table 10: Thermostat setpoints
+| Zone | Heating | Cooling |
+| --------- | -------- | -------- |
+| Occupied | $T_{AH}$ | $T_{AC}$ |
+| Unccupied | $T_{UH}$ | $T_{UC}$ |
+| Core | $T_{CH}$ | $T_{CC}$ |
 
 </center>
 
@@ -592,24 +590,23 @@ The following types of systems can be modeled.
 
 <center>
 
-| Local | Central | Ventilation | Economizer | Description                                                    |
-| ----- | ------- | ----------- | ---------- | -------------------------------------------------------------- |
-| Heat  | None    | None        | None       | Only local heating is available                                |
-| Cool  | None    | None        | None       | Only local cooling is available                                |
-| Both  | None    | None        | None       | Only local heating and cooling is available                    |
-| None  | Heat    | None        | None       | Only central heating is available using hotwater/steam pipes   |
-| None  | Cool    | None        | None       | Only central cooling is available using chilled water pipes    |
-| None  | Both    | None        | None       | Only central heating and cooling is available using four pipes |
-| Cool  | Heat    | None        | None       | Local cooling and central heating using hotwater/steam pipes   |
-| Heat  | Cool    | None        | None       | Local heating and central cooling using chilled water pipes    |
-| Heat  | None    | Central     | Optional   | Central ventilation with terminal heating                      |
-| Cool  | None    | Central     | Optional   | Central ventilation with terminal cooling                      |
-| Both  | None    | Central     | Optional   | Central ventilation with terminal heating and cooling          |
-| None  | Both    | Central     | Optional   | Forced air central heating and cooling                         |
-| Heat  | Both    | Central     | Optional   | Forced air central heating and cooling with terminal heating   |
-| Cool  | Both    | Central     | Optional   | Forced air central heating and cooling with terminal cooling   |
-
 Table 11: List of systems that can be modeled
+| Local | Central | Ventilation | Economizer | Description |
+| ----- | ------- | ----------- | ---------- | -------------------------------------------------------------- |
+| Heat | None | None | None | Only local heating is available |
+| Cool | None | None | None | Only local cooling is available |
+| Both | None | None | None | Only local heating and cooling is available |
+| None | Heat | None | None | Only central heating is available using hotwater/steam pipes |
+| None | Cool | None | None | Only central cooling is available using chilled water pipes |
+| None | Both | None | None | Only central heating and cooling is available using four pipes |
+| Cool | Heat | None | None | Local cooling and central heating using hotwater/steam pipes |
+| Heat | Cool | None | None | Local heating and central cooling using chilled water pipes |
+| Heat | None | Central | Optional | Central ventilation with terminal heating |
+| Cool | None | Central | Optional | Central ventilation with terminal cooling |
+| Both | None | Central | Optional | Central ventilation with terminal heating and cooling |
+| None | Both | Central | Optional | Forced air central heating and cooling |
+| Heat | Both | Central | Optional | Forced air central heating and cooling with terminal heating |
+| Cool | Both | Central | Optional | Forced air central heating and cooling with terminal cooling |
 
 </center>
 
@@ -638,50 +635,48 @@ where
 
 <center>
 
-|     Parameter     | Description                                  |
-| :---------------: | :------------------------------------------- |
-|     $C_{int}$     | Unit interior mass (Btu/degF)                |
-|  $C_{building}$   | Heat capacity building (Btu/degF)            |
-|     $S_{air}$     | Volumetric heat capacity air (Btu/degF.cf)   |
-|    $S_{floor}$    | Volumetric heat capacity floor (Btu/degF.cf) |
-|   $\rho_{air}$    | Density of air (lbm/cf)                      |
-| $\rho_{material}$ | Density of building material (lbm/cf)        |
-|  $c_{material}$   | Density of building material (lbm/cf)        |
-
 Table 12a: Building thermal parameters
+| Parameter | Description |
+| :--------------------: | :---------------------------------------------------------------------- |
+| $S_{int}$ | Unit interior mass heat capacity per Apartment floor area (Btu/degF.sf) |
+| $C_{building}$ | Heat capacity building (Btu/degF) |
+| $S_{air}$ | Volumetric heat capacity air (Btu/degF.cf) |
+| $S_{floor}$ | Volumetric heat capacity floor (Btu/degF.cf) |
+| $\rho_{air}$ | Density of air (lbm/cf) |
+| $\rho_{floormaterial}$ | Density of floor building material (lbm/cf) |
+| $\rho_{wallmaterial}$ | Density of wall building material (lbm/cf) |
+| $\rho_{insulation}$ | Density of wall insulation building material (lbm/cf) |
+| $c_{material}$ | Specific heat capacity of building material (Btu/lbm.F) |
 
 Core material with sheet rock finish
 
-|    Material     | Density (lbm/cf) | Specific Heat (Btu/lbm.F) | R-value (F.h.sf/Btu) |
-| :-------------: | :--------------- | :------------------------ | :------------------- |
-| Wood (hardwood) | 45               | .30                       |                      |
-|    Concrete     | 100              | .2                        |                      |
-|      Steel      | 489              | .120                      |                      |
-
 Table 12b: Building material properties (examples)
+| Material | Density (lbm/cf) | Specific Heat (Btu/lbm.F) | R-value (F.h.sf/Btu) |
+| :-------------: | :--------------- | :------------------------ | :------------------- |
+| Wood (hardwood) | 45 | .30 | |
+| Concrete | 100 | .2 | |
+| Steel | 489 | .120 | |
 
 ---
-
-|   R-values   | Description                                      |
-| :----------: | :----------------------------------------------- |
-|  $R_{ext}$   | Exterior wall R-value                            |
-|  $R_{int}$   | Interior wall R-value                            |
-| $R_{window}$ | Window R-value                                   |
-|  $R_{door}$  | Unit door R-value                                |
-|  $R_{mass}$  | Mass R-value (i.e., floor, ceiling, furnishings) |
-| $R_{floor}$  | Floor R-value                                    |
-|  $R_{roof}$  | Roof R-value                                     |
 
 Table 13: R-value for different components
+| R-values | Description |
+| :----------: | :----------------------------------------------- |
+| $R_{ext}$ | Exterior wall R-value |
+| $R_{int}$ | Interior wall R-value |
+| $R_{window}$ | Window R-value |
+| $R_{door}$ | Unit door R-value |
+| $R_{mass}$ | Mass R-value (i.e., floor, ceiling, furnishings) |
+| $R_{floor}$ | Floor R-value |
+| $R_{roof}$ | Roof R-value |
 
 ---
 
-| Thermal Resistances | Calculation                                                   |
-| :-----------------: | :------------------------------------------------------------ |
-|  $R_{C_{window}}$   | $\frac{A_{H_{W}}}{R_{ext}} + \frac{A_{W_{core}}}{R_{window}}$ |
-|   $R_{C_{door}}$    | $\frac{A_{H_{D}}}{R_{ext}} + \frac{A_{D}}{R_{door}}$          |
-
 Table 14: Derived thermal resistances
+| Thermal Resistances | Calculation |
+| :-----------------: | :------------------------------------------------------------ |
+| $R_{C_{window}}$ | $\frac{A_{H_{W}}}{R_{ext}} + \frac{A_{W_{core}}}{R_{window}}$ |
+| $R_{C_{door}}$ | $\frac{A_{H_{D}}}{R_{ext}} + \frac{A_{D}}{R_{door}}$ |
 
 </center>
 
@@ -691,14 +686,13 @@ Describe Cint in terms of floor area i.e. Cint(floor area)
 
 <center>
 
-| Heat capacity | Parameter calculation                                   |
-| :-----------: | :------------------------------------------------------ |
-|     $C_A$     | $NM \beta VS_{air}$                                     |
-|     $C_U$     | $NM(1-\beta)VS_{air}$                                   |
-|     $C_C$     | $NX_LA_HS_{air}$                                        |
-|     $C_M$     | $V_{totalwalls}\rho_{material}c_{building} + NMC_{int}$ |
-
 Table 15: Capacitance values for each zone
+| Heat capacity | Parameter calculation |
+| :-----------: | :-------------------------------------------------------------------------- |
+| $C_A$ | $NM \beta VS_{air}$ |
+| $C_U$ | $NM(1-\beta)VS_{air}$ |
+| $C_C$ | $NX_LA_HS_{air}$ |
+| $C_M$ | $M_{totalwalls}c_{totalwalls} +M_{totalfloors}c_{totalfloors} + NMS_{int}A$ |
 
 </center>
 
@@ -708,94 +702,84 @@ The model assumes that every zone is connected to every other zone with the foll
 
 <center>
 
-|     Conductance      | Connected zones                       |
+Table 16: Zone-zone conductance variables
+| Conductance | Connected zones |
 | :------------------: | :------------------------------------ |
-| $U_{OA}$ or $U_{AO}$ | Occupied apartment & outdoor air      |
-| $U_{OU}$ or $U_{UO}$ | Unoccupied apartment & outdoor air    |
-| $U_{OC}$ or $U_{CO}$ | Building core & outdoor air           |
-| $U_{OM}$ or $U_{MO}$ | Building mass & outdoor air           |
-| $U_{AU}$ or $U_{UA}$ | Occupied & unoccupied apartments      |
-| $U_{AC}$ or $U_{CA}$ | Occupied apartments & building core   |
-| $U_{AM}$ or $U_{MA}$ | Occupied apartments & building mass   |
+| $U_{OA}$ or $U_{AO}$ | Occupied apartment & outdoor air |
+| $U_{OU}$ or $U_{UO}$ | Unoccupied apartment & outdoor air |
+| $U_{OC}$ or $U_{CO}$ | Building core & outdoor air |
+| $U_{OM}$ or $U_{MO}$ | Building mass & outdoor air |
+| $U_{AU}$ or $U_{UA}$ | Occupied & unoccupied apartments |
+| $U_{AC}$ or $U_{CA}$ | Occupied apartments & building core |
+| $U_{AM}$ or $U_{MA}$ | Occupied apartments & building mass |
 | $U_{UC}$ or $U_{CU}$ | Unoccupied apartments & building core |
 | $U_{UM}$ or $U_{MU}$ | Unoccupied apartments & building mass |
-| $U_{CM}$ or $U_{MC}$ | Building core & building mass         |
-
-Table 16: Zone-zone conductance variables
+| $U_{CM}$ or $U_{MC}$ | Building core & building mass |
 
 ---
 
-| Occupied Apartment Conductance | Parameter calculation                                            | Description                                        |
-| :----------------------------: | :--------------------------------------------------------------- | :------------------------------------------------- |
-|     $U_{OA_{windowwall}}$      | $NM\beta(\frac{A_O}{R_{ext}} + \frac{A_{W_{unit}}}{R_{window}})$ | Occupied Apartment Wall with window to outside     |
-|     $U_{OU_{windowwall}}$      | $\frac{1-\beta}{\beta}U_{OA_{windowwall}}$                       | Unoccupied Apartment Wall with window to outside   |
-|      $U_{OA_{sidewall}}$       | $2N\beta(1+K_D)\frac{A_U}{R_{ext}}$                              | Occupied Apartment wall to outside                 |
-|      $U_{OU_{sidewall}}$       | $\frac{1-\beta}{\beta}U_{OA_{sidewall}}$                         | Unoccupied Apartment wall to outside               |
-|        $U_{OA_{roof}}$         | $M\beta(\frac{A}{R_{floor}+R_{roof}})$                           | Occupied Apartment Roof to outside                 |
-|        $U_{OU_{roof}}$         | $\frac{1-\beta}{\beta}U_{OA_{roof}}$                             | Unoccupied Apartment Roof to Occupied Apartment    |
-|        $U_{OA_{floor}}$        | $M\beta(\frac{A}{R_{floor}+R_{ground}})$                         | Occupied Apartment Floor to outside                |
-|        $U_{OU_{floor}}$        | $\frac{1-\beta}{\beta}U_{OA_{floor}}$                            | Unoccupied Apartment Floor to outside              |
-|     $U_{UA_{innerwalls}}$      | $2NM\beta(1-\beta)\frac{A_U}{R_{int}}$                           | Unoccupied Apartment wall to Occupied Apartment    |
-|        $U_{UA_{floor}}$        | $(N-1) \beta M(1-\beta)(\frac{A}{R_{floor}})$                    | Unoccupied Apartment Floor to Occupied Apartment   |
-|       $U_{UA_{ceiling}}$       | $(N-1)\beta M(1-\beta)(\frac{A}{R_{floor}})$                     | Unoccupied Apartment Ceiling to Occupied Apartment |
-|        $U_{AU_{floor}}$        | $U_{UA_{ceiling}}$                                               | Occupied Apartment Floor to Unoccupied Apartment   |
-|       $U_{AU_{ceiling}}$       | $U_{UA_{floor}}$                                                 | Occupied Apartment Ceiling to Unoccupied Apartment |
-|        $U_{OC_{sides}}$        | $2N(1-K_X)(R_{C_{window}} + R_{C_{door}})$                       | Building Core side wall to outside                 |
-|        $U_{OC_{wall}}$         | $\frac{A_L}{R_{ext}}(1-K_D)$                                     | Building Core long wall to outside                 |
-|        $U_{OC_{floor}}$        | $\frac{A_L}{R_{floor}+R_{ground}}$                               | Building Core to outside though floor              |
-|        $U_{OC_{roof}}$         | $\frac{A_L}{R_{floor}+R_{roof}}$                                 | Building Core to outside through roof outside      |
-
 Table 17: Derived conductance values for each component
+| Occupied Apartment Conductance | Parameter calculation | Description |
+| :----------------------------: | :--------------------------------------------------------------- | :------------------------------------------------- |
+| $U_{OA_{windowwall}}$ | $NM\beta(\frac{A_O}{R_{ext}} + \frac{A_{W_{unit}}}{R_{window}})$ | Occupied Apartment Wall with window to outside |
+| $U_{OU_{windowwall}}$ | $\frac{1-\beta}{\beta}U_{OA_{windowwall}}$ | Unoccupied Apartment Wall with window to outside |
+| $U_{OA_{sidewall}}$ | $2N\beta(1+K_D)\frac{A_U}{R_{ext}}$ | Occupied Apartment wall to outside |
+| $U_{OU_{sidewall}}$ | $\frac{1-\beta}{\beta}U_{OA_{sidewall}}$ | Unoccupied Apartment wall to outside |
+| $U_{OA_{roof}}$ | $M\beta(\frac{A}{R_{floor}+R_{roof}})$ | Occupied Apartment Roof to outside |
+| $U_{OU_{roof}}$ | $\frac{1-\beta}{\beta}U_{OA_{roof}}$ | Unoccupied Apartment Roof to Occupied Apartment |
+| $U_{OA_{floor}}$ | $M\beta(\frac{A}{R_{floor}+R_{ground}})$ | Occupied Apartment Floor to outside |
+| $U_{OU_{floor}}$ | $\frac{1-\beta}{\beta}U_{OA_{floor}}$ | Unoccupied Apartment Floor to outside |
+| $U_{UA_{innerwalls}}$ | $2NM\beta(1-\beta)\frac{A_U}{R_{int}}$ | Unoccupied Apartment wall to Occupied Apartment |
+| $U_{UA_{floor}}$ | $(N-1) \beta M(1-\beta)(\frac{A}{R_{floor}})$ | Unoccupied Apartment Floor to Occupied Apartment |
+| $U_{UA_{ceiling}}$ | $(N-1)\beta M(1-\beta)(\frac{A}{R_{floor}})$ | Unoccupied Apartment Ceiling to Occupied Apartment |
+| $U_{AU_{floor}}$ | $U_{UA_{ceiling}}$ | Occupied Apartment Floor to Unoccupied Apartment |
+| $U_{AU_{ceiling}}$ | $U_{UA_{floor}}$ | Occupied Apartment Ceiling to Unoccupied Apartment |
+| $U_{OC_{sides}}$ | $2N(1-K_X)(R_{C_{window}} + R_{C_{door}})$ | Building Core side wall to outside |
+| $U_{OC_{wall}}$ | $\frac{A_L}{R_{ext}}(1-K_D)$ | Building Core long wall to outside |
+| $U_{OC_{floor}}$ | $\frac{A_L}{R_{floor}+R_{ground}}$ | Building Core to outside though floor |
+| $U_{OC_{roof}}$ | $\frac{A_L}{R_{floor}+R_{roof}}$ | Building Core to outside through roof outside |
 
 </center>
 
-Assumed order of Temperatures
-
-<!-- - (High Temp) $T_{O} > T_{M} > T_{U} > T_{C} > T_{A}$ (Low Temp) -->
-
 <center>
 
-|      Occupied Apartment Gains      | Conductance                                                                        | Description                                                     |
-| :--------------------------------: | :--------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
-| $\dot Q_{OA} = U_{OA} (T_O - T_A)$ | $U_{OA} = U_{OA_{windowwall}} + U_{OA_{sidewall}} + U_{OA_{floor}}+ U_{OA_{roof}}$ | Total conductance between outside and Unoccupied Apartments     |
-| $\dot Q_{UA} = U_{UA} (T_U - T_A)$ | $U_{UA} = U_{UA_{innerwalls}} + U_{UA_{floor}} + U_{UA_{ceiling}}$                 | Total conductance between Occupied and Unoccupied Apartments    |
-| $\dot Q_{CA} =U_{CA} (T_C - T_A)$  | $U_{CA} = NM\beta(\frac{A_C}{(1-K_X)R_{int}+K_XR_{ext}} + \frac{A_D}{R_{door}})$   | Total conductance between Occupied Apartments and Building Core |
-|  $\dot Q_{MA}=U_{MA} (T_M - T_A)$  | $U_{MA} = NM\beta(\frac{2(A+A_U)+A_O+A_C}{R_{mass}})$                              | Total conductance between Building Mass and Occupied Apartments |
-
 Table 18: Conductance values for Occupied Apartments
+| Occupied Apartment Gains | Conductance | Description |
+| :--------------------------------: | :--------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
+| $\dot Q_{OA} = U_{OA} (T_O - T_A)$ | $U_{OA} = U_{OA_{windowwall}} + U_{OA_{sidewall}} + U_{OA_{floor}}+ U_{OA_{roof}}$ | Total conductance between outside and Unoccupied Apartments |
+| $\dot Q_{UA} = U_{UA} (T_U - T_A)$ | $U_{UA} = U_{UA_{innerwalls}} + U_{UA_{floor}} + U_{UA_{ceiling}}$ | Total conductance between Occupied and Unoccupied Apartments |
+| $\dot Q_{CA} =U_{CA} (T_C - T_A)$ | $U_{CA} = NM\beta(\frac{A_C}{(1-K_X)R_{int}+K_XR_{ext}} + \frac{A_D}{R_{door}})$ | Total conductance between Occupied Apartments and Building Core |
+| $\dot Q_{MA}=U_{MA} (T_M - T_A)$ | $U_{MA} = NM\beta(\frac{2(A+A_U)+A_O+A_C}{R_{mass}})$ | Total conductance between Building Mass and Occupied Apartments |
 
 ---
-
-|     Unoccupied Apartment Gains     | Conductance                                                                        | Description                                                       |
-| :--------------------------------: | :--------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
-|  $\dot Q_{OU}=U_{OU} (T_O - T_U)$  | $U_{OU} = U_{OU_{windowwall}} + U_{OU_{sidewall}} + U_{OU_{floor}}+ U_{OU_{roof}}$ | Total conductance between outside and Unoccupied Apartments       |
-| $\dot Q_{UA} = U_{UA} (T_A - T_U)$ | $U_{UA}$                                                                           | Total conductance between Unoccupied and Occupied Apartments      |
-|  $\dot Q_{UC}=U_{UC} (T_C - T_U)$  | $U_{UC} = \frac{1-\beta}{\beta}U_{CA}$                                             | Total conductance between Unoccupied Apartments and Building Core |
-|  $\dot Q_{MU}=U_{MU} (T_M - T_U)$  | $U_{MU} = \frac{1-\beta}{\beta}U_{MA}$                                             | Total conductance between Building Mass and Unoccupied Apartments |
 
 Table 19: Conductance values for Unoccupied Apartments
+| Unoccupied Apartment Gains | Conductance | Description |
+| :--------------------------------: | :--------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| $\dot Q_{OU}=U_{OU} (T_O - T_U)$ | $U_{OU} = U_{OU_{windowwall}} + U_{OU_{sidewall}} + U_{OU_{floor}}+ U_{OU_{roof}}$ | Total conductance between outside and Unoccupied Apartments |
+| $\dot Q_{UA} = U_{UA} (T_A - T_U)$ | $U_{UA}$ | Total conductance between Unoccupied and Occupied Apartments |
+| $\dot Q_{UC}=U_{UC} (T_C - T_U)$ | $U_{UC} = \frac{1-\beta}{\beta}U_{CA}$ | Total conductance between Unoccupied Apartments and Building Core |
+| $\dot Q_{MU}=U_{MU} (T_M - T_U)$ | $U_{MU} = \frac{1-\beta}{\beta}U_{MA}$ | Total conductance between Building Mass and Unoccupied Apartments |
 
 ---
-
-|       Building Core Gains        | Conductance                                                                                           | Description                                                       |
-| :------------------------------: | :---------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
-| $\dot Q_{OC}=U_{OC} (T_O - T_C)$ | $U_{OC} = U_{OC_{sides}} + U_{OC_{wall}} + U_{OC_{floor}} + U_{OC_{roof}}$                            | Total conductance between outside and Unoccupied Apartments       |
-| $\dot Q_{CA}=U_{CA} (T_A - T_C)$ | $U_{CA}$                                                                                              | Total conductance between Building Core and Occupied Apartments   |
-| $\dot Q_{UC}=U_{UC} (T_U - T_C)$ | $U_{UC}$                                                                                              | Total conductance between Unoccupied Apartments and Building Core |
-| $\dot Q_{MC}=U_{MC} (T_M - T_C)$ | $U_{MC} = \frac{(A_{C_{sides}}+A_{C_{aptwall}}+A_{C_{ext}}+A_{C_{floor}}+A_{C_{ceiling}})}{R_{mass}}$ | Total conductance between Building Mass and Building Core         |
 
 Table 20: Conductance values for Building Cores
+| Building Core Gains | Conductance | Description |
+| :------------------------------: | :---------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| $\dot Q_{OC}=U_{OC} (T_O - T_C)$ | $U_{OC} = U_{OC_{sides}} + U_{OC_{wall}} + U_{OC_{floor}} + U_{OC_{roof}}$ | Total conductance between outside and Unoccupied Apartments |
+| $\dot Q_{CA}=U_{CA} (T_A - T_C)$ | $U_{CA}$ | Total conductance between Building Core and Occupied Apartments |
+| $\dot Q_{UC}=U_{UC} (T_U - T_C)$ | $U_{UC}$ | Total conductance between Unoccupied Apartments and Building Core |
+| $\dot Q_{MC}=U_{MC} (T_M - T_C)$ | $U_{MC} = \frac{(A_{C_{sides}}+A_{C_{aptwall}}+A_{C_{ext}}+A_{C_{floor}}+A_{C_{ceiling}})}{R_{mass}}$ | Total conductance between Building Mass and Building Core |
 
 ---
 
-|       Building Mass Gains        | Conductance                                                              | Description                                                       |
-| :------------------------------: | :----------------------------------------------------------------------- | :---------------------------------------------------------------- |
-| $\dot Q_{OM}=U_{OM} (T_O - T_M)$ | $U_{OM} = \frac{2N(A_L(1+K_X)+A_U(1+K_D)+A_H(1-K_X)+WX_LK_X)}{R_{mass}}$ | Total conductance between outside and Building Mass               |
-| $\dot Q_{MA}=U_{MA} (T_A - T_M)$ | $U_{MA}$                                                                 | Total conductance between Building Mass and Occupied Apartments   |
-| $\dot Q_{MU}=U_{MU} (T_U - T_M)$ | $U_{MU}$                                                                 | Total conductance between Building Mass and Unoccupied Apartments |
-| $\dot Q_{MC}=U_{MC} (T_C - T_M)$ | $U_{MC}$                                                                 | Total conductance between Building Mass and Building Core         |
-
 Table 21: Conductance values for Building Masses
+| Building Mass Gains | Conductance | Description |
+| :------------------------------: | :----------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| $\dot Q_{OM}=U_{OM} (T_O - T_M)$ | $U_{OM} = \frac{2N(A_L(1+K_X)+A_U(1+K_D)+A_H(1-K_X)+WX_LK_X)}{R_{mass}}$ | Total conductance between outside and Building Mass |
+| $\dot Q_{MA}=U_{MA} (T_A - T_M)$ | $U_{MA}$ | Total conductance between Building Mass and Occupied Apartments |
+| $\dot Q_{MU}=U_{MU} (T_U - T_M)$ | $U_{MU}$ | Total conductance between Building Mass and Unoccupied Apartments |
+| $\dot Q_{MC}=U_{MC} (T_C - T_M)$ | $U_{MC}$ | Total conductance between Building Mass and Building Core |
 
 </center>
 
@@ -808,7 +792,7 @@ C_A \frac{\partial T_A}{\partial t} = \dot Q_{OA} + \dot Q_{UA}  + \dot Q_{CA} +
 $$
 
 $$
-C_A \frac{\partial T_A}{\partial t} =  U_{OA} (T_O - T_A) +  U_{UA} (T_U - T_A)  +  U_{CA} (T_C - T_A) +  U_{MA} (T_M - T_A) + a \dot Q_{A}
+C_A \frac{\partial T_A}{\partial t} =  U_{OA} (T_O - T_A) +  U_{UA} (T_U - T_A)  +  U_{CA} (T_C - T_A) +  U_{MA} (T_M - T_A) + a \dot Q_{A} \qquad (1)
 $$
 
 $$
@@ -826,7 +810,7 @@ C_U \frac{\partial T_U}{\partial t} = \dot Q_{OU} + \dot Q_{UA} + \dot Q_{UC} + 
 $$
 
 $$
-C_U \frac{\partial T_U}{\partial t} = U_{OU} (T_O - T_U) + U_{UA} (T_A - T_U) + U_{UC} (T_C - T_U) + U_{MU} (T_M - T_U)  + a \dot Q_{U}
+C_U \frac{\partial T_U}{\partial t} = U_{OU} (T_O - T_U) + U_{UA} (T_A - T_U) + U_{UC} (T_C - T_U) + U_{MU} (T_M - T_U)  + a \dot Q_{U}\qquad (2)
 $$
 
 $$
@@ -844,7 +828,7 @@ C_C \frac{\partial T_C}{\partial t} = \dot Q_{OC} + \dot Q_{CA} + \dot Q_{UC} + 
 $$
 
 $$
-C_C \frac{\partial T_C}{\partial t} = U_{OC} (T_O - T_C) + U_{CA} (T_A - T_C) + U_{UC} (T_U - T_C) + U_{MC} (T_M - T_C) + a \dot Q_{C}
+C_C \frac{\partial T_C}{\partial t} = U_{OC} (T_O - T_C) + U_{CA} (T_A - T_C) + U_{UC} (T_U - T_C) + U_{MC} (T_M - T_C) + a \dot Q_{C}\qquad (3)
 $$
 
 $$
@@ -862,7 +846,7 @@ C_M \frac{\partial T_M}{\partial t} = \dot Q_{OM} + \dot Q_{MA} + \dot Q_{MU} + 
 $$
 
 $$
-C_M \frac{\partial T_M}{\partial t} = U_{OM} (T_O - T_M) + U_{MA} (T_A - T_M) + U_{MU} (T_U - T_M) + U_{MC} (T_C - T_M) + (1-a)(\dot Q_{{A}}+\dot Q_{{U}}+\dot Q_{{C}}) + \dot Q_{M}
+C_M \frac{\partial T_M}{\partial t} = U_{OM} (T_O - T_M) + U_{MA} (T_A - T_M) + U_{MU} (T_U - T_M) + U_{MC} (T_C - T_M) + (1-a)(\dot Q_{{A}}+\dot Q_{{U}}+\dot Q_{{C}}) + \dot Q_{M}\qquad (4)
 $$
 
 $$
@@ -870,7 +854,7 @@ $$
 $$
 
 $$
-\dot Q_{M} = \dot Q_{Gains_{M}} + \dot Q_{HVAC_{C}}
+\dot Q_{M} = \dot Q_{Gains_{M}}
 $$
 
 The thermal dynamics are defined by Equation (1)
@@ -912,7 +896,7 @@ $$
     \\
         0 & 0 & \frac{a}{C_C} & 0 & \frac{U_{OC}}{C_C}
     \\
-        \frac{1-a}{C_M} & \frac{1-a}{C_M} & \frac{1-a}{C_M} & 1 & \frac{U_{OM}}{C_M}
+        \frac{1-a}{C_M} & \frac{1-a}{C_M} & \frac{1-a}{C_M} & 1\over{C_M} & \frac{U_{OM}}{C_M}
     \end{bmatrix}
     \begin{bmatrix}
         Q_A
@@ -925,13 +909,13 @@ $$
     \\
         T_O
     \end{bmatrix}
-    \qquad (1)
+    \qquad (5)
 $$
 
-Equation (1) is represented canonically as
+Equation (5) is represented canonically as
 
 $$
-    \boxed { \dot {\textbf T} = \textbf A \textbf T + \textbf B_1 \textbf q + \textbf B_2 \textbf u } \qquad (2)
+    \boxed { \dot {\textbf T} = \textbf A \textbf T + \textbf B_1 \textbf q + \textbf B_2 \textbf u } \qquad (6)
 $$
 
 where $\textbf{T} = \begin{bmatrix} T_A & T_U & T_C & T_M \end{bmatrix}^\mathrm{T}$, $\textbf q$ are the ambient heat gains/losses, and $\textbf u$ is the controlled heat gains/losses, with
@@ -972,7 +956,7 @@ $$
     \\
         0 & 0 & \frac{a}{C_C} & 0 & \frac{U_{OC}}{C_C}
     \\
-        \frac{1-a}{C_M} & \frac{1-a}{C_M} & \frac{1-a}{C_M} & 1 & \frac{U_{OM}}{C_M}
+        \frac{1-a}{C_M} & \frac{1-a}{C_M} & \frac{1-a}{C_M} & 1\over{C_M} & \frac{U_{OM}}{C_M}
     \end{bmatrix}
 $$
 
@@ -996,13 +980,13 @@ and
 
 $$
     \textbf B_2 = \begin{bmatrix}
-          a \over {C_A} &               0 &               0 & 0
+          a \over {C_A} &               0 &               0
     \\
-                      0 &   a \over {C_U} &               0 & 0
+                      0 &   a \over {C_U} &               0
     \\
-                      0 &               0 &   a \over {C_C} & 0
+                      0 &               0 &   a \over {C_C}
     \\
-        {1-a}\over{C_M} & {1-a}\over{C_M} & {1-a}\over{C_M} & 1
+        {1-a}\over{C_M} & {1-a}\over{C_M} & {1-a}\over{C_M}
     \end{bmatrix}
 $$
 
@@ -1015,9 +999,6 @@ $$
         \dot Q_{HVAC_{U}}
     \\
         \dot Q_{HVAC_{C}}
-    \\
-        \dot Q_{HVAC_{M}}
-
     \end{bmatrix}
 $$
 
@@ -1042,7 +1023,7 @@ For each zone $n \in \{A,U,C\}$, the operating mode is
 
 $$
 
-    m_n = \left\{ \begin{matrix}
+    m_n = \left\{\begin{matrix}
         +1 &:& T_n \lt T_n^o
     \\
         -1 &:& T_n \ge T_n^o
@@ -1051,22 +1032,23 @@ $$
 
 $$
 
-### Step 2 - Compute the equilibrium load
+### Step 2 - Compute the building mass equilibrium temperature
 
-Solve Equation (2) for $\textbf{u}$ at the temperature setpoint given $\dot {\textbf T}=0$, i.e.,
+Now that we have characterized the model with the system of equations that describe the energy balance of each zone, we now need to determine what HVAC heating/cooling power is required to heat/cool each zone to each of the corresponding setpoints. To achieve this we need to solve the Initial Value Problem when $t = \infty$. However, we have run into an issue.
+
+Since there is no HVAC system actively cooling the building mass zone there is no way to set a setpoint temperature for that zone. The resulting steady state temperature for the building mass is dependent on the temperatures and thermal gains from the other zones. In other words, since we are unable to set the setpoint for the building mass we must determine what the equilibrium temperature is for the building mass at steady state is when all other setpoints are met.
+
+$$
+     \dot {\textbf T} = \textbf A \textbf T + \textbf B_1 \textbf q + \textbf B_2 \textbf u
+$$
+
+when $t = \infty$, $\dot {\textbf T} = 0$, and ${\textbf T} = {\textbf T}^*$
+
+where the steady state temperatures for each zone are
 
 $$
 
-    {\textbf u} = -{\textbf B}_2^{-1} ( {\textbf A} {\textbf T}^* + {\textbf B}_1 \textbf{q} )
-
-
-$$
-
-where the setpoint is
-
-$$
-
-    {\textbf T}^* = T_{set} - m \begin{bmatrix}  0 \\ T_{unoccupied} \\ T_{core} \\ 0 \end{bmatrix}
+    {\textbf T}^* = \begin{bmatrix}  T_{set_{A}} \\ T_{set_{U}}  \\ T_{set_{C}}  \\ T_{M_{eq}} \end{bmatrix} = \begin{bmatrix}  T_{set} \\ T_{set} - mT_{unoccupied} \\ T_{set} - mT_{core} \\ T_{M_{eq}} \end{bmatrix}
 
 
 $$
@@ -1077,10 +1059,82 @@ where
 - $m$ is the building operating mode, i.e., `-1` for cooling and `+1` for heating,
 - $T_{unoccupied}$ is the unoccupied temperature setpoint offset, e.g., `10 degF`, and
 - $T_{core}$ is the core temperature setpoint offset, e.g., `5 degF`.
+- $T_{M_{eq}}$ is the equilibrium temperature assuming steady state with all other zone setpoints being met.
+  $$
+      \textbf 0
+      =
+      \textbf A
+      \begin{bmatrix}
+          T_{set_{A}}
+      \\
+          T_{set_{U}}
+      \\
+          T_{set_{C}}
+      \\
+          T_{M_{eq}}
+      \end{bmatrix}
+      +
+      \textbf B_1
+      \textbf q
+      +
+      \textbf B_2
+      \begin{bmatrix}
+          \dot Q_{HVAC_{A}}
+      \\
+          \dot Q_{HVAC_{U}}
+      \\
+          \dot Q_{HVAC_{C}}
+      \end{bmatrix}
+  $$
 
-### Step 3 - Constrain the heat gain/loss
+Expanding out each of the four equations above we have,
 
-The value of $\textbf u$ obtain from Equation (2) may exceed the limits of the HVAC system, in which can they must be constrained such that element-wise
+$$
+Q_{HVAC_{A}} = \frac{-U_{OA}T_O  + (U_{OA}+U_{UA}+U_{CA}+U_{MA})T_{set_{A}}  - U_{UA}T_{set_{U}}  - U_{CA}T_{set_C} -U_{MA}T_{M_{eq}}}{a} - Q_{gains_{A}}\qquad (7a)
+$$
+
+$$
+Q_{HVAC_{A}} = C_1 - \frac{U_{MA}T_{M_{eq}}}{a}
+$$
+
+$$
+Q_{HVAC_{U}} = \frac{-U_{OU}T_O - U_{UA}T_{set_{A}} + (U_{OU}+U_{UA}+U_{UC}+U_{MU})T_{set_{U}}    - U_{UC}T_{set_C}-U_{MU}T_{M_{eq}}}{a} - Q_{gains_{U}}\qquad (7b)
+$$
+
+$$
+Q_{HVAC_{A}} = C_2 - \frac{U_{MU}T_{M_{eq}}}{a}
+$$
+
+$$
+Q_{HVAC_{C}} = \frac{-U_{OC}T_O - U_{CA}T_{set_{A}}  - U_{UC}T_{set_U} + (U_{OC}+U_{UC}+U_{CA}+U_{MC})T_{set_{C}} -U_{MC}T_{M_{eq}} }{a} - Q_{gains_{C}}\qquad (7c)
+$$
+
+$$
+Q_{HVAC_{A}} = C_3 - \frac{U_{MC}T_{M_{eq}}}{a}
+$$
+
+$$
+T_{M_{eq}} = \frac{U_{OM}T_O  + U_{MA}T_{set_{A}}  + U_{MU}T_{set_{U}}  + U_{MC}T_{set_C}  + (1-a)(\dot Q_{Gains_{A}}+\dot Q_{Gains_{U}}+\dot Q_{Gains_{C}}+\dot Q_{HVAC_{A}}+\dot Q_{HVAC_{U}}+\dot Q_{HVAC_{C}}) + \dot Q_{gains_M}}{U_{OM}+ U_{MA}+ U_{MU}+ U_{MC}}\qquad (7d)
+$$
+
+Since there are 4 equations and 4 unkowns $(\dot Q_{HVAC_{A}},\dot Q_{HVAC_{U}},\dot Q_{HVAC_{C}}, T_{M_{eq}})$ we can rewrite the top 3 equations so that we can solve for $T_{M_{eq}}$ without having to know the HVAC energy gains for each zone. Doing so results in the equation:
+
+$$
+T_{M_{eq}} = \frac{U_{OM}T_O  + U_{MA}T_{set_{A}}  + U_{MU}T_{set_{U}}  + U_{MC}T_{set_C}  + (1-a)(\dot Q_{Gains_{A}}+\dot Q_{Gains_{U}}+\dot Q_{Gains_{C}}+C_1+C_2+C_3) + \dot Q_{M}}{U_{OM}+ U_{MA}+ U_{MU}+ U_{MC}+\frac{1-a}{a}(U_{MA}+ U_{MU}+ U_{MC})}\qquad (8)
+$$
+
+### Step 3 - Compute the equilibrium load
+
+Solve Equation (6) for $\textbf{u}$ at the temperature setpoint given $\dot {\textbf T}=0$, i.e.,
+
+$$
+
+    {\textbf u} = -{\textbf B}_2^{-1} ( {\textbf A} {\textbf T}^* + {\textbf B}_1 \textbf{q} )\qquad (9)
+$$
+
+### Step 4 - Constrain the heat gain/loss
+
+The value of $\textbf u$ obtained from Equation (9) may exceed the limits of the HVAC system, in which can they must be constrained such that element-wise
 
 $$
 
@@ -1091,26 +1145,44 @@ $$
 
 where $\underline {\textbf u}$ is the maximum cooling capacity and $\overline {\textbf u}$ is the maximum heating capacity of the HVAC system.
 
-### Step 4 - Compute the equilibrium temperature
-
-Solve for the equilibrium temperature using Equation (2) given the control input $\textbf{u}$
-
-$$
-
-    \tilde{\textbf T} = -{\textbf A}^{-1}({\textbf B}_1 {\textbf q} + {\textbf B}_2 {\textbf u^*})
-
-
-$$
-
 ### Step 5 - Compute the zone temperature changes
 
-Given the constrained values $\textbf u^*$, we update the zone temperatures for the elapsed time $t$ using the solution Equation (2):
+Given the constrained values $\textbf u^*$, we update the original equation as such:
 
 $$
+    \dot{\textbf  T}(t) = \textbf A \textbf T(t) + \textbf B_1 \textbf q + \textbf B_2 \textbf u^*  \qquad (10)
+$$
 
-    {\textbf T}(t) = \tilde{\textbf T} + e^{\textbf A t} {\textbf T}(0) + {\textbf A}^{-1} ( e^{\textbf A t} - {\textbf I} ) ( {\textbf B}_1 {\textbf q} + {\textbf B}_2 {\textbf u}^* )
+The system of nonhomogeneous first order differential equation can be solved in many different ways. To solve the system of equations we can use variation of parameters such that,
 
+$$
+\textbf{T}(t) = X(t)X^{-1}(t_0)T(t_0) + X(t) \int_{t_0}^{t}  X^{-1}(s)( \textbf B_1 \textbf q + \textbf B_2 \textbf u^* ) \,ds\qquad (11)
+$$
 
+where $X(t)$ is the fundamental matrix for the homogeneous system.
+
+Another way of solving the equation for temperature is to solve the system of equations using numerical methods such as Euler's method or Runge-Kutta.
+
+To get an idea of the shape of the temperature response we can think of solving each zone one at a time.
+
+$$
+\frac{dT_z(t)}{dt} + P(t)T_z(t) = Q(t) \qquad (12)
+$$
+
+where
+
+$$
+P(t) = -A_z
+$$
+
+$$
+Q(t) = \textbf B_{1_z} \textbf q_z + \textbf B_{2_z} \textbf u^*_z
+$$
+
+resulting in the temperature response given for some initial temperature for each zone $z.$
+
+$$
+T_z(t) = \frac{Q(t)}{P(t)} + (T_z(t_0)-\frac{Q(t)}{P(t)})e^{-P(t)t}\qquad (13)
 $$
 
 # Heating/Cooling Design Conditions
@@ -1177,7 +1249,7 @@ The power consumption is the sum of all the end-use loads and the HVAC load give
 
 $$
 
-    P = Q_{AE} + Q_{CE} + { E\over \eta_M } ||u||_1^*
+    P = Q_{Enduse_A} + Q_{Enduse_C} + { E\over \eta_M } ||u||_1^*
 
 
 $$
