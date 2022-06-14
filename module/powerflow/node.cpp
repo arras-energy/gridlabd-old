@@ -511,39 +511,6 @@ int node::create(void)
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
 
-	if ( voltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		voltage_violation_threshold = default_voltage_violation_threshold;
-	}
-	else if ( voltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		voltage_violation_threshold = 0.0;
-	}
-	if ( undervoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		undervoltage_violation_threshold = default_undervoltage_violation_threshold;
-	}
-	else if ( undervoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		undervoltage_violation_threshold = 0.0;
-	}
-	if ( overvoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		overvoltage_violation_threshold = default_overvoltage_violation_threshold;
-	}
-	else if ( overvoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		overvoltage_violation_threshold = 0.0;
-	}
-	if ( voltage_fluctuation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		voltage_fluctuation_threshold = default_voltage_fluctuation_threshold;
-	}
-	else if ( voltage_fluctuation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		voltage_fluctuation_threshold = 0.0;
-	}
-
 	return result;
 }
 
@@ -1462,6 +1429,39 @@ int node::init(OBJECT *parent)
 	{
 		//Set the frequency reference, based on the system value
 		freq_omega_ref = 2.0 * PI * nominal_frequency;
+	}
+
+	if ( voltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		voltage_violation_threshold = default_voltage_violation_threshold;
+	}
+	else if ( voltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		voltage_violation_threshold = 0.0;
+	}
+	if ( undervoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		undervoltage_violation_threshold = default_undervoltage_violation_threshold;
+	}
+	else if ( undervoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		undervoltage_violation_threshold = 0.0;
+	}
+	if ( overvoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		overvoltage_violation_threshold = default_overvoltage_violation_threshold;
+	}
+	else if ( overvoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		overvoltage_violation_threshold = 0.0;
+	}
+	if ( voltage_fluctuation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	{
+		voltage_fluctuation_threshold = default_voltage_fluctuation_threshold;
+	}
+	else if ( voltage_fluctuation_threshold < 0.0 ) // <0.0 --> disable threshold
+	{
+		voltage_fluctuation_threshold = 0.0;
 	}
 
 	return result;
