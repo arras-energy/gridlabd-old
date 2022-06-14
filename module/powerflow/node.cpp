@@ -2735,29 +2735,29 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 		}//End delta/wye explicit
 
 #ifdef SUPPORT_OUTAGES
-	if (is_open_any())
-		throw "unable to handle node open phase condition";
+		if (is_open_any())
+			throw "unable to handle node open phase condition";
 
-	if (is_contact_any())
-	{
-		/* phase-phase contact */
-		if (is_contact(PHASE_A|PHASE_B|PHASE_C))
-			voltageA = voltageB = voltageC = (voltageA + voltageB + voltageC)/3;
-		else if (is_contact(PHASE_A|PHASE_B))
-			voltageA = voltageB = (voltageA + voltageB)/2;
-		else if (is_contact(PHASE_B|PHASE_C))
-			voltageB = voltageC = (voltageB + voltageC)/2;
-		else if (is_contact(PHASE_A|PHASE_C))
-			voltageA = voltageC = (voltageA + voltageC)/2;
+		if (is_contact_any())
+		{
+			/* phase-phase contact */
+			if (is_contact(PHASE_A|PHASE_B|PHASE_C))
+				voltageA = voltageB = voltageC = (voltageA + voltageB + voltageC)/3;
+			else if (is_contact(PHASE_A|PHASE_B))
+				voltageA = voltageB = (voltageA + voltageB)/2;
+			else if (is_contact(PHASE_B|PHASE_C))
+				voltageB = voltageC = (voltageB + voltageC)/2;
+			else if (is_contact(PHASE_A|PHASE_C))
+				voltageA = voltageC = (voltageA + voltageC)/2;
 
-		/* phase-neutral/ground contact */
-		if (is_contact(PHASE_A|PHASE_N) || is_contact(PHASE_A|GROUND))
-			voltageA /= 2;
-		if (is_contact(PHASE_B|PHASE_N) || is_contact(PHASE_B|GROUND))
-			voltageB /= 2;
-		if (is_contact(PHASE_C|PHASE_N) || is_contact(PHASE_C|GROUND))
-			voltageC /= 2;
-	}
+			/* phase-neutral/ground contact */
+			if (is_contact(PHASE_A|PHASE_N) || is_contact(PHASE_A|GROUND))
+				voltageA /= 2;
+			if (is_contact(PHASE_B|PHASE_N) || is_contact(PHASE_B|GROUND))
+				voltageB /= 2;
+			if (is_contact(PHASE_C|PHASE_N) || is_contact(PHASE_C|GROUND))
+				voltageC /= 2;
+		}
 #endif
 
 		// if the parent object is another node
