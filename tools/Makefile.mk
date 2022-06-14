@@ -2,6 +2,7 @@ dist_pkgdata_DATA += tools/create_filter.py
 dist_pkgdata_DATA += tools/create_player.py
 dist_pkgdata_DATA += tools/create_poles.py
 dist_pkgdata_DATA += tools/eia_recs.py
+dist_pkgdata_DATA += tools/find_location.py
 dist_pkgdata_DATA += tools/fire_report.py
 dist_pkgdata_DATA += tools/fire_danger.py
 dist_pkgdata_DATA += tools/fit_filter.py
