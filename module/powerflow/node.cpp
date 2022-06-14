@@ -2529,7 +2529,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 	switch (solver_method)
 	{
 	case SM_FBS:
-		{
+	{
 		if (phases&PHASE_S)
 		{	// Split phase
 			complex temp_inj[2];
@@ -2793,7 +2793,6 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 			if ((NR_curr_bus==(int)NR_bus_count) && (obj==NR_swing_bus))	//Only run the solver once everything has populated
 			{
 				bool bad_computation=false;
-				NRSOLVERMODE powerflow_type;
 				
 				//See if we're the special fault_check mode
 				if (fault_check_override_mode == true)
@@ -2854,116 +2853,9 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 				}
 				else
 					NR_retval=t1;
-
-				// process DER voltage fluctuations
-				if ( DER_objectlist != NULL )
-				{
-					debug("starting DER voltage fluctuation checks...");
-
-					// save all the bus voltages before DER is applied
-					complex Vb[NR_bus_count][3];
-					for ( unsigned int b = 0 ; b < NR_bus_count ; b++ )
-					{
-						BUSDATA *bus = NR_busdata+b;
-						node *data = OBJECTDATA(bus->obj,node);
-						Vb[b][0] = data->voltage[0];
-						Vb[b][1] = data->voltage[1];
-						Vb[b][2] = data->voltage[2];
-						debug("saving bus %d (%s) VA=%.1fV<%+5.1fdeg, VB=%.1fV<%+5.1fdeg, VC=%.1fV<%+5.1fdeg",
-							b,GldObject(bus->obj).get_name().c_str(),
-							Vb[b][0].Mag(),Vb[b][0].Ang(),
-							Vb[b][1].Mag(),Vb[b][0].Ang(),
-							Vb[b][2].Mag(),Vb[b][0].Ang());
-					}
-
-					// process every bus looking for DER to apply
-					for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )
-					{
-						BUSDATA *der_bus = NR_busdata + der;
-						node *der_data = OBJECTDATA(der_bus->obj,node);
-						if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
-							continue; // ignore child nodes because they're already included in parent node DER_value
-						der_data->clear_violation();
-
-						// DER is present on this bus
-						if ( der_data->DER_value.r != 0.0 || der_data->DER_value.i != 0.0 )
-						{
-							GldObject der_obj(der_bus->obj);
-							char der_name[256];
-							strcpy(der_name,der_obj.get_name().c_str());
-							debug("testing impact of DER on bus %d (%s), DER_value %.1f%+.1fj",
-								der, der_name, der_data->DER_value.r, der_data->DER_value.i);
-
-							// test alternate solution with DER active
-							complex Pb[] = {der_bus->S[0],der_bus->S[1],der_bus->S[2]};
-							if (has_phase(PHASE_A)) der_bus->S[0] += der_data->DER_value;
-							if (has_phase(PHASE_B)) der_bus->S[1] += der_data->DER_value;
-							if (has_phase(PHASE_C)) der_bus->S[2] += der_data->DER_value;
-							int test = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);
-							if ( test > 0 )
-							{
-								for ( unsigned int check_bus = 0 ; check_bus < NR_bus_count ; check_bus++ )
-								{
-									node *check_data = OBJECTDATA(NR_busdata[check_bus].obj,node);
-									GldObject check_obj(NR_busdata[check_bus].obj);
-									char check_name[256];
-									strcpy(check_name,check_obj.get_name().c_str());
-									debug("checking for voltage fluctuation on bus %d (%s) VA=%.1fV<%+5.1fdeg, VB=%.1fV<%+5.1fdeg, VC=%.1fV<%+5.1fdeg",
-										check_bus, GldObject(NR_busdata[check_bus].obj).get_name().c_str(),
-										check_data->voltage[0].Mag(), check_data->voltage[0].Ang(),
-										check_data->voltage[1].Mag(), check_data->voltage[1].Ang(),
-										check_data->voltage[2].Mag(), check_data->voltage[2].Ang());
-									if ( has_phase(PHASE_A) && fabs((Vb[check_bus][0]-check_data->voltage[0]).Mag()) / Vb[check_bus][0].Mag() > voltage_fluctuation_threshold )
-									{
-										debug("phase A voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										check_data->add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
-											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										if ( DER_violation_test == DVT_ANY )
-										{
-											break;
-										}
-									}
-									if ( has_phase(PHASE_B) && fabs((Vb[check_bus][1]-check_data->voltage[1]).Mag()) / Vb[check_bus][1].Mag() > voltage_fluctuation_threshold )
-									{
-										debug("phase B voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										check_data->add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
-											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										if ( DER_violation_test == DVT_ANY )
-										{
-											break;
-										}
-									}
-									if ( has_phase(PHASE_C) && fabs((Vb[check_bus][2]-check_data->voltage[2]).Mag()) / Vb[check_bus][2].Mag() > voltage_fluctuation_threshold )
-									{
-										debug("phase C voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										check_data->add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
-											check_name, check_data->voltage[0].Mag(), voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
-										if ( DER_violation_test == DVT_ANY )
-										{
-											break;
-										}
-									}
-								}
-							}
-							else if ( test < 0 || bad_computation )
-							{
-								der_data->add_violation(VF_VOLTAGE,"%s DER_value %.1f+%.1fj kVA causes NR solver failure", 
-									GldObject(obj).get_name().c_str(),  der_data->DER_value.r, der_data->DER_value.i);
-							}
-
-							// restore original solution
-							der_bus->S[0] = Pb[0];
-							der_bus->S[1] = Pb[1];
-							der_bus->S[2] = Pb[2];
-							result = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, powerflow_type, NULL, &bad_computation);					
-						}
-					}
-				}
-
-				//See where we wanted to go
-				return NR_retval;
 			}
-			else if (NR_curr_bus==(int)NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
+
+			if (NR_curr_bus==(int)NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
 				return t1;
 			else	//Population of data busses is not complete.  Flag us for a go-around, they should be ready next time
 			{
@@ -3588,28 +3480,148 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 			pNode->add_violation(VF_VOLTAGE,"%s phase C voltage %.1f V is outside %.1f%% violation threshold", pNode->oclass->name, pNode->voltage[2].Mag(), pNode->voltage_violation_threshold*100);
 		}
 	}
+
 	try {
+
 		// This zeroes out all of the unused phases at each node in the FBS method
-		if (solver_method==SM_FBS)
+		if ( solver_method == SM_FBS)
 		{
-			if (pNode->has_phase(PHASE_A)) {
-			//leave it
+			if ( pNode->has_phase(PHASE_A) )  
+			{
+				// leave it
 			}
 			else
+			{
 				pNode->voltage[0] = complex(0,0);
+			}
 
-			if (pNode->has_phase(PHASE_B)) {
-				//leave it
+			if ( pNode->has_phase(PHASE_B) ) 
+			{
+				// leave it
 			}
 			else
+			{
 				pNode->voltage[1] = complex(0,0);
+			}
 
-			if (pNode->has_phase(PHASE_C)) {
-				//leave it
+			if ( pNode->has_phase(PHASE_C) ) 
+			{
+				// leave it
 			}
 			else
+			{
 				pNode->voltage[2] = complex(0,0);
+			}
 			
+		}
+		else if ( solver_method == SM_NR && pNode->DER_objectlist != NULL ) // process DER voltage fluctuations
+		{
+			pNode->debug("starting DER voltage fluctuation checks...");
+
+			// save all the bus voltages before DER is applied
+			complex Vb[NR_bus_count][3];
+			for ( unsigned int b = 0 ; b < NR_bus_count ; b++ )
+			{
+				BUSDATA *bus = NR_busdata+b;
+				node *data = OBJECTDATA(bus->obj,node);
+				Vb[b][0] = data->voltage[0];
+				Vb[b][1] = data->voltage[1];
+				Vb[b][2] = data->voltage[2];
+				pNode->debug("saving bus %d (%s) VA=%.1fV<%+5.1fdeg, VB=%.1fV<%+5.1fdeg, VC=%.1fV<%+5.1fdeg",
+					b,GldObject(bus->obj).get_name().c_str(),
+					Vb[b][0].Mag(),Vb[b][0].Ang(),
+					Vb[b][1].Mag(),Vb[b][0].Ang(),
+					Vb[b][2].Mag(),Vb[b][0].Ang());
+			}
+
+			// process every bus looking for DER to apply
+			for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )
+			{
+				BUSDATA *der_bus = NR_busdata + der;
+				node *der_data = OBJECTDATA(der_bus->obj,node);
+				if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
+					continue; // ignore child nodes because they're already included in parent node DER_value
+				der_data->clear_violation();
+
+				// DER is present on this bus
+				if ( der_data->DER_value.r != 0.0 || der_data->DER_value.i != 0.0 )
+				{
+					bool bad_computation=false;
+					GldObject der_obj(der_bus->obj);
+					char der_name[256];
+					strcpy(der_name,der_obj.get_name().c_str());
+					pNode->debug("testing impact of DER on bus %d (%s), DER_value %.1f%+.1fj",
+						der, der_name, der_data->DER_value.r, der_data->DER_value.i);
+
+					// test alternate solution with DER active
+					complex Pb[] = {der_bus->S[0],der_bus->S[1],der_bus->S[2]};
+					if ( pNode->has_phase(PHASE_A) ) der_bus->S[0] += der_data->DER_value;
+					if ( pNode->has_phase(PHASE_B) ) der_bus->S[1] += der_data->DER_value;
+					if ( pNode->has_phase(PHASE_C) ) der_bus->S[2] += der_data->DER_value;
+					int test = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, pNode->powerflow_type, NULL, &bad_computation);
+					if ( test > 0 )
+					{
+						for ( unsigned int check_bus = 0 ; check_bus < NR_bus_count ; check_bus++ )
+						{
+							node *check_data = OBJECTDATA(NR_busdata[check_bus].obj,node);
+							GldObject check_obj(NR_busdata[check_bus].obj);
+							char check_name[256];
+							strcpy(check_name,check_obj.get_name().c_str());
+							pNode->debug("checking for voltage fluctuation on bus %d (%s) VA=%.1fV<%+5.1fdeg, VB=%.1fV<%+5.1fdeg, VC=%.1fV<%+5.1fdeg",
+								check_bus, GldObject(NR_busdata[check_bus].obj).get_name().c_str(),
+								check_data->voltage[0].Mag(), check_data->voltage[0].Ang(),
+								check_data->voltage[1].Mag(), check_data->voltage[1].Ang(),
+								check_data->voltage[2].Mag(), check_data->voltage[2].Ang());
+							if ( pNode->has_phase(PHASE_A) && fabs((Vb[check_bus][0]-check_data->voltage[0]).Mag()) / Vb[check_bus][0].Mag() > pNode->voltage_fluctuation_threshold )
+							{
+								pNode->debug("phase A voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								check_data->add_violation(VF_VOLTAGE,"%s phase A voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+									check_name, check_data->voltage[0].Mag(), pNode->voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								if ( pNode->DER_violation_test == DVT_ANY )
+								{
+									break;
+								}
+							}
+							if ( pNode->has_phase(PHASE_B) && fabs((Vb[check_bus][1]-check_data->voltage[1]).Mag()) / Vb[check_bus][1].Mag() > pNode->voltage_fluctuation_threshold )
+							{
+								pNode->debug("phase B voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								check_data->add_violation(VF_VOLTAGE,"%s phase B voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+									check_name, check_data->voltage[0].Mag(), pNode->voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								if ( pNode->DER_violation_test == DVT_ANY )
+								{
+									break;
+								}
+							}
+							if ( pNode->has_phase(PHASE_C) && fabs((Vb[check_bus][2]-check_data->voltage[2]).Mag()) / Vb[check_bus][2].Mag() > pNode->voltage_fluctuation_threshold )
+							{
+								pNode->debug("phase C voltage fluctuation violation detected on '%s' due to '%s' DER_value %.1f%+.1fj",check_name, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								check_data->add_violation(VF_VOLTAGE,"%s phase C voltage magnitude %.1f V outside %.1f%% violation threshold for %s DER_value %.1f%+.1fj kVA", 
+									check_name, check_data->voltage[0].Mag(), pNode->voltage_fluctuation_threshold*100, der_name, der_data->DER_value.r, der_data->DER_value.i);
+								if ( pNode->DER_violation_test == DVT_ANY )
+								{
+									break;
+								}
+							}
+						}
+					}
+					else if ( test < 0 || bad_computation )
+					{
+						der_data->add_violation(VF_VOLTAGE,"%s DER_value %.1f+%.1fj kVA causes NR solver failure", 
+							GldObject(obj).get_name().c_str(),  der_data->DER_value.r, der_data->DER_value.i);
+					}
+
+					// restore original solution
+					der_bus->S[0] = Pb[0];
+					der_bus->S[1] = Pb[1];
+					der_bus->S[2] = Pb[2];
+					int result = solver_nr(NR_bus_count, NR_busdata, NR_branch_count, NR_branchdata, &NR_powerflow, pNode->powerflow_type, NULL, &bad_computation);
+					if ( result < 0 )
+					{
+						pNode->error("resolve of reference DER case failed");
+						return TS_INVALID;
+					}
+				}
+			}
 		}
 		return TS_NEVER;
 	}
