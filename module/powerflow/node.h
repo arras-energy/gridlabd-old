@@ -144,6 +144,8 @@ public:
 	// DER globals
 	static unsigned int DER_nodecount;		///< count of DER nodes
 	static OBJECT **DER_objectlist;			///< list of DER objects to examine for voltage fluctuations violations
+	static unsigned int DER_buscount;		///< count of DER busses
+	static unsigned int *DER_buslist;		///< list of DER bus id to examine for voltage violations
 
 	double frequency;			///< frequency (only valid on reference bus) */
 	object reference_bus;		///< reference bus from which frequency is defined */
