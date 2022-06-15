@@ -26,6 +26,8 @@ Options:
 
   -e|--end=YYYY-MM-DD    Specify the end date (optional)
 
+  -r|--refresh           Force refresh of cache data (optional)
+
 DESCRIPTION
 
 The meteostat_weather tool gathers data from the Meteostat website and converts it
@@ -76,6 +78,7 @@ END_TIME = None
 TIMEOUT = 10
 TIMESTEP = 0.1
 GEOHASH_RESOLUTION = 5
+REFRESH = False
 
 DATA_COLUMNS = [
   'date', #    The date string (format: YYYY-MM-DD)    String
@@ -125,7 +128,7 @@ SOLAR_CONDITIONS = { # factor to reduce direct solar based on conditions
 }
 
 try:
-    CACHE_DIR = getenv("GLD_ETC") + "/weather/meteostat"
+    CACHE_DIR = share + "/weather/meteostat"
 except:
     CACHE_DIR = "/tmp/meteostat"
 os.makedirs(CACHE_DIR,exist_ok=True)
@@ -138,6 +141,7 @@ class MeteostatError(Exception):
 
 def error(msg,code=None):
     if not QUIET:
+        global BASENAME
         print(f"ERROR [{BASENAME}]: {msg} (code {code})", file=sys.stderr, flush=True)
     if DEBUG:
         raise MeteostatError(msg)
@@ -166,19 +170,24 @@ def file_unlock(lockname):
     os.rmdir(lockname)
 
 def verbose(msg):
+    global VERBOSE
     if VERBOSE:
+        global BASENAME
         print(f"VERBOSE [{BASENAME}]: {msg}", file=sys.stderr, flush=True)
 
 def get_stations(refresh=True):
+    global STATIONS_FILE
     lockname = file_lock(STATIONS_FILE)
     try:
         if not os.path.exists(STATIONS_FILE) or refresh:
+            global URL_STATIONS
             reply = requests.get(URL_STATIONS)
             if reply.status_code != 200:
                 error(f"{URL_STATIONS} error {reply.status_code}",E_INVALID)
             with open(STATIONS_FILE,"wb") as fh:
                 fh.write(reply.content)
         with gzip.open(STATIONS_FILE,"r") as fh:
+            global STATIONS
             STATIONS = json.load(fh)
             return STATIONS
     except:
@@ -188,6 +197,8 @@ def get_stations(refresh=True):
     error(f"{STATIONS_FILE} is not a valid jzon gz file",E_INVALID)
 
 def find_station(lat,lon):
+    global STATIONS_RECENT
+    global GEOHASH_RESOLUTION
     try:
         lockname = file_lock(STATIONS_RECENT)
         geohash = nsrdb_weather.geohash(lat,lon,GEOHASH_RESOLUTION)
@@ -239,8 +250,10 @@ def change_column(data,from_name,to_name,transformation):
     return data.drop(from_name,axis=1)
 
 def get_weather(station,start=None,stop=None):
+    global CACHE_DIR
     station_file = f"{CACHE_DIR}/{station}.csv.gz"
-    if not os.path.exists(station_file):
+    global REFRESH
+    if not os.path.exists(station_file) or REFRESH:
         url = URL_HOURLY.format(station=station)
         verbose(f"downloading data from {url}")
         reply = requests.get(url)
@@ -248,6 +261,7 @@ def get_weather(station,start=None,stop=None):
             error(f"{url} error {reply.status_code}",E_INVALID)
         with open(station_file,"wb") as fh:
             fh.write(reply.content)
+    global DATA_COLUMNS
     data = pandas.read_csv(station_file,names=DATA_COLUMNS,index_col=0,parse_dates=[DATA_COLUMNS[0:2]],).sort_index()
 
     # convert to gridlabd weather format/units
@@ -261,14 +275,18 @@ def get_weather(station,start=None,stop=None):
     data = change_column(data,"wind_direction[deg]","wind_dir[deg]",lambda x:round(x,1))
 
     if start:
-        if stop:
-            data = data.loc[start:stop]
-        else:
-            data = data.loc[start:]
+        start = datetime.datetime.strptime(start,"%Y-%m-%d")
+    if stop:
+        stop = datetime.datetime.strptime(stop,"%Y-%m-%d")
+    if start and stop:
+        data = data.loc[start:stop]
+    elif start:
+        data = data.loc[start:]
     elif stop:
         data = data.loc[:stop]
 
     verbose(f"get_weather(station='{station}',start={start},stop={stop}) --> {len(data)} rows")
+
     return data
 
 def get_solar(data,latitude,longitude):
@@ -279,6 +297,7 @@ def get_solar(data,latitude,longitude):
         date = datetime.datetime.fromtimestamp(dt.timestamp(),datetime.timezone.utc)
         altitude = get_altitude(latitude, longitude, date)
         if altitude > 0:
+            global SOLAR_CONDITIONS
             condition_factor = SOLAR_CONDITIONS[int(data.loc[dt]["condition_code"])]
             solar_direct.append(round(radiation.get_radiation_direct(date, altitude)*condition_factor/10.764,1))
         else:
@@ -306,13 +325,15 @@ try:
         elif tag in ["-n","--name"]:
             OBJECT_NAME = value
         elif tag in ["-s","--start"]:
-            START_TIME = datetime.datetime.strptime(value,"%Y-%m-%d")
+            START_TIME = value
         elif tag in ["-e","--end"]:
-            END_TIME = datetime.datetime.strptime(value,"%Y-%m-%d")
+            END_TIME = value
         elif tag in ["-p","--position"]:
             LOCATION = list(map(lambda x:float(x),value.split(",")))
             if len(LOCATION) != 2:
                 error(f"position '{LOCATION}' is invalid",E_INVALID)
+        elif tag in ["-r","--refresh"]:
+            REFRESH = True
         elif tag in ["-d","--debug"]:
             DEBUG = True
         elif tag in ["-v","--verbose"]:
@@ -336,32 +357,32 @@ try:
     station_id = station_info["id"]
     station_cache = CACHE_DIR + "/" + station_id + "_" + START_TIME + "_" + END_TIME + ".csv"
     if os.path.exists(station_cache):
-        data = pandas.read_csv(station_cache)
+        data = pandas.read_csv(station_cache,index_col=0,parse_dates=[0])
     else:
         data = get_weather(station_id,START_TIME,END_TIME)
         data['solar_direct[W/sf]'] = get_solar(data,*LOCATION)
         data.to_csv(station_cache)
 
-    if not OUTPUT_NAME:
+    if not CSV_NAME:
 
         verbose("writing CSV to stdout")
         print(data.to_csv(),end='')
 
-    elif os.path.splitext(OUTPUT_NAME)[1] == ".csv":
+    elif os.path.splitext(CSV_NAME)[1] == ".csv":
 
         verbose(f"writing CSV to {OUTPUT_NAME}")
-        data.to_csv(OUTPUT_NAME)
+        data.to_csv(CSV_NAME,header=None,na_rep="0")
 
-    elif os.path.splitext(OUTPUT_NAME)[1] == ".glm":
+    else:
+        error(f"{OUTPUT_NAME} is not a known file format for weather data",E_INVALID)
+
+    if os.path.splitext(OUTPUT_NAME)[1] == ".glm":
 
         if not OBJECT_NAME:
             OBJECT_NAME = f"meteostat_{station_info['id']}"
 
         if not CSV_NAME:
-            CSV_NAME = f"meteostat_{station_info['id']}.csv"
-
-        verbose(f"writing CSV to {CSV_NAME}")
-        data.to_csv(CSV_NAME,header=None,na_rep="0")
+            error(f"cannot output GLM if CSV file name is not provided",E_INVALID)
 
         verbose(f"writing GLM to {OUTPUT_NAME}")
         with open(OUTPUT_NAME,"w") as glm:
@@ -385,6 +406,9 @@ try:
             property_names = [ x.split('[')[0] for x in data.columns ]
             print(f"    property \"{','.join(property_names)}\";",file=glm)
             print("}",file=glm)
+
+    else:
+        error(f"{OUTPUT_NAME} is not a known file format for a GridLAB-D model",E_INVALID)
 
 except SystemExit:
 

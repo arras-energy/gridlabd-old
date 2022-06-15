@@ -1,6 +1,6 @@
 // test_meteostat.glm
 
-#python -m meteostat_weather -p=37.5,-122.3 -n=test -g=test_meteostat_opt.glm -s=2020-01-01 -e=2021-01-01
+#python -m meteostat_weather -r -p=37.5,-122.3 -n=test -g=test_meteostat_opt.glm -s=2020-01-01 -e=2020-02-01 -c=test_meteostat_opt.csv
 
 #include "test_meteostat_opt.glm"
 
@@ -22,3 +22,6 @@ object recorder
     property "temperature,dewpoint,humidity,solar_direct";
 }
 
+#ifexist ../test_meteostat.csv
+#on_exit 0 diff -I "^//" ../test_meteostat.csv test_meteostat.csv
+#endif
