@@ -115,9 +115,18 @@ weather::weather(MODULE *module)
 
 EXPORT int create_weather(OBJECT **obj, OBJECT *parent)
 {
-	weather *my = (weather*)(obj+1);
-	my->next = NULL;
-	return 1;	// don't want it to get called, but better to have it not be fatal
+	*obj = gl_create_object(weather::oclass);
+	if ( *obj != NULL )
+	{
+		weather *my = OBJECTDATA(*obj,weather);
+		gl_set_parent(*obj,parent);
+		my->next = NULL;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 /// Synchronize the cliamte object
