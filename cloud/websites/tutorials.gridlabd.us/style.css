@@ -1,0 +1,13 @@
+body {
+	background: lightgrey;
+	font: 18px Arial;
+}
+
+h1 {
+	color: blue;
+}
+
+button.play {
+	color:  white;
+	background-color: red;
+}

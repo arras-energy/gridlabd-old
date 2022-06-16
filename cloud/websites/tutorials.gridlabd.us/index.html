@@ -1,15 +1,35 @@
 <HTML>
+
 <HEAD>
 	<TITLE>HiPAS GridLAB-D Tutorials</TITLE>
+	<BASE HREF="http://tutorials.gridlabd.us/" />
+	<LINK REL="stylesheet" HREF="style.css" />
 </HEAD>
+
+<SCRIPT LANGUAGE="Javascript">
+
+function play(url)
+{
+	player = document.getElementById("player")
+	player.src = url;
+}
+
+</SCRIPT>
+
 <BODY>
+
+<video id="player" controls="controls"type="video/mp4" height="500" width="800" autoplay>
+    Your browser does not support the video tag.
+</video>
+
 <H1>Users</H1>
 
 Coming soon.
 
 <H1>Developers</H1>
 <OL>
-	<LI>Session 1 - Introduction <A HREF="developer/session1.mp4">MP4</A> <A HREF="developer/session1.pdf">PDF</A> </LI>
+	<LI>Session 1 - Introduction <BUTTON CLASS="play" ONCLICK="play('developer/session1.mp4')">&#9654;</BUTTON> [<A HREF="developer/session1.mp4">MP4</A>] [<A HREF="developer/session1.pdf">PDF</A>] </LI>
 </OL>
 </BODY>
+
 </HTML>
