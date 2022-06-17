@@ -18,6 +18,7 @@ public:
     GL_ATOMIC(object,equipment);
     GL_ATOMIC(double,height);
     GL_ATOMIC(double,offset);
+    GL_ATOMIC(double,offset_directio);
     GL_ATOMIC(double,direction);
     GL_ATOMIC(double,weight);
     GL_ATOMIC(double,area);
