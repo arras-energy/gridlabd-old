@@ -42,13 +42,17 @@ pole_mount::pole_mount(MODULE *mod)
                 PT_DEFAULT, "0.0 ft",
                 PT_DESCRIPTION, "distance from pole centerline at which equipment is mounted",
 
+            PT_double, "direction[deg]", get_direction_offset(),
+                PT_DEFAULT, "0.0 deg",
+                PT_DESCRIPTION, "direction from pole centerline at which equipment is mounted",
+
             PT_double, "area[sf]", get_area_offset(),
                 PT_DEFAULT, "0.0 sf",
                 PT_DESCRIPTION, "cross sectional area of equipment",
 
-            PT_double, "direction[deg]", get_direction_offset(),
+            PT_double, "heading_direction[deg]", get_direction_offset(),
                 PT_DEFAULT, "0.0 deg",
-                PT_DESCRIPTION, "direction from pole centerline at which equipment is mounted",
+                PT_DESCRIPTION, "direction at which the powerline pulls away from the pole",
 
             PT_double, "weight[lb]", get_weight_offset(),
                 PT_DEFAULT, "0.0 lb",
