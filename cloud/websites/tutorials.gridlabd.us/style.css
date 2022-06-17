@@ -7,11 +7,15 @@ h1 {
 }
 
 button {
-	color:  white;
-	background-color: red;
+	color: white;
 	border-radius: 4px;
 }
 
-select.selector {
+select
 	font-size: 18px Arial;
+}
+
+cite
+{
+	font-size: 10;
 }

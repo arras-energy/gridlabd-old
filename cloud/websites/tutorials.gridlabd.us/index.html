@@ -2,7 +2,6 @@
 
 <HEAD>
 	<TITLE>HiPAS GridLAB-D Tutorials</TITLE>
-	<BASE HREF="http://tutorials.gridlabd.us/" />
 	<LINK REL="stylesheet" HREF="style.css" />
 </HEAD>
 
@@ -12,12 +11,11 @@
 	{
 		var file = document.getElementById("session").value;
 		document.getElementById('player').src = file;
-		// document.getElementById('downloader').href = file.replace('.mp4','.pdf')
 	}
 
 	function download()
 	{
-		var file = document.getElementById("session").value.replace('.mp4','.pdf');
+		var file = document.getElementById("session").value.replace(/\.mp4[^.]*$/,'.pdf');
 		window.open(file)
 	}
 
@@ -26,21 +24,78 @@
 <BODY>
 
 <CENTER>
-	<H1>GridLAB-D Training Video Library</H1>
+	<H1>HiPAS GridLAB-D Training Video Library</H1>
 	<VIDEO ID="player" HEIGHT="600" WIDTH="900" CONTROLS AUTOPLAY>Your browser does not support embedded video playbacks</VIDEO>
 	<BR/>
-	Session playing: <SELECT CLASS="selector" ID="session" ONCHANGE="play()">
-		<OPTGROUP LABEL="User Tutorials">
-		</OPTGROUP>
-		<OPTGROUP LABEL="Developer Tutorials">
-			<OPTION VALUE="developer/session1.mp4#t=27" SELECTED>Introduction</OPTION>
-		</OPTGROUP>
+	Session playing: 
+	<SELECT ID="session" ONCHANGE="play()">
 	</SELECT>
 	(View slides: <BUTTON ONCLICK="download()">&#x1F5A5;</BUTTON>)
 </CENTER>
 
 <SCRIPT TYPE="text/javascript">
 
+	var reader = new XMLHttpRequest()
+	reader.open("get","library.csv",false)
+	reader.send()
+	if ( reader.status != 200 )
+	{
+		alert("Library index is not available: ${reader.statusText} (code ${reader.status})")
+	}
+	library_csv = reader.response.trim().split(/\r\n|\n/);
+	first = true
+	group = false
+	select = ""
+	for ( record of library_csv )
+	{
+		record = record.trim()
+		// console.log("RECORD: '" + record + "'");
+		if ( record === '' )
+		{
+			continue;
+		}
+		info = record.split(/,/);
+		if ( info.length === 1 )
+		{
+			if ( group )
+			{
+				select += "\t</OPTGROUP>\n";
+			}
+			select += "\t<OPTGROUP LABEL=\"" + info[0] + "\">\n";
+			group = true;
+		}
+		else if ( info.length === 3 )
+		{
+			// console.log("SESSION: " + info);
+			select += "\t\t<OPTION VALUE=\"" + info[0] + ".mp4#t=" + info[2] + "\""
+			if ( first )
+			{
+				select += " SELECTED";
+				first = false;
+			}
+			select += ">" + info[1] + "</OPTION>\n"
+		}
+		else
+		{
+			console.log(info + " is invalid (len = " + info.length + ")");
+		}
+	}
+	if ( group )
+	{
+		select += "\t</OPTGROUP>\n";
+	}
+	console.log("OPTIONS:\n" + select);
+	document.getElementById("session").innerHTML = select;
 	play()
 
 </SCRIPT>
+
+<HR/>
+
+<CITE ALIGN="center">
+	HiPAS GridLAB-D Version 4.3 Tutorials
+<BR/>
+	Copyright &copy; 2022, Regents of the Leland Stanford Junior University
+</CITE>
+
+<HR/>
