@@ -1,13 +1,17 @@
 body {
 	background: lightgrey;
-	font: 18px Arial;
 }
 
 h1 {
 	color: blue;
 }
 
-button.play {
+button {
 	color:  white;
 	background-color: red;
+	border-radius: 4px;
+}
+
+select.selector {
+	font-size: 18px Arial;
 }
