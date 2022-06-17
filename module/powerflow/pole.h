@@ -13,6 +13,8 @@
 class pole : public gld_object
 {
 public:
+	static double pole_overdesign_factor;
+public:
 	static CLASS *oclass;
 	static CLASS *pclass;
     static pole *defaults;
