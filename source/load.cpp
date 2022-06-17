@@ -5244,7 +5244,7 @@ int GldLoader::schedule(PARSER)
 	char schedname[64];
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
+	if (LITERAL("schedule") && WHITE && TERM(dashed_name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
 	{
 		char buffer[65536], *p=buffer;
 		int nest=0;
@@ -6311,7 +6311,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(dashed_name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )

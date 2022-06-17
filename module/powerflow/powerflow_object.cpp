@@ -83,6 +83,7 @@
  **/
 
 #include "powerflow.h"
+#include <time.h>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
@@ -232,6 +233,18 @@ int powerflow_object::init(OBJECT *parent)
 		phases ^= PHASE_N;
 	}
 
+	if ( violation_fh == NULL && violation_record[0] != '\0' )
+	{
+		violation_fh = fopen(violation_record,"w");
+		if ( violation_fh == NULL )
+		{
+			gl_error("unable to open violation record file '%s'", (const char*)violation_record);
+			violation_record[0] = '\0';
+			return 0;
+		}
+		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
+	}
+
 	return 1;
 }
 
@@ -274,17 +287,24 @@ int powerflow_object::kmldump(FILE *fp)
 	return 1; /* 1 means output default if it wasn't handled */
 }
 
+void powerflow_object::clear_violations(void)
+{
+	violation_active = 0;
+}
+
+void powerflow_object::clear_violation(void)
+{
+	violation_detected = VW_NONE;
+}
+
 void powerflow_object::add_violation(int vf_type, const char *format, ...)
 {
-	if ( violation_watch )
-	{
-		char message[1024];
-		va_list ptr;
-		va_start(ptr,format);
-		vsnprintf(message,sizeof(message)-1,format,ptr);
-		va_end(ptr);
-		add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
-	}
+	char message[1024];
+	va_list ptr;
+	va_start(ptr,format);
+	vsnprintf(message,sizeof(message)-1,format,ptr);
+	va_end(ptr);
+	add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
 }
 void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message)
 {
@@ -294,17 +314,6 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 		return;
 	}
 	violation_detected |= vf_type;
-	if ( violation_fh == NULL && violation_record[0] != '\0' )
-	{
-		violation_fh = fopen(violation_record,"w");
-		if ( violation_fh == NULL )
-		{
-			gl_error("unable to open violation record file '%s'", (const char*)violation_record);
-			violation_record[0] = '\0';
-			return;
-		}
-		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
-	}
 
 	const char *vf_name[] = 
 	{
@@ -314,7 +323,9 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 	if ( violation_fh != NULL )
 	{
 		char ts[64];
-		gl_strftime(t,ts,sizeof(ts)-1);
+		long tt = (t&0xffffffff);
+		struct tm *dt = gmtime(&tt);
+		strftime(ts,sizeof(ts)-1,"%Y-%m-%d %H:%M:%S",dt);
 		if ( obj->name != NULL )
 		{
 			fprintf(violation_fh,"%s,%s,%s,\"%s\"\n",ts,obj->name,vf_name[vf_type&0x0f],message);

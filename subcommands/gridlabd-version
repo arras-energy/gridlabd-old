@@ -52,10 +52,11 @@ function version-check()
 {
 	version=$(${BIN} --version)
 	branch=$(${BIN} --version=git-branch)
-	remote=$( (curl -sL "https://raw.githubusercontent.com/hipas/gridlabd/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
+	origin=$(${BIN} --version=git-repo |cut -f4- -d/)
+	remote=$( (curl -sL "https://raw.githubusercontent.com/$origin/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
 	if [ "$remote" == "none" -o -z "$remote" ]; then
-		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "$version ($branch) branch not found on github"
-		[ "$1" != "-q" ] && warning "$version ($branch) branch not found on github"
+		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "$version ($branch) branch not found on github $origin"
+		[ "$1" != "-q" ] && warning "$version ($branch) branch not found on github $origin"
 		exit 0
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
