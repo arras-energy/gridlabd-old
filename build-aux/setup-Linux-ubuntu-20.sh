@@ -43,9 +43,11 @@ if [ ! -e /usr/local/bin/python3.9 ]; then
 	make -j $(nproc)
 	make install
 	/sbin/ldconfig /usr/local/lib
+	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
 	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/pydoc3 /usr/local/bin/pydoc
-	ln -sf /usr/local/bin/idle3 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 
 	# curl -sSL https://bootstrap.pypa.io/get-pip.py | /usr/local/bin/python3
 
@@ -77,7 +79,6 @@ if [ ! -x /usr/bin/doxygen ]; then
 fi
 
 # mono
-apt-get -q install curl -y
 if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
