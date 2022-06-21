@@ -64,7 +64,7 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
-	make altinstall
+	make install
 	/sbin/ldconfig /usr/local/lib
 	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
 	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
