@@ -68,7 +68,6 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	/sbin/ldconfig /usr/local/lib
 	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
 	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/python3-config /usr/local/bin/python3-config
 	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
