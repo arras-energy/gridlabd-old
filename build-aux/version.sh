@@ -24,7 +24,12 @@ case $1 in
     --number | -n)
         echo "$NUM" ;;
     --install | -i)
-        echo "/usr/local/opt/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA" ;;
+        if [ -d /opt -a -w /opt ]; then
+            echo "/opt/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA"
+        else
+            echo "$HOME/opt/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA"
+        fi
+        ;;
     --name | -m)
         echo "$MAJ.$MIN.$PAT-$NUM-$BRA" ;;
     --package | -p)
@@ -38,7 +43,7 @@ Options:
   --branch|-b       output branch name as BRANCH
   --gitversion|-g   output git version
   --number|-n       output git last log entry YYMMDD
-  --install|-i      output install path /usr/local/opt/PACKAGE/REV_MAJOR.REV_MINOR.REV_PATCH-NUMBER-BRANCH
+  --install|-i      output install path /opt/gridlabd/opt/PACKAGE/REV_MAJOR.REV_MINOR.REV_PATCH-NUMBER-BRANCH
   --package|-p      output package PACKAGE
   --package-name|-P output package name PACKAGE_NAME
   --name|-m         output install name REV_MAJOR.REV_MINOR.REV_PATCH-NUMBER-BRANCH

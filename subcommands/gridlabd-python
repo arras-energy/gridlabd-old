@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$1" == "help" ]; then
 	echo "Syntax: gridlabd python"
-	python3 --help | head -n 1 | cut -f3- -d' '
+	${GLD_BIN:-/opt/gridlabd/bin}/python3 --help | head -n 1 | cut -f3- -d' '
 else
 	/usr/local/bin/python3 $*
 fi
