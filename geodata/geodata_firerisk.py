@@ -30,6 +30,7 @@ import rasterio as rio
 from rasterio.plot import show
 from pyproj import Transformer
 from datetime import datetime
+import numpy as np
 
 today= datetime.today().strftime('%Y%m%d')
 
@@ -90,9 +91,12 @@ def apply(data, options=default_options, config=default_config, warning=print):
         coords= [transformer.transform(x, y) for x,y in data.itertuples(index=False)]
         coordsRC= []
         band= usgsMap.read(1)
-        for x, y in coords:            
-            row,col= usgsMap.index(x,y)
-            coordsRC.append(band[row,col])
+        for x, y in coords:        
+            if np.isnan(x):
+                coordsRC.append(0)
+            else:
+                row,col= usgsMap.index(x,y)
+                coordsRC.append(band[row,col])
     return coordsRC
 
 #
