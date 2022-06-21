@@ -33,44 +33,44 @@ apt-get -q install libreadline-dev -y
 apt-get install xz-utils -y
 
 # install python 3.9
-if [ ! -e /opt/gridlabd/bin/python3 ]; then
-	cd /opt/gridlabd/src
+if [ ! -e /usr/local/bin/python3.9 ]; then
+	cd /usr/local/src
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	cd Python-3.9.6
 
-	./configure --prefix=/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 	
 	make -j $(nproc)
 	make install
-	/sbin/ldconfig /opt/gridlabd/lib
-	ln -sf /opt/gridlabd/bin/python3-config /usr/local/bin/python3-config
-	ln -sf /opt/gridlabd/bin/pydoc3 /opt/gridlabd/bin/pydoc
-	ln -sf /opt/gridlabd/bin/idle3 /opt/gridlabd/bin/idle
+	/sbin/ldconfig /usr/local/lib
+	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3 /usr/local/bin/idle
 
-	# curl -sSL https://bootstrap.pypa.io/get-pip.py | /opt/gridlabd/bin/python3
+	# curl -sSL https://bootstrap.pypa.io/get-pip.py | /usr/local/bin/python3
 
 	# install python libraries by validation
-	/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/opt/gridlabd/bin/python3 -m pip install mysql-connector mysql-client matplotlib numpy pandas Pillow networkx
+	/usr/local/bin/python3 -m pip install --upgrade pip
+	/usr/local/bin/python3 -m pip install mysql-connector mysql-client matplotlib numpy pandas Pillow networkx
 
 	# add to LD_LIBRARY_PATH for Python to compile in Gridlabd
-	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
-		sudo touch /etc/ld.so.conf.d/gridlabd.conf
-		sudo bash -c 'echo "/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
-		sudo ldconfig
-	fi
+	#if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
+	#	sudo touch /etc/ld.so.conf.d/gridlabd.conf
+	#	sudo bash -c 'echo "/usr/local/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+	#	sudo ldconfig
+	#fi
 fi
 
 # doxygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	if [ ! -d /opt/gridlabd/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git /opt/gridlabd/src/doxygen
+	if [ ! -d /usr/local/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
 	fi
-	if [ ! -d /opt/gridlabd/src/doxygen/build ]; then
-		mkdir /opt/gridlabd/src/doxygen/build
+	if [ ! -d /usr/local/src/doxygen/build ]; then
+		mkdir /usr/local/src/doxygen/build
 	fi
-	cd /opt/gridlabd/src/doxygen/build
+	cd /usr/local/src/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
 	make install
@@ -87,13 +87,13 @@ if [ ! -f /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -x /opt/gridlabd/bin/natural_docs ]; then
-	cd /opt/gridlabd
+if [ ! -x /usr/local/bin/natural_docs ]; then
+	cd /usr/local
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono /opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /opt/gridlabd/bin/natural_docs
-	chmod a+x /opt/gridlabd/bin/natural_docs
+mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
+	chmod a+x /usr/local/bin/natural_docs
 fi
