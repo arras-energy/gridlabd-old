@@ -565,8 +565,7 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 ###############################################################################
 # Set prefix 
 ###############################################################################
-OS_SYS_NAME=$(uname -s)
-OS_SYS_ARCH=$(uname -m)
+
 AS_CASE([$(uname -m)],
     [x86_64], [PREFIX=/usr/local/opt/gridlabd],
     [arm64], [AS_CASE([$(uname -s)],
