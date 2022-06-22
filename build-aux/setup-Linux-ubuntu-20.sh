@@ -12,8 +12,12 @@ apt-get -q install autoconf -y
 apt-get -q install libtool -y
 apt-get -q install g++ -y
 apt-get -q install cmake -y 
+apt-get -q install curl -y
+apt-get -q install gawk -y
 apt-get -q install flex -y
 apt-get -q install bison -y
+
+# install utilities and libraries
 apt-get -q install libcurl4-gnutls-dev -y
 apt-get -q install subversion -y
 apt-get -q install util-linux -y
@@ -25,7 +29,6 @@ apt-get -q install libbz2-dev -y
 apt-get -q install libffi-dev -y
 apt-get -q install zlib1g-dev -y
 apt-get -q install mdbtools -y
-apt-get -q install curl -y
 apt-get -q install build-essential -y
 apt-get -q install libgdbm-dev -y
 apt-get -q install libnss3-dev -y
@@ -49,8 +52,6 @@ if [ ! -e /usr/local/bin/python3.9 ]; then
 	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
 	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 
-	# curl -sSL https://bootstrap.pypa.io/get-pip.py | /usr/local/bin/python3
-
 	# install python libraries by validation
 	/usr/local/bin/python3 -m pip install --upgrade pip
 	/usr/local/bin/python3 -m pip install mysql-connector mysql-client matplotlib numpy pandas Pillow networkx
@@ -64,7 +65,6 @@ if [ ! -e /usr/local/bin/python3.9 ]; then
 fi
 
 # doxygen
-apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
 	if [ ! -d /usr/local/src/doxygen ]; then
 		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
