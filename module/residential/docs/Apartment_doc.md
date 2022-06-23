@@ -648,14 +648,14 @@ Table 12a: Building thermal parameters
 | $\rho_{insulation}$ | Density of wall insulation building material (lbm/cf) |
 | $c_{material}$ | Specific heat capacity of building material (Btu/lbm.F) |
 
-Core material with sheet rock finish
+<!-- Core material with sheet rock finish -->
 
-Table 12b: Building material properties (examples)
+<!-- Table 12b: Building material properties (examples)
 | Material | Density (lbm/cf) | Specific Heat (Btu/lbm.F) | R-value (F.h.sf/Btu) |
 | :-------------: | :--------------- | :------------------------ | :------------------- |
 | Wood (hardwood) | 45 | .30 | |
 | Concrete | 100 | .2 | |
-| Steel | 489 | .120 | |
+| Steel | 489 | .120 | | -->
 
 ---
 
@@ -1102,7 +1102,7 @@ Q_{HVAC_{U}} = \frac{-U_{OU}T_O - U_{UA}T_{set_{A}} + (U_{OU}+U_{UA}+U_{UC}+U_{M
 $$
 
 $$
-Q_{HVAC_{A}} = C_2 - \frac{U_{MU}T_{M_{eq}}}{a}
+Q_{HVAC_{U}} = C_2 - \frac{U_{MU}T_{M_{eq}}}{a}
 $$
 
 $$
@@ -1110,7 +1110,7 @@ Q_{HVAC_{C}} = \frac{-U_{OC}T_O - U_{CA}T_{set_{A}}  - U_{UC}T_{set_U} + (U_{OC}
 $$
 
 $$
-Q_{HVAC_{A}} = C_3 - \frac{U_{MC}T_{M_{eq}}}{a}
+Q_{HVAC_{C}} = C_3 - \frac{U_{MC}T_{M_{eq}}}{a}
 $$
 
 $$
