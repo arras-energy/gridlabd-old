@@ -2,6 +2,8 @@
 RELEASE=$(uname -r | cut -f1 -d.)
 D_ARCH=$(uname -m)
 SETUP="${0/.sh/-$RELEASE/-$D_ARCH.sh}"
+echo "$SETUP"
+echo "$0"
 if [ ! -f "$SETUP" ]; then
 	${0/Darwin.sh/manual.sh}
     echo "ERROR: $SETUP not found, manual install required"

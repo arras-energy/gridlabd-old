@@ -1,8 +1,11 @@
 #!/bin/bash
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+echo "THIS IS ARM!!!!!!!!!!!!!!!!!"
+exit 125
+
 # install homebrew instance for gridlabd
-    brew update || mkdir /opt/homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C /opt/homebrew
+    brew update || sudo mkdir /opt/homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C /opt/homebrew
     export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
     brew update-reset
     brew doctor
@@ -26,8 +29,12 @@ fi
     brew install python3
 
 # mdbtools
+echo "THIS IS ARM!!!!!!!!!!!!!!!!!"
+exit 125
     brew install mdbtools
     pip3 install matplotlib pandas numpy networkx Pillow
+echo "THIS IS ARM!!!!!!!!!!!!!!!!!"
+exit 125
 
 # The original scikit-learn at 0.24.2 CANNOT install on the m1 mac. Period. Use 1.1.1 now.
 # Reason being, is that it requires a version of NumPy that is incompatible with the m1 mac.
