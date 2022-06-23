@@ -1,9 +1,6 @@
 #!/bin/bash
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
-echo "THIS IS INTEL!!!!!!!!!!!!!!!!!!"
-exit 125
-
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
 

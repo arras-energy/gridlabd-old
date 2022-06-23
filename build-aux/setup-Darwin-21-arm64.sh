@@ -1,9 +1,6 @@
 #!/bin/bash
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
-echo "THIS IS ARM!!!!!!!!!!!!!!!!!"
-exit 125
-
 # install homebrew instance for gridlabd
     brew update || sudo mkdir /opt/homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C /opt/homebrew
     export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
