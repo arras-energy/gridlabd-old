@@ -7932,7 +7932,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#debug",6)==0)
 	{
-		char *term = strchr(line+8,' ');
+		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
