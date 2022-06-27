@@ -1,6 +1,14 @@
 #!/bin/bash
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+# check for Rosetta Homebrew
+
+    if ! -e /usr/local/Cellar; then 
+        echo "ERROR: Use of Rosetta Homebrew creates package conflicts with arm64-native gridlabd installation in Darwin systems."
+        echo "Please install in a system without Rosetta Homebrew, or you can attempt manual installation."
+        exit 1
+    fi
+
 # install homebrew instance for gridlabd
     brew update
     if ! -e /opt/homebrew; then 
