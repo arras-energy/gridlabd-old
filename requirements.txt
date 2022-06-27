@@ -4,7 +4,7 @@ pytz==2020.4
 PyGithub==1.54.1
 docker==4.4.4
 folium==0.12.1
-scikit-learn==0.24.2
+scikit-learn==1.1.1
 xlrd==2.0.1
 openpyxl>=3.0.7
 scipy==1.6.2
