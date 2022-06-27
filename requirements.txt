@@ -7,5 +7,5 @@ folium==0.12.1
 scikit-learn==1.1.1
 xlrd==2.0.1
 openpyxl>=3.0.7
-scipy==1.6.2
+scipy==1.8.1
 pandas_access>=0.0.1

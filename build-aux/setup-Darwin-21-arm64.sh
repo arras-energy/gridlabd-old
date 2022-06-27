@@ -2,7 +2,11 @@
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # install homebrew instance for gridlabd
-    brew update || sudo mkdir /opt/homebrew || sudo chmod 777 /opt/homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C /opt/homebrew
+    brew update
+    if ! -e /opt/homebrew; then 
+        sudo mkdir /opt/homebrew 
+        sudo chmod 777 /opt/homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C /opt/homebrew
+    fi
     export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
     brew update-reset
     brew doctor
@@ -44,7 +48,7 @@ fi
     brew install mdbtools
     pip3 install matplotlib pandas numpy networkx Pillow
 
-# The original scikit-learn at 0.24.2 CANNOT install on the m1 mac. Period. Use 1.1.1 now.
+# The original scikit-learn at 0.24.2 CANNOT install on the m1 mac. Period. Use 1.1.1 now. Make sure requirements.txt has the change.
 # Reason being, is that it requires a version of NumPy that is incompatible with the m1 mac.
 # updated in requirements.txt. Same goes for scipy 1.6.2.
     brew install gdal
