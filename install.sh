@@ -26,10 +26,14 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/var
 fi
 
+if ! grep -q "$VAR/bin" "$HOME/.bashrc"; then
+    touch "$HOME/.bashrc"
+    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bashrc
+fi
 export PATH=$VAR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # setup logging
-LOG="$VAR/install.log"
+LOG="$VAR/var/install.log"
 function log()
 {
 	case "$*" in 
@@ -265,26 +269,26 @@ fi
 # dynamic variables
 require git
 VERSION=${VERSION:-`build-aux/version.sh --name`}
-INSTALL=${INSTALL:-$PREFIX/opt/gridlabd/$VERSION}
+INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
 	OLDVER="$(gridlabd --version | cut -f2 -d' ')-saved_$(date '+%y%m%d')"
 	VDIR=$OLDVER
-	while [ -e $PREFIX/opt/gridlabd/$VDIR ]; do
+	while [ -e $PREFIX/gridlabd/$VDIR ]; do
 		VDIR=${OLDVER}_${VNUM:-0}
 		VNUM=$((${VNUM:-0}+1))
 	done
-	log "BACKUP: saving $OLDVER to $PREFIX/opt/gridlabd/$VDIR and linking it back to current version"
-	run mkdir -p $PREFIX/opt/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
-	run ln -sf $PREFIX/opt/gridlabd/$VDIR $PREFIX/opt/gridlabd/current 
+	log "BACKUP: saving $OLDVER to $PREFIX/gridlabd/$VDIR and linking it back to current version"
+	run mkdir -p $PREFIX/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
+	run ln -sf $PREFIX/gridlabd/$VDIR $PREFIX/gridlabd/current 
 	for item in bin include lib share; do
-		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/opt/gridlabd/$VDIR/$item
-		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/opt/gridlabd/$VDIR/$item/
-		run ln -sf $PREFIX/opt/gridlabd/$VDIR/$item/gridlabd $PREFIX/opt/gridlabd/current/$item/gridlabd
-		run ln -sf $PREFIX/opt/gridlabd/current/$item /$PREFIX/$item/gridlabd
+		[ ! -d $PREFIX/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/gridlabd/$VDIR/$item
+		[ ! -d $PREFIX/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/gridlabd/$VDIR/$item/
+		run ln -sf $PREFIX/gridlabd/$VDIR/$item/gridlabd $PREFIX/gridlabd/current/$item/gridlabd
+		run ln -sf $PREFIX/gridlabd/current/$item /$PREFIX/$item/gridlabd
 	done
-	run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run ln -s $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
@@ -358,12 +362,12 @@ if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
 	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
 	log "ACTIVATE: manual"
-	[ ! -L "$PREFIX/opt/gridlabd/current" ] && run sudo rm -f "$PREFIX/opt/gridlabd/current"
-	run sudo ln -sf "$INSTALL" "$PREFIX/opt/gridlabd/current"
+	[ ! -L "$PREFIX/gridlabd/current" ] && run sudo rm -f "$PREFIX/gridlabd/current"
+	run sudo ln -sf "$INSTALL" "$PREFIX/gridlabd/current"
 	for dir in bin lib include share; do
-		run sudo ln -sf $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+		run sudo ln -sf $PREFIX/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
 	done
-	run sudo ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
 # all done :-)
