@@ -113,14 +113,14 @@ function version-set()
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$L" ]; then
+	if [ ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/gridlabd/$L" ]; then
 		$ACTION rm -f /usr/local/opt/gridlabd/current
-		$ACTION ln -s /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
+		$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/$L /usr/local/opt/gridlabd/current
 	fi
 	for F in bin lib share include; do
-		if [ ! "$(readlink /usr/local/opt/gridlabd/$F/gridlabd)" == "/usr/local/opt/gridlabd/current/$F/gridlabd" ]; then
+		if [ ! "$(readlink /usr/local/opt/gridlabd/$F/gridlabd)" == "/usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd" ]; then
 			$ACTION rm -rf /usr/local/opt/gridlabd/$F/gridlabd
-			$ACTION ln -s /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/opt/gridlabd/$F/gridlabd
+			$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd /usr/local/opt/gridlabd/$F/gridlabd
 		fi
 	done
 	echo "$L"
