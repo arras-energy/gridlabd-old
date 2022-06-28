@@ -105,22 +105,22 @@ function version-set()
 {
 	version-save
 	L="$1"
-	if [ ! -d "/usr/local/opt/gridlabd/$L" ]; then
-		L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+	if [ ! -d "/usr/local/opt/gridlabd/gridlabd/$L" ]; then
+		L=$(cd /usr/local/opt/gridlabd/gridlabd ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
 		L="$(${BIN} --version=name | sed -e 's/^gridlabd-//')"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/gridlabd/$L" ]; then
-		$ACTION rm -f /usr/local/opt/gridlabd/current
-		$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/$L /usr/local/opt/gridlabd/current
+	if [ ! "$(readlink /usr/local/opt/gridlabd/gridlabd/current)" == "/usr/local/opt/gridlabd/gridlabd/$L" ]; then
+		$ACTION rm -f /usr/local/opt/gridlabd/gridlabd/current
+		$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/$L /usr/local/opt/gridlabd/gridlabd/current
 	fi
 	for F in bin lib share include; do
-		if [ ! "$(readlink /usr/local/opt/gridlabd/$F/gridlabd)" == "/usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd" ]; then
-			$ACTION rm -rf /usr/local/opt/gridlabd/$F/gridlabd
-			$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd /usr/local/opt/gridlabd/$F/gridlabd
+		if [ ! "$(readlink /usr/local/opt/gridlabd/gridlabd/$F/gridlabd)" == "/usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd" ]; then
+			$ACTION rm -rf /usr/local/opt/gridlabd/gridlabd/$F/gridlabd
+			$ACTION ln -s /usr/local/opt/gridlabd/gridlabd/current/$F/gridlabd /usr/local/opt/gridlabd/gridlabd/$F/gridlabd
 		fi
 	done
 	echo "$L"
@@ -128,8 +128,8 @@ function version-set()
 
 function version-show()
 {
-	if [ -L /usr/local/opt/gridlabd/current ]; then
-		basename $(readlink /usr/local/opt/gridlabd/current)
+	if [ -L /usr/local/opt/gridlabd/gridlabd/current ]; then
+		basename $(readlink /usr/local/opt/gridlabd/gridlabd/current)
 	else
 		echo "Current version is custom installed"
 	fi
@@ -138,16 +138,16 @@ function version-show()
 function version-delete()
 {
 	if [ "$1" == "-a" ]; then
-		L="$(ls -1 /usr/local/opt/gridlabd | grep -v current)"
+		L="$(ls -1 /usr/local/opt/gridlabd/gridlabd | grep -v current)"
 	else
 		L="$1"
 		if [ ! -d "$L" ]; then
-			L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+			L=$(cd /usr/local/opt/gridlabd/gridlabd ; ls -1d *$1* | grep -v current)
 		fi
 	fi
 	if [ ! -z "$L" ]; then
 		for F in $L; do
-			[ ! "$F" == "current" -a -d "/usr/local/opt/gridlabd/$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/$F
+			[ ! "$F" == "current" -a -d "/usr/local/opt/gridlabd/gridlabd/$F" -a ! "$(readlink /usr/local/opt/gridlabd/gridlabd/current)" == "/usr/local/opt/gridlabd/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/gridlabd/$F
 		done
 	fi
 }
@@ -155,16 +155,16 @@ function version-delete()
 function version-list()
 {
 	if [ $# -eq 0 ]; then
-        for D in $(basename /usr/local/opt/gridlabd/*); do
-            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+        for D in $(basename /usr/local/opt/gridlabd/gridlabd/*); do
+            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/gridlabd/$D/bin/gridlabd.bin" ]; then
                 echo $D
             fi
         done
 	elif [ "$1" == "-l" ]; then
         longlist $2
     else
-        for D in $(basename /usr/local/opt/gridlabd/*$1*); do
-            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+        for D in $(basename /usr/local/opt/gridlabd/gridlabd/*$1*); do
+            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/gridlabd/$D/bin/gridlabd.bin" ]; then
                 echo $D
             fi
         done
@@ -174,18 +174,18 @@ function version-list()
 function longlist()
 {
     if [ $# -eq 0 ]; then
-		LIST=$(basename /usr/local/opt/gridlabd/* | grep -v '^current$')
+		LIST=$(basename /usr/local/opt/gridlabd/gridlabd/* | grep -v '^current$')
 	else
-		LIST=$(basename /usr/local/opt/gridlabd/*$1*)
+		LIST=$(basename /usr/local/opt/gridlabd/gridlabd/*$1*)
 	fi
-    echo "total$(du -sh /usr/local/opt/gridlabd | cut -c1-4)"
+    echo "total$(du -sh /usr/local/opt/gridlabd/gridlabd | cut -c1-4)"
     for D in $LIST; do
-        if [ -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+        if [ -x "/usr/local/opt/gridlabd/gridlabd/$D/bin/gridlabd.bin" ]; then
             NAME=$(basename $D)
             VERSION=$(echo $NAME | cut -f1 -d-)
             BUILD=$(echo $NAME | cut -f2 -d-)
             BRANCH=$(echo $NAME | cut -f3 -d-)
-            SIZE=$(du -sh /usr/local/opt/gridlabd/$D | cut -c1-4)
+            SIZE=$(du -sh /usr/local/opt/gridlabd/gridlabd/$D | cut -c1-4)
             echo "$VERSION $BUILD $SIZE $BRANCH"
         fi
     done
