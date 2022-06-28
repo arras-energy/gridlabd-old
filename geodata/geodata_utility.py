@@ -68,7 +68,7 @@ from haversine import haversine_vector
 
 CACHEDIR = os.getenv("GLD_ETC")
 if not CACHEDIR:
-    CACHEDIR = "/usr/local/share/gridlabd"
+    CACHEDIR = "/usr/local/opt/gridlabd/share/gridlabd"
 
 REPOURL = os.getenv("REPOURL")
 if not REPOURL:

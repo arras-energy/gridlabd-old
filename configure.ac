@@ -567,15 +567,8 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 # The End
 ###############################################################################
 
-# AS_CASE([$(uname -m)],
-#    [x86_64], [PREFIX=/usr/local/opt/gridlabd],
-#    [arm64], [AS_CASE([$(uname -s)],
-#    [Darwin], [PREFIX=/usr/local/opt/gridlabd],
-#    [*], [PREFIX=/usr/local/opt/gridlabd])],
-#    [*], [PREFIX=/usr/local/opt/gridlabd])
+
 PREFIX=/usr/local/opt/gridlabd
-
-
 VERSION_NAME=$(build-aux/version.sh --name)
 DSTDIR=$PREFIX/$VERSION_NAME
 BINDIR=$DSTDIR/bin

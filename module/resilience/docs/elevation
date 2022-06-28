@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/usr/local/bin/python3 elevation.py $*
+/usr/local/opt/gridlabd/bin/python3 elevation.py $*

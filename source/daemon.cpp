@@ -21,9 +21,9 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-static char logfile[1024] = "/usr/local/var/gridlabd/gridlabd-log";
-static char pidfile[1024] = "/usr/local/var/gridlabd/gridlabd-pid";
-static char workdir[1024] = "/usr/local/var/gridlabd";
+static char logfile[1024] = "/usr/local/opt/gridlabd/var/gridlabd/gridlabd-log";
+static char pidfile[1024] = "/usr/local/opt/gridlabd/var/gridlabd/gridlabd-pid";
+static char workdir[1024] = "/usr/local/opt/gridlabd/var/gridlabd";
 #endif
 
 // gridlabd stream specifications

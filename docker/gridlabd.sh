@@ -10,9 +10,9 @@ echo "
 "
 
 # gridlabd source
-cd /usr/local/src
+cd /usr/local/opt/gridlabd/src
 git clone $REPO gridlabd -b $BRANCH
-if [ ! -d /usr/local/src/gridlabd ]; then
+if [ ! -d /usr/local/opt/gridlabd/src/gridlabd ]; then
 	echo "ERROR: unable to download $REPO/$BRANCH"
 	exit 1
 fi
@@ -37,5 +37,5 @@ fi
 
 # cleanup source
 if [ "${REMOVE_SOURCE:-yes}" == "yes" ]; then
-	rm -rf /usr/local/src/gridlabd
+	rm -rf /usr/local/opt/gridlabd/src/gridlabd
 fi

@@ -14,10 +14,19 @@ else
 fi
 
 # local folder
-VAR="/usr/local/var/gridlabd"
+VAR="/usr/local/opt/gridlabd"
 if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
+	mkdir -p $VAR/bin
+	mkdir -p $VAR/include
+	mkdir -p $VAR/lib
+	mkdir -p $VAR/man
+	mkdir -p $VAR/share
+	mkdir -p $VAR/src
+	mkdir -p $VAR/var
 fi
+
+export PATH=$VAR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # setup logging
 LOG="$VAR/install.log"
@@ -325,7 +334,7 @@ if [ "$PARALLEL" == "yes" ]; then
 fi
 
 # build everything
-export PATH=/usr/local/bin:/usr/bin:/bin
+export PATH=$VAR/bin:/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC)) system
 
 if [ "$DOCS" == "yes" ]; then

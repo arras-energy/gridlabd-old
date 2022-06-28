@@ -40,7 +40,7 @@ default_options = {
 
 default_config = {
     "urladdr" : "https://www2.census.gov/geo/tiger/TIGER2020",
-    "cachedir" : "/usr/local/share/gridlabd/geodata/census",
+    "cachedir" : "/usr/local/opt/gridlabd/share/gridlabd/geodata/census",
     "states_filename" : "tl_2020_us_state.zip",
     "zipcode_filename" : "tl_2020_us_zcta510.zip",
 

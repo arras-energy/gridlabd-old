@@ -23,7 +23,7 @@ All powerline package calculations require the following data:
 
         The cable types are listed in the file geodata_powerline_cabletypes.csv
         located in the GridLAB-D shared geodata folder, which is by default
-        /usr/local/share/gridlabd/geodata.
+        /usr/local/opt/gridlabd/share/gridlabd/geodata.
 
     distance - optional column in the data, if absent it will be computed
 
@@ -131,7 +131,7 @@ default_options = {
 }
 
 default_config = {
-    "cabletype_file" : "/usr/local/share/gridlabd/geodata_powerline_cabletypes.csv",
+    "cabletype_file" : "/usr/local/opt/gridlabd/share/gridlabd/geodata_powerline_cabletypes.csv",
 }
 
 OPTIONS = default_options

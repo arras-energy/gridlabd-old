@@ -10,7 +10,7 @@ GLM:
 
 # Description
 
-All subcommands can be executed by passing through the macro interpreter.  The general syntax takes the macro and prepends `gridlabd-` before calling the subcommand script installed in `/usr/local/share/gridlabd`.
+All subcommands can be executed by passing through the macro interpreter.  The general syntax takes the macro and prepends `gridlabd-` before calling the subcommand script installed in `/usr/local/opt/gridlabd/share/gridlabd`.
 
 The stdout stream is piped to the GridLAB-D output stream and stderr is piped to the GridLAB-D error stream.
 

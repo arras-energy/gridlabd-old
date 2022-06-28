@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/opt/gridlabd/bin/python3
 """Syntax: gridlabd timezone [OPTIONS...] LOCATION
 
 The gridlabd timezone subcommand obtains the timezone for the location given
@@ -53,7 +53,7 @@ E_FAILED = 3
 
 shared = os.getenv("GLD_ETC")
 if not shared:
-	shared = "/usr/local/share/gridlabd/"
+	shared = "/usr/local/opt/gridlabd/share/gridlabd/"
 elif shared[-1] != '/':
 	shared += '/'
 

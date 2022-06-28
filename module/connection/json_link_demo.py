@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/opt/gridlabd/bin/python3
 
 """
 json_link_demo

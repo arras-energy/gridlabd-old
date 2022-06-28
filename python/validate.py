@@ -27,7 +27,7 @@ import timeit
 
 n_tested = 0
 n_passed = 0
-exename = '/usr/local/bin/gridlabd'
+exename = '/usr/local/opt/gridlabd/bin/gridlabd'
 dry_run = False
 show_debug = False
 show_failure = False
@@ -106,7 +106,7 @@ def runtest(workdir,glmname) :
 	run_command("cp %s.glm %s" % (workdir,workdir))
 	run_command("cd %s" % workdir)
 	print("Running %s..." % glmname)
-	rc = run_command("/usr/local/bin/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
+	rc = run_command("/usr/local/opt/gridlabd/bin/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
 	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))

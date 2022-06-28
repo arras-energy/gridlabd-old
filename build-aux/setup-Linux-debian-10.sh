@@ -53,27 +53,27 @@ apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
+if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.6"
-	cd /usr/local/src
+	cd /usr/local/opt/gridlabd/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
-	/sbin/ldconfig /usr/local/lib
-	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
-	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
-	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
-	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
-	/usr/local/bin/python3 -m pip install --upgrade pip
-	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/bin/python3 -m pip install IPython censusdata
+	/sbin/ldconfig /usr/local/opt/gridlabd/lib
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
+	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
+	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
+	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
+	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 fi
 
 # install latex
@@ -82,13 +82,13 @@ apt-get install texlive -y
 # doxgygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	if [ ! -d /usr/local/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
+	if [ ! -d /usr/local/opt/gridlabd/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/opt/gridlabd/src/doxygen
 	fi
-	if [ ! -d /usr/local/src/doxygen/build ]; then
-		mkdir /usr/local/src/doxygen/build
+	if [ ! -d /usr/local/opt/gridlabd/src/doxygen/build ]; then
+		mkdir /usr/local/opt/gridlabd/src/doxygen/build
 	fi
-	cd /usr/local/src/doxygen/build
+	cd /usr/local/opt/gridlabd/src/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
 	make install
@@ -106,14 +106,14 @@ if [ ! -f /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -x /usr/local/bin/natural_docs ]; then
-	cd /usr/local
+if [ ! -x /usr/local/opt/gridlabd/bin/natural_docs ]; then
+	cd /usr/local/opt/gridlabd
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
-	chmod a+x /usr/local/bin/natural_docs
+mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/gridlabd/bin/natural_docs
+	chmod a+x /usr/local/opt/gridlabd/bin/natural_docs
 fi
 

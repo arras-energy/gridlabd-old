@@ -60,7 +60,7 @@ TESTS=(configure Makefile)
 echo ""
 echo "HiPAS GridLAB-D Build Manager Version 1.0"
 while [ true ]; do
-	export PATH=$SOURCE:/usr/local/bin:/usr/bin:/bin
+	export PATH=$SOURCE:/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin
 	echo ""
 	echo "Main menu"
 	echo "---------"

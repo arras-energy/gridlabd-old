@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/opt/gridlabd/bin/python3
 #
 # This script runs multiple jobs as specified by the controlfile.csv, 
 # where the columns are the globals and rows are the job number.

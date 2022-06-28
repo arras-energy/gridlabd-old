@@ -7,7 +7,7 @@ from importlib import util
 
 MODPATH = os.getenv("GLD_ETC")
 if not MODPATH:
-	MODPATH = "/usr/local/share/gridlabd"
+	MODPATH = "/usr/local/opt/gridlabd/share/gridlabd"
 
 INPUTFILE = None
 OUTPUTFILE = None

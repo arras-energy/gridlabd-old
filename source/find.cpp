@@ -1325,13 +1325,13 @@ const char *find_file(const char *name, /**< the name of the file to find */
 		}
 	}
 #else
-	snprintf(tempfp, sizeof(tempfp), "/usr/local/lib/gridlabd/%s", name);
+	snprintf(tempfp, sizeof(tempfp), "/usr/local/opt/gridlabd/lib/gridlabd/%s", name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;
 	}
-	snprintf(tempfp, sizeof(tempfp), "/usr/local/share/gridlabd/%s", name);
+	snprintf(tempfp, sizeof(tempfp), "/usr/local/opt/gridlabd/share/gridlabd/%s", name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);

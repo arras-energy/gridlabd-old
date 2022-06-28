@@ -70,7 +70,7 @@ if test "x$HAS_DOCKER" = "xyes" ; then :
   HAS_IMAGE="no"
   docker inspect gridlabd > /dev/null 2>&1 && HAS_IMAGE="yes"
   if test "x$HAS_IMAGE" = "xyes" ; then :
-    docker run -it -v ${PWD}:${PWD} gridlabd /usr/local/bin/gridlabd -W ${PWD} $@
+    docker run -it -v ${PWD}:${PWD} gridlabd /usr/local/opt/gridlabd/bin/gridlabd -W ${PWD} $@
     exit 0
   fi
 fi
@@ -79,14 +79,14 @@ export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
 export GLD_DOC=$docdir
-export PYCCFLAGS="$(/usr/local/bin/python3-config --cflags)"
-export INCLUDE="-I$GLD_ETC -I/usr/local/include -I/usr/include"
+export PYCCFLAGS="$(/usr/local/opt/gridlabd/bin/python3-config --cflags)"
+export INCLUDE="-I$GLD_ETC -I/usr/local/opt/gridlabd/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$(/usr/local/bin/python3-config --ldflags)"
-export LIB="-L$libdir -L/usr/local/lib -L/usr/lib"
+export PYLDFLAGS="$(/usr/local/opt/gridlabd/bin/python3-config --ldflags)"
+export LIB="-L$libdir -L/usr/local/opt/gridlabd/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
 
@@ -118,7 +118,7 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [])
 
 AS_IF([test -f "${GLD_ETC}/$1.py"],
-  [export PYTHONPATH=$GLD_ETC; /usr/local/bin/python3 -m "$@" ; exit $?],
+  [export PYTHONPATH=$GLD_ETC; /usr/local/opt/gridlabd/bin/python3 -m "$@" ; exit $?],
   [])
 
 AS_IF([test -x "${bindir}/gridlabd-$1"],
