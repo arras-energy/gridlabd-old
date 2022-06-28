@@ -12,11 +12,11 @@ geopy==2.1.0
 haversine==2.3.0
 ipykernel==5.5.5
 ipyplot==1.1.0
-ipython==7.22.0
+ipython==7.31.1
 matplotlib==3.3.3
 matplotlib_inline>=0.1.2
 metar>=1.8.0
-numpy==1.19.4
+numpy>=1.21.4
 openpyxl==3.0.7
 pandas==1.1.4
 pysolar==0.9
