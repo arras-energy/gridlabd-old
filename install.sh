@@ -370,5 +370,7 @@ elif [ "$LINK" == "yes" ]; then
 	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
+cd /usr/local/opt/gridlabd
+sudo rm -rf src
 # all done :-)
 exit 0
