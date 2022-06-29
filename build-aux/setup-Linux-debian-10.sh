@@ -2,12 +2,12 @@
 
 # Install needed system tools
 # update first
-apt-get -q update
+sudo apt-get -q update
 
 
-apt-get install tzdata -y
-apt-get install curl -y
-apt-get install apt-utils -y
+sudo apt-get install tzdata -y
+sudo apt-get install curl -y
+sudo apt-get install apt-utils -y
 
 # "Etc" will cause installation error
 if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
@@ -30,26 +30,26 @@ if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; th
 	dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
-apt-get -q install software-properties-common -y
-apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+sudo apt-get -q install software-properties-common -y
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 
 # install system build tools needed by gridlabd
 
-apt-get -q install git -y
-apt-get -q install unzip -y
-apt-get -q install autoconf -y
-apt-get -q install libtool -y
-apt-get -q install g++ -y
-apt-get -q install cmake -y 
-apt-get -q install flex -y
-apt-get -q install bison -y
-apt-get -q install libcurl4-gnutls-dev -y
-apt-get -q install subversion -y
-apt-get -q install util-linux -y
-apt-get install liblzma-dev -y
-apt-get install libbz2-dev -y
-apt-get install libncursesw5-dev -y
-apt-get install xz-utils -y
+sudo apt-get -q install git -y
+sudo apt-get -q install unzip -y
+sudo apt-get -q install autoconf -y
+sudo apt-get -q install libtool g++ cmake flex bison libcurl4-gnutls-dev subversion util-linux liblzma-dev libbz2-dev libncursesw5-dev xz-utils -y
+sudo apt-get -q install g++ -y
+sudo apt-get -q install cmake -y 
+sudo apt-get -q install flex -y
+sudo apt-get -q install bison -y
+sudo apt-get -q install libcurl4-gnutls-dev -y
+sudo apt-get -q install subversion -y
+sudo apt-get -q install util-linux -y
+sudo apt-get install liblzma-dev -y
+sudo apt-get install libbz2-dev -y
+sudo apt-get install libncursesw5-dev -y
+sudo apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
