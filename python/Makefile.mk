@@ -2,15 +2,17 @@ PYTHONVERSION=$(shell python3 $(top_srcdir)/python/setup.py --version)
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
 	@echo "building $@"
-	sudo chown ${USER:-root} /usr/local/opt/gridlabd/lib/python3.9/site-packages
 	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
+	echo "Build"
+	which python3
 	@python3 -m pip install build 1>/dev/null
 	@( export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); python3 -m build $(top_srcdir)/python 1>/dev/null )
 
 python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
 
 	@echo "installing $@"
-	sudo chown ${USER:-root} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+	echo "Installz"
+	which python3
 	@python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
 
 python-clean:
