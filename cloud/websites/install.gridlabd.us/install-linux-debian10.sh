@@ -3,13 +3,21 @@
 # This file is for developer and maintainer use only. 
 # Build gridlabd on a clean system for best results in building and saving an image.
 
-if [ ! -e $HOME/temp]; then
+if [ ! -e $HOME/temp ]; then
     echo "Home temp folder not found. Generating home temp folder."
-    mkdir $HOME/temp
-    cd $HOME/temp
+    cd $HOME
+    mkdir temp
+    cd temp
     echo "Downloading image to your home temp folder."
     wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/debian-10-image.tar.bz2
     tar -xvf debian-10-image.tar.bz2
+
+    if [ ! -e /usr/local/opt ]; then
+        cd /usr/local
+        sudo mkdir opt
+    fi
+
+    cd $HOME/temp
     sudo mv gridlabd /usr/local/opt
     echo "Gridlabd installed. Adding to path."
 else
@@ -17,6 +25,13 @@ else
     echo "Downloading image to your home temp folder."
     wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/debian-10-image.tar.bz2
     tar -xvf debian-10-image.tar.bz2
+
+    if [ ! -e /usr/local/opt ]; then
+        cd /usr/local
+        sudo mkdir opt
+    fi
+
+    cd $HOME/temp
     sudo mv gridlabd /usr/local/opt
     echo "Gridlabd installed. Adding to path."
 fi
