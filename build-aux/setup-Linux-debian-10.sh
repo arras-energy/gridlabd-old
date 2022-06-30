@@ -3,8 +3,7 @@
 # Install needed system tools
 # update first
 sudo apt-get -q update
-pwd
-exit 1
+
 sudo apt-get install tzdata -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
