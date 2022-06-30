@@ -80,6 +80,12 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
 
+	# enforce permissions for site-packages to be writable by user
+	sudo chown -R ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+	echo "${USER}"
+	sudo echo "${USER}"
+	exit 1
+
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
 		sudo touch /etc/ld.so.conf.d/gridlabd.conf
@@ -130,4 +136,6 @@ mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/
 fi
 
 # enforce permissions for site-packages to be writable
-sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+sudo chown -R ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+echo "${USER}"
+sudo echo "${USER}"
