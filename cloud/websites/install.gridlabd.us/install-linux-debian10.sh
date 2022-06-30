@@ -34,3 +34,8 @@ if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
 	sudo ldconfig
     echo "Added gridlabd lib to the dynamic loader library."
 fi
+
+# Add additional system requirements that cannot be saved in the image
+
+echo "Ensuring additional system dependencies installed."
+apt-get install curl -y
