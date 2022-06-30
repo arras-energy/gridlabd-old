@@ -262,7 +262,6 @@ if [ "$SETUP" == "yes" ]; then
 		# update permissions for site-packages to be writable by user post-setup
 			sudo chown -R ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
 			echo "${USER}"
-			exit 1
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
 	else
