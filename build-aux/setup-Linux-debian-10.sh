@@ -130,4 +130,4 @@ mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/
 fi
 
 # enforce permissions for site-packages to be writable
-sudo chown ${USER:-root} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
