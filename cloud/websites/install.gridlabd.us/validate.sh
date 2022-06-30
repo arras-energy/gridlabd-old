@@ -82,8 +82,8 @@ esac
 url_ok $SOURCE/latest-$SYSTEM-$RELEASE.txt || error 4 "unable to get $SOURCE/latest-$SYSTEM-$RELEASE.txt"
 LATEST=$(curl -sL $SOURCE/latest-$SYSTEM-$RELEASE.txt)
 
-[ ! -x /usr/local/bin/gridlabd ] && error 4 "gridlabd is not installed on this system"
+[ ! -x /usr/local/opt/gridlabd/bin/gridlabd ] && error 4 "gridlabd is not installed on this system"
 TARGET=validate-$LATEST
 mkdir -p $TARGET
 cd $TARGET
-url_tarxz "$SOURCE/validate-${LATEST%-*}.tarz" && /usr/local/bin/gridlabd -D keep_progress=TRUE --validate && error 5 "validation failed"
+url_tarxz "$SOURCE/validate-${LATEST%-*}.tarz" && /usr/local/opt/gridlabd/bin/gridlabd -D keep_progress=TRUE --validate && error 5 "validation failed"

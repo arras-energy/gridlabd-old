@@ -53,7 +53,7 @@ sudo apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
+if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.6"
 	cd /usr/local/opt/gridlabd/src
 
