@@ -38,7 +38,7 @@ fi
 # Add additional system requirements that cannot be saved in the image
 
 echo "Ensuring additional system dependencies installed."
-apt-get install curl -y
+sudo apt-get install curl -y
 
 # give user permissions for writing to site-packages
-# sudo chown ${USER:-root} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
