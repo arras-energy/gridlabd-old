@@ -71,12 +71,15 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
 	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
 	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
+
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
+
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
 		sudo touch /etc/ld.so.conf.d/gridlabd.conf
@@ -126,3 +129,5 @@ mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/
 	chmod a+x /usr/local/opt/gridlabd/bin/natural_docs
 fi
 
+# enforce permissions for site-packages to be writable
+sudo chown ${USER:-root} /usr/local/opt/gridlabd/lib/python3.9/site-packages
