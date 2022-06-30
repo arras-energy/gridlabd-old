@@ -1,5 +1,6 @@
 #!/bin/bash
 
+REQ_DIR=$(pwd)
 # Install needed system tools
 # update first
 sudo apt-get -q update
@@ -74,7 +75,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
-	
+	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
