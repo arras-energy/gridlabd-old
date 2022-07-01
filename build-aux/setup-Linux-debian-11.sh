@@ -1,12 +1,13 @@
 #!/bin/bash
 
+REQ_DIR=$(pwd)
 # Install needed system tools
 # update first
-apt-get -q update
+sudo apt-get -q update
 
-apt-get install tzdata -y
-apt-get install curl -y
-apt-get install apt-utils -y
+sudo apt-get install tzdata -y
+sudo apt-get install curl -y
+sudo apt-get install apt-utils -y
 
 # "Etc" will cause installation error
 if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; then 
@@ -29,72 +30,83 @@ if [ ! -f /etc/timezone -o "$(cat /etc/timezone | cut -f1 -d'/')" == "Etc" ]; th
 	dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
-apt-get -q install software-properties-common -y
-apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+sudo apt-get -q install software-properties-common -y
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 
 # install system build tools needed by gridlabd
 
-apt-get -q install git -y
-apt-get -q install unzip -y
-apt-get -q install autoconf -y
-apt-get -q install libtool -y
-apt-get -q install g++ -y
-apt-get -q install cmake -y 
-apt-get -q install flex -y
-apt-get -q install bison -y
-apt-get -q install libcurl4-gnutls-dev -y
-apt-get -q install subversion -y
-apt-get -q install util-linux -y
-apt-get -q install liblzma-dev -y
-apt-get -q install libbz2-dev -y
-apt-get -q install libncursesw5-dev -y
-apt-get -q install xz-utils -y
-apt-get -q install mdbtools -y
+sudo apt-get -q install git -y
+sudo apt-get -q install unzip -y
+sudo apt-get -q install autoconf -y
+sudo apt-get -q install libtool g++ cmake flex bison libcurl4-gnutls-dev subversion util-linux liblzma-dev libbz2-dev libncursesw5-dev xz-utils -y
+sudo apt-get -q install g++ -y
+sudo apt-get -q install cmake -y 
+sudo apt-get -q install flex -y
+sudo apt-get -q install bison -y
+sudo apt-get -q install libcurl4-gnutls-dev -y
+sudo apt-get -q install subversion -y
+sudo apt-get -q install util-linux -y
+sudo apt-get install liblzma-dev -y
+sudo apt-get install libbz2-dev -y
+sudo apt-get install libncursesw5-dev -y
+sudo apt-get install xz-utils -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
+if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.6"
-	cd /usr/local/src
+	cd /usr/local/opt/gridlabd/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
-	make altinstall
-	/sbin/ldconfig /usr/local/lib
-	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
-	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
-	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
-	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
-	/usr/local/bin/python3 -m pip install --upgrade pip
-	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/bin/python3 -m pip install IPython censusdata
+	make install
+	/sbin/ldconfig /usr/local/opt/gridlabd/lib
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
+	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
+	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
+	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+
+	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
+	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
+
+
+	cd $REQ_DIR
+	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
+
+
+	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
+		sudo touch /etc/ld.so.conf.d/gridlabd.conf
+		sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+		sudo ldconfig
+	fi
 fi
 
-# # install latex
+# install latex
 apt-get install texlive -y
 
 # doxgygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	if [ ! -d /usr/local/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
+	if [ ! -d /usr/local/opt/gridlabd/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/opt/gridlabd/src/doxygen
 	fi
-	if [ ! -d /usr/local/src/doxygen/build ]; then
-		mkdir /usr/local/src/doxygen/build
+	if [ ! -d /usr/local/opt/gridlabd/src/doxygen/build ]; then
+		mkdir /usr/local/opt/gridlabd/src/doxygen/build
 	fi
-	cd /usr/local/src/doxygen/build
+	cd /usr/local/opt/gridlabd/src/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
 	make install
 fi
 
-# # # mono
+# # mono
 
 if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
@@ -105,14 +117,14 @@ if [ ! -f /usr/bin/mono ]; then
 	apt-get -q install mono-devel -y
 fi
 
-# # natural_docs
-if [ ! -x /usr/local/bin/natural_docs ]; then
-	cd /usr/local
+# natural_docs
+if [ ! -x /usr/local/opt/gridlabd/bin/natural_docs ]; then
+	cd /usr/local/opt/gridlabd
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
-	chmod a+x /usr/local/bin/natural_docs
+mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/gridlabd/bin/natural_docs
+	chmod a+x /usr/local/opt/gridlabd/bin/natural_docs
 fi
