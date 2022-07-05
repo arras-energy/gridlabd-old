@@ -918,7 +918,7 @@ $$
     \boxed { \dot {\textbf T} = \textbf A \textbf T + \textbf B_1 \textbf q + \textbf B_2 \textbf u } \qquad (6)
 $$
 
-where $\textbf{T} = \begin{bmatrix} T_A & T_U & T_C & T_M \end{bmatrix}^\mathrm{T}$, $\textbf q$ are the ambient heat gains/losses, and $\textbf u$ is the controlled heat gains/losses, with
+where $\textbf{T} = \begin{bmatrix} T_A & T_U & T_C & T_M \end{bmatrix}^\mathrm{T}$, $q$ are the ambient heat gains/losses, and $u$ is the controlled heat gains/losses, with
 
 $$
     \textbf A = \begin{bmatrix}
@@ -1002,7 +1002,7 @@ $$
     \end{bmatrix}
 $$
 
-The value of $\textbf{u}$ is determined by the HVAC controls.
+The value of $\textbf u$ is determined by the HVAC controls.
 
 ## Heating/Cooling Solution Method
 
@@ -1010,26 +1010,20 @@ The model assumes that the setpoints are maintained in the controlled zone, and 
 
 ### Step 1 - Determine the system mode
 
-Determine the zone balance temperatures by solving Equation (2) for $\textbf{T}$ given $\dot {\textbf T} = 0$ and $\textbf{u} = 0$
+Determine the zone balance temperatures by solving Equation (2) for $\textbf{T}$ given $\dot{\textbf{T}} = 0$ and $\textbf{u} = 0$
 
 $$
-
     \textbf{T}^o = - \textbf{A}^{-1} \textbf{B}_1 \textbf{q}
-
-
 $$
 
 For each zone $n \in \{A,U,C\}$, the operating mode is
 
 $$
-
     m_n = \left\{\begin{matrix}
         +1 &:& T_n \lt T_n^o
     \\
         -1 &:& T_n \ge T_n^o
     \end{matrix} \right.
-
-
 $$
 
 ### Step 2 - Compute the building mass equilibrium temperature
@@ -1047,10 +1041,7 @@ when $t = \infty$, $\dot {\textbf T} = 0$, and ${\textbf T} = {\textbf T}^*$
 where the steady state temperatures for each zone are
 
 $$
-
     {\textbf T}^* = \begin{bmatrix}  T_{set_{A}} \\ T_{set_{U}}  \\ T_{set_{C}}  \\ T_{M_{eq}} \end{bmatrix} = \begin{bmatrix}  T_{set} \\ T_{set} - mT_{unoccupied} \\ T_{set} - mT_{core} \\ T_{M_{eq}} \end{bmatrix}
-
-
 $$
 
 where
@@ -1060,6 +1051,7 @@ where
 - $T_{unoccupied}$ is the unoccupied temperature setpoint offset, e.g., `10 degF`, and
 - $T_{core}$ is the core temperature setpoint offset, e.g., `5 degF`.
 - $T_{M_{eq}}$ is the equilibrium temperature assuming steady state with all other zone setpoints being met.
+  
   $$
       \textbf 0
       =
@@ -1125,10 +1117,9 @@ $$
 
 ### Step 3 - Compute the equilibrium load
 
-Solve Equation (6) for $\textbf{u}$ at the temperature setpoint given $\dot {\textbf T}=0$, i.e.,
+Solve Equation (6) for $\textbf u$ at the temperature setpoint given $\dot {\textbf T} = 0$, i.e.,
 
 $$
-
     {\textbf u} = -{\textbf B}_2^{-1} ( {\textbf A} {\textbf T}^* + {\textbf B}_1 \textbf{q} )\qquad (9)
 $$
 
@@ -1137,10 +1128,7 @@ $$
 The value of $\textbf u$ obtained from Equation (9) may exceed the limits of the HVAC system, in which can they must be constrained such that element-wise
 
 $$
-
     \textbf u^* = \textbf u \qquad \mathrm{s.t} \qquad \underline {\textbf u} \le {\textbf u} \le \overline {\textbf u}
-
-
 $$
 
 where $\underline {\textbf u}$ is the maximum cooling capacity and $\overline {\textbf u}$ is the maximum heating capacity of the HVAC system.
@@ -1218,10 +1206,10 @@ The system capacity is computed based on the maximum heating/cooling gain/loss p
 The maximum system heating capacity is
 
 $$
-    N M ( \overline{Q}_{H^*_A} + \overline{Q}_{H_C} )
+    N M ( \overline{Q}_{H_A} + \overline{Q}_{H_C} )
 $$
 
-where $\overline{Q}_{H^*_A}$ is the unit heating capacity not met by local unit systems, and
+where $\overline{Q}_{H_A}$ is the unit heating capacity not met by local unit systems, and
 
 $$
     \overline{Q}_{H_C} = U_{OC} ( \underline{T}_O - T_{H_C} ) + U_{UC} ( T_{H_U} - T_{H_C} ) + \underline{Q}_{Vent_{C}}
@@ -1232,13 +1220,13 @@ with $\underline{Q}_{V_C}$ as the maximum core zone ventilation loss (a negative
 The maximum system cooling capacity is
 
 $$
-    N M ( \overline{Q}_{C^*_A} + \overline{Q}_{C_C} )
+    N M ( \overline{Q}_{C_A} + \overline{Q}_{C_C} )
 $$
 
 where
 
 $$
-    \overline{Q}_{C_C} = U_{OC} ( \overline{T}_O - T_{C_C} ) + U_{UC} ( T_{C_U} - T_{C_C} ) + \overline{Q}_{Rad{_C}} + \overline{Q}_{Vent_{C}} + \overline{Q}_{Enduse_{C}}
+    \overline{Q}_{C_C} = U_{OC} ( \overline{T}_O - T_{C_C} ) + U_{UC} ( T_{C_U} - T_{C_C} ) + \overline{Q}_{Rad_C} + \overline{Q}_{Vent_C} + \overline{Q}_{Enduse_C}
 $$
 
 with $\overline{Q}_{Rad_C}$, $\overline{Q}_{Vent_C}$, $\overline{Q}_{Enduse_C}$ as the maximum core zone solar, ventilation, and equipment heat gains, respectively.
@@ -1248,13 +1236,7 @@ with $\overline{Q}_{Rad_C}$, $\overline{Q}_{Vent_C}$, $\overline{Q}_{Enduse_C}$ 
 The power consumption is the sum of all the end-use loads and the HVAC load given the efficiency of the HVAC systems:
 
 $$
-
     P = Q_{Enduse_A} + Q_{Enduse_C} + { E\over \eta_M } ||u||_1^*
-
-
 $$
 
 where $\eta_M$ is the efficiency of the HVAC system in the mode $M$.
-
-$$
-$$
