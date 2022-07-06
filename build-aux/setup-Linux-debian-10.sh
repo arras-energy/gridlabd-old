@@ -50,7 +50,7 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-
+sudo apt-get install libgeos-dev
 # Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
@@ -73,7 +73,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
 
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3 libgeos-dev
+	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
 

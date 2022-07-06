@@ -32,6 +32,8 @@ if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
 # build tools
