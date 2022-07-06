@@ -20,9 +20,9 @@ geopandas>=0.9.0
 CensusData==1.13
 cfo==1.0.1
 ipykernel==5.5.5
-geopy==2.1.0
+geopy>=2.1.0
 timezonefinder==5.2.0
-geocoder==1.38.1
+geocoder>=1.38.1
 metar>=1.8.0
 boto3>=1.19.11
 control>=0.9.0

@@ -1,6 +1,6 @@
 #!/bin/bash
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-REQ_DIR=$(pwd)
+
 # check for Rosetta Homebrew
 
     if test -e /usr/local/Cellar; then 
@@ -18,17 +18,20 @@ REQ_DIR=$(pwd)
     brew update-reset
     brew doctor
 
-echo "$1"
-if ! grep -q "$1/bin" "$HOME/.zshrc"; then
+# adding necessary paths to user bash and zsh terminals
+# apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
+if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
-    echo "export PATH=$1/bin:\$PATH" >> $HOME/.zshrc
-    echo "export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
+    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
 fi
 
-if ! grep -q "$1/bin" "$HOME/.bashrc"; then
+if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
-    echo "export PATH=$1/bin:\$PATH" >> $HOME/.bashrc
-    echo "export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
+    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
+    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
 # build tools
@@ -38,10 +41,13 @@ fi
     xcode-select --install
 
     # Update symlinks in /usr/local/bin
-    [ ! -L /usr/local/bin/sed -o ! "$(readlink /usr/local/bin/sed)" == "/usr/local/bin/gsed" ] && mv /usr/local/bin/sed /usr/local/bin/sed-old
-    [ ! -e /usr/local/bin/sed ] && ln -sf /opt/homebrew/bin/gsed /usr/local/bin/sed
-    [ ! -e /usr/local/bin/libtoolize ] && ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
-    [ ! -e /usr/local/bin/libtool ] && ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
+    #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
+        #mv /usr/local/bin/* /opt/homebrew/bin
+        #sudo ln -sf /opt/homebrew/bin /usr/local/bin
+    #fi
+    [ ! -e /usr/local/bin/sed ] && sudo ln -sf /opt/homebrew/bin/gsed /usr/local/bin/sed
+    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
+    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
 
 
 # Install python 3.9.13
@@ -54,7 +60,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-    export PKG_CONFIG_PATH="$(brew --prefix tcl-tk)/lib/pkgconfig"
+    export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
     --with-universal-archs=arm64 \
     --enable-optimizations \
@@ -64,26 +70,27 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
     --with-tcltk-includes="$(pkg-config --cflags tcl tk)"
     --with-computed-gotos CFLAGS="-fPIC" \
-    LDFLAGS="-L$(brew --prefix)/lib" CPPFLAGS="-I$(brew --prefix)/include" \
+    LDFLAGS="-L$(brew --prefix)/lib" CPPFLAGS="-I$(brew --prefix)/include" 
 
 	make -s -j2
 	make install
-	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
-	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
-	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
+	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
+	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
+	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
+	sudo ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+    # macos refuses to let me set my all-important library paths. I have to link to /usr/local/lib otherwise the libraries cannot be found.
+    # I also need to now add an os-specific script section to the cloud install script. Thanks, apple.
+    #if ! test -e /usr/local/lib; then 
+    #    sudo mkdir /usr/local/lib
+    #    sudo ln -sf /usr/local/opt/gridlabd/lib/* /usr/local/lib
+    #else
+    #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
+    #fi
 
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
-
-	# if ! grep -q "/usr/local/opt/gridlabd/lib" "/etc/ld.so.conf"; then
-	#	sudo touch /etc/ld.so.conf.d/gridlabd.conf
-	#	sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf'
-	#	sudo ldconfig
-	# fi
 fi
 
 # mdbtools
@@ -97,7 +104,7 @@ fi
 # docs generators
     brew install mono
     brew install naturaldocs
-    ln -sf /opt/homebrew/bin/naturaldocs /usr/local/bin/natural_docs
+    sudo ln -sf /opt/homebrew/bin/naturaldocs /usr/local/bin/natural_docs
 
     brew install doxygen
 
