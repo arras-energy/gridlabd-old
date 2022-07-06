@@ -59,15 +59,15 @@ touch "$HOME/.bashrc"
 echo "export PATH=/usr/local/sbin:/usr/sbin:/sbin:\$PATH" >> $HOME/.bashrc
 export PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH
 
-# Install python 3.9.6
+# Install python 3.9.13
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.6"
+	echo "install python 3.9.13"
 	cd /usr/local/opt/gridlabd/src
 
-	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	# tar xzf Python-3.9.6.tgz 
-	cd Python-3.9.6
+	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
+	# tar xzf Python-3.9.13.tgz 
+	cd Python-3.9.13
 
 	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
