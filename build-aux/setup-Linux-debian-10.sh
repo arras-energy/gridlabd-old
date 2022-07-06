@@ -76,7 +76,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata GDAL
+	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
 
 	cd $REQ_DIR
