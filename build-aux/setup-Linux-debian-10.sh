@@ -51,7 +51,7 @@ sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
 sudo apt-get install libgeos-dev -y
-sudo apt-get install libgdal20 -y
+sudo apt install libgdal-dev -y
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
