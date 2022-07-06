@@ -54,11 +54,10 @@ sudo apt-get install libgdal -y
 sudo apt-get install libgdal-dev -y
 sudo apt-get install libgeos-dev -y
 
-if ! grep -q "/usr/local/sbin" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=\$PATH:/usr/local/sbin:/usr/sbin:/sbin" >> $HOME/.bashrc
-    echo "export PATH=\$PATH:/usr/local/sbin:/usr/sbin:/sbin" >> $HOME/.bash_profile
-fi
+
+touch "$HOME/.bashrc"
+echo "export PATH=/usr/local/sbin:/usr/sbin:/sbin:\$PATH" >> $HOME/.bashrc
+
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
