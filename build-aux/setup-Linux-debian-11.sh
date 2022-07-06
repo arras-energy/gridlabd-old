@@ -54,6 +54,12 @@ sudo apt-get install libgdal -y
 sudo apt-get install libgdal-dev -y
 sudo apt-get install libgeos-dev -y
 
+if ! grep -q "/usr/local/sbin" "$HOME/.bashrc"; then
+    touch "$HOME/.bashrc"
+    echo "export PATH=\$PATH:/usr/local/sbin:/usr/sbin:/sbin" >> $HOME/.bashrc
+    echo "export PATH=\$PATH:/usr/local/sbin:/usr/sbin:/sbin" >> $HOME/.bash_profile
+fi
+
 # Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
