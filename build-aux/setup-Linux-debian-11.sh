@@ -57,7 +57,7 @@ sudo apt-get install libgeos-dev -y
 
 touch "$HOME/.bashrc"
 echo "export PATH=/usr/local/sbin:/usr/sbin:/sbin:\$PATH" >> $HOME/.bashrc
-
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
