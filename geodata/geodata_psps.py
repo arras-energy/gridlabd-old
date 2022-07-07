@@ -1,3 +1,28 @@
+"""GridLAB-D Geodata PSPS Package
+
+This package utilizes a Mixed Integer Linear Program to minimize wildfire risk and lost customer load hours in a distribution system when scheduling a PSPS event. This optimization algorithms takes into consideration wind conditions, vegitation fire risk, customer locations, and historical fire risk data when determing the optimal nodes to switch the power off to.
+
+INPUT:
+
+    latitude    the latitude of the location
+    
+    longitude   the longitude of the location
+
+    wildfire_risk   the cutoff for determining the acceptable amount of wildfire risk when determine a PSPS event
+
+    input_file  CSV or JSON file containing distribution system
+
+    dep_file    CSV file containing node dependencies
+
+
+OUTPUT:
+
+    powerState  Power state of substation after considering all factors when determining a PSPS event
+
+
+OPTIONS:
+
+"""
 import sys
 import os
 import pandas as pd
@@ -19,12 +44,12 @@ if not share:
 if share not in sys.path:
     sys.path.append("/usr/local/share/gridlabd")
 
+
+
 import meteostat_weather as mw
 import nsrdb_weather as ns
 import noaa_forecast as nf
-sys.path.append('../geodata')
 import geodata_firerisk
-sys.path.append('../converters')
 import json2dfloadlocations
 
 
@@ -433,103 +458,139 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 #     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
 # # END
 
-#Routine for Historical Event Data
-pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
-NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
-Napadep = pd.read_csv(NapadepPath)
-Napadep.fillna(0,inplace=True)
 
-dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
-#Load Data
-data = loadPGEData(pathNapa)
-# data = data.head(5000)
-
-#Modify Data
-data, dataX = importFireRiskData(data,dataStartDate)
-dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-areaDataX = aggregateAreaData(dataX)
-
-#Run optimization
-resilienceMetricOption= 0 #1 for KWh lost (not implemented), 0 for customer-hours
-fireRiskAlpha=60 #higher number means you are more willing to accept fire risk (0 - 100) 
-model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
-##END
 
 ##############
 # Plot Results
 ##############
-results = []
-for timestep in model.timestep:
-    results_t = []
-    for group_id in model.areas:
-        results_t.append(model.switch[timestep, group_id].value)
-    results.append(results_t)
-areaDataX['results'] = xr.DataArray(results, dims=['time', 'group_id'])
+# results = []
+# for timestep in model.timestep:
+#     results_t = []
+#     for group_id in model.areas:
+#         results_t.append(model.switch[timestep, group_id].value)
+#     results.append(results_t)
+# areaDataX['results'] = xr.DataArray(results, dims=['time', 'group_id'])
 
-# plot_results = areaDataX.results.plot.line(x="time", col="group_id")
-from cycler import cycler
-plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y', 'c', 'k']) +
-                           cycler('linestyle', ['-', '--', ':', '-.', '-', '--'])))
-plot_results = areaDataX.results.plot.line(x="time",alpha=0.4,lw=3,add_legend=False)
-plt.title("Napa County Switch Status")
-plt.xlim((50,140))
-plt.xlabel("Hours")
-plt.show()
-
-areaDataX.results.sum(dim='group_id').plot.line(x='time')
-plt.title("Sum of Switch Status")
-plt.xlabel("Hours")
-plt.show()
-
-areaDataX.fireRiskNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
-plt.title("Normalized Fire Risk")
+# # plot_results = areaDataX.results.plot.line(x="time", col="group_id")
+# from cycler import cycler
+# plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y', 'c', 'k']) +
+#                            cycler('linestyle', ['-', '--', ':', '-.', '-', '--'])))
+# plot_results = areaDataX.results.plot.line(x="time",alpha=0.4,lw=3,add_legend=False)
+# plt.title("Napa County Switch Status")
 # plt.xlim((50,140))
-plt.xlabel("Hours")
-plt.show()
+# plt.xlabel("Hours")
+# plt.show()
 
-areaDataX.igProbNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
-plt.title("Normalized Ignition Probability")
-plt.xlabel("Hours")
-plt.show()
+# areaDataX.results.sum(dim='group_id').plot.line(x='time')
+# plt.title("Sum of Switch Status")
+# plt.xlabel("Hours")
+# plt.show()
 
-areaDataX.customerCountNormalized.plot.line(x='time',alpha=0.7,lw=4,add_legend=False)
-plt.title("Normalized Customer Hours")
-plt.xlabel("Hours")
-plt.show()
+# areaDataX.fireRiskNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
+# plt.title("Normalized Fire Risk")
+# # plt.xlim((50,140))
+# plt.xlabel("Hours")
+# plt.show()
 
-### Plot Results on map ########
-#Add results to dataframe
-dataX= dataX.reset_coords()
-df_groupid = dataX[['group_id','lat','long']].to_dataframe()
-df_results =areaDataX[['results','igProbNormalized','windNormalized','fireRiskNormalized','customerCountNormalized','WindW','fireRisk7DW','igProbW']].to_dataframe().reset_index()
-resultsTimeSeries = pd.merge(df_results,df_groupid,how='left',on='group_id')
-windTimeSeries = dataX[['group_id','lat','long','igProbW','WindW']].to_dataframe().reset_index().rename(columns={'time_wind':'time'})
-# resultsTimeSeries.to_csv('/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/results.csv')
+# areaDataX.igProbNormalized.plot.line(x="time",alpha=0.7,lw=4,add_legend=False)
+# plt.title("Normalized Ignition Probability")
+# plt.xlabel("Hours")
+# plt.show()
 
-import plotly.express as px
-def animate_map(time_col,df,col,scaleUL):
-    fig = px.scatter_mapbox(df,
-              lat="lat" ,
-              lon="long",
-              hover_name="group_id",
-              color=col,
-              animation_frame=time_col,
-              mapbox_style='stamen-terrain',
-              category_orders={
-              time_col:list(np.sort(df[time_col].values))
-              },                  
-              zoom=9,width=700, height=700,
-              range_color=[0,scaleUL])
-    fig.update_layout(
-        margin=dict(l=20, r=20, t=20, b=10),
-        paper_bgcolor="LightSteelBlue",
-        )
-    fig.show()
+# areaDataX.customerCountNormalized.plot.line(x='time',alpha=0.7,lw=4,add_legend=False)
+# plt.title("Normalized Customer Hours")
+# plt.xlabel("Hours")
+# plt.show()
 
-plotdf= resultsTimeSeries.iloc[::5, :]
-animate_map(time_col='time',df=plotdf,col='results',scaleUL= 1)
-animate_map(time_col='time',df=plotdf,col='igProbNormalized',scaleUL= 1)
-animate_map(time_col='time',df=plotdf,col='fireRiskNormalized',scaleUL= 1)
+# ### Plot Results on map ########
+# #Add results to dataframe
+# dataX= dataX.reset_coords()
+# df_groupid = dataX[['group_id','lat','long']].to_dataframe()
+# df_results =areaDataX[['results','igProbNormalized','windNormalized','fireRiskNormalized','customerCountNormalized','WindW','fireRisk7DW','igProbW']].to_dataframe().reset_index()
+# resultsTimeSeries = pd.merge(df_results,df_groupid,how='left',on='group_id')
+# windTimeSeries = dataX[['group_id','lat','long','igProbW','WindW']].to_dataframe().reset_index().rename(columns={'time_wind':'time'})
+# # resultsTimeSeries.to_csv('/Users/kamrantehranchi/Documents/GradSchool/Research/PSPS_Optimization_EREproject/Data/results.csv')
 
-# plotdf= windTimeSeries.iloc[::20, :]
-# animate_map(time_col='time',df=plotdf,col='WindW')
+# import plotly.express as px
+# def animate_map(time_col,df,col,scaleUL):
+#     fig = px.scatter_mapbox(df,
+#               lat="lat" ,
+#               lon="long",
+#               hover_name="group_id",
+#               color=col,
+#               animation_frame=time_col,
+#               mapbox_style='stamen-terrain',
+#               category_orders={
+#               time_col:list(np.sort(df[time_col].values))
+#               },                  
+#               zoom=9,width=700, height=700,
+#               range_color=[0,scaleUL])
+#     fig.update_layout(
+#         margin=dict(l=20, r=20, t=20, b=10),
+#         paper_bgcolor="LightSteelBlue",
+#         )
+#     fig.show()
+
+# plotdf= resultsTimeSeries.iloc[::5, :]
+# animate_map(time_col='time',df=plotdf,col='results',scaleUL= 1)
+# animate_map(time_col='time',df=plotdf,col='igProbNormalized',scaleUL= 1)
+# animate_map(time_col='time',df=plotdf,col='fireRiskNormalized',scaleUL= 1)
+
+# # plotdf= windTimeSeries.iloc[::20, :]
+# # animate_map(time_col='time',df=plotdf,col='WindW')
+
+version = 1
+
+default_options = {
+    # TODO,
+}
+
+default_config = {
+    # TODO,
+}
+
+import gridlabd
+
+def apply(data, options=default_options, config=default_config, warning=print):
+    # result = TODO
+
+    
+    data = loadJsonData(data)
+    print("Data = \n", data)
+    print('GeoPackage works.... Do stuff here')
+   
+    # #Routine for Historical Event Data
+    # pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
+    # NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
+    # Napadep = pd.read_csv(NapadepPath)
+    # Napadep.fillna(0,inplace=True)
+
+    # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+    # #Load Data
+    # data = loadPGEData(pathNapa)
+    # # data = data.head(5000)
+
+    # #Modify Data
+    # data, dataX = importFireRiskData(data,dataStartDate)
+    # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+    # areaDataX = aggregateAreaData(dataX)
+
+    # #Run optimization
+    # resilienceMetricOption= 0 #1 for KWh lost (not implemented), 0 for customer-hours
+    # fireRiskAlpha=60 #higher number means you are more willing to accept fire risk (0 - 100) 
+    # model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
+    # ##END
+
+
+    return pd.DataFrame(data)
+
+if __name__ == '__main__':
+    import unittest
+
+    
+    # class TestAddress(unittest.TestCase):
+        # def test_1(self):
+            # TODO
+
+
+    unittest.main()

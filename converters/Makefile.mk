@@ -83,3 +83,4 @@ dist_pkgdata_DATA += converters/xls-spida2csv-geodata.py
 dist_pkgdata_DATA += converters/cyme.py
 dist_pkgdata_DATA += converters/csv-modify2glm-modify.py
 dist_pkgdata_DATA += converters/csv-config2glm-config.py
+dist_pkgdata_DATA += converters/json2dfloadlocations.py
