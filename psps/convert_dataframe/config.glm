@@ -1,0 +1,24 @@
+// convert settings.csv to settings.glm 
+// #input "settings.csv" -f config -t config
+#exec awk 'BEGIN{FS=","} { print "#define",$1 "=" $2}' < settings.csv >settings.glm
+#include "settings.glm"
+
+// set a clock
+#ifdef NOAA_FORECAST_STARTTIME
+	clock 
+	{
+		starttime "${NOAA_FORECAST_STARTTIME}";
+		stoptime "${NOAA_FORECAST_STOPTIME}";
+	}
+#else
+	clock 
+	{
+		timezone "${TIMEZONE}";
+		starttime "${STARTTIME}";
+		stoptime "${STOPTIME}";
+	}
+#endif
+
+module powerflow;
+
+// #library get pole_configuration.glm 
