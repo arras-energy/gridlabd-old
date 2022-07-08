@@ -404,55 +404,55 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 # ### Run Program ########
 # ########################
 
-# # Routine for IEEE123 Data
-# IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
-# IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
-# IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
-# IEEEdep = pd.read_csv(IEEEdepPath)
-# dataStartDate = datetime.today() + timedelta(days=-1)
-# # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+# Routine for IEEE123 Data
+IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
+IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
+IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
+IEEEdep = pd.read_csv(IEEEdepPath)
+dataStartDate = datetime.today() + timedelta(days=-1)
+# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 
-# # Load Data
-# data = loadJsonData(IEEEpath)
-# # dataPoles= loadJsonData(IEEEpolespath)
+# Load Data
+data = loadJsonData(IEEEpath)
+# dataPoles= loadJsonData(IEEEpolespath)
 
-# # Modify Data
-# data = assignGroupID_json(data)
-# data, dataX = importFireRiskData(data, dataStartDate)
-# dataX = assignLoadID(dataX)
-# dataX = assignCustomerImpact(dataX)
-# dataX = importWeatherForecastData(data, dataX)
-# # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-# # dataX= ignitionProbModel(dataX)
+# Modify Data
+data = assignGroupID_json(data)
+data, dataX = importFireRiskData(data, dataStartDate)
+dataX = assignLoadID(dataX)
+dataX = assignCustomerImpact(dataX)
+dataX = importWeatherForecastData(data, dataX)
+# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# dataX= ignitionProbModel(dataX)
 
-# areaDataX = aggregateAreaData(dataX)
-# # Run optimization
-# resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
-# fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
-# model, results = optimizeShutoff(
-#     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
-# # END
-
-#Routine for Historical Event Data
-pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
-NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
-Napadep = pd.read_csv(NapadepPath)
-Napadep.fillna(0,inplace=True)
-
-dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
-#Load Data
-data = loadPGEData(pathNapa)
-# data = data.head(5000)
-
-#Modify Data
-data, dataX = importFireRiskData(data,dataStartDate)
-dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
 areaDataX = aggregateAreaData(dataX)
+# Run optimization
+resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
+fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
+model, results = optimizeShutoff(
+    areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
+# END
 
-#Run optimization
-resilienceMetricOption= 0 #1 for KWh lost (not implemented), 0 for customer-hours
-fireRiskAlpha=60 #higher number means you are more willing to accept fire risk (0 - 100) 
-model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
+# #Routine for Historical Event Data
+# pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
+# NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
+# Napadep = pd.read_csv(NapadepPath)
+# Napadep.fillna(0,inplace=True)
+
+# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+# #Load Data
+# data = loadPGEData(pathNapa)
+# # data = data.head(5000)
+
+# #Modify Data
+# data, dataX = importFireRiskData(data,dataStartDate)
+# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# areaDataX = aggregateAreaData(dataX)
+
+# #Run optimization
+# resilienceMetricOption= 0 #1 for KWh lost (not implemented), 0 for customer-hours
+# fireRiskAlpha=60 #higher number means you are more willing to accept fire risk (0 - 100) 
+# model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
 ##END
 
 ##############
