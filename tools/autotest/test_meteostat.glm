@@ -23,5 +23,5 @@ object recorder
 }
 
 #ifexist ../test_meteostat.csv
-#on_exit 0 diff -I "^//" ../test_meteostat.csv test_meteostat.csv
+#on_exit 0 diff -I "^//" ../test_meteostat.csv test_meteostat.csv > gridlabd.diff
 #endif
