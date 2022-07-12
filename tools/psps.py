@@ -35,12 +35,12 @@ import json2dfloadlocations
 '''
 Functions to load datasource... could combine these into one function and call based on the .json or .csv
 '''
-def loadJsonData(path):
+def loadJsonData(path: str):
     # Load and Convert JSON to matrix of load points
     data = json2dfloadlocations.convert(input_file=path, output_file='')
     return data
 
-def loadPGEData(path):
+def loadPGEData(path: str):
     # Loading Example PGE Data
     data = pd.read_csv(os.path.join(path))
     data.rename(columns={'Lat': 'lat', 'Lon': 'long',
@@ -53,7 +53,7 @@ def loadPGEData(path):
 ## Calculations/Edits #####
 ###########################
 
-def assignGroupID_json(data):
+def assignGroupID_json(data: pd.DataFrame):
     # Assign group_id Areas to power lines based on area of "TO"
     # Replace Empty cells with Nan
     data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
@@ -66,7 +66,7 @@ def assignGroupID_json(data):
     return data
 
 
-def importFireRiskData(data, fireForecastStartDateDT):
+def importFireRiskData(data: pd.DataFrame, fireForecastStartDateDT: datetime):
     '''
     #Import Fire Risk and set up Fire Risk Timeline DataArray via USGS fire potential index
     Input: 'data' dataframe with lat, long, class fields
@@ -127,7 +127,7 @@ def importFireRiskData(data, fireForecastStartDateDT):
 
     # Converting Data to XARRAY to include more dimensions for forecasting
     # adding fireRiskWeight to the dxArray
-    dataX = data.to_xarray()
+    dataX: xr.Dataset = data.to_xarray()
     dataX = dataX.set_coords(['lat', 'long'])
     dataX.long.data = dataX.long.data.astype(float)
     dataX.lat.data = dataX.lat.data.astype(float)
@@ -140,7 +140,7 @@ def importFireRiskData(data, fireForecastStartDateDT):
     return data, dataX
 
 
-def assignLoadID(dataX):
+def assignLoadID(dataX: xr.Dataset):
     # Reassigning the group_id of loads so that loads can be summed if this metric is to be incldued in optimization
     dict_loadgroups = dict(zip(dataX.node.where(
         dataX['class'] == 'load').data, dataX.group_id.where(dataX['class'] == 'load').data))
@@ -153,12 +153,12 @@ def assignLoadID(dataX):
     return dataX
 
 
-def assignCustomerImpact(dataX):
+def assignCustomerImpact(dataX: xr.Dataset):
     # check if it contains word meter then assign to customer. This is a proxy for customer count.
     dataX['customerCount'] = dataX['node'].str.contains('meter_').astype(int)
     return dataX
 
-def loadIgnitionProb(dataX):
+def loadIgnitionProb(dataX: xr.Dataset):
     print("==== Calculating Ignition Probability Index ====")
      # load the model from disk
     filepath= os.path.join(os.getcwd(),'example/LogRegModel.sav')
@@ -175,7 +175,7 @@ def loadIgnitionProb(dataX):
     return dataX
 
 
-def importWeatherForecastData(data, dataX):
+def importWeatherForecastData(data: pd.DataFrame, dataX: xr.Dataset):
     print("=======Importing Weather Forecast Data============")
     start = time.time()
 
@@ -212,7 +212,7 @@ def importWeatherForecastData(data, dataX):
     return dataX
 
 
-def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
+def importHistoricalWeatherDataMeteostat(data: pd.DataFrame, dataX: xr.Dataset, dateDT: datetime):
     print("========Importing Meteostat Data=========")
     start_stopwatch = time.time()
     latlongs = data[['lat', 'long']]
@@ -225,7 +225,7 @@ def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
 
     station_info = mw.find_station(lat,long)
     station_id = station_info['id']
-    weather_data = mw.get_weather(station_id, start, end)
+    weather_data: pd.DataFrame = mw.get_weather(station_id, start, end)
 
     time_Coords = weather_data.index
     Weather_forecast = np.ones(shape=len(time_Coords))
@@ -276,7 +276,7 @@ def importHistoricalWeatherDataMeteostat(data, dataX, dateDT):
 
     return dataX
 
-def aggregateAreaData(dataX):
+def aggregateAreaData(dataX: xr.Dataset):
     print("=====Aggregating for Optimization ======")
     # Combine the time axes for fireRisk forecast and the wind forecast
     fireRisk7DW_xr = dataX.fireRisk7DW.rename({'time_fireRisk': 'time'})
@@ -295,7 +295,7 @@ def aggregateAreaData(dataX):
     else: #for non-glm based files... taking the average here since all items equally weighted.
         areaDataX = dataX_merged.groupby(group='group_id').sum()
 
-    areaDataX = areaDataX.assign_coords({"time": np.arange(0, areaDataX.time.shape[0])})
+    areaDataX: xr.Dataset = areaDataX.assign_coords({"time": np.arange(0, areaDataX.time.shape[0])})
 
     fireRiskNormalized = (areaDataX.fireRisk7DW)/areaDataX.fireRisk7DW.max()
     areaDataX['fireRiskNormalized'] = fireRiskNormalized
@@ -319,7 +319,7 @@ def aggregateAreaData(dataX):
 ###########################
 ###### Optimization ######
 ###########################
-def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencies_df):
+def optimizeShutoff(areaDataX: xr.Dataset, resilienceMetricOption: int, fireRiskAlpha: int, dependencies_df: pd.DataFrame):
     print("=======Optimizing==========")
     start = time.time()
 
@@ -404,56 +404,56 @@ def optimizeShutoff(areaDataX, resilienceMetricOption, fireRiskAlpha,dependencie
 # ### Run Program ########
 # ########################
 
-# Routine for IEEE123 Data
-IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
-IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
-IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
-IEEEdep = pd.read_csv(IEEEdepPath)
-dataStartDate = datetime.today() + timedelta(days=-1)
-# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+# # Routine for IEEE123 Data
+# IEEEpath = os.path.join(os.getcwd(), 'example/ieee123.json')
+# IEEEpolespath = os.path.join(os.getcwd(), 'example/IEEE123_pole.json')
+# IEEEdepPath = os.path.join(os.getcwd(), 'example/ieeeDependencies.csv')
+# IEEEdep = pd.read_csv(IEEEdepPath)
+# dataStartDate = datetime.today() + timedelta(days=-1)
+# # dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 
-# Load Data
-data = loadJsonData(IEEEpath)
-# dataPoles= loadJsonData(IEEEpolespath)
+# # Load Data
+# data = loadJsonData(IEEEpath)
+# # dataPoles= loadJsonData(IEEEpolespath)
 
-# Modify Data
-data = assignGroupID_json(data)
-data, dataX = importFireRiskData(data, dataStartDate)
-dataX = assignLoadID(dataX)
-dataX = assignCustomerImpact(dataX)
-dataX = importWeatherForecastData(data, dataX)
-# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
-# dataX= ignitionProbModel(dataX)
+# # Modify Data
+# data = assignGroupID_json(data)
+# data, dataX = importFireRiskData(data, dataStartDate)
+# dataX = assignLoadID(dataX)
+# dataX = assignCustomerImpact(dataX)
+# dataX = importWeatherForecastData(data, dataX)
+# # dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+# # dataX= ignitionProbModel(dataX)
 
-areaDataX = aggregateAreaData(dataX)
-# Run optimization
-resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
-fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
-model, results = optimizeShutoff(
-    areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
-# END
-
-# #Routine for Historical Event Data
-# pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
-# NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
-# Napadep = pd.read_csv(NapadepPath)
-# Napadep.fillna(0,inplace=True)
-
-# dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
-# #Load Data
-# data = loadPGEData(pathNapa)
-# # data = data.head(5000)
-
-# #Modify Data
-# data, dataX = importFireRiskData(data,dataStartDate)
-# dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
 # areaDataX = aggregateAreaData(dataX)
+# # Run optimization
+# resilienceMetricOption = 0  # 1 for KWh lost, 0 for customer-hours
+# fireRiskAlpha = 40  # higher number means you are more willing to accept fire risk
+# model, results = optimizeShutoff(
+#     areaDataX, resilienceMetricOption, fireRiskAlpha, IEEEdep)
+# # END
 
-# #Run optimization
-# resilienceMetricOption= 0 #1 for KWh lost (not implemented), 0 for customer-hours
-# fireRiskAlpha=60 #higher number means you are more willing to accept fire risk (0 - 100) 
-# model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
-##END
+#Routine for Historical Event Data
+pathNapa= os.path.join(os.getcwd(), 'example/NapaSubfeederPoints-30m_CustCount.csv')
+NapadepPath = os.path.join(os.getcwd(), 'example/NapaSubfeederInterconnections.csv')
+Napadep = pd.read_csv(NapadepPath)
+Napadep.fillna(0,inplace=True)
+
+dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
+#Load Data
+data = loadPGEData(pathNapa)
+# data = data.head(5000)
+
+#Modify Data
+data, dataX = importFireRiskData(data,dataStartDate)
+dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
+areaDataX = aggregateAreaData(dataX)
+
+#Run optimization
+resilienceMetricOption = 0 #1 for KWh lost (not implemented), 0 for customer-hours
+fireRiskAlpha = 60 #higher number means you are more willing to accept fire risk (0 - 100) 
+model, results= optimizeShutoff(areaDataX, resilienceMetricOption,fireRiskAlpha,Napadep)
+#END
 
 ##############
 # Plot Results
