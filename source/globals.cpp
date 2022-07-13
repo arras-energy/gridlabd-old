@@ -1439,9 +1439,10 @@ DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
     return buffer;
 }
 
+static const char geocode_decodemap[] = "0123456789bcdefghjkmnpqrstuvwxyz";
+static const unsigned char *geocode_encodemap = NULL;
 const char *geocode_encode(char *buffer, int len, double lat, double lon, int resolution=12)
 {
-	static const char *base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 	if ( len < resolution+1 )
 	{
 		output_warning("geocode_encode(buffer=%p, len=%d, lat=%g, lon=%g, resolution=%d): buffer too small for specified resolution, result truncated", 
@@ -1492,7 +1493,7 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 		}
 		else
 		{
-			*geohash++ = base32[ch];
+			*geohash++ = geocode_decodemap[ch];
 			i++;
 			bit = 0;
 			ch = 0;
@@ -1500,6 +1501,78 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 	}
 	*geohash++ = '\0';
 	return buffer;
+}
+
+DEPRECATED const char *geocode_decode(char *buffer, int size, const char *code)
+{
+	double lat_err = 90, lon_err = 180;
+	double lat_interval[] = {-lat_err,lat_err};
+	double lon_interval[] = {-lon_err,lon_err};
+	bool is_even = true;
+	size_t maxlen = strlen(geocode_decodemap);
+	if ( geocode_encodemap == NULL )
+	{
+		static unsigned char map[256];
+		for ( size_t p = 0 ; p < maxlen ; p++ )
+		{
+			int c = (int)geocode_decodemap[p];
+			map[c] = p+1; 
+			if ( c >= 'a' && c <= 'z' )
+			{
+				map[c + 'A' - 'a'] = map[c];
+			}
+		}
+		geocode_encodemap = map;
+	}
+	const char *c = NULL;
+	for ( c = code ; *c != '\0' && *c != '.' ; c++ )
+	{
+		int cd = geocode_encodemap[(size_t)*c] - 1;
+		if ( cd < 0 )
+		{
+			return NULL;
+		}
+		for ( int mask = 16 ; mask > 0 ; mask /= 2 )
+		{
+			if ( is_even )
+			{
+				lon_err /= 2;
+				lon_interval[cd&mask?0:1] = (lon_interval[0] + lon_interval[1])/2;
+			}
+			else
+			{
+				lat_err /= 2;
+				lat_interval[cd&mask?0:1] = (lat_interval[0] + lat_interval[1])/2;
+			}
+			is_even = ! is_even;
+		}
+	}
+	const char *spec = NULL;
+	if ( *c == '.' )
+	{
+		spec = c+1;
+	}
+	int res = -(int)log10(lat_err);
+	if ( spec == NULL )
+	{
+		return snprintf(buffer,size,"%.*lf,%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2,
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lat") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lon") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else 
+	{
+		return NULL;
+	}
 }
 
 DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
@@ -1520,6 +1593,10 @@ DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
 		{
 			return geocode_encode(buffer,size,lat,lon,res);
 		}
+	}
+	else if ( geocode_decode(buffer,size,spec) )
+	{
+		return buffer;
 	}
 	output_warning("${GEOCODE %s}: geocode spec is not valid",spec);
 	buffer[0] = '\0';

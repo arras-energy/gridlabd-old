@@ -168,21 +168,33 @@ with open(output_file,"w") as md:
 			if oclass not in active_classes:
 				continue
 			hdr(3,oclass)
-			row("Property","Type","Unit","Access","Flags","Keywords","Default","Description")
-			row("--------","----","----","------","-----","--------","-------","-----------")
+			row("Property","Type","Unit","Description")
+			row("--------","----","----","-----------")
 			for property, specs in properties.items():
 				if not type(specs) is dict:
 					continue
+				unit = get(specs,"unit","")
 				ptype = get(specs,"type","(na)")
-				access = get(specs,"access","PUBLIC")
+				description = get(specs,"description","")
+				access = get(specs,"access","")
 				flags = get(specs,"flags","")
 				keywords = get(specs,"keywords","")
-				unit = get(specs,"unit","")
 				if type(keywords) is dict:
 					keywords = " ".join(keywords.keys())
 				default = get(specs,"default","")
-				description = get(specs,"description","")
-				row(property,ptype,unit,access,flags,keywords,default,description)
+				if access or flags or keywords or default:
+					items = []					
+					if access:
+						items.append(access)
+					if flags:
+						items.append(flags)
+					if keywords:
+						items.append(f"accepts: {', '.join(keywords.split())}")
+					if default:
+						items.append(f"default: {default}")
+					description += f" ({'; '.join(items)})"
+				description = description[0].upper() + description[1:]
+				row(property,ptype,unit,description)
 			row()
 
 	# objects

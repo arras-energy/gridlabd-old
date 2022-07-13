@@ -299,15 +299,12 @@ void powerflow_object::clear_violation(void)
 
 void powerflow_object::add_violation(int vf_type, const char *format, ...)
 {
-	if ( violation_watch )
-	{
-		char message[1024];
-		va_list ptr;
-		va_start(ptr,format);
-		vsnprintf(message,sizeof(message)-1,format,ptr);
-		va_end(ptr);
-		add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
-	}
+	char message[1024];
+	va_list ptr;
+	va_start(ptr,format);
+	vsnprintf(message,sizeof(message)-1,format,ptr);
+	va_end(ptr);
+	add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
 }
 void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message)
 {

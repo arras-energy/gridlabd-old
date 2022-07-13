@@ -55,6 +55,8 @@ fuse::fuse(MODULE *mod) : link_object(mod)
 			PT_double, "current_limit[A]", PADDR(current_limit),
 				PT_DEFAULT, "9999 A",
 			PT_double, "mean_replacement_time[s]",PADDR(mean_replacement_time),	//Retains compatibility with older files
+				PT_DEFAULT, "3600 s",
+				PT_DESCRIPTION, "mean time for replacing fuse when blown",
 			PT_double, "fuse_resistance[Ohm]",PADDR(fuse_resistance),
 				PT_DEFAULT, "-1 Ohm",
 				PT_DESCRIPTION,"The resistance value of the fuse when it is not blown.",

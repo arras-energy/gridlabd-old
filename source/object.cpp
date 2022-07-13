@@ -1082,7 +1082,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 	return result;
 }
 
-static int set_header_value(OBJECT *obj, const char *name, const char *value)
+static int set_header_value(OBJECT *obj, const char *name, const char *value,bool nofail=true)
 {
 	unsigned int temp_microseconds;
 	TIMESTAMP tval;
@@ -1268,7 +1268,8 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 	{
 		return sscanf(value,"%08llX%08llX",obj->guid,obj->guid+1) != 2 ? SUCCESS : FAILED;
 	}
-	else {
+	else if ( ! nofail ) 
+	{
 		output_error("object %s:%d called set_header_value() for invalid field '%s'", obj->oclass->name, obj->id, name);
 		/*	TROUBLESHOOT
 			The valid header fields are "name", "parent", "rank", "clock", "valid_to", "latitude",
@@ -1276,7 +1277,10 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 		*/
 		return FAILED;
 	}
-	/* should never get here */
+	else
+	{
+		return SUCCESS;
+	}
 }
 
 const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len)

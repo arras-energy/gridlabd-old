@@ -2515,6 +2515,48 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 					else
 						strcpy(value,"");
 				}
+				else if (strcmp(varname,"groupid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%s",(const char *)current_object->groupid);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rank")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rank);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rng_state")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rng_state);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"latitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->latitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"longitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->longitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"guid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%llx%llx",current_object->guid[0],current_object->guid[1]);
+					else
+						strcpy(value,"");
+				}
 				else if ( object_get_value_by_name(current_object,varname,value,sizeof(value)))
 				{
 					/* value is ok */
@@ -5244,7 +5286,7 @@ int GldLoader::schedule(PARSER)
 	char schedname[64];
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
+	if (LITERAL("schedule") && WHITE && TERM(dashed_name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
 	{
 		char buffer[65536], *p=buffer;
 		int nest=0;
@@ -6311,7 +6353,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(dashed_name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )
@@ -7714,6 +7756,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			/* C include file */
 			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
 			my_instance->subcommand("%s",value);
+			// TODO: insert stdout here
+			strcpy(line,"\n");
 			return TRUE;
 		}
 		else
@@ -7932,7 +7976,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#debug",6)==0)
 	{
-		char *term = strchr(line+8,' ');
+		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
