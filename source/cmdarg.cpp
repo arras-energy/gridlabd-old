@@ -378,15 +378,15 @@ int GldCmdarg::profile(int argc, const char *argv[])
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ != NULL )
 	{
-		if ( strcmp(opt,"text") == 0 )
+		if ( stricmp(opt,"text") == 0 || stricmp(opt,"txt") == 0 )
 		{
 			global_profile_output_format = POF_TEXT;
 		}
-		else if ( strcmp(opt,"csv") == 0 )
+		else if ( stricmp(opt,"csv") == 0 )
 		{
 			global_profile_output_format = POF_CSV;
 		}
-		else if ( strcmp(opt,"json") == 0 )
+		else if ( stricmp(opt,"json") == 0 )
 		{
 			global_profile_output_format = POF_JSON;
 		}
@@ -395,8 +395,12 @@ int GldCmdarg::profile(int argc, const char *argv[])
 			output_error("profiler option '%s' is not valid",opt);
 			return CMDERR;
 		}
+		global_profiler = TRUE;
 	}
-	global_profiler = !global_profiler;
+	else
+	{
+		global_profiler = !global_profiler;
+	}
 	return 0;
 }
 
