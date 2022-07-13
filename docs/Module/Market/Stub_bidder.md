@@ -18,7 +18,7 @@ GLM:
 
 # Description
 
-TODO
+This object is a "fake" bidder into the market. It can perform price and quantity bids (both buy and sell), but will not be directly reflected on the power system solution. Additionally, it is not able to control another device as a response to the price. This object is generally used for testing purposes, or to "fill out" a market that doesn't have enough buyers or sellers to be stable. According to its design, it is only able to use the submit_bid function, and does not support submit_bid_state.
 
 ## Properties
 
@@ -28,7 +28,7 @@ TODO
   double bid_period[s];
 ~~~
 
-TODO
+Describes how long between bids. Should generally align, or be a multiple of, with the auction market period.
 
 ### `count`
 
@@ -36,7 +36,7 @@ TODO
   int16 count;
 ~~~
 
-TODO
+Determines how many market periods the stub_bidder should bid. After count decrements to zero, the stub_bidder will no longer bid into the market.
 
 ### `market`
 
@@ -44,7 +44,8 @@ TODO
   object market;
 ~~~
 
-TODO
+This references the market that provides the price signal to the controller, and generates the rolling average and standard deviations seen by the object. This is also the object into which the controller will bid its price. It is typically specified as an auction or stubauction object, and is typically referenced by the name of the object.
+
 
 ### `role`
 
@@ -52,7 +53,7 @@ TODO
   enumeration {SELLER, BUYER} role;
 ~~~
 
-TODO
+Describes whether the device should be bidding into the market on the BUYER or SELLER curve.
 
 ### `price`
 
@@ -60,7 +61,7 @@ TODO
   double price;
 ~~~
 
-TODO
+This specifies the bidding price for the bidder at the given operating points. Must be between negative and positive price cap, or will be cut off by the auction.
 
 ### `quantity`
 
@@ -68,7 +69,7 @@ TODO
   double quantity;
 ~~~
 
-TODO
+This specifies the amount of power demanded by the object at the determined price. Must be a non-zero positive number.
 
 ### `bid_id`
 
@@ -76,7 +77,7 @@ TODO
   int64 bid_id;
 ~~~
 
-TODO
+Id of the last bid submitted.
 
 # Example
 

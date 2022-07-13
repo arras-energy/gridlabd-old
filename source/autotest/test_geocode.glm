@@ -19,3 +19,15 @@ object test
 #if ${GEOCODE test#6} != 9q9j76
 #error geocode "test#6" does not match "9q9j76"
 #endif
+
+#if ${GEOCODE 9q9j76} != 37.50,-122.20
+#error geocode "9q9j76" does not match "37.50,-122.20"
+#endif
+
+#if ${GEOCODE 9q9j76.lat} != 37.50
+#error geocode "9q9j76" does not match "37.50"
+#endif
+
+#if ${GEOCODE 9q9j76.lon} != -122.20
+#error geocode "9q9j76" does not match "-122.20"
+#endif
