@@ -16,7 +16,7 @@ bash$ gridlabd -D deltamode_allowed=[FALSE|TRUE]
 
 # Description
 
-In version 4.2 delta mode is not allowed by default.  
+In version 4.3 delta mode is not allowed by default.  
 
 # Example
 

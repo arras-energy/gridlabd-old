@@ -23,3 +23,7 @@ This GitHub project contains libraries of GLM object that can be used in GridLAB
 ## [Examples](https://github.com/hipas/gridlabd-examples)
 
 This GitHub project contains example GLM files that illustrate various ways of using GridLAB-D.
+
+## [Tutorials](http://tutorials.gridlabd.us/index.html)
+
+The user and develop tutorials are posted online in both MP4 and PDF format.

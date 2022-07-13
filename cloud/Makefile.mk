@@ -1,29 +1,72 @@
+# cloud/websites/Makefile.mk
+#
+# Cloud deployment makefile
+#
+#   $ make cloud-deploy
+#
+# AWS - Update AWS S3 buckets *.gridlabd.us
+#
+#   $ make aws-deploy
+#
+#   The *-dev.gridlabd.us websites are updated for all
+#   branches except "master", which updates *.gridlabd.us
+#
+#   Options:
+#
+#     AWS_OPTIONS=--dryrun    do not update websites
+#
+# GCP - No GCP resources are updated at this time
+#
+#   $ make gcp-deploy
+#
+# AZ - No AZ resources are updated at this time
+#
+#   $ make az-deploy
+#
 
-cloud-deploy: aws-deploy gcp-deploy azure-deploy
+#
+# Cloud deployment platforms
+#
 
-WEBSITES = code$(SUFFIX).gridlabd.us docs$(SUFFIX).gridlabd.us www$(SUFFIX).gridlabd.us
+cloud-deploy: aws-deploy gcp-deploy az-deploy
 
+#
+# Get a list of files that have to be updated
+#
+
+WEBSITES=$(shell find cloud/websites/*.gridlabd.us -type d -prune)
+
+#
+# Target that forces updates
+#
+
+FORCE: 
+
+#
+# AWS hosts the main websites to sync
+#
 aws-deploy: $(WEBSITES)
 
-$(WEBSITES) :
-if HAVE_AWSCLI
-if SUFFIX
-	@echo "deploying $@ for SUFFIX='$(SUFFIX)'..."
-else
-	@echo "cannot deploy $@ for SUFFIX='$(SUFFIX)'"
-endif
-endif
-# if SUFFIX
-#  	@echo "aws s3 cp cloud/websites/$@/index.html s3://$@/index.html"
-#  	@echo "aws s3api put-object-acl --bucket $@ --key index.html --acl public-read"
-# endif
+#
+# Target *-dev.gridlabd.us for all branches except "master"
+#
 
+AWS_TARGET=$(if $(subst master,,$(shell git rev-parse --abbrev-ref HEAD)),-dev,)
+
+#
+# Websites that should be sync'd
+#
+
+%.gridlabd.us: FORCE
+	@echo "syncing $(subst .gridlabd.us,$(AWS_TARGET).gridlabd.us,$(notdir $@)) with AWS_OPTIONS='$(AWS_OPTIONS)' ..."
+	@aws s3 sync $@ s3://$(subst .gridlabd.us,$(AWS_TARGET).gridlabd.us,$(notdir $@)) $(AWS_OPTIONS) --acl public-read
+
+#
+# GCP updates
+#
 gcp-deploy:
-if HAVE_GCPCLI
-	@echo "WARNING: gcp-deploy is not implemented yet"
-endif
 
-azure-deploy:
-if HAVE_AZCLI
-	@echo "WARNING: azure-deploy is not implemented yet"
-endif
+#
+# Azure updates
+#
+az-deploy:

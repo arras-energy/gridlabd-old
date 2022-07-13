@@ -1,0 +1,30 @@
+// test_meteostat.glm
+
+#python -m meteostat_weather -r -p=37.5,-122.3 -n=test -g=test_meteostat_opt.glm -s=2020-01-01 -e=2020-02-01 -c=test_meteostat_opt.csv
+
+#include "test_meteostat_opt.glm"
+
+clock {
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+
+module tape
+{
+    csv_header_type NONE;
+}
+
+object recorder
+{
+    parent "test";
+    file "test_meteostat.csv";
+    property "temperature,dewpoint,humidity,solar_direct";
+}
+
+//
+// DPC: Removed the diff check until meteostat is stable (7/22)
+//
+// #ifexist ../test_meteostat.csv
+// #on_exit 0 diff -I "^//" ../test_meteostat.csv test_meteostat.csv > gridlabd.diff
+// #endif
