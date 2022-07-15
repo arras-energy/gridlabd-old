@@ -31,3 +31,4 @@ matplotlib_inline>=0.1.2
 ipython==7.31.1
 ipyplot==1.1.0
 elevation==1.1.2
+build

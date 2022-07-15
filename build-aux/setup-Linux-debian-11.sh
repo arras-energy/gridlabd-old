@@ -53,6 +53,7 @@ sudo apt-get install xz-utils -y
 sudo apt-get install libgdal -y
 sudo apt-get install libgdal-dev -y
 sudo apt-get install libgeos-dev -y
+sudo apt-get install libc6-dev -y
 
 
 touch "$HOME/.bashrc"

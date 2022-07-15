@@ -1,5 +1,5 @@
 #!/bin/bash
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # check for Rosetta Homebrew
 
@@ -34,14 +34,27 @@ if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
     echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
 fi
+
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
 
 # build tools
 
     brew install autoconf automake libtool gnu-sed gawk git
-    $ brew install pkg-config openssl@1.1 xz gdbm tcl-tk
+    brew install libffi zlib
+    brew install pkg-config openssl@1.1 xz gdbm tcl-tk
     xcode-select --install
 
+    cd /usr/local
+    sudo mkdir ssl
+    sudo ln -sf /opt/homebrew/opt/openssl /usr/local/ssl
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
@@ -54,7 +67,7 @@ fi
 
 # Install python 3.9.13
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
+if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
 	echo "install python 3.9.13"
 	cd /usr/local/opt/gridlabd/src
 
@@ -62,17 +75,18 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-    export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd \
-    --with-universal-archs=arm64 \
-    --enable-optimizations \
-    --with-system-ffi \
-    --with-openssl=$(brew --prefix openssl) \
-    --with-pydebug \
-    --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
-    --with-tcltk-includes="$(pkg-config --cflags tcl tk)"
-    --with-computed-gotos CFLAGS="-fPIC" \
-    LDFLAGS="-L$(brew --prefix)/lib" CPPFLAGS="-I$(brew --prefix)/include" 
+    export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig" \
+    #export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-openssl=/opt/homebrew/opt/openssl@1.1 --with-pydebug --with-computed-gotos --with-tcltk-libs="$(pkg-config --libs tcl tk)" --with-tcltk-includes="$(pkg-config --cflags tcl tk)" CFLAGS="-I/opt/homebrew/include -fPIC " LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/zlib/lib" CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include" 
+    # --with-universal-archs=arm64 \
+    
+    # --with-system-ffi \
+    
+
+    # --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
+    # --with-tcltk-includes="$(pkg-config --cflags tcl tk)"
+    
+    
 
 	make -s -j2
 	make install
@@ -88,10 +102,11 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     #    sudo ln -sf /usr/local/opt/gridlabd/lib/* /usr/local/lib
     #else
     #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
-    #fi
-
+    #fix
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    /usr/local/opt/gridlabd/bin/python3 -m pip install build
+    /usr/local/opt/gridlabd/bin/python3 -m pip install setuptools --upgrade
 
 fi
 
@@ -120,3 +135,9 @@ fi
 # mysql connector
 #    brew install mysql
 #    brew install mysql-client
+
+sudo ln -s /opt/homebrew/bin/* /usr/local/bin
+sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
+
+cd /usr/local/bin
+sudo rm -rf brew
