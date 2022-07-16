@@ -459,7 +459,7 @@ AC_SUBST([LIBTOOL_DEPS])
 
 AS_CASE([$host_os],
 [darwin*],
-    [LIBEXT=.dylib],
+    [LIBEXT=],
 [cygwin*],
     [LIBEXT=.a],
 [mingw*],
@@ -526,7 +526,7 @@ AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)d
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)d.dylib
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
     [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m} -shared -Wl-undefined,dynamic_lookup"],
