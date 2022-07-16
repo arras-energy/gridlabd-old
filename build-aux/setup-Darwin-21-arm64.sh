@@ -74,12 +74,20 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
-
-    export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig" \
-    #export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-openssl=/opt/homebrew/opt/openssl@1.1 --with-pydebug --with-computed-gotos --with-tcltk-libs="$(pkg-config --libs tcl tk)" --with-tcltk-includes="$(pkg-config --cflags tcl tk)" CFLAGS="-I/opt/homebrew/include -fPIC " LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/zlib/lib" CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include" 
+    # export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
+    export MACOSX_DEPLOYMENT_TARGET=12.0
+    export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
+	./configure --prefix=/usr/local/opt/gridlabd \
+    --enable-shared \
+    --with-openssl=/opt/homebrew/opt/openssl@1.1 \
+    --with-pydebug \
+    --with-computed-gotos --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
+    --with-tcltk-includes="$(pkg-config --cflags tcl tk)" \
+    CFLAGS="-I/opt/homebrew/include -fPIC " \
+    LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/zlib/lib" \
+    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include" 
     # --with-universal-archs=arm64 \
-    
+    # --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/include/c++/v1
     # --with-system-ffi \
     
 
@@ -106,7 +114,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
-    /usr/local/opt/gridlabd/bin/python3 -m pip install setuptools --upgrade
 
 fi
 
