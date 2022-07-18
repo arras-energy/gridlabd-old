@@ -74,18 +74,21 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
-    # export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig"
+
     export MACOSX_DEPLOYMENT_TARGET=12.0
-    export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
+    # export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
+    export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/opt/homebrew/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
-    --enable-shared \
+    --enable-framework=/usr/local/opt/gridlabd \
     --with-openssl=/opt/homebrew/opt/openssl@1.1 \
     --with-pydebug \
-    --with-computed-gotos --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
+    --with-computed-gotos \
+    --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
     --with-tcltk-includes="$(pkg-config --cflags tcl tk)" \
     CFLAGS="-I/opt/homebrew/include -fPIC " \
     LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/zlib/lib" \
-    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include" 
+    CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include"
+    # --enable-shared \ 
     # --with-universal-archs=arm64 \
     # --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/include/c++/v1
     # --with-system-ffi \
@@ -97,7 +100,8 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     
 
 	make -s -j2
-	make install
+	make install 
+
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
@@ -115,6 +119,10 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
 
+    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
+    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
+    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
+    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
 fi
 
 # mdbtools
