@@ -459,7 +459,7 @@ AC_SUBST([LIBTOOL_DEPS])
 
 AS_CASE([$host_os],
 [darwin*],
-    [LIBEXT=.dylib],
+    [LIBEXT=.so],
 [cygwin*],
     [LIBEXT=.a],
 [mingw*],
