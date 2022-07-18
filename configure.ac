@@ -459,7 +459,7 @@ AC_SUBST([LIBTOOL_DEPS])
 
 AS_CASE([$host_os],
 [darwin*],
-    [LIBEXT=.a],
+    [LIBEXT=.dylib],
 [cygwin*],
     [LIBEXT=.a],
 [mingw*],
@@ -529,8 +529,8 @@ PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)')
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}d -shared -Wl-undefined,dynamic_lookup"],
-    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}d"])
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m} -shared -Wl-undefined,dynamic_lookup"],
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}"])
 
 # check for mono
 AS_IF([test -z "$(which mono)" ],
