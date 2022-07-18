@@ -21,6 +21,11 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
         sudo mkdir lib
     fi
 
+    if test ! -e /usr/local/etc; then 
+        cd /usr/local
+        sudo mkdir etc
+    fi
+
 # install homebrew instance for gridlabd
     brew update
     if test ! -e /opt/homebrew; then 
@@ -180,7 +185,7 @@ fi
 sudo ln -s /opt/homebrew/bin/* /usr/local/bin
 sudo ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
 sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
-sudo ln -s /opt/homebrew/lib/* /usr/local/lib
+sudo ln -s /opt/homebrew/etc/* /usr/local/etc
 
 cd /usr/local/bin
 sudo rm -rf brew
