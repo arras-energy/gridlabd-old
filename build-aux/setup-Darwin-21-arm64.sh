@@ -9,6 +9,18 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
         exit 1
     fi
 
+# checking for necessary directories
+
+    if test ! -e /usr/local/bin; then 
+        cd /usr/local
+        sudo mkdir bin
+    fi
+
+    if test ! -e /usr/local/lib; then 
+        cd /usr/local
+        sudo mkdir lib
+    fi
+
 # install homebrew instance for gridlabd
     brew update
     if test ! -e /opt/homebrew; then 
@@ -24,6 +36,18 @@ if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
+fi
+
+if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
+    touch "$HOME/.zsh_profile"
+    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zsh_profile
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
+fi
+
+if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
+    touch "$HOME/.bash_profile"
+    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
 fi
 
 if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
@@ -152,6 +176,7 @@ fi
 #    brew install mysql-client
 
 sudo ln -s /opt/homebrew/bin/* /usr/local/bin
+sudo ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
 sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
 sudo ln -s /opt/homebrew/lib/* /usr/local/lib
 
