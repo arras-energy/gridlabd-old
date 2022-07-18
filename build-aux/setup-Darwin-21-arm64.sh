@@ -36,30 +36,32 @@ if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
+    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zshrc
 fi
 
 if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
     touch "$HOME/.zsh_profile"
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zsh_profile
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
+    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zsh_profile
 fi
 
 if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
     touch "$HOME/.bash_profile"
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bash_profile
 fi
 
 if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
     echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
-    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bashrc
 fi
 
 export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
