@@ -101,7 +101,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-    export MACOSX_DEPLOYMENT_TARGET=12.0
+    # export MACOSX_DEPLOYMENT_TARGET=12.0
     # export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
     export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/opt/homebrew/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
