@@ -2,8 +2,11 @@
 
 SYNOPSIS
 
+	Shell:
+		$ gridlabd convert WORKBOOK.xls TABLE.csv -f xlsx-workbook -t csv-table [OPTIONS ...]
+
 	GLM:
-		#convert WORKBOOK.xls TABLE.csv -f workbook -t table [-s|--save PATTERN]
+		#convert WORKBOOK.xls TABLE.csv -f xlsx-workbook -t csv-table [OPTIONS ...]
 
 DESCRIPTION
 
@@ -16,7 +19,8 @@ OPTIONS:
 
 	-s|--save PATTERN   save only worksheets with matching names using regex
 	
-	table.fixnames <bool>
+	table.fixnames <bool> (default False)
+	table.pattern <regex> (default None)
 	
 	glm.class <str> (default None)
 
@@ -48,6 +52,7 @@ class Xlsx2csvConverter(Exception):
 default_options = {
 	"table" : {
 		"fixnames" : False,
+		"pattern" : None,
 	},
 	"glm" : {
 		"class" : None,
@@ -147,9 +152,14 @@ def convert(input_file, output_file, options={}):
 
 	# write output
 	if len(book.keys()) > 1:
+		if options["table"]["pattern"]:
+			pattern = re.complex(options["table"]["pattern"])
+		else:
+			pattern = None
 		for name,sheet in book.items():
-			file = output_file.replace(".csv","_"+name+".csv")
-			writecsv(sheet,file,**default_options)
+			if pattern == None or re.match(pattern,name):
+				file = output_file.replace(".csv","_"+name+".csv")
+				writecsv(sheet,file,**default_options)
 	else:
 		name = list(book.keys())[0]
 		writecsv(book[name],output_file,**default_options)
