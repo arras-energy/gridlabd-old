@@ -149,6 +149,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
+    /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
 
     sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
     sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
@@ -183,7 +184,7 @@ fi
 #    brew install mysql-client
 
 sudo ln -s /opt/homebrew/bin/* /usr/local/bin
-sudo ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
+# sudo ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
 sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
 sudo ln -s /opt/homebrew/etc/* /usr/local/etc
 
