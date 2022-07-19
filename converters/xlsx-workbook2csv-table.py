@@ -163,6 +163,3 @@ def convert(input_file, output_file, options={}):
 	else:
 		name = list(book.keys())[0]
 		writecsv(book[name],output_file,**default_options)
-
-if __name__ == "__main__":
-	convert("/tmp/test.xlsx","/tmp/test.csv")
