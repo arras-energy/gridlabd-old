@@ -370,23 +370,30 @@ int convert_to_complex(const char *buffer, /**< a pointer to the string buffer *
 		v->Notation() = (CNOTATION)notation[0];
 	}
 
-	if ( n > 3 && prop != NULL && prop->unit != NULL ) 
+	if ( n > 3 )
 	{
-		/* unit given and unit allowed */
-		UNIT *from = unit_find(unit);
-		double scale=1.0;
-		if ( from != prop->unit && unit_convert_ex(from,prop->unit,&scale)==0)
+		if ( prop == NULL )
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
-			/* TROUBLESHOOT 
-			   This error is caused by an attempt to convert a value from a unit that is
-			   incompatible with the unit of the target property.  Check your units and
-			   try again.
-		     */
-			return 0;
+			output_warning("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): no unit spec given, ignoring units", buffer, sizeof(void*), data, "(none)");
 		}
-		v->Re() *= scale;
-		v->Im() *= scale;
+		else if ( prop->unit != NULL ) 
+		{
+			/* unit given and unit allowed */
+			UNIT *from = unit_find(unit);
+			double scale=1.0;
+			if ( from != prop->unit && unit_convert_ex(from,prop->unit,&scale)==0)
+			{
+				output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+				/* TROUBLESHOOT 
+				   This error is caused by an attempt to convert a value from a unit that is
+				   incompatible with the unit of the target property.  Check your units and
+				   try again.
+			     */
+				return 0;
+			}
+			v->Re() *= scale;
+			v->Im() *= scale;
+		}
 	}
 	return 1;
 }
