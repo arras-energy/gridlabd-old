@@ -70,6 +70,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
+	export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
     --enable-framework=/usr/local/opt/gridlabd \
     --with-pydebug \
