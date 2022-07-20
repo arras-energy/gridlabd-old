@@ -15,6 +15,15 @@ DESCRIPTION
 	option, then the name TABLE is used as a root and the worksheet name is appended 
 	to the CSV filename when saving each worksheet.
 
+	The read.converters option may be used to specify converters for individual columns
+	of worksheets.  The converters are specified in a JSON file as a dict where the 
+	original column name is specified and a gridlabd data type is associated, i.e.,
+	"gridlabd.double", "gridlabd.complex", "gridlabd.int64", "gridlabd.int32", 
+	"gridlabd.int16", or "gridlabd.timestamp". You may also specify python or numpy
+	data types, e.g., "float" or "numpy.float64", etc.  Failsafe converters are provided
+	by "failsafe.float" by "failsafe.int". These return invalid.float and invalid.int
+	respectively, if the data conversion fails.
+
 OPTIONS:
 
 	table.fixnames {<regex>,<bool>} (default False)
@@ -26,7 +35,9 @@ OPTIONS:
 
 		Saves only worksheets when names that match the pattern. None saves 
 		all worksheets found. Only used when more than one worksheet is found.
-	
+
+	invalid.float <str> (default 'nan')
+
 	glm.class <str> (default None)
 
 		Class to use when outputing the GLM file.  If None is used, no GLM
@@ -43,6 +54,7 @@ OPTIONS:
 		read.nrows <int> (default None)
 		read.parse_dates <bool> (default False)
 		read.engine <str> (default openpyxl)
+		read.converters <file> (default None)
 
 	write options (see pandas dataframe to_csv options):
 
@@ -53,9 +65,23 @@ import os, sys
 import pandas as pd 
 import warnings
 import re
+import json
+import numpy
 
 class Xlsx2csvConverter(Exception):
 	pass
+
+class failsafe:
+	def float(x):
+		try: 
+			return float(x)
+		except: 
+			return float(default_options["invalid"]["float"])
+	def int(x):
+		try: 
+			return int(x)
+		except: 
+			return int(default_options["invalid"]["int"])
 
 default_options = {
 	"table" : {
@@ -64,6 +90,13 @@ default_options = {
 	},
 	"glm" : {
 		"class" : None,
+	},
+	"datetime" : {
+		"read" : "%Y-%m-%d %H:%M:%S %Z",
+	},
+	"invalid" : {
+		"float" : 'nan',
+		"int" : '-1',
 	},
 	"read" : {
 		"sheet_name" : None,
@@ -75,6 +108,7 @@ default_options = {
 		"nrows" : None,
 		"parse_dates" : False,
 		"engine" : "openpyxl",
+		"converters" : None, # TODO
 	},
 	"write" : {
 		"header" : True,
@@ -101,13 +135,13 @@ def convert(input_file, output_file, options={}):
 	# check options
 	for key,value in options.items():
 		spec = key.split(".")
-		if len(spec) == 1:
-			spec.append(True)
-		if not spec[1] in default_options[spec[0]].keys():
+		if len(spec) != 2 or not spec[1] in default_options[spec[0]].keys():
 			raise Xlsx2csvConverter(f"option '{key}={value}' is not valid")
-		if not type(value) is str:
-			value = str(value)
-		if "," in value:
+		if value == None:
+			value = ["True"]
+		elif not type(value) is str:
+			value = [str(value)]
+		elif "," in value:
 			value = value.split(",")
 		else:
 			value = [value]
@@ -134,6 +168,14 @@ def convert(input_file, output_file, options={}):
 		# collapse non-str lists of len 1
 		if len(default_options[spec[0]][spec[1]]) == 1 and not type(default_options[spec[0]][spec[1]]) is str:
 			default_options[spec[0]][spec[1]] = default_options[spec[0]][spec[1]][0]
+
+	# setup converters if needed
+	if default_options["read"]["converters"]:
+		with open(default_options["read"]["converters"],"r") as fh:
+			import gridlabd
+			default_options["read"]["converters"] = {}
+			for key,value in json.load(fh).items():
+				default_options["read"]["converters"][key] = eval(value)
 
 	# read input
 	with warnings.catch_warnings(record=True):
