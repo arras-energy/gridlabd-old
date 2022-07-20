@@ -55,7 +55,7 @@ sudo apt-get install xz-utils -y
 cd $HOME
 wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
 tar xzvf autoconf-2.71.tar.gz
-cd autoconf-2.71.tar.gz
+cd autoconf-2.71
 ./configure
 make
 make install
