@@ -58,11 +58,12 @@ static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_bool(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int16(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int32(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int64(PyObject *self, PyObject *args);
 static PyObject *gridlabd_double(PyObject *self, PyObject *args);
 static PyObject *gridlabd_complex(PyObject *self, PyObject *args);
-static PyObject *gridlabd_int64(PyObject *self, PyObject *args);
-static PyObject *gridlabd_int32(PyObject *self, PyObject *args);
-static PyObject *gridlabd_int16(PyObject *self, PyObject *args);
 static PyObject *gridlabd_timestamp(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
@@ -113,6 +114,7 @@ static PyMethodDef module_methods[] = {
     {"int64",gridlabd_int64,METH_VARARGS,"Convert string to gridlabd int64"},
     {"int32",gridlabd_int32,METH_VARARGS,"Convert string to gridlabd int32"},
     {"int16",gridlabd_int16,METH_VARARGS,"Convert string to gridlabd int16"},
+    {"bool",gridlabd_bool,METH_VARARGS,"Convert string to gridlabd bool"},
     {"timestamp",gridlabd_timestamp,METH_VARARGS,"Convert string to gridlabd timestamp"},
     {NULL, NULL, 0, NULL}
 };
@@ -2217,109 +2219,133 @@ static PyObject *gridlabd_module(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_double(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
-    {
-        return NULL;
-    }
+    char *str;
     double value;
-    if ( convert_to_double(file,(void*)&value,NULL) )
+    try
     {
-        return Py_BuildValue("d",value);
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_double(str,(void*)&value,NULL) )
+        {
+            return PyFloat_FromDouble(value);
+        }
     }
-    else
+    catch (...)
     {
-        return NULL;
     }
+    return PyFloat_FromDouble(QNAN);
 }
 static PyObject *gridlabd_complex(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
-    {
-        return NULL;
-    }
+    char *str;
     complex value;
-    if ( convert_to_complex(file,(void*)&value,NULL) )
+    try
     {
-#warning convert to complex        
-        return Py_BuildValue("d",value.r);
+        if ( ! PyArg_ParseTuple(args,"s", &str) && convert_to_complex(str,(void*)&value,NULL) )
+        {
+            return PyComplex_FromDoubles(value.r,value.i);
+        }
     }
-    else
+    catch (...)
     {
-        return NULL;
     }
+    return PyComplex_FromDoubles(QNAN,0);
 }
 static PyObject *gridlabd_int64(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
+    char *str;
+    int64 value;
+    try
     {
-        return NULL;
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int64(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
     }
-    double value;
-    if ( convert_to_int64(file,(void*)&value,NULL) )
+    catch (...)
     {
-#warning convert to int64
-        return Py_BuildValue("d",value); // TODO convert to int64
     }
-    else
-    {
-        return NULL;
-    }
+    return PyLong_FromLong((long)-1);;
 }
 static PyObject *gridlabd_int32(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
+    char *str;
+    int32 value;
+    try
     {
-        return NULL;
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int32(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
     }
-    double value;
-    if ( convert_to_int32(file,(void*)&value,NULL) )
+    catch (...)
     {
-#warning convert to int32
-        return Py_BuildValue("d",value);
     }
-    else
-    {
-        return NULL;
-    }
+    return PyLong_FromLong((long)-1);;
 }
 static PyObject *gridlabd_int16(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
+    char *str;
+    int16 value;
+    try
     {
-        return NULL;
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int16(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
     }
-    double value;
-    if ( convert_to_int16(file,(void*)&value,NULL) )
+    catch (...)
     {
-#warning convert to int16
-        return Py_BuildValue("d",value);
     }
-    else
-    {
-        return NULL;
-    }
+    return PyLong_FromLong((long)-1);;
 }
 static PyObject *gridlabd_timestamp(PyObject *self, PyObject *args)
 {
-    char *file;
-    if ( ! PyArg_ParseTuple(args,"s", &file) )
+    char *str;
+    try 
     {
-        return NULL;
+        if ( ! PyArg_ParseTuple(args,"s", &str) )
+        {
+            return PyLong_FromLong((long)TS_INVALID);
+        }
+        else
+        {
+            TIMESTAMP value = convert_to_timestamp(str);
+            return PyLong_FromLong((long)value);
+        }
     }
-    double value;
-    if ( convert_to_int32(file,(void*)&value,NULL) )
+    catch (...)
     {
-#warning convert to timestamp
-        return Py_BuildValue("d",value);
+        return PyLong_FromLong((long)TS_INVALID);
     }
-    else
+}
+static PyObject *gridlabd_bool(PyObject *self, PyObject *args)
+{
+    char *str;
+    try
     {
-        return NULL;
+        if ( ! PyArg_ParseTuple(args,"s", &str) )
+        {
+            Py_RETURN_NONE;
+        }
+        bool value;
+        if ( convert_to_boolean(str,(void*)&value,NULL) )
+        {
+            if ( value )
+            {
+                Py_RETURN_TRUE;
+            }
+            else
+            {
+                Py_RETURN_FALSE;
+            }
+        }
+        else
+        {
+            Py_RETURN_NONE;
+        }
+    }
+    catch (...)
+    {
+            Py_RETURN_NONE;
     }
 }
 
