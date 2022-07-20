@@ -11,18 +11,26 @@ SYNOPSIS
 DESCRIPTION
 
 	This converter extracts worksheets in an XLS workbook to CSV tables. If more
-	than one worksheet if found and more than one worksheet matches PATTERN, then
-	the name TABLE is used as a root and the worksheet name is appended to the
-	CSV filename when saving each worksheet.
+	than one worksheet is found and more than one worksheet matches table.pattern
+	option, then the name TABLE is used as a root and the worksheet name is appended 
+	to the CSV filename when saving each worksheet.
 
 OPTIONS:
 
-	-s|--save PATTERN   save only worksheets with matching names using regex
-	
-	table.fixnames <bool> (default False)
+	table.fixnames {<regex>,<bool>} (default False)
+
+		Removes characters matching the pattern. If True is used the pattern
+		[^A-Za-z0-9] is used.
+
 	table.pattern <regex> (default None)
+
+		Saves only worksheets when names that match the pattern. None saves 
+		all worksheets found. Only used when more than one worksheet is found.
 	
 	glm.class <str> (default None)
+
+		Class to use when outputing the GLM file.  If None is used, no GLM
+		file is output.
 
 	read options (see pandas read_excel options):
 
@@ -97,6 +105,8 @@ def convert(input_file, output_file, options={}):
 			spec.append(True)
 		if not spec[1] in default_options[spec[0]].keys():
 			raise Xlsx2csvConverter(f"option '{key}={value}' is not valid")
+		if not type(value) is str:
+			value = str(value)
 		if "," in value:
 			value = value.split(",")
 		else:
@@ -140,7 +150,11 @@ def convert(input_file, output_file, options={}):
 	def writecsv(book,file,**options):
 		fixed = []
 		if options["table"]["fixnames"]:
-			book.columns = [re.sub(re.compile(r'[^a-zA-Z0-9_]'),'',x) for x in book.columns]
+			if type(options["table"]["fixnames"]) is str:
+				fixpattern = options["table"]["fixnames"]
+			else:
+				fixpattern = r'[^a-zA-Z0-9_]'
+			book.columns = [re.sub(re.compile(fixpattern),'',x) for x in book.columns]
 		book.to_csv(file,**options["write"])
 		if options["glm"]["class"]:
 			glmname = file[:-4]+".glm"
