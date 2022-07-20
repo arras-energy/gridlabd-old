@@ -2239,7 +2239,7 @@ static PyObject *gridlabd_complex(PyObject *self, PyObject *args)
     complex value;
     try
     {
-        if ( ! PyArg_ParseTuple(args,"s", &str) && convert_to_complex(str,(void*)&value,NULL) )
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_complex(str,(void*)&value,NULL) )
         {
             return PyComplex_FromDoubles(value.r,value.i);
         }
