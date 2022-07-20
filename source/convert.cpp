@@ -137,7 +137,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	{ 
 		if ( prop == NULL )
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): not unit specification given, ignore units", buffer, sizeof(void*), data, "(none)");
+			output_warning("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): no unit specification given, ignoring units", buffer, sizeof(void*), data, "(none)");
 			return 1;
 		}
 		if ( prop && prop->unit == NULL ) 
@@ -370,7 +370,7 @@ int convert_to_complex(const char *buffer, /**< a pointer to the string buffer *
 		v->Notation() = (CNOTATION)notation[0];
 	}
 
-	if ( n>3 && prop->unit!=NULL ) 
+	if ( n > 3 && prop != NULL && prop->unit != NULL ) 
 	{
 		/* unit given and unit allowed */
 		UNIT *from = unit_find(unit);
