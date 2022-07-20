@@ -70,38 +70,20 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-	export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd \
-    --enable-framework=/usr/local/opt/gridlabd \
-    --with-pydebug \
-    --with-computed-gotos  \
-	--enable-loadable-sqlite-extensions \
-	CFLAGS="-fPIC"
-    
+	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
-    # --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
-    # --with-tcltk-includes="$(pkg-config --cflags tcl tk)"
-    
-    
-
-	make -s -j2
-	make install 
-
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
-	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+	make -j $(nproc)
+	make install
+	/sbin/ldconfig /usr/local/opt/gridlabd/lib
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
+	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
+	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
+	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
 
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/usr/local/opt/gridlabd/bin/python3 -m pip install wheel matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    /usr/local/opt/gridlabd/bin/python3 -m pip install build
-    /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
-
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
+	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
 
 	cd $REQ_DIR
