@@ -74,8 +74,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     --enable-framework=/usr/local/opt/gridlabd \
     --with-pydebug \
     --with-computed-gotos  \
-    --enable-shared \ 
-    --with-system-ffi \
 	--enable-loadable-sqlite-extensions \
 	CFLAGS="-fPIC"
     
