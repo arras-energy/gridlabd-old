@@ -21,7 +21,7 @@ DESCRIPTION
 	"gridlabd.double", "gridlabd.complex", "gridlabd.int64", "gridlabd.int32", 
 	"gridlabd.int16", or "gridlabd.timestamp". You may also specify python or numpy
 	data types, e.g., "float" or "numpy.float64", etc.  Failsafe converters are provided
-	by "failsafe.float" by "failsafe.int". These return invalid.float and invalid.int
+	by "failsafe.float" by "failsafe.int". These return invalid.float and invalid.int,
 	respectively, if the data conversion fails.
 
 OPTIONS:
@@ -37,6 +37,7 @@ OPTIONS:
 		all worksheets found. Only used when more than one worksheet is found.
 
 	invalid.float <str> (default 'nan')
+	invalid.int <str> (default '-1')
 
 	glm.class <str> (default None)
 
