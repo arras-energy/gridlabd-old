@@ -71,18 +71,6 @@ import numpy
 class Xlsx2csvConverter(Exception):
 	pass
 
-class failsafe:
-	def float(x):
-		try: 
-			return float(x)
-		except: 
-			return float(default_options["invalid"]["float"])
-	def int(x):
-		try: 
-			return int(x)
-		except: 
-			return int(default_options["invalid"]["int"])
-
 default_options = {
 	"table" : {
 		"fixnames" : False,
@@ -170,6 +158,18 @@ def convert(input_file, output_file, options={}):
 			default_options[spec[0]][spec[1]] = default_options[spec[0]][spec[1]][0]
 
 	# setup converters if needed
+	class failsafe:
+		def float(x):
+			try: 
+				return float(x)
+			except: 
+				return float(default_options["invalid"]["float"])
+		def int(x):
+			try: 
+				return int(x)
+			except: 
+				return int(default_options["invalid"]["int"])
+
 	if default_options["read"]["converters"]:
 		with open(default_options["read"]["converters"],"r") as fh:
 			import gridlabd
