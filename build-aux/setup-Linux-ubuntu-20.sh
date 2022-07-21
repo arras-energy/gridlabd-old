@@ -73,7 +73,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
