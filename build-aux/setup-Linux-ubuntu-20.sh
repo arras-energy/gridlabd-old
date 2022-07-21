@@ -51,6 +51,18 @@ sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
 
+# Update Autoconf to 2.71 manually as apt-get does not track the latest version
+cd $HOME
+wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
+tar xzvf autoconf-2.71.tar.gz
+cd autoconf-2.71
+./configure
+make
+make install
+cd $HOME
+rm -rf autoconf-2.71
+rm -rf autoconf-2.71.tar.gz
+
 # Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
