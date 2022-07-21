@@ -10,6 +10,7 @@ source "/etc/os-release"
 KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
+COMPAT_INSTALL=0
 
 # Standard universal image install for non-arm systems
 
@@ -88,4 +89,11 @@ if test $D_ARCH != "arm64"; then
 
     # give user permissions for writing to site-packages
     sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+    COMPAT_INSTALL=1
+fi
+
+if test COMPAT_INSTALL != 1; then
+            echo "A fast install image was not located for your operating system."
+            echo "You will need to build Gridlabd from source."
+            exit 1
 fi
