@@ -125,7 +125,7 @@ AC_MSG_CHECKING([whether to add -lpthread to PTHREAD_LIBS])
 AS_CASE([$PTHREAD_LIBS],
 [*-lpthread*], [result=no],
 [SAVE_LIBS="$LIBS"
-LIBS="$LIBS -lpthread"
+LIBS="$LIBS -lpthread -lutil"
 AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
 [[
@@ -143,7 +143,7 @@ void function() {
 }
 ]],
 [[function();]])],
-    [PTHREAD_LIBS="$PTHREAD_LIBS -lpthread"
+    [PTHREAD_LIBS="$PTHREAD_LIBS -lpthread -lutil"
      result=yes],
     [result=no])
 LIBS="$SAVE_LIBS"
