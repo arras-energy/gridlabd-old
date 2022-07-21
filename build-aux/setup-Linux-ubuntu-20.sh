@@ -84,7 +84,11 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
 	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
 
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local//bin/python3
+	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/bin/python3-config
+
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
+	/usr/local/opt/gridlabd/bin/python3 -m pip install wheel build
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 

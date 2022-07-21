@@ -103,8 +103,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
-: ${CFLAGS="-Wall -lutil"}
-: ${CXXFLAGS="-Wall -lutil"}
+: ${CFLAGS="-Wall"}
+: ${CXXFLAGS="-Wall"}
 AC_PROG_CC
 AC_USE_SYSTEM_EXTENSIONS   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
@@ -125,7 +125,7 @@ AC_MSG_CHECKING([whether to add -lpthread to PTHREAD_LIBS])
 AS_CASE([$PTHREAD_LIBS],
 [*-lpthread*], [result=no],
 [SAVE_LIBS="$LIBS"
-LIBS="$LIBS -lpthread -lutil"
+LIBS="$LIBS -lpthread"
 AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
 [[
@@ -143,7 +143,7 @@ void function() {
 }
 ]],
 [[function();]])],
-    [PTHREAD_LIBS="$PTHREAD_LIBS -lpthread -lutil"
+    [PTHREAD_LIBS="$PTHREAD_LIBS -lpthread"
      result=yes],
     [result=no])
 LIBS="$SAVE_LIBS"
