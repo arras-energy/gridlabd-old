@@ -103,8 +103,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
-: ${CFLAGS="-Wall"}
-: ${CXXFLAGS="-Wall"}
+: ${CFLAGS="-Wall -lutil"}
+: ${CXXFLAGS="-Wall -lutil"}
 AC_PROG_CC
 AC_USE_SYSTEM_EXTENSIONS   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
