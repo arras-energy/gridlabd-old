@@ -89,6 +89,10 @@ if test $D_ARCH != "arm64"; then
 
     # give user permissions for writing to site-packages
     sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+
+    # Add symlink for binary to /usr/local/bin
+    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+
     COMPAT_INSTALL=1
 
 # Code for arm64 installations
@@ -170,6 +174,12 @@ else
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
     fi
+
+    # give user permissions for writing to site-packages
+    sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+
+    # Add symlink for binary to /usr/local/bin
+    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
 
     COMPAT_INSTALL=1
 fi
