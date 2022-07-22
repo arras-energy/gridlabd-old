@@ -17,7 +17,7 @@ COMPAT_INSTALL=0
 if test $D_ARCH != "arm64"; then
 
     # Darwin specific setup for necessary tools
-    if [ $SYSTEM == "Darwin"]; then
+    if [ $SYSTEM == "Darwin" ]; then
         brew update || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         brew doctor
 
@@ -73,7 +73,7 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # Linux specific installation customization
-    if [ $SYSTEM == "Linux"]; then
+    if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
             sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
@@ -99,7 +99,7 @@ if test $D_ARCH != "arm64"; then
 else
 
     # Darwin specific setup for necessary tools
-    if [ $SYSTEM == "Darwin"]; then
+    if [ $SYSTEM == "Darwin" ]; then
         brew update
         if test ! -e /opt/homebrew; then 
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -161,7 +161,7 @@ else
     fi
 
     # Linux specific installation customization
-    if [ $SYSTEM == "Linux"]; then
+    if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
             sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
