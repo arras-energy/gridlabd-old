@@ -98,7 +98,8 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	sudo apt-get update
 	sudo apt-get install gdal-bin
 	LOC_GDAL_VER="echo ogrinfo --version"
-	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==$LOC_GDAL_VER rasterio==1.2.10
+	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==$LOC_GDAL_VER 
+	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
