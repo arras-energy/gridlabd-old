@@ -94,11 +94,10 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
 	# manually set install due to pip not adjusting automatically for ubuntu's limitations
-	sudo add-apt-repository ppa:ubuntugis/ppa
+	sudo add-apt-repository ppa:ubuntugis/ppa -y
 	sudo apt-get update
 	sudo apt-get install gdal-bin
-	LOC_GDAL_VER="echo ogrinfo --version"
-	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==$LOC_GDAL_VER 
+	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==3.0.4 
 	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR

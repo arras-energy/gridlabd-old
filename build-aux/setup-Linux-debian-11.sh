@@ -50,27 +50,31 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-sudo apt-get install libgdal -y
-sudo apt-get install libgdal-dev -y
-sudo apt-get install libgeos-dev -y
-sudo apt-get install libc6-dev -y
+sudo apt install libgdal-dev -y
 
+# Update Autoconf to 2.71 manually as apt-get does not track the latest version
+cd $HOME
+wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
+tar xzvf autoconf-2.71.tar.gz
+cd autoconf-2.71
+./configure
+make
+make install
+cd $HOME
+rm -rf autoconf-2.71
+rm -rf autoconf-2.71.tar.gz
 
-touch "$HOME/.bashrc"
-echo "export PATH=/usr/local/sbin:/usr/sbin:/sbin:\$PATH" >> $HOME/.bashrc
-export PATH=/usr/local/sbin:/usr/sbin:/sbin:$PATH
-
-# Install python 3.9.13
+# Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.13"
+	echo "install python 3.9.6"
 	cd /usr/local/opt/gridlabd/src
 
-	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
-	# tar xzf Python-3.9.13.tgz 
-	cd Python-3.9.13
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	# tar xzf Python-3.9.6.tgz 
+	cd Python-3.9.6
 
-	./configure --prefix=/usr/local/opt/gridlabd --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
@@ -85,6 +89,12 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
+	# manually set install due to pip not adjusting automatically for debian's limitations
+	sudo add-apt-repository ppa:ubuntugis/ppa -y
+	sudo apt-get update
+	sudo apt-get install gdal-bin
+	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==3.0.4 
+	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
