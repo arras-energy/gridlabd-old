@@ -85,16 +85,16 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
 	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
 
+	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
+	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
+
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo add-apt-repository ppa:ubuntugis/ppa -y
 	sudo apt-get update -y
 	sudo apt-get install gdal-bin -y
 	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==2.4.0
 	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
-
-	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
