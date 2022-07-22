@@ -51,8 +51,8 @@ if test $D_ARCH != "arm64"; then
     else
         cd $HOME/temp
         echo "Downloading image to your home temp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/debian-10-image.tar.bz2
-        tar -xvf debian-10-image.tar.bz2
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
         if [ ! -e /usr/local/opt ]; then
             cd /usr/local
@@ -139,8 +139,8 @@ else
     else
         cd $HOME/temp
         echo "Downloading image to your home temp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/debian-10-image.tar.bz2
-        tar -xvf debian-10-image.tar.bz2
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
         if [ ! -e /usr/local/opt ]; then
             cd /usr/local
