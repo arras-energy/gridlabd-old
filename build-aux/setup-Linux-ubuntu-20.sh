@@ -50,6 +50,7 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
+sudo apt install libgdal-dev -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 cd $HOME
@@ -92,6 +93,12 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
+	# manually set install due to pip not adjusting automatically for ubuntu's limitations
+	sudo add-apt-repository ppa:ubuntugis/ppa
+	sudo apt-get update
+	sudo apt-get install gdal-bin
+	LOC_GDAL_VER="echo ogrinfo --version"
+	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==$LOC_GDAL_VER rasterio==1.2.10
 
 	cd $REQ_DIR
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
