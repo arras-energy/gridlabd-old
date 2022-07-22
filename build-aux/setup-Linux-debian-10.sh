@@ -93,7 +93,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	sudo add-apt-repository ppa:ubuntugis/ppa -y
 	sudo apt-get update -y
 	sudo apt-get install gdal-bin -y
-	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==3.0.4 -y
+	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==2.4.0 -y
 	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10 -y
 
 	cd $REQ_DIR
