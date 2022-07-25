@@ -93,7 +93,7 @@ if test $D_ARCH != "arm64"; then
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
 
-    COMPAT_INSTALL=1
+    export COMPAT_INSTALL=1
 
 # Code for arm64 installations
 else
@@ -182,7 +182,7 @@ else
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
 
-    COMPAT_INSTALL=1
+    export COMPAT_INSTALL=1
 fi
 
 if test COMPAT_INSTALL != 1; then
