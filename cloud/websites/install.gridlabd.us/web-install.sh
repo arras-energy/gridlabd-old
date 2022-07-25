@@ -173,6 +173,7 @@ else
 
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
+        sudo apt-get install g++ -y
     fi
 
     # give user permissions for writing to site-packages
