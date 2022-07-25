@@ -10,7 +10,6 @@ source "/etc/os-release"
 KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
-COMPAT_INSTALL=0
 
 # Standard universal image install for non-arm systems
 
@@ -92,8 +91,6 @@ if test $D_ARCH != "arm64"; then
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
-
-    export COMPAT_INSTALL=1
 
 # Code for arm64 installations
 else
@@ -182,10 +179,9 @@ else
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
 
-    export COMPAT_INSTALL=1
 fi
 
-if test COMPAT_INSTALL != 1; then
+if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
