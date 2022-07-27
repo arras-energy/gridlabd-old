@@ -27,20 +27,22 @@ public:
     GL_ATOMIC(double, wind_direction);
 private:
     double equipment_moment_weight;
+    double equipment_moment_wind;
     double equipment_moment_nowind;
+    double equipment_load_nowind;
     gld_property *pole_status;
     gld_property *equipment_status;
     bool equipment_is_line;
     double strength;
-    double line_moment_wind;
-    double line_load_nowind;
     double line_moment_weight;
+    double line_moment_wind;
     double line_moment_nowind;
     double line_moment_tension;
-    double equipment_x_tilt;
-    double equipment_y_tilt;
-    double equipment_z_tilt;
-    double offset_tilt;
+    double line_load_nowind;
+    // double equipment_x_tilt;
+    // double equipment_y_tilt;
+    // double equipment_z_tilt;
+    double equipment_offset;
 public:
 	pole_mount(MODULE *);
 	int create(void);
