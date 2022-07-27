@@ -159,9 +159,6 @@ pole::pole(MODULE *mod)
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wire moment in y-axis due to tension and wind load",
 
-            PT_double, "wire_moment_z[ft*lb]", get_wire_moment_z_offset(),
-                PT_OUTPUT,
-                PT_DESCRIPTION, "wire moment in z-axis due to conductor weight",
 
             PT_double, "equipment_moment_x[ft*lb]", get_wire_moment_x_offset(),
                 PT_OUTPUT,
@@ -170,10 +167,6 @@ pole::pole(MODULE *mod)
             PT_double, "equipment_moment_y[ft*lb]", get_wire_moment_y_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "equipment moment in y-axis due to wind load",
-
-            PT_double, "equipment_moment_z[ft*lb]", get_wire_moment_z_offset(),
-                PT_OUTPUT,
-                PT_DESCRIPTION, "equipment moment in z-axis due to equipment weight",
 
             PT_double, "wire_tension[ft*lb]", get_wire_tension_offset(),
                 PT_OUTPUT,
@@ -219,11 +212,9 @@ void pole::reset_commit_accumulators()
     wire_weight = 0.0;
     wire_moment_x = 0.0;
     wire_moment_y = 0.0;
-    wire_moment_z = 0.0;
     wire_tension = 0.0;
     equipment_moment_x = 0.0;
     equipment_moment_y = 0.0;
-    equipment_moment_z = 0.0;
 }
 
 void pole::reset_sync_accumulators()
@@ -357,6 +348,7 @@ int pole::init(OBJECT *parent)
     double diameter = config->top_diameter 
         + height/(config->pole_length - config->pole_depth)
             *(config->ground_diameter-config->top_diameter);
+
 	resisting_moment = 0.008186
 		* config->strength_factor_250b_wood
 		* config->fiber_strength
@@ -393,13 +385,13 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
     }
     height = config->pole_length - config->pole_depth - guy_height;
     double diameter = config->top_diameter 
-        + height/(config->pole_length - config->pole_depth)*(config->ground_diameter-config->top_diameter);
+        + height*(config->ground_diameter-config->top_diameter)/(config->pole_length-config->pole_depth);
     double t0_year = 1970 + (int)(t0/86400/365.24);
 	double age = t0_year - install_year;
     if ( age > 0 && config->degradation_rate > 0 )
 	{
 		if ( age > 0 )
-			current_hollow_diameter = 2.0 * age * config->degradation_rate * (diameter/config->ground_diameter);
+			current_hollow_diameter = 2.0*age*config->degradation_rate*diameter/config->ground_diameter;
 		else
 			current_hollow_diameter = 0.0; // ignore future installation years
         verbose("current_hollow_diameter = %g in",current_hollow_diameter);
@@ -413,8 +405,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
     resisting_moment = 0.008186 // constant * pi^3
         * config->strength_factor_250b_wood
         * config->fiber_strength
-        * (( diameter * diameter * diameter)
-            - (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
+        * (diameter*diameter*diameter-current_hollow_diameter*current_hollow_diameter*current_hollow_diameter);
     verbose("updated resisting moment %.0f ft*lb (aged)",resisting_moment);
 
     if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
@@ -436,9 +427,6 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
             warning("pole has degraded past point of static failure");;
             resisting_moment = 0.0;
         }
-        verbose("name is %s ################################\n", my()->name);
-        verbose("wind_speed = %g m/s\n",wind_speed);
-        verbose("wind_direction = %g deg\n",wind_direction);
         verbose("wind speed change requires update of pole analysis");
         wind_pressure = 0.00256 * (2.24*wind_speed) * (2.24*wind_speed); // 2.24 account for m/s to mph conversion
         verbose("wind_pressure = %g psf",wind_pressure); // unit: pounds per square foot
@@ -446,17 +434,16 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         if ( tilt_angle > 0.0 )
         {
             const double D1 = config->top_diameter/12;
-            const double D0 = config->ground_diameter/12;
-            // const double DD = (D0-D1) / 2;
+            const double D0 = (diameter-current_hollow_diameter)/12;
             const double H = height;
             const double rho = config->material_density;
-            // pole_moment += 0.125 * rho * PI * (H*H) * (D0*D0 - DD*DD) * sin(tilt_angle/180*PI);
-            pole_moment += 0.125 * rho * PI * (H*H) * ((D0*D0+D1*D1+2*D0*D1)/6 + D1*D1/3) * sin(tilt_angle/180*PI);
+            pole_moment += 0.125 * rho * PI * height * height * sin(tilt_angle/180*PI) * ((D0+D1)*(D0+D1)/6 + D1*D1/3);
         }
         verbose("pole_moment = %g ft*lb (tilt moment)",pole_moment);
 
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
-        pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general * cos(tilt_angle/180*PI);
+        pole_moment_nowind = height * height * (diameter+2*config->top_diameter)/72 
+                                * config->overload_factor_transverse_general * cos(tilt_angle/180*PI);
         verbose("pole_moment_nowind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_nowind);
         
         last_wind_speed = wind_speed;
@@ -494,26 +481,20 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
     //  - pole          calculate total moment and failure status
     if ( recalc )
     {
-        verbose("wire_moment_x = %g ft*lb (moment in x-axis due to wind and tension)", wire_moment_x);
-        verbose("wire_moment_y = %g ft*lb (moment in y-axis due to wind and tension)", wire_moment_y);
-        verbose("wire_moment_z = %g ft*lb (moment in z-axis due to weight)", wire_moment_z);
+        verbose("wire_moment_x = %g ft*lb (moment in x-axis)", wire_moment_x);
+        verbose("wire_moment_y = %g ft*lb (moment in y-axis)", wire_moment_y);
 
-        verbose("equipment_moment_x = %g ft*lb (moment in x-axis due to wind)", equipment_moment_x);
-        verbose("equipment_moment_y = %g ft*lb (moment in y-axis due to wind)", equipment_moment_y);
-        verbose("equipment_moment_z = %g ft*lb (moment in z-axis due to weight)", equipment_moment_z);
+        verbose("equipment_moment_x = %g ft*lb (moment in x-axis)", equipment_moment_x);
+        verbose("equipment_moment_y = %g ft*lb (moment in y-axis)", equipment_moment_y);
 
-        double pole_moment_x = pole_moment_wind * cos(wind_direction*PI/180);
-        double pole_moment_y = pole_moment_wind * sin(wind_direction*PI/180);
-        double pole_moment_z = pole_moment;
-        verbose("pole_moment_x = %g ft*lb (moment in x-axis due to wind)", pole_moment_x);
-        verbose("pole_moment_y = %g ft*lb (moment in y-axis due to wind)", pole_moment_y);
-        verbose("pole_moment_z = %g ft*lb (moment in z-axis due to pole tilt)", pole_moment_z);
+        double pole_moment_x = pole_moment_wind*cos(wind_direction*PI/180)+pole_moment*cos(tilt_angle/180*PI);
+        double pole_moment_y = pole_moment_wind*sin(wind_direction*PI/180)+pole_moment*sin(tilt_angle/180*PI);
+        verbose("pole_moment_x = %g ft*lb (moment in x-axis)", pole_moment_x);
+        verbose("pole_moment_y = %g ft*lb (moment in y-axis)", pole_moment_y);
 
         total_moment = sqrt(
             (wire_moment_x+equipment_moment_x+pole_moment_x)*(wire_moment_x+equipment_moment_x+pole_moment_x) +
-            (wire_moment_y+equipment_moment_y+pole_moment_y)*(wire_moment_y+equipment_moment_y+pole_moment_y) +
-            (wire_moment_z+equipment_moment_z+pole_moment_z)*(wire_moment_z+equipment_moment_z+pole_moment_z)
-            );
+            (wire_moment_y+equipment_moment_y+pole_moment_y)*(wire_moment_y+equipment_moment_y+pole_moment_y));
         verbose("total_moment = %g ft*lb\n",total_moment);
         verbose("resisting_moment = %g ft*lb\n",resisting_moment);
 
@@ -537,24 +518,13 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
 			susceptibility = 0.0;
         verbose("susceptibility = %g ft*lb.s/m\n",susceptibility);
 
-        verbose("resisting_moment = %g ft*lb",resisting_moment);
-        verbose("wire_tension = %g ft*lb",wire_tension);
-        verbose("wire_weight = %g ft*lb",wire_weight);
-        verbose("equipment_weight = %g ft*lb",equipment_weight);
-        verbose("pole_moment = %g ft*lb",pole_moment);
-        verbose("pole_moment_nowind = %g ft*lb",pole_moment_nowind);
-        verbose("equipment_moment_nowind = %g ft*lb",equipment_moment_nowind);
-        verbose("wire_moment_nowind = %g ft*lb",wire_moment_nowind);
-
         double effective_moment = resisting_moment * (1+config->wind_overdesign);
         double wind_pressure_failure = sqrt( effective_moment*effective_moment - 
             (wire_weight+equipment_weight+pole_moment)*(wire_weight+equipment_weight+pole_moment)) 
             / (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind); // ignore wiree_tension
         critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24 * 2.24));
-        verbose("wind_pressure_failure = %g psf",wind_pressure_failure); // unit: pounds per square foot
-        verbose("name is %s ################################\n", my()->name);
-        verbose("wind_pressure_failure = %g psf\n",wind_pressure_failure); // unit: pounds per square foot
-        verbose("critical_wind_speed = %g m/s\n",critical_wind_speed);
+        verbose("wind_pressure_failure = %g psf (overdesighn facter = %g)",wind_pressure_failure,config->wind_overdesign); // unit: pounds per square foot
+        verbose("critical_wind_speed = %g m/s",critical_wind_speed);
         if ( wind_gusts > 0.0 )
         {
             double wind_gusts_failure = wind_gust_cdf(wind_gusts / critical_wind_speed);
@@ -570,11 +540,11 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
             verbose("down_time = %lld", down_time);
         }
 
-        // M = a * V^2 + b * V + c
-        // TODO
-        pole_stress_polynomial_a = pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind;
-        pole_stress_polynomial_b = 0.0;
-        pole_stress_polynomial_c = wire_tension;
+        // // M = a * V^2 + b * V + c
+        // // TODO
+        // pole_stress_polynomial_a = pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind;
+        // pole_stress_polynomial_b = 0.0;
+        // pole_stress_polynomial_c = wire_tension;
 
         TIMESTAMP next_event = pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER;
         verbose("next_event = %lld", next_event); //// should return repair time
