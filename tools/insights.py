@@ -115,7 +115,7 @@ def get_requests(year,month):
 
 def get_locations(year,month):
 	if not token:
-		error("no ipaddr access token found, use --signup to get one")
+		error("no ipaddr access token found, use --signup to get one",E_FAILED)
 	handler = ipinfo.getHandler(token)
 	data = get_requests(year,month)
 	result = data.groupby(data.index.names).count().reset_index()
@@ -124,7 +124,8 @@ def get_locations(year,month):
 	country = []
 	region = []
 	city = []
-	for ip,specs in info.items():
+	for ip in ipaddr:
+		specs = info[ip]
 		country.append(specs['country'])
 		region.append(specs['region'])
 		city.append(specs['city'])
@@ -204,6 +205,8 @@ if __name__ == "__main__":
 				else:
 					print("   "+" ".join(list(result.columns)))
 					print("id")
+		except SystemExit:
+			pass
 		except:
 			if debug:
 				raise
