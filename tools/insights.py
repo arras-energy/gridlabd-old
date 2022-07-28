@@ -80,7 +80,7 @@ def syntax(code=None):
 		exit(code)
 
 def get_requests(year,month):
-
+	"""Get raw version check records"""
 	data = pandas.read_csv(URL,
 		names=['date','ipaddr','query','status','result'],
 		index_col=['status'],
@@ -115,6 +115,7 @@ def get_requests(year,month):
 	return data.drop('date',axis=1).set_index(['year','month','day','ipaddr'])
 
 def get_locations(year,month):
+	"""Collect location data from version check records"""
 	if not token:
 		error("no ipaddr access token found, use --signup to get one",E_FAILED)
 	handler = ipinfo.getHandler(token)
