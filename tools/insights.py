@@ -10,6 +10,8 @@ The `insights` utility retrieves gridlabd usage data from the AWS servers.
 
 The following options are available.
 
+  -c|--csv[=FILE]      Output result as CSV to stdout or FILE
+
   -d|--debug           Enable debugging (raises exception instead of printing errors)
 
   -h|--help|help       Display this help
@@ -17,8 +19,6 @@ The following options are available.
   -m|--month=MONTH     Specify the month number (1-12)
 
   -o|--output=CSVFILE  Specify the output CSV filename
-
-  -p|--prefix=PATH     Specify the log prefix pathname
 
   -y|--year=YEAR       Specify the year number (4 digit year)
 
@@ -32,16 +32,13 @@ SEE ALSO
 * [[/Subcommand/Aws]]
 """
 import sys
-import boto3
 import pandas
 import datetime
 import matplotlib.pyplot as plot
 
 today = datetime.datetime.now().date()
-bucket = "logs.gridlabd.us"
-path = "version"
+URL = "http://version.gridlabd.us/access.csv"
 debug = False
-output = "/dev/stdout"
 
 def error(msg,code=None):
 	print(f"ERROR [insights]: {msg}",file=sys.stderr)
@@ -59,37 +56,34 @@ def syntax(code=None):
 	if type(code) == int:
 		exit(code)
 
-def get_requests(year=None,month=None):
+def get_requests(year,month):
 
-	if not year:
-		year = today.year
-	if not month:
-		month = today.month
-	prefix = f"{path}/{year}-{month}"
+	start = datetime.datetime.strptime(f'{year}-{month}-1+00:00','%Y-%m-%d%z')
+	if month==12:
+		stop = datetime.datetime.strptime(f'{year+1}-1-1+00:00','%Y-%m-%d%z')
+	else:
+		stop = datetime.datetime.strptime(f'{year}-{month+1}-1+00:00','%Y-%m-%d%z')
+	data = pandas.read_csv(URL,
+		names=['date','ipaddr','query','status','result'],
+		index_col=['status'],
+		low_memory=False,
+		parse_dates=['date'],
+		error_bad_lines=False,
+		).loc['200'].reset_index().drop('status',axis=1)
+	data = data[data['date'] >= start]
+	data = data[data['date'] < stop]
+	data['day'] = pandas.DatetimeIndex(data['date']).strftime('%Y-%m-%d')
+	data['month'] = pandas.DatetimeIndex(data['date']).strftime('%Y-%m')
+	data['year'] = pandas.DatetimeIndex(data['date']).strftime('%Y')
+	data.set_index(['month','ipaddr'],inplace=True)
 
-	s3 = boto3.client('s3')
-	objects = s3.list_objects(Bucket=bucket,Prefix=prefix)
-	dt = []
-	ip = []
-	contents = objects.get("Contents")
-	if contents:
-		for obj in contents:
-			data = s3.get_object(Bucket=bucket, Key=obj.get("Key"))
-			records = data["Body"].read().decode("utf-8").split("\n")
-			for record in records:
-				field = record.split()
-				if len(field) > 10 and field[10] == "/version.gridlabd.us":
-					dt.append(datetime.datetime.strptime(field[2].strip(" []"),"%d/%b/%Y:%H:%M:%S").date())
-					ip.append(field[4])
-
-	df = pandas.DataFrame(ip,index=dt,columns=["requests"])
-	df.index.name = "date"
-	return df.groupby("date").count()
+	return data['result'].groupby('ipaddr').count()
 
 if __name__ == "__main__":
-	year = None
-	month = None
+	year = today.year
+	month = today.month
 	call = None
+	output = None
 
 	if len(sys.argv) == 1:
 		syntax(1)
@@ -102,17 +96,18 @@ if __name__ == "__main__":
 			tag = arg
 			value = None
 		if tag in ["-y","--year"]:
-			year = value
+			year = int(value)
 		elif tag in ["-m","--month"]:
-			month = value
+			month = int(value)
 		elif tag in ["-d","--debug"]:
 			debug = True
 		elif tag in ["-o","--output"]:
 			output = value
-		elif tag in ["-p","--prefix"]:
-			path = value
 		elif tag in ["-h","--help","help"]:
 			syntax()
+		elif tag in ["-c","--csv"]:
+			if not value:
+				output = "/dev/stdout"
 		elif "get_"+tag in globals().keys():
 			call = globals()["get_"+tag]
 		else:
@@ -122,4 +117,7 @@ if __name__ == "__main__":
 		error(f"insight category not specified",2)
 	else:
 		result = call(year,month)
-		result.to_csv(output)
+		if output:
+			result.to_csv(output)
+		else:
+			print(result.sort_index().reset_index())
