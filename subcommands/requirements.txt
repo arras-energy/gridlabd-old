@@ -7,3 +7,4 @@ matplotlib==3.3.3
 geopy==2.1.0
 timezonefinder==5.2.0
 geocoder==1.38.1
+ipinfo==4.2.1
