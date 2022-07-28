@@ -26,21 +26,22 @@ The following options are available.
 
   --token=TOKEN				 Save the ipaddr access token (required for location category)
 
-CAVEAT
-
-Collects version usage data for HiPAS GridLAB-D by year and month.  If month
-is not specified, then all months of the current year are returned. If year
-is not specified, then all months of all years are returned.
-
 Currently, the supported categories are
 
   requests: return a list of individual requests by year, month, day, and ipaddr.
 
   location: return a list of request counts by year, month, day, location
 
+CAVEAT
+
+Collects version usage data for HiPAS GridLAB-D by year and month.  If month
+is not specified, then all months of the current year are returned. If year
+is not specified, then all months of all years are returned.
+
 SEE ALSO
 
 * [[/Subcommand/Aws]]
+* [https://ipinfo.io/]
 """
 import sys, os
 import pandas
