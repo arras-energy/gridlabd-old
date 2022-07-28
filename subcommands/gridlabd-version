@@ -50,16 +50,19 @@ function version-help()
 
 function version-check()
 {
-	version=$(${BIN} --version=number)
-	branch=$(${BIN} --version=git-branch)
-	check=($(curl -sL http://version.gridlabd.us/version/$branch 2>/dev/null | echo "none"))
-	if [ "${check[1]}" == "none" ]; then
+	version=$(basename $(${BIN} --version=install))
+	check=$(curl -sL "http://version.gridlabd.us/index.html?check=$version" 2>/dev/null || echo "none")
+	if [ "$check" == "none" ]; then
 		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "branch $branch not registered at version.gridlabd.us"
 		[ "$1" != "-q" ] && warning "branch $branch not registered at version.gridlabd.us"
 		exit 0
 	fi
 	[ "$1" == "-v" ] && echo "hipas/gridlabd:$branch $check"
-	if [ ${BIN} --version="-ge ${check[1]}" 2>/dev/null ]; then
+	if [ ${BIN} --version="-ge $check" 2>/dev/null ]; then
+		if [ "$1" != "-q" -a "$1" != "-w" ]; then
+			echo "$version ($branch) is ok"
+		fi
+	elif [ "$check" == "OK" ]; then
 		if [ "$1" != "-q" -a "$1" != "-w" ]; then
 			echo "$version ($branch) is ok"
 		fi
