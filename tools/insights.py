@@ -133,8 +133,8 @@ def get_locations(year,month):
 	result['country'] = country
 	result['region'] = region
 	result['city'] = city
-	result.rename({"version":"count"},inplace=True)
-	return result.set_index(['year','month','day','ipaddr'])
+	result.rename({"version":"count"},inplace=True,axis=1)
+	return result.groupby(['country','region','city']).sum('count')
 
 if __name__ == "__main__":
 	year = today.year
