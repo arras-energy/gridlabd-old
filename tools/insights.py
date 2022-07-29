@@ -10,27 +10,31 @@ The `insights` utility retrieves gridlabd usage data from the AWS servers.
 
 The following options are available.
 
-	-o|--output[=FILE]	 Output result as CSV to stdout or FILE
+  --by={day,month,year} Group dates by day, onth or year (default is None)
 
-	-d|--debug					 Enable debugging (raises exception instead of printing errors)
+	-d|--debug					  Enable debugging (raises exception instead of printing errors)
 
-	-h|--help|help			 Display this help
+	-h|--help|help			  Display this help
 
-	-m|--month=MONTH		 Specify the month number (1-12)
+	-m|--month=MONTH		  Specify the month number (1-12)
 
-	-o|--output=CSVFILE	Specify the output CSV filename
+	-o|--output[=FILE]	  Output result as CSV to stdout or FILE
 
-	-y|--year=YEAR			 Specify the year number (4 digit year)
+	-y|--year=YEAR			  Specify the year number (4 digit year)
 
-  --signup						 Open the ipaddr signup page to get access token
+  --signup						  Open the ipaddr signup page to get access token
 
-  --token=TOKEN				 Save the ipaddr access token (required for location category)
+  --token=TOKEN				  Save the ipaddr access token (required for location category)
 
 Currently, the supported categories are
 
   data: return a list of individual requests by year, month, day, and ipaddr.
 
-  city: return a list of request counts by year, month, day, location
+  city: return a list of request counts by date and city
+
+  region: return a list of request counts by date and region
+
+  country: return a list of request counts by date and country
 
   version: return a list of request counts by version
 
@@ -60,6 +64,7 @@ except:
 today = datetime.datetime.now().date()
 URL = "http://version.gridlabd.us/access.csv"
 debug = False
+groupby = None
 
 E_OK = 0
 E_INVALID = 1
@@ -229,9 +234,13 @@ if __name__ == "__main__":
 			output = value
 		elif tag in ["-h","--help","help"]:
 			syntax()
-		elif tag in ["-0","--output"]:
+		elif tag in ["-o","--output"]:
 			if not value:
 				output = "/dev/stdout"
+		elif tag in ["--by"]:
+			if not value in ["day","month","year"]:
+				error(f"options '--by={value}' is invalid",E_INVALID)
+			groupby = value
 		elif tag in ["--signup"]:
 			os.system("open https://ipinfo.io/signup")
 			print("save your token with --token=TOKEN option")
