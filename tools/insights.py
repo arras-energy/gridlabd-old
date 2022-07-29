@@ -26,6 +26,10 @@ The following options are available.
 
   --token=TOKEN				  Save the ipaddr access token (required for location category)
 
+	--with-branches       Include all branches (not only master)
+
+	--with-github         Include GitHub version checks
+
 Currently, the supported categories are
 
   data: return a list of individual requests by year, month, day, and ipaddr.
@@ -65,6 +69,9 @@ today = datetime.datetime.now().date()
 URL = "http://version.gridlabd.us/access.csv"
 debug = False
 groupby = None
+with_github = False
+with_branches = False
+
 
 E_OK = 0
 E_INVALID = 1
@@ -116,6 +123,10 @@ def get_data(year,month):
 		pass
 	data.drop('query',axis=1,inplace=True)
 	data.drop('result',axis=1,inplace=True)
+	if not with_github:
+		data = data[data['version'].str.endswith("-HEAD")==False]
+	if not with_branches:
+		data = data[data['version'].str.endswith("master")]
 	data['day'] = pandas.DatetimeIndex(data['date']).strftime('%Y-%m-%d')
 	data['month'] = pandas.DatetimeIndex(data['date']).strftime('%Y-%m')
 	data['year'] = pandas.DatetimeIndex(data['date']).strftime('%Y')
@@ -255,6 +266,10 @@ if __name__ == "__main__":
 				e_type, e_value, e_trace = sys.exc_info()
 				error(f"{e_value} ({e_type.__name__})",E_FAILED)
 			exit(0)
+		elif tag in ["--with-github"] and value == None:
+			with_github = True
+		elif tag in ["--with-branches"] and value == None:
+			with_branches = True
 		elif "get_"+tag in globals().keys():
 			call = globals()["get_"+tag]
 		else:
