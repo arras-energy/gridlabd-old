@@ -28,9 +28,11 @@ The following options are available.
 
 Currently, the supported categories are
 
-  requests: return a list of individual requests by year, month, day, and ipaddr.
+  data: return a list of individual requests by year, month, day, and ipaddr.
 
-  location: return a list of request counts by year, month, day, location
+  city: return a list of request counts by year, month, day, location
+
+  version: return a list of request counts by version
 
 CAVEAT
 
@@ -79,7 +81,7 @@ def syntax(code=None):
 	if type(code) == int:
 		exit(code)
 
-def get_requests(year,month):
+def get_data(year,month):
 	"""Get raw version check records"""
 	data = pandas.read_csv(URL,
 		names=['date','ipaddr','query','status','result'],
@@ -114,12 +116,12 @@ def get_requests(year,month):
 	data['year'] = pandas.DatetimeIndex(data['date']).strftime('%Y')
 	return data.drop('date',axis=1).set_index(['year','month','day','ipaddr'])
 
-def get_locations(year,month):
+def get_city(year,month):
 	"""Collect location data from version check records"""
 	if not token:
 		error("no ipaddr access token found, use --signup to get one",E_FAILED)
 	handler = ipinfo.getHandler(token)
-	data = get_requests(year,month)
+	data = get_data(year,month)
 	result = data.groupby(data.index.names).count().reset_index()
 	ipaddr = list(result['ipaddr'])
 	info = handler.getBatchDetails(ipaddr)
@@ -135,7 +137,65 @@ def get_locations(year,month):
 	result['region'] = region
 	result['city'] = city
 	result.rename({"version":"count"},inplace=True,axis=1)
-	return result.groupby(['country','region','city']).sum('count')
+	return result.groupby(['country','region','city']).sum('count').reset_index()
+
+def get_region(year,month):
+	"""Collect location data from version check records"""
+	if not token:
+		error("no ipaddr access token found, use --signup to get one",E_FAILED)
+	handler = ipinfo.getHandler(token)
+	data = get_data(year,month)
+	result = data.groupby(data.index.names).count().reset_index()
+	ipaddr = list(result['ipaddr'])
+	info = handler.getBatchDetails(ipaddr)
+	country = []
+	region = []
+	city = []
+	for ip in ipaddr:
+		specs = info[ip]
+		country.append(specs['country'])
+		region.append(specs['region'])
+		city.append(specs['city'])
+	result['country'] = country
+	result['region'] = region
+	result['city'] = city
+	result.rename({"version":"count"},inplace=True,axis=1)
+	return result.groupby(['country','region']).sum('count').reset_index()
+
+def get_country(year,month):
+	"""Collect location data from version check records"""
+	if not token:
+		error("no ipaddr access token found, use --signup to get one",E_FAILED)
+	handler = ipinfo.getHandler(token)
+	data = get_data(year,month)
+	result = data.groupby(data.index.names).count().reset_index()
+	ipaddr = list(result['ipaddr'])
+	info = handler.getBatchDetails(ipaddr)
+	country = []
+	region = []
+	city = []
+	for ip in ipaddr:
+		specs = info[ip]
+		country.append(specs['country'])
+		region.append(specs['region'])
+		city.append(specs['city'])
+	result['country'] = country
+	result['region'] = region
+	result['city'] = city
+	result.rename({"version":"count"},inplace=True,axis=1)
+	return result.groupby(['country']).sum('count').reset_index()
+
+def get_version(year,month):
+	"""Collect version data from version check records"""
+	data = get_data(year,month)
+	data['version'] = data['version'].str.split("-",n=1,expand=True)
+	data.reset_index(inplace=True)
+	data.drop('year',axis=1,inplace=True)
+	data.drop('month',axis=1,inplace=True)
+	data.drop('ipaddr',axis=1,inplace=True)
+	result = data.groupby(['version']).count()
+	result.rename({'day':'count'},inplace=True,axis=1)
+	return result.reset_index()
 
 if __name__ == "__main__":
 	year = today.year
@@ -178,7 +238,9 @@ if __name__ == "__main__":
 			exit(0)
 		elif tag in ["--token"]:
 			try:
-				with open(f"{os.getenv('HOME')}/.ipinfo/access_token","w") as fh:
+				path = f"{os.getenv('HOME')}/.ipinfo"
+				os.makedirs(path,exist_ok=True)
+				with open(f"{path}/access_token","w") as fh:
 					fh.write(value)
 			except:
 				e_type, e_value, e_trace = sys.exc_info()
@@ -193,10 +255,9 @@ if __name__ == "__main__":
 		error(f"insight category not specified",2)
 	else:
 		try:
-			result = call(year,month).reset_index()
-			result.index.name = "id"
+			result = call(year,month)
 			if output:
-				result.to_csv(output,index=True,header=True)
+				result.to_csv(output,index=False,header=True)
 			else:
 				pandas.options.display.max_rows = None
 				pandas.options.display.max_colwidth = None
@@ -204,9 +265,6 @@ if __name__ == "__main__":
 				pandas.options.display.width = None
 				if len(result) > 0:
 					print(result)
-				else:
-					print("   "+" ".join(list(result.columns)))
-					print("id")
 		except SystemExit:
 			pass
 		except:
