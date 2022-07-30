@@ -1,0 +1,53 @@
+module test_fast_accessor;
+
+class test
+{
+    double x;
+    complex z;
+    int16 i;
+    int32 j;
+    int64 k;
+    bool b;
+    on_init "python:test_fast_accessor.test_init";
+}
+
+module assert;
+object test
+{
+    object assert
+    {
+        target x;
+        value 1.0;
+        relation "==";
+    };
+    object assert
+    {
+        target z;
+        value 2+3j;
+        relation "==";
+    };
+    object assert
+    {
+        target i;
+        value 4;
+        relation "==";
+    };
+    object assert
+    {
+        target j;
+        value 5;
+        relation "==";
+    };
+    object assert
+    {
+        target k;
+        value 6;
+        relation "==";
+    };
+    object assert
+    {
+        target b;
+        value TRUE;
+        relation "==";
+    };
+}
