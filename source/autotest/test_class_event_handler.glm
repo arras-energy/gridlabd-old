@@ -1,3 +1,5 @@
+#set pythonpath=..:.
+
 module test_class_event_handler;
 
 class test
