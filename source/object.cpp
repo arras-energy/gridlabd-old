@@ -2019,13 +2019,13 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	switch (pass) 
 	{
 	case PC_PRETOPDOWN:
-		event = obj->events.presync;
+		event = obj->events.presync ? obj->events.presync : obj->oclass->events.presync;
 		break;
 	case PC_BOTTOMUP:
-		event = obj->events.sync;
+		event = obj->events.sync ? obj->events.sync : obj->oclass->events.sync;
 		break;
 	case PC_POSTTOPDOWN:
-		event = obj->events.postsync;
+		event = obj->events.postsync ? obj->events.postsync : obj->oclass->events.postsync;
 		break;
 	default:
 		break;
@@ -2087,7 +2087,7 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 	if ( rv == 1 && obj->events.init != NULL )
 	{
 		long long ok = 0;
-		int rc = object_event(obj,obj->events.init,&ok);
+		int rc = object_event(obj,obj->events.init?obj->events.init:obj->oclass->events.init,&ok);
 		if ( rc != 0 || ok != 0 )
 		{
 			output_error("object %s:%d init at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
@@ -2131,7 +2131,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
 		long long t2 = TS_NEVER;
-		int rc = object_event(obj,obj->events.precommit,&t2);
+		int rc = object_event(obj,obj->events.precommit?obj->events.precommit:obj->oclass->events.precommit,&t2);
 		if ( rc != 0 || t2 < t1 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,t2);
@@ -2165,7 +2165,7 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	} 
 	if ( obj->events.commit != NULL )
 	{
-		int rc = object_event(obj,obj->events.commit,&rv);
+		int rc = object_event(obj,obj->events.commit?obj->events.commit:obj->oclass->events.commit,&rv);
 		if ( rc != 0 || rv == TS_INVALID )
 		{
 			output_error("object %s:%d commit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,rv);
@@ -2200,7 +2200,7 @@ STATUS object_finalize(OBJECT *obj)
 	if ( obj->events.finalize != NULL )
 	{
 		long long rv = 0;
-		int rc = object_event(obj,obj->events.finalize,&rv);
+		int rc = object_event(obj,obj->events.finalize?obj->events.finalize:obj->oclass->events.finalize,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
