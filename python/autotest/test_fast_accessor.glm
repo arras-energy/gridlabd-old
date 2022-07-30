@@ -1,3 +1,4 @@
+#set pythonpath=..:.
 module test_fast_accessor;
 
 class test
