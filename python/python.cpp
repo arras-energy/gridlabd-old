@@ -70,6 +70,14 @@ static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_bool(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int16(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int32(PyObject *self, PyObject *args);
+static PyObject *gridlabd_int64(PyObject *self, PyObject *args);
+static PyObject *gridlabd_double(PyObject *self, PyObject *args);
+static PyObject *gridlabd_complex(PyObject *self, PyObject *args);
+static PyObject *gridlabd_timestamp(PyObject *self, PyObject *args);
+
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
     {"version", gridlabd_version, METH_VARARGS, "Get the software version"},
@@ -124,6 +132,14 @@ static PyMethodDef module_methods[] = {
     // callbacks
     {"add_callback", gridlabd_add_callback, METH_VARARGS, "Add external callback for modules"},
     {"pstatus", gridlabd_pstatus, METH_VARARGS, "Read gridlabd process status"},
+    // data converters
+    {"double",gridlabd_double,METH_VARARGS,"Convert string to gridlabd double"},
+    {"complex",gridlabd_complex,METH_VARARGS,"Convert string to gridlabd complex"},
+    {"int64",gridlabd_int64,METH_VARARGS,"Convert string to gridlabd int64"},
+    {"int32",gridlabd_int32,METH_VARARGS,"Convert string to gridlabd int32"},
+    {"int16",gridlabd_int16,METH_VARARGS,"Convert string to gridlabd int16"},
+    {"bool",gridlabd_bool,METH_VARARGS,"Convert string to gridlabd bool"},
+    {"timestamp",gridlabd_timestamp,METH_VARARGS,"Convert string to gridlabd timestamp"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -2390,3 +2406,153 @@ static PyObject *gridlabd_module(PyObject *self, PyObject *args)
     }
     return PyLong_FromLong(PyList_Size(modlist)-1);
 }
+
+//
+// >>> gridlabd.double(str)
+// >>> gridlabd.complex(str)
+// >>> gridlabd.int64(str)
+// >>> gridlabd.int32(str)
+// >>> gridlabd.int16(str)
+// >>> gridlabd.timestamp(str)
+//
+// Return the gridlabd typed value 
+//
+static PyObject *gridlabd_double(PyObject *self, PyObject *args)
+{
+    char *str;
+    double value;
+    try
+    {
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_double(str,(void*)&value,NULL) )
+        {
+            return PyFloat_FromDouble(value);
+        }
+    }
+    catch (...)
+    {
+    }
+    return PyFloat_FromDouble(QNAN);
+}
+static PyObject *gridlabd_complex(PyObject *self, PyObject *args)
+{
+    char *str;
+    complex value;
+    try
+    {
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_complex(str,(void*)&value,NULL) )
+        {
+            return PyComplex_FromDoubles(value.r,value.i);
+        }
+    }
+    catch (...)
+    {
+    }
+    return PyComplex_FromDoubles(QNAN,0);
+}
+static PyObject *gridlabd_int64(PyObject *self, PyObject *args)
+{
+    char *str;
+    int64 value;
+    try
+    {
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int64(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
+    }
+    catch (...)
+    {
+    }
+    return PyLong_FromLong((long)-1);;
+}
+static PyObject *gridlabd_int32(PyObject *self, PyObject *args)
+{
+    char *str;
+    int32 value;
+    try
+    {
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int32(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
+    }
+    catch (...)
+    {
+    }
+    return PyLong_FromLong((long)-1);;
+}
+static PyObject *gridlabd_int16(PyObject *self, PyObject *args)
+{
+    char *str;
+    int16 value;
+    try
+    {
+        if ( PyArg_ParseTuple(args,"s", &str) && convert_to_int16(str,(void*)&value,NULL) )
+        {
+            return PyLong_FromLong((long)value);
+        }
+    }
+    catch (...)
+    {
+    }
+    return PyLong_FromLong((long)-1);;
+}
+static PyObject *gridlabd_timestamp(PyObject *self, PyObject *args)
+{
+    char *str;
+    try 
+    {
+        if ( ! PyArg_ParseTuple(args,"s", &str) )
+        {
+            return PyLong_FromLong((long)TS_INVALID);
+        }
+        else
+        {
+            TIMESTAMP value = convert_to_timestamp(str);
+            return PyLong_FromLong((long)value);
+        }
+    }
+    catch (...)
+    {
+        return PyLong_FromLong((long)TS_INVALID);
+    }
+}
+static PyObject *gridlabd_bool(PyObject *self, PyObject *args)
+{
+    char *str;
+    try
+    {
+        if ( ! PyArg_ParseTuple(args,"s", &str) )
+        {
+            Py_RETURN_NONE;
+        }
+        bool value;
+        if ( convert_to_boolean(str,(void*)&value,NULL) )
+        {
+            if ( value )
+            {
+                Py_RETURN_TRUE;
+            }
+            else
+            {
+                Py_RETURN_FALSE;
+            }
+        }
+        else
+        {
+            Py_RETURN_NONE;
+        }
+    }
+    catch (...)
+    {
+            Py_RETURN_NONE;
+    }
+}
+
+
+
+
+
+
+
+

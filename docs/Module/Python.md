@@ -66,7 +66,16 @@ Units:
 ~~~
   >>> gridlabd.convert_unit(string,to)
   >>> gridlabd.convert_unit(real,from,to)
-
+~~~
+Converters:
+~~~
+  >>> gridlabd.bool(string)
+  >>> gridlabd.int16(string)
+  >>> gridlabd.int32(string)
+  >>> gridlabd.int64(string)
+  >>> gridlabd.timestamp(string)
+  >>> gridlabd.double(string)
+  >>> gridlabd.complex(string)
 ~~~
 
 # Description
