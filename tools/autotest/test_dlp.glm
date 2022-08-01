@@ -1,8 +1,8 @@
 #ifexist ../test_dlp.dlp
-#set DIR=..
+#define DIR=..
 #endif
 
-#python -m read_dlp ${DIR:-.}/test_dlp.dlp -g
+#python -m read_dlp ${DIR:-.}/test_dlp.dlp -c=test_dlp.csv -g
 
 #ifexist ../test_dlp.csv
 #on_exit 0 diff ../test_dlp.csv test_dlp.csv
