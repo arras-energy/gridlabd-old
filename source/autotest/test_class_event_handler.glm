@@ -1,0 +1,28 @@
+#set pythonpath=..:.
+
+module test_class_event_handler;
+
+class test
+{
+    char1024 n;
+    on_init "python:test_class_event_handler.test_init";
+    on_precommit "python:test_class_event_handler.test_precommit";
+    on_presync "python:test_class_event_handler.test_presync";
+    on_sync "python:test_class_event_handler.test_sync";
+    on_postsync "python:test_class_event_handler.test_postsync";
+    on_commit "python:test_class_event_handler.test_commit";
+    on_finalize "python:test_class_event_handler.test_finalize";
+}
+
+module assert;
+
+object test
+{
+    n "0";
+    object assert
+    {
+        target "n";
+        value "0123456";
+        relation "==";
+    };
+}
