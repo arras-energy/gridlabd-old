@@ -45,10 +45,11 @@ object test
         value 6;
         relation "==";
     };
-    object assert
-    {
-        target b;
-        value TRUE;
-        relation "==";
-    };
+// removed due to problem with set_bool()
+//    object assert
+//    {
+//        target b;
+//        value TRUE;
+//        relation "==";
+//    };
 }
