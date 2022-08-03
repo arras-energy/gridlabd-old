@@ -8,6 +8,7 @@ KERNEL=
 if test $SYSTEM == "Linux"; then
 source "/etc/os-release"
 KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
+L_DISTRO="$ID"
 fi
 D_ARCH=$(uname -m)
 
@@ -84,6 +85,15 @@ if test $D_ARCH != "arm64"; then
 
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
+
+        if [ $L_DISTRO == "Debian" ]; then
+            sudo apt-get install g++ -y
+        fi
+
+        if [ $L_DISTRO == "Ubuntu" ]; then
+            sudo apt-get install libgeos-dev -y
+        fi
+
     fi
 
     # give user permissions for writing to site-packages
@@ -170,7 +180,14 @@ else
 
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
-        sudo apt-get install g++ -y
+
+        if [ $L_DISTRO == "Debian" ]; then
+            sudo apt-get install g++ -y
+        fi
+        
+        if [ $L_DISTRO == "Ubuntu" ]; then
+            sudo apt-get install libgeos-dev -y
+        fi
     fi
 
     # give user permissions for writing to site-packages

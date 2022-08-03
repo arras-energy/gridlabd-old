@@ -106,7 +106,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-    # export MACOSX_DEPLOYMENT_TARGET=12.0
+    export MACOSX_DEPLOYMENT_TARGET=12.5
     # export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
     export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/opt/homebrew/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
@@ -116,7 +116,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
     --with-tcltk-includes="$(pkg-config --cflags tcl tk)" \
-    CFLAGS="-I/opt/homebrew/include -fPIC " \
+    CFLAGS="-I/opt/homebrew/include " \
     LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/opt/zlib/lib" \
     CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/opt/zlib/include"
     # --enable-shared \ 
