@@ -260,7 +260,10 @@ void GldMain::set_global_command_line(int argc, const char *argv[])
 	for (i=0; i<argc; i++)
 	{
 		if (pos < (int)(sizeof(global_command_line)-strlen(argv[i])))
-			pos += snprintf(global_command_line+pos,sizeof(global_command_line)-pos-1,"%s%s",pos>0?" ":"",argv[i]);
+		{
+			snprintf(global_command_line+pos,sizeof(global_command_line)-pos-1,"%s%s",pos>0?" ":"",argv[i]);
+			pos = strlen(global_command_line);
+		}
 	}
 	return;
 }
@@ -776,7 +779,8 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 		{
 			while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL )
 			{
-				len += snprintf(output_buffer+len,output_size-len-1,"%s",line);
+				snprintf(output_buffer+len,output_size-len-1,"%s",line);
+				len = strlen(output_buffer);
 			}
 			if ( ferror(pipes->child_output) )
 			{

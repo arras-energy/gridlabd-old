@@ -1348,30 +1348,37 @@ int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 	char tmp[1024];
 	if ( _random_specs(var->type,var->a,var->b,tmp,sizeof(tmp)-1) )
 	{
-		int len = snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
+		snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
+		int len = strlen(buffer);
 		if ( var->low != 0.0 && var->low < var->high )
 		{
-			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; min:%g",var->low);
+			snprintf(buffer+len,sizeof(buffer)-1-len,"; min:%g",var->low);
+			len = strlen(buffer);
 		}
 		if ( var->high != 0.0 && var->low < var->high )
 		{
-			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; max:%g",var->high);
+			snprintf(buffer+len,sizeof(buffer)-1-len,"; max:%g",var->high);
+			len = strlen(buffer);
 		}
 		if ( var->update_rate != 0 )
 		{
-			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
+			snprintf(buffer+len,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
+			len = strlen(buffer);
 		}
 		if ( (var->flags&RNF_INTEGRATE) == RNF_INTEGRATE )
 		{
-			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; integrate");
+			snprintf(buffer+len,sizeof(buffer)-1-len,"; integrate");
+			len = strlen(buffer);
 		}
 		if ( var->correlation != NULL )
 		{
 			object_name(var->correlation->object,tmp,sizeof(tmp)-1);
-			len += snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
-				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);			
+			snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
+				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);
+			len = strlen(buffer);
 		}
-		len += snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
+		snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
+		len = strlen(buffer);
 		if ( string )
 		{
 			strncpy(string,buffer,size-1);
@@ -1463,8 +1470,9 @@ size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 	size_t len;
 	if ( _random_specs(var->type,var->a,var->b,specs,sizeof(specs))<=0 )
 		return 0;
-	len = snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
+	snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
 		var->state, specs, var->low, var->high, var->update_rate, var->flags&RNF_INTEGRATE ? "; integrate" : "");
+	len = strlen(buffer);
 	if ( len > 0 && len<size )
 	{
 		strcpy(str,buffer);

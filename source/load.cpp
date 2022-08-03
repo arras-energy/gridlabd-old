@@ -7682,7 +7682,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
+			snprintf(line,size-1,"@%s;%d\n",value,0);
+			int len = strlen(line);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context

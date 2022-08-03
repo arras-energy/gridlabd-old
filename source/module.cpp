@@ -2047,10 +2047,13 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
-		sz = snprintf(buf,sz,"%4d   -", n);
+	{
+		snprintf(buf,sz,"%4d   -", n);
+	}
+	sz = strlen(buf);
 	sched_unlock(n);
 	return (int)sz;
 }

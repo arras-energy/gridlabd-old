@@ -78,7 +78,9 @@ HTTP* hopen(const char *url, int maxlen)
 	}
 
 	/* format/send request */
-	len = snprintf(request,sizeof(request)-1,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
+	snprintf(request,sizeof(request)-1,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
+	len = strlen(request);
+	
 	IN_MYCONTEXT output_debug("sending HTTP message \n%s", request);
 	if ( send(http->sd,request,len,0)<len )
 	{

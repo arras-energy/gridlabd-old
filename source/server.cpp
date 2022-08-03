@@ -346,16 +346,26 @@ static void http_type(HTTPCNX *http, const char *type)
 static void http_send(HTTPCNX *http)
 {
 	char header[4096];
-	int len=0;
-	len += snprintf(header+len,sizeof(header)-len-1,"HTTP/1.1 %s", http->status?http->status:HTTP_INTERNALSERVERERROR);
+	snprintf(header,sizeof(header)-1,"HTTP/1.1 %s", http->status?http->status:HTTP_INTERNALSERVERERROR);
+	int len = strlen(header);
+	
 	IN_MYCONTEXT output_verbose("%s (len=%d, mime=%s)",header,http->len,http->type?http->type:"none");
 	len += snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
 	if (http->type && http->type[0]!='\0')
 		len += snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
-	len += snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
-	len += snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-store\n");
-	len += snprintf(header+len,sizeof(header)-len-1, "Expires: -1\n");
-	len += snprintf(header+len,sizeof(header)-len-1,"\n");
+	
+	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
+	len = strlen(header);
+	
+	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-store\n");
+	len = strlen(header);
+	
+	snprintf(header+len,sizeof(header)-len-1, "Expires: -1\n");
+	len = strlen(header);
+
+	snprintf(header+len,sizeof(header)-len-1,"\n");
+	len = strlen(header);
+	
 	send_data(http->s,header,len);
 	if (http->len>0)
 		send_data(http->s,http->buffer,http->len);

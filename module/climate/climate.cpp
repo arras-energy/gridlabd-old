@@ -578,7 +578,7 @@ climate::climate(MODULE *module) : gld_object()
       		PT_double,"solar_zenith[rad]",PADDR(solar_zenith), 
 				PT_OUTPUT, 
 				PT_DESCRIPTION,"solar zenith angle in radians",
-			PT_char32, "city", PADDR(city), 
+			PT_char256, "city", PADDR(city), 
 				PT_DESCRIPTION,"weather data city name",
 			PT_char1024,"tmyfile",PADDR(tmyfile), 
 				PT_REQUIRED, 
