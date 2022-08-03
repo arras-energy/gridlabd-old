@@ -682,18 +682,7 @@ int convert_from_int32(char *buffer, /**< pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
-	char temp[1025];
-	int count = snprintf(temp,sizeof(temp)-1,"%d",*(int*)data);
-	if ( count < size - 1 ) 
-	{
-		memcpy(buffer, temp, count);
-		buffer[count] = 0;
-		return count;
-	} 
-	else 
-	{
-		return 0;
-	}
+	return snprintf(buffer,size,"%d",*(int*)data);
 }
 
 /** Convert to an \e int32
@@ -716,18 +705,7 @@ int convert_from_int64(char *buffer, /**< pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
-	char temp[1025];
-	int count = snprintf(temp,sizeof(temp)-1,"%lld",*(int64*)data);
-	if ( count < size - 1 )
-	{
-		memcpy(buffer, temp, count);
-		buffer[count] = 0;
-		return count;
-	} 
-	else 
-	{
-		return 0;
-	}
+	return snprintf(buffer,size,"%lld",*(int64*)data);
 }
 
 /** Convert to an \e int64
