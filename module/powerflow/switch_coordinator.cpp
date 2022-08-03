@@ -172,10 +172,7 @@ int switch_coordinator::connect(char *value, size_t len)
 			for ( gld_keyword *kw = prop.get_first_keyword() ; kw != NULL ; kw = kw->get_next() )
 			{
 				if ( strcmp(kw->get_name(),"NONE") != 0 )
-				{
-					snprintf(value+rv,len-rv-1,"%s%s",rv>0?"|":"",kw->get_name());
-					rv = strlen(value);
-				}
+					rv += snprintf(value+rv,len-rv-1,"%s%s",rv>0?"|":"",kw->get_name());
 			}
 			return rv;
 		}
