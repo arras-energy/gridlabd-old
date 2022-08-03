@@ -109,12 +109,12 @@ int occupantload::init(OBJECT *parent)
 
 	load.heatgain = number_of_occupants * occupancy_fraction * heatgain_per_person;
 
-	if(shape.type != MT_UNKNOWN && shape.type != MT_ANALOG){
+	if ( shape.type != MT_UNKNOWN && shape.type != MT_ANALOG )
+	{
 		char outname[64];
-		if(hdr->name){
-			//sprintf(outname, "%s", hdr->name);
-		} else {
-			sprintf(outname, "occupancy_load:%i", hdr->id);
+		if ( hdr->name == NULL )
+		{
+			snprintf(outname,sizeof(outname)-1, "occupancy_load:%i", hdr->id);
 		}
 		warning("occupancy_load \'%s\' may not work properly with a non-analog load shape.", hdr->name ? hdr->name : outname);
 	}

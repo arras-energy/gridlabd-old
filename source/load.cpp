@@ -7700,7 +7700,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				len = snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				len = strlen(line);
 				line+=len; size-=len;
 				return size>0;
 			}

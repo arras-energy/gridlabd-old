@@ -350,9 +350,13 @@ static void http_send(HTTPCNX *http)
 	int len = strlen(header);
 	
 	IN_MYCONTEXT output_verbose("%s (len=%d, mime=%s)",header,http->len,http->type?http->type:"none");
-	len += snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
+	snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
+	len = strlen(header);
 	if (http->type && http->type[0]!='\0')
-		len += snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
+	{
+		snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
+		len = strlen(header);
+	}
 	
 	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
 	len = strlen(header);

@@ -61,7 +61,7 @@ recorder::recorder(MODULE *module)
 			PT_char1024,"header_fieldnames",get_header_fieldnames_offset(),PT_DESCRIPTION,"name of header fields to include",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 
@@ -209,11 +209,15 @@ int recorder::init(OBJECT *parent)
 
 			char fieldname[1024];
 			if ( unit.is_valid() )
-				sprintf(fieldname,"%s[%s]", prop.get_name(), unit.get_name());
+			{
+				snprintf(fieldname,sizeof(fieldname)-1,"%s[%s]", prop.get_name(), unit.get_name());
+			}
 			else
-				sprintf(fieldname,"%s", prop.get_name());
+			{
+				snprintf(fieldname,sizeof(fieldname)-1,"%s", prop.get_name());
+			}
 			char tmp[1024];
-			sprintf(tmp,"`%s` %s, ",fieldname,sqltype);
+			snprintf(tmp,sizeof(tmp)-1,"`%s` %s, ",fieldname,sqltype);
 			strcat(property_list,tmp);
 			if ( db->check_field(get_table(),fieldname) ) 
 				gl_verbose("column '%s' of table '%s' is ok",fieldname,get_table());
@@ -242,21 +246,24 @@ int recorder::init(OBJECT *parent)
 			bool is_ok = db->check_field(get_table(), (const char*)header_specs[n].c_str());
 			if ( header_specs[n].compare("name")==0 )
 			{
-				header_pos += sprintf(header_data+header_pos,",'%s'",get_parent()->get_name());
+				snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",'%s'",get_parent()->get_name());
+				header_pos = strlen(header_data);
 				strcat(property_list,"name CHAR(64), index i_name (name), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `name` CHAR(64);", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'name' to '%s'", get_table());
 			}
 			else if ( header_specs[n].compare("class")==0 )
 			{
-				header_pos += sprintf(header_data+header_pos,",'%s'",get_parent()->get_oclass()->get_name());
+				snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",'%s'",get_parent()->get_oclass()->get_name());
+				header_pos = strlen(header_data);
 				strcat(property_list,"class CHAR(32), index i_class (class), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `class` CHAR(32);", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'class' to '%s'", get_table());
 			}
 			else if ( header_specs[n].compare("groupid")==0 )
 			{
-				header_pos += sprintf(header_data+header_pos,",'%s'",get_parent()->get_groupid());
+				snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",'%s'",get_parent()->get_groupid());
+				header_pos = strlen(header_data);
 				strcat(property_list,"groupid CHAR(32), index i_groupid (groupid), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `groupid` CHAR(32);", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'groupid' to '%s'", get_table());
@@ -264,9 +271,15 @@ int recorder::init(OBJECT *parent)
 			else if ( header_specs[n].compare("latitude")==0 )
 			{
 				if ( isnan(get_parent()->get_latitude()) )
-					header_pos += sprintf(header_data+header_pos,",%s","NULL");
+				{
+					snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",%s","NULL");
+					header_pos = strlen(header_data);
+				}
 				else
-					header_pos += sprintf(header_data+header_pos,",%.6f", get_parent()->get_latitude());
+				{
+					snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",%.6f", get_parent()->get_latitude());
+					header_pos = strlen(header_data);
+				}
 				strcat(property_list,"latitude DOUBLE, index i_latitude (latitude), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `latitude` DOUBLE;", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'latitude' to '%s'", get_table());
@@ -274,9 +287,15 @@ int recorder::init(OBJECT *parent)
 			else if ( header_specs[n].compare("longitude")==0 )
 			{
 				if ( isnan(get_parent()->get_longitude()) )
-					header_pos += sprintf(header_data+header_pos,",%s","NULL");
+				{
+					snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",%s","NULL");
+					header_pos = strlen(header_data);
+				}
 				else
-					header_pos += sprintf(header_data+header_pos,",%.6s", get_parent()->get_oclass()->get_name());
+				{
+					snprintf(header_data+header_pos,sizeof(header_data)-header_pos-1,",%.6s", get_parent()->get_oclass()->get_name());
+					header_pos = strlen(header_data);
+				}
 				strcat(property_list,"longitude DOUBLE, index i_longitude (longitude), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `longitude` DOUBLE;", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'longitude' to '%s'", get_table());
@@ -366,18 +385,28 @@ TIMESTAMP recorder::commit(TIMESTAMP t0, TIMESTAMP t1)
 		char fieldlist[65536] = "", valuelist[65536] = "";
 		size_t fieldlen = 0;
 		if ( header_fieldnames[0]!='\0' )
-			fieldlen = sprintf(fieldlist,",%s",(const char*)header_fieldnames);
+		{
+			snprintf(fieldlist,sizeof(fieldlist)-1,",%s",(const char*)header_fieldnames);
+			fieldlen = strlen(fieldlist);
+		}
 		strcpy(valuelist,header_data);
 		size_t valuelen = strlen(valuelist);
 		for ( size_t n = 0 ; n < (*property_target).size() ; n++ )
 		{
 			char buffer[1024] = "NULL";
 			if ( (*property_unit)[n].is_valid() )
-				fieldlen += sprintf(fieldlist+fieldlen,",`%s[%s]`", (*property_target)[n].get_name(), (*property_unit)[n].get_name());
+			{
+				snprintf(fieldlist+fieldlen,sizeof(fieldlist)-fieldlen-1,",`%s[%s]`", (*property_target)[n].get_name(), (*property_unit)[n].get_name());
+				fieldlen = strlen(fieldlist);
+			}
 			else
-				fieldlen += sprintf(fieldlist+fieldlen,",`%s`", (*property_target)[n].get_name());
+			{
+				snprintf(fieldlist+fieldlen,sizeof(fieldlist)-fieldlen-1,",`%s`", (*property_target)[n].get_name());
+				fieldlen = strlen(fieldlist);
+			}
 			db->get_sqldata(buffer, sizeof(buffer), (*property_target)[n], &(*property_unit)[n]);
-			valuelen += sprintf(valuelist+valuelen,", %s", buffer);
+			snprintf(valuelist+valuelen,sizeof(valuelist)-valuelen-1,", %s", buffer);
+			valuelen = strlen(valuelist);
 		}
 		if ( oldvalues )
 		{
