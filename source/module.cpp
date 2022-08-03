@@ -2946,7 +2946,7 @@ void module_load_templates(MODULE *mod)
 		return;
 	}
 	char loadpath[1024];
-	sprintf(loadpath,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
+	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
 	DIR *dp;
 	struct dirent *entry;
 	struct stat statbuf;
@@ -2956,7 +2956,7 @@ void module_load_templates(MODULE *mod)
 		while ( (entry=readdir(dp)) )
 		{
 			char file[1024];
-			sprintf(file,"%s/%s",loadpath,entry->d_name);
+			snprintf(file,sizeof(file)-1,"%s/%s",loadpath,entry->d_name);
 			output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
 			if ( lstat(file,&statbuf) != 0 )
 			{

@@ -260,7 +260,7 @@ void GldMain::set_global_command_line(int argc, const char *argv[])
 	for (i=0; i<argc; i++)
 	{
 		if (pos < (int)(sizeof(global_command_line)-strlen(argv[i])))
-			pos += sprintf(global_command_line+pos,"%s%s",pos>0?" ":"",argv[i]);
+			pos += snprintf(global_command_line+pos,sizeof(global_command_line)-pos-1,"%s%s",pos>0?" ":"",argv[i]);
 	}
 	return;
 }

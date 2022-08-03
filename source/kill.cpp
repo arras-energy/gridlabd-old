@@ -32,7 +32,7 @@ void msghandler(void *param)
 	HANDLE hEvent;
 	unsigned int sig = (unsigned int)(int64)param;
 	pid_t pid = (pid_t)_getpid();
-	sprintf(name,"gridlabd.%u.%u",pid,sig);
+	snprintf(name,sizeof(name)-1,"gridlabd.%u.%u",pid,sig);
 	hEvent = CreateEventA(NULL,TRUE,FALSE,name);
 	output_verbose("creating gridlabd signal handler %u for process %u",sig,pid);
 	while (WaitForSingleObject(hEvent,INFINITE)==WAIT_OBJECT_0)
@@ -63,7 +63,7 @@ int kill(pid_t pid,	/**< the window process id */
 {
 	char name[32];
 	HANDLE hEvent;
-	sprintf(name,"gridlabd.%u.%u",pid,sig==0?SIGINT:sig); /* use INT for sig==0 just to check */
+	snprintf(name,sizeof(name)-1,"gridlabd.%u.%u",pid,sig==0?SIGINT:sig); /* use INT for sig==0 just to check */
 	hEvent = OpenEventA(EVENT_MODIFY_STATE,FALSE,name);
 	
 	/* existence check only */

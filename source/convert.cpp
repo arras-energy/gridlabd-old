@@ -42,7 +42,7 @@ int convert_from_void(char *buffer, /**< a pointer to the string buffer */
 	{
 		return 0;
 	}
-	return sprintf(buffer,"%s","(void)");
+	return snprintf(buffer,size-1,"%s","(void)");
 }
 
 /** Convert to a \e void
@@ -89,10 +89,10 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 	} 
 
 	char temp[1025];
-	int count = sprintf(temp, global_double_format, *(double *)data);
+	int count = snprintf(temp, sizeof(temp)-1, global_double_format, *(double *)data);
 	if ( prop->unit )
 	{
-		count += sprintf(temp+count," %s",prop->unit->name);
+		count += snprintf(temp+count,sizeof(temp)-count-1," %s",prop->unit->name);
 	}
 
 	if ( size == 0 )
@@ -277,23 +277,23 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		double m = v->Mag()*scale;
 		double a = v->Arg();
 		if (a>PI) a-=(2*PI);
-		count = sprintf(temp,global_complex_format,m,a*180/PI,A);
+		count = snprintf(temp,sizeof(temp)-1,global_complex_format,m,a*180/PI,A);
 	} 
 	else if ( v->Notation() == R )
 	{
 		double m = v->Mag()*scale;
 		double a = v->Arg();
 		if (a>PI) a-=(2*PI);
-		count = sprintf(temp,global_complex_format,m,a,R);
+		count = snprintf(temp,sizeof(temp)-1,global_complex_format,m,a,R);
 	} 
 	else 
 	{
-		count = sprintf(temp,global_complex_format,v->Re()*scale,v->Im()*scale,v->Notation()?v->Notation():'i');
+		count = snprintf(temp,sizeof(temp)-1,global_complex_format,v->Re()*scale,v->Im()*scale,v->Notation()?v->Notation():'i');
 	}
 
 	if ( prop->unit )
 	{
-		count += sprintf(temp+count," %s",prop->unit->name);
+		count += snprintf(temp,sizeof(temp)-1+count," %s",prop->unit->name);
 	}
 
 	if ( size == 0 )
@@ -428,7 +428,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%llu",(unsigned long long)value);
+		 count = snprintf(temp,sizeof(temp)-1,"%llu",(unsigned long long)value);
 	}
 	if ( count < size - 1 )
 	{
@@ -649,7 +649,7 @@ int convert_from_int16(char *buffer, /**< pointer to the string buffer */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
-	int count = sprintf(temp,"%hd",*(short*)data);
+	int count = snprintf(temp,sizeof(temp)-1,"%hd",*(short*)data);
 	if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
@@ -683,7 +683,7 @@ int convert_from_int32(char *buffer, /**< pointer to the string buffer */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
-	int count = sprintf(temp,"%d",*(int*)data);
+	int count = snprintf(temp,sizeof(temp)-1,"%d",*(int*)data);
 	if ( count < size - 1 ) 
 	{
 		memcpy(buffer, temp, count);
@@ -717,7 +717,7 @@ int convert_from_int64(char *buffer, /**< pointer to the string buffer */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
-	int count = sprintf(temp,"%lld",*(int64*)data);
+	int count = snprintf(temp,sizeof(temp)-1,"%lld",*(int64*)data);
 	if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
@@ -758,7 +758,7 @@ int convert_from_char8(char *buffer, /**< pointer to the string buffer */
 		// TODO: get rid of this when GLM is made strictly quoted properties
 		format = "\"%s\"";
 	}
-	count = sprintf(temp,format,(char*)data);
+	count = snprintf(temp,sizeof(temp)-1,format,(char*)data);
 	if ( count > size - 1 )
 	{
 		return 0;
@@ -807,7 +807,7 @@ int convert_from_char32(char *buffer, /**< pointer to the string buffer */
 		// TODO: get rid of this when GLM is made strictly quoted properties
 		format = "\"%s\""; 
 	}
-	count = sprintf(temp,format,(char*)data);
+	count = snprintf(temp,sizeof(temp)-1,format,(char*)data);
 	if ( count > size - 1 )
 	{
 		return 0;
@@ -856,7 +856,7 @@ int convert_from_char256(char *buffer, /**< pointer to the string buffer */
 		// TODO: get rid of this when GLM is made strictly quoted properties
 		format = "\"%s\"";
 	}
-	count = sprintf(temp,format,(char*)data);
+	count = snprintf(temp,sizeof(temp)-1,format,(char*)data);
 	if ( count > size - 1 )
 	{
 		return 0;
@@ -902,7 +902,7 @@ int convert_from_char1024(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	if (strchr((char*)data,' ')!=NULL || strchr((char*)data,';')!=NULL || ((char*)data)[0]=='\0')
 		format = "\"%s\"";
-	count = sprintf(temp,format,(char*)data);
+	count = snprintf(temp,sizeof(temp)-1,format,(char*)data);
 	if(count > size - 1){
 		return 0;
 	} else {
@@ -969,7 +969,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
 	}
 
 	/* construct the object's name */
-	size_t a = sprintf(temp,global_object_format,obj->oclass->name,obj->id);
+	size_t a = snprintf(temp,sizeof(temp)-1,global_object_format,obj->oclass->name,obj->id);
 	if ( a+1 < (size_t)size )
 	{
 		strcat(buffer,temp);
@@ -1079,11 +1079,11 @@ int convert_from_boolean(char *buffer, int size, void *data, PROPERTY *prop)
 	b = *(bool *)data;
 	if ( b == 1 && (size > 4) )
 	{
-		return sprintf(buffer, "TRUE");
+		return snprintf(buffer,size-1, "TRUE");
 	}
 	else if ( b == 0 && (size > 5) )
 	{
-		return sprintf(buffer, "FALSE");
+		return snprintf(buffer,size-1, "FALSE");
 	}
 	else
 	{
@@ -1157,7 +1157,7 @@ int convert_from_double_array(char *buffer, int size, void *data, PROPERTY *prop
 		{
 			if ( a->is_nan(n,m) )
 			{
-				p += sprintf(buffer+p,"%s","NAN");
+				p += snprintf(buffer+p,size-p-1,"%s","NAN");
 			}
 			else
 			{
@@ -1334,7 +1334,7 @@ int convert_from_complex_array(char *buffer, int size, void *data, PROPERTY *pro
 		{
 			if ( a->is_nan(n,m) )
 			{
-				p += sprintf(buffer+p,"%s","NAN");
+				p += snprintf(buffer+p,size-p-1,"%s","NAN");
 			}
 			else
 			{
@@ -1487,7 +1487,7 @@ int convert_unit_double(const char *buffer,const char *unit, double *data)
  **/
 int convert_from_struct(char *buffer, size_t len, void *data, PROPERTY *prop)
 {
-	int pos = sprintf(buffer,"%s","{ ");
+	int pos = snprintf(buffer,len-1,"%s","{ ");
 	while ( prop != NULL )
 	{
 		void *addr = (char*)data + (size_t)prop->addr;
@@ -1495,7 +1495,7 @@ int convert_from_struct(char *buffer, size_t len, void *data, PROPERTY *prop)
 		size_t n = property_write(prop, addr, temp, sizeof(temp));
 		if ( pos+n >= len-2 )
 			return -pos;
-		pos += sprintf(buffer+pos,"%s %s; ",prop->name,temp);
+		pos += snprintf(buffer+pos,len-pos-1,"%s %s; ",prop->name,temp);
 		prop = prop->next;
 	}
 	strcpy(buffer+pos,"}");

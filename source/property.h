@@ -246,8 +246,8 @@ private:
 		static char buf[1024]; 
 		va_list ptr;
 		va_start(ptr,msg);
-		sprintf(buf,"%s", name?name:""); 
-		vsprintf(buf+strlen(buf), msg, ptr); 
+		size_t len = snprintf(buf,sizeof(buf)-1,"%s", name?name:""); 
+		vsnprintf(buf+len,sizeof(buf)-len-1, msg, ptr); 
 		throw (const char*)buf;
 		va_end(ptr);
 	};

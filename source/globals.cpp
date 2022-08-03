@@ -430,7 +430,7 @@ STATUS GldGlobals::init(void)
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
 	strcat(global_datadir,"/share/gridlabd");
-	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
+	snprintf(global_version,sizeof(global_version)-1,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
 		struct s_varmap *p = &(map[i]);
@@ -830,7 +830,7 @@ DEPRECATED const char *global_guid(char *buffer, int size)
 			srand(entropy_source());
 			guid_first = 0;
 		}
-		sprintf(buffer,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
+		snprintf(buffer,size-1,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
 			rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0x0fff,rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0xffff);
 		return buffer;
 	}
@@ -887,7 +887,7 @@ DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_uniform(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_uniform(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -901,7 +901,7 @@ DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_normal(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_normal(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -1008,8 +1008,8 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	for ( double value = start ; value <= stop ; value += step )
 	{
 		if ( len > 0 )
-			len += sprintf(temp+len,"%c",delim);
-		len += sprintf(temp+len,"%g",value);
+			len += snprintf(temp+len,size-len-1,"%c",delim);
+		len += snprintf(temp+len,size-len-1,"%g",value);
 		if ( len > size )
 		{
 			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
@@ -1149,7 +1149,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",++(*addr));
+		snprintf(buffer,size-1,"%d",++(*addr));
 		return 1;
 	}
 
@@ -1161,7 +1161,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",--(*addr));
+		snprintf(buffer,size-1,"%d",--(*addr));
 		return 1;
 	}
 
@@ -1173,7 +1173,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",(*addr));
+		snprintf(buffer,size-1,"%d",(*addr));
 		if ( strcmp(op,"++")==0 ) { (*addr)++; return 1; }
 		else if ( strcmp(op,"--")==0 ) { (*addr)--; return 1; }
 	}
@@ -1245,18 +1245,18 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
 		{
 			int32 *addr = (int32*)var->prop->addr;
-			sprintf(buffer,"%d",(*addr));
-			if ( strcmp(op,"+=")==0 ) { sprintf(buffer,"%d",(*addr)+=number); return 1; }
-			if ( strcmp(op,"-=")==0 ) { sprintf(buffer,"%d",(*addr)-=number); return 1; }
-			if ( strcmp(op,"*=")==0 ) { sprintf(buffer,"%d",(*addr)*=number); return 1; }
-			if ( strcmp(op,"/=")==0 ) { sprintf(buffer,"%d",(*addr)/=number); return 1; }
-			if ( strcmp(op,"%=")==0 ) { sprintf(buffer,"%d",(*addr)%=number); return 1; }
-			if ( strcmp(op,"&=")==0 ) { sprintf(buffer,"%d",(*addr)&=number); return 1; }
-			if ( strcmp(op,"|=")==0 ) { sprintf(buffer,"%d",(*addr)|=number); return 1; }
-			if ( strcmp(op,"^=")==0 ) { sprintf(buffer,"%d",(*addr)^=number); return 1; }
-			if ( strcmp(op,"&=~")==0 ) { sprintf(buffer,"%d",(*addr)&=~number); return 1; }
-			if ( strcmp(op,"|=~")==0 ) { sprintf(buffer,"%d",(*addr)|=~number); return 1; }
-			if ( strcmp(op,"^=~")==0 ) { sprintf(buffer,"%d",(*addr)^=~number); return 1; }
+			snprintf(buffer,size-1,"%d",(*addr));
+			if ( strcmp(op,"+=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+=number); return 1; }
+			else if ( strcmp(op,"-=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-=number); return 1; }
+			else if ( strcmp(op,"*=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*=number); return 1; }
+			else if ( strcmp(op,"/=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/=number); return 1; }
+			else if ( strcmp(op,"%=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%=number); return 1; }
+			else if ( strcmp(op,"&=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=number); return 1; }
+			else if ( strcmp(op,"|=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=number); return 1; }
+			else if ( strcmp(op,"^=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=number); return 1; }
+			else if ( strcmp(op,"&=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=~number); return 1; }
+			else if ( strcmp(op,"|=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=~number); return 1; }
+			else if ( strcmp(op,"^=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=~number); return 1; }
 		}
 	}
 
@@ -1273,7 +1273,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		else
 			addr = (int32*)var->prop->addr;
 		*addr = number;
-		sprintf(buffer,"%d",number);
+		snprintf(buffer,size-1,"%d",number);
 		return 1;
 	}
 

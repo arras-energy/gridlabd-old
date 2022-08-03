@@ -56,18 +56,18 @@ void output_prefix_enable(void)
 	cpuid = sched_get_cpuid(0);
 	IN_MYCONTEXT output_debug("reading procid()");
 	procid = sched_get_procid();
-	IN_MYCONTEXT output_debug("sprintf'ing m/s name");
+	IN_MYCONTEXT output_debug("writing m/s name");
 	switch ( global_multirun_mode ) {
 	case MRM_STANDALONE:
-		sprintf(prefix,"-%02d(%05d): ", cpuid, procid);
+		snprintf(prefix,sizeof(prefix)-1,"-%02d(%05d): ", cpuid, procid);
 		break;
 	case MRM_MASTER:
 		flush = 1;
-		sprintf(prefix,"M%02d(%05d): ", cpuid, procid);
+		snprintf(prefix,sizeof(prefix)-1,"M%02d(%05d): ", cpuid, procid);
 		break;
 	case MRM_SLAVE:
 		flush = 1;
-		sprintf(prefix,"S%02d(%05d): ", cpuid, procid);
+		snprintf(prefix,sizeof(prefix)-1,"S%02d(%05d): ", cpuid, procid);
 		break;
 	default:
 		break;
@@ -357,15 +357,15 @@ int output_fatal(const char *format,...) /**< \bprintf style argument list */
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			len = sprintf(buffer,"last fatal error message was repeated %d times", count);
+			len = snprintf(buffer,sizeof(buffer)-1,"last fatal error message was repeated %d times", count);
 			count = 0;
 			if(format == NULL) goto Output;
-			else len += sprintf(buffer+len,"\n%sFATAL    [%s] : ",prefix, time_context);
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sFATAL    [%s] : ",prefix, time_context);
 		}
 		else if (format==NULL)
 			goto Unlock;
 		va_start(ptr,format);
-		vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+		vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 		va_end(ptr);
 	}
 Output:
@@ -404,15 +404,15 @@ int output_error(const char *format,...) /**< \bprintf style argument list */
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			len = sprintf(buffer,"last error message was repeated %d times", count);
+			len = snprintf(buffer,sizeof(buffer)-1,"last error message was repeated %d times", count);
 			count = 0;
 			if(format == NULL) goto Output;
-			else len += sprintf(buffer+len,"\n%sERROR    [%s] : ", prefix, time_context);
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sERROR    [%s] : ", prefix, time_context);
 		}
 		else if (format==NULL)
 			goto Unlock;
 		va_start(ptr,format);
-		vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+		vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 		va_end(ptr);
 	}
 Output:
@@ -455,15 +455,15 @@ int output_error_raw(const char *format,...) /**< \bprintf style argument list *
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			len = sprintf(buffer,"last error message was repeated %d times", count);
+			len = snprintf(buffer,sizeof(buffer)-len-1,"last error message was repeated %d times", count);
 			count = 0;
 			if(format == NULL) goto Output;
-			else len += sprintf(buffer+len,"\n");
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n");
 		}
 		else if (format==NULL)
 			goto Unlock;
 		va_start(ptr,format);
-		vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+		vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 		va_end(ptr);
 	}
 Output:
@@ -503,7 +503,7 @@ int output_test(const char *format,...) /**< \bprintf style argument list */
 	}
 
 	va_start(ptr,format);
-	vsprintf(buffer,format,ptr); /* note the lack of check on buffer overrun */
+	vsnprintf(buffer,sizeof(buffer)-1,format,ptr); /* note the lack of check on buffer overrun */
 	va_end(ptr);
 
 	if (fp==NULL)
@@ -556,15 +556,15 @@ int output_warning(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				len = sprintf(buffer,"last warning message was repeated %d times", count);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"last warning message was repeated %d times", count);
 				count = 0;
 				if(format == NULL) goto Output;
-				else len += sprintf(buffer+len,"\n%sWARNING  [%s] : ", prefix, time_context);
+				else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sWARNING  [%s] : ", prefix, time_context);
 			}
 			else if (format==NULL)
 				goto Unlock;
 			va_start(ptr,format);
-			vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+			vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 			va_end(ptr);
 		}
 Output:
@@ -614,15 +614,15 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				len = sprintf(buffer,"last debug message was repeated %d times", count);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"last debug message was repeated %d times", count);
 				count = 0;
 				if(format == 0) goto Output;
-				else len += sprintf(buffer+len,"\n%sDEBUG [%s] : ", prefix, timestamp);
+				else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sDEBUG [%s] : ", prefix, timestamp);
 			}
 			else if (format==NULL)
 				goto Unlock;
 			va_start(ptr,format);
-			vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+			vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 			va_end(ptr);
 		}
 Output:
@@ -665,14 +665,14 @@ int output_verbose(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				len = sprintf(buffer,"%slast verbose message was repeated %d times\n   ... ", prefix, count);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"%slast verbose message was repeated %d times\n   ... ", prefix, count);
 				count = 0;
 				if(format == 0) goto Output;
 			}
 			else if (format==NULL)
 				goto Unlock;
 			va_start(ptr,format);
-			vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+			vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 			va_end(ptr);
 		}
 Output:
@@ -712,14 +712,14 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				len = sprintf(buffer,"%slast message was repeated %d times\n", prefix, count);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"%slast message was repeated %d times\n", prefix, count);
 				count = 0;
 				if(format == NULL) goto Output;
 			}
 			if (format==NULL)
 				goto Unlock;
 			va_start(ptr,format);
-			vsprintf(buffer+len,format,ptr); /* note the lack of check on buffer overrun */
+			vsnprintf(buffer+len,sizeof(buffer)-len-1,format,ptr); /* note the lack of check on buffer overrun */
 			va_end(ptr);
 		}
 Output:
@@ -750,7 +750,7 @@ int output_profile(const char *format, ...) /**< /bprintf style argument list */
 	va_list ptr;
 
 	va_start(ptr,format);
-	vsprintf(tmp,format,ptr);
+	vsnprintf(tmp,sizeof(tmp)-1,format,ptr);
 	va_end(ptr);
 
 	if (redirect.profile!=NULL)
@@ -822,7 +822,7 @@ int output_raw(const char *format,...) /**< \bprintf style argument list */
 		wlock(&output_lock);
 
 		va_start(ptr,format);
-		vsprintf(buffer,format,ptr); /* note the lack of check on buffer overrun */
+		vsnprintf(buffer,sizeof(buffer)-1,format,ptr); /* note the lack of check on buffer overrun */
 		va_end(ptr);
 
 			if (redirect.output)
@@ -846,7 +846,7 @@ int output_raw_error(const char *format,...) /**< \bprintf style argument list *
 		wlock(&output_lock);
 
 		va_start(ptr,format);
-		vsprintf(buffer,format,ptr); /* note the lack of check on buffer overrun */
+		vsnprintf(buffer,sizeof(buffer)-1,format,ptr); /* note the lack of check on buffer overrun */
 		va_end(ptr);
 
 			if (redirect.error)
@@ -872,26 +872,7 @@ int output_xsd(const char *spec)
 	CLASS *oclass = NULL;
 	char modulename[1024], classname[1024]="";
 	char buffer[65536];
-	/*if(sscanf(spec, "%[A-Za-z_0-9]::%[A-Za-z_0-9]:%s",modulename, submodulename, classname) == 3)
-	{
-		sprintf(jointname, "%s::%s", modulename, submodulename);
-		mod = module_load(jointname, 0, NULL);
-		if(mod == NULL){
-			output_error("unable to load parent module %s", modulename);
-			return 0;
-		}
-
-	}
-	else if(sscanf(spec, "%[A-Za-z_0-9]::%[A-Za-z_0-9]",modulename, submodulename) == 2)
-	{
-		sprintf(jointname, "%s::%s", modulename, submodulename);
-		mod = module_load(jointname, 0, NULL);
-		if(mod == NULL){
-			output_error("unable to load parent module %s", modulename);
-			return 0;
-		}
-	}
-	else */if (sscanf(spec,"%[A-Za-z_0-9]:%s",modulename,classname)<1)
+	if (sscanf(spec,"%[A-Za-z_0-9]:%s",modulename,classname)<1)
 	{
 		output_error("improperly formatted XSD dump specification");
 		return 0;
