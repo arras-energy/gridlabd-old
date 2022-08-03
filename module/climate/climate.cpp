@@ -1927,7 +1927,7 @@ void climate::write_out_cloud_pattern( char pattern )
 	ofstream out_file;
 
 	char buffer [100];
-	sprintf (buffer, "cloud_pattern_%010lld.csv", prev_NTime);
+	snprintf (buffer,sizeof(buffer)-1, "cloud_pattern_%010lld.csv", prev_NTime);
 	std::string file_string = buffer;
 	out_file.open(file_string.c_str(), ios::out);
 
