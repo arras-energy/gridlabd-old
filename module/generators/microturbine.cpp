@@ -289,14 +289,14 @@ complex *microturbine::get_complex(OBJECT *obj, const char *name)
 	{	
 		error("property %s is not found in meter %s", name, obj->name);
 		static char buffer[1024];
-		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
+		snprintf(buffer,sizeof(buffer)-1,"get_complex(obj='%s', name='%s') failed",obj->name,name);
 		throw(buffer);
 	}
 	if ( p->ptype!=PT_complex)
 	{
 		error("property %s is in meter %s is not complex", name, obj->name);
 		static char buffer[1024];
-		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
+		snprintf(buffer,sizeof(buffer)-1,"get_complex(obj='%s', name='%s') failed",obj->name,name);
 		throw(buffer);
 	}
 	return (complex*)GETADDR(obj,p);
