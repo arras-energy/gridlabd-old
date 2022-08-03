@@ -557,12 +557,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 		int tzm = ((t->tzoffset<0?-t->tzoffset:t->tzoffset)-tzh*3600)/60 % 60;
 		if ( t->nanosecond != 0 ) 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d.%06d%c%02d:%02d",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d.%06d%c%02d:%02d",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->nanosecond/1000, tzs, tzh, tzm);
 		} 
 		else 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, tzs, tzh, tzm);
 		}
 	} 
@@ -570,12 +570,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d.%09d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d.%09d %s",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->nanosecond, t->tz);
 		} 
 		else 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d %s",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->tz);
 		}
 	} 
@@ -583,12 +583,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
 				t->month, t->day, t->year, t->hour, t->minute, t->second, t->nanosecond, t->tz);
 		} 
 		else 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d %s",
 				t->month, t->day, t->year, t->hour, t->minute, t->second, t->tz);
 		}
 	} 
@@ -596,12 +596,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
 				t->day, t->month, t->year, t->hour, t->minute, t->second, t->nanosecond,t->tz);
 		} 
 		else 
 		{
-			snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d %s",
+			len = snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d %s",
 				t->day, t->month, t->year, t->hour, t->minute, t->second,t->tz);
 		}
 	} 

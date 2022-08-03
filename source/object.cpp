@@ -2268,43 +2268,28 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		size = sizeof(buffer);
 	}
 	
-	snprintf(buffer+count,size-count-1, "object %s:%d {\n", obj->oclass->name, obj->id);
-	count = strlen(buffer);
+	count += snprintf(buffer+count,size-count-1, "object %s:%d {\n", obj->oclass->name, obj->id);
 
 	/* dump internal properties */
-	if ( obj->parent != NULL )
-	{
-		snprintf(buffer+count,size-count-1, "\tparent = %s:%d (%s)\n", obj->parent->oclass->name, obj->parent->id, obj->parent->name != NULL ? obj->parent->name : "");
-		count = strlen(buffer);
-	} 
-	else 
-	{
-		snprintf(buffer+count,size-count-1, "\troot object\n");
-		count = strlen(buffer);
+	if(obj->parent != NULL){
+		count += snprintf(buffer+count,size-count-1, "\tparent = %s:%d (%s)\n", obj->parent->oclass->name, obj->parent->id, obj->parent->name != NULL ? obj->parent->name : "");
+	} else {
+		count += snprintf(buffer+count,size-count-1, "\troot object\n");
 	}
-	if ( obj->name != NULL )
-	{
-		snprintf(buffer+count,size-count-1, "\tname %s\n", obj->name);
-		count = strlen(buffer);
+	if(obj->name != NULL){
+		count += snprintf(buffer+count,size-count-1, "\tname %s\n", obj->name);
 	}
 
-	snprintf(buffer+count,size-count-1, "\trank = %d;\n", obj->rank);
-	count = strlen(buffer);
-	snprintf(buffer+count,size-count-1, "\tclock = %s (%" FMT_INT64 "d);\n", convert_from_timestamp(obj->clock, tmp, sizeof(tmp)) > 0 ? tmp : "(invalid)", obj->clock);
-	count = strlen(buffer);
+	count += snprintf(buffer+count,size-count-1, "\trank = %d;\n", obj->rank);
+	count += snprintf(buffer+count,size-count-1, "\tclock = %s (%" FMT_INT64 "d);\n", convert_from_timestamp(obj->clock, tmp, sizeof(tmp)) > 0 ? tmp : "(invalid)", obj->clock);
 
-	if ( ! isnan(obj->latitude) )
-	{
-		snprintf(buffer+count,size-count-1, "\tlatitude = %s;\n", convert_from_latitude(obj->latitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
-		count = strlen(buffer);
+	if(!isnan(obj->latitude)){
+		count += snprintf(buffer+count,size-count-1, "\tlatitude = %s;\n", convert_from_latitude(obj->latitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
 	}
-	if ( ! isnan(obj->longitude) )
-	{
-		snprintf(buffer+count,size-count-1, "\tlongitude = %s;\n", convert_from_longitude(obj->longitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
-		count = strlen(buffer);
+	if(!isnan(obj->longitude)){
+		count += snprintf(buffer+count,size-count-1, "\tlongitude = %s;\n", convert_from_longitude(obj->longitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
 	}
-	snprintf(buffer+count,size-count-1, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
-	count = strlen(buffer);
+	count += snprintf(buffer+count,size-count-1, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
 
 	/* dump properties */
 	for (prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next)
@@ -2312,10 +2297,8 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 		if ( value != NULL )
 		{
-			snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
-			count = strlen(buffer);
-			if ( count > size ) 
-			{
+			count += snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+			if(count > size){
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 				/* TROUBLESHOOT
 					The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
@@ -2332,12 +2315,9 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		for ( prop = pclass->pmap ; prop != NULL && prop->oclass == pclass ; prop = prop->next )
 		{
 			const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
-			if ( value != NULL )
-			{
-				snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
-				count = strlen(buffer);
-				if ( count > size )
-				{
+			if(value != NULL){
+				count += snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+				if(count > size){
 					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 					/* TROUBLESHOOT
 						The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
@@ -2348,10 +2328,8 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		}
 	}
 
-	snprintf(buffer+count,size-count-1,"}\n");
-	count = strlen(buffer);
-	if ( count < size && count < sizeof(buffer) )
-	{
+	count += snprintf(buffer+count,size-count-1,"}\n");
+	if(count < size && count < sizeof(buffer)){
 		strncpy(outbuffer, buffer, count+1);
 		return count;
 	} 
@@ -2369,9 +2347,7 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
 {
 	PROPERTY *prop;
-	snprintf(temp,size-1, "\t// %s properties\n", oclass->name);
-	size_t count = strlen(temp);
-
+	int count = snprintf(temp,size-1, "\t// %s properties\n", oclass->name);
 	for ( prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next )
 	{
 		char buffer[1024];
@@ -2394,41 +2370,34 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 	char temp[65536];
 	char oname[MAXOBJECTNAMELEN] = "";
 	CLASS *pclass;
-	snprintf(temp,size-1,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
-	size_t count = strlen(temp);
+	size_t count = snprintf(temp,size-1,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
 
 	IN_MYCONTEXT output_debug("saving object %s:%d", obj->oclass->name, obj->id);
 
 	/* dump header properties */
 	if(obj->parent != NULL){
 		convert_from_object(oname, sizeof(oname), &obj->parent, NULL);
-		snprintf(temp+count,size-count-1, "\tparent %s;\n", oname);
-		count = strlen(temp);
+		count += snprintf(temp+count,size-count-1, "\tparent %s;\n", oname);
 	}
 
 	count += sprintf(temp+count, "\trank %d;\n", obj->rank);
 	if(obj->name != NULL){
-		snprintf(temp+count,size-count-1, "\tname %s;\n", obj->name);
-		count = strlen(temp);
+		count += snprintf(temp+count,size-count-1, "\tname %s;\n", obj->name);
 	}
 	count += sprintf(temp+count,"\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
 	if( !isnan(obj->latitude) ){
-		snprintf(temp+count,size-count-1, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
-		count = strlen(temp);
+		count += snprintf(temp+count,size-count-1, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 	}
 	if( !isnan(obj->longitude) ){
-		snprintf(temp+count,size-count-1, "\tlongitude %s;\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
-		count = strlen(temp);
+		count += snprintf(temp+count,size-count-1, "\tlongitude %s;\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 	}
-	snprintf(temp+count,size-count-1, "\tflags %s;\n", convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) ? buffer : "(invalid)");
-	count = strlen(temp);
+	count += snprintf(temp+count,size-count-1, "\tflags %s;\n", convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) ? buffer : "(invalid)");
 
 	/* dump class-defined properties */
 	for ( pclass=obj->oclass->parent ; pclass!=NULL ; pclass=pclass->parent )
 		count += object_save_x(temp+count,size-count,obj,pclass);
 	count += object_save_x(temp+count,size-count,obj,obj->oclass);
-	snprintf(temp+count,size-count-1,"}\n");
-	count = strlen(temp);
+	count += snprintf(temp+count,size-count-1,"}\n");
 	if ( count>=sizeof(temp) )
 		output_warning("object_save(char *buffer=%p, int size=%d, OBJECT *obj={%s:%d}: buffer overflow", buffer, size, obj->oclass->name, obj->id);
 	if ( count<size )

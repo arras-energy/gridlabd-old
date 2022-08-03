@@ -48,7 +48,7 @@ const char * escape(const char *buffer, size_t len = 1024)
 	}
 	char *p = result;
 	const char *c;
-	for ( c = buffer ; *c != '\0' && c < buffer+len ; c++)
+	for ( c = buffer ; *c != '\0' && c < buffer+len-8 ; c++)
 	{
 		switch ( *c )
 		{
@@ -93,7 +93,7 @@ const char * escape(const char *buffer, size_t len = 1024)
 			}
 			else
 			{
-				p += sprintf(p,"\\u%04hX", (unsigned short)*c);
+				p += snprintf(p,7,"\\u%04hX", (unsigned short)*c);
 			}
 			break;
 		}

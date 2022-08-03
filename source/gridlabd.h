@@ -2951,19 +2951,19 @@ public:
 public: 
 
 	// Method: exception
-	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); throw (const char*)buf;};
+	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); size_t len = snprintf(buf,sizeof(buf)-1,"%s: ",get_name());vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); throw (const char*)buf;};
 
 	// Method: error
-	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_error("%s",buf);}}
+	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); size_t len = snprintf(buf,sizeof(buf)-1,"%s: ",get_name());vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_error("%s",buf);}}
 
 	// Method: warning
-	inline void warning(const char *msg, ...) { if ( !(my()->flags&OF_WARNING) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
+	inline void warning(const char *msg, ...) { if ( !(my()->flags&OF_WARNING) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); size_t len = snprintf(buf,sizeof(buf)-1,"%s: ",get_name());vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
 
 	// Method: verbose
-	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
+	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); size_t len = snprintf(buf,sizeof(buf)-1,"%s: ",get_name());vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
 
 	// Method: debug
-	inline void debug(const char *msg, ...) { if ( my()->flags&OF_DEBUG ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_debug("%s",buf);}}
+	inline void debug(const char *msg, ...) { if ( my()->flags&OF_DEBUG ) { char buf[1024]; va_list ptr; va_start(ptr,msg); size_t len = snprintf(buf,sizeof(buf)-1,"%s: ",get_name());vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_debug("%s",buf);}}
 
 	// Method: set_defaults
 //	virtual void set_defaults(bool is_template = false); /* this force proper V4 initialization of objects (legacy defaults copy is no longer permitted) */
@@ -3389,8 +3389,7 @@ private: // exceptions
 		static char buf[1024]; 
 		va_list ptr; 
 		va_start(ptr,msg); 
-		snprintf(buf,sizeof(buf)-1,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name);
-		size_t len = strlen(buf);
+		size_t len = snprintf(buf,sizeof(buf)-1,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name);
 		vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); 
 		va_end(ptr); 
 		throw (const char*)buf;

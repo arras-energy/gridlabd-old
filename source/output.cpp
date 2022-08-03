@@ -357,15 +357,10 @@ int output_fatal(const char *format,...) /**< \bprintf style argument list */
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			snprintf(buffer,sizeof(buffer)-1,"last fatal error message was repeated %d times", count);
-			len = strlen(buffer);
+			len = snprintf(buffer,sizeof(buffer)-1,"last fatal error message was repeated %d times", count);
 			count = 0;
-			if ( format == NULL ) 
-			{
-				goto Output;
-			}
-			snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sFATAL    [%s] : ",prefix, time_context);
-			len = strlen(buffer);
+			if(format == NULL) goto Output;
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sFATAL    [%s] : ",prefix, time_context);
 		}
 		else if (format==NULL)
 			goto Unlock;
@@ -409,15 +404,10 @@ int output_error(const char *format,...) /**< \bprintf style argument list */
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			snprintf(buffer,sizeof(buffer)-1,"last error message was repeated %d times", count);
-			len = strlen(buffer);
+			len = snprintf(buffer,sizeof(buffer)-1,"last error message was repeated %d times", count);
 			count = 0;
-			if ( format == NULL )
-			{
-				goto Output;
-			}
-			snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sERROR    [%s] : ", prefix, time_context);
-			len = strlen(buffer);
+			if(format == NULL) goto Output;
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sERROR    [%s] : ", prefix, time_context);
 		}
 		else if (format==NULL)
 			goto Unlock;
@@ -465,15 +455,10 @@ int output_error_raw(const char *format,...) /**< \bprintf style argument list *
 		strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 		if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 		{
-			snprintf(buffer,sizeof(buffer)-len-1,"last error message was repeated %d times", count);
-			len = strlen(buffer);
+			len = snprintf(buffer,sizeof(buffer)-len-1,"last error message was repeated %d times", count);
 			count = 0;
-			if ( format == NULL )
-			{
-				goto Output;
-			}
-			snprintf(buffer+len,sizeof(buffer)-len-1,"\n");
-			len = strlen(buffer);
+			if(format == NULL) goto Output;
+			else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n");
 		}
 		else if (format==NULL)
 			goto Unlock;
@@ -571,15 +556,10 @@ int output_warning(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				snprintf(buffer,sizeof(buffer)-len-1,"last warning message was repeated %d times", count);
-				len = strlen(buffer);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"last warning message was repeated %d times", count);
 				count = 0;
-				if ( format == NULL ) 
-				{
-					goto Output;
-				}
-				snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sWARNING  [%s] : ", prefix, time_context);
-				len = strlen(buffer);
+				if(format == NULL) goto Output;
+				else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sWARNING  [%s] : ", prefix, time_context);
 			}
 			else if (format==NULL)
 				goto Unlock;
@@ -634,15 +614,10 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				snprintf(buffer,sizeof(buffer)-len-1,"last debug message was repeated %d times", count);
-				len = strlen(buffer);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"last debug message was repeated %d times", count);
 				count = 0;
-				if ( format == 0 ) 
-				{
-					goto Output;
-				}
-				snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sDEBUG [%s] : ", prefix, timestamp);
-				len = strlen(buffer);
+				if(format == 0) goto Output;
+				else len += snprintf(buffer+len,sizeof(buffer)-len-1,"\n%sDEBUG [%s] : ", prefix, timestamp);
 			}
 			else if (format==NULL)
 				goto Unlock;
@@ -690,8 +665,7 @@ int output_verbose(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				snprintf(buffer,sizeof(buffer)-len-1,"%slast verbose message was repeated %d times\n   ... ", prefix, count);
-				len = strlen(buffer);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"%slast verbose message was repeated %d times\n   ... ", prefix, count);
 				count = 0;
 				if ( format == NULL ) 
 				{
@@ -741,8 +715,7 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 			strncpy(lastfmt,format?format:"",sizeof(lastfmt)-1);
 			if (count>0 && global_suppress_repeat_messages && !global_verbose_mode)
 			{
-				snprintf(buffer,sizeof(buffer)-len-1,"%slast message was repeated %d times\n", prefix, count);
-				len = strlen(buffer);
+				len = snprintf(buffer,sizeof(buffer)-len-1,"%slast message was repeated %d times\n", prefix, count);
 				count = 0;
 				if ( format == NULL ) 
 				{

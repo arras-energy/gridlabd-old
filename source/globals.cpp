@@ -1008,12 +1008,8 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	for ( double value = start ; value <= stop ; value += step )
 	{
 		if ( len > 0 )
-		{
-			snprintf(temp+len,size-len-1,"%c",delim);
-			len = strlen(temp);
-		}
-		snprintf(temp+len,size-len-1,"%g",value);
-		len = strlen(temp);
+			len += snprintf(temp+len,size-len-1,"%c",delim);
+		len += snprintf(temp+len,size-len-1,"%g",value);
 		if ( len > size )
 		{
 			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
