@@ -119,14 +119,14 @@ void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "transformer:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "transformer:%i", hdr->id);
 		if( name == NULL )
 		{
-			sprintf(msg, "%s: transformer unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: transformer unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: transformer unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: transformer unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
