@@ -3389,7 +3389,8 @@ private: // exceptions
 		static char buf[1024]; 
 		va_list ptr; 
 		va_start(ptr,msg); 
-		size_t len = snprintf(buf,sizeof(buf)-1,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name);
+		snprintf(buf,sizeof(buf)-1,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name);
+		size_t len = strlen(buf);
 		vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); 
 		va_end(ptr); 
 		throw (const char*)buf;

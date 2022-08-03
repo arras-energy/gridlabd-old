@@ -533,7 +533,7 @@ int group_recorder::read_line()
 		}
 		// write to line_buffer
 		// * lead with a comma on all entries, assume leading timestamp will NOT print a comma
-		if(0 >= snprintf(line_buffer+index,sizeof(line_buffer)-index-1, ",%s", buffer)){return 0;}
+		snprintf(line_buffer+index,sizeof(line_buffer)-index-1, ",%s", buffer);
 		index += (offset + 1); // add the comma
 	}
 	// assume write_line will add newline character
