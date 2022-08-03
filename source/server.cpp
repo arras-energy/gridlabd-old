@@ -353,10 +353,7 @@ static void http_send(HTTPCNX *http)
 	snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
 	len = strlen(header);
 	if (http->type && http->type[0]!='\0')
-	{
-		snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
-		len = strlen(header);
-	}
+		len += snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
 	
 	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
 	len = strlen(header);

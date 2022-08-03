@@ -82,21 +82,25 @@ int write_term(char *buffer,size_t size, double a,char *x,int n,bool first)
 		if ( n==0 ) // z^0 term
 		{
 			if ( fabs(a-1)<1e-6 )
-				len += snprintf(buffer+len,size-len-1,"%s",first?"1":"+1");
+				snprintf(buffer+len,size-len-1,"%s",first?"1":"+1");
 			else if ( fabs(-a-1)<1e-6 )
-				len += snprintf(buffer+len,size-len-1,"%s","-1");
+				snprintf(buffer+len,size-len-1,"%s","-1");
 			else
-				len += snprintf(buffer+len,size-len-1,first?"%+.4f":"%+.4f",a);
+				snprintf(buffer+len,size-len-1,first?"%+.4f":"%+.4f",a);
+			len = strlen(buffer);
 		}
 		else // z^n term
 		{
 			if ( fabs(a-1)>1e-6 ) // non-unitary coefficient
-				len += snprintf(buffer+len,size-len-1,"%+.4f",a);
+				snprintf(buffer+len,size-len-1,"%+.4f",a);
 			else if ( fabs(-a-1)<1e-6 ) // -1 coefficient
-				len += snprintf(buffer+len,size-len-1,"-");
-			len += snprintf(buffer+len,size-len-1,"%s",x); // domain variable
+				snprintf(buffer+len,size-len-1,"-");
+			len = strlen(buffer);
+			snprintf(buffer+len,size-len-1,"%s",x); // domain variable
+			len = strlen(buffer);
 			if ( n>1 ) // higher-order
-				len += snprintf(buffer+len,size-len-1,"^%d",n);
+				snprintf(buffer+len,size-len-1,"^%d",n);
+			len = strlen(buffer);
 		}
 	}
 	return len;
@@ -110,13 +114,13 @@ static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen, cons
 	{
 		if ( i > 0 )
 		{
-			snprintf(buffer+pos,maxlen-pos,"%s",", ");
+			pos += snprintf(buffer+pos,maxlen-pos,"%s",", ");
 			pos = strlen(buffer);
 		} 
-		snprintf(buffer+pos,maxlen-pos,format, x[i]);
+		pos += snprintf(buffer+pos,maxlen-pos,format, x[i]);
 		pos = strlen(buffer);
 	}
-	snprintf(buffer+pos,maxlen-pos," ]");		
+	pos += snprintf(buffer+pos,maxlen-pos," ]");		
 	pos = strlen(buffer);
 	return pos;
 }
@@ -133,26 +137,26 @@ static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buff
 		}
 		if ( i == 0 )
 		{
-			snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
 			pos = strlen(buffer);
 		}
 		else 
 		{
 			if ( b[0] != 1.0 )
 			{
-				snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
 				pos = strlen(buffer);
 			}
 			else
 			{
-				snprintf(buffer+pos,maxlen-pos,"%s"," +");	
+				pos += snprintf(buffer+pos,maxlen-pos,"%s"," +");	
 				pos = strlen(buffer);
 			}
-			snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
 			pos = strlen(buffer);
 		}
 	}
-	snprintf(buffer+pos,maxlen-pos,") / (");
+	pos += snprintf(buffer+pos,maxlen-pos,") / (");
 	pos = strlen(buffer);
 	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
 	{
@@ -162,26 +166,26 @@ static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buff
 		}
 		if ( i == 0 )
 		{
-			snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
+			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
 			pos = strlen(buffer);
 		}
 		else 
 		{
 			if ( a[i] != 1.0 )
 			{
-				snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
 				pos = strlen(buffer);
 			}
 			else
 			{
-				snprintf(buffer+pos,maxlen-pos,"%s","+");	
+				pos += snprintf(buffer+pos,maxlen-pos,"%s","+");	
 				pos = strlen(buffer);
 			}
-			snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
 			pos = strlen(buffer);
 		}
 	}
-	snprintf(buffer+pos,maxlen-pos,")");
+	pos += snprintf(buffer+pos,maxlen-pos,")");
 	pos = strlen(buffer);
 	return pos;
 }
@@ -942,8 +946,6 @@ int transfer_function_to_json(char *buffer, int size, TRANSFERFUNCTION *tf)
 	{
 		snprintf(buffer+count,size-count,"%g%s",tf->a[n],n<tf->n-1?",":"");
 	}
-	count = strlen(buffer);
-
 	snprintf(buffer+count,size-count,"]");
 	count = strlen(buffer);
 
