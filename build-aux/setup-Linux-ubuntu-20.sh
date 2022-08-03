@@ -93,6 +93,12 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
+	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
+		sudo touch /etc/ld.so.conf.d/gridlabd.conf
+		sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+		sudo ldconfig
+	fi
+
 	# manually set install due to pip not adjusting automatically for ubuntu's limitations
 	sudo add-apt-repository ppa:ubuntugis/ppa -y
 	sudo apt-get update -y
@@ -104,11 +110,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
 
 
-	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
-		sudo touch /etc/ld.so.conf.d/gridlabd.conf
-		sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
-		sudo ldconfig
-	fi
 fi
 
 # install latex
