@@ -82,7 +82,7 @@ int group_recorder::init(OBJECT *obj){
 			gl_error("group_recorder::init(): no filename defined in strict mode");
 			return 0;
 		} else {
-			sprintf(filename, "%256s-%256i.csv", oclass->name, obj->id);
+			snprintf(filename,sizeof(filename)-1, "%256s-%256i.csv", oclass->name, obj->id);
 			gl_warning("group_recorder::init(): no filename defined, auto-generating '%s'", filename.get_string());
 			/* TROUBLESHOOT
 				group_recorder requires a filename.  If none is provided, a filename will be generated
@@ -510,7 +510,7 @@ int group_recorder::read_line()
 					part_value = cptr->Arg();
 					break;
 			}
-			sprintf(buffer, "%f", part_value);
+			snprintf(buffer,sizeof(buffer)-1, "%f", part_value);
 			offset = strlen(buffer);
 		} else {
 			offset = gl_get_value(curr->obj, GETADDR(curr->obj, &(curr->prop)), buffer, 127, &(curr->prop));
@@ -533,7 +533,7 @@ int group_recorder::read_line()
 		}
 		// write to line_buffer
 		// * lead with a comma on all entries, assume leading timestamp will NOT print a comma
-		if(0 >= sprintf(line_buffer+index, ",%s", buffer)){return 0;}
+		if(0 >= snprintf(line_buffer+index,sizeof(line_buffer)-index-1, ",%s", buffer)){return 0;}
 		index += (offset + 1); // add the comma
 	}
 	// assume write_line will add newline character
