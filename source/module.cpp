@@ -554,19 +554,19 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			int optional;
 		} map[] = 
 		{
-			{&c->create,"create",FALSE},
-			{&c->destroy,"destroy",TRUE},
-			{&c->init,"init",TRUE},
-			{&c->precommit,"precommit",TRUE},
-			{&c->sync,"sync",TRUE},
-			{&c->commit,"commit",TRUE},
-			{&c->finalize,"finalize",TRUE},
-			{&c->notify,"notify",TRUE},
-			{&c->isa,"isa",TRUE},
-			{&c->plc,"plc",TRUE},
-			{&c->recalc,"recalc",TRUE},
-			{&c->update,"update",TRUE},
-			{&c->heartbeat,"heartbeat",TRUE},
+			{(FUNCTIONADDR*)&c->create,"create",FALSE},
+			{(FUNCTIONADDR*)&c->destroy,"destroy",TRUE},
+			{(FUNCTIONADDR*)&c->init,"init",TRUE},
+			{(FUNCTIONADDR*)&c->precommit,"precommit",TRUE},
+			{(FUNCTIONADDR*)&c->sync,"sync",TRUE},
+			{(FUNCTIONADDR*)&c->commit,"commit",TRUE},
+			{(FUNCTIONADDR*)&c->finalize,"finalize",TRUE},
+			{(FUNCTIONADDR*)&c->notify,"notify",TRUE},
+			{(FUNCTIONADDR*)&c->isa,"isa",TRUE},
+			{(FUNCTIONADDR*)&c->plc,"plc",TRUE},
+			{(FUNCTIONADDR*)&c->recalc,"recalc",TRUE},
+			{(FUNCTIONADDR*)&c->update,"update",TRUE},
+			{(FUNCTIONADDR*)&c->heartbeat,"heartbeat",TRUE},
 		};
 		for ( size_t i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
