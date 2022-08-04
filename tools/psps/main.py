@@ -1,4 +1,4 @@
 import gridlabd
 
-gridlabd.command('model.glm')
+gridlabd.command('ieee123.glm')
 gridlabd.start('wait')

@@ -181,6 +181,7 @@ def importWeatherForecastData(data: pd.DataFrame, dataX: xr.Dataset):
 
     nf.interpolate = 60  # interpolation time
     latlongs = data[['lat', 'long']]
+    
     # latlongsRound=latlongs.astype(float).round(decimals=3)
     latlongs = latlongs.astype(float)
     time_Coords = nf.getforecast(
@@ -344,7 +345,6 @@ def optimizeShutoff(areaDataX: xr.Dataset, resilienceMetricOption: int, fireRisk
     # Vars
     # for some reason pyo.binary didnt work for me?
     model.switch = pyo.Var(model.timestep, model.areas, within=pyo.Binary, bounds=(-.05, 1.05))
-
     # Params
     alpha_Fire = fireRiskAlpha/100
 
@@ -397,6 +397,7 @@ def optimizeShutoff(areaDataX: xr.Dataset, resilienceMetricOption: int, fireRisk
     results = pyo.SolverFactory(
         'cbc', executable='/usr/bin/cbc').solve(model, tee=False)
     end = time.time()
+    model.pprint()
     print("Model Solved in: ", round(end-start,2), " sec")
     return model, results
 
@@ -442,10 +443,11 @@ Napadep.fillna(0,inplace=True)
 dataStartDate = datetime(year=2021,month=10,day=15,hour=0)
 #Load Data
 data = loadPGEData(pathNapa)
-# data = data.head(5000)
+# data = data.head(500)
 
 #Modify Data
 data, dataX = importFireRiskData(data,dataStartDate)
+# dataX = importWeatherForecastData(data, dataX)
 dataX = importHistoricalWeatherDataMeteostat(data,dataX,dataStartDate)
 areaDataX = aggregateAreaData(dataX)
 
