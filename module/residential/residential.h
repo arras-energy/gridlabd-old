@@ -120,7 +120,7 @@ typedef struct s_implicit_enduse_list {
 	const char *schedule_definition;
 } IMPLICITENDUSEDATA;
 
-#include "apartment.h"
+// #include "apartment.h"
 
 #endif  /* _RESIDENTIAL_H */
 

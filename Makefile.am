@@ -283,7 +283,7 @@ distclean-local: python-clean
 	@rm -rf $(top_srcdir)/build
 	@rm -rf $(top_srcdir)/documents/html
 	@rm -f $(top_srcdir)/validate.txt
-	@rm -rf $(top_srcdir)/third_party/armadillo-7.800.1
+	@rm -rf $(top_srcdir)/third_party/petsc-3.17.4
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) $(PWD)/config.status libtool > /dev/null
@@ -310,17 +310,17 @@ python-requirements: $(python_requirements)
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
 
-libraries: armadillo
+libraries: petsc
 	
-armadillo: third_party/armadillo-7.800.1/Makefile
+petsc: third_party/petsc-3.17.4/Makefile
 
-third_party/armadillo-7.800.1/Makefile: third_party/armadillo-7.800.1/configure
-	@(cd $(top_srcdir)/third_party/armadillo-7.800.1 && ./configure && make install )
+third_party/petsc-3.17.4/Makefile: third_party/petsc-3.17.4/configure
+	@(cd $(top_srcdir)/third_party/petsc-3.17.4 && ./configure --prefix=/usr/local --with-cc=gcc --with-cxx=0 --with-fc=0 --download-f2cblaslapack --download-mpich && make PETSC_ARCH=arch-linux-c-debug install)
 
-third_party/armadillo-7.800.1/configure: third_party/armadillo-7.800.1
+third_party/petsc-3.17.4/configure: third_party/petsc-3.17.4
 
-third_party/armadillo-7.800.1: third_party/armadillo-7.800.1.tar.gz
-	@(cd $(top_srcdir)/third_party && tar xf armadillo-7.800.1.tar.gz) 
+third_party/petsc-3.17.4: third_party/petsc-with-docs-3.17.4.tar.gz
+	@(cd $(top_srcdir)/third_party && tar xf petsc-with-docs-3.17.4.tar.gz) 
 
 reconfigure-debug: distclean
 	autoreconf -isf && $(PWD)/configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'

@@ -5,7 +5,7 @@
 #ifndef _POWERNET_H
 #define _POWERNET_H
 
-#include <armadillo>
+// #include <armadillo>
 #include <list>
 #include "message.h"
 #include "../powerflow/triplex_meter.h"

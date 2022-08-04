@@ -5,7 +5,7 @@
 #ifndef _TRANSACTIVE_H
 #define _TRANSACTIVE_H
 
-#include <armadillo>
+// #include <armadillo>
 #include "house.h"
 #include "agent.h"
 
