@@ -13,3 +13,4 @@ module_revenue_revenue_la_SOURCES += module/revenue/main.cpp
 module_revenue_revenue_la_SOURCES += module/revenue/revenue.h
 module_revenue_revenue_la_SOURCES += module/revenue/billing.cpp module/revenue/billing.h
 module_revenue_revenue_la_SOURCES += module/revenue/tariff.cpp module/revenue/tariff.h
+module_revenue_revenue_la_SOURCES += module/revenue/tariff.cpp module/revenue/tariff.h

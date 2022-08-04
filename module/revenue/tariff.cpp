@@ -28,10 +28,10 @@ tariff::tariff(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_char256, "rate_design", get_rate_design_offset(),
-				PT_DESCRIPTION, "Rate identifier",
-			// PT_char256, "bill_function", get_bill_function_offset(),
-			// 	PT_DESCRIPTION, "Billing function for rate",
+			PT_int64, "rate_id", get_rate_id(),
+				PT_REQUIRED,
+				PT_DESCRIPTION, "OpenEI rate id",
+
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
