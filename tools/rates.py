@@ -14,9 +14,23 @@ COMMAND
 
 Valid commands are
 
-- `update [URL]`
+- `update [URL]`: Downloads utility rate data from the GridLAB-D tariff repository
 
-- `find EIAID [NAME_REGEX] [STARTDATE]`
+- `eiaid NAME_REGEX`: Finds a utility EIA identifier based on a pattern. The return
+  value is the id and utility name. If more than one utility matches, each output
+  line contain one matching record.
+
+- `extract EIAID`: Extracts the data for the specified utility and stores it in
+  the rates cache folder for access by the `revenue` module's `tariff` class.
+
+- `rate` EIAID RATE_REGEX DATE`: Find the rate label for the tariff name that
+  matches the pattern RATE_REGEX on the date given.
+
+- `schedule EIAID LABEL`: Create a GridLAB-D schedule for the specified
+  rates on the given date.
+
+- `player` EIAID LABEL`: Create a GridLAB-D player object
+  for the specified rates over the date range given.
 
 DESCRIPTION
 
@@ -29,10 +43,11 @@ SEE ALSO
 import sys, os
 import requests
 import pandas
+from datetime import *
 
 EXECNAME = os.path.basename(os.path.splitext(sys.argv[0])[0])
 
-DEBUG = False
+DEBUG = True
 VERBOSE = False
 WARNING = True
 QUIET = False
@@ -62,10 +77,15 @@ def error(msg,code=None):
     if type(code) is int:
         return code
 
-def load_rates(eiaid,name=None,startdate=None):
-    data = pandas.read_csv(f"{CACHEDIR}/{CACHEFILE}",index_col=['eiaid','name','startdate'])
-    print(data)
-    return data
+def exception(msg,code=None):
+    if not QUIET:
+        print(f"EXCEPTION [{EXECNAME}]: {msg}",file=sys.stderr,flush=True)
+
+def load_rates(eiaid=None):
+    if not eiaid:
+        return pandas.read_csv(f"{CACHEDIR}/{CACHEFILE}",index_col=['eiaid','name','startdate'],low_memory=False)
+    else:
+        return pandas.read_csv(f"{CACHEDIR}/{eiaid}.csv",index_col=['name','startdate'],low_memory=False,parse_dates=['startdate','enddate','latest_update'])
 
 def main(argv):
 
@@ -88,23 +108,100 @@ def main(argv):
         else:
             return error(f"download from {RATESURL} failed with error code {reply.status_code}",E_FAILED)
     
-    elif COMMAND == "find":
+    elif COMMAND in ["eiaid","id"]:
     
         if len(argv) < 3:
-            return error(f"missing EIA ID for utility",E_INVALID)
+            return error(f"missing utility name pattern",E_INVALID)
 
-        data = load_rates(*sys.argv[2:])
-        # if len(argv) < 3:
-        #     error(f"missing export table name",1)
-        # REGEX = argv[3]
-        # for TABLE in mdb.list_tables(MDBFILE):
-        #     if re.match(REGEX,TABLE):
-        #         DF = mdb.read_table(MDBFILE,TABLE)
-        #         DF.to_csv(TABLE+".csv")
+        data = load_rates()
+        data = data[data["utility"].str.contains(sys.argv[2])]
+        for eiaid in data.index.get_level_values(0).unique():
+            print(f"{int(eiaid)},\"{data.loc[eiaid]['utility'].unique()[0]}\"")
+        return E_OK
+
+    elif COMMAND == 'extract':
+
+        if len(argv) < 3:
+            return error(f"missing extract parameters",E_INVALID)
+        eiaid = sys.argv[2]
+
+        data = load_rates().reset_index()
+        data = data[data["eiaid"]==float(eiaid)]
+        data.set_index(['name','startdate']).sort_index().to_csv(f"{CACHEDIR}/{eiaid}.csv",index=True,header=True)
+        print(f"{CACHEDIR}/{eiaid}.csv")
+        return E_OK
+
+    elif COMMAND in ["rate","tariff"]:
+
+        if len(argv) < 5:
+            return error(f"missing rate parameters",E_INVALID)
+        
+        eiaid = sys.argv[2]
+        rate = sys.argv[3]
+        date = sys.argv[4]
+        data = load_rates(eiaid).reset_index()
+        data = data[data["name"].str.contains(rate)]
+        data = data[data["startdate"]>=date]
+        # data = data[data["enddate"]>date || data["enddate"]=='']
+        data.set_index(['startdate','label'],inplace=True)
+        data.sort_index(inplace=True)
+        print(",".join(data.index.get_level_values(1).unique()))
+
+    elif COMMAND == 'schedule':
+
+        if len(argv) < 4:
+            return error(f"missing schedule parameters",E_INVALID)
+        
+        eiaid = sys.argv[2]
+        label = sys.argv[3]
+        data = load_rates(eiaid).set_index('label').loc[label]
+
+        print("schedule","rate_"+label,"{")
+        print("}")
+
+    elif COMMAND == 'player':
+
+        if len(argv) < 4:
+            return error(f"missing player parameters",E_INVALID)
+        eiaid = sys.argv[2]
+        label = sys.argv[3]
+        data = load_rates(eiaid).reset_index().set_index('label').loc[label.split(',')]
+        print("timestamp,fixed_charge,demand_charge,energy_charge")
+        for label in data.index.get_level_values(0):
+            print(",".join([
+                data.loc[label]['startdate'].strftime("%Y-%m-%d %H:%M:%S"),
+                str(data.loc[label]['fixedchargefirstmeter']),
+                str(data.loc[label]['flatdemandstructure/period0/tier0rate']),
+                str(data.loc[label]['energyratestructure/period0/tier0rate']),
+                ]))
+
+    elif COMMAND == 'class':
+
+        if len(argv) < 4:
+            return error(f"missing player parameters",E_INVALID)
+        eiaid = sys.argv[2]
+        label = sys.argv[3]
+
+        data = load_rates(eiaid).set_index('label').loc[label]
+        print("class rate {")
+        print("    double fixed_charge[$/unit];")
+        print("    double demand_charge[$/kW];")
+        print("    double energy_charge[$/kWh];")
+        print("}")
+
+    elif COMMAND == 'object':
+
+        print("object rate {")
+        print("    object player {")
+        print("        file rate_;")
+        print("    };")
+        print("}")
 
     else:
+
         return error(f"commmand '{COMMAND}' is not valid",E_INVALID)
-    return 0
+
+    return E_OK
  
 if __name__ == "__main__":
     try:
@@ -112,9 +209,9 @@ if __name__ == "__main__":
     except SystemExit as err:
         rc = err
     except:
-        e_type,e_value,e_trace = sys.exc_info()
         if DEBUG:
             raise
-        error(f"{e_type} {e_value}")
+        e_type,e_value,e_trace = sys.exc_info()
+        exception(f"({e_type.__name__}) {e_value} ")
         rc = E_EXCEPTION
     exit(rc)
