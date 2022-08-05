@@ -8,7 +8,6 @@
 // git clone -b release https://gitlab.com/petsc/petsc.git petsc
 // ./configure --with-cc=gcc --with-cxx=0 --with-fc=0 --download-f2cblaslapack --download-mpich 
 
-#include <petscsnes.h>
 
 #define USE_GLSOLVERS
 #include "residential.h"
@@ -18,6 +17,8 @@
 #include <iostream>
 using std::cerr;
 using std::endl;
+
+#include <petscsnes.h>
 
 
 static void exception(const char *format, ...)

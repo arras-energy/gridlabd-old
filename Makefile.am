@@ -315,7 +315,7 @@ libraries: petsc
 petsc: third_party/petsc-3.17.4/Makefile
 
 third_party/petsc-3.17.4/Makefile: third_party/petsc-3.17.4/configure
-	@(cd $(top_srcdir)/third_party/petsc-3.17.4 && ./configure --prefix=/usr/local --with-cc=gcc --with-cxx=0 --with-fc=0 --download-f2cblaslapack --download-mpich && make PETSC_ARCH=arch-linux-c-debug install)
+	@(cd $(top_srcdir)/third_party/petsc-3.17.4 && ./configure --prefix=/usr/local --with-cc=gcc --with-cxx=g++ --with-fc=0 --download-f2cblaslapack --download-mpich && make all check && make install)
 
 third_party/petsc-3.17.4/configure: third_party/petsc-3.17.4
 

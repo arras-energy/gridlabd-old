@@ -491,7 +491,7 @@ AS_IF([test -n "$DX_DOXYGEN"],
 AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for PETSc
-AS_IF([test -f /usr/include/petsc -o -f /usr/local/include/petsc],
+AS_IF([test -f /usr/include/petsc.h -o -f /usr/local/include/petsc.h],
     [HAVE_PETSC="yes"],
     [HAVE_PETSC="no (required)"])
 
