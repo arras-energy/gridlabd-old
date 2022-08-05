@@ -87,6 +87,7 @@ int g_assert::create(void)
 {
 	target_list = NULL;
 	started = TS_NEVER;
+	strcpy(value2,"0");
 	return 1; /* return 1 on success, 0 on failure */
 }
 
