@@ -42,7 +42,6 @@ object test {
 		target "double_value";
 		relation "==";
 		value 50;
-		within 0.0001;
 	};
 	object assert {
 		target "double_value";
