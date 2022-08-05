@@ -511,7 +511,7 @@ int node::create(void)
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
 
-	undervoltage_violation_threshold = -default_undervoltage_violation_threshold;
+	undervoltage_violation_threshold = default_undervoltage_violation_threshold;
 	overvoltage_violation_threshold = default_overvoltage_violation_threshold;
 
 	return result;
