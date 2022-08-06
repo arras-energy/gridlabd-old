@@ -1290,7 +1290,7 @@ const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer
 		if ( obj->name == NULL )
 			snprintf(buffer,len,"%s:%d", obj->oclass->name, obj->id);
 		else
-			snprintf(buffer,len,"%s", obj->oclass->name);
+			snprintf(buffer,len,"%s", obj->name);
 	}
 	else if ( strcmp(item,"class") == 0 )
 	{
