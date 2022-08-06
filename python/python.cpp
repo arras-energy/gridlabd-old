@@ -173,7 +173,7 @@ static PyObject *gridlabd_copyright(PyObject *self, PyObject *args)
         PACKAGE_NAME " " PACKAGE_VERSION "\n"
         "\n"
         "Copyright (C) 2008-2017, Battelle Memorial Institute.\n"
-        "Copyright (C) 2016-2019, The Board of Trustees of the Leland Stanford Junior University.\n"
+        "Copyright (C) 2016-2022, The Board of Trustees of the Leland Stanford Junior University.\n"
         "All Rights Reserved.\n"
          "For additional information, see http://www.gridlabd.us/.\n");
 }
