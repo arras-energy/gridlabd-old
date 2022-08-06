@@ -1,7 +1,7 @@
 import sys, gridlabd
 
 def on_init(t):
-    print(gridlabd.version(),file=sys.stderr)
+    # print(gridlabd.version(),file=sys.stderr)
     return True
 
 def test_init(obj,t):
