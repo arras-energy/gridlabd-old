@@ -135,7 +135,12 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	}
 	else if ( n == 2 )
 	{ 
-		if ( prop->unit == NULL ) 
+		if ( prop == NULL )
+		{
+			output_warning("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): no unit specification given, ignoring units", buffer, sizeof(void*), data, "(none)");
+			return 1;
+		}
+		if ( prop && prop->unit == NULL ) 
 		{
 			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit given to unitless property", buffer, sizeof(void*), data, prop->name);
 			/* TROUBLESHOOT 
@@ -171,12 +176,12 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 		OBJECT *from = object_find_by_addr(data, prop);
 		if ( my_instance->get_loader()->linear_transform(buffer,&xstype,&source,&scale,&bias,from) <= 0)
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop?prop->name:"");
 			return 0;
 		}
 		else if ( ! transform_add_linear(xstype,(double*)source,data,scale,bias,from,prop,(xstype == XS_SCHEDULE ? (SCHEDULE*)source : 0)) )
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop?prop->name:"");
 			return 0;
 		}
 		else
@@ -186,7 +191,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	}
 	else
 	{
-		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop->name);
+		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop?prop->name:"");
 		return -1;
 	}
 }
@@ -365,23 +370,30 @@ int convert_to_complex(const char *buffer, /**< a pointer to the string buffer *
 		v->Notation() = (CNOTATION)notation[0];
 	}
 
-	if ( n>3 && prop->unit!=NULL ) 
+	if ( n > 3 )
 	{
-		/* unit given and unit allowed */
-		UNIT *from = unit_find(unit);
-		double scale=1.0;
-		if ( from != prop->unit && unit_convert_ex(from,prop->unit,&scale)==0)
+		if ( prop == NULL )
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
-			/* TROUBLESHOOT 
-			   This error is caused by an attempt to convert a value from a unit that is
-			   incompatible with the unit of the target property.  Check your units and
-			   try again.
-		     */
-			return 0;
+			output_warning("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): no unit spec given, ignoring units", buffer, sizeof(void*), data, "(none)");
 		}
-		v->Re() *= scale;
-		v->Im() *= scale;
+		else if ( prop->unit != NULL ) 
+		{
+			/* unit given and unit allowed */
+			UNIT *from = unit_find(unit);
+			double scale=1.0;
+			if ( from != prop->unit && unit_convert_ex(from,prop->unit,&scale)==0)
+			{
+				output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+				/* TROUBLESHOOT 
+				   This error is caused by an attempt to convert a value from a unit that is
+				   incompatible with the unit of the target property.  Check your units and
+				   try again.
+			     */
+				return 0;
+			}
+			v->Re() *= scale;
+			v->Im() *= scale;
+		}
 	}
 	return 1;
 }

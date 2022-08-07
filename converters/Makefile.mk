@@ -77,6 +77,10 @@ dist_pkgdata_DATA += converters/json2zip.py
 dist_pkgdata_DATA += converters/xls2csv.py
 dist_pkgdata_DATA += converters/xls-spida2csv-geodata.py
 
+# xlsx -> csv
+dist_pkgdata_DATA += converters/xlsx2csv.py
+dist_pkgdata_DATA += converters/xlsx-workbook2csv-table.py
+
 #
 # SUPPORT MODULES
 #
