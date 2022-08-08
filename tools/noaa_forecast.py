@@ -109,8 +109,6 @@ interpolate_method = 'quadratic'
 float_format = "%.1f"
 date_format = "%Y-%m-%d %H:%M:%S"
 max_retries = 5
-cur_tries = 0
-data_found = False
 
 def getforecast(lat,lon):
     """Get NOAA location"""
@@ -118,7 +116,7 @@ def getforecast(lat,lon):
     headers = {'User-agent' : user_agent}
     location = json.loads(requests.get(url,headers=headers).content.decode("utf-8"))
 
-    data = json.loads(requests.get(location["properties"]["forecastHourly"],headers=headers).content.decode("utf-8"))
+    data = {}
     result = {
         "datetime" : [],
         "temperature[degF]" : [],
@@ -126,16 +124,14 @@ def getforecast(lat,lon):
         "wind_dir[deg]" : [],
     }
 
-    while ( cur_tries <= max_retries) and ( data_found == False ):
-        if not "properties" in data.keys():
-            cur_tries += 1
-            time.sleep(2)
-        elif not "periods" in data["properties"]:
-            cur_tries += 1
-            time.sleep(2)
-        else:
-            data_found = True
+    cur_tries = 0
+    while cur_tries <= max_retries:
+        data = json.loads(requests.get(location["properties"]["forecastHourly"],headers=headers).content.decode("utf-8"))
+        if "properties" in data.keys():
             break
+        time.sleep(2)
+        cur_tries += 1
+
 
     if not "properties" in data.keys():
         raise Exception(f"data does not contain required properties information (data={data})")
