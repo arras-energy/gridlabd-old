@@ -105,7 +105,7 @@ def read_kml():
     global CONFIG
     if type(kmldata) == type(None):
         if not os.path.exists(CONFIG["kmlfile"]):
-            geopandas.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
+            fiona.drvsupport.supported_drivers['KML'] = 'rw'
             kmldata = geopandas.read_file(CONFIG["kmlrepo"], driver="KML")
             os.makedirs(CONFIG["cachedir"],exist_ok=True)
             with open(CONFIG["kmlfile"], "wb") as fh:

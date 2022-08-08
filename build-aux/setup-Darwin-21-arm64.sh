@@ -179,6 +179,10 @@ fi
 # subversion cli
     brew install svn
 
+# libgeos
+    brew install geos
+    cp /opt/homebrew/lib/libgeos* /usr/local/opt/gridlabd/lib
+
 # mysql connector
 #    brew install mysql
 #    brew install mysql-client
