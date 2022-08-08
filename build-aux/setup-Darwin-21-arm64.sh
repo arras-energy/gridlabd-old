@@ -183,6 +183,13 @@ fi
     brew install geos
     cp /opt/homebrew/lib/libgeos* /usr/local/opt/gridlabd/lib
 
+    if test ! -e /usr/local/lib; then
+        cd /usr/local
+        sudo mkdir lib
+    fi
+
+    ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+
 # mysql connector
 #    brew install mysql
 #    brew install mysql-client
