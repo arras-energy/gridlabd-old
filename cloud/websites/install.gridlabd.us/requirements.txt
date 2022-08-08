@@ -1,8 +1,8 @@
 CensusData==1.13
-Fiona==1.8.19
+Fiona==1.8.21
 Pillow==9.0.1
 PyGithub==1.54.1
-Shapely==1.7.1
+Shapely==1.8.2
 cfo==1.0.1
 docker==4.4.4
 elevation==1.1.2
