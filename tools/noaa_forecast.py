@@ -100,7 +100,7 @@ SEE ALSO
 * [https://www.weather.gov/documentation/services-web-api]
 """
 
-import sys, os, json, requests, pandas, numpy, datetime, dateutil
+import sys, os, json, requests, pandas, numpy, datetime, dateutil, time
 
 server = "https://api.weather.gov/points/{latitude},{longitude}"
 user_agent = "(gridlabd.us, gridlabd@gmail.com)"
@@ -108,6 +108,9 @@ interpolate_time = 60
 interpolate_method = 'quadratic'
 float_format = "%.1f"
 date_format = "%Y-%m-%d %H:%M:%S"
+max_retries = 5
+cur_tries = 0
+data_found = False
 
 def getforecast(lat,lon):
     """Get NOAA location"""
@@ -122,6 +125,18 @@ def getforecast(lat,lon):
         "wind_speed[m/s]" : [],
         "wind_dir[deg]" : [],
     }
+
+    while ( cur_tries <= max_retries) and ( data_found == False ):
+        if not "properties" in data.keys():
+            cur_tries += 1
+            time.sleep(2)
+        elif not "periods" in data["properties"]:
+            cur_tries += 1
+            time.sleep(2)
+        else:
+            data_found = True
+            break
+
     if not "properties" in data.keys():
         raise Exception(f"data does not contain required properties information (data={data})")
     if not "periods" in data["properties"]:
@@ -230,6 +245,14 @@ if __name__ == "__main__":
             name = value
         elif token in ["-c","--csv"]:
             csv = value
+        elif token in ["-r","--retries"]:
+            try:
+                max_retries = int(value)
+                max_retries = abs(max_retries)
+            except ValueError:
+                print("Retries can only use integer values")
+                print("Running default maximum of 5 retries")
+                max_retries = 5
         elif token == "--test":
             position = [45.62,-122.70]
             glm = "test.glm"
