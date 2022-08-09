@@ -198,6 +198,15 @@ else
 
 fi
 
+if [ $SYSTEM == "Darwin" ]; then
+    if test ! -e /usr/local/lib; then
+        cd /usr/local
+        sudo mkdir lib
+    fi
+
+    sudo ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+fi
+
 if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
