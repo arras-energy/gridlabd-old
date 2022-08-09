@@ -38,7 +38,7 @@ player::player(MODULE *module)
 			PT_object,"connection",get_connection_offset(),PT_DESCRIPTION,"database connection",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 		gl_global_create("mysql::maximum_threads",PT_int32,&maximum_threads,PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"maximum number of theads allowed during initialization sequence",NULL);
@@ -172,10 +172,10 @@ int player::init_async()
 		if ( unit.is_valid() && target.get_unit()!=NULL )
 		{
 			target.get_unit()->convert(unit,scale);
-			sprintf(field,"%s[%s]",propname,propunit);
+			snprintf(field,sizeof(field)-1,"%s[%s]",propname,propunit);
 		}
 		else if ( propunit[0]=='\0' && options&MO_USEUNITS && target.get_unit() )
-			sprintf(field,"%s[%s]",propname,target.get_unit()->get_name());
+			snprintf(field,sizeof(field)-1,"%s[%s]",propname,target.get_unit()->get_name());
 		break;
 	default:
 		exception("property '%s' is not valid", get_property());

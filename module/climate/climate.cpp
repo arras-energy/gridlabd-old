@@ -578,7 +578,7 @@ climate::climate(MODULE *module) : gld_object()
       		PT_double,"solar_zenith[rad]",PADDR(solar_zenith), 
 				PT_OUTPUT, 
 				PT_DESCRIPTION,"solar zenith angle in radians",
-			PT_char32, "city", PADDR(city), 
+			PT_char256, "city", PADDR(city), 
 				PT_DESCRIPTION,"weather data city name",
 			PT_char1024,"tmyfile",PADDR(tmyfile), 
 				PT_REQUIRED, 
@@ -1927,7 +1927,7 @@ void climate::write_out_cloud_pattern( char pattern )
 	ofstream out_file;
 
 	char buffer [100];
-	sprintf (buffer, "cloud_pattern_%010lld.csv", prev_NTime);
+	snprintf (buffer,sizeof(buffer)-1, "cloud_pattern_%010lld.csv", prev_NTime);
 	std::string file_string = buffer;
 	out_file.open(file_string.c_str(), ios::out);
 

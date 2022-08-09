@@ -45,7 +45,7 @@ recorder::recorder(MODULE *module)
 				PT_DESCRIPTION,"tags to include with each record",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}

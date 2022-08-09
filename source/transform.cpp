@@ -74,7 +74,7 @@ TRANSFORM *transform_getnext(TRANSFORM *xform)
 }
 
 TRANSFERFUNCTION *tflist = NULL; ///< transfer function list
-int write_term(char *buffer,double a,char *x,int n,bool first)
+int write_term(char *buffer,size_t size, double a,char *x,int n,bool first)
 {
 	int len = 0;
 	if ( fabs(a)>1e-6 ) // non-zero
@@ -82,21 +82,25 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 		if ( n==0 ) // z^0 term
 		{
 			if ( fabs(a-1)<1e-6 )
-				len += sprintf(buffer+len,"%s",first?"1":"+1");
+				snprintf(buffer+len,size-len-1,"%s",first?"1":"+1");
 			else if ( fabs(-a-1)<1e-6 )
-				len += sprintf(buffer+len,"%s","-1");
+				snprintf(buffer+len,size-len-1,"%s","-1");
 			else
-				len += sprintf(buffer+len,first?"%+.4f":"%+.4f",a);
+				snprintf(buffer+len,size-len-1,first?"%+.4f":"%+.4f",a);
+			len = strlen(buffer);
 		}
 		else // z^n term
 		{
 			if ( fabs(a-1)>1e-6 ) // non-unitary coefficient
-				len += sprintf(buffer+len,"%+.4f",a);
+				snprintf(buffer+len,size-len-1,"%+.4f",a);
 			else if ( fabs(-a-1)<1e-6 ) // -1 coefficient
-				len += sprintf(buffer+len,"-");
-			len += sprintf(buffer+len,"%s",x); // domain variable
+				snprintf(buffer+len,size-len-1,"-");
+			len = strlen(buffer);
+			snprintf(buffer+len,size-len-1,"%s",x); // domain variable
+			len = strlen(buffer);
 			if ( n>1 ) // higher-order
-				len += sprintf(buffer+len,"^%d",n);
+				snprintf(buffer+len,size-len-1,"^%d",n);
+			len = strlen(buffer);
 		}
 	}
 	return len;
@@ -104,22 +108,27 @@ int write_term(char *buffer,double a,char *x,int n,bool first)
 
 static size_t dump_vector(double *x, size_t n, char *buffer, size_t maxlen, const char *format="%+7.4g")
 {
-	size_t pos = snprintf(buffer,maxlen,"[ ");
+	snprintf(buffer,maxlen,"[ ");
+	size_t pos = strlen(buffer);
 	for ( size_t i = 0 ; i < n && pos < maxlen-10; i++ )
 	{
 		if ( i > 0 )
 		{
-			pos += snprintf(buffer+pos,maxlen-pos,"%s",", ");
+			snprintf(buffer+pos,maxlen-pos,"%s",", ");
+			pos = strlen(buffer);
 		} 
-		pos += snprintf(buffer+pos,maxlen-pos,format, x[i]);
+		snprintf(buffer+pos,maxlen-pos,format, x[i]);
+		pos = strlen(buffer);
 	}
-	pos += snprintf(buffer+pos,maxlen-pos," ]");		
+	snprintf(buffer+pos,maxlen-pos," ]");		
+	pos = strlen(buffer);
 	return pos;
 }
 
 static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buffer, size_t maxlen)
 {
-	size_t pos = snprintf(buffer,maxlen,"(");
+	snprintf(buffer,maxlen,"(");
+	size_t pos = strlen(buffer);
 	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
 	{
 		if ( b[i] == 0.0 )
@@ -128,22 +137,27 @@ static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buff
 		}
 		if ( i == 0 )
 		{
-			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
+			snprintf(buffer+pos,maxlen-pos,"%.4g",b[i]);
+			pos = strlen(buffer);
 		}
 		else 
 		{
 			if ( b[0] != 1.0 )
 			{
-				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+				snprintf(buffer+pos,maxlen-pos,"%+.4g",b[i]);
+				pos = strlen(buffer);
 			}
 			else
 			{
-				pos += snprintf(buffer+pos,maxlen-pos,"%s"," +");	
+				snprintf(buffer+pos,maxlen-pos,"%s"," +");	
+				pos = strlen(buffer);
 			}
-			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			pos = strlen(buffer);
 		}
 	}
-	pos += snprintf(buffer+pos,maxlen-pos,") / (");
+	snprintf(buffer+pos,maxlen-pos,") / (");
+	pos = strlen(buffer);
 	for ( unsigned int i = 0 ; i < n && pos < maxlen-10 ; i++ )
 	{
 		if ( a[i] == 0.0 )
@@ -152,22 +166,27 @@ static size_t dump_function(double *a, size_t n, double *b, size_t m, char *buff
 		}
 		if ( i == 0 )
 		{
-			pos += snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
+			snprintf(buffer+pos,maxlen-pos,"%.4g",a[i]);
+			pos = strlen(buffer);
 		}
 		else 
 		{
 			if ( a[i] != 1.0 )
 			{
-				pos += snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+				snprintf(buffer+pos,maxlen-pos,"%+.4g",a[i]);
+				pos = strlen(buffer);
 			}
 			else
 			{
-				pos += snprintf(buffer+pos,maxlen-pos,"%s","+");	
+				snprintf(buffer+pos,maxlen-pos,"%s","+");	
+				pos = strlen(buffer);
 			}
-			pos += snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			snprintf(buffer+pos,maxlen-pos,"z^-%d", i);
+			pos = strlen(buffer);
 		}
 	}
-	pos += snprintf(buffer+pos,maxlen-pos,")");
+	snprintf(buffer+pos,maxlen-pos,")");
+	pos = strlen(buffer);
 	return pos;
 }
 
@@ -722,11 +741,11 @@ const char *get_source_name(void *addr)
 		return NULL;
 	if ( obj->name )
 	{
-		sprintf(source_name,"%s.%s",obj->name,prop->name);
+		snprintf(source_name,sizeof(source_name)-1,"%s.%s",obj->name,prop->name);
 	}
 	else
 	{
-		sprintf(source_name,"%s:%d.%s",obj->oclass->name,obj->id,prop->name);
+		snprintf(source_name,sizeof(source_name)-1,"%s:%d.%s",obj->oclass->name,obj->id,prop->name);
 	}
 	return source_name;
 }
@@ -763,25 +782,31 @@ int transform_to_string(char *buffer, int size, TRANSFORM *xform)
 		source_name = xform->source_schedule?xform->source_schedule->name:get_source_name(source);
 		if ( source_name == NULL && get_source_name(source) )
 			source_name = "(source not found)";
-		count += snprintf(buffer,size,"%s*%g+%g",source_name,xform->scale,xform->bias);
+		snprintf(buffer,size,"%s*%g+%g",source_name,xform->scale,xform->bias);
+		count = strlen(buffer);
 		break;
 	case XT_EXTERNAL:
-		count += snprintf(buffer,size,"%s(",module_find_transform_function(xform->function));
+		snprintf(buffer,size,"%s(",module_find_transform_function(xform->function));
+		count = strlen(buffer);
 		for ( int n = 0 ; n < xform->nrhs ; n++ )
 		{
 			if ( n > 0 )
 			{
-				count += snprintf(buffer,size,",");
+				snprintf(buffer+count,size-count-1,",");
+				count = strlen(buffer);
 			}
-			count += snprintf(buffer,size,"%s",xform->prhs[n].prop->name);
+			snprintf(buffer+count,size-count-1,"%s",xform->prhs[n].prop->name);
+			count = strlen(buffer);
 		}
-		count += snprintf(buffer,size,")");
+		snprintf(buffer+count,size-count-1,")");
+		count = strlen(buffer);
 		break;
 	case XT_FILTER:
 		source_name = get_source_name(source);
 		if ( source_name == NULL && get_source_name(source) )
 			source_name = "(source not found)";
-		count += snprintf(buffer,size,"%s(%s)", xform->tf->name, source_name);
+		snprintf(buffer,size,"%s(%s)", xform->tf->name, source_name);
+		count = strlen(buffer);
 		break;
 	default:
 		throw_exception("transform_to_string(char *buffer=%p, int size=%d, TRANSFORM *xform=%p): xform->source_type = %d is invalid", buffer, size, xform, xform->source_type);
@@ -864,39 +889,70 @@ TRANSFERFUNCTION *transfer_function_getfirst(void)
 int transfer_function_to_json(char *buffer, int size, TRANSFERFUNCTION *tf)
 {
 	int count = 0;
-	count += snprintf(buffer+count,size-count,"\"%s\" : {",tf->name);
-	count += snprintf(buffer+count,size-count,"\"domain\":\"%s\",",tf->domain);
-	count += snprintf(buffer+count,size-count,"\"timestep\":\"%gs\",",tf->timestep);
-	count += snprintf(buffer+count,size-count,"\"timeskew\":\"%gs\",",tf->timeskew);
+	
+	snprintf(buffer+count,size-count,"\"%s\" : {",tf->name);
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"\"domain\":\"%s\",",tf->domain);
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"\"timestep\":\"%gs\",",tf->timestep);
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"\"timeskew\":\"%gs\",",tf->timeskew);
+	count = strlen(buffer);
+
 	int flen = 0;
 	char flags[256] = "";
 	if ( tf->flags&FC_MINIMUM )
 	{
-		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sMINIMUM",flen>0?"|":"");
-		count += snprintf(buffer+count,size-count,"\"minimum\":\"%g\",",tf->minimum);
+		snprintf(flags+flen,sizeof(flags)-flen,"%sMINIMUM",flen>0?"|":"");
+		flen = strlen(flags);
+
+		snprintf(buffer+count,size-count,"\"minimum\":\"%g\",",tf->minimum);
+		count = strlen(buffer);
 	}
 	if ( tf->flags&FC_MAXIMUM )
 	{
-		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sMAXIMUM",flen>0?"|":"");
-		count += snprintf(buffer+count,size-count,"\"maximum\":\"%g\",",tf->maximum);
+		snprintf(flags+flen,sizeof(flags)-flen,"%sMAXIMUM",flen>0?"|":"");
+		flen = strlen(flags);
+	
+		snprintf(buffer+count,size-count,"\"maximum\":\"%g\",",tf->maximum);
+		count = strlen(buffer);
 	}
 	if ( tf->flags & FC_RESOLUTION )
 	{
-		flen += snprintf(flags+flen,sizeof(flags)-flen,"%sRESOLUTION",flen>0?"|":"");
-		count += snprintf(buffer+count,size-count,"\"resolution\":\"%g\",",tf->resolution);
+		snprintf(flags+flen,sizeof(flags)-flen,"%sRESOLUTION",flen>0?"|":"");
+		flen = strlen(flags);
+
+		snprintf(buffer+count,size-count,"\"resolution\":\"%g\",",tf->resolution);
+		count = strlen(buffer);
 	}
-	count += snprintf(buffer+count,size-count,"\"numerator\":[");
+	snprintf(buffer+count,size-count,"\"numerator\":[");
+	count = strlen(buffer);
+	
 	for ( unsigned int m = 0 ; m < tf->m ; m++ )
 	{
-		count += snprintf(buffer+count,size-count,"%g%s",tf->b[m],m<tf->m-1?",":"");
+		snprintf(buffer+count,size-count,"%g%s",tf->b[m],m<tf->m-1?",":"");
+		count = strlen(buffer);
 	}
-	count += snprintf(buffer+count,size-count,"],");
-	count += snprintf(buffer+count,size-count,"\"denominator\":[");
+	snprintf(buffer+count,size-count,"],");
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"\"denominator\":[");
+	count = strlen(buffer);
+
 	for ( unsigned int n = 0 ; n < tf->n ; n++ )
 	{
-		count += snprintf(buffer+count,size-count,"%g%s",tf->a[n],n<tf->n-1?",":"");
+		snprintf(buffer+count,size-count,"%g%s",tf->a[n],n<tf->n-1?",":"");
 	}
-	count += snprintf(buffer+count,size-count,"]");
-	count += snprintf(buffer+count,size-count,"}");
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"]");
+	count = strlen(buffer);
+
+	snprintf(buffer+count,size-count,"}");
+	count = strlen(buffer);
+	
 	return count;
 }
