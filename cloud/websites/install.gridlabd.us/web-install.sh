@@ -29,20 +29,20 @@ if test $D_ARCH != "arm64"; then
         brew install wget
     fi
 
-    if [ ! -e $HOME/temp ]; then
-        echo "Home temp folder not found. Generating home temp folder."
+    if [ ! -e $HOME/tmp ]; then
+        echo "Home tmp folder not found. Generating home tmp folder."
         cd $HOME
-        mkdir temp
-        cd temp
-        echo "Downloading image to your home temp folder."
+        mkdir tmp
+        cd tmp
+        echo "Downloading image to your home tmp folder."
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
-        if [ ! -e $HOME/temp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
 
         if [ ! -e /usr/local/opt ]; then
@@ -50,21 +50,21 @@ if test $D_ARCH != "arm64"; then
             sudo mkdir opt
         fi
 
-        cd $HOME/temp
+        cd $HOME/tmp
         sudo mv gridlabd /usr/local/opt
         echo "Gridlabd installed. Adding to path."
     else
-        cd $HOME/temp
-        echo "Downloading image to your home temp folder."
+        cd $HOME/tmp
+        echo "Downloading image to your home tmp folder."
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
-        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
         if [ ! -e /usr/local/opt ]; then
             cd /usr/local
             sudo mkdir opt
         fi
 
-        cd $HOME/temp
+        cd $HOME/tmp
         sudo mv gridlabd /usr/local/opt
         echo "Gridlabd installed. Adding to path."
     fi
@@ -125,20 +125,20 @@ else
         # TODO - update more as needed
     fi
 
-    if [ ! -e $HOME/temp ]; then
-        echo "Home temp folder not found. Generating home temp folder."
+    if [ ! -e $HOME/tmp ]; then
+        echo "Home tmp folder not found. Generating home tmp folder."
         cd $HOME
-        mkdir temp
-        cd temp
-        echo "Downloading image to your home temp folder."
+        mkdir tmp
+        cd tmp
+        echo "Downloading image to your home tmp folder."
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
-        if [ ! -e $HOME/temp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
 
         if [ ! -e /usr/local/opt ]; then
@@ -146,21 +146,21 @@ else
             sudo mkdir opt
         fi
 
-        cd $HOME/temp
+        cd $HOME/tmp
         sudo mv gridlabd /usr/local/opt
         echo "Gridlabd installed. Adding to path."
     else
-        cd $HOME/temp
-        echo "Downloading image to your home temp folder."
+        cd $HOME/tmp
+        echo "Downloading image to your home tmp folder."
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
-        tar -xvf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
         if [ ! -e /usr/local/opt ]; then
             cd /usr/local
             sudo mkdir opt
         fi
 
-        cd $HOME/temp
+        cd $HOME/tmp
         sudo mv gridlabd /usr/local/opt
         echo "Gridlabd installed. Adding to path."
     fi
@@ -238,7 +238,7 @@ fi
 
 sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
 
-cd $HOME/temp
+cd $HOME/tmp
 sudo rm -rf gridlabd*
 
 if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
