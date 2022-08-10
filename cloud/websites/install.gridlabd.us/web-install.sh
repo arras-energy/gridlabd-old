@@ -12,6 +12,11 @@ L_DISTRO="$ID"
 fi
 D_ARCH=$(uname -m)
 
+if test ! -e /usr/local/bin; then
+    cd /usr/local
+    sudo mkdir bin
+fi
+
 # Standard universal image install for non-arm systems
 
 if test $D_ARCH != "arm64"; then
@@ -100,7 +105,7 @@ if test $D_ARCH != "arm64"; then
     sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
-    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
 
 # Code for arm64 installations
 else
@@ -194,7 +199,7 @@ else
     sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
-    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
 
 fi
 
@@ -205,7 +210,30 @@ if [ $SYSTEM == "Darwin" ]; then
     fi
 
     sudo ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+
+    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
+        touch "$HOME/.zshrc"
+        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zshrc
+    fi
+
+    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
+        touch "$HOME/.zsh_profile"
+        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zsh_profile
+    fi
+
+    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
+        touch "$HOME/.bash_profile"
+        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bash_profile
+    fi
+
+    if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
+        touch "$HOME/.bashrc"
+        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
+    fi    
 fi
+
+cd $HOME/temp
+sudo rm -rf gridlabd*
 
 if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "A fast install image was not located for your operating system."
