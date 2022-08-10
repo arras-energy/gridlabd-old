@@ -95,8 +95,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 	
-D_ARCH=$(uname -m)
-if [ $D_ARCH == "aarch64" ]; then
 	if [ ! -e $HOME/temp ]; then
 		mkdir $HOME/temp
 	fi
@@ -106,7 +104,7 @@ if [ $D_ARCH == "aarch64" ]; then
 	cd gdal-2.4.0
 	./configure
 	sudo make clean && sudo make && sudo make install
-fi
+
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y

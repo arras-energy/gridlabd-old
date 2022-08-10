@@ -99,6 +99,16 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 		sudo ldconfig
 	fi
 
+	if [ ! -e $HOME/temp ]; then
+		mkdir $HOME/temp
+	fi
+	cd $HOME/temp
+	sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
+	unzip gdal304.zip
+	cd gdal-3.0.4
+	./configure
+	sudo make clean && sudo make && sudo make install
+
 	# manually set install due to pip not adjusting automatically for ubuntu's limitations
 	sudo add-apt-repository ppa:ubuntugis/ppa -y
 	sudo apt-get update -y
