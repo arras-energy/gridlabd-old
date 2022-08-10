@@ -14,6 +14,7 @@ D_ARCH=$(uname -m)
 
 if [ $SYSTEM == "Darwin" ]; then
     cp /opt/homebrew/lib/lib* /usr/local/opt/gridlabd/lib
+    find /opt/homebrew/opt/lib*/lib -type f -name "lib*.*" -exec cp "{}" /usr/local/opt/gridlabd/lib \;
 fi
 
 if [ ! -e $HOME/temp ]; then
