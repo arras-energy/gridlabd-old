@@ -5,6 +5,7 @@ REQ_DIR=$(pwd)
 # update first
 sudo apt-get -q update
 
+sudo apt install libgdal-dev -y
 sudo apt-get install tzdata -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
@@ -50,7 +51,6 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-sudo apt install libgdal-dev -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 cd $HOME

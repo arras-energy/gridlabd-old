@@ -17,10 +17,6 @@ if [ $SYSTEM == "Darwin" ]; then
     cp /opt/homebrew/opt/*/lib/lib*.* /usr/local/opt/gridlabd/lib
 fi
 
-if [ $SYSTEM == "Linux" ]; then
-    cp /usr/local/lib/libgdal* /usr/local/opt/gridlabd/lib
-fi
-
 if [ ! -e $HOME/temp ]; then
     echo "Home temp folder not found. Generating home temp folder."
     mkdir $HOME/temp

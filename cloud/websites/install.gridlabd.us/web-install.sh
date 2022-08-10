@@ -90,6 +90,7 @@ if test $D_ARCH != "arm64"; then
 
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
+        sudo apt-get install libgdal-dev -y
 
         if [ $L_DISTRO == "Debian" ]; then
             sudo apt-get install g++ -y
@@ -185,6 +186,7 @@ else
 
         echo "Ensuring additional system dependencies installed."
         sudo apt-get install curl -y
+        sudo apt-get install libgdal-dev -y
 
         if [ $L_DISTRO == "Debian" ]; then
             sudo apt-get install g++ -y
