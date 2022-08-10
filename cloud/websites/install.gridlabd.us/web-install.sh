@@ -203,13 +203,8 @@ else
 
 fi
 
+# Darwin can vary a lot in how their shells add to path. So just hit them all. 
 if [ $SYSTEM == "Darwin" ]; then
-    if test ! -e /usr/local/lib; then
-        cd /usr/local
-        sudo mkdir lib
-    fi
-
-    sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
 
     if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
         touch "$HOME/.zshrc"
@@ -231,6 +226,15 @@ if [ $SYSTEM == "Darwin" ]; then
         echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
     fi    
 fi
+
+# link all libraries from package to /usr/local/lib, necessary for darwin and specific packages are hardcoded.
+# makes life easier this way.  
+if test ! -e /usr/local/lib; then
+    cd /usr/local
+    sudo mkdir lib
+fi
+
+sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
 
 cd $HOME/temp
 sudo rm -rf gridlabd*
