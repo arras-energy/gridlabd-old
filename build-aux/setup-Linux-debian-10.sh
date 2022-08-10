@@ -50,6 +50,7 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
+sudo apt-get install libgdal-dev -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 cd $HOME
