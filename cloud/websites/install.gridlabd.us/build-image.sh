@@ -12,6 +12,10 @@ KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
 
+if [ $SYSTEM == "Darwin" ]; then
+    cp /opt/homebrew/lib/lib* /usr/local/opt/gridlabd/lib
+fi
+
 if [ ! -e $HOME/temp ]; then
     echo "Home temp folder not found. Generating home temp folder."
     mkdir $HOME/temp
