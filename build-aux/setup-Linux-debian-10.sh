@@ -96,7 +96,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 	
 D_ARCH=$(uname -m)
-if [ $D_ARCH == "arm64" ]; then
+if [ $D_ARCH == "aarch64" ]; then
 	if [ ! -e $HOME/temp ]; then
 		mkdir $HOME/temp
 	fi
