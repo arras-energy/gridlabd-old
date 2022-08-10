@@ -209,7 +209,7 @@ if [ $SYSTEM == "Darwin" ]; then
         sudo mkdir lib
     fi
 
-    sudo ln -sf /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
+    sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
 
     if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
         touch "$HOME/.zshrc"
