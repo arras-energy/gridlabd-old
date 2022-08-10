@@ -50,7 +50,7 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-sudo apt install libgdal-dev -y
+sudo apt install libgdal20 -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 cd $HOME
@@ -97,7 +97,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
-	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
+	sudo apt-get install python-numpy gdal-bin libgdal20 -y
 	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==2.4.0
 	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
 
