@@ -13,6 +13,9 @@ fi
 D_ARCH=$(uname -m)
 EXE=$0
 TOP=$(cd ${EXE/version.sh/..}; pwd)
+cd $TOP
+cd ../../..
+TOP=$(cd ${EXE/version.sh/..}; pwd)
 FIL="${TOP}/source/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
