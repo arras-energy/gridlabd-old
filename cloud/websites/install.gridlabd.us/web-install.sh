@@ -95,9 +95,9 @@ else
     cd $HOME/tmp
 fi 
 
-if [ "$DLTOOL" = "curl"]; then
+if [ "$DLTOOL" = "curl" ]; then
     curl -O -J https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
-elif [ "$DLTOOL" = "wget"]; then
+elif [ "$DLTOOL" = "wget" ]; then
     wget https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
 fi
 
@@ -121,9 +121,9 @@ BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A
 if test $D_ARCH != "arm64"; then
 
         echo "Downloading image to your home tmp folder."
-        if [ "$DLTOOL" = "curl"]; then
+        if [ "$DLTOOL" = "curl" ]; then
             curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        elif [ "$DLTOOL" = "wget"]; then
+        elif [ "$DLTOOL" = "wget" ]; then
             wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         fi
 
@@ -187,9 +187,9 @@ if test $D_ARCH != "arm64"; then
 else
 
         echo "Downloading image to your home tmp folder."
-        if [ "$DLTOOL" = "curl"]; then
+        if [ "$DLTOOL" = "curl" ]; then
             curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        elif [ "$DLTOOL" = "wget"]; then
+        elif [ "$DLTOOL" = "wget" ]; then
             wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         fi
 
