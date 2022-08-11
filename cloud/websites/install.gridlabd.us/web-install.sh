@@ -1,5 +1,42 @@
 #!/bin/bash
 
+############################################################
+# Help                                                     #
+############################################################
+Help()
+{
+   # Display Help
+   echo "Set fast install options"
+   echo
+   echo "Syntax: ./install.sh [-b|h]"
+   echo "options:"
+   echo "b     Set the image branch (default master)"
+   echo "h     Print this Help."
+   echo
+}
+
+############################################################
+############################################################
+# Main program                                             #
+############################################################
+############################################################
+
+# check if necessary tools already installed
+
+DLTOOL=
+
+if which which curl >/dev/null ; then
+    echo "Downloading via curl."
+    DLTOOL=curl
+elif wget >/dev/null ; then
+    echo "Downloading via wget."
+    DLTOOL=wget
+else
+    echo "Cannot download, neither wget nor curl is available."
+    echo "Please install curl, or wget, to continue."
+    exit 1;
+fi
+
 # Gather system information for correct install
 
 SYSTEM=$(uname -s)
@@ -11,38 +48,91 @@ KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 L_DISTRO="$ID"
 fi
 D_ARCH=$(uname -m)
+BRANCH=master
+
+# check if user has necessary permissions
+
+if grep -q docker /proc/1/cgroup ; then 
+    if [ ! -w /usr/local ]; then
+        echo "User is not root. Please run as root user."
+        exit;;
+    fi
+
+    if test $SYSTEM == "Linux"; then
+        apt-get update && apt-get -y install sudo
+    fi
+
+fi
+
+############################################################
+# Process the input options. Add options as needed.        #
+############################################################
+# Get the options
+while getopts ":hb:" option; do
+   case $option in
+      h) # display Help
+         Help
+         exit;;
+      b) # set branch
+         BRANCH=$OPTARG;;
+      \?) # Invalid flag
+         echo "Error: Invalid flag set"
+         exit;;
+   esac
+done
 
 if test ! -e /usr/local/bin; then
     cd /usr/local
     sudo mkdir bin
 fi
 
+if [ ! -e $HOME/tmp ]; then
+    echo "Home tmp folder not found. Generating home tmp folder."
+    cd $HOME
+    mkdir tmp
+    cd tmp
+else
+    cd $HOME/tmp
+fi 
+
+if [ "$DLTOOL" = "curl"]; then
+    curl -O -J https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
+elif [ "$DLTOOL" = "wget"]; then
+    wget https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
+fi
+
+if [ ! -f "$HOME/tmp/version.h" ]; then
+    echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    exit;;
+elif grep -q "404: Not Found" "$HOME/tmp/version.h"; then
+    echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    rm -rf version.h
+    exit;;
+fi
+
+FIL="$HOME/tmp/version.h"
+MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 _ | sed 's/_+/_/g;s/_$//;s/^_//'`
+
 # Standard universal image install for non-arm systems
 
 if test $D_ARCH != "arm64"; then
 
-    # Darwin specific setup for necessary tools
-    if [ $SYSTEM == "Darwin" ]; then
-        brew update || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew doctor
-
-        brew install wget
-    fi
-
-    if [ ! -e $HOME/tmp ]; then
-        echo "Home tmp folder not found. Generating home tmp folder."
-        cd $HOME
-        mkdir tmp
-        cd tmp
         echo "Downloading image to your home tmp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        if [ "$DLTOOL" = "curl"]; then
+            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        elif [ "$DLTOOL" = "wget"]; then
+            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        fi
 
-        if [ ! -e $HOME/tmp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
 
         if [ ! -e /usr/local/opt ]; then
@@ -53,21 +143,6 @@ if test $D_ARCH != "arm64"; then
         cd $HOME/tmp
         sudo mv gridlabd /usr/local/opt
         echo "Gridlabd installed. Adding to path."
-    else
-        cd $HOME/tmp
-        echo "Downloading image to your home tmp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
-        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
-
-        if [ ! -e /usr/local/opt ]; then
-            cd /usr/local
-            sudo mkdir opt
-        fi
-
-        cd $HOME/tmp
-        sudo mv gridlabd /usr/local/opt
-        echo "Gridlabd installed. Adding to path."
-    fi
 
     if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
@@ -111,49 +186,20 @@ if test $D_ARCH != "arm64"; then
 # Code for arm64 installations
 else
 
-    # Darwin specific setup for necessary tools
-    if [ $SYSTEM == "Darwin" ]; then
-        brew update
-        if test ! -e /opt/homebrew; then 
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        fi
-        export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
-        brew update-reset
-        brew doctor
-
-        brew install wget
-        # TODO - update more as needed
-    fi
-
-    if [ ! -e $HOME/tmp ]; then
-        echo "Home tmp folder not found. Generating home tmp folder."
-        cd $HOME
-        mkdir tmp
-        cd tmp
         echo "Downloading image to your home tmp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        if [ "$DLTOOL" = "curl"]; then
+            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        elif [ "$DLTOOL" = "wget"]; then
+            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        fi
 
-        if [ ! -e $HOME/tmp/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
+        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
-
-        if [ ! -e /usr/local/opt ]; then
-            cd /usr/local
-            sudo mkdir opt
-        fi
-
-        cd $HOME/tmp
-        sudo mv gridlabd /usr/local/opt
-        echo "Gridlabd installed. Adding to path."
-    else
-        cd $HOME/tmp
-        echo "Downloading image to your home tmp folder."
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
-        tar -xzf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2
 
         if [ ! -e /usr/local/opt ]; then
             cd /usr/local
@@ -238,8 +284,11 @@ fi
 
 sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
 
+echo "Cleaning up temporary files"
+
 cd $HOME/tmp
 sudo rm -rf gridlabd*
+sudo rm -rf version.h
 
 if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "A fast install image was not located for your operating system."

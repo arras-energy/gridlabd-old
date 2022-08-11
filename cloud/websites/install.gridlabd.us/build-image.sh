@@ -25,16 +25,18 @@ if [ $SYSTEM == "Darwin" ]; then
     cp /opt/homebrew/opt/*/lib/lib*.* /usr/local/opt/gridlabd/lib
 fi
 
+# MAJ MIN PAT, how would a user get these values from an install script?
+
 if [ ! -e $HOME/tmp ]; then
     echo "Home tmp folder not found. Generating home tmp folder."
     mkdir $HOME/tmp
     cd $HOME/tmp
     echo "Saving image in your home tmp folder."
-    tar -czf gridlabd-$MAJ_$MIN_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 else
     cd $HOME/tmp
     echo "Saving image in your home tmp folder."
-    tar -czf gridlabd-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-master.tar.bz2 -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 fi
