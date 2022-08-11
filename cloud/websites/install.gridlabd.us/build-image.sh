@@ -20,7 +20,7 @@ FIL="${TOP}/source/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
-BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 _ | sed 's/_+/_/g;s/_$//;s/^_//'`
+BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 - | sed 's/-+/-/g;s/-$//;s/^-//'`
 
 
 if [ $SYSTEM == "Darwin" ]; then
@@ -35,11 +35,11 @@ if [ ! -e $HOME/tmp ]; then
     mkdir $HOME/tmp
     cd $HOME/tmp
     echo "Saving image in your home tmp folder."
-    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 else
     cd $HOME/tmp
     echo "Saving image in your home tmp folder."
-    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 fi
