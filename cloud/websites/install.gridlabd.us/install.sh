@@ -294,3 +294,5 @@ if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "You will need to build Gridlabd from source."
             exit 1
 fi
+
+echo "Refresh your terminal or open a new terminal window to begin using gridlabd!"
