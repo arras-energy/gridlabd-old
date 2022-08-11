@@ -34,7 +34,7 @@ elif wget >/dev/null ; then
 else
     echo "Cannot download, neither wget nor curl is available."
     echo "Please install curl, or wget, to continue."
-    exit 1;
+    exit 1
 fi
 
 # Gather system information for correct install
@@ -55,7 +55,7 @@ BRANCH=master
 if grep -q docker /proc/1/cgroup ; then 
     if [ ! -w /usr/local ]; then
         echo "User is not root. Please run as root user."
-        exit;;
+        exit 1
     fi
 
     if test $SYSTEM == "Linux"; then
@@ -103,11 +103,11 @@ fi
 
 if [ ! -f "$HOME/tmp/version.h" ]; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
-    exit;;
+    exit 1
 elif grep -q "404: Not Found" "$HOME/tmp/version.h"; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
     rm -rf version.h
-    exit;;
+    exit 1
 fi
 
 FIL="$HOME/tmp/version.h"
