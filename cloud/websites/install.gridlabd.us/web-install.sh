@@ -25,10 +25,10 @@ Help()
 
 DLTOOL=
 
-if which which curl >/dev/null ; then
+if which curl >/dev/null ; then
     echo "Downloading via curl."
     DLTOOL=curl
-elif wget >/dev/null ; then
+elif which wget >/dev/null ; then
     echo "Downloading via wget."
     DLTOOL=wget
 else
