@@ -114,6 +114,7 @@ FIL="$HOME/tmp/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+BRA=${BRANCH//-/_}
 
 # Standard universal image install for non-arm systems
 
@@ -121,17 +122,17 @@ if test $D_ARCH != "arm64"; then
 
         echo "Downloading image to your home tmp folder."
         if [ "$DLTOOL" = "curl" ]; then
-            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         elif [ "$DLTOOL" = "wget" ]; then
-            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         fi
 
-        if [ ! -e $HOME/tmp/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xzf gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
 
         if [ ! -e /usr/local/opt ]; then
@@ -166,11 +167,11 @@ if test $D_ARCH != "arm64"; then
         sudo apt-get install curl -y
         sudo apt-get install libgdal-dev -y
 
-        if [ $L-DISTRO == "Debian" ]; then
+        if [ $L_DISTRO == "Debian" ]; then
             sudo apt-get install g++ -y
         fi
 
-        if [ $L-DISTRO == "Ubuntu" ]; then
+        if [ $L_DISTRO == "Ubuntu" ]; then
             sudo apt-get install libgeos-dev -y
         fi
 
@@ -187,17 +188,17 @@ else
 
         echo "Downloading image to your home tmp folder."
         if [ "$DLTOOL" = "curl" ]; then
-            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         elif [ "$DLTOOL" = "wget" ]; then
-            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
         fi
 
-        if [ ! -e $HOME/tmp/gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz ]; then
+        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
         fi
-        tar -xzf gridlabd-$MAJ\-$MIN\-$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
+        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
 
         if [ ! -e /usr/local/opt ]; then
