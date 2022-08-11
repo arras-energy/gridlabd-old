@@ -43,7 +43,3 @@ else
     tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 fi
-
-wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-4_3_1-Linux-ubuntu-20-5-aarch64-develop-fix-m1-mac-setup-arm64.tarz
-wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-4_3_1-Linux-ubuntu-20-5-aarch64-develop_fix_m1_mac_setup_arm64.tarz
-wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRANCH.tarz
