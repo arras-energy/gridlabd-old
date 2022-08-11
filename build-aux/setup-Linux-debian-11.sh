@@ -95,15 +95,17 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
 
-	if [ ! -e $HOME/temp ]; then
-		mkdir $HOME/temp
+	if ! gdal-config --version &> /dev/null ; then
+		if [ ! -e $HOME/temp ]; then
+			mkdir $HOME/temp
+		fi
+		cd $HOME/temp
+		sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
+		unzip gdal304.zip
+		cd gdal-3.0.4
+		./configure
+		sudo make clean && sudo make && sudo make install
 	fi
-	cd $HOME/temp
-	sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
-	unzip gdal304.zip
-	cd gdal-3.0.4
-	./configure
-	sudo make clean && sudo make && sudo make install
 
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
