@@ -120,29 +120,29 @@ BRA=${BRANCH//-/_}
 
 if test $D_ARCH != "arm64"; then
 
-        echo "Downloading image to your home tmp folder."
-        if [ "$DLTOOL" = "curl" ]; then
-            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        elif [ "$DLTOOL" = "wget" ]; then
-            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        fi
+    echo "Downloading image to your home tmp folder."
+    if [ "$DLTOOL" = "curl" ]; then
+        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    elif [ "$DLTOOL" = "wget" ]; then
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    fi
 
-        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
-            echo "A fast install image was not located for your operating system."
-            echo "You will need to build Gridlabd from source."
-            exit 1
-        fi
-        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
+        echo "A fast install image was not located for your operating system."
+        echo "You will need to build Gridlabd from source."
+        exit 1
+    fi
+    tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
 
-        if [ ! -e /usr/local/opt ]; then
-            cd /usr/local
-            sudo mkdir opt
-        fi
+    if [ ! -e /usr/local/opt ]; then
+        cd /usr/local
+        sudo mkdir opt
+    fi
 
-        cd $HOME/tmp
-        sudo mv gridlabd /usr/local/opt
-        echo "Gridlabd installed. Adding to path."
+    cd $HOME/tmp
+     sudo mv gridlabd /usr/local/opt
+    echo "Gridlabd installed. Adding to path."
 
     if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
@@ -186,30 +186,29 @@ if test $D_ARCH != "arm64"; then
 # Code for arm64 installations
 else
 
-        echo "Downloading image to your home tmp folder."
-        if [ "$DLTOOL" = "curl" ]; then
-            curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        elif [ "$DLTOOL" = "wget" ]; then
-            wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-        fi
-
-        if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
-            echo "A fast install image was not located for your operating system."
-            echo "You will need to build Gridlabd from source."
-            exit 1
-        fi
-        tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-
-
-        if [ ! -e /usr/local/opt ]; then
-            cd /usr/local
-            sudo mkdir opt
-        fi
-
-        cd $HOME/tmp
-        sudo mv gridlabd /usr/local/opt
-        echo "Gridlabd installed. Adding to path."
+    echo "Downloading image to your home tmp folder."
+    if [ "$DLTOOL" = "curl" ]; then
+        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    elif [ "$DLTOOL" = "wget" ]; then
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
+
+    if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
+        echo "A fast install image was not located for your operating system."
+        echo "You will need to build Gridlabd from source."
+        exit 1
+    fi
+    tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+
+
+    if [ ! -e /usr/local/opt ]; then
+        cd /usr/local
+        sudo mkdir opt
+    fi
+
+    cd $HOME/tmp
+    sudo mv gridlabd /usr/local/opt
+    echo "Gridlabd installed. Adding to path."
 
     if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
