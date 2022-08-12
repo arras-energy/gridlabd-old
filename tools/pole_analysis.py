@@ -107,10 +107,10 @@ def syntax(code=None):
 VERBOSE = False
 DEFAULT_WIND_SPEED = 8.8233 # in m/s for wind load 1
 DEFAULT_WIND_DIRECTION = 0.0 # in degree
-DEFAULT_DIRECTION_INCREMENT = 10 # in deg
-DEFAULT_SPEED_INCREMENT = 5 # in m/s
-DEFAULT_SEGMENT_DIVES = 100
-DEFAULT_MODULUE_ELASTICITY = 343e+6 # lbs/ft2
+DEFAULT_DIRECTION_INCREMENT = 10.0 # in deg
+DEFAULT_SPEED_INCREMENT = 5.0 # in m/s
+DEFAULT_SEGMENT_DIVES = 100.0
+DEFAULT_MODULUE_ELASTICITY = 343000000.0 # lbs/ft2
 ice_density = 0.03312 # lbs/in3
 initDef = 0.0
 initRot = 0.0
@@ -520,7 +520,7 @@ def main(inputfile,**options):
     if segment_dives == None:
         segment_dives = DEFAULT_SEGMENT_DIVES
     if modulus_elasticity == None:
-        modulus_elasticity = DEFAULT_SEGMENT_DIVES
+        modulus_elasticity = DEFAULT_MODULUE_ELASTICITY
 
     # input
     if inputfile.endswith(".glm"):
@@ -985,6 +985,9 @@ def main(inputfile,**options):
                     "worst_angle" : f"{anaglysis_results['worst_angle']} deg",
                     "wind_speed" : f"{anaglysis_results['worst_angle_speed']} m/s",
                 }
+            df_output = pd.DataFrame.from_dict(outputdata)
+            df_output = df_output.T
+            df_output.to_csv (outputfile, index = True, header=True)
         elif ANALYSIS == "critical_speed":
             for key in pole_analysis.keys():
                 anaglysis_results = pole_analysis[key]
@@ -992,24 +995,25 @@ def main(inputfile,**options):
                     "critical_wind_speed" : f"{anaglysis_results['critical_wind_speed']} m/s",
                     "wind_direction" : f"{anaglysis_results['critical_wind_direction']} deg",
                 }
+            df_output = pd.DataFrame.from_dict(outputdata)
+            df_output = df_output.T
+            df_output.to_csv (outputfile, index = True, header=True)
         elif ANALYSIS == "loading_scenario":
             for key in pole_analysis.keys():
                 anaglysis_results = pole_analysis[key]
                 ShearForce = np.sqrt(anaglysis_results['xShearForce']**2+anaglysis_results['xShearForce']**2)
                 BendingMoment = np.sqrt(anaglysis_results['xBendingMoment']**2+anaglysis_results['yBendingMoment']**2)
                 Deflection = np.sqrt(anaglysis_results['xDeflection']**2+anaglysis_results['yDeflection']**2)
-                outputdata[key] = {
-                    "analysis_height" : anaglysis_results['analysis_height'].tolist(),
-                    "shear_force" : ShearForce.tolist(),
-                    "bending_moment" : BendingMoment.tolist(),
-                    "pole_deflection" : Deflection.tolist(),
-                    "stress" : anaglysis_results['stress'].tolist(),
-                }
+                outputdata[f"{key}.analysis_height"] = anaglysis_results['analysis_height'].tolist()
+                outputdata[f"{key}.shear_force"] = ShearForce.tolist()
+                outputdata[f"{key}.bending_moment"] = BendingMoment.tolist()
+                outputdata[f"{key}.pole_deflection"] = Deflection.tolist()
+                outputdata[f"{key}.stress"] = anaglysis_results['stress'].tolist()
+            df_output = pd.DataFrame.from_dict(outputdata)
+            df_output.to_csv (outputfile)
         else:
             error(f"analysis {ANALYSIS} isn't supported",3)
-        df_output = pd.DataFrame.from_dict(outputdata)
-        df_output = df_output.T
-        df_output.to_csv (outputfile, index = True, header=True)
+
     else:
         if ANALYSIS == "worst_angle":
             for key in pole_analysis.keys():
