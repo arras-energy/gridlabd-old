@@ -435,7 +435,6 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         {
             const double D1 = config->top_diameter/12;
             const double D0 = (diameter-current_hollow_diameter)/12;
-            const double H = height;
             const double rho = config->material_density;
             pole_moment += 0.125 * rho * PI * height * height * sin(tilt_angle/180*PI) * ((D0+D1)*(D0+D1)/6 + D1*D1/3);
         }
