@@ -18,10 +18,10 @@ public:
     GL_ATOMIC(object,equipment);
     GL_ATOMIC(double,height);
     GL_ATOMIC(double,offset);
-    GL_ATOMIC(double,offset_directio);
     GL_ATOMIC(double,direction);
-    GL_ATOMIC(double,weight);
     GL_ATOMIC(double,area);
+    // GL_ATOMIC(double,heading_direction);
+    GL_ATOMIC(double,weight);
     GL_ATOMIC(double,pole_spacing);
     GL_ATOMIC(double, wind_speed);
     GL_ATOMIC(double, wind_direction);
@@ -39,9 +39,6 @@ private:
     double line_moment_nowind;
     double line_moment_tension;
     double line_load_nowind;
-    // double equipment_x_tilt;
-    // double equipment_y_tilt;
-    // double equipment_z_tilt;
     double equipment_offset;
 public:
 	pole_mount(MODULE *);
