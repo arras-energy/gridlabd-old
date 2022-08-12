@@ -50,9 +50,9 @@ pole_mount::pole_mount(MODULE *mod)
                 PT_DEFAULT, "0.0 sf",
                 PT_DESCRIPTION, "cross sectional area of equipment",
 
-            PT_double, "heading_direction[deg]", get_direction_offset(),
-                PT_DEFAULT, "0.0 deg",
-                PT_DESCRIPTION, "direction at which the powerline pulls away from the pole",
+            // PT_double, "heading_direction[deg]", get_direction_offset(),
+            //     PT_DEFAULT, "0.0 deg",
+            //     PT_DESCRIPTION, "direction at which the powerline pulls away from the pole",
 
             PT_double, "weight[lb]", get_weight_offset(),
                 PT_DEFAULT, "0.0 lb",
