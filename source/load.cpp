@@ -7250,6 +7250,8 @@ int writefile(char *fname, char *specs)
 		output_error("writefile(char *fname='%s', char *specs='%s'): unknown filetype for extension '%s'",fname,specs,ext);
 	}
 
+	if ( strcmp(specs,"") == 0 )
+		return saveall(fname);
 
 	// separate class and properties
 	char *classes = NULL;
@@ -8239,8 +8241,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#write", 6) == 0 )
 	{
-		char fname[1024], specs[1024];
-		if ( sscanf(line+6,"%s %s",fname,specs) == 2)
+		char fname[1024], specs[1024] = "";
+		if ( sscanf(line+6,"%s %s",fname,specs) >= 1)
 		{
 			if ( writefile(fname,specs) < 0 )
 			{
