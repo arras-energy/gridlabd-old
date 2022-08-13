@@ -141,6 +141,7 @@ def glm_header(inputfile,outputfile):
 //    TRANSFORMER_RESISTANCE = {TRANSFORMER_RESISTANCE}
 //    TRANSFORMER_REACTANCE = {TRANSFORMER_REACTANCE}
 module residential;
+module powerflow;
 """
 
 def glm_transformer_configuration(configuration,nominal_voltage,primary_phases):
@@ -167,13 +168,17 @@ def glm_transformer(obj,n,configuration,phases):
 }}
 """
 
-def glm_house(obj,n,phases):
+def glm_house(obj,n,phases,parent=None):
+    if parent:
+        parent = f'\n    parent "{parent}";'
+    else:
+        parent = ''
     return f"""object {'triplex_meter' if is_triplex(phases) else 'meter'} {{
-    name "{obj}_meter_{n}";
+    name `{obj}_meter_{n}`;{parent}
     phases {phases};
     nominal_voltage {SECONDARY_VOLTAGE};
-    object house {{
-        name "{obj}_house_{n}";
+    object house:..{n} {{
+        name `{obj}_house_{{id}}`;
     }};
 }}
 """
@@ -206,7 +211,6 @@ def main(inputfile,outputfile,**kwargs):
 
     # prepare result data
     result = [glm_header(inputfile,outputfile)]
-    unique_id = hex(random.randint(1e7,1e8))[2:]
     for obj, data in glm['objects'].items():
         n = 0
         if data['class'] == 'load':
@@ -234,7 +238,7 @@ def main(inputfile,outputfile,**kwargs):
                         primary_phases = data['phases']
                         secondary_phases = connect_secondary(primary_phases)
                         if nominal_voltage > int(float(SECONDARY_VOLTAGE.split()[0])):
-                            configuration_name = f"xfrmcfg_{data['phases']}_{nominal_voltage}_{unique_id}"
+                            configuration_name = f"xfrmcfg_{data['phases']}_{nominal_voltage}"
                             if configuration_name in transformers.keys():
                                 configuration = transformers[configuration_name]
                             else:
@@ -244,12 +248,10 @@ def main(inputfile,outputfile,**kwargs):
                                 result.append(transformers[configuration_name])
 
                             result.append(glm_transformer(obj,n,configuration_name,primary_phases))
-                            parent = f"{obj}_xfrm_{n}"
-                        else:
-                            parent = f"{obj}"
+                            parent = None
 
                         # generate house object
-                        result.append(glm_house(obj,n,secondary_phases))
+                        result.append(glm_house(obj,n,secondary_phases,parent))
                         # print(obj,key,load)
                 n += 1
     if outputfile:
@@ -280,7 +282,11 @@ if __name__ == "__main__":
         else:
             value = "=".join(spec[1:])
 
-        if tag in ["-i","--inputfile"]:
+        if tag in ["-h","--help","help"]:
+            print(__doc__)
+            inputfile = None
+            break
+        elif tag in ["-i","--inputfile"]:
             inputfile = value
         elif tag in ["-o","--outputfile"]:
             outputfile = value
@@ -297,7 +303,8 @@ if __name__ == "__main__":
         else:
             error(f"option '{arg}' is invalid")
 
-    result = main(inputfile,outputfile,**OPTIONS)
-    if result:
-        print(result,file=sys.stdout)
+    if inputfile:
+        result = main(inputfile,outputfile,**OPTIONS)
+        if result:
+            print(result,file=sys.stdout)
 
