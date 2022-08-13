@@ -193,5 +193,3 @@ module/powerflow/autotest/switch_1.csv
 module/powerflow/autotest/switch_2.csv
 module/powerflow/autotest/switch_3.csv
 module/powerflow/autotest/switch_4.csv
-tools/autotest/test_meteostat_opt.csv
-tools/autotest/test_meteostat_opt.glm
