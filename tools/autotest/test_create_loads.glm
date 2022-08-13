@@ -3112,5 +3112,3 @@ object recorder
 #ifexists "test_create_loads.csv"
 #on_exit 0 diff ../test_create_loads.csv test_create_loads.csv
 #endif
-
-#on_exit
