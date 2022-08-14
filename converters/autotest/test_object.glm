@@ -7,7 +7,7 @@ class test {
     double value2;
 }
 
-#convert -i ${DIR:-.}/test_object.csv -o test_object_opt.glm -f csv-table -t glm-object
+#convert -i ${DIR:-.}/test_object.csv -o test_object_opt.glm -f csv-table -t glm-object class=test
 #include "test_object_opt.glm"
 
 #ifexist ../test_object_opt.glm
