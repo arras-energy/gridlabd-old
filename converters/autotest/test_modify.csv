@@ -1,0 +1,4 @@
+load1.phases,ABC
+load1.nominal_voltage,120 V
+load1.constant_power_A,10
+load1.constant_power_B,8
