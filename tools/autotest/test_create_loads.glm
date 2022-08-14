@@ -3097,18 +3097,19 @@ module tape
 {
     csv_header_type NAME;
 }
+
 object recorder
 {
     parent "substation_meter";
     file "test_create_loads.csv";
-    property "measured_power";
-    interval 3600;
+    property "measured_real_power,measured_reactive_power,measured_real_energy";
+    interval -1;
 }
 
-#write test_create_loads_opt.json
-#python -m create_loads -i=test_create_loads_opt.json -o=test_create_loads_opt.glm
+#write test_create_loads.json
+#python -m create_loads -i=test_create_loads.json -o=test_create_loads_opt.glm HOUSE_PROPERTIES='floor_area:random.triangle(1000,2000);gas_enduses:WATERHEATER|DRYER'
 #include "test_create_loads_opt.glm"
 
-#ifexists "test_create_loads.csv"
+#ifexists "../test_create_loads.csv"
 #on_exit 0 diff ../test_create_loads.csv test_create_loads.csv
 #endif

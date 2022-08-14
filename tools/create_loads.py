@@ -17,20 +17,24 @@ Syntax:
         KEY=VALUE
 
             Set an option. Valid options and defaults are:
-                HOUSE_LOAD = 10e3
-                MIN_POWER_FACTOR = -0.85
-                MAX_POWER_FACTOR = 0.85
-                FIX_POWER_FACTOR = True
-                TRANSFORMER_INSTALL_TYPE = "PADMOUNT"
-                HOUSES_PER_TRANSFORMER = 4
-                TRANSFORMER_OVERSIZE_FACTOR = 2.0
-                SECONDARY_VOLTAGE = "120 V"
-                TRANSFORMER_CONNECTION = "SINGLE_PHASE_CENTER_TAPPED"
-                TRANSFORMER_RESISTANCE = "0.01 Ohm"
-                TRANSFORMER_REACTANCE = "0.06 Ohm"
+                FIX_POWER_FACTOR = True: fix power factor if outside min/max range
+                HOUSE_LOAD = 10e3: nominal power per house
+                HOUSES_PER_TRANSFORMER = 4: nomimal number of houses per transformer
+                MAX_POWER_FACTOR = 0.85: lagging power factor limit
+                MIN_POWER_FACTOR = -0.85: leading power factor limit
+                SECONDARY_VOLTAGE = "120 V": nominal secondary voltage 
+                TRANSFORMER_INSTALL_TYPE = "PADMOUNT": transformer installation type
+                TRANSFORMER_OVERSIZE_FACTOR = 2.0: transformer oversizing factor
+                TRANSFORMER_REACTANCE = "0.06 Ohm": transformer reactance
+                TRANSFORMER_RESISTANCE = "0.01 Ohm": transformer resistance
+                HOUSE_PROPERTIES: general house property settings (semicolon list of '<property>:<value>')
 
+The `create_loads` tool generates a physical load model for a network model. Only non-zero
+loads are converted to physical load entities. The original load magnitude is used as the
+basis for converting the load object.  Three phase loads are converted to a three phase
+building (either )
 
-The `create_loads` tool generates a physical load model for a network model.
+Each phase of each load bus is assigned as many houses as will be supported given the HOUSE_LOAD.
 
 """
 
@@ -70,26 +74,28 @@ def warning(msg):
         print(f"WARNING [{EXENAME}]: {msg}",file=sys.stderr)
 
 def debug(msg):
+    import inspect
     if DEBUG:
-        print(f"DEBUG [{EXENAME}]: {msg}",file=sys.stderr)
+        print(f"DEBUG [{os.path.basename(inspect.stack()[1].filename)}@{inspect.stack()[1].lineno}]: {msg}",file=sys.stderr)
 
 def verbose(msg):
     if VERBOSE:
         print(f"VERBOSE [{EXENAME}]: {msg}",file=sys.stderr)
 
-NETWORK_FILE = None
-OUTPUT_FILE = None
 OPTIONS = dict(
-    HOUSE_LOAD = 10e3, # Load of a single house in Watts
-    MIN_POWER_FACTOR = -0.85,
-    MAX_POWER_FACTOR = 0.85,
     FIX_POWER_FACTOR = True,
-    TRANSFORMER_INSTALL_TYPE = "PADMOUNT",
+    HOUSE_LOAD = 10e3,
     HOUSES_PER_TRANSFORMER = 4,
-    TRANSFORMER_OVERSIZE_FACTOR = 2.0,
+    MAX_POWER_FACTOR = 0.85,
+    MIN_POWER_FACTOR = -0.85,
+    MVA_BASE = 100.0,
     SECONDARY_VOLTAGE = "120 V",
-    TRANSFORMER_RESISTANCE = "0.01 Ohm",
+    TRANSFORMER_INSTALL_TYPE = "PADMOUNT",
+    TRANSFORMER_OVERSIZE_FACTOR = 2.0,
     TRANSFORMER_REACTANCE = "0.06 Ohm",
+    TRANSFORMER_RESISTANCE = "0.01 Ohm",
+    IMPLICIT_ENDUSES = "TYPICAL",
+    HOUSE_PROPERTIES = ""
 )
 
 transformers = {}
@@ -140,16 +146,20 @@ def glm_header(inputfile,outputfile):
 //    SECONDARY_VOLTAGE = {SECONDARY_VOLTAGE}
 //    TRANSFORMER_RESISTANCE = {TRANSFORMER_RESISTANCE}
 //    TRANSFORMER_REACTANCE = {TRANSFORMER_REACTANCE}
-module residential;
+//    IMPLICIT_ENDUSES = {IMPLICIT_ENDUSES}
+//    HOUSE_PROPERTIES = {HOUSE_PROPERTIES}
+module residential {{
+    implicit_enduses "{IMPLICIT_ENDUSES}";
+}}
 module powerflow;
 """
 
-def glm_transformer_configuration(configuration,nominal_voltage,primary_phases):
+def glm_transformer_configuration(configuration,nominal_voltage,primary_phases,secondary_phases):
     result = f"""object transformer_configuration {{
     name "{configuration}";
     primary_voltage {nominal_voltage} V;
     secondary_voltage {SECONDARY_VOLTAGE};
-    connect_type {connect_type(primary_phases,connect_secondary(primary_phases))};
+    connect_type {connect_type(primary_phases,connect_secondary(secondary_phases))};
     resistance {TRANSFORMER_RESISTANCE};
     reactance {TRANSFORMER_REACTANCE};
     install_type "{TRANSFORMER_INSTALL_TYPE}";
@@ -158,27 +168,37 @@ def glm_transformer_configuration(configuration,nominal_voltage,primary_phases):
     debug(f"glm_transformer_configuration(configuration={configuration},nominal_voltage={nominal_voltage}) -> {result}")
     return result
 
-def glm_transformer(obj,n,configuration,phases):
-    return f""" object transformer {{
-    name "{obj}_xfrm_{phases}_{n}";
+def glm_transformer(obj,n,configuration,primary_phases,secondary_phases):
+    return f"""object transformer {{
+    name "{obj}_xfrm_{primary_phases}_{n}";
     from "{obj}";
-    to "{obj}_meter_{n}";
-    phases {phases};
+    to "{obj}_node_{n}";
+    phases {secondary_phases};
     configuration "{configuration}";
 }}
 """
 
-def glm_house(obj,n,phases,parent=None):
-    if parent:
-        parent = f'\n    parent "{parent}";'
+def glm_house(obj,n,phases,n_houses):
+    if type(HOUSE_PROPERTIES) is str:
+        properties = HOUSE_PROPERTIES.replace(':',' ') + ";"
     else:
-        parent = ''
-    return f"""object {'triplex_meter' if is_triplex(phases) else 'meter'} {{
-    name `{obj}_meter_{n}`;{parent}
+        properties = "// no properties"
+    if not is_triplex(phases):
+        warning(f"load {obj} is not triplex; unable to attach a house")
+        return f"// load {obj} is not a triplex connection"
+
+    return f"""object triplex_node {{
+    name "{obj}_node_{n}";
     phases {phases};
     nominal_voltage {SECONDARY_VOLTAGE};
-    object house:..{n} {{
-        name `{obj}_house_{{id}}`;
+    object triplex_meter {{
+        name `{obj}_meter_{n}_{{id}}`;
+        phases inherit;
+        nominal_voltage inherit;
+        object house {{
+            name `{obj}_house_{n}_{{id}}`;
+            {properties}
+        }};
     }};
 }}
 """
@@ -196,9 +216,16 @@ def main(inputfile,outputfile,**kwargs):
         globals()[key] = value
     for key,value in kwargs.items():
         if key not in OPTIONS.keys():
-            raise CreateLoadsError(f"option '{key}={value}' is invalid",E_INVALID)
+            error(f"option '{key}={value}' is invalid",E_INVALID)
         globals()[key] = value
-    debug(globals())
+    if VERBOSE:
+        values = {}
+        for key,value in globals().items():
+            if key in OPTIONS.keys():
+                values[key] = value
+        verbose(f"options = {json.dumps(values,indent=4)}")
+    if HOUSES_PER_TRANSFORMER <= 0:
+        error(f"HOUSES_PER_TRANSFORMER must be stricly positive",E_FAILED)
 
     # convert GLM to JSON 
     if os.path.splitext(inputfile)[1] == ".glm":
@@ -211,49 +238,83 @@ def main(inputfile,outputfile,**kwargs):
 
     # prepare result data
     result = [glm_header(inputfile,outputfile)]
+    phase_voltage = {
+        "A" : complex(1,0),
+        "B" : complex(-0.5,-math.sqrt(3/2)),
+        "C" : complex(-0.5,math.sqrt(3/2))
+    }
     for obj, data in glm['objects'].items():
         n = 0
         if data['class'] == 'load':
+            primary_phases = data['phases']
+            nominal_voltage = float(data['nominal_voltage'].split()[0])
+            load_components = {
+                "A":{"power":0j,"current":0j,"impedance":0j},
+                "B":{"power":0j,"current":0j,"impedance":0j},
+                "C":{"power":0j,"current":0j,"impedance":0j},
+                }
             for key, value in data.items():
-                if key.startswith('constant_') and not key.endswith('_real') and not key.endswith('_reac'):
+                spec = key.split('_')
+                if len(spec) == 3 and spec[0] == "constant" and spec[1] in ["power","current","impedance"] and spec[2] in load_components.keys():
                     load = complex(value.split()[0])
-                    if load != 0j:
+                    load_components[spec[2]][spec[1]] += load
+            loads = dict(zip(list(load_components.keys()),[0j for x in load_components.values()]))
+            for phase,total in loads.items():
+                power = load_components[phase]["power"]
+                current = load_components[phase]["current"]
+                impedance = load_components[phase]["impedance"]
+                total += power + current*nominal_voltage*phase_voltage[phase].conjugate()
+                if abs(impedance) > 0:
+                    total += nominal_voltage*nominal_voltage*abs(phase_voltage[phase])/impedance
+                loads[phase] += total
 
-                        # zero the original load object
-                        n_houses = int(load.real/10000)+1
-                        power_factor = (+1 if load.imag<0 else +1) * round(load.real/abs(load),2)
-                        result.append(f'modify {obj}.{key} "0+0i"; // {data["class"]} is {load} -> {n_houses} houses with power factor {power_factor}')
-                        
-                        # fix power factor
-                        if MIN_POWER_FACTOR < power_factor < MAX_POWER_FACTOR:
-                            if FIX_POWER_FACTOR:
-                                power_factor = -min(MIN_POWER_FACTOR,max(MAX_POWER_FACTOR,power_factor))
-                                load = complex(load.real,round(load.real*math.tan(math.acos(power_factor)),2))
-                                result[-1] += f", fixed to {power_factor}, reactive power={load.imag}"
-                            else:
-                                warning(f"{obj}.{key} load {load} has an unusually low power factor={power_factor}")
+            # add load to each phase with non-zero load components
+            for secondary_phases,load in loads.items():
 
-                        # generator transformer object
-                        nominal_voltage = int(float(data['nominal_voltage'].split()[0]))
-                        primary_phases = data['phases']
-                        secondary_phases = connect_secondary(primary_phases)
-                        if nominal_voltage > int(float(SECONDARY_VOLTAGE.split()[0])):
-                            configuration_name = f"xfrmcfg_{data['phases']}_{nominal_voltage}"
-                            if configuration_name in transformers.keys():
-                                configuration = transformers[configuration_name]
-                            else:
+                if load.real < 0:
+                    warning(f"ignore load '{obj}'' on phase '{secondary_phases}'' with negative net real power ({round(load.real,2):g}{round(load.imag):+g}j); (components={load_components[secondary_phases]})")
+                    continue
+                if load == 0j:
+                    continue
 
-                                # create the transformer configuration first
-                                transformers[configuration_name] = glm_transformer_configuration(configuration_name,nominal_voltage,primary_phases)
-                                result.append(transformers[configuration_name])
+                # zero the original load object
+                n_houses = int(load.real/10000/phase_count(primary_phases))+1
+                power_factor = (+1 if load.imag<0 else +1) * round(load.real/abs(load),2)
+                for phase,components in load_components.items():
+                    for component,value in components.items():
+                        if value != 0j:
+                            result.append(f'modify {obj}.constant_{component}_{phase} "0+0i"; // {data["class"]} is {value} -> {n_houses} houses with power factor {power_factor}')
+                
+                # fix power factor
+                if MIN_POWER_FACTOR < power_factor < MAX_POWER_FACTOR:
+                    if FIX_POWER_FACTOR:
+                        power_factor = -min(MIN_POWER_FACTOR,max(MAX_POWER_FACTOR,power_factor))
+                        load = complex(load.real,round(load.real*math.tan(math.acos(power_factor)),2))
+                        result[-1] += f", fixed to {power_factor}, reactive power={load.imag}"
+                    else:
+                        warning(f"{obj}.{key} load {load} has an unusually low power factor={power_factor}")
 
-                            result.append(glm_transformer(obj,n,configuration_name,primary_phases))
-                            parent = None
+                # generate transformer objects
+                # print(obj,secondary_phases,loads,load,n_houses)
+                while n_houses > 0:
+                    if nominal_voltage > float(SECONDARY_VOLTAGE.split()[0]):
+                        configuration_name = f"xfrmcfg_{data['phases']}_{int(nominal_voltage)}"
+                        if configuration_name in transformers.keys():
+                            configuration = transformers[configuration_name]
+                        else:
 
-                        # generate house object
-                        result.append(glm_house(obj,n,secondary_phases,parent))
-                        # print(obj,key,load)
-                n += 1
+                            # create the transformer configuration first
+                            transformers[configuration_name] = glm_transformer_configuration(configuration_name,nominal_voltage,primary_phases,secondary_phases)
+                            result.append(transformers[configuration_name])
+
+                        result.append(glm_transformer(obj,n,configuration_name,primary_phases,secondary_phases))
+
+                    # generate house object
+                    result.append(glm_house(obj,n,secondary_phases+"S",n_houses%HOUSES_PER_TRANSFORMER+1))
+                    n_houses -= HOUSES_PER_TRANSFORMER
+                    n += 1
+            if n == 2:
+                break
     if outputfile:
         with open(outputfile,"w") as fh:
             print('\n'.join(result),file=fh)
@@ -263,7 +324,7 @@ def main(inputfile,outputfile,**kwargs):
 if __name__ == "__main__":
 
     if len(sys.argv) == 1:
-        print("Syntax: gridlabd create_loads NETWORK_FILE.[glm,json] -o LOAD_FILE.[glm,json] [OPTIONS ...]",file=sys.stderr)
+        print("Syntax: gridlabd create_loads -i=NETWORK.{glm,json} -o=LOADS.glm [OPTIONS ...]",file=sys.stderr)
         exit(E_SYNTAX)
 
     inputfile = "/dev/stdin"
@@ -298,13 +359,13 @@ if __name__ == "__main__":
             QUIET = True
         elif tag in ["-w","--warn"]:
             WARNING = False
-        elif tag in OPTIONS.keys():
-            options[tag] = value
+        elif tag in OPTIONS.keys() and value != True:
+            options[tag] = arg.split('=')[1]
         else:
             error(f"option '{arg}' is invalid")
 
     if inputfile:
-        result = main(inputfile,outputfile,**OPTIONS)
+        result = main(inputfile,outputfile,**options)
         if result:
             print(result,file=sys.stdout)
 
