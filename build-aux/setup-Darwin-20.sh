@@ -87,7 +87,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.13.tgz 
 	cd Python-3.9.13
 
-    export MACOSX_DEPLOYMENT_TARGET=20.6
+   # export MACOSX_DEPLOYMENT_TARGET=20.6
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
     --enable-framework=/usr/local/opt/gridlabd \
@@ -130,18 +130,29 @@ fi
 
 brew install gdal
 
-# mdbtools
-brew install mdbtools
-
 # docs generators
-brew install mono
-brew install naturaldocs
-ln -s /usr/local/bin/naturaldocs /usr/local/bin/natural_docs
-brew install doxygen
+    brew install mono
+    brew install naturaldocs
+    sudo ln -sf /usr/local/bin/naturaldocs /usr/local/bin/natural_docs
+
+    brew install doxygen
 
 # influxdb
-brew install influxdb
-brew services start influxdb
+    brew install influxdb
+    brew services start influxdb
 
 # subversion cli
-brew install svn
+    brew install svn
+
+# libgeos
+    brew install geos
+    cp /usr/local/lib/libgeos* /usr/local/opt/gridlabd/lib
+
+    if test ! -e /usr/local/lib; then
+        cd /usr/local
+        sudo mkdir lib
+    fi
+
+    ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+
+sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
