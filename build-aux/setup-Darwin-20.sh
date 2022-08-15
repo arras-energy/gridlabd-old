@@ -104,8 +104,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	make install 
 
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-    /usr/local/opt/gridlabd/bin/python3 -m ensurepip --upgrade
-
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
@@ -118,6 +116,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     #else
     #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
     #fix
+    /usr/local/opt/gridlabd/bin/python3 -m ensurepip --upgrade
 	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
