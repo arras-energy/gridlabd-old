@@ -68,8 +68,6 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
     cd /usr/local
     sudo mkdir ssl
     sudo ln -sf /usr/local/opt/openssl* /usr/local/ssl
-    sudo ln -sf /usr/local/ssl/openssl@1.1/include/* /usr/local/ssl
-    sudo ln -sf /usr/local/ssl/openssl@1.1/include/* /usr/local
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
@@ -89,7 +87,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --with-openssl=$(brew --prefix openssl) --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -s -j2
 	make install 
