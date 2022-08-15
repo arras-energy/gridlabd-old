@@ -80,12 +80,12 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 # Install python 3.9.13
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.13"
+	echo "install python 3.9.6"
 	cd /usr/local/opt/gridlabd/src
 
-	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
-	# tar xzf Python-3.9.13.tgz 
-	cd Python-3.9.13
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	# tar xzf Python-3.9.6.tgz 
+	cd Python-3.9.6
 
     export MACOSX_DEPLOYMENT_TARGET=20.6
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
