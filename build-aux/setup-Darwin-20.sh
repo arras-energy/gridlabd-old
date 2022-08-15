@@ -87,18 +87,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-    export MACOSX_DEPLOYMENT_TARGET=20.6
-     export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd \
-    --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/usr/local/opt/openssl@1.1 \
-    --with-pydebug \
-    --with-computed-gotos \
-    --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
-    --with-tcltk-includes="$(pkg-config --cflags tcl tk)" \
-    CFLAGS="-I/usr/local/include " \
-    LDFLAGS="-L/usr/local/lib -L/usr/local/opt/zlib/lib" \
-    CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
+	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -s -j2
 	make install 
@@ -107,7 +96,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/3.9/bin/* /usr/local/opt/gridlabd/bin
+	sudo ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
     # macos refuses to let me set my all-important library paths. I have to link to /usr/local/lib otherwise the libraries cannot be found.
     # I also need to now add an os-specific script section to the cloud install script. Thanks, apple.
     #if ! test -e /usr/local/lib; then 
@@ -116,15 +105,15 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     #else
     #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
     #fix
-    /usr/local/opt/gridlabd/bin/python3 -m ensurepip --upgrade
+	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
     /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
 
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
+    # sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
+    # sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
+    # sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
+    # sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
 fi
 
 brew install gdal
