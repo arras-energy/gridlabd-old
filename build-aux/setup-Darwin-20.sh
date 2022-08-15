@@ -51,12 +51,12 @@ if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 
 # build tools
 
@@ -67,15 +67,15 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
 
     cd /usr/local
     sudo mkdir ssl
-    sudo ln -sf /opt/homebrew/opt/openssl /usr/local/ssl
+    sudo ln -sf /usr/local/opt/openssl /usr/local/ssl
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
         #sudo ln -sf /opt/homebrew/bin /usr/local/bin
     #fi
-    [ ! -e /usr/local/bin/sed ] && sudo ln -sf /opt/homebrew/bin/gsed /usr/local/bin/sed
-    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
-    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
+    [ ! -e /usr/local/bin/sed ] && sudo ln -sf/usr/local/bin/gsed /usr/local/bin/sed
+    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf/usr/local/bin/glibtoolize /usr/local/bin/libtoolize
+    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf/usr/local/bin/glibtool /usr/local/bin/libtool
 
 # Install python 3.9.13
 # python3 support needed as of 4.2
