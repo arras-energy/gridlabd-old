@@ -73,9 +73,9 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
         #mv /usr/local/bin/* /opt/homebrew/bin
         #sudo ln -sf /opt/homebrew/bin /usr/local/bin
     #fi
-    [ ! -e /usr/local/bin/sed ] && sudo ln -sf/usr/local/bin/gsed /usr/local/bin/sed
-    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf/usr/local/bin/glibtoolize /usr/local/bin/libtoolize
-    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf/usr/local/bin/glibtool /usr/local/bin/libtool
+    [ ! -e /usr/local/bin/sed ] && sudo ln -sf /usr/local/bin/gsed /usr/local/bin/sed
+    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
+    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /usr/local/bin/glibtool /usr/local/bin/libtool
 
 # Install python 3.9.13
 # python3 support needed as of 4.2
