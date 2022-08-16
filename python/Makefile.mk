@@ -1,6 +1,7 @@
 PYTHONVERSION=$(shell python3 $(top_srcdir)/python/setup.py --version)
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
+	@echo "SWANKY DAWG $PYTHONVERSION"
 	@echo "building $@"
 	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
 	@python3 -m pip install build 1>/dev/null
