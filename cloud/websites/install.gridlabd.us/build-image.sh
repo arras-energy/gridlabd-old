@@ -24,8 +24,12 @@ BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A
 
 
 if [ $SYSTEM == "Darwin" ]; then
-    cp /opt/homebrew/lib/lib* /usr/local/opt/gridlabd/lib
-    cp /opt/homebrew/opt/*/lib/lib*.* /usr/local/opt/gridlabd/lib
+    if [ D_ARCH = "arm64" ]; then
+        cp /opt/homebrew/lib/lib* /usr/local/opt/gridlabd/lib
+        cp /opt/homebrew/opt/*/lib/lib*.* /usr/local/opt/gridlabd/lib
+    else
+        cp /usr/local/lib/lib* /usr/local/opt/gridlabd/lib
+    fi
 fi
 
 # MAJ MIN PAT, how would a user get these values from an install script?

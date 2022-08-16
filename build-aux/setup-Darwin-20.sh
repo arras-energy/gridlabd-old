@@ -87,7 +87,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# tar xzf Python-3.9.6.tgz 
 	cd Python-3.9.6
 
-    #export MACOSX_DEPLOYMENT_TARGET=20.6
+    export MACOSX_DEPLOYMENT_TARGET=11.6
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
     --enable-framework=/usr/local/opt/gridlabd \
@@ -145,7 +145,7 @@ brew install gdal
 
 # libgeos
     brew install geos
-    cp /usr/local/lib/libgeos* /usr/local/opt/gridlabd/lib
+    cp /usr/local/opt/geos/lib/libgeos* /usr/local/opt/gridlabd/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local

@@ -51,12 +51,12 @@ if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
     echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 
 # build tools
 
@@ -67,44 +67,47 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
 
     cd /usr/local
     sudo mkdir ssl
-    sudo ln -sf /opt/homebrew/opt/openssl /usr/local/ssl
+    sudo ln -sf /usr/local/opt/openssl /usr/local/ssl
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
         #sudo ln -sf /opt/homebrew/bin /usr/local/bin
     #fi
-    [ ! -e /usr/local/bin/sed ] && sudo ln -sf /opt/homebrew/bin/gsed /usr/local/bin/sed
-    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
-    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
+    [ ! -e /usr/local/bin/sed ] && sudo ln -sf /usr/local/bin/gsed /usr/local/bin/sed
+    [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
+    [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /usr/local/bin/glibtool /usr/local/bin/libtool
 
-# Install python 3.9.13
+# Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.13"
+	echo "install python 3.9.6"
 	cd /usr/local/opt/gridlabd/src
 
-	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
-	# tar xzf Python-3.9.13.tgz 
-	cd Python-3.9.13
+	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	# tar xzf Python-3.9.6.tgz 
+	cd Python-3.9.6
 
-    export MACOSX_DEPLOYMENT_TARGET=19.6
-    export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
+    export MACOSX_DEPLOYMENT_TARGET=10.15
+     export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd \
     --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/opt/homebrew/opt/openssl@1.1 \
+    --with-openssl=/usr/local/opt/openssl@1.1 \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
-    --with-tcltk-includes="$(pkg-config --cflags tcl tk)"
+    --with-tcltk-includes="$(pkg-config --cflags tcl tk)" \
+    CFLAGS="-I/usr/local/include " \
+    LDFLAGS="-L/usr/local/lib -L/usr/local/opt/zlib/lib" \
+    CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
 
 	make -s -j2
 	make install 
 
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
+	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9d-config /usr/local/opt/gridlabd/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/3.9/bin/* /usr/local/opt/gridlabd/bin
     # macos refuses to let me set my all-important library paths. I have to link to /usr/local/lib otherwise the libraries cannot be found.
     # I also need to now add an os-specific script section to the cloud install script. Thanks, apple.
     #if ! test -e /usr/local/lib; then 
@@ -113,7 +116,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     #else
     #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
     #fix
-	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
+    /usr/local/opt/gridlabd/bin/python3 -m ensurepip --upgrade
 	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     /usr/local/opt/gridlabd/bin/python3 -m pip install build
     /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
@@ -126,18 +129,29 @@ fi
 
 brew install gdal
 
-# mdbtools
-brew install mdbtools
-
 # docs generators
-brew install mono
-brew install naturaldocs
-ln -s /usr/local/bin/naturaldocs /usr/local/bin/natural_docs
-brew install doxygen
+    brew install mono
+    brew install naturaldocs
+    sudo ln -sf /usr/local/bin/naturaldocs /usr/local/bin/natural_docs
+
+    brew install doxygen
 
 # influxdb
-brew install influxdb
-brew services start influxdb
+    brew install influxdb
+    brew services start influxdb
 
 # subversion cli
-brew install svn
+    brew install svn
+
+# libgeos
+    brew install geos
+    cp /usr/local/opt/geos/lib/libgeos* /usr/local/opt/gridlabd/lib
+
+    if test ! -e /usr/local/lib; then
+        cd /usr/local
+        sudo mkdir lib
+    fi
+
+    ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+
+sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
