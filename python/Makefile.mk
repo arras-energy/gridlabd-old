@@ -8,7 +8,7 @@ $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source
 	@( export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); python3 -m build $(top_srcdir)/python 1>/dev/null )
 
 python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
-
+	@echo "SWANKY DAWG $PYTHONVERSION"
 	@echo "installing $@"
 	@python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
 
