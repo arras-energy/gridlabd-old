@@ -1,0 +1,3 @@
+scp remoteuser@remoteserver:/remote/folder/remotefile.txt  localfile.txt
+
+scp a123456@macOS.local:/Users/a123456/tmp  $HOME/tmp

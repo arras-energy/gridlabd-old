@@ -121,6 +121,7 @@ BRA=${BRANCH//-/_}
 if test $D_ARCH != "arm64"; then
 
     echo "Downloading image to your home tmp folder."
+    echo "Searching for https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
     if [ "$DLTOOL" = "curl" ]; then
         curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
