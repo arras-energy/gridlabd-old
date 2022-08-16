@@ -24,6 +24,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/share
 	mkdir -p $VAR/src
 	mkdir -p $VAR/var
+	mkdir -p $VAR/opt
 fi
 
 if ! grep -q "$VAR/bin" "$HOME/.bashrc"; then
