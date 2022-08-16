@@ -272,7 +272,9 @@ if [ $SYSTEM == "Darwin" ]; then
     if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
         echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
-    fi    
+    fi
+
+    sudo ln -s /usr/local/opt/gridlabd/opt/* /usr/local/opt    
 fi
 
 # link all libraries from package to /usr/local/lib, necessary for darwin and specific packages are hardcoded.

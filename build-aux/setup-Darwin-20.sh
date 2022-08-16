@@ -67,7 +67,11 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 
     cd /usr/local
     sudo mkdir ssl
-    sudo ln -sf /usr/local/opt/openssl /usr/local/ssl
+    sudo ln -sf /usr/local/opt/openssl* /usr/local/ssl
+    cd /usr/local/opt/gridlabd
+    mkdir opt
+    cp /usr/local/opt/openssl* /usr/local/opt/gridlabd/opt
+    cp /usr/local/opt/ca* /usr/local/opt/gridlabd/opt
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
