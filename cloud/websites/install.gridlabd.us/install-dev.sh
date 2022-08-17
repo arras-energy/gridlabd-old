@@ -274,7 +274,29 @@ if [ $SYSTEM == "Darwin" ]; then
         echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
     fi
 
-    sudo ln -s /usr/local/opt/gridlabd/opt/* /usr/local/opt    
+    if test $D_ARCH != "arm64"; then
+        sudo ln -s /usr/local/opt/gridlabd/opt/* /usr/local/opt
+
+        if test ! -e /usr/local/etc; then
+            cd /usr/local
+            sudo mkdir etc
+        fi
+        sudo ln -s /usr/local/opt/gridlabd/etc/* /usr/local/etc
+
+        if test ! -e /usr/local/share; then
+            cd /usr/local
+            sudo mkdir share
+        fi
+        sudo ln -s /usr/local/opt/gridlabd/share/ca* /usr/local/share
+
+    else
+
+        echo "Installing homebrew for openssl@1.1 install"
+        if test ! -e /opt/homebrew; then 
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        /opt/homebrew/bin/brew install openssl@1.1
+    fi
 fi
 
 # link all libraries from package to /usr/local/lib, necessary for darwin and specific packages are hardcoded.

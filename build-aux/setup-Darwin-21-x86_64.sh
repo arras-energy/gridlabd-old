@@ -65,11 +65,17 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
     brew install pkg-config openssl@1.1 xz gdbm tcl-tk
     xcode-select --install
 
+# copy openssl and ca-certificates
     cd /usr/local
     sudo mkdir ssl
     sudo ln -sf /usr/local/opt/openssl* /usr/local/ssl
     cp -r /usr/local/opt/openssl* /usr/local/opt/gridlabd/opt
     cp -r /usr/local/opt/ca* /usr/local/opt/gridlabd/opt
+  
+    cp -r /usr/local/etc/openssl* /usr/local/opt/gridlabd/etc
+    cp -r /usr/local/etc/ca* /usr/local/opt/gridlabd/etc
+  
+    cp -r /usr/local/share/ca* /usr/local/opt/gridlabd/share
     # Update symlinks in /usr/local/bin
     #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
         #mv /usr/local/bin/* /opt/homebrew/bin
