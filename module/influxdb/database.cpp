@@ -56,7 +56,7 @@ database::database(MODULE *module)
             PT_method,"logtag",get_logtag_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"property tag add method",
             NULL)<1){
                 char msg[256];
-                sprintf(msg, "unable to publish properties in %s",__FILE__);
+                snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
                 throw msg;
         }
 

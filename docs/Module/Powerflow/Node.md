@@ -79,6 +79,8 @@ GLM:
     nominal_voltage "<decimal> V";
     voltage_violation_threshold "<decimal> pu";
     voltage_fluctuation_threshold "<decimal> pu";
+    undervoltage_violation_threshold "<decimal> pu";
+    overvoltage_violation_threshold "<decimal> pu";
     DER_value "<decimal> kVA";
   }
 ~~~
@@ -660,6 +662,8 @@ TODO
 TODO
 
 ### `voltage_violation_threshold`
+### `undervoltage_violation_threshold`
+### `overvoltage_violation_threshold`
 
 ~~~
   double voltage_violation_threshold[pu];

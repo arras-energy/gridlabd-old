@@ -73,7 +73,7 @@ pole_mount::pole_mount(MODULE *mod)
             NULL)<1)
         {
 			char msg[256];
-			sprintf(msg, "unable to publish properties in %s",__FILE__);
+			snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 			throw msg;
         }
     }

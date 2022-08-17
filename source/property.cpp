@@ -663,7 +663,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 {
 	STRING *str = (STRING*)data;
-	int n = snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
-	return n;
+	snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
+	return strlen(buffer);
 }
 // EOF

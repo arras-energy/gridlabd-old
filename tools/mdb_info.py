@@ -14,7 +14,7 @@ COMMAND
 
 Valid commands are
 
-- `class REGEX`: create GLM classes from table data
+- `class REGEX`: create GLM classes from table data (TODO: not implemented yet)
 
 - `tables [REGEX]`: display list of tables matching pattern (all by default)
 
@@ -36,11 +36,6 @@ DEBUG = False
 VERBOSE = False
 WARNING = True
 QUIET = False
-
-meter = "1252657E"
-player = f"/Users/dchassin/Downloads/{meter}.csv"
-mdbfile = "/Users/dchassin/Downloads/AMI_KWH.mdb"
-csvfile = mdbfile.replace(".mdb",".csv")
 
 reload = False
 

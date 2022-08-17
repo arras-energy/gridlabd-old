@@ -5,6 +5,13 @@
 // BEGIN
 /////////////////////////////////////////////
 
+#ifexist ../test_recorder_flush_sync.py
+#define DIR=..
+#endif
+
+#set pythonpath=..:.
+module test_recorder_flush_sync;
+
 #set show_progress=FALSE
 
 clock {
@@ -13,7 +20,10 @@ clock {
 	stoptime '2000-01-01 1:00:00';
 }
 
-module tape;
+module tape
+{
+	csv_header_type NAME;
+}
 
 class test {
 	randomvar x;
@@ -21,14 +31,11 @@ class test {
 object test {
 	x "type:normal(0,1); min:-10; max:+10; refresh:1min";
 	object recorder {
+		name "recorder";
 		property x;
-		file test_recorder_flush.csv;
+		file test_recorder_flush_0.csv;
 		interval -1;
 		flush 0;
 	};
+	on_commit "python:test_recorder_flush_sync.test_commit";
 }
-
-dump 60 gridlabd.json;
-script on_init rm -f gridlabd.json;
-script on_init rm -f test_recorder_flush.csv;
-script on_commit python3 ../test_recorder_flush_sync.py;
