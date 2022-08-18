@@ -96,7 +96,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     export MACOSX_DEPLOYMENT_TARGET=11.6
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION \
-    --enable-framework=/usr/local/opt/gridlabd \
+    --enable-framework=/usr/local/opt/gridlabd/gridlabd/$VERSION \
     --with-openssl=/usr/local/opt/gridlabd/include \
     --with-pydebug \
     --with-computed-gotos \
