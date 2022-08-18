@@ -88,7 +88,6 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     ./Configure --prefix=/usr/local/opt/gridlabd --openssldir=/usr/local/opt/gridlabd/ssl darwin64-x86_64-cc no-tests
     make
     make install
-    exit 1
 	# tar xzf Python-3.9.6.tgz
 	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
@@ -96,7 +95,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION \
     --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/usr/local/opt/gridlabd/opt/openssl@1.1 \
+    --with-openssl=/usr/local/opt/gridlabd/include \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
@@ -107,7 +106,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 
 	make -s -j2
 	make install
-
+    exit 1
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9d-config /usr/local/opt/gridlabd/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
