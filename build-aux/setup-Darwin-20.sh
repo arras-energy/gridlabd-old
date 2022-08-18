@@ -88,6 +88,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     ./Configure --prefix=/usr/local/opt/gridlabd --openssldir=/usr/local/opt/gridlabd/ssl darwin64-x86_64-cc no-tests
     make
     make install
+    exit 1
 	# tar xzf Python-3.9.6.tgz
 	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
