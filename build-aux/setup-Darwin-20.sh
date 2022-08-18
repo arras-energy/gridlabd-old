@@ -81,10 +81,10 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 
 # include python ssl module and dependencies, uses ./Configure instead of ./configure due to custom implementation    
     curl -L http://xrl.us/installperlosx | bash
-    curl https://www.openssl.org/source/openssl-1.1.1q.tar.gz | tar xz
-    cd openssl-1.1.1q
-# 1.1.1q has an issue where one test is missing a header. Remove no-tests with the next release, as that should have the missing header patched in.
-    ./Configure --prefix=/usr/local/opt/gridlabd --openssldir=/usr/local/opt/gridlabd/ssl darwin64-x86_64-cc no-tests
+    curl https://www.openssl.org/source/old/1.1.1/openssl-1.1.1n.tar.gz | tar xz
+    cd openssl-1.1.1n
+
+    ./Configure --prefix=/usr/local/opt/gridlabd/openssl --openssldir=/usr/local/opt/gridlabd/ssl --libdir=lib darwin64-x86_64-cc
     make
     make install
 
@@ -97,7 +97,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
 	./configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION \
     --enable-framework=/usr/local/opt/gridlabd/gridlabd/$VERSION \
-    --with-openssl=/usr/local/opt/gridlabd/include \
+    --with-openssl=/usr/local/opt/gridlabd/openssl \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \

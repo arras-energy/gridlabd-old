@@ -26,6 +26,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/var
 	mkdir -p $VAR/opt
 	mkdir -p $VAR/etc
+	mkdir -p $VAR/openssl
 fi
 
 if ! grep -q "$VAR/bin" "$HOME/.bashrc"; then
