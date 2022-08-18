@@ -1,6 +1,8 @@
 #!/bin/bash
 export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+VERSION=${VERSION:-`./version.sh --name`}
+
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
 
@@ -62,7 +64,7 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 
     brew install autoconf automake libtool gnu-sed gawk git
     brew install libffi zlib
-    brew install pkg-config openssl@1.1 xz gdbm tcl-tk
+    brew install pkg-config xz gdbm tcl-tk
     xcode-select --install
 
 # copy openssl and ca-certificates
@@ -92,14 +94,23 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	cd /usr/local/opt/gridlabd/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	# tar xzf Python-3.9.6.tgz 
+
+# include python ssl module and dependencies, uses ./Configure instead of ./configure due to custom implementation    
+    curl -L http://xrl.us/installperlosx | bash
+    curl https://www.openssl.org/source/openssl-1.1.1q.tar.gz | tar xz
+    cd openssl-1.1.1q
+# 1.1.1q has an issue where one test is missing a header. Remove no-tests with the next release, as that should have the missing header patched in.
+    ./Configure --prefix=/usr/local/opt/gridlabd --openssldir=/usr/local/opt/gridlabd/ssl darwin64-x86_64-cc no-tests
+    make
+    make install
+	# tar xzf Python-3.9.6.tgz
 	cd Python-3.9.6
 
     export MACOSX_DEPLOYMENT_TARGET=12.5
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd \
+	./configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION \
     --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/usr/local/opt/openssl@1.1 \
+    --with-openssl=/usr/local/opt/gridlabd/opt/openssl@1.1 \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \

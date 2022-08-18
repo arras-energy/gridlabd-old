@@ -75,7 +75,7 @@ if test "x$HAS_DOCKER" = "xyes" ; then :
   fi
 fi
 
-export GLD_ETC=$pkgdatadir 
+export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
 export GLD_DOC=$docdir
