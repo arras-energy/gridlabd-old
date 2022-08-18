@@ -89,7 +89,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     make
     make install
 	# tar xzf Python-3.9.6.tgz
-	cd Python-3.9.6
+	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
     export MACOSX_DEPLOYMENT_TARGET=11.6
      export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
@@ -105,7 +105,7 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
 
 	make -s -j2
-	make install 
+	make install
 
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
 	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9d-config /usr/local/opt/gridlabd/bin/python3-config
