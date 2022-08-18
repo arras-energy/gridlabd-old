@@ -114,6 +114,7 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle
     sudo ln -s /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/gridlabd/$VERSION/bin
+    sudo ln -s /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
 
     /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
 	/usr/local/opt/gridlab/gridlabd/$VERSION/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
