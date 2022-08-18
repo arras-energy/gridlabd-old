@@ -1,6 +1,7 @@
 #!/bin/bash
 export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-
+pwd
+exit 1
 VERSION=${VERSION:-`./version.sh --name`}
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
