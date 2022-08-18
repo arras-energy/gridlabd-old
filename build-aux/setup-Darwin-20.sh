@@ -89,7 +89,7 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
     make install
 
     cd /usr/local/opt/gridlabd
-    mkdir -p gridlabd/$VERSION
+    mkdir -p gridlabd/$VERSION/bin
 	# tar xzf Python-3.9.6.tgz
 	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
