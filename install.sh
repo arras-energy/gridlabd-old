@@ -324,8 +324,8 @@ fi
 # prep install dir
 log "VERSION: $VERSION"
 log "INSTALL: $INSTALL"
-if [ -e "$INSTALL" -a "$FORCE" == "no" ]; then
-	error "$INSTALL already exists, please delete it first"
+if [ -e "$INSTALL/bin/gridlabd" -a "$FORCE" == "no" ]; then
+	error "$INSTALL has already been installed, please delete it first"
 fi
 mkdir -p "$INSTALL" || ( run sudo mkdir -p "$INSTALL" && run sudo chown -R "${USER:-root}" "$INSTALL" )
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
