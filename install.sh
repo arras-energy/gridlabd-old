@@ -297,8 +297,8 @@ if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
-	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
-	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
+	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd/current" -a ! -L "$PREFIX/gridlabd/current" ]; then
+	    error "$PREFIX/gridlabd/current exists but it is not a symbolic link"
 	fi
 	if [ "$DOCS" == "yes" ]; then
 		require doxygen
