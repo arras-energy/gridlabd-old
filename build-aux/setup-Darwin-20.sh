@@ -74,7 +74,7 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 # Install python 3.9.6
 # python3 support needed as of 4.2
 if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.6"
+	echo "installing python 3.9.6 and ssl module dependencies"
 	cd /usr/local/opt/gridlabd/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
@@ -84,9 +84,14 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
     curl https://www.openssl.org/source/old/1.1.1/openssl-1.1.1n.tar.gz | tar xz
     cd openssl-1.1.1n
 
+# Needed to build python's ssl module
     ./Configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION/openssl --openssldir=/usr/local/opt/gridlabd/gridlabd/$VERSION/ssl --libdir=lib darwin64-x86_64-cc
     make
     make install
+
+# needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
+    brew install ca-certificates
+    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* /usr/local/opt/gridlabd/gridlabd/$VERSION/ssl/cert.pem
 
     cd /usr/local/opt/gridlabd
     mkdir -p gridlabd/$VERSION/bin
