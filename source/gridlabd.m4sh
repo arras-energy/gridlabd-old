@@ -11,6 +11,7 @@ pkgdatadir="$datadir/@PACKAGE@"
 libdir="@libdir@"
 pkglibdir="$libdir/@PACKAGE@"
 HAS_MINGW="@HAS_MINGW@"
+pyverdir="@
 
 HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
@@ -75,17 +76,25 @@ if test "x$HAS_DOCKER" = "xyes" ; then :
   fi
 fi
 
+###############################################################################
+# Python Configuration Data and Flags
+###############################################################################
+PYTHON_LINK_DIR="/usr/local/opt/gridlabd/bin"
+PYTHON_VER_DIR="$($PYTHON_LINK_DIR/python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
+PYTHON_VER_DIR="$(dirname $PYTHON_VER_DIR)
+GRIDLABD_VER_DIR="$(echo $PYTHON_VER_DIR | rev | cut -d'/' -f5- | rev)"
+
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
 export GLD_DOC=$docdir
-export PYCCFLAGS="$(/usr/local/opt/gridlabd/bin/python3-config --cflags)"
-export INCLUDE="-I$GLD_ETC -I/usr/local/opt/gridlabd/include -I/usr/include"
+export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"
+export INCLUDE="-I$GLD_ETC -I$GRIDLABD_VER_DIR/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$(/usr/local/opt/gridlabd/bin/python3-config --ldflags)"
+export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
 export LIB="-L$libdir -L/usr/local/opt/gridlabd/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
