@@ -350,7 +350,7 @@ export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
-export LIB="-L$libdir -L/usr/local/opt/gridlabd/lib -L/usr/lib"
+export LIB="-L$libdir -L/usr/local/opt/gridlabd/lib -L$GRIDLABD_VER_DIR/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
 

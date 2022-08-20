@@ -94,7 +94,16 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
     cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* /usr/local/opt/gridlabd/gridlabd/$VERSION/ssl/cert.pem
 
     cd /usr/local/opt/gridlabd
-    mkdir -p gridlabd/$VERSION/bin
+    VER_DIR = gridlabd/$VERSION
+    mkdir -p $VER_DIR/bin
+	mkdir -p $VER_DIR/include
+	mkdir -p $VER_DIR/lib
+	mkdir -p $VER_DIR/man
+	mkdir -p $VER_DIR/share
+	mkdir -p $VER_DIR/src
+	mkdir -p $VER_DIR/var
+	mkdir -p $VER_DIR/opt
+	mkdir -p $VER_DIR/etc
 	# tar xzf Python-3.9.6.tgz
 	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
