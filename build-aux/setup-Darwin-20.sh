@@ -5,15 +5,15 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     cd /usr/local/opt/gridlabd
     VER_DIR=gridlabd/$VERSION
-    mkdir -p $VER_DIR/bin
-	mkdir -p $VER_DIR/include
-	mkdir -p $VER_DIR/lib
-	mkdir -p $VER_DIR/man
-	mkdir -p $VER_DIR/share
-	mkdir -p $VER_DIR/src
-	mkdir -p $VER_DIR/var
-	mkdir -p $VER_DIR/opt
-	mkdir -p $VER_DIR/etc
+    sudo mkdir -p $VER_DIR/bin
+	sudo mkdir -p $VER_DIR/include
+	sudo mkdir -p $VER_DIR/lib
+	sudo mkdir -p $VER_DIR/man
+	sudo mkdir -p $VER_DIR/share
+	sudo mkdir -p $VER_DIR/src
+	sudo mkdir -p $VER_DIR/var
+	sudo mkdir -p $VER_DIR/opt
+	sudo mkdir -p $VER_DIR/etc
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
@@ -127,7 +127,7 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
 
 	sudo ln -s /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3
     /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
-    
+
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d-config /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle
