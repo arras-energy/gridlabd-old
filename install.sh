@@ -13,9 +13,7 @@ else
 	sudo --version >/dev/null 2>&1 || (echo "$0: sudo is required"; exit 1)
 fi
 
-# dynamic variables
 VERSION=${VERSION:-`build-aux/version.sh --name`}
-INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
 
 # local folder
 VAR="/usr/local/opt/gridlabd"
@@ -288,6 +286,8 @@ if [ "$SETUP" == "yes" ]; then
 fi
 
 require git
+# dynamic variables
+INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
