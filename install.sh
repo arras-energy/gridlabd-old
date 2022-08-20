@@ -32,7 +32,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/etc
 fi
 
-if [ ! -d "$VAR/gridlabd/$VERSION"]; then
+if [ ! -d "$VAR/gridlabd/$VERSION" ]; then
     mkdir -p $VAR/gridlabd/$VERSION/bin
 	mkdir -p $VAR/gridlabd/$VERSION/include
 	mkdir -p $VAR/gridlabd/$VERSION/lib
