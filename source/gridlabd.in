@@ -333,10 +333,8 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
-PYTHON_LINK_DIR="/usr/local/opt/gridlabd/bin"
-PYTHON_VER_DIR="$($PYTHON_LINK_DIR/python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
-PYTHON_VER_DIR="$(dirname $PYTHON_VER_DIR)
-GRIDLABD_VER_DIR="$(echo $PYTHON_VER_DIR | rev | cut -d'/' -f5- | rev)"
+PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"
+GRIDLABD_VER_DIR="@exec_prefix@"
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
