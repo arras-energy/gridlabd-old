@@ -13,6 +13,10 @@ else
 	sudo --version >/dev/null 2>&1 || (echo "$0: sudo is required"; exit 1)
 fi
 
+# dynamic variables
+VERSION=${VERSION:-`build-aux/version.sh --name`}
+INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
+
 # local folder
 VAR="/usr/local/opt/gridlabd"
 if [ ! -d "$VAR" ]; then
@@ -26,6 +30,18 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/var
 	mkdir -p $VAR/opt
 	mkdir -p $VAR/etc
+fi
+
+if [ ! -d "$VAR/gridlabd/$VERSION"]; then
+    mkdir -p $VAR/gridlabd/$VERSION/bin
+	mkdir -p $VAR/gridlabd/$VERSION/include
+	mkdir -p $VAR/gridlabd/$VERSION/lib
+	mkdir -p $VAR/gridlabd/$VERSION/man
+	mkdir -p $VAR/gridlabd/$VERSION/share
+	mkdir -p $VAR/gridlabd/$VERSION/src
+	mkdir -p $VAR/gridlabd/$VERSION/var
+	mkdir -p $VAR/gridlabd/$VERSION/opt
+	mkdir -p $VAR/gridlabd/$VERSION/etc
 fi
 
 if ! grep -q "$VAR/bin" "$HOME/.bashrc"; then
@@ -271,10 +287,7 @@ if [ "$SETUP" == "yes" ]; then
 	fi
 fi
 
-# dynamic variables
 require git
-VERSION=${VERSION:-`build-aux/version.sh --name`}
-INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
