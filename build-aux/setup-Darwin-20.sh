@@ -126,6 +126,8 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
 	make install
 
 	sudo ln -s /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3
+    /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
+    
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d-config /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3-config
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
 	sudo ln -sf /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle3.9 /usr/local/opt/gridlabd/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle
