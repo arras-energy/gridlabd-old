@@ -384,7 +384,7 @@ if test -f "${pkgdatadir}/gridlabd.rc"; then :
 fi
 
 if test -f "${GLD_ETC}/$1.py"; then :
-  export PYTHONPATH=$GLD_ETC; /usr/local/opt/gridlabd/bin/python3 -m "$@" ; exit $?
+  export PYTHONPATH=$GLD_ETC; $PYTHON_VER_DIR/python3 -m "$@" ; exit $?
 fi
 
 if test -x "${bindir}/gridlabd-$1"; then :

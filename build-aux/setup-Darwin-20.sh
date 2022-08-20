@@ -1,6 +1,19 @@
 #!/bin/bash
 export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-VERSION=${VERSION:-`build-aux/version.sh --name`}
+
+# Set version and create necessary version directories
+    VERSION=${VERSION:-`build-aux/version.sh --name`}
+    cd /usr/local/opt/gridlabd
+    VER_DIR=gridlabd/$VERSION
+    mkdir -p $VER_DIR/bin
+	mkdir -p $VER_DIR/include
+	mkdir -p $VER_DIR/lib
+	mkdir -p $VER_DIR/man
+	mkdir -p $VER_DIR/share
+	mkdir -p $VER_DIR/src
+	mkdir -p $VER_DIR/var
+	mkdir -p $VER_DIR/opt
+	mkdir -p $VER_DIR/etc
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
@@ -93,17 +106,6 @@ if [ ! -x /usr/local/opt/gridlabd/gridlabd/$VERSION/bin/python3 -o "$(/usr/local
     brew install ca-certificates
     cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* /usr/local/opt/gridlabd/gridlabd/$VERSION/ssl/cert.pem
 
-    cd /usr/local/opt/gridlabd
-    VER_DIR = gridlabd/$VERSION
-    mkdir -p $VER_DIR/bin
-	mkdir -p $VER_DIR/include
-	mkdir -p $VER_DIR/lib
-	mkdir -p $VER_DIR/man
-	mkdir -p $VER_DIR/share
-	mkdir -p $VER_DIR/src
-	mkdir -p $VER_DIR/var
-	mkdir -p $VER_DIR/opt
-	mkdir -p $VER_DIR/etc
 	# tar xzf Python-3.9.6.tgz
 	cd /usr/local/opt/gridlabd/src/Python-3.9.6
 
