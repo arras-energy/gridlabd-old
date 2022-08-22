@@ -1,4 +1,5 @@
-#!/usr/local/opt/gridlabd/bin/python3
+#!/bin/bash
+"exec" "`dirname $0`/bin/python3" "$0" "$@"
 
 import sys, os, github
 

@@ -1,5 +1,12 @@
 #!/bin/bash
 
+echo "Below is dirname"
+echo "`dirname $0`/bin/python3"
+echo "then basename"
+echo "$(basename $0)"
+echo 'then just plain ol $0'
+echo "$0"
+
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
 
