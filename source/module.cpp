@@ -2047,10 +2047,13 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
-		sz = snprintf(buf,sz,"%4d   -", n);
+	{
+		snprintf(buf,sz,"%4d   -", n);
+	}
+	sz = strlen(buf);
 	sched_unlock(n);
 	return (int)sz;
 }
@@ -2946,7 +2949,7 @@ void module_load_templates(MODULE *mod)
 		return;
 	}
 	char loadpath[1024];
-	sprintf(loadpath,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
+	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
 	DIR *dp;
 	struct dirent *entry;
 	struct stat statbuf;
@@ -2956,7 +2959,7 @@ void module_load_templates(MODULE *mod)
 		while ( (entry=readdir(dp)) )
 		{
 			char file[1024];
-			sprintf(file,"%s/%s",loadpath,entry->d_name);
+			snprintf(file,sizeof(file)-1,"%s/%s",loadpath,entry->d_name);
 			output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
 			if ( lstat(file,&statbuf) != 0 )
 			{

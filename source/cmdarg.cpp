@@ -1962,21 +1962,23 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         }
 
 	/* output the classdef */
-	count = snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	count = strlen(buffer);
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
 	{
 		char temp[1024];
-		const char *value = object_property_to_string(obj, prop->name, temp, 1023);
+		const char *value = object_property_to_string(obj, prop->name, temp, sizeof(temp)-1);
 		if ( strchr(prop->name,'.')!=NULL )
 		{
 			continue; /* do not output structures */
 		}
 		if ( value!=NULL )
 		{
-			count += snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			count = strlen(buffer);
 		}
 	}
-	count += snprintf(buffer+count,sizeof(buffer)-1-count,");\n");
+	snprintf(buffer+count,sizeof(buffer)-1-count,");\n");	
 	output_raw("%s",buffer);
         return CMDOK;
 }

@@ -309,7 +309,7 @@ STATUS GldLoader::exec(const char *format,...)
 	char cmd[1024];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(cmd,format,ptr);
+	vsnprintf(cmd,sizeof(cmd)-1,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
 	int rc = my_instance->subcommand(cmd);
@@ -7682,7 +7682,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
+			snprintf(line,size-1,"@%s;%d\n",value,0);
+			int len = strlen(line);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context
@@ -7699,7 +7700,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				len = snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				len = strlen(line);
 				line+=len; size-=len;
 				return size>0;
 			}
@@ -8476,7 +8478,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		ext++;
 	}
 	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext);
+	snprintf(converter_name,sizeof(converter_name)-1,"%s2glm.py",ext);
 	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
@@ -8495,7 +8497,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		strcpy(glmext,".glm");
 	char load_options[1024] = "";
 	char load_options_var[64];
-	sprintf(load_options_var,"%s_load_options",ext);
+	snprintf(load_options_var,sizeof(load_options_var)-1,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char *unquoted = load_options;
 	if ( load_options[0] == '"' )

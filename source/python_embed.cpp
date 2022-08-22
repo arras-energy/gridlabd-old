@@ -59,7 +59,8 @@ PyObject *python_embed_import(const char *module, const char *path)
     char tmp[1024];
     if ( path != NULL )
     {
-        int len = snprintf(tmp,sizeof(tmp)-1,"import io, sys\nsys.path.extend('%s'.split(':'))\n",path);
+        snprintf(tmp,sizeof(tmp)-1,"import io, sys\nsys.path.extend('%s'.split(':'))\n",path);
+        int len = strlen(tmp);
         output_debug("python_embed_import(const char *module='%s', const char *path='%s'): running [%s]",module,path,tmp);
         if ( len > 0 && PyRun_SimpleString(tmp) )
         {

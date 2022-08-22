@@ -204,14 +204,14 @@ void passive_controller::fetch_double(double **prop, const char *name, OBJECT *p
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "passive_controller:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "passive_controller:%i", hdr->id);
 		if ( *name == '\0' )
 		{
-			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: passive_controller unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: passive_controller unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -226,14 +226,14 @@ void passive_controller::fetch_int(int **prop, const char *name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "passive_controller:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "passive_controller:%i", hdr->id);
 		if ( *name == '\0' )
 		{
-			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: passive_controller unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: passive_controller unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
