@@ -1,4 +1,6 @@
 #!/bin/bash
+PYTHON_LOC="`dirname $0`/python3"
+
 for REQ in $(find . -name requirements.txt -print); do
-    /usr/local/opt/gridlabd/bin/python3 -m pip -r $REQ
+    $PYTHON_LOC -m pip -r $REQ
 done

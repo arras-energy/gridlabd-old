@@ -1,7 +1,10 @@
 #!/bin/bash
+
+PYTHON_LOC="`dirname $0`/python3"
+
 if [ "$1" == "help" ]; then
 	echo "Syntax: gridlabd python"
 	${GLD_BIN:-/opt/gridlabd/bin}/python3 --help | head -n 1 | cut -f3- -d' '
 else
-	/usr/local/opt/gridlabd/bin/python3 $*
+	$PYTHON_LOC $*
 fi

@@ -1,12 +1,6 @@
 #!/bin/bash
 
-echo "Below is dirname"
-echo "`dirname $0`/bin/python3"
-echo "then basename"
-echo "$(basename $0)"
-echo 'then just plain ol $0'
-echo "$0"
-
+PYTHON_LOC="`dirname $0`/python3"
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
 
@@ -212,7 +206,7 @@ fi
 if [ -z "$(which gridlabd)" ]; then
 	warning "gridlabd is not in the current PATH environment"
 fi
-if [ ! -x "/usr/local/opt/gridlabd/bin/python3" ]; then
-	warning "python3 is not linked where gridlabd wants it in /usr/local/opt/gridlabd/bin"
+if [ ! -x "$PYTHON_LOC" ]; then
+	warning "python3 is not linked where gridlabd wants it in $PYTHON_LOC"
 fi
 

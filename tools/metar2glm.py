@@ -1,5 +1,5 @@
 #!/bin/bash
-"exec" "`dirname $0`/bin/python3" "$0" "$@"
+"exec" "`dirname $0`/python3" "$0" "$@"
 
 import sys
 sys.path.append(sys.argv[0].split()[0:-1])
