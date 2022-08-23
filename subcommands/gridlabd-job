@@ -1,5 +1,5 @@
 #!/bin/bash
-"exec" "`dirname $0`/python3" "$0" "$@"
+"exec" "$(dirname $0)/python3" "$0" "$@"
 #
 # This script runs multiple jobs as specified by the controlfile.csv, 
 # where the columns are the globals and rows are the job number.

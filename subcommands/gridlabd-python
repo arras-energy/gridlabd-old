@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_LOC="`dirname $0`/python3"
+PYTHON_LOC="$(dirname $0)/python3"
 
 if [ "$1" == "help" ]; then
 	echo "Syntax: gridlabd python"

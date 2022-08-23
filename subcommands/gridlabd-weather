@@ -3,7 +3,7 @@
 # ensure only one weather call runs at a time
 . $(dirname $0)/gridlabd-lock
 
-PYTHON_LOC="`dirname $0`/python3"
+PYTHON_LOC="$(dirname $0)/python3"
 
 # check environment
 if [ ${GLD_ETC:-none} == none ]; then

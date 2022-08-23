@@ -1,5 +1,5 @@
 #!/bin/bash
-"exec" "`dirname $0`/python3" "$0" "$@"
+"exec" "$(dirname $0)/python3" "$0" "$@"
 
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
