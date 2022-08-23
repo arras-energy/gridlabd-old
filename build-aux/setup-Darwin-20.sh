@@ -116,7 +116,7 @@ if [ ! -x $VAR/gridlabd/$VERSION/bin/python3 -o "$($VAR/gridlabd/$VERSION/bin/py
 	make install
 
 	sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3
-    $VAR/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
+    $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d -m ensurepip --upgrade
 
 	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d-config $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3-config
 	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
