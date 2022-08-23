@@ -13,13 +13,17 @@ while [ $# -gt 0 ]; do
     if [ "$1" == "--requirements" -o "$1" == "-r" ]; then
         shift 1
         $GLD_BIN/python3 -m pip $QUIET install -r $1 
+        echo "Did this run?"
+        echo "$GLD_BIN"
     elif [ "$1" == "--verbose" -o "$1" == "-v" ]; then
         QUIET=""
         STDERR="/dev/stderr"
         STDOUT="/dev/stdout"
     else
         $GLD_BIN/python3 -m pip freeze | grep $1 1>$STDOUT 2>$STDERR || $GLD_BIN/python3 -m pip $QUIET install $1 
-        test "$($GLD_BIN/python3 -m pip freeze | grep ^$1)" != "" || exit 1 
+        test "$($GLD_BIN/python3 -m pip freeze | grep ^$1)" != "" || exit 1
+        echo "Did this one run?"
+        echo "$GLD_BIN"
     fi
     shift 1
 done

@@ -1,6 +1,4 @@
 #!/bin/bash
 for REQ in $(find . -name requirements.txt -print); do
     $GLD_BIN/python3 -m pip -r $REQ
-    echo "Did this run?"
-    echo "$GLD_BIN"
 done
