@@ -2,6 +2,9 @@
 
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
+echo "$BIN"
+echo "$GLD_BIN"
+echo "This has been a test or something"
 
 function error()
 {
