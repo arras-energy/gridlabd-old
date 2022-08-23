@@ -116,7 +116,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     LDFLAGS="-L/usr/local/lib -L/usr/local/opt/zlib/lib" \
     CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
 
-	make -s -j2
+	make
 	make install
 
 	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d $VERSION_DIR/$PYTHON_DIR/bin/python3
