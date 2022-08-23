@@ -2,9 +2,6 @@
 
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
-echo "$BIN"
-echo "$GLD_BIN"
-echo "This has been a test or something"
 
 function error()
 {
@@ -208,7 +205,7 @@ fi
 if [ -z "$(which gridlabd)" ]; then
 	warning "gridlabd is not in the current PATH environment"
 fi
-if [ ! -x "/usr/local/opt/gridlabd/bin/python3" ]; then
-	warning "python3 is not linked where gridlabd wants it in /usr/local/opt/gridlabd/bin/python3"
+if [ ! -x "$GLD_BIN/python3" ]; then
+	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/python3"
 fi
 
