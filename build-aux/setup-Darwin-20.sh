@@ -116,6 +116,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     LDFLAGS="-L/usr/local/lib -L/usr/local/opt/zlib/lib" \
     CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
 
+    # MAKEFLAGS need to be set to an empty string to prevent a bug with framework builds. Multiprocessor python framework builds fail when a -j value is set.
     export MAKEFLAGS=""
 	make
 	make install
