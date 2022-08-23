@@ -1,9 +1,13 @@
 #!/bin/bash
 export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
-# Set version
+# Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VAR="/usr/local/opt/gridlabd"
+    VERSION_DIR=$VAR/gridlabd/$VERSION
+    PYTHON_DIR=Python.framework/Versions/Current
+    PYTHON_VER=3.9.6
+    PY_EXE=3.9
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
@@ -74,13 +78,13 @@ export LIBRARY_PATH=$VAR/lib:$LIBRARY_PATH
     [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
     [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /usr/local/bin/glibtool /usr/local/bin/libtool
 
-# Install python 3.9.6
+# Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x $VAR/gridlabd/$VERSION/bin/python3 -o "$($VAR/gridlabd/$VERSION/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "installing python 3.9.6 and ssl module dependencies"
-	cd $VAR/src
+if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+	echo "installing python $PYTHON_VER and ssl module dependencies"
+	cd $VERSION_DIR/src
 
-	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
+	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
 # include python ssl module and dependencies, uses ./Configure instead of ./configure due to custom implementation    
     curl -L http://xrl.us/installperlosx | bash
@@ -88,22 +92,22 @@ if [ ! -x $VAR/gridlabd/$VERSION/bin/python3 -o "$($VAR/gridlabd/$VERSION/bin/py
     cd openssl-1.1.1n
 
 # Needed to build python's ssl module
-    ./Configure --prefix=$VAR/gridlabd/$VERSION/openssl --openssldir=$VAR/gridlabd/$VERSION/ssl --libdir=lib darwin64-x86_64-cc
+    ./Configure --prefix=$VERSION_DIR/openssl --openssldir=$VERSION_DIR/ssl --libdir=lib darwin64-x86_64-cc
     make
     make install
 
 # needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
     brew install ca-certificates
-    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VAR/gridlabd/$VERSION/ssl/cert.pem
+    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
 
-	# tar xzf Python-3.9.6.tgz
-	cd $VAR/src/Python-3.9.6
+	# tar xzf Python-$PYTHON_VER.tgz
+	cd $VERSION_DIR/src/Python-$PYTHON_VER
 
-    export MACOSX_DEPLOYMENT_TARGET=11.6
-     export PKG_CONFIG_PATH="$VAR/gridlabd/$VERSION/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=$VAR/gridlabd/$VERSION \
-    --enable-framework=$VAR/gridlabd/$VERSION \
-    --with-openssl=$VAR/gridlabd/$VERSION/openssl \
+    export MACOSX_DEPLOYMENT_TARGET=$( sw_vers -productVersion | sed 's/..$//' )
+     export PKG_CONFIG_PATH="$VERSION_DIR/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
+	./configure --prefix=$VERSION_DIR \
+    --enable-framework=$VERSION_DIR \
+    --with-openssl=$VERSION_DIR/openssl \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
@@ -115,24 +119,32 @@ if [ ! -x $VAR/gridlabd/$VERSION/bin/python3 -o "$($VAR/gridlabd/$VERSION/bin/py
 	make -s -j2
 	make install
 
-	sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3
-    $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d -m ensurepip --upgrade
+	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d $VERSION_DIR/$PYTHON_DIR/bin/python3
+    $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d -m ensurepip --upgrade
 
-	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d-config $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3-config
-	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
-	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle3.9 $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/gridlabd/$VERSION/bin
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/bin
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d-config $VERSION_DIR/$PYTHON_DIR/bin/python3-config
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/pydoc
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/idle${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/idle
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
 
-    $VAR/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
-	$VAR/gridlabd/$VERSION/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    $VAR/gridlabd/$VERSION/bin/python3 -m pip install build
-    $VAR/gridlabd/$VERSION/bin/python3 -m pip install pyproj
+    $VERSION_DIR/bin/python3 -m ensurepip --upgrade
+	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    $VERSION_DIR/bin/python3 -m pip install build
+    $VERSION_DIR/bin/python3 -m pip install pyproj
 
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/bin
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/include/* $VAR/include
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/lib/* $VAR/lib
-    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/share/* $VAR/share
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/include/* $VAR/include
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/lib/* $VAR/lib
+    sudo ln -s $VERSION_DIR/$PYTHON_DIR/share/* $VAR/share
+fi
+
+# check for successful python build
+if [ ! -x $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d ]; then
+    echo "Could not locate python executable in"
+    echo "PYTHON LOCATION: $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d"
+    echo "Exiting build."
+    exit 1
 fi
 
 brew install gdal
