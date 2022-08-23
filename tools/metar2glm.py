@@ -1,5 +1,4 @@
-#!/bin/bash
-"exec" "`dirname $0`/python3" "$0" "$@"
+#!/usr/local/opt/gridlabd/bin/python3
 
 import sys
 sys.path.append(sys.argv[0].split()[0:-1])
