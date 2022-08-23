@@ -1,7 +1,9 @@
 #!/bin/bash
 export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
-VERSION=${VERSION:-`./version.sh --name`}
+# Set version
+    VERSION=${VERSION:-`build-aux/version.sh --name`}
+    VAR="/usr/local/opt/gridlabd"
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
@@ -25,40 +27,40 @@ brew doctor
 
 # adding necessary paths to user bash and zsh terminals
 # apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
+if ! grep -q "$VAR/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
+    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.zshrc
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
+if ! grep -q "$VAR/bin" "$HOME/.zsh_profile"; then
     touch "$HOME/.zsh_profile"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
+    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.zsh_profile
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
+if ! grep -q "$VAR/bin" "$HOME/.bash_profile"; then
     touch "$HOME/.bash_profile"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LD_LIBRARY_PATH=$VAR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LIBRARY_PATH=$VAR/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
+if ! grep -q "$VAR/lib" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bashrc
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LD_LIBRARY_PATH=$VAR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LIBRARY_PATH=$VAR/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VAR/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VAR/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VAR/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VAR/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VAR/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$VAR/lib:$LIBRARY_PATH
 
 # build tools
 
@@ -74,28 +76,34 @@ export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:$LIBRARY_PATH
 
 # Install python 3.9.6
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.6"
-	cd /usr/local/opt/gridlabd/src
+if [ ! -x $VAR/gridlabd/$VERSION/bin/python3 -o "$($VAR/gridlabd/$VERSION/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
+	echo "installing python 3.9.6 and ssl module dependencies"
+	cd $VAR/src
 
 	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
 
 # include python ssl module and dependencies, uses ./Configure instead of ./configure due to custom implementation    
     curl -L http://xrl.us/installperlosx | bash
-    curl https://www.openssl.org/source/openssl-1.1.1q.tar.gz | tar xz
-    cd openssl-1.1.1q
-# 1.1.1q has an issue where one test is missing a header. Remove no-tests with the next release, as that should have the missing header patched in.
-    ./Configure --prefix=/usr/local/opt/gridlabd --openssldir=/usr/local/opt/gridlabd/ssl darwin64-x86_64-cc no-tests
+    curl https://www.openssl.org/source/old/1.1.1/openssl-1.1.1n.tar.gz | tar xz
+    cd openssl-1.1.1n
+
+# Needed to build python's ssl module
+    ./Configure --prefix=$VAR/gridlabd/$VERSION/openssl --openssldir=$VAR/gridlabd/$VERSION/ssl --libdir=lib darwin64-x86_64-cc
     make
     make install
-	# tar xzf Python-3.9.6.tgz 
-	cd /usr/local/opt/gridlabd/src/Python-3.9.6
+
+# needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
+    brew install ca-certificates
+    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VAR/gridlabd/$VERSION/ssl/cert.pem
+
+	# tar xzf Python-3.9.6.tgz
+	cd $VAR/src/Python-3.9.6
 
     export MACOSX_DEPLOYMENT_TARGET=10.15
-     export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd/gridlabd/$VERSION \
-    --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/usr/local/opt/gridlabd/opt/openssl@1.1 \
+     export PKG_CONFIG_PATH="$VAR/gridlabd/$VERSION/lib/pkgconfig:/usr/local/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
+	./configure --prefix=$VAR/gridlabd/$VERSION \
+    --enable-framework=$VAR/gridlabd/$VERSION \
+    --with-openssl=$VAR/gridlabd/$VERSION/openssl \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
@@ -105,30 +113,26 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     CPPFLAGS="-I/usr/local/include -I/usr/local/opt/zlib/include"
 
 	make -s -j2
-	make install 
+	make install
 
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9d-config /usr/local/opt/gridlabd/bin/python3-config
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
-	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/3.9/bin/* /usr/local/opt/gridlabd/bin
-    # macos refuses to let me set my all-important library paths. I have to link to /usr/local/lib otherwise the libraries cannot be found.
-    # I also need to now add an os-specific script section to the cloud install script. Thanks, apple.
-    #if ! test -e /usr/local/lib; then 
-    #    sudo mkdir /usr/local/lib
-    #    sudo ln -sf /usr/local/opt/gridlabd/lib/* /usr/local/lib
-    #else
-    #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
-    #fix
-    /usr/local/opt/gridlabd/bin/python3 -m ensurepip --upgrade
-	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    /usr/local/opt/gridlabd/bin/python3 -m pip install build
-    /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
+	sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3
+    $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d -m ensurepip --upgrade
 
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
+	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3.9d-config $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/python3-config
+	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc3.9 $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/pydoc
+	sudo ln -sf $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle3.9 $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/idle
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/gridlabd/$VERSION/bin
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/bin
+
+    $VAR/gridlabd/$VERSION/bin/python3 -m ensurepip --upgrade
+	$VAR/gridlabd/$VERSION/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    $VAR/gridlabd/$VERSION/bin/python3 -m pip install build
+    $VAR/gridlabd/$VERSION/bin/python3 -m pip install pyproj
+
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/bin/* $VAR/bin
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/include/* $VAR/include
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/lib/* $VAR/lib
+    sudo ln -s $VAR/gridlabd/$VERSION/Python.framework/Versions/Current/share/* $VAR/share
 fi
 
 brew install gdal
@@ -149,13 +153,13 @@ brew install gdal
 
 # libgeos
     brew install geos
-    cp /usr/local/opt/geos/lib/libgeos* /usr/local/opt/gridlabd/lib
+    #cp /usr/local/opt/geos/lib/libgeos* $VAR/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local
         sudo mkdir lib
     fi
 
-    ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+    ln -sf $VAR/lib/libgeos* /usr/local/lib 
 
-sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
+sudo ln -sf $VAR/bin/* /usr/local/bin

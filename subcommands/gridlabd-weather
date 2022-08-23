@@ -3,8 +3,6 @@
 # ensure only one weather call runs at a time
 . $(dirname $0)/gridlabd-lock
 
-PYTHON_LOC=${GLD_BIN:-/usr/local/opt/gridlabd/bin}/python3
-
 # check environment
 if [ ${GLD_ETC:-none} == none ]; then
 	echo "$0: ERROR: GLD_ETC is not exported from the shell environment" > /dev/stderr
@@ -182,7 +180,7 @@ function delete()
 
 function metar()
 {
-	$PYTHON_LOC ${GLD_ETC}/metar2glm.py $*
+	/usr/local/opt/gridlabd/bin/python3 ${GLD_ETC}/metar2glm.py $*
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then
