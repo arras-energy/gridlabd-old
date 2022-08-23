@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_LOC="$(dirname $0)/python3"
+PYTHON_LOC=${GLD_BIN:-/usr/local/opt/gridlabd/bin}/python3
 QUIET="-q"
 STDOUT="/dev/null"
 STDERR="/dev/null"
