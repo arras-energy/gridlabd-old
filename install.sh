@@ -271,12 +271,12 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
-	SOK="$VAR/setup.ok"
+	SOK="$VAR/gridlabd/$VERSION/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
 		# update permissions for site-packages to be writable by user post-setup
-			sudo chown -R ${USER} /usr/local/opt/gridlabd/lib/python3*/site-packages
+			sudo chown -R ${USER} /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
 			echo "${USER}"
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
