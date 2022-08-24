@@ -1,6 +1,4 @@
-#!/bin/bash
-
-"exec" "$GLD_BIN/python3" "$@"
+#!/usr/local/opt/gridlabd/bin/python3
 
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
