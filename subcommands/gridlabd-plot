@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec "$GLD_BIN/python3" "${flags[@]}" "$script" "$@"
+"exec" "$GLD_BIN/python3" "$@"
 
 """GridLAB-D plot subcommand
 
