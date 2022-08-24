@@ -127,18 +127,18 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d-config $VERSION_DIR/$PYTHON_DIR/bin/python3-config
 	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/pydoc
 	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/idle${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/idle
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
 
     $VERSION_DIR/bin/python3 -m ensurepip --upgrade
 	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     $VERSION_DIR/bin/python3 -m pip install build
     $VERSION_DIR/bin/python3 -m pip install pyproj
 
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/include/* $VAR/include
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/lib/* $VAR/lib
-    sudo ln -s $VERSION_DIR/$PYTHON_DIR/share/* $VAR/share
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VAR/bin
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/include/* $VAR/include
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/lib/* $VAR/lib
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/share/* $VAR/share
 fi
 
 # check for successful python build

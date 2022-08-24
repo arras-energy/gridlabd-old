@@ -523,7 +523,6 @@ AC_SUBST([MYSQL_LIBS])
 AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
-AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
