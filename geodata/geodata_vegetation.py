@@ -845,7 +845,7 @@ def linegallop(data):
 
     contact = round(contact, 2)
 
-    return strike
+    return contact
 
 def apply(data, options=default_options, config=default_config, warning=print):
 
