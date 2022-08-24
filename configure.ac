@@ -524,7 +524,7 @@ AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
 HAVE_PYTHON="$($GLD_BIN/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($GLD_BIN/python3)"
+PYTHON_EXEC="$($GLD_BIN/python3 -c "import os; print(os.path.realpath('$GLD_BIN/python3'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
@@ -595,6 +595,7 @@ AC_MSG_RESULT([
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
+    Python Location: ............ $PYTHON_EXEC
 
   Dependencies:
 
@@ -652,8 +653,17 @@ AC_MSG_RESULT([
 ])
 
 CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+AC_MSG_NOTICE
+AC_MSG_NOTICE([CFLAGS: .... $CFLAGS ])
+AC_MSG_NOTICE
 CXXFLAGS="$(python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+AC_MSG_NOTICE
+AC_MSG_NOTICE([CXXFLAGS: .... $CXXFLAGS ])
+AC_MSG_NOTICE
 LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+AC_MSG_NOTICE
+AC_MSG_NOTICE([LDFLAGS: .... $LDFLAGS ])
+AC_MSG_NOTICE
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
