@@ -523,8 +523,8 @@ AC_SUBST([MYSQL_LIBS])
 AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
-HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
+HAVE_PYTHON="$($GLD_BIN/python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$($GLD_BIN/python3)"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
