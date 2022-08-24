@@ -76,6 +76,11 @@ include $(top_srcdir)/custom.mk
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
 
+# for petsc
+# include ${PETSC_DIR}/lib/petsc/conf/variables
+# include ${PETSC_DIR}/lib/petsc/conf/rules
+# include ${PETSC_DIR}/lib/petsc/conf/tests
+
 dist_doc_DATA += COPYRIGHT
 dist_doc_DATA += LICENSE
 
@@ -315,8 +320,9 @@ libraries: petsc
 petsc: third_party/petsc-3.17.4/Makefile
 
 third_party/petsc-3.17.4/Makefile: third_party/petsc-3.17.4/configure
-	@(cd $(top_srcdir)/third_party/petsc-3.17.4 && ./configure --prefix=/usr/local --with-cc=gcc --with-cxx=g++ --with-fc=0 --download-f2cblaslapack --download-mpich && make all check && make install)
-
+	@(cd $(top_srcdir)/third_party/petsc-3.17.4 && ./configure --prefix=/usr/local --with-cc=gcc --with-cxx=g++ --with-fc=0 --download-f2cblaslapack --download-mpich --download-triangle && make PETSC_DIR=/home/gridlabd/third_party/petsc-3.17.4 PETSC_ARCH=arch-linux-c-debug all && make PETSC_DIR=/home/gridlabd/third_party/petsc-3.17.4 PETSC_ARCH=arch-linux-c-debug install)
+# make PETSC_DIR=/home/gridlabd/third_party/petsc-3.17.4 PETSC_ARCH=arch-linux-c-debug all
+# make PETSC_DIR=/home/gridlabd/third_party/petsc-3.17.4 PETSC_ARCH=arch-linux-c-debug install
 third_party/petsc-3.17.4/configure: third_party/petsc-3.17.4
 
 third_party/petsc-3.17.4: third_party/petsc-with-docs-3.17.4.tar.gz
