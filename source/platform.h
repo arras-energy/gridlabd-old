@@ -174,7 +174,7 @@
 		Path to Python executable used to build gridlabd
  */
 #ifndef PYTHON_EXEC
-#error PYTHON_EXEC was not defined in the configure.ac file 
+#warning PYTHON_EXEC was not defined in the configure.ac file 
 #endif
 
 #endif

@@ -1,0 +1,4 @@
+#!bin/sh
+#
+# This should redirect each gridlabd environment to its own correct python version and pass on all the arguments
+${GLD_BIN:-/usr/bin}/python3 "$*"
