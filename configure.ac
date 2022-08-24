@@ -572,8 +572,8 @@ ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
 # Verify python version
-HAVE_PYTHON="$($DSTDIR/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($DSTDIR/python3 -c "import os; print(os.path.realpath('$DSTDIR/python3'))")"
+HAVE_PYTHON="$($BINDIR/python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$($BINDIR/python3 -c "import os; print(os.path.realpath('$BINDIR/python3'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
