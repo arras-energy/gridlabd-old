@@ -1,4 +1,7 @@
-#!/usr/local/opt/gridlabd/bin/python3
+#!/bin/bash
+
+exec "$GLD_BIN/python3" "${flags[@]}" "$script" "$@"
+
 """Syntax: gridlabd_library <subcommand> <options>...
 Subcommands:
   help

@@ -1,4 +1,7 @@
-#!/usr/local/opt/gridlabd/bin/python3
+#!/bin/bash
+
+exec "$GLD_BIN/python3" "${flags[@]}" "$script" "$@"
+
 import sys
 assert(sys.version_info.major>2)
 import traceback
