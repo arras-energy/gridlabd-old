@@ -8,10 +8,10 @@
 #define DIR=..
 #endif // exist ../IEEE-13-cyme.mdb
 
-#input "${DIR:-.}/IEEE-13-cyme.mdb" -o IEEE-13-cyme.glm -t table -f object -p table=CYMLOAD -p class=test -p modules=powerflow,residential -p columns=DeviceNumber:name -p dtypes=NetworkId:int32
+#input "${DIR:-.}/IEEE-13-cyme.mdb" -o IEEE-13-cyme-object.glm -t table -f object -p table=CYMLOAD -p class=test -p modules=powerflow,residential -p columns=DeviceNumber:name -p dtypes=NetworkId:int32
 
-#ifexist ../IEEE-13-cyme.glm
-#on_exit 0 diff -I '^[#/]' ../IEEE-13-cyme.glm IEEE-13-cyme.glm > gridlabd.diff
+#ifexist ../IEEE-13-cyme-object.glm
+#on_exit 0 diff -I '^[#/]' ../IEEE-13-cyme-object.glm IEEE-13-cyme-object.glm > gridlabd.diff
 #endif // exist ../IEEE-13-cyme.glm
 
 #endif // missing /usr/local/bin/mdb-schema
