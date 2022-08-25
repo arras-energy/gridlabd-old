@@ -12,6 +12,6 @@
 
 #ifexist ../IEEE-13-cyme-object.glm
 #on_exit 0 diff -I '^[#/]' ../IEEE-13-cyme-object.glm IEEE-13-cyme-object.glm > gridlabd.diff
-#endif // exist ../IEEE-13-cyme.glm
+#endif // exist ../IEEE-13-cyme-object.glm
 
 #endif // missing /usr/local/bin/mdb-schema
