@@ -652,8 +652,8 @@ AC_MSG_RESULT([
 ])
 
 CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-CXXFLAGS="$(python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+CXXFLAGS="$($BINDIR/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+LDFLAGS="$($BINDIR/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
