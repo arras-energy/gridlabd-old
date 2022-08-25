@@ -2,9 +2,6 @@ PYTHONVERSION=$(shell $(bindir)/python3 $(top_srcdir)/python/setup.py --version)
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
 
-	@echo "pythonversion $(PYTHONVERSION)"
-	@echo "pwd $(shell pwd)"
-	@echo "$(bindir)/python3 $(top_srcdir)/python/setup.py --version"
 	@echo "building $@"
 	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
 	@$(bindir)/python3 -m pip install build 1>/dev/null
@@ -13,9 +10,9 @@ $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source
 python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
 
 	@echo "installing $@"
-	$(bindir)/python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
+	@$(bindir)/python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
 
 python-clean:
 	@rm $(top_srcdir)/python/dist/*.{whl,tar.gz}
 	@echo "uninstalling $(top_srcdir)/python"
-	$(bindir)/python3 -m pip uninstall gridlabd -y || (echo "Use '. utilities/cleanwc' instead to clean this build."; exit 1)
+	@$(bindir)/python3 -m pip uninstall gridlabd -y || (echo "Use '. utilities/cleanwc' instead to clean this build."; exit 1)
