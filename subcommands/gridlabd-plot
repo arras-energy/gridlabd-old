@@ -1,4 +1,6 @@
-exec $GLD_BIN/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
 
 """GridLAB-D plot subcommand
 

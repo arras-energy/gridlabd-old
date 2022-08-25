@@ -1,4 +1,6 @@
-exec $GLD_BIN/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
 
 import sys
 sys.path.append(sys.argv[0].split()[0:-1])
