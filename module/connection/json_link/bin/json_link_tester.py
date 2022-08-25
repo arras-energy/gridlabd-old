@@ -1,4 +1,4 @@
-#!/usr/local/opt/gridlabd/bin/python3.sh
+exec $GLD_BIN/python3
 
 """
 ****************

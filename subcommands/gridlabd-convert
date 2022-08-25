@@ -1,4 +1,4 @@
-#!/usr/local/opt/gridlabd/bin/python3.sh
+exec $GLD_BIN/python3
 
 """General GridLAB-D file format converter for command line and macro usage.
 """
