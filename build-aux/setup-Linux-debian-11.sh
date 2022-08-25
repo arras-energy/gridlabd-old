@@ -1,10 +1,18 @@
 #!/bin/bash
 
-REQ_DIR=$(pwd)
+# Set version and paths, using these vars will make future maintenance much better. #Automation
+    VERSION=${VERSION:-`build-aux/version.sh --name`}
+    VAR="/usr/local/opt/gridlabd"
+    VERSION_DIR=$VAR/gridlabd/$VERSION
+    PYTHON_VER=3.9.6
+    PY_EXE=3.9
+	REQ_DIR=$(pwd)
+
 # Install needed system tools
-# update first
+# update first and install libgdal-dev first, as sometimes other package installs break libgdal
 sudo apt-get -q update
 
+sudo apt install libgdal-dev -y
 sudo apt-get install tzdata -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
@@ -50,59 +58,59 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-sudo apt install libgdal-dev -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
-cd $HOME
-wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
-tar xzvf autoconf-2.71.tar.gz
-cd autoconf-2.71
-./configure
-make
-make install
-cd $HOME
-rm -rf autoconf-2.71
-rm -rf autoconf-2.71.tar.gz
+	if [ ! -e $HOME/temp ]; then
+		mkdir $HOME/temp
+	fi
+	cd $HOME
+	wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
+	tar xzvf autoconf-2.71.tar.gz
+	cd autoconf-2.71
+	./configure
+	make
+	make install
+	cd $HOME
+	rm -rf autoconf-2.71
+	rm -rf autoconf-2.71.tar.gz
 
-# Install python 3.9.6
+# Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.6"
-	cd /usr/local/opt/gridlabd/src
+if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+	echo "installing python $PYTHON_VER and ssl module dependencies"
+	cd $VERSION_DIR/src
 
-	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	# tar xzf Python-3.9.6.tgz 
-	cd Python-3.9.6
+	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
-	./configure --prefix=/usr/local/opt/gridlabd --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	# tar xzf Python-$PYTHON_VER.tgz
+	cd $VERSION_DIR/src/Python-$PYTHON_VER
+
+	./configure --prefix=$VERSION_DIR --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
-	/sbin/ldconfig /usr/local/opt/gridlabd/lib
-	ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
-	ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
-	ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-	ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
+	/sbin/ldconfig $VERSION_DIR/lib
+	ln -sf $VERSION_DIR/bin/python3.9 $VERSION_DIR/bin/python3
+	ln -sf $VERSION_DIR/bin/python3.9-config $VERSION_DIR/bin/python3-config
+	ln -sf $VERSION_DIR/bin/pydoc3.9 $VERSION_DIR/bin/pydoc
+	ln -sf $VERSION_DIR/bin/idle3.9 $VERSION_DIR/bin/idle
+	ln -sf $VERSION_DIR/bin/pip3.9 $VERSION_DIR/bin/pip3
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
 		sudo touch /etc/ld.so.conf.d/gridlabd.conf
-		sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+		sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
 		sudo ldconfig
 	fi
 
-	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	/usr/local/opt/gridlabd/bin/python3 -m pip install IPython censusdata
-
+	$VERSION_DIR/bin/python3 -m pip install --upgrade pip
+	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	$VERSION_DIR/bin/python3 -m pip install IPython censusdata
+	
 	if ! gdal-config --version &> /dev/null ; then
-		if [ ! -e $HOME/temp ]; then
-			mkdir $HOME/temp
-		fi
 		cd $HOME/temp
-		sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
-		unzip gdal304.zip
-		cd gdal-3.0.4
+		sudo wget download.osgeo.org/gdal/2.4.0/gdal240.zip
+		unzip gdal240.zip
+		cd gdal-2.4.0
 		./configure
 		sudo make clean && sudo make && sudo make install
 	fi
@@ -110,12 +118,20 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	/usr/local/opt/gridlabd/bin/python3 -m pip install GDAL==3.0.4
-	/usr/local/opt/gridlabd/bin/python3 -m pip install rasterio==1.2.10
+	$VERSION_DIR/bin/python3 -m pip install GDAL==2.4.0
+	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
-	/usr/local/opt/gridlabd/bin/python3 -m pip install -r requirements.txt
+	$VERSION_DIR/bin/python3 -m pip install -r requirements.txt
 
+fi
+
+# check for successful python build
+if [ ! -x $VERSION_DIR/bin/python${PY_EXE} ]; then
+    echo "Could not locate python executable in"
+    echo "PYTHON LOCATION: $VERSION_DIR/bin/python${PY_EXE}"
+    echo "Exiting build."
+    exit 1
 fi
 
 # install latex
@@ -124,13 +140,13 @@ apt-get install texlive -y
 # doxgygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	if [ ! -d /usr/local/opt/gridlabd/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git /usr/local/opt/gridlabd/src/doxygen
+	if [ ! -d $VERSION_DIR/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git $VERSION_DIR/src/doxygen
 	fi
-	if [ ! -d /usr/local/opt/gridlabd/src/doxygen/build ]; then
-		mkdir /usr/local/opt/gridlabd/src/doxygen/build
+	if [ ! -d $VERSION_DIR/src/doxygen/build ]; then
+		mkdir $VERSION_DIR/src/doxygen/build
 	fi
-	cd /usr/local/opt/gridlabd/src/doxygen/build
+	cd $VERSION_DIR/src/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
 	make install
@@ -148,13 +164,13 @@ if [ ! -f /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -x /usr/local/opt/gridlabd/bin/natural_docs ]; then
-	cd /usr/local/opt/gridlabd
+if [ ! -x $VERSION_DIR/bin/natural_docs ]; then
+	cd $VERSION_DIR
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono /usr/local/opt/gridlabd/natural_docs/NaturalDocs.exe \$*' > /usr/local/opt/gridlabd/bin/natural_docs
-	chmod a+x /usr/local/opt/gridlabd/bin/natural_docs
+mono $VERSION_DIR/natural_docs/NaturalDocs.exe \$*' > $VERSION_DIR/bin/natural_docs
+	chmod a+x $VERSION_DIR/bin/natural_docs
 fi
