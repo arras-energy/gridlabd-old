@@ -30,7 +30,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/etc
 fi
 
-cp ./build-aux/python3 $VAR/bin/python3
+cp ./build-aux/python3.sh $VAR/bin/python3.sh
 
 if [ ! -d "$VAR/gridlabd/$VERSION" ]; then
     mkdir -p $VAR/gridlabd/$VERSION/bin

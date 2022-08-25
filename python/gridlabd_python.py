@@ -1,4 +1,4 @@
-#!/usr/local/opt/gridlabd/bin/python3
+#!/usr/local/opt/gridlabd/bin/python3.sh
 
 import sys
 assert(sys.version_info.major>2)

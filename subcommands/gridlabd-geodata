@@ -1,4 +1,4 @@
-#!/usr/local/opt/gridlabd/bin/python3
+#!/usr/local/opt/gridlabd/bin/python3.sh
 
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
