@@ -481,7 +481,6 @@ def main(inputfile,**options):
     # outputfile = "/dev/stdout"
     global outputfile
     global VERBOSE
-    print(options)
     for opt,value in options.items():
         if opt == "analysis":
             ANALYSIS = value
