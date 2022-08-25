@@ -1,4 +1,4 @@
-PYTHONVERSION=$(shell $(bindir)/python3 $(top_srcdir)/python/setup.py --version)
+PYTHONVERSION=$($(bindir)/python3 $(top_srcdir)/python/setup.py --version)
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
 
