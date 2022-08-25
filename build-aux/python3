@@ -4,4 +4,4 @@
 echo "bin $GLD_BIN"
 echo "at $@"
 echo "star $*"
-${$GLD_BIN:-/usr/bin}/python3 "$*" "$@"
+${$BINDIR:-/usr/bin}/python3 "$*" "$@"
