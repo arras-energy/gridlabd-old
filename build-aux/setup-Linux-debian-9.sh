@@ -89,24 +89,6 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	$VERSION_DIR/bin/python3 -m pip install --upgrade pip
 	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	$VERSION_DIR/bin/python3 -m pip install IPython censusdata
-	
-	if ! gdal-config --version &> /dev/null ; then
-		if [ ! -e $HOME/temp ]; then
-			mkdir $HOME/temp
-		fi
-		cd $HOME/temp
-		sudo wget download.osgeo.org/gdal/2.4.0/gdal240.zip
-		unzip gdal240.zip
-		cd gdal-2.4.0
-		./configure
-		sudo make clean && sudo make && sudo make install
-	fi
-
-	# manually set install due to pip not adjusting automatically for debian's limitations
-	sudo apt-get update -y
-	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	$VERSION_DIR/bin/python3 -m pip install GDAL==2.4.0
-	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
 	$VERSION_DIR/bin/python3 -m pip install -r requirements.txt

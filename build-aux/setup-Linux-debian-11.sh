@@ -108,9 +108,9 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	
 	if ! gdal-config --version &> /dev/null ; then
 		cd $HOME/temp
-		sudo wget download.osgeo.org/gdal/2.4.0/gdal240.zip
-		unzip gdal240.zip
-		cd gdal-2.4.0
+		sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
+		unzip gdal304.zip
+		cd gdal-3.0.4
 		./configure
 		sudo make clean && sudo make && sudo make install
 	fi
@@ -118,7 +118,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	$VERSION_DIR/bin/python3 -m pip install GDAL==2.4.0
+	$VERSION_DIR/bin/python3 -m pip install GDAL==3.0.4
 	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
