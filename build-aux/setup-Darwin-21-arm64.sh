@@ -9,6 +9,17 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
         exit 1
     fi
 
+# Set version and paths, using these vars will make future maintenance much better. #Automation
+    VERSION=${VERSION:-`build-aux/version.sh --name`}
+    VAR="/usr/local/opt/gridlabd"
+    VERSION_DIR=$VAR/gridlabd/$VERSION
+    PYTHON_DIR=Python.framework/Versions/Current
+    PYTHON_VER=3.9.13
+    PY_EXE=3.9
+
+brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
+brew doctor
+
 # checking for necessary directories
 
     if test ! -e /usr/local/bin; then 
@@ -26,6 +37,7 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
         sudo mkdir etc
     fi
 
+
 # install homebrew instance for gridlabd
     brew update
     if test ! -e /opt/homebrew; then 
@@ -37,83 +49,89 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
 
 # adding necessary paths to user bash and zsh terminals
 # apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
+if ! grep -q "$VAR/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
+    echo "export PATH=$VAR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
     echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zshrc
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
+if ! grep -q "$VAR/bin" "$HOME/.zsh_profile"; then
     touch "$HOME/.zsh_profile"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
+    echo "export PATH=$VAR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zsh_profile
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
     echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zsh_profile
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
+if ! grep -q "$VAR/bin" "$HOME/.bash_profile"; then
     touch "$HOME/.bash_profile"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export PATH=$VAR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
     echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bash_profile
 fi
 
-if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
+if ! grep -q "$VAR/lib" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
-    echo "export PATH=/usr/local/opt/gridlabd/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export PATH=$VAR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
+    echo "export DYLD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
     echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bashrc
 fi
 
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
-export LIBRARY_PATH=/usr/local/opt/gridlabd/lib:/opt/homebrew/lib:$LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$VAR/lib:/opt/homebrew/lib:$LIBRARY_PATH
 
 # build tools
 
     brew install autoconf automake libtool gnu-sed gawk git
     brew install libffi zlib
-    brew install pkg-config openssl@1.1 xz gdbm tcl-tk
+    brew install pkg-config xz gdbm tcl-tk
     xcode-select --install
 
-    cd /usr/local
-    sudo mkdir ssl
-    sudo ln -sf /opt/homebrew/opt/openssl /usr/local/ssl
-    cd /usr/local/opt/gridlabd
-    cp -r /opt/homebrew/opt/openssl /usr/local/opt/gridlabd/opt
-    # Update symlinks in /usr/local/bin
-    #if [ ! -L "/usr/local/bin" ] && [ -d "/usr/local/bin" ]; then
-        #mv /usr/local/bin/* /opt/homebrew/bin
-        #sudo ln -sf /opt/homebrew/bin /usr/local/bin
-    #fi
+# Update symlinks in /usr/local/bin
     [ ! -e /usr/local/bin/sed ] && sudo ln -sf /opt/homebrew/bin/gsed /usr/local/bin/sed
     [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
     [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
 
 
-# Install python 3.9.13
+# Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/python3 --version | cut -f3 -d.)" != "Python 3.9" ]; then
-	echo "install python 3.9.13"
-	cd /usr/local/opt/gridlabd/src
+if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+	echo "installing python $PYTHON_VER and ssl module dependencies"
+	cd $VERSION_DIR/src
 
-	curl https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz | tar xz
-	# tar xzf Python-3.9.13.tgz 
-	cd Python-3.9.13
+	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
-    export MACOSX_DEPLOYMENT_TARGET=12.5
+# include python ssl module and dependencies, uses ./Configure instead of ./configure due to custom implementation    
+    curl -L http://xrl.us/installperlosx | bash
+    curl https://www.openssl.org/source/old/1.1.1/openssl-1.1.1n.tar.gz | tar xz
+    cd openssl-1.1.1n
+
+# Needed to build python's ssl module
+    ./Configure --prefix=$VERSION_DIR/openssl --openssldir=$VERSION_DIR/ssl --libdir=lib darwin64-x86_64-cc
+    make
+    make install
+
+# needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
+    brew install ca-certificates
+    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
+
+	# tar xzf Python-$PYTHON_VER.tgz
+	cd $VERSION_DIR/src/Python-$PYTHON_VER
+
+    export MACOSX_DEPLOYMENT_TARGET=$( sw_vers -productVersion | sed 's/..$//' )
     # export PKG_CONFIG_PATH="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
-    export PKG_CONFIG_PATH="/usr/local/opt/gridlabd/lib/pkgconfig:/opt/homebrew/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
-	./configure --prefix=/usr/local/opt/gridlabd \
-    --enable-framework=/usr/local/opt/gridlabd \
-    --with-openssl=/opt/homebrew/opt/openssl@1.1 \
+    export PKG_CONFIG_PATH="$VERSION_DIR/lib/pkgconfig:/opt/homebrew/opt/tcl-tk/lib/pkgconfig:$pythonLocation/lib/pkgconfig"
+	./configure --prefix=$VERSION_DIR \
+    --enable-framework=$VERSION_DIR \
+    --with-openssl=$VERSION_DIR/openssl \
     --with-pydebug \
     --with-computed-gotos \
     --with-tcltk-libs="$(pkg-config --libs tcl tk)" \
@@ -132,31 +150,36 @@ if [ ! -x /usr/local/opt/gridlabd/bin/python3 -o "$(/usr/local/opt/gridlabd/bin/
     
     
 
-	make -s -j2
-	make install 
+    # MAKEFLAGS need to be set to an empty string to prevent a bug with framework builds. Multiprocessor python framework builds fail when a -j value is set.
+    export MAKEFLAGS=""
+	make
+	make install
 
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9 /usr/local/opt/gridlabd/bin/python3
-	sudo ln -sf /usr/local/opt/gridlabd/bin/python3.9-config /usr/local/opt/gridlabd/bin/python3-config
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pydoc3.9 /usr/local/opt/gridlabd/bin/pydoc
-	sudo ln -sf /usr/local/opt/gridlabd/bin/idle3.9 /usr/local/opt/gridlabd/bin/idle
-	sudo ln -sf /usr/local/opt/gridlabd/bin/pip3.9 /usr/local/opt/gridlabd/bin/pip3
-    # macos refuses to let me set my all-important library paths. I have to link to /usr/local/lib otherwise the libraries cannot be found.
-    # I also need to now add an os-specific script section to the cloud install script. Thanks, apple.
-    #if ! test -e /usr/local/lib; then 
-    #    sudo mkdir /usr/local/lib
-    #    sudo ln -sf /usr/local/opt/gridlabd/lib/* /usr/local/lib
-    #else
-    #sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
-    #fix
-	/usr/local/opt/gridlabd/bin/python3 -m pip install --upgrade pip
-	/usr/local/opt/gridlabd/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    /usr/local/opt/gridlabd/bin/python3 -m pip install build
-    /usr/local/opt/gridlabd/bin/python3 -m pip install pyproj
+	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d $VERSION_DIR/$PYTHON_DIR/bin/python3
+    $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d -m ensurepip --upgrade
 
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/bin/* /usr/local/opt/gridlabd/bin
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/include/* /usr/local/opt/gridlabd/include
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/lib/* /usr/local/opt/gridlabd/lib
-    sudo ln -s /usr/local/opt/gridlabd/Python.framework/Versions/Current/share/* /usr/local/opt/gridlabd/share
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d-config $VERSION_DIR/$PYTHON_DIR/bin/python3-config
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/pydoc
+	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/idle${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/idle
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
+
+    $VERSION_DIR/bin/python3 -m ensurepip --upgrade
+	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    $VERSION_DIR/bin/python3 -m pip install build
+    $VERSION_DIR/bin/python3 -m pip install pyproj
+
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/include/* $VERSION_DIR/include
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/lib/* $VERSION_DIR/lib
+    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/share/* $VERSION_DIR/share
+fi
+
+# check for successful python build
+if [ ! -x $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d ]; then
+    echo "Could not locate python executable in"
+    echo "PYTHON LOCATION: $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d"
+    echo "Exiting build."
+    exit 1
 fi
 
 # mdbtools
@@ -183,22 +206,20 @@ fi
 
 # libgeos
     brew install geos
-    cp /opt/homebrew/lib/libgeos* /usr/local/opt/gridlabd/lib
+    cp /opt/homebrew/lib/libgeos* $VAR/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local
         sudo mkdir lib
     fi
 
-    ln -sf /usr/local/opt/gridlabd/lib/libgeos* /usr/local/lib 
+    ln -sf $VAR/gridlabd/lib/libgeos* /usr/local/lib 
 
 # mysql connector
 #    brew install mysql
 #    brew install mysql-client
 
 sudo ln -s /opt/homebrew/bin/* /usr/local/bin
-# sudo ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
-sudo ln -sf /usr/local/opt/gridlabd/bin/* /usr/local/bin
 sudo ln -s /opt/homebrew/etc/* /usr/local/etc
 
 cd /usr/local/bin

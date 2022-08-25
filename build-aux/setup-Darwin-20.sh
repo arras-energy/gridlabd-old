@@ -166,13 +166,9 @@ brew install gdal
 
 # libgeos
     brew install geos
-    #cp /usr/local/opt/geos/lib/libgeos* $VAR/lib
+    cp /usr/local/opt/geos/lib/libgeos* $VAR/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local
         sudo mkdir lib
     fi
-
-    ln -sf $VAR/lib/libgeos* /usr/local/lib 
-
-sudo ln -sf $VAR/bin/* /usr/local/bin
