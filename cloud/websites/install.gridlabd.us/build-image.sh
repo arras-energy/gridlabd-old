@@ -2,6 +2,8 @@
 
 # This file is for developer and maintainer use only. 
 # Build gridlabd on a clean system for best results in building and saving an image.
+# this file is currently built to be run from within the same folder.
+# It could certainly be cleaned up a little, but works just fine as is. 
 
 SYSTEM=$(uname -s)
 RELEASE=$(uname -r | cut -f1 -d.)
@@ -32,18 +34,19 @@ if [ $SYSTEM == "Darwin" ]; then
     fi
 fi
 
-# MAJ MIN PAT, how would a user get these values from an install script?
 
-if [ ! -e $HOME/tmp ]; then
-    echo "Home tmp folder not found. Generating home tmp folder."
-    mkdir $HOME/tmp
-    cd $HOME/tmp
-    echo "Saving image in your home tmp folder."
+#bz2 may be a better compression, but tarz is more universal. Confirmed bz2 unpacking issues when used in a fresh docker debian container.
+
+if [ ! -e $HOME/temp ]; then
+    echo "Home temp folder not found. Generating home temp folder."
+    mkdir $HOME/temp
+    cd $HOME/temp
+    echo "Saving image in your home temp folder."
     tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 else
-    cd $HOME/tmp
-    echo "Saving image in your home tmp folder."
+    cd $HOME/temp
+    echo "Saving image in your home temp folder."
     tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
     echo "Build complete. Don't forget to upload the image to aws!"
 fi

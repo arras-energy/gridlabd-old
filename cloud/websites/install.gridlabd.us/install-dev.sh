@@ -21,6 +21,13 @@ Help()
 ############################################################
 ############################################################
 
+# check if gridlabd already exists on the system
+if test -e /usr/local/opt/gridlabd; then
+    echo "A conflicting gridlabd install already exists on the system in /usr/local/opt/gridlabd"
+    echo "Aborting fast install."
+    exit 1
+fi
+
 # check if necessary tools already installed
 
 DLTOOL=
@@ -81,36 +88,38 @@ while getopts ":hb:" option; do
    esac
 done
 
+# create directories used for install if they don't exist
 if test ! -e /usr/local/bin; then
     cd /usr/local
     sudo mkdir bin
 fi
 
-if [ ! -e $HOME/tmp ]; then
-    echo "Home tmp folder not found. Generating home tmp folder."
+if [ ! -e $HOME/temp ]; then
+    echo "Home temp folder not found. Generating home temp folder."
     cd $HOME
-    mkdir tmp
-    cd tmp
+    mkdir temp
+    cd temp
 else
-    cd $HOME/tmp
+    cd $HOME/temp
 fi 
 
+# get the version file from the branch to locate correct image version
 if [ "$DLTOOL" = "curl" ]; then
     curl -O -J https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
 elif [ "$DLTOOL" = "wget" ]; then
     wget https://raw.githubusercontent.com/slacgismo/gridlabd/$BRANCH/source/version.h
 fi
 
-if [ ! -f "$HOME/tmp/version.h" ]; then
+if [ ! -f "$HOME/temp/version.h" ]; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
     exit 1
-elif grep -q "404: Not Found" "$HOME/tmp/version.h"; then
+elif grep -q "404: Not Found" "$HOME/temp/version.h"; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
     rm -rf version.h
     exit 1
 fi
 
-FIL="$HOME/tmp/version.h"
+FIL="$HOME/temp/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
@@ -120,7 +129,7 @@ BRA=${BRANCH//-/_}
 
 if test $D_ARCH != "arm64"; then
 
-    echo "Downloading image to your home tmp folder."
+    echo "Downloading image to your home temp folder."
     echo "Searching for https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
     if [ "$DLTOOL" = "curl" ]; then
         curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
@@ -128,7 +137,7 @@ if test $D_ARCH != "arm64"; then
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
-    if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
+    if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
         exit 1
@@ -141,7 +150,7 @@ if test $D_ARCH != "arm64"; then
         sudo mkdir opt
     fi
 
-    cd $HOME/tmp
+    cd $HOME/temp
      sudo mv gridlabd /usr/local/opt
     echo "Gridlabd installed. Adding to path."
 
@@ -187,14 +196,14 @@ if test $D_ARCH != "arm64"; then
 # Code for arm64 installations
 else
 
-    echo "Downloading image to your home tmp folder."
+    echo "Downloading image to your home temp folder."
     if [ "$DLTOOL" = "curl" ]; then
         curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
         wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
-    if [ ! -e $HOME/tmp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
+    if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
         exit 1
@@ -207,7 +216,7 @@ else
         sudo mkdir opt
     fi
 
-    cd $HOME/tmp
+    cd $HOME/temp
     sudo mv gridlabd /usr/local/opt
     echo "Gridlabd installed. Adding to path."
 
@@ -287,7 +296,7 @@ sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib
 
 echo "Cleaning up temporary files"
 
-cd $HOME/tmp
+cd $HOME/temp
 sudo rm -rf gridlabd*
 sudo rm -rf version.h
 
