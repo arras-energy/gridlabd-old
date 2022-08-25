@@ -1,11 +1,10 @@
-PYTHONVERSION=$(shell $(GLD_BIN)/python3 $(top_srcdir)/python/setup.py --version)
+PYTHONVERSION=$(shell $(bindir)/python3 $(top_srcdir)/python/setup.py --version)
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
 
 	@echo "pythonversion $(PYTHONVERSION)"
-	@echo "bin $(bindir)"
-	@echo "gld $(GLD_BIN)"
-	@echo "src $(top_srcdir)" 
+	@echo "pwd $(shell pwd)"
+	@echo "$(bindir)/python3 $(top_srcdir)/python/setup.py --version"
 	@echo "building $@"
 	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
 	@$(bindir)/python3 -m pip install build 1>/dev/null
