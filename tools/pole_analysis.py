@@ -210,7 +210,6 @@ def reactions_PW(g_diameter,t_diameter,height,density,tilt_angle,tilt_direction)
                     *(g_diameter**2+g_diameter*t_diameter+t_diameter**2)*height/(3*4)
     xV = -pole_weight*cos(pi*tilt_direction/180)
     yV = -pole_weight*sin(pi*tilt_direction/180)
-    (g_diameter/(g_diameter-t_diameter)-height*sqrt(g_diameter/(2*(g_diameter-t_diameter))))
     return xV, yV
 
 def reactions_CT(strength,tilt_angle,heading_direction):
