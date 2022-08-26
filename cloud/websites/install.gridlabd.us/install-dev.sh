@@ -119,6 +119,7 @@ elif grep -q "404: Not Found" "$HOME/temp/version.h"; then
     exit 1
 fi
 
+# process remaining variables to select correct image
 FIL="$HOME/temp/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
@@ -166,7 +167,7 @@ if test $D_ARCH != "arm64"; then
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "/usr/local/opt/gridlabd/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -188,7 +189,7 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+    sudo chown ${USER} /usr/local/opt/gridlabd/gridlabd/current/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
@@ -232,7 +233,7 @@ else
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "/usr/local/opt/gridlabd/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -253,7 +254,7 @@ else
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} /usr/local/opt/gridlabd/lib/python3.9/site-packages
+    sudo chown ${USER} /usr/local/opt/gridlabd/gridlabd/current/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
