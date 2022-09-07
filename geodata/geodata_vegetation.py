@@ -793,59 +793,43 @@ def lognorm_cdf(x, mu, sigma):
 def linegallop(data):
     # data includes the results, such as linesag and linesway
 
-    # min_strike = (data['linesag']**2 + (data['width']-data['linesway'])**2)**0.5
+    min_strike = (data['linesag']**2 + (data['width']-data['linesway'])**2)**0.5
 
-    # strike_range = (data['height']**2 - data['linesag']**2)**0.5 - (data['width'] - data['linesway'])
+    strike_range = (data['height']**2 - data['linesag']**2)**0.5 - (data['width'] - data['linesway'])
     # strike_range[strike_range<0]=0
 
-    # # include the fragility curve [fitted results from MATLAB]
-    # # beta_0, beta_1*tree height, beta_2*ratio
-    # beta_mu = [7.9,  -0.07, -3.05]
-    # beta_sig= [0.19, 0.002, -0.05]
-    # # tree height = 0; while tree base is not zero
-    # height = data['height']*1
-    # base   = data['base']*1
-    # index_err = height<base
-    # #height[index_err] = 5
-    # height[height<5] = 3
-    # mu = beta_mu[0]  + beta_mu[1]*height  + beta_mu[2]*(base/height)
-    # sig= beta_sig[0] + beta_sig[1]*height + beta_sig[2]*(base/height)
+    # include the fragility curve [fitted results from MATLAB]
+    # beta_0, beta_1*tree height, beta_2*ratio
+    beta_mu = [7.9,  -0.07, -3.05]
+    beta_sig= [0.19, 0.002, -0.05]
+    # tree height = 0; while tree base is not zero
+    height = data['height']*1
+    base   = data['base']*1
+    index_err = height<base
+    height[index_err] = base[index_err]+1
+    crown = height - base
+    mu = beta_mu[0]  + beta_mu[1]*height  + beta_mu[2]*(crown/height)
+    sig= beta_sig[0] + beta_sig[1]*height + beta_sig[2]*(crown/height)
 
-    # # cannot do vector
-    # # cdf = lognorm_cdf(data['wind_speed']*1, mu, sig)
-    # cdf_vec = min_strike        # for initilization
-    # wind_speed = data['wind_speed']
-    # for idx, x in enumerate(mu):
-    #     cdf = lognorm_cdf(wind_speed[idx]*10, x, sig[idx])
-    #     cdf_vec[idx]=cdf
+    # cannot do vector
+    # cdf = lognorm_cdf(data['wind_speed']*1, mu, sig)
+    # cdf_vec = [0]*len(mu)        # for initilization
+    cdf_vec = min_strike
+    wind_speed = data['wind_speed']
+    for idx, x in enumerate(mu):
+        cdf = lognorm_cdf(wind_speed[idx]*2, x, sig[idx])
+        cdf_vec[idx]=cdf
 
+    strike = cdf_vec
     # strike = mu
-    # # strike = mu
-    # # strike = strike_range
+    # strike = strike_range
 
-    # # no strike risk
-    # # strike[data['height']<min_strike] = 0
+    # no strike risk
+    # strike[data['height']<min_strike] = 0
 
-    # strike = round(strike, 2)
+    strike = round(strike, 2)
 
-    # calculate vegetation sway
-    # susceptibility is a function of the tree height, captured by suscep_factor
-    suscep_factor = 0.01 
-    vege_sway = data['wind_speed'] * suscep_factor * data['height']
-
-    # (1) horizontal contact probability
-    n_hori = 2
-    contact = ((data['linesway'] + vege_sway)/data['width'])**2 * data['cover']
-    # set the upper limit
-    contact[contact>1] = 1
-
-    # (2) vertical contact probability
-    # tree_height < line_sag (powerline to ground distance)
-    contact[data['height'] < data['linesag']] = 0
-
-    contact = round(contact, 2)
-
-    return contact
+    return strike
 
 def apply(data, options=default_options, config=default_config, warning=print):
 
@@ -874,10 +858,10 @@ def apply(data, options=default_options, config=default_config, warning=print):
        result["contact"] = contact(result)
     except Exception as err:
        WARNING(f"cannot run function CONTACT and {err} is missing or invalid")
-    # try:
-    #     result["strike"] = linegallop(result)
-    # except Exception as err:
-    #     WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")       
+    try:
+        result["strike"] = linegallop(result)
+    except Exception as err:
+        WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")       
     return result
 
 # perform validation tests
