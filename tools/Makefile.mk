@@ -18,3 +18,4 @@ dist_pkgdata_DATA += tools/read_dlp.py
 dist_pkgdata_DATA += tools/noaa_forecast.py
 dist_pkgdata_DATA += tools/nsrdb_weather.py
 dist_pkgdata_DATA += tools/ucar_weather.py
+dist_pkgdata_DATA += tools/pole_analysis.py
