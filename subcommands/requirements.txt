@@ -1,5 +1,5 @@
 haversine==2.3.0
-pandas==1.1.4
+pandas==1.4.3
 Shapely==1.7.1
 geopandas==0.9.0
 PyGithub==1.54.1

@@ -205,7 +205,7 @@ def pole_diameter(g_diameter,t_diameter,h,H):
     return x_diameter
 
 def reactions_PW(g_diameter,t_diameter,height,density,tilt_angle,tilt_direction):
-    # reactions due to pole weight and pole tile
+    # reactions due to pole weight and pole tilt
     pole_weight = density*sin(pi*tilt_angle/180)*pi\
                     *(g_diameter**2+g_diameter*t_diameter+t_diameter**2)*height/(3*4)
     xV = -pole_weight*cos(pi*tilt_direction/180)
@@ -481,7 +481,7 @@ def main(inputfile,**options):
     # outputfile = "/dev/stdout"
     global outputfile
     global VERBOSE
-    print(options)
+    # print(options)
     for opt,value in options.items():
         if opt == "analysis":
             ANALYSIS = value
