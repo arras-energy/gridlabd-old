@@ -333,7 +333,8 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
-if test "uname -s" = Linux; then :
+PY_OS="$(uname -s)"
+if test $PY_OS = "Linux"; then :
   PYTHON_VER_DIR="@exec_prefix@/bin"
 else
   PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"
