@@ -335,7 +335,7 @@ fi
 ###############################################################################
 PY_OS="uname -r"
 if test "uname -r" = Linux; then :
-  PYTHON_VER_DIR="@exec_prefix@/bin""
+  PYTHON_VER_DIR="@exec_prefix@/bin"
 else
   PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"
 fi
