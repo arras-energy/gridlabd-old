@@ -78,8 +78,7 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
-PY_OS="uname -r"
-AS_IF([test "uname -r" = Linux],
+AS_IF([test "uname -s" = Linux],
   [PYTHON_VER_DIR="@exec_prefix@/bin"],
   [PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"])
 GRIDLABD_VER_DIR="@exec_prefix@"
