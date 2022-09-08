@@ -58,6 +58,8 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
+sudo apt-get install wget -y
+sudo apt-get install curl -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 	if [ ! -e $HOME/temp ]; then
@@ -96,9 +98,12 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	ln -sf $VERSION_DIR/bin/idle3.9 $VERSION_DIR/bin/idle
 	ln -sf $VERSION_DIR/bin/pip3.9 $VERSION_DIR/bin/pip3
 
-	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
-		sudo touch /etc/ld.so.conf.d/gridlabd.conf
-		sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+
+	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
+		cd $HOME/temp
+		sudo touch $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
 		sudo ldconfig
 	fi
 
