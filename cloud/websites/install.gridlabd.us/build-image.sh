@@ -7,7 +7,6 @@
 
 SYSTEM=$(uname -s)
 RELEASE=$(uname -r | cut -f1 -d.)
-HAS_DOCKER=
 KERNEL=
 if test $SYSTEM == "Linux"; then
 source "/etc/os-release"
