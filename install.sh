@@ -309,6 +309,7 @@ if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd
 		run ln -sf $PREFIX/gridlabd/current/$item /$PREFIX/$item/gridlabd
 	done
 	run ln -s $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run ln -s /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
