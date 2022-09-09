@@ -7,6 +7,7 @@
 
 SYSTEM=$(uname -s)
 RELEASE=$(uname -r | cut -f1 -d.)
+HAS_DOCKER=
 KERNEL=
 if test $SYSTEM == "Linux"; then
 source "/etc/os-release"
@@ -34,6 +35,14 @@ if [ $SYSTEM == "Darwin" ]; then
     fi
 fi
 
+if [ $SYSTEM == "Linux" ]; then
+    if grep -q docker /proc/1/cgroup ; then 
+        cp /usr/lib/* /usr/local/opt/gridlabd/lib
+    else
+        echo "Linux images should only be built from clean docker containers for maximum portability!"
+        exit 1
+    fi
+fi
 
 #bz2 may be a better compression, but tarz is more universal. Confirmed bz2 unpacking issues when used in a fresh docker debian container.
 
