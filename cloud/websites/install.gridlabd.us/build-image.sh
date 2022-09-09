@@ -15,7 +15,7 @@ fi
 D_ARCH=$(uname -m)
 EXE=$0
 cd ../../..
-TOP=$(cd ${EXE/version.sh/..}; pwd)
+TOP=$(pwd)
 FIL="${TOP}/source/version.h"
 MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
@@ -34,7 +34,9 @@ fi
 
 if [ $SYSTEM == "Linux" ]; then
     if [ -f /.docker* ]; then 
-        cp /usr/lib/* /usr/local/opt/gridlabd/lib
+        cp -r /usr/lib/* /usr/local/opt/gridlabd/lib
+        cd /usr/local/opt/gridlabd/lib 
+        rm -rf apt python* *.d 
     else
         echo "Linux images should only be built from clean docker containers for maximum portability!"
         exit 1
