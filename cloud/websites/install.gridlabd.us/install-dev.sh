@@ -293,7 +293,7 @@ if test ! -e /usr/local/lib; then
     sudo mkdir lib
 fi
 
-sudo ln -s /usr/local/opt/gridlabd/lib/lib* /usr/local/lib 
+sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib 
 
 echo "Cleaning up temporary files"
 
