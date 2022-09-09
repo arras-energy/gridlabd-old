@@ -59,7 +59,7 @@ BRANCH=master
 
 # check if user has necessary permissions
 
-if grep -q docker /proc/1/cgroup ; then 
+if [ -f /.docker* ] ; then 
     if [ ! -w /usr/local ]; then
         echo "User is not root. Please run as root user."
         exit 1

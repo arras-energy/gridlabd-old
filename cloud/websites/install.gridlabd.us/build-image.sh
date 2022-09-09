@@ -14,8 +14,6 @@ KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
 EXE=$0
-TOP=$(cd ${EXE/version.sh/..}; pwd)
-cd $TOP
 cd ../../..
 TOP=$(cd ${EXE/version.sh/..}; pwd)
 FIL="${TOP}/source/version.h"
@@ -35,7 +33,7 @@ if [ $SYSTEM == "Darwin" ]; then
 fi
 
 if [ $SYSTEM == "Linux" ]; then
-    if grep -q docker /proc/1/cgroup ; then 
+    if [ -f /.docker* ]; then 
         cp /usr/lib/* /usr/local/opt/gridlabd/lib
     else
         echo "Linux images should only be built from clean docker containers for maximum portability!"
