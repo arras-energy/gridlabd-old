@@ -287,13 +287,24 @@ if [ $SYSTEM == "Darwin" ]; then
 fi
 
 # link all libraries from package to /usr/local/lib, necessary for darwin and specific packages are hardcoded.
-# makes life easier this way.  
+# makes life easier this way.
+# for linux, some packages need to be linked to usr/lib and /lib, as necessary.  
 if test ! -e /usr/local/lib; then
     cd /usr/local
     sudo mkdir lib
 fi
 
-sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib 
+if [ -f /.docker* ] ; then 
+
+    if test $SYSTEM == "Linux"; then
+        sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
+        sudo ln -s /usr/local/opt/gridlabd/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
+        sudo ln -s /usr/local/opt/gridlabd/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
+    else
+        sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
+    fi
+
+fi
 
 echo "Cleaning up temporary files"
 

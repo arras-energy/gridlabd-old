@@ -36,7 +36,8 @@ if [ $SYSTEM == "Linux" ]; then
     if [ -f /.docker* ]; then 
         cp -r /usr/lib/* /usr/local/opt/gridlabd/lib
         cd /usr/local/opt/gridlabd/lib 
-        rm -rf apt  dpkg  locale  mime  os-release  ssl  sudo	tmpfiles.d  udev  x86_64-linux-gnu
+        rm -rf apt  dpkg  locale  mime  os-release  ssl  sudo	tmpfiles.d  udev
+        cp -r /lib/x86_64-linux-gnu /usr/local/opt/gridlabd/lib/r_x86_64-linux-gnu
     else
         echo "Linux images should only be built from clean docker containers for maximum portability!"
         exit 1
