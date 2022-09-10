@@ -60,6 +60,21 @@ sudo apt-get install xz-utils -y
 sudo apt-get install wget -y
 sudo apt-get install curl -y
 
+# Update Autoconf to 2.71 manually as apt-get does not track the latest version
+	if [ ! -e $HOME/temp ]; then
+		mkdir $HOME/temp
+	fi
+	cd $HOME/temp
+	wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
+	tar xzvf autoconf-2.71.tar.gz
+	cd autoconf-2.71
+	./configure
+	make
+	make install
+	cd $HOME/temp
+	rm -rf autoconf-2.71
+	rm -rf autoconf-2.71.tar.gz
+
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
 if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
