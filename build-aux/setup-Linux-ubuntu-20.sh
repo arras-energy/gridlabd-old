@@ -9,9 +9,10 @@
 	REQ_DIR=$(pwd)
 
 # Install needed system tools
-# update first
+# update first and install libgdal-dev first, as sometimes other package installs break libgdal
 sudo apt-get -q update
 
+sudo apt install libgdal-dev -y
 sudo apt-get install tzdata -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
@@ -57,7 +58,8 @@ sudo apt-get install liblzma-dev -y
 sudo apt-get install libbz2-dev -y
 sudo apt-get install libncursesw5-dev -y
 sudo apt-get install xz-utils -y
-sudo apt install libgdal-dev -y
+sudo apt-get install wget -y
+sudo apt-get install curl -y
 
 # Update Autoconf to 2.71 manually as apt-get does not track the latest version
 	if [ ! -e $HOME/temp ]; then
@@ -96,9 +98,11 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	ln -sf $VERSION_DIR/bin/idle3.9 $VERSION_DIR/bin/idle
 	ln -sf $VERSION_DIR/bin/pip3.9 $VERSION_DIR/bin/pip3
 
-	if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
-		sudo touch /etc/ld.so.conf.d/gridlabd.conf
-		sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
+		cd $HOME/temp
+		sudo touch $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
 		sudo ldconfig
 	fi
 
@@ -115,10 +119,9 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 		sudo make clean && sudo make && sudo make install
 	fi
 
-	# manually set install due to pip not adjusting automatically for ubuntu's limitations
-	sudo add-apt-repository ppa:ubuntugis/ppa -y
+	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
-	sudo apt-get install gdal-bin -y
+	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
 	$VERSION_DIR/bin/python3 -m pip install GDAL==3.0.4
 	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
 
