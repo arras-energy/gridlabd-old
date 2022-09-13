@@ -9,7 +9,8 @@
 	REQ_DIR=$(pwd)
 
 # Install needed system tools
-# update first and install libgdal-dev first, as sometimes other package installs break libgdal
+# update first and install libgdal-dev first, as sometimes other package in85
+stalls break libgdal
 sudo apt-get -q update
 
 sudo apt install libgdal-dev -y
