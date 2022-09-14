@@ -112,6 +112,7 @@ fi
 
 if [ ! -f "$HOME/temp/version.h" ]; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    rm -rf version.h
     exit 1
 elif grep -q "404: Not Found" "$HOME/temp/version.h"; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
@@ -131,16 +132,18 @@ BRA=${BRANCH//-/_}
 if test $D_ARCH != "arm64"; then
 
     echo "Downloading image to your home temp folder."
-    echo "Searching for https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
+    echo "Searching for https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
     if [ "$DLTOOL" = "curl" ]; then
-        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        curl -O -J https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
+        cd $HOME/temp
+        rm -rf version.h
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
@@ -199,14 +202,16 @@ else
 
     echo "Downloading image to your home temp folder."
     if [ "$DLTOOL" = "curl" ]; then
-        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        curl -O -J https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
-        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
+        cd $HOME/temp
+        rm -rf version.h
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz

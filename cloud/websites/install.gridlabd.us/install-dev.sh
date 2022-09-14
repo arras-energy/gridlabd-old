@@ -112,6 +112,7 @@ fi
 
 if [ ! -f "$HOME/temp/version.h" ]; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    rm -rf version.h
     exit 1
 elif grep -q "404: Not Found" "$HOME/temp/version.h"; then
     echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
@@ -141,6 +142,8 @@ if test $D_ARCH != "arm64"; then
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
+        cd $HOME/temp
+        rm -rf version.h
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
@@ -207,6 +210,8 @@ else
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
         echo "A fast install image was not located for your operating system."
         echo "You will need to build Gridlabd from source."
+        cd $HOME/temp
+        rm -rf version.h
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz

@@ -4,8 +4,8 @@ You can create a fast-install image of your build of gridlabd using the below co
 as the process will compress the entire gridlabd directory with all libraries installed during the build process. It will automatically name the image based on the gridlabd version, branch, and OS used to build gridlabd.
 
 ~~~
- user$ cd your-src-directory/cloud/websites/install.gridlabd.us
- user$ ./build-image.sh
+cd your-src-directory/cloud/websites/install.gridlabd.us
+./build-image.sh
 ~~~
 
 After the build is complete, the tarz file will be located in your $HOME/temp directory. Images built off a branch can be uploaded to AWS s3 install-dev.gridlabd.us for testing, and images built off of master can be uploaded to install.gridlabd.us. Linux images
@@ -56,3 +56,14 @@ chmod 755 install-dev.sh
 ~~~
 
 You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+
+## MACOS/Debian
+To install on Mac, use the following commands:
+
+~~~
+curl -OJ https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it. 
