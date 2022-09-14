@@ -1,26 +1,4 @@
-### These code snippets are really handy commands that are surprisingly difficult to find.
-### Hopefully they can be helpful for future maintainers.
 
-
-
-### For connections to a virtual machine (I used parallels) where you cannot easily transfer the packaged tar file
-### back to your local system. (Parallel Tools couldn't always be installed unfortunately)
-
-scp remoteuser@remoteserver:/remote/folder/remotefile.txt  localfile.txt
-
-### The above official syntax is a little deceptive, and makes you manually rename the file. 
-### The below SCP example is the one I use and preserves the original filename.
-### Since I use automated naming for standardization and proper version tracking, the below example is generally better.
-
-scp a123456@macOS.local:/Users/a123456/temp/*  $HOME/temp
-
-### The below command is useful for copying an image built in docker to the host for upload and whatnot
-
-docker cp <containerId>:/file/path/within/container /host/path/target
-
-### Example to copy all files from folder into home directory
-
-docker cp c7e8c527dcb2b9caf189a18ea56886014f8c3cfe08d05339058a797d7278b546:/root/temp/. $HOME
 
 ### Python modules should start without a hashbang, and instead use the below code without the #s. 
 ### This essentially makes the file swap dynamically to the calling gridlabd version's python3, and
