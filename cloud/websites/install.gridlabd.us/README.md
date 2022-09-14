@@ -66,4 +66,14 @@ chmod 755 install-dev.sh
 ./install-dev.sh -b image-branch-name
 ~~~
 
-The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it. 
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it.
+
+## Flags
+The install script offers a few select flags for selecting your install.
+
+
+`-b your-branch here` is used to select a branch, otherwise the install will default to the master branch.
+
+`-v #.#.#` is used to specify a specific version, and is used for when you want to use a past fast-install version. Otherwise, the script will default to the latest version of the branch being used.
+
+`-h` is your standard help, and will display these options when called.
