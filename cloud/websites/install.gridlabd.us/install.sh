@@ -12,6 +12,7 @@ Help()
    echo "options:"
    echo "b     Set the image branch (default master)"
    echo "h     Print this Help."
+   echo "v     Manually select the version using #.#.#"
    echo
 }
 
@@ -56,6 +57,9 @@ L_DISTRO="$ID"
 fi
 D_ARCH=$(uname -m)
 BRANCH=master
+MAJ=
+MIN=
+PAT=
 
 # check if user has necessary permissions
 
@@ -75,13 +79,23 @@ fi
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":hb:" option; do
+while getopts ":hb:v:" option; do
    case $option in
       h) # display Help
          Help
          exit;;
       b) # set branch
          BRANCH=$OPTARG;;
+      v) # set version
+         if [[ $OPTARG =~ [0-9].[0-9].[0-9] ]] ; then
+            MAJ=$(echo $OPTARG | cut -d. -f1)
+            MIN=$(echo $OPTARG | cut -d. -f2)
+            PAT=$(echo $OPTARG | cut -d. -f3)
+            echo "Submitted $MAJ.$MIN.$PAT"
+         else 
+            echo "Error: Invalid version format submitted"
+            exit 1
+         fi;;
       \?) # Invalid flag
          echo "Error: Invalid flag set"
          exit;;
@@ -122,9 +136,11 @@ fi
 
 # process remaining variables to select correct image
 FIL="$HOME/temp/version.h"
-MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
-MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
-PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+if [[ -z "$MAJ" ]]; then
+    MAJ=`sed -En 's/#define REV_MAJOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+    MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+    PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
+fi
 BRA=${BRANCH//-/_}
 
 # Standard universal image install for non-arm systems

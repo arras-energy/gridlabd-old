@@ -12,16 +12,31 @@
 
 	<H2>Installing HiPAS GridLAB-D</H2>
 
-	<B>IMPORTANT:</B> This installer is designed to install HiPAS GridLAB-D on a new system image such as <CODE>wls</CODE>, <CODE>ec2</CODE>, or <CODE>docker</CODE>.  Do not use this on an existing system unless you are ok with significant changes to your system's python infrastructure and system build tools.
+	<B>IMPORTANT:</B> This installer is designed to install HiPAS GridLAB-D on a new system image such as <CODE>wsl</CODE>, <CODE>ec2</CODE>, or <CODE>docker</CODE>.  Do not use this on an existing system unless you are ok with significant changes to your system's build tools.
 
 	<P/>
 
-	To install HiPAS GridLAB-D on your Linux or Mac system, type the following command at a shell prompt:
+	To install HiPAS GridLAB-D on your Linux or Mac system, type the following commands at a shell prompt:
 
 	<P/>
+
+	<H3>MACOS</H3>
 
 	<CODE>
-		bash$ curl -sL http://install.gridlabd.us/install.sh | sudo /bin/bash
+		bash$ curl -OJ http://install.gridlabd.us/install.sh
+		bash$ chmod 755 install.sh
+		bash$ ./install.sh
+	</CODE>
+
+	<H3>LINUX</H3>
+
+	<CODE>
+		bash$ apt-get update
+		bash$ apt-get install curl
+		bash$ apt-get install sudo
+		bash$ curl -OJ http://install.gridlabd.us/install.sh
+		bash$ chmod 755 install.sh
+		bash$ ./install.sh
 	</CODE>
 
 	<P/>
