@@ -798,12 +798,27 @@ def linegallop(data):
     strike_range = (data['height']**2 - data['linesag']**2)**0.5 - (data['width'] - data['linesway'])
     # strike_range[strike_range<0]=0
 
+    # calculate # of trees in the strike area
+    n_tree = min_strike         # initilization
+    point_resolution = 30       # investigated point resolution
+    strike_area = strike_range*point_resolution
+    # given parameters
+    avg_density = 170           # average tree density in California, trees/acre
+    avg_cover   = 0.422         # average tree cover from the sample data set
+    cover =data['cover']*1      # tree cover info
+    acre2mm = 4046.86           # acre to meter^2
+    n_tree = cover/avg_cover*avg_density*strike_area/acre2mm
+    n_tree = round(n_tree)
+    n_tree[n_tree<0] = 0
+    height = data['height']*1
+    n_tree[height<min_strike] = 0
+
     # include the fragility curve [fitted results from MATLAB]
     # beta_0, beta_1*tree height, beta_2*ratio
     beta_mu = [7.9,  -0.07, -3.05]
     beta_sig= [0.19, 0.002, -0.05]
     # tree height = 0; while tree base is not zero
-    height = data['height']*1
+    # height = data['height']*1
     base   = data['base']*1
     index_err = height<base
     height[index_err] = base[index_err]+1
@@ -815,20 +830,23 @@ def linegallop(data):
     # cdf = lognorm_cdf(data['wind_speed']*1, mu, sig)
     # cdf_vec = [0]*len(mu)        # for initilization
     cdf_vec = min_strike
+    strike  = min_strike
     wind_speed = data['wind_speed']
     for idx, x in enumerate(mu):
-        cdf = lognorm_cdf(wind_speed[idx]*2, x, sig[idx])
-        cdf_vec[idx]=cdf
+        cdf = lognorm_cdf(wind_speed[idx]*3, x, sig[idx])
+        cdf_vec[idx]= cdf
+        strike[idx] = 1 - (1-cdf)**n_tree[idx]
 
-    strike = cdf_vec
+    # strike = cdf_vec
     # strike = mu
     # strike = strike_range
 
     # no strike risk
-    # strike[data['height']<min_strike] = 0
+    strike[height<min_strike] = 0
 
-    strike = round(strike, 2)
+    strike = round(strike, 3)
 
+    # return strike
     return strike
 
 def apply(data, options=default_options, config=default_config, warning=print):
