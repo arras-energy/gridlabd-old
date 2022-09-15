@@ -76,6 +76,7 @@ GLM:
     second_tier_energy "<decimal> kWh";
     third_tier_price "<decimal> $/kWh";
     third_tier_energy "<decimal> kWh";
+    service_level "{LOW, NORMAL, HIGH, CRITICAL}";
     bustype "{SWING_PQ,SWING,PV,PQ}";
     busflags "[ISSOURCE|HASSOURCE]";
     reference_bus "<string>";
@@ -716,6 +717,14 @@ Price of electricity when energy usage exceeds third tier energy usage
 ~~~
 
 Switching point between second tier price and third tier price
+
+### `service_level` 
+
+~~~
+  enumeration {LOW, NORMAL, HIGH, CRITICAL} service_level;
+~~~
+
+Defines the criticality of the associated load
 
 ### `bustype`
 
