@@ -18,11 +18,10 @@ jobs:
       run: pip3 install -r requirements.txt
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
+    - name: Update packages
+      run: sudo apt-get update -y
     - name: Run autoconf
-      run: |
-       sudo apt-get update
-       sudo apt-get install libtool
-       autoreconf -isf
+      run: autoreconf -isf
     - name: Configure build
       run: ./configure
     - name: Build gridlabd
