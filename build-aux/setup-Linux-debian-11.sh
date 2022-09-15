@@ -13,7 +13,11 @@
 # to prevent interactive popup breaking automation
 sudo apt-get -q update
 
-DEBIAN_FRONTEND=noninteractive sudo apt-get install -y --no-install-recommends tzdata
+export DEBIAN_FRONTEND=noninteractive
+
+ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+apt-get install -y tzdata
+dpkg-reconfigure --frontend noninteractive tzdata
 sudo apt install libgdal-dev -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
