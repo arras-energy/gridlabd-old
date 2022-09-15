@@ -20,7 +20,7 @@ jobs:
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
     - name: Update packages
       run: |
-        apt update && apt install -y sudo
+        apt-get update && apt-get install -y sudo
         sudo apt-get update
         sudo apt-get install -y libtool
     - name: Run autoconf
