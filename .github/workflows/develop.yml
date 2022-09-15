@@ -10,9 +10,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container: ubuntu:20.04
 
     steps:
     - uses: actions/checkout@v2
+    - name: Prepare environment
+      run: |
+       apt-get update
+       apt-get install sudo -y
     - name: install gridlabd
       run: ./install.sh -v -t -p
     - name: Link to /usr/local
