@@ -12,7 +12,7 @@
 # update first
 sudo apt-get -q update
 
-sudo apt-get install tzdata -y
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y --no-install-recommends tzdata
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
 
