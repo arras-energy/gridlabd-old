@@ -42,7 +42,7 @@ m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 m4_define([pkginstall], sbuild_m4_esyscmd_s([build-aux/version.sh --install]))
 m4_define([pkgorigin],sbuild_m4_esyscmd_s([git rev-parse --abbrev-ref HEAD]))
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.63])
 AC_INIT([pkgname],[pkgversion],[gridlabd@gmail.com],[pkg])
 AC_CONFIG_SRCDIR([source/gridlabd.h])
 AC_CONFIG_HEADERS([source/config.h])
