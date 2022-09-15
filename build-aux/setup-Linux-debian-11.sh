@@ -9,12 +9,12 @@
 	REQ_DIR=$(pwd)
 
 # Install needed system tools
-# update first and install libgdal-dev first, as sometimes other package in85
-stalls break libgdal
+# update first and install libgdal-dev second, as sometimes other package installs break libgdal, but tzdata needs to be first
+# to prevent interactive popup breaking automation
 sudo apt-get -q update
 
-sudo apt install libgdal-dev -y
 sudo apt-get install tzdata -y
+sudo apt install libgdal-dev -y
 sudo apt-get install curl -y
 sudo apt-get install apt-utils -y
 

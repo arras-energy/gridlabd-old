@@ -17,7 +17,8 @@ jobs:
     - name: Prepare environment
       run: |
        apt-get update
-       apt-get install sudo -y
+       apt-get install -q sudo -y
+       apt-get install -q git -y
     - name: install gridlabd
       run: ./install.sh -v -t -p
     - name: Link to /usr/local
