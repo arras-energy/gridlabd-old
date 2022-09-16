@@ -70,16 +70,24 @@ sudo apt-get install curl -y
 	if [ ! -e $HOME/temp ]; then
 		mkdir $HOME/temp
 	fi
-	cd $HOME/temp
-	wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
-	tar xzvf autoconf-2.71.tar.gz
-	cd autoconf-2.71
-	./configure
-	make
-	make install
-	cd $HOME/temp
-	rm -rf autoconf-2.71
-	rm -rf autoconf-2.71.tar.gz
+
+# autoconf fills their version with a lot of crud. This is to purify it down to the actual version, and make it comparable. 
+	ACV=$(autoconf --version | cut -d ' ' -f4)
+	ACV=$(echo $ACV | cut -d ' ' -f1)
+	ACV=$(echo "${ACV//./}")
+
+	if [ -z "$ACV" ] || [ "$ACV" -lt "271" ] ; then
+		cd $HOME/temp
+		wget https://ftpmirror.gnu.org/autoconf/autoconf-2.71.tar.gz
+		tar xzvf autoconf-2.71.tar.gz
+		cd autoconf-2.71
+		./configure
+		make
+		make install
+		cd $HOME/temp
+		rm -rf autoconf-2.71
+		rm -rf autoconf-2.71.tar.gz
+	fi
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
@@ -173,13 +181,13 @@ if [ ! -f /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -x $VERSION_DIR/bin/natural_docs ]; then
-	cd $VERSION_DIR
+if [ ! -x /usr/local/bin/natural_docs ]; then
+	cd /usr/local/bin
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
 mono $VERSION_DIR/natural_docs/NaturalDocs.exe \$*' > $VERSION_DIR/bin/natural_docs
-	chmod a+x $VERSION_DIR/bin/natural_docs
+	chmod a+x /usr/local/bin/natural_docs
 fi
