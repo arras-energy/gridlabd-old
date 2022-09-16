@@ -19,6 +19,11 @@ jobs:
        apt-get install -q sudo -y
        apt-get install -q git -y
     - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
     - name: install gridlabd
       run: ./install.sh -v -t -p
     - name: Link to /usr/local
