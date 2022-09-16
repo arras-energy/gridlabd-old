@@ -13,12 +13,12 @@ jobs:
     container: ubuntu:20.04
 
     steps:
-    - uses: actions/checkout@v2
     - name: Prepare environment
       run: |
        apt-get update
        apt-get install -q sudo -y
        apt-get install -q git -y
+    - uses: actions/checkout@v2
     - name: install gridlabd
       run: ./install.sh -v -t -p
     - name: Link to /usr/local
