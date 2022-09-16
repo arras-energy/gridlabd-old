@@ -156,7 +156,7 @@ apt-get install texlive -y
 
 # doxgygen
 apt-get -q install gawk -y
-if [ ! -x /usr/bin/doxygen ]; then
+if [ ! -e /usr/bin/doxygen ]; then
 	if [ ! -d $VERSION_DIR/src/doxygen ]; then
 		git clone https://github.com/doxygen/doxygen.git $VERSION_DIR/src/doxygen
 	fi
@@ -171,7 +171,7 @@ fi
 
 # # mono
 
-if [ ! -f /usr/bin/mono ]; then
+if [ ! -e /usr/bin/mono ]; then
 	cd /tmp
 	apt install apt-transport-https dirmngr gnupg ca-certificates -y
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
@@ -181,7 +181,7 @@ if [ ! -f /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -x /usr/local/bin/natural_docs ]; then
+if [ ! -e /usr/local/bin/natural_docs ]; then
 	cd /usr/local/bin
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
