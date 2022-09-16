@@ -13,11 +13,6 @@ jobs:
     container: thistleman/test:latest
 
     steps:
-    - name: Prepare environment
-      run: |
-       apt-get update
-       apt-get install -q sudo -y
-       apt-get install -q git -y
     - uses: actions/checkout@v2
 
       # this is to fix GIT not liking owner of the checkout dir
