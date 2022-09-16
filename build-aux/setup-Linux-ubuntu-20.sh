@@ -156,7 +156,7 @@ apt-get install texlive -y
 
 # doxgygen
 apt-get -q install gawk -y
-if [ ! -e /usr/bin/doxygen ]; then
+if [ ! -e /usr/local/bin/doxygen ]; then
 	if [ ! -d $VERSION_DIR/src/doxygen ]; then
 		git clone https://github.com/doxygen/doxygen.git $VERSION_DIR/src/doxygen
 	fi
