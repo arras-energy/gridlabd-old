@@ -6,7 +6,7 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
     VAR="/usr/local/opt/gridlabd"
     VERSION_DIR=$VAR/gridlabd/$VERSION
     PYTHON_DIR=Python.framework/Versions/Current
-    PYTHON_VER=3.9.6
+    PYTHON_VER=3.9.13
     PY_EXE=3.9
 
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
