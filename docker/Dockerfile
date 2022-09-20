@@ -1,4 +1,4 @@
-FROM hipas/gridlabd_base:220322
+FROM hipas/gridlabd_base:220920
 
 
 ENV container docker
