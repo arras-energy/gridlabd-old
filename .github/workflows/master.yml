@@ -10,7 +10,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: slacgismo/gridlabd_dockerhub_base:220920
+    container: hipas/gridlabd_base:220921
 
     steps:
     - uses: actions/checkout@v2
