@@ -1,66 +1,11 @@
 static char help[] = "Small ODE to test TS accuracy.\n";
 
-/*
-  The ODE
-                  u1_t = cos(t),
-                  u2_t = sin(u2)
-  with analytical solution
-                  u1(t) = sin(t),
-                  u2(t) = 2 * atan(exp(t) * tan(0.5))
-  is used to test the accuracy of TS schemes.
-*/
-
 #include <petscts.h>
 #include "petscksp.h"
 #include <petscviewer.h>
 
-// /*
-//      Defines the ODE passed to the ODE solver in explicit form: U_t = F(U)
-// */
-// static PetscErrorCode RHSFunction(TS ts, PetscReal t, Vec U, Vec F, void *s)
-// {
-//   PetscScalar       *f;
-//   const PetscScalar *u;
-
-//   PetscFunctionBegin;
-//   PetscCall(VecGetArrayRead(U,&u));
-//   PetscCall(VecGetArray(F,&f));
-
-//   f[0] = PetscCosReal(t);
-//   f[1] = PetscSinReal(u[1]);
-
-//   PetscCall(VecRestoreArrayRead(U,&u));
-//   PetscCall(VecRestoreArray(F,&f));
-//   PetscFunctionReturn(0);
-// }
 /*
-     Set the function to compute F(t,U,U_t) where F() = 0 is the DAE to be solved.
-*/
-static PetscErrorCode IFunction(TS ts, PetscReal t, Vec U, Vec U_t, Vec F, void *ctx)
-{
-  const PetscScalar *u, *u_t;
-  PetscScalar       *f;
-  const double r = 3.0;
-
-  PetscFunctionBegin;
-  PetscCall(VecGetArrayRead(U,&u));
-  PetscCall(VecGetArrayRead(U_t,&u_t));
-  PetscCall(VecGetArray(F,&f));
-
-  f[0] = u_t[0] + (r / 100.0) * u[0] - (r / 4.0);
-
-
-
-  PetscCall(VecRestoreArrayRead(U,&u));
-  PetscCall(VecRestoreArrayRead(U_t,&u_t));
-  PetscCall(VecRestoreArray(F,&f));
-  // PetscCall(VecView(U,0));
-  // PetscCall(VecView(U_t,0));
-  // PetscCall(VecView(F,0));
-  PetscFunctionReturn(0);
-}
-/*
-     Set the function to compute F(t,U,U_t) where F() = 0 is the DAE to be solved.
+     Set the T vector at time t=0 sec
 */
 static PetscErrorCode InitialConditions(Vec T, void *ctx)
 {
@@ -75,9 +20,15 @@ static PetscErrorCode InitialConditions(Vec T, void *ctx)
   t[2] = 60.0;
   t[3] = 45.0;
   PetscCall(VecRestoreArray(T,&t));
-  PetscCall(VecView(T,0));
+  // PetscCall(VecView(T,0));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"Initial Conditions t=0\n"));
   PetscFunctionReturn(0);
 }
+
+
+/*
+     Set the T setpoint vector
+*/
 static PetscErrorCode SetTsetVector(Vec T, void *ctx)
 {
   PetscScalar *t;
@@ -91,9 +42,14 @@ static PetscErrorCode SetTsetVector(Vec T, void *ctx)
   t[2] = 75.0;
   t[3] = 69.2116;
   PetscCall(VecRestoreArray(T,&t));
-  PetscCall(VecView(T,0));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"Set point Conditions t=INFINITY\n"));
+  // PetscCall(VecView(T,0));
   PetscFunctionReturn(0);
 }
+
+/*
+     Set the Q vector
+*/
 static PetscErrorCode SetQVector(Vec Q, void *ctx)
 {
   PetscScalar *q;
@@ -108,11 +64,13 @@ static PetscErrorCode SetQVector(Vec Q, void *ctx)
   q[3] = 0;
   q[4] = 100;
   PetscCall(VecRestoreArray(Q,&q));
-  PetscCall(VecView(Q,0));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"External Heat sources\n"));
+  // PetscCall(VecView(Q,0));
   PetscFunctionReturn(0);
 }
+
 /*
-     Set the function to compute F(t,U,U_t) where F() = 0 is the DAE to be solved.
+     Set the A matrix
 */
 static PetscErrorCode SetAMatrix(Mat A, PetscInt N, PetscInt M, void *ctx)
 {
@@ -152,11 +110,13 @@ static PetscErrorCode SetAMatrix(Mat A, PetscInt N, PetscInt M, void *ctx)
 
   PetscCall(MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY));
   PetscCall(MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY));
-  PetscCall(MatView(A,PETSC_VIEWER_STDOUT_WORLD));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"A Matrix\n"));
+  // PetscCall(MatView(A,PETSC_VIEWER_STDOUT_WORLD));
   PetscFunctionReturn(0);
 }
+
 /*
-     Set the function to compute F(t,U,U_t) where F() = 0 is the DAE to be solved.
+     Set the B1 Matrix
 */
 static PetscErrorCode SetB1Matrix(Mat B1, PetscInt N, PetscInt M, void *ctx)
 {
@@ -164,8 +124,8 @@ static PetscErrorCode SetB1Matrix(Mat B1, PetscInt N, PetscInt M, void *ctx)
 
   PetscScalar values[N][M] = {
     {0.0011, 0      , 0      , 0, 1.0824},
-    {0     , -4.7029, 0      , 0, 1.0824},
-    {0     , 0      , -9.1729, 0, .9780},
+    {0     , 0.0045, 0      , 0, 1.0824},
+    {0     , 0      , 0.0121, 0, 1.978},
     {0     , 0      , 0      , 0, 0.0036}
   };
   
@@ -201,18 +161,24 @@ static PetscErrorCode SetB1Matrix(Mat B1, PetscInt N, PetscInt M, void *ctx)
 
   PetscCall(MatAssemblyBegin(B1,MAT_FINAL_ASSEMBLY));
   PetscCall(MatAssemblyEnd(B1,MAT_FINAL_ASSEMBLY));
-  PetscCall(MatView(B1,PETSC_VIEWER_STDOUT_WORLD));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"B1 Matrix\n"));
+
+  // PetscCall(MatView(B1,PETSC_VIEWER_STDOUT_WORLD));
   PetscFunctionReturn(0);
 }
+
+/*
+     Set the B2 Matrix
+*/
 static PetscErrorCode SetB2Matrix(Mat B2,PetscInt N, PetscInt M,  void *ctx)
 {
   
 
   PetscScalar values[N][M] = {
-    {0.0011, 0      , 0     },
-    {0     , 0.0045 , 0     },
-    {0     , 0      , 0.0121},
-    {0     , 0      , 0     }
+    {0.0011, 0      , 0     , 0},
+    {0     , 0.0045 , 0     , 0},
+    {0     , 0      , 0.0121, 0},
+    {0     , 0      , 0     , 0}
   };
   
   PetscFunctionBegin;
@@ -224,39 +190,28 @@ static PetscErrorCode SetB2Matrix(Mat B2,PetscInt N, PetscInt M,  void *ctx)
   PetscCall(MatSetValue(B2,0,0,values[0][0],INSERT_VALUES));
   PetscCall(MatSetValue(B2,0,1,values[0][1],INSERT_VALUES));
   PetscCall(MatSetValue(B2,0,2,values[0][2],INSERT_VALUES));
+  PetscCall(MatSetValue(B2,0,3,values[0][3],INSERT_VALUES));
 
   PetscCall(MatSetValue(B2,1,0,values[1][0],INSERT_VALUES));
   PetscCall(MatSetValue(B2,1,1,values[1][1],INSERT_VALUES));
   PetscCall(MatSetValue(B2,1,2,values[1][2],INSERT_VALUES));
+  PetscCall(MatSetValue(B2,1,3,values[1][3],INSERT_VALUES));
 
   PetscCall(MatSetValue(B2,2,0,values[2][0],INSERT_VALUES));
   PetscCall(MatSetValue(B2,2,1,values[2][1],INSERT_VALUES));
   PetscCall(MatSetValue(B2,2,2,values[2][2],INSERT_VALUES));
+  PetscCall(MatSetValue(B2,2,3,values[2][3],INSERT_VALUES));
 
   PetscCall(MatSetValue(B2,3,0,values[3][0],INSERT_VALUES));
   PetscCall(MatSetValue(B2,3,1,values[3][1],INSERT_VALUES));
   PetscCall(MatSetValue(B2,3,2,values[3][2],INSERT_VALUES));
-
+  PetscCall(MatSetValue(B2,3,3,values[3][3],INSERT_VALUES));
+  
   PetscCall(MatAssemblyBegin(B2,MAT_FINAL_ASSEMBLY));
   PetscCall(MatAssemblyEnd(B2,MAT_FINAL_ASSEMBLY));
-  PetscCall(MatView(B2,PETSC_VIEWER_STDOUT_WORLD));
-  PetscFunctionReturn(0);
-}
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,"B2 Matrix\n"));
 
-/*
-     Defines the exact solution.
-*/
-static PetscErrorCode ExactSolution(PetscReal t, Vec U)
-{
-  PetscScalar       *u;
-  const double r = 3.0;
-
-  PetscFunctionBegin;
-  PetscCall(VecGetArray(U,&u));
-
-  u[0] = 25.0 + (50.0 -25.0) * PetscExpReal(-(r*t)/100.0);
-
-  PetscCall(VecRestoreArray(U,&u));
+  // PetscCall(MatView(B2,PETSC_VIEWER_STDOUT_WORLD));
   PetscFunctionReturn(0);
 }
 
@@ -278,7 +233,7 @@ int main(int argc,char **argv)
   Vec            Q;
   Vec            T_dot;
   Vec            U;
-  Vec            b;
+  
   Mat            A;
   Mat            B1;
   Mat            B2;
@@ -290,6 +245,28 @@ int main(int argc,char **argv)
   PetscReal      error;
   TSAdapt        adapt;
   PetscViewer    viewer;
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Initialize variables
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  struct options
+  {
+    int N;
+    int M;
+    double X;
+    double Y;
+    double Z;
+    double W;
+    double F;
+    double I;
+    // 
+    // Mechanical, Thermal, Geometric Properties from apartment document go here
+    // 
+  };
+  
+
+
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Initialize program
@@ -304,15 +281,22 @@ int main(int argc,char **argv)
   // PetscCall(PetscViewerFileSetName(viewer,'test.txt'));
   
   // Initial Conditions
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Set Vectors and Matricies
+   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   PetscInt   T_n = 4;
   PetscCall(VecCreate(PETSC_COMM_WORLD,&T_0));
   PetscCall(VecSetSizes(T_0,T_n,PETSC_DETERMINE));
   PetscCall(VecSetUp(T_0));
   PetscCall(InitialConditions(T_0,NULL));
+  
   PetscCall(VecView(T_0,0));
 
-  // Teq Vector
-  PetscInt   T_n = 4;
+  /*
+    Tsetpoint Vector
+    TODO: need to account for offset described in document
+  */
   PetscCall(VecCreate(PETSC_COMM_WORLD,&T_set));
   PetscCall(VecSetSizes(T_set,T_n,PETSC_DETERMINE));
   PetscCall(VecSetUp(T_set));
@@ -350,7 +334,7 @@ int main(int argc,char **argv)
 
   // B2 Matrix
   PetscInt B2_n = 4;
-  PetscInt B2_m = 3;
+  PetscInt B2_m = 4;
   PetscCall(MatCreate(PETSC_COMM_WORLD, &B2));
   PetscCall(MatSetSizes(B2, PETSC_DECIDE, PETSC_DECIDE, B2_n, B2_m));
   PetscCall(MatSetFromOptions(B2));
@@ -360,36 +344,97 @@ int main(int argc,char **argv)
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Unneccasary, just checking for match with python script
+ /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Solve for Equilibrium temp at time Infinity
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  Vec B1Q;
+  PetscCall(VecCreate(PETSC_COMM_WORLD,&B1Q));
+  PetscCall(VecSetSizes(B1Q,T_n,PETSC_DETERMINE));
+  PetscCall(VecSetUp(B1Q));
 
+  PetscCall(MatMult(B1,Q,B1Q));
+  PetscCall(VecView(B1Q,0));
+ 
 
-  Vec L;
+  Vec x;
+  PetscCall(VecCreate(PETSC_COMM_WORLD,&x));
+  PetscCall(VecSetSizes(x,T_n,PETSC_DETERMINE));
+  PetscCall(VecSetUp(x));
+
+  Mat negA; 
+  PetscCall(MatCreate(PETSC_COMM_WORLD, &negA));
+  PetscCall(MatSetSizes(negA, PETSC_DECIDE, PETSC_DECIDE, A_n, A_m));
+  PetscCall(MatSetFromOptions(negA));
+  PetscCall(MatSetUp(negA));
+  PetscCall(SetAMatrix(negA,A_n,A_m,NULL));
+  PetscCall(MatScale(negA, -1.0));
+
+  PetscCall(MatView(negA,0));
+  PetscCall(VecView(B1Q,0));
+//////////////////////////////////////////////////////////////////////////////
+ /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     Create timestepping solver context
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   KSP ksp;
-  PetscCall(VecCreate(PETSC_COMM_WORLD,&U));
-  PetscCall(VecSetSizes(U,T_n,PETSC_DETERMINE));
-  PetscCall(VecSetUp(U));
+  PetscCall(KSPCreate(PETSC_COMM_WORLD,&ksp));
+  PetscCall(KSPSetFromOptions(ksp));
+  PetscCall(KSPSetOperators(ksp,negA,negA));
+  PetscCall(KSPSetFromOptions(ksp));
+  PetscCall(KSPSolve(ksp,B1Q,x));
+  PetscCall(VecView(x,0));
 
-  PetscCall(VecCreate(PETSC_COMM_WORLD,&b));
-  PetscCall(VecSetSizes(b,T_n,PETSC_DETERMINE));
-  PetscCall(VecSetUp(b));
-
-  // PetscCall(VecCreate(PETSC_COMM_WORLD,&L));
-  // PetscCall(VecSetSizes(L,4,PETSC_DETERMINE));
-  // PetscCall(VecSetUp(L));
-  // Solve for T eq
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Solve for T_Mass_equilibrium using the algebraic equation from document
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
-  // A * T_set + B1 * Q
+ /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    Solve for u required at time inifity, where u is the HVAC systems power
+     u = -B2 * (A*Tset+B1*q)
+     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  Vec ATset;
+  PetscCall(VecCreate(PETSC_COMM_WORLD,&ATset));
+  PetscCall(VecSetSizes(ATset,T_n,PETSC_DETERMINE));
+  PetscCall(VecSetUp(ATset));
+
+  PetscCall(MatMult(A,T_set,ATset));
+  PetscCall(VecView(ATset,0));
+
+
+  Vec ATsetB1Q;
+  PetscCall(VecCreate(PETSC_COMM_WORLD,&ATsetB1Q));
+  PetscCall(VecSetSizes(ATsetB1Q,T_n,PETSC_DETERMINE));
+  PetscCall(VecSetUp(ATsetB1Q));
+
+
+  PetscCall(VecWAXPY(ATsetB1Q,1.0,ATset,B1Q ));
+  PetscCall(VecView(ATsetB1Q,0));
+
+  Mat negB2; 
+  PetscCall(MatCreate(PETSC_COMM_WORLD, &negB2));
+  PetscCall(MatSetSizes(negB2, PETSC_DECIDE, PETSC_DECIDE, B2_n, B2_m));
+  PetscCall(MatSetFromOptions(negB2));
+  PetscCall(MatSetUp(negB2));
+  PetscCall(SetB2Matrix(negB2,B2_n, B2_m,NULL));
+  PetscCall(MatScale(negB2, -1.0));
+
+  PetscCall(MatView(negB2,0));
+  PetscCall(VecView(ATsetB1Q,0));
+
 
   PetscCall(KSPCreate(PETSC_COMM_WORLD,&ksp));
   PetscCall(KSPSetFromOptions(ksp));
-  PetscCall(KSPSetOperators(ksp,B2,B2));
-  PetscCall(KSPSolve(ksp,b,U));
+  PetscCall(KSPSetOperators(ksp,negB2,negB2));
+  PetscCall(KSPSetFromOptions(ksp));
+  PetscCall(KSPSolve(ksp,ATsetB1Q,x));
+  PetscCall(VecView(x,0));
 
+ 
 
-  PetscCall(MatMult(B1,Q,L));
-  PetscCall(VecView(L,0));
-
-
+  // Should have all vectors required to solve for Temperature in each zone at time t
 
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -401,10 +446,7 @@ int main(int argc,char **argv)
   PetscCall(TSSetEquationType(ts,TS_EQ_ODE_IMPLICIT));
   PetscCall(TSMonitorSet(ts, Monitor, 0, 0));
 
-  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     Set Vectors and Matricies
-   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
+  
 
 
 
@@ -412,7 +454,7 @@ int main(int argc,char **argv)
      Set ODE routines
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   PetscCall(TSSetProblemType(ts,TS_NONLINEAR));
-  PetscCall(TSSetIFunction(ts,NULL,IFunction,NULL));
+  // PetscCall(TSSetIFunction(ts,NULL,IFunction,NULL));
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Set initial conditions
@@ -454,37 +496,3 @@ int main(int argc,char **argv)
   PetscCall(PetscFinalize());
   return 0;
 }
-
-/*TEST
-
-    test:
-      suffix: 3bs
-      args: -ts_type rk -ts_rk_type 3bs
-      requires: !single
-
-    test:
-      suffix: 5bs
-      args: -ts_type rk -ts_rk_type 5bs
-      requires: !single
-
-    test:
-      suffix: 5dp
-      args: -ts_type rk -ts_rk_type 5dp
-      requires: !single
-
-    test:
-      suffix: 6vr
-      args: -ts_type rk -ts_rk_type 6vr
-      requires: !single
-
-    test:
-      suffix: 7vr
-      args: -ts_type rk -ts_rk_type 7vr
-      requires: !single
-
-    test:
-      suffix: 8vr
-      args: -ts_type rk -ts_rk_type 8vr
-      requires: !single
-
-TEST*/
