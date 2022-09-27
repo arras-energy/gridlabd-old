@@ -980,13 +980,13 @@ and
 
 $$
     \textbf B_2 = \begin{bmatrix}
-          a \over {C_A} &               0 &               0
+          a \over {C_A} &               0 &               0 & 0
     \\
-                      0 &   a \over {C_U} &               0
+                      0 &   a \over {C_U} &               0 & 0
     \\
-                      0 &               0 &   a \over {C_C}
+                      0 &               0 &   a \over {C_C} & 0
     \\
-        {1-a}\over{C_M} & {1-a}\over{C_M} & {1-a}\over{C_M}
+        {1-a}\over{C_M} & {1-a}\over{C_M} & {1-a}\over{C_M} & 1\over{C_M}
     \end{bmatrix}
 $$
 
@@ -999,6 +999,8 @@ $$
         \dot Q_{HVAC_{U}}
     \\
         \dot Q_{HVAC_{C}}
+    \\
+        0
     \end{bmatrix}
 $$
 
@@ -1051,7 +1053,7 @@ where
 - $T_{unoccupied}$ is the unoccupied temperature setpoint offset, e.g., `10 degF`, and
 - $T_{core}$ is the core temperature setpoint offset, e.g., `5 degF`.
 - $T_{M_{eq}}$ is the equilibrium temperature assuming steady state with all other zone setpoints being met.
-  
+
   $$
       \textbf 0
       =
@@ -1076,6 +1078,8 @@ where
           \dot Q_{HVAC_{U}}
       \\
           \dot Q_{HVAC_{C}}
+      \\
+          0
       \end{bmatrix}
   $$
 
