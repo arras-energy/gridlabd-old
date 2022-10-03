@@ -278,8 +278,8 @@ if [ "$SETUP" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
 		# update permissions for site-packages to be writable by user post-setup
-			sudo chown -R ${USER} /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
-			echo "${USER}"
+			sudo chown -R ${USER:-root} /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
+			echo "${USER:-root}"
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
 	else
