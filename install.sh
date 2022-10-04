@@ -282,9 +282,13 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
-		# update permissions for site-packages to be writable by user post-setup
-			sudo chown -R ${USER:-root} /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
-			echo "${USER:-root}"
+		# update permissions for site-packages to be writable by user post-setup, unless root
+		if [ ! -z $USER ] ; then
+			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
+			echo "Setting site-packages to ${USER:-root}"
+		else
+			echo "Running as root, not updating site package ownership."
+		fi
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
 	else
