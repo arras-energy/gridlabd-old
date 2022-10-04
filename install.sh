@@ -30,6 +30,11 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR/etc
 fi
 
+# create a temp working directory if it does not already exist
+if [ ! -d "$HOME/temp" ]; then
+	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
+fi
+
 cp ./build-aux/python3.sh $VAR/bin/python3.sh
 
 if [ ! -d "$VAR/gridlabd/$VERSION" ]; then
