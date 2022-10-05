@@ -25,9 +25,40 @@ By default only required tables defined in thc converter will be extracted into 
 
 CYME databases can be converted to GLM model using the `-t cyme` option. Additional options can be provided as an equation using option `-p`, e.g., `-p name=value ...` and to define GLM global variables.
 
+Options:
+
+- `config=CSV`: specify the name of CSV for converter configuration
+
+- `cyme-tables`: print out the required CYME tables
+
+- `data-dir=DIR`: specify the directory for storing CSV tables (default /tmp/gridlabd/mdb-cyme2glm/INPUT_FILE_NAME)
+
+- `equipment_mdb=MDB`: specify the MDB for equipment data (default None)
+
+- `network-ID=ID`: specify the network ID list to be converted (default [])
+
+- `coordinateCSV=CSV`: specify the name of CSV for saving the node geographic location data (default None)
+
+
 ### `-t table [OPTIONS ...]`
 
 CYME databases can able be converted to GLM object using the `-t table -f object` option or converted to GLM player object using the `-t table -f player` option. Additional options can be provided as an equation using option `-p`, e.g., `-p name=value ...` and to define GLM global variables.
+
+Options:
+
+- `table=TABLE`: specify the table to read
+
+- `class=CLASS`: specify the class name to use if not found in columns (default None)
+
+- `modules=MODULE`: specify module to load if not found in columns (default [])
+
+- `columns=COLUMN:PROPERTY[,...]`: specify column mappings (default {})
+
+- `dtypes=PROPERTY:TYPE[,...]`: specify property types (default {})
+
+- `chunksize=INTEGER`: specify the chunksize for processing data (default 1000)
+
+
 
 # Example
 
