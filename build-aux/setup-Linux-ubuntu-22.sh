@@ -169,7 +169,7 @@ if [ ! -e /usr/local/bin/doxygen ]; then
 	make install
 fi
 
-# # mono
+# mono
 
 if [ ! -e /usr/bin/mono ]; then
 	cd /tmp
