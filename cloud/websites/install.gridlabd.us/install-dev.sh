@@ -341,4 +341,10 @@ if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             exit 1
 fi
 
+# potential to circumvent bugs with compressed and uncompressed packages if image also contains requirements file
+if [ -e /usr/local/opt/gridlabd/src/requirements.txt ] ; then
+    cd /usr/local/opt/gridlabd/src
+    gridlabd python -m pip install -r requirements.txt
+fi
+
 echo "Refresh your terminal or open a new terminal window to begin using gridlabd!"

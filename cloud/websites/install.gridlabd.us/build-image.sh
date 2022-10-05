@@ -14,6 +14,17 @@ KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
 EXE=$0
+
+if [ "$(basename $EXE)" != "install.gridlabd.us" ] ; then
+    echo "Please run this script from within the install.gridlabd.us directory."
+    exit 1
+else
+    reqdir="$(dirname $EXE)"
+    reqdir="$(dirname $reqdir)"
+    reqdir="$(dirname $reqdir)"
+    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src
+fi
+
 cd ../../..
 TOP=$(pwd)
 FIL="${TOP}/source/version.h"
