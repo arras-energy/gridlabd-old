@@ -51,7 +51,7 @@ object node
 object substation 
 {
     name node_14;
-    bustype SWING;
+    bustype SWING_PQ;
     groupid nodevolts;
     phases AN;
     nominal_voltage 2401.7771;
@@ -2569,7 +2569,7 @@ object node
     groupid nodevolts;
     phases ABCN;
     nominal_voltage 2401.7771;
-    bustype SWING;
+    bustype SWING_PQ;
     voltage_A 2401.777120+0.000000j;
     voltage_B -1200.888560-2080.000000j;
     voltage_C -1200.888560+2080.000000j;
@@ -2581,7 +2581,7 @@ object node
     groupid nodevolts;
     phases ABCN;
     nominal_voltage 2401.7771;
-    bustype SWING;
+    bustype SWING_PQ;
     voltage_A 2401.777120+0.000000j;
     voltage_B -1200.888560-2080.000000j;
     voltage_C -1200.888560+2080.000000j;
@@ -2594,7 +2594,7 @@ object node
     groupid nodevolts;
     phases ABCN;
     nominal_voltage 2401.7771;
-    bustype SWING;
+    bustype SWING_PQ;
     voltage_A 2401.777120+0.000000j;
     voltage_B -1200.888560-2080.000000j;
     voltage_C -1200.888560+2080.000000j;
@@ -2606,7 +2606,7 @@ object node
     groupid nodevolts;
     phases ABCN;
     nominal_voltage 2401.7771;
-    bustype SWING;
+    bustype SWING_PQ;
     voltage_A 2401.777120+0.000000j;
     voltage_B -1200.888560-2080.000000j;
     voltage_C -1200.888560+2080.000000j;
