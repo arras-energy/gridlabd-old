@@ -9,6 +9,11 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
     PYTHON_VER=3.9.6
     PY_EXE=3.9
 
+# Check if python version currently in Applications and update owner
+    if [ -e /Applications/"Python $PY_EXE" ] ; then
+        sudo chown -R ${USER:-root} /Applications/"Python $PY_EXE"
+    fi
+
 brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
 brew doctor
 

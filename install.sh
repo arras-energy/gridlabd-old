@@ -17,6 +17,11 @@ VERSION=${VERSION:-`build-aux/version.sh --name`}
 
 # local folder
 VAR="/usr/local/opt/gridlabd"
+
+if [ -e "$VAR" ] ; then
+	sudo chown -R "${USER:-root}" "$VAR"
+fi
+
 if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
 	mkdir -p $VAR/bin
