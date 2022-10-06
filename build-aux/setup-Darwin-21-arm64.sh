@@ -121,7 +121,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 
 # needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
     brew install ca-certificates
-    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
+    cp /opt/homebrew/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
 
 	# tar xzf Python-$PYTHON_VER.tgz
 	cd $VERSION_DIR/src/Python-$PYTHON_VER
