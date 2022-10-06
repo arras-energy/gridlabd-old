@@ -282,10 +282,11 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
-		# update permissions for site-packages to be writable by user post-setup, unless root
+		# update permissions for site-packages (and all other gridlabd dirs) to be writable by user post-setup, unless root
+		# do the same for share dirs
 		if [ ! -z $USER ] ; then
-			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/gridlabd/$VERSION/lib/python3*/site-packages
-			echo "Setting site-packages to ${USER:-root}"
+			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/gridlabd/$VERSION
+			echo "Setting Gridlabd package to ${USER:-root}"
 		else
 			echo "Running as root, not updating site package ownership."
 		fi
