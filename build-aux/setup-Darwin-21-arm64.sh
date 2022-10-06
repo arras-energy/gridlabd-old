@@ -115,7 +115,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     cd openssl-1.1.1n
 
 # Needed to build python's ssl module
-    ./Configure --prefix=$VERSION_DIR/openssl --openssldir=$VERSION_DIR/ssl --libdir=lib darwin64-x86_64-cc
+    ./Configure --prefix=$VERSION_DIR/openssl --openssldir=$VERSION_DIR/ssl --libdir=lib darwin64-arm64-cc
     make
     make install
 
