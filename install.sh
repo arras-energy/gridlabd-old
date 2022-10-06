@@ -401,6 +401,9 @@ elif [ "$LINK" == "yes" ]; then
 	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
+# Add gridlabd to path
+sudo ln -sf $PREFIX/bin/gridlabd /usr/local/bin
+
 cd /usr/local/opt/gridlabd
 sudo rm -rf src
 # all done :-)
