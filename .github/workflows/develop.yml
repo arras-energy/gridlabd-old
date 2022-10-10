@@ -21,8 +21,6 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
     - name: install gridlabd
       run: ./install.sh -v -t -p
-    - name: Link to /usr/local
-      run: ln -s /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
     - name: Validate build
