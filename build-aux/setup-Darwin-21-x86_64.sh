@@ -14,7 +14,7 @@ export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/
         sudo chown -R ${USER:-root} /Applications/"Python $PY_EXE"
     fi
 
-brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
+brew update || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew doctor
 
 # checking for necessary directories
