@@ -16,9 +16,11 @@ D_ARCH=$(uname -m)
 EXE=$0
 
 if [ "$(basename $EXE)" != "install.gridlabd.us" ] ; then
+    echo "$EXE"
     echo "Please run this script from within the install.gridlabd.us directory."
     exit 1
 else
+    echo "$EXE else"
     reqdir="$(dirname $EXE)"
     reqdir="$(dirname $reqdir)"
     reqdir="$(dirname $reqdir)"
