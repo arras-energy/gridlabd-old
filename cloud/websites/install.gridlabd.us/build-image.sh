@@ -13,14 +13,12 @@ source "/etc/os-release"
 KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 fi
 D_ARCH=$(uname -m)
-EXE=$0
+EXE=$(pwd)
 
 if [ "$(basename $EXE)" != "install.gridlabd.us" ] ; then
-    echo "$EXE"
     echo "Please run this script from within the install.gridlabd.us directory."
     exit 1
 else
-    echo "$EXE else"
     reqdir="$(dirname $EXE)"
     reqdir="$(dirname $reqdir)"
     reqdir="$(dirname $reqdir)"
