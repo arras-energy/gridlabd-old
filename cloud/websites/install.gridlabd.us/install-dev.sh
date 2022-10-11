@@ -315,16 +315,15 @@ if test ! -e /usr/local/lib; then
     sudo mkdir lib
 fi
 
+sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
+
 if [ -f /.docker* ] ; then 
 
     if test $SYSTEM == "Linux"; then
-        sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
         sudo ln -s /usr/local/opt/gridlabd/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
         sudo ln -s /usr/local/opt/gridlabd/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
-    else
-        sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
     fi
 
 fi

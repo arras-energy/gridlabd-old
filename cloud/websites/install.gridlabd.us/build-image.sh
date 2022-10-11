@@ -22,7 +22,7 @@ else
     reqdir="$(dirname $EXE)"
     reqdir="$(dirname $reqdir)"
     reqdir="$(dirname $reqdir)"
-    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src
+    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src/requirements.txt
 fi
 
 cd ../../..
