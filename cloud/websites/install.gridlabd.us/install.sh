@@ -148,11 +148,11 @@ BRA=${BRANCH//-/_}
 if test $D_ARCH != "arm64"; then
 
     echo "Downloading image to your home temp folder."
-    echo "Searching for https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
+    echo "Searching for https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz"
     if [ "$DLTOOL" = "curl" ]; then
-        curl -O -J https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
-        wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
@@ -218,9 +218,9 @@ else
 
     echo "Downloading image to your home temp folder."
     if [ "$DLTOOL" = "curl" ]; then
-        curl -O -J https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        curl -O -J https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     elif [ "$DLTOOL" = "wget" ]; then
-        wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+        wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
     fi
 
     if [ ! -e $HOME/temp/gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz ]; then
@@ -339,6 +339,12 @@ if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
+fi
+
+# potential to circumvent bugs with compressed and uncompressed packages if image also contains requirements file
+if [ -e /usr/local/opt/gridlabd/src/requirements.txt ] ; then
+    cd /usr/local/opt/gridlabd/src
+    gridlabd python -m pip install -r requirements.txt
 fi
 
 echo "Refresh your terminal or open a new terminal window to begin using gridlabd!"
