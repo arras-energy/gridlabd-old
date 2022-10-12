@@ -21,9 +21,9 @@ dep_df: pd.DataFrame
 
 def on_init(t: int) -> bool:
 	print(f'{t}: on_init')
-	globals: list[str] = gridlabd.get('globals')
-	modules: list[str] = gridlabd.get('modules')
-	classes: list[str]  = gridlabd.get('classes')
+	# globals: list[str] = gridlabd.get('globals')
+	# modules: list[str] = gridlabd.get('modules')
+	# classes: list[str]  = gridlabd.get('classes')
 	objects: list[str] = gridlabd.get('objects')
 
 	connection_components = ['overhead_line', 'underground_line']
