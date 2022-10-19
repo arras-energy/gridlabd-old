@@ -5,6 +5,10 @@
 # this file is currently built to be run from within the same folder.
 # It could certainly be cleaned up a little, but works just fine as is. 
 
+if [ ! -e /usr/local/opt/gridlabd/src ] ; then
+    mkdir /usr/local/opt/gridlabd/src
+fi
+
 SYSTEM=$(uname -s)
 RELEASE=$(uname -r | cut -f1 -d.)
 KERNEL=
@@ -22,7 +26,7 @@ else
     reqdir="$(dirname $EXE)"
     reqdir="$(dirname $reqdir)"
     reqdir="$(dirname $reqdir)"
-    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src/requirements.txt
+    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src/
 fi
 
 cd ../../..
