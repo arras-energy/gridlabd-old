@@ -22,6 +22,7 @@ import getopt
 import subprocess
 import glob
 import datetime as dt
+from typing import Any
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -222,7 +223,7 @@ def load_cals(load_type,load_phase,connection,load_power1,load_power2,load_volta
 	else:
 			load_real = load_power1 * 1000
 			if load_power2 > 0.0 or load_power2 < 0.0:
-			    load_imag = load_real/(load_power2/100.0)*sqrt(1-abs(load_power2/100)**2)
+				load_imag = load_real/(load_power2/100.0)*sqrt(1-abs(load_power2/100)**2)
 	vol_mag = float(load_voltage)*1000.0
 	vol_complex = vol_real+vol_imag*(1j)
 	if load_type == "Z":
@@ -587,19 +588,19 @@ class GLM:
 			self.write("}")
 
 	def ifdef(self, name, call):
-		glm.write(f"#ifdef {name}")
+		self.write(f"#ifdef {name}")
 		call()
-		glm.write("#endif")
+		self.write("#endif")
 
 	def ifndef(self, name, call):
-		glm.write(f"#ifndef {name}")
+		self.write(f"#ifndef {name}")
 		call()
-		glm.write("#endif")
+		self.write("#endif")
 
 	def ifexist(self, name, call):
-		glm.write(f"#ifexist {name}")
+		self.write(f"#ifexist {name}")
 		call()
-		glm.write("#endif")
+		self.write("#endif")
 
 	def object(self, oclass, name, parameters,overwrite=True):
 		if name not in self.objects.keys():
@@ -1297,7 +1298,7 @@ class GLM:
 		elif "ByPhase" in capacitor.keys():
 			phase = cyme_phase_name[int(capacitor["ByPhase"])]
 		else:
-			warning(f"{cyme_mdbname}@{network_id}: capacitor {capacitor_id} does not specify {err}, phase will be specified based on capacitance data")
+			warning(f"{cyme_mdbname}@{network_id}: capacitor {capacitor_id} does not specify, phase will be specified based on capacitance data")
 			phase = cyme_phase_name[capacitor_phase_cals(KVARA,KVARB,KVARC)]
 
 		capacitor_dict = {
@@ -2214,7 +2215,7 @@ def cyme_extract_9(network_id,network,conversion_info):
 	glm.close()
 
 
-def convert(input_file,output_file=None,options={}):
+def convert(input_file: str ,output_file: str =None, options: dict[str, Any]={}):
 	"""Convert a CYME MDB file to GLM
 
 	Parameters:
@@ -2249,7 +2250,10 @@ def convert(input_file,output_file=None,options={}):
 	global GLM_warning_file
 	global GLM_output_file
 	global node_geodata
-	
+
+
+	# Configure options and paths
+
 	if options:
 		for opt, arg in options.items():
 			if opt in ("c","config"):
@@ -2325,6 +2329,8 @@ def convert(input_file,output_file=None,options={}):
 	QUIET = True if settings["QUIET"].lower() == "true" else False
 	VERBOSE = True if settings["VERBOSE"].lower() == "true" else False
 
+
+	# Prepare Cyme converter settings
 	cyme_extracter = {
 		"90000" : cyme_extract_9, # CYME version 9 database
 		"82000" : cyme_extract_9, # CYME version 8 database
@@ -2339,6 +2345,8 @@ def convert(input_file,output_file=None,options={}):
 		"output_file_name" : output_file_name,
 		'version' : version,
 	}
+
+	# 
 	for index, network in cyme_table["network"].iterrows():
 		network_id = network['NetworkId']
 		if not re.match(settings["GLM_NETWORK_MATCHES"],network_id):
