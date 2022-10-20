@@ -19,10 +19,8 @@
 // // #define Py_DECREF(X) (X->ob_refcnt--)
 // #define Py_DECREF(X) (fprintf(stderr,"Py_DECREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)--X->ob_refcnt),X->ob_refcnt)
 
-char const* gld_exec_var = std::getenv("GLD_VAR") + "/gridlabd/"
-
 #define CONFIGNAME "solver_py.conf"
-#define CONFIGPATH gld_exec_var
+#define CONFIGPATH strcat(std::getenv("GLD_VAR"),"/gridlabd/")
 
 static SOLVERPYTHONSTATUS solver_py_status = SPS_INIT;
 char1024 solver_py_config = CONFIGPATH CONFIGNAME;

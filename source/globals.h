@@ -14,11 +14,6 @@
 
 #define GITHUB_ORG "hipas"
 
-#define gld_bin_pref std::getenv("GLD_BIN")
-#define gld_etc_pref std::getenv("GLD_ETC")
-#define gld_var_pref std::getenv("GLD_VAR")
-#define gld_lib_pref std::getenv("GLD_LIB")
-
 #include "version.h"
 #include "build.h"
 #include "validate.h"

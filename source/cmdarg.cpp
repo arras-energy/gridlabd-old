@@ -252,7 +252,7 @@ STATUS GldCmdarg::no_cmdargs(void)
 	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
 		char command[2048];
-		snprintf(command,sizeof(command),strcat(gld_bin_pref,"/python3 %s &"),guipath);
+		snprintf(command,sizeof(command),std::getenv("GLD_BIN") + std::string("/python3 %s &"),guipath);
 		system(command);
 		return SUCCESS;
 	}
@@ -469,7 +469,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{
-			etcpath = strcat(gld_etc_pref,"/gridlabd");
+			etcpath = strcat(std::getenv("GLD_ETC"),"/gridlabd");
 		}
 		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
@@ -493,7 +493,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 		const char *etcpath = getenv("GLD_ETC");
 		if ( etcpath == NULL )
 		{
-			etcpath = strcat(gld_etc_pref,"/gridlabd");
+			etcpath = strcat(std::getenv("GLD_ETC"),"/gridlabd");
 		}
 		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		if ( strstr(global_pythonpath,pathname) == NULL )
