@@ -21,11 +21,14 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-char varenvlog[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-log");
-char varenvpid[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-pid");
-char varenvwork[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd");
-static char logfile[1024] = {varenvlog};
-static char pidfile[1024] = {varenvpid};
+char varenvlog[sizeof(char1024)] = getenv("GLD_VAR");
+strcat(varenvlog,"/gridlabd/gridlabd-log");
+char varenvpid[sizeof(char1024)] = getenv("GLD_VAR");
+strcat(varenvpid,"/gridlabd/gridlabd-pid");
+char varenvwork[sizeof(char1024)] = getenv("GLD_VAR");
+strcat(varenvwork,"/gridlabd");
+static char logfile[1024] = varenvlog;
+static char pidfile[1024] = varenvpid;
 static char workdir[1024] = {varenvwork};
 #endif
 
