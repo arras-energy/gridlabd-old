@@ -325,7 +325,7 @@ if test "x$HAS_DOCKER" = "xyes" ; then :
   HAS_IMAGE="no"
   docker inspect gridlabd > /dev/null 2>&1 && HAS_IMAGE="yes"
   if test "x$HAS_IMAGE" = "xyes" ; then :
-    docker run -it -v ${PWD}:${PWD} gridlabd /usr/local/opt/gridlabd/bin/gridlabd -W ${PWD} $@
+    docker run -it -v ${PWD}:${PWD} gridlabd $bindir/gridlabd -W ${PWD} $@
     exit 0
   fi
 fi
@@ -339,21 +339,23 @@ if test $PY_OS = "Linux"; then :
 else
   PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"
 fi
-GRIDLABD_VER_DIR="@exec_prefix@"
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
-export GLD_PREF=$exec_prefix
+export GLD_VER=$exec_prefix
 export GLD_LIB=$libdir
 export GLD_DOC=$docdir
+export GLD_VAR=$exec_prefix/var
+export GLD_INC=$exec_prefix/include
+export GLD_SRC=$exec_prefix/src
 export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"
-export INCLUDE="-I$GLD_ETC -I$GRIDLABD_VER_DIR/include -I/usr/include"
+export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
-export LIB="-L$libdir -L/usr/local/opt/gridlabd/lib -L$GRIDLABD_VER_DIR/lib -L/usr/lib"
+export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
 
