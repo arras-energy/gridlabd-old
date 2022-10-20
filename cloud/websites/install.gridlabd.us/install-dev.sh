@@ -56,6 +56,7 @@ PAT=
 PREF="/usr/local/opt/gridlabd"
 search_dir=$HOME/temp
 VERSION_DIR=
+VERSION_NAME=
 
 # check if user has necessary permissions
 
@@ -160,8 +161,9 @@ if test $D_ARCH != "arm64"; then
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-
-    VERSION_DIR="$PREF/$entry"
+    VERSION_NAME="$(echo $search_dir/*/)"
+    VERSION_NAME="$(basename $VERSION_NAME)"
+    VERSION_DIR="$PREF/$VERSION_NAME"
 
 
     if [ ! -e /usr/local/opt ]; then
@@ -190,7 +192,7 @@ if test $D_ARCH != "arm64"; then
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -212,7 +214,7 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} $PREF/current/lib/python3.9/site-packages
+    sudo chown -R ${USER} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
@@ -236,10 +238,9 @@ else
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
-    for entry in "$search_dir"/*.tarz
-    do
-        VERSION_DIR="$PREF/$entry"
-    done
+    VERSION_NAME="$(echo $search_dir/*/)"
+    VERSION_NAME="$(basename $VERSION_NAME)"
+    VERSION_DIR="$PREF/$VERSION_NAME"
 
 
     if [ ! -e /usr/local/opt ]; then
@@ -289,7 +290,7 @@ else
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} $PREF/current/lib/python3.9/site-packages
+    sudo chown -R ${USER} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
@@ -329,13 +330,13 @@ if test ! -e /usr/local/lib; then
     sudo mkdir lib
 fi
 
-sudo ln -s /usr/local/opt/gridlabd/lib/* /usr/local/lib
+sudo ln -s $VERSION_DIR/lib/* /usr/local/lib
 
 if [ -f /.docker* ] ; then 
 
     if test $SYSTEM == "Linux"; then
-        sudo ln -s /usr/local/opt/gridlabd/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
-        sudo ln -s /usr/local/opt/gridlabd/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
+        sudo ln -s $VERSION_DIR/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
+        sudo ln -s $VERSION_DIR/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
     fi
@@ -348,15 +349,15 @@ cd $HOME/temp
 sudo rm -rf gridlabd*
 sudo rm -rf version.h
 
-if [ ! -e /usr/local/opt/gridlabd/bin/gridlabd ]; then
+if [ ! -e $VERSION_DIR ]; then
             echo "A fast install image was not located for your operating system."
             echo "You will need to build Gridlabd from source."
             exit 1
 fi
 
 # potential to circumvent bugs with compressed and uncompressed packages if image also contains requirements file
-if [ -e /usr/local/opt/gridlabd/src/requirements.txt ] ; then
-    cd /usr/local/opt/gridlabd/src
+if [ -e $VERSION_DIR/src/requirements.txt ] ; then
+    cd $VERSION_DIR/src
     gridlabd python -m pip install -r requirements.txt
 fi
 
