@@ -826,6 +826,27 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 /* Variable: global_datadir */
 GLOBAL char1024 global_datadir INIT("");
 
+/* Variable: global_bindir */
+GLOBAL char1024 global_bindir INIT("");
+
+/* Variable: global_libdir */
+GLOBAL char1024 global_libdir INIT("");
+
+/* Variable: global_vardir */
+GLOBAL char1024 global_vardir INIT("");
+
+/* Variable: global_incdir */
+GLOBAL char1024 global_incdir INIT("");
+
+/* Variable: global_logfile_dir */
+GLOBAL char1024 global_logfile_dir INIT("");
+
+/* Variable: global_pidfile_dir */
+GLOBAL char1024 global_pidfile_dir INIT("");
+
+/* Variable: global_workdir_dir */
+GLOBAL char1024 global_workdir_dir INIT("");
+
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
 

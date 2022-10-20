@@ -5,9 +5,6 @@
 # this file is currently built to be run from within the same folder.
 # It could certainly be cleaned up a little, but works just fine as is. 
 
-if [ ! -e /usr/local/opt/gridlabd/src ] ; then
-    mkdir /usr/local/opt/gridlabd/src
-fi
 
 SYSTEM=$(uname -s)
 RELEASE=$(uname -r | cut -f1 -d.)
@@ -26,7 +23,6 @@ else
     reqdir="$(dirname $EXE)"
     reqdir="$(dirname $reqdir)"
     reqdir="$(dirname $reqdir)"
-    cp $reqdir/requirements.txt /usr/local/opt/gridlabd/src/
 fi
 
 cd ../../..
@@ -37,22 +33,32 @@ MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 _ | sed 's/_+/_/g;s/_$//;s/^_//'`
 
+VERSION=${VERSION:-`$TOP/build-aux/version.sh --name`}
+
+# local folder
+VAR="$VERSION_DIR"
+VERSION_DIR=$VAR/$VERSION
+
+if [ ! -e $VERSION_DIR/src ] ; then
+    mkdir $VERSION_DIR/src
+fi
+cp $reqdir/requirements.txt $VERSION_DIR/src/
 
 if [ $SYSTEM == "Darwin" ]; then
     if [ D_ARCH = "arm64" ]; then
-        cp /opt/homebrew/lib/lib* /usr/local/opt/gridlabd/lib
-        cp /opt/homebrew/opt/*/lib/lib*.* /usr/local/opt/gridlabd/lib
+        cp /opt/homebrew/lib/lib* $VERSION_DIR/lib
+        cp /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib
     else
-        cp /usr/local/lib/lib* /usr/local/opt/gridlabd/lib
+        cp /usr/local/lib/lib* $VERSION_DIR/lib
     fi
 fi
 
 if [ $SYSTEM == "Linux" ]; then
     if [ -f /.docker* ]; then 
-        cp -r /usr/lib/* /usr/local/opt/gridlabd/lib
-        cd /usr/local/opt/gridlabd/lib 
+        cp -r /usr/lib/* $VERSION_DIR/lib
+        cd $VERSION_DIR/lib 
         rm -rf apt  dpkg  locale  mime  os-release  ssl  sudo	tmpfiles.d  udev
-        cp -r /lib/x86_64-linux-gnu /usr/local/opt/gridlabd/lib/r_x86_64-linux-gnu
+        cp -r /lib/x86_64-linux-gnu $VERSION_DIR/lib/r_x86_64-linux-gnu
     else
         echo "Linux images should only be built from clean docker containers for maximum portability!"
         exit 1
@@ -66,11 +72,11 @@ if [ ! -e $HOME/temp ]; then
     mkdir $HOME/temp
     cd $HOME/temp
     echo "Saving image in your home temp folder."
-    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C $VAR .
     echo "Build complete. Don't forget to upload the image to aws!"
 else
     cd $HOME/temp
     echo "Saving image in your home temp folder."
-    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C /usr/local/opt .
+    tar -czf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz -C $VAR .
     echo "Build complete. Don't forget to upload the image to aws!"
 fi

@@ -22,13 +22,6 @@ Help()
 ############################################################
 ############################################################
 
-# check if gridlabd already exists on the system
-if test -e /usr/local/opt/gridlabd; then
-    echo "A conflicting gridlabd install already exists on the system in /usr/local/opt/gridlabd"
-    echo "Aborting fast install."
-    exit 1
-fi
-
 # check if necessary tools already installed
 
 DLTOOL=
@@ -60,6 +53,9 @@ BRANCH=master
 MAJ=
 MIN=
 PAT=
+PREF="/usr/local/opt/gridlabd"
+search_dir=$HOME/temp
+VERSION_DIR=
 
 # check if user has necessary permissions
 
@@ -115,6 +111,7 @@ if [ ! -e $HOME/temp ]; then
     cd temp
 else
     cd $HOME/temp
+    rm -rf *
 fi 
 
 # get the version file from the branch to locate correct image version
@@ -164,20 +161,27 @@ if test $D_ARCH != "arm64"; then
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
+    VERSION_DIR="$PREF/$entry"
+
 
     if [ ! -e /usr/local/opt ]; then
         cd /usr/local
         sudo mkdir opt
     fi
 
+    if [ ! -e $PREF ]; then
+        cd /usr/local/opt
+        sudo mkdir gridlabd
+    fi
+
     cd $HOME/temp
-     sudo mv gridlabd /usr/local/opt
+     sudo mv * $PREF
     echo "Gridlabd installed. Adding to path."
 
-    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bashrc"; then
+    if ! grep -q "/usr/local/bin" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
-        sudo cp /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.bashrc
+        sudo ln -sf $PREF/current/bin/gridlabd /usr/local/bin
         echo "Path saved to user's .bashrc file. If you use a different terminal than bash,"
         echo "then you will need to manually add gridlabd to that terminal's startup file."
     fi
@@ -186,7 +190,7 @@ if test $D_ARCH != "arm64"; then
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "/usr/local/opt/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -208,10 +212,10 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} /usr/local/opt/gridlabd/gridlabd/current/lib/python3.9/site-packages
+    sudo chown ${USER} $PREF/current/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
-    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
+    sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
 
 # Code for arm64 installations
 else
@@ -232,20 +236,30 @@ else
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
 
+    for entry in "$search_dir"/*.tarz
+    do
+        VERSION_DIR="$PREF/$entry"
+    done
+
 
     if [ ! -e /usr/local/opt ]; then
         cd /usr/local
         sudo mkdir opt
     fi
 
+    if [ ! -e $PREF ]; then
+        cd /usr/local/opt
+        sudo mkdir gridlabd
+    fi
+
     cd $HOME/temp
     sudo mv gridlabd /usr/local/opt
     echo "Gridlabd installed. Adding to path."
 
-    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bashrc"; then
+    if ! grep -q "/usr/local/bin" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
-        sudo cp /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.bashrc
+        sudo ln -sf $PREF/current/bin/gridlabd /usr/local/bin
         echo "Path saved to user's .bashrc file. If you use a different terminal than bash,"
         echo "then you will need to manually add gridlabd to that terminal's startup file."
     fi
@@ -254,7 +268,7 @@ else
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "/usr/local/opt/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -275,34 +289,34 @@ else
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown ${USER} /usr/local/opt/gridlabd/gridlabd/current/lib/python3.9/site-packages
+    sudo chown ${USER} $PREF/current/lib/python3.9/site-packages
 
     # Add symlink for binary to /usr/local/bin
-    sudo ln -sf /usr/local/opt/gridlabd/bin/gridlabd* /usr/local/bin
+    sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
 
 fi
 
 # Darwin can vary a lot in how their shells add to path. So just hit them all. 
 if [ $SYSTEM == "Darwin" ]; then
 
-    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zshrc"; then
+    if ! grep -q "/usr/local/bin" "$HOME/.zshrc"; then
         touch "$HOME/.zshrc"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zshrc
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.zshrc
     fi
 
-    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.zsh_profile"; then
+    if ! grep -q "/usr/local/bin" "$HOME/.zsh_profile"; then
         touch "$HOME/.zsh_profile"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.zsh_profile
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.zsh_profile
     fi
 
-    if ! grep -q "/usr/local/opt/gridlabd/bin" "$HOME/.bash_profile"; then
+    if ! grep -q "/usr/local/bin" "$HOME/.bash_profile"; then
         touch "$HOME/.bash_profile"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bash_profile
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.bash_profile
     fi
 
-    if ! grep -q "/usr/local/opt/gridlabd/lib" "$HOME/.bashrc"; then
+    if ! grep -q "/usr/local/lib" "$HOME/.bashrc"; then
         touch "$HOME/.bashrc"
-        echo "export PATH=/usr/local/opt/gridlabd/bin:\$PATH" >> $HOME/.bashrc
+        echo "export PATH=/usr/local/bin:\$PATH" >> $HOME/.bashrc
     fi
 
 fi

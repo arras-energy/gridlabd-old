@@ -206,6 +206,53 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"JSON",		POF_JSON,		NULL},
 };
 
+/* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
+void datadir_init(const char *name)
+{
+	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",getenv("GLD_ETC"));
+}
+
+void bindir_init(const char *name)
+{
+	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",getenv("GLD_BIN"));
+}
+
+void libdir_init(const char *name)
+{
+	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",getenv("GLD_LIB"));
+}
+
+void vardir_init(const char *name)
+{
+	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",getenv("GLD_VAR"));
+}
+
+void incdir_init(const char *name)
+{
+	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",getenv("GLD_INC"));
+}
+/* Add more top-level directory variables here. */
+
+/* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
+
+void logfile_dir_init(const char *name)
+{
+	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir));
+}
+
+void pidfile_dir_init(const char *name)
+{
+	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir));
+}
+
+void workdir_dir_init(const char *name)
+{
+	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir));
+}
+
+/* Add more derivative directories here */
+
+
 DEPRECATED static struct s_varmap {
 	const char *name;
 	PROPERTYTYPE type;
@@ -356,7 +403,14 @@ DEPRECATED static struct s_varmap {
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
 	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
-	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
+	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
+	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
+	{"vardir",PT_char1024,&global_vardir,PA_REFERENCE,"folder in which share data is stored",NULL,vardir_init},
+	{"libdir",PT_char1024,&global_libdir,PA_REFERENCE,"folder in which share data is stored",NULL,libdir_init},
+	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
+	{"logfile_dir",PT_char1024,&global_logfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,logfile_dir_init},
+	{"pidfile_dir",PT_char1024,&global_pidfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_dir_init},
+	{"workdir_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,workdir_dir_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
