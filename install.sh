@@ -19,10 +19,12 @@ VERSION=${VERSION:-`build-aux/version.sh --name`}
 VAR="/usr/local/opt/gridlabd"
 VERSION_DIR=$VERSION_DIR
 
+if [ ! -d "$VAR" ]; then
+	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
+fi
+
 if [ -e "$VAR" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
-else
-	mkdir -p $VAR || sudo mkdir -p $VAR && sudo chown -R "${USER:-root}" "$VAR"
 fi
 
 # create a temp working directory if it does not already exist
