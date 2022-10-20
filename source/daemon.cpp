@@ -21,9 +21,9 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-static char logfile[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd/gridlabd-log")};
-static char pidfile[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd/gridlabd-pid")};
-static char workdir[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd")};
+static char logfile[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd/gridlabd-log")}.c_str();
+static char pidfile[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd/gridlabd-pid")}.c_str();
+static char workdir[1024] = {std::string(getenv("GLD_VAR")) + std::string("/gridlabd")}.c_str();
 #endif
 
 // gridlabd stream specifications
