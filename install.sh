@@ -17,7 +17,7 @@ VERSION=${VERSION:-`build-aux/version.sh --name`}
 
 # local folder
 VAR="/usr/local/opt/gridlabd"
-VERSION_DIR=$VERSION_DIR
+VERSION_DIR=$VAR/$VERSION
 
 if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
