@@ -14,9 +14,9 @@
 
 #define GITHUB_ORG "hipas"
 
-char const* gld_bin_pref = std::getenv("GLD_BIN")
-char const* gld_etc_pref = std::getenv("GLD_ETC")
-char const* gld_var_pref = std::getenv("GLD_VAR")
+#define gld_bin_pref std::getenv("GLD_BIN")
+#define gld_etc_pref std::getenv("GLD_ETC")
+#define gld_var_pref std::getenv("GLD_VAR")
 
 #include "version.h"
 #include "build.h"
