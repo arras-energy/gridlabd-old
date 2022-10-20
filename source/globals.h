@@ -847,6 +847,18 @@ GLOBAL char1024 global_pidfile_dir INIT("");
 /* Variable: global_workdir_dir */
 GLOBAL char1024 global_workdir_dir INIT("");
 
+/* Variable: global_workdir_dir */
+GLOBAL char1024 global_climate_library_path_dir INIT("");
+
+/* Variable: global_workdir_dir */
+GLOBAL char1024 global_configpath_dir INIT("");
+
+/* Variable: global_workdir_dir */
+GLOBAL char1024 global_billing_library_dir INIT("");
+
+/* Variable: global_workdir_dir */
+GLOBAL char1024 global_python_exec_dir INIT("");
+
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
 

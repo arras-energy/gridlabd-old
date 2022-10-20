@@ -15,7 +15,7 @@
 #define GLOBAL extern
 #endif
 
-GLOBAL char1024 billing_library INIT(std::getenv("GLD_ETC"));
+GLOBAL char1024 billing_library INIT(global_billing_library_dir);
 GLOBAL char1024 billing_module INIT("default_billing.py");
 GLOBAL char1024 billing_function INIT("compute_bill");
 // GLOBAL double lowincome_discount INIT(0);

@@ -2951,7 +2951,7 @@ void module_load_templates(MODULE *mod)
 		return;
 	}
 	char loadpath[1024];
-	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
+	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",global_datadir,mod->name);
 	DIR *dp;
 	struct dirent *entry;
 	struct stat statbuf;

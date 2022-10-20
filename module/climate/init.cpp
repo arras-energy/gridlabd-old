@@ -4,7 +4,7 @@
 
 #include "climate.h"
 
-char climate_library_path[sizeof(char1024)] = strcat(std::getenv("GLD_ETC"),"/gridlabd/weather/US");
+char climate_library_path[sizeof(char1024)] = {global_climate_library_path_dir};
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {

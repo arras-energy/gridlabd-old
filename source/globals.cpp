@@ -207,29 +207,55 @@ DEPRECATED static KEYWORD pof_keys[] = {
 };
 
 /* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
+/* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
 void datadir_init(const char *name)
 {
-	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",getenv("GLD_ETC"));
+	const char *etcpath = getenv("GLD_ETC");
+	if ( etcpath == NULL )
+	{
+		etcpath = "/usr/local/share";
+	}
+	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
 void bindir_init(const char *name)
 {
-	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",getenv("GLD_BIN"));
+	const char *binpath = getenv("GLD_BIN");
+	if ( binpath == NULL )
+	{
+		binpath = "/usr/local/bin";
+	}
+	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
 void libdir_init(const char *name)
 {
-	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",getenv("GLD_LIB"));
+	const char *libpath = getenv("GLD_BIN");
+	if ( libpath == NULL )
+	{
+		libpath = "/usr/local/lib";
+	}
+	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
 void vardir_init(const char *name)
 {
-	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",getenv("GLD_VAR"));
+	const char *varpath = getenv("GLD_BIN");
+	if ( varpath == NULL )
+	{
+		varpath = "/usr/local/var";
+	}
+	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
 void incdir_init(const char *name)
 {
-	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",getenv("GLD_INC"));
+	const char *incpath = getenv("GLD_BIN");
+	if ( incpath == NULL )
+	{
+		incpath = "/usr/local/include";
+	}
+	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 }
 /* Add more top-level directory variables here. */
 
@@ -237,19 +263,38 @@ void incdir_init(const char *name)
 
 void logfile_dir_init(const char *name)
 {
-	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir));
+	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir);
 }
 
 void pidfile_dir_init(const char *name)
 {
-	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir));
+	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir);
 }
 
 void workdir_dir_init(const char *name)
 {
-	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir));
+	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir);
 }
 
+void climate_library_path_dir_init(const char *name)
+{
+	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir)-1,"%s/gridlabd/weather/US",global_datadir);
+}
+
+void configpath_dir_init(const char *name)
+{
+	snprintf(global_configpath_dir,sizeof(global_configpath_dir)-1,"%s/gridlabd/",global_vardir);
+}
+
+void billing_library_dir_init(const char *name)
+{
+	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir)-1,"%s",global_datadir);
+}
+
+void python_exec_dir_init(const char *name)
+{
+	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir)-1,"%s/python3",global_bindir);
+}
 /* Add more derivative directories here */
 
 
@@ -411,6 +456,10 @@ DEPRECATED static struct s_varmap {
 	{"logfile_dir",PT_char1024,&global_logfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,logfile_dir_init},
 	{"pidfile_dir",PT_char1024,&global_pidfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_dir_init},
 	{"workdir_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,workdir_dir_init},
+	{"climate_library_path_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_dir_init},
+	{"configpath_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_dir_init},
+	{"billing_library_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_dir_init},
+	{"python_exec_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,python_exec_dir_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},

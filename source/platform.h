@@ -175,7 +175,7 @@
  */
 
 #ifndef PYTHON_EXEC
-#define PYTHON_EXEC strcat(std::getenv("GLD_BIN"),"/python3")
+#define PYTHON_EXEC
 #endif
 
 #endif

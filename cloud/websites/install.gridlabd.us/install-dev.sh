@@ -269,7 +269,7 @@ else
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "/usr/local/opt/gridlabd/current/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
