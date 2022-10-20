@@ -5,8 +5,6 @@
 
 #include "gldcore.h"
 
-char const* gld_lib_pref = std::getenv("GLD_LIB")
-char const* gld_etc_pref = std::getenv("GLD_ETC")
 
 //SET_MYCONTEXT(DMC_FIND) // 
 
@@ -1328,13 +1326,13 @@ const char *find_file(const char *name, /**< the name of the file to find */
 		}
 	}
 #else
-	snprintf(tempfp, sizeof(tempfp), gld_lib_pref + "/gridlabd/%s", name);
+	snprintf(tempfp, sizeof(tempfp), strcat (gld_lib_pref, "/gridlabd/%s"), name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;
 	}
-	snprintf(tempfp, sizeof(tempfp), gld_etc_pref + "/gridlabd/%s", name);
+	snprintf(tempfp, sizeof(tempfp), strcat (gld_etc_pref, "/gridlabd/%s"), name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
