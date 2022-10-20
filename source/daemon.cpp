@@ -21,7 +21,7 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-string varEnv = getenv("GLD_VAR")
+std::string varEnv = getenv("GLD_VAR")
 static char logfile[1024] = {std::string(varEnv) + std::string("/gridlabd/gridlabd-log")};
 static char pidfile[1024] = {std::string(varEnv) + std::string("/gridlabd/gridlabd-pid")};
 static char workdir[1024] = {std::string(varEnv) + std::string("/gridlabd")};
