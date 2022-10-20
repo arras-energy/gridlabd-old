@@ -1,11 +1,11 @@
 #!/bin/bash
-if [ ! -x /usr/local/opt/gridlabd/bin/openfido ]; then
+if [ ! -x $GLD_BIN/openfido ]; then
 	curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
 fi
 
-if [ ! -x /usr/local/opt/gridlabd/bin/openfido ]; then
+if [ ! -x $GLD_BIN/openfido ]; then
     echo "ERROR [openfido]: CLI is not installed" > /dev/stderr
 	exit 1
 else
-    /usr/local/opt/gridlabd/bin/openfido $*
+    $GLD_BIN/openfido $*
 fi

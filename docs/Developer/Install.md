@@ -44,7 +44,7 @@ bash$ curl -L http://code.gridlabd.us/<branch>/install.sh | bash
 
 ### Manual installation
 
-Manual installation is discouraged because the process is complex, highly error-prone, and varies widely from one platform to another.  However, it is necessary on platforms that are not supported by the automated installation script.  The general approach is roughly as follows, keeping in mind that the specific will vary from one system to another, and you may need to install certain tools and libraries to be successful.
+Manual installation is discouraged because the process is complex, highly error-prone, and varies widely from one platform to another.  However, it is necessary on platforms that are not supported by the automated installation script.  The general approach is roughly as follows, keeping in mind that the specific will vary from one system to another, and you may need to install certain tools and libraries to be successful. You can reference one of the setup files in this repository's build-aux directory for the kind of preparation that may be needed to manually build gridlabd.
 
 ~~~
 bash$ git clone https://source.gridlabd.us/ gridlabd
@@ -52,9 +52,9 @@ bash$ cd gridlabd
 bash$ autoreconf -isf
 bash$ ./configure
 bash$ make system
-bash$ export PATH=/usr/local/opt/gridlabd/bin:$PATH
-bash$ export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/opt/gridlabd/lib}
-bash$ gridlabd validate
+bash$ export PATH=/usr/local/bin:$PATH
+bash$ export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/opt/gridlabd/<version>/lib}
+bash$ gridlabd --validate
 ~~~
 
 You can manually install to the system folders, in which case all users will have access to the install, the user folders in which case only the current user will have access to the install, or to a working folder, which is typical for development installations. By default, the build is configured to install the `/usr/local/opt/gridlabd` and link the installed version to `/usr/local/opt/gridlabd`. The linking process is managed by the `gridlabd version` subcommand, as described in the [[/Subcommand/Version]] page. To change this, use the `--prefix=<location>` option on the `./configure` command, e.g., to install a user-only copy:

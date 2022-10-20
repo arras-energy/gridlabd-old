@@ -15,7 +15,7 @@ The `--daemon` command line option is used to control the GridLAB-D daemon proce
 The daemon command recognizes the standard process control commands `start`, `stop`, `restart`, and `status`.  
 
 The valid daemon command options are:
-* `-f|--configfile filename` is used to specify a configuration file other than the standard one located at `/usr/local/opt/gridlabd/etc/gridlabd.cnf`.
+* `-f|--configfile filename` is used to specify a configuration file other than the standard one located at `/usr/local/opt/gridlabd/<version>/<version>/etc/gridlabd.cnf`.
 * `-h|--help` is used to get a list of available commands.
 * `-j|--jail` is used to isolate the daemon in the work directory (`start` only)
 * `-p|--port` is used to override the default port number (usually 6266, `start` only).
@@ -23,7 +23,7 @@ The valid daemon command options are:
 
 ## Configuration
 
-If the daemon configuration file is found at `/usr/local/opt/gridlabd/etc/gridlabd.cnf` or where specified by the `-f` option, then it is loaded and used to configure the daemon. (Note that this applies also to the `--remote` option.)
+If the daemon configuration file is found at `/usr/local/opt/gridlabd/<version>/etc/gridlabd.cnf` or where specified by the `-f` option, then it is loaded and used to configure the daemon. (Note that this applies also to the `--remote` option.)
 
 The format of the entries in the configuration file must be
 
@@ -37,8 +37,8 @@ Valid parameter names and their defaults are as follows
 
 ~~~
 # default gridlabd daemon configuration
-log=/usr/local/opt/gridlabd/var/gridlabd-log
-pid=/usr/local/opt/gridlabd/var/gridlabd-pid
+log=/usr/local/opt/gridlabd/<version>/var/gridlabd-log
+pid=/usr/local/opt/gridlabd/<version>/var/gridlabd-pid
 workdir=/
 user=
 output=
@@ -79,7 +79,7 @@ The names are defined as follows
 
 ## Log
 
-The daemon generates a log to record all activity. By default the log is created in `/usr/local/opt/gridlabd/var/gridlabd-log`, but this can be changed using the configuration file (see the `-f` option).  Log entries are formatted as follows:
+The daemon generates a log to record all activity. By default the log is created in `/usr/local/opt/gridlabd/<version>/var/gridlabd-log`, but this can be changed using the configuration file (see the `-f` option).  Log entries are formatted as follows:
 
 ~~~
 [pid@time] message
@@ -91,7 +91,7 @@ Normally the content of the log file is purged when a new copy of the daemon sta
 
 ## Process ID
 
-The process of the primary daemon is saved in `/usr/local/opt/gridlabd/var/gridlabd-pid` while the daemon is running.  When the daemon exits, the file is deleted. It is possible that the file might not be deleted, in which case the next instance of the daemon should correct the problem automatically.
+The process of the primary daemon is saved in `/usr/local/opt/gridlabd/<version>/var/gridlabd-pid` while the daemon is running.  When the daemon exits, the file is deleted. It is possible that the file might not be deleted, in which case the next instance of the daemon should correct the problem automatically.
 
 # Examples
 

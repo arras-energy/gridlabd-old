@@ -3,7 +3,7 @@
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VAR="/usr/local/opt/gridlabd"
-    VERSION_DIR=$VAR/gridlabd/$VERSION
+    VERSION_DIR=$VAR/$VERSION
     PYTHON_VER=3.9.6
     PY_EXE=3.9
 	REQ_DIR=$(pwd)

@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-C:> wls install -d Debian-9
+C:> wsl install -d Debian-9
 debian9% curl -sL http://install.gridlabd.us/install.sh | sudo /bin/bash
 ~~~
 

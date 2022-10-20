@@ -66,9 +66,11 @@ import numpy as np
 from shapely.geometry import Point
 from haversine import haversine_vector
 
+GLD_ETC = os.environ["GLD_ETC"]
+
 CACHEDIR = os.getenv("GLD_ETC")
 if not CACHEDIR:
-    CACHEDIR = "/usr/local/opt/gridlabd/share/gridlabd"
+    CACHEDIR = "{GLD_ETC}/gridlabd"
 
 REPOURL = os.getenv("REPOURL")
 if not REPOURL:

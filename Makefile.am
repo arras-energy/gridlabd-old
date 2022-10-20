@@ -174,9 +174,9 @@ $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
 	test -d $@/source || mkdir -p $@/source
 	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/source
-	cd $@ && mkdir -p climate-data/usr/local/opt/gridlabd/lib/gridlabd devel/usr/local/opt/gridlabd/lib/gridlabd # libxerces-c/usr/lib
-	mv $@/source/usr/local/opt/gridlabd/include $@/devel/usr/local/opt/gridlabd/include
-	mv $@/source/usr/local/opt/gridlabd/lib/gridlabd/*.la $@/devel/usr/local/opt/gridlabd/lib/gridlabd/
+	cd $@ && mkdir -p climate-data/$(exec_prefix)/lib/gridlabd devel/$(exec_prefix)/lib/gridlabd # libxerces-c/usr/lib
+	mv $@/source/$(exec_prefix)/include $@/devel/$(exec_prefix)/include
+	mv $@/source/$(exec_prefix)/lib/gridlabd/*.la $@/devel/$(exec_prefix)/lib/gridlabd/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg

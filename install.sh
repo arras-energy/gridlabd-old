@@ -17,22 +17,10 @@ VERSION=${VERSION:-`build-aux/version.sh --name`}
 
 # local folder
 VAR="/usr/local/opt/gridlabd"
+VERSION_DIR=$VERSION_DIR
 
 if [ -e "$VAR" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
-fi
-
-if [ ! -d "$VAR" ]; then
-	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
-	mkdir -p $VAR/bin
-	mkdir -p $VAR/include
-	mkdir -p $VAR/lib
-	mkdir -p $VAR/man
-	mkdir -p $VAR/share
-	mkdir -p $VAR/src
-	mkdir -p $VAR/var
-	mkdir -p $VAR/opt
-	mkdir -p $VAR/etc
 fi
 
 # create a temp working directory if it does not already exist
@@ -40,28 +28,28 @@ if [ ! -d "$HOME/temp" ]; then
 	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
 fi
 
-cp ./build-aux/python3.sh $VAR/bin/python3.sh
+cp ./build-aux/python3.sh $VERSION_DIR/bin/python3.sh
 
-if [ ! -d "$VAR/gridlabd/$VERSION" ]; then
-    mkdir -p $VAR/gridlabd/$VERSION/bin
-	mkdir -p $VAR/gridlabd/$VERSION/include
-	mkdir -p $VAR/gridlabd/$VERSION/lib
-	mkdir -p $VAR/gridlabd/$VERSION/man
-	mkdir -p $VAR/gridlabd/$VERSION/share
-	mkdir -p $VAR/gridlabd/$VERSION/src
-	mkdir -p $VAR/gridlabd/$VERSION/var
-	mkdir -p $VAR/gridlabd/$VERSION/opt
-	mkdir -p $VAR/gridlabd/$VERSION/etc
+if [ ! -d "$VERSION_DIR" ]; then
+    mkdir -p $VERSION_DIR/bin
+	mkdir -p $VERSION_DIR/include
+	mkdir -p $VERSION_DIR/lib
+	mkdir -p $VERSION_DIR/man
+	mkdir -p $VERSION_DIR/share
+	mkdir -p $VERSION_DIR/src
+	mkdir -p $VERSION_DIR/var
+	mkdir -p $VERSION_DIR/opt
+	mkdir -p $VERSION_DIR/etc
 fi
 
-if ! grep -q "$VAR/bin" "$HOME/.bashrc"; then
+if ! grep -q "$VERSION_DIR/bin" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
-    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bashrc
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
 fi
-export PATH=$VAR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # setup logging
-LOG="$VAR/var/install.log"
+LOG="$VERSION_DIR/var/install.log"
 function log()
 {
 	case "$*" in 
@@ -283,15 +271,15 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
-	SOK="$VAR/gridlabd/$VERSION/setup.ok"
+	SOK="$VERSION_DIR/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
 		# update permissions for site-packages (and all other gridlabd dirs) to be writable by user post-setup, unless root
 		# do the same for share dirs
 		if [ ! -z $USER ] ; then
-			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/gridlabd/$VERSION
-			echo "Setting Gridlabd package to ${USER:-root}"
+			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/$VERSION
+			echo "Setting Gridlabd package permissions to ${USER:-root}"
 		else
 			echo "Running as root, not updating site package ownership."
 		fi
@@ -323,8 +311,8 @@ if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd
 		run ln -sf $PREFIX/gridlabd/$VDIR/$item/gridlabd $PREFIX/gridlabd/current/$item/gridlabd
 		run ln -sf $PREFIX/gridlabd/current/$item /$PREFIX/$item/gridlabd
 	done
-	run ln -s $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
-	run ln -s /usr/local/opt/gridlabd/bin/gridlabd /usr/local/bin
+	run ln -s $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
+	run ln -s $PREFIX/gridlabd/current/bin/gridlabd /usr/local/bin
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
@@ -374,7 +362,7 @@ if [ "$PARALLEL" == "yes" ]; then
 fi
 
 # build everything
-export PATH=$VAR/bin:/usr/local/bin:/usr/bin:/bin
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC)) system
 
 if [ "$DOCS" == "yes" ]; then
@@ -409,7 +397,7 @@ fi
 # Add gridlabd to path
 sudo ln -sf $PREFIX/bin/gridlabd /usr/local/bin
 
-cd /usr/local/opt/gridlabd
-sudo rm -rf src
+cd $VERSION_DIR/src
+sudo rm -rf *
 # all done :-)
 exit 0

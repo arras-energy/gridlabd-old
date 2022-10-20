@@ -1,5 +1,5 @@
 #!/bin/bash
-export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 SYSTEM=$(uname -s)
 SETUP=${0/.sh/-$SYSTEM.sh}

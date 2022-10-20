@@ -15,7 +15,8 @@
 #define GLOBAL extern
 #endif
 
-GLOBAL char1024 billing_library INIT("/usr/local/opt/gridlabd/gridlabd/current/share");
+char const* gld_etc_pref = std::getenv("GLD_ETC")
+GLOBAL char1024 billing_library INIT(gld_etc_pref);
 GLOBAL char1024 billing_module INIT("default_billing.py");
 GLOBAL char1024 billing_function INIT("compute_bill");
 // GLOBAL double lowincome_discount INIT(0);

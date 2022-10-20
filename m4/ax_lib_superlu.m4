@@ -66,8 +66,8 @@ AC_DEFUN([AX_LIB_SUPERLU],
     )
 
     if test "$want_superlu" = "yes"; then
-        if test -d /usr/local/opt/gridlabd/include/superlu ; then
-            superlu_prefix=/usr/local/opt/gridlabd
+        if test -d @exec_prefix@/include/superlu ; then
+            superlu_prefix=@exec_prefix@
         elif test -d /usr/include/superlu ; then
             superlu_prefix=/usr
         else

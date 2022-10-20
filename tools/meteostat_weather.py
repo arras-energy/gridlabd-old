@@ -49,9 +49,9 @@ from pysolar.solar import get_altitude, radiation
 
 share = os.getenv("GLD_ETC")
 if not share:
-    share = "/usr/local/opt/gridlabd/share/gridlabd"
+    share = "/usr/local/share/gridlabd"
 if share not in sys.path:
-    sys.path.append("/usr/local/opt/gridlabd/share/gridlabd")
+    sys.path.append("/usr/local/share/gridlabd")
 import nsrdb_weather
 
 VERBOSE = False

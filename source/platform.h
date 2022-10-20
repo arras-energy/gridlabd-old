@@ -173,8 +173,10 @@
 /*  Define: PYTHON_EXEC
 		Path to Python executable used to build gridlabd
  */
+char const* gld_bin_pref = std::getenv("GLD_BIN")
+
 #ifndef PYTHON_EXEC
-#define PYTHON_EXEC "/usr/local/opt/gridlabd/bin/python3"
+#define PYTHON_EXEC gld_bin_pref + "/python3"
 #endif
 
 #endif

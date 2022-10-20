@@ -1,13 +1,14 @@
 #!/bin/bash
-export PATH=/usr/local/opt/gridlabd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VAR="/usr/local/opt/gridlabd"
-    VERSION_DIR=$VAR/gridlabd/$VERSION
+    VERSION_DIR=$VAR/$VERSION
     PYTHON_DIR=Python.framework/Versions/Current
     PYTHON_VER=3.9.13
     PY_EXE=3.9
+
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # Check if python version currently in Applications and update owner
     if [ -e /Applications/"Python $PY_EXE" ] ; then
@@ -36,40 +37,40 @@ brew doctor
 
 # adding necessary paths to user bash and zsh terminals
 # apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "$VAR/bin" "$HOME/.zshrc"; then
+if ! grep -q "$VERSION_DIR/bin" "$HOME/.zshrc"; then
     touch "$HOME/.zshrc"
-    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zshrc
+    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
 fi
 
-if ! grep -q "$VAR/bin" "$HOME/.zsh_profile"; then
+if ! grep -q "$VERSION_DIR/bin" "$HOME/.zsh_profile"; then
     touch "$HOME/.zsh_profile"
-    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zsh_profile
+    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
 fi
 
-if ! grep -q "$VAR/bin" "$HOME/.bash_profile"; then
+if ! grep -q "$VERSION_DIR/bin" "$HOME/.bash_profile"; then
     touch "$HOME/.bash_profile"
-    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=$VAR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=$VAR/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bash_profile
+    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
 fi
 
-if ! grep -q "$VAR/lib" "$HOME/.bashrc"; then
+if ! grep -q "$VERSION_DIR/lib" "$HOME/.bashrc"; then
     touch "$HOME/.bashrc"
-    echo "export PATH=$VAR/bin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=$VAR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=$VAR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=$VAR/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
+    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
+    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
 fi
 
-export DYLD_LIBRARY_PATH=$VAR/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$VAR/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VAR/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VAR/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VAR/lib:$LIBRARY_PATH
-export LIBRARY_PATH=$VAR/lib:$LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 
 # build tools
 
@@ -171,7 +172,7 @@ brew install gdal
 
 # libgeos
     brew install geos
-    cp /usr/local/opt/geos/lib/libgeos* $VAR/lib
+    cp /usr/local/opt/geos/lib/libgeos* $VERSION_DIR/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local

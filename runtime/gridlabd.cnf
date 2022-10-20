@@ -1,7 +1,7 @@
 # gridlabd daemon configuration file
 
-log=/usr/local/opt/gridlabd/var/gridlabd-log
-pid=/usr/local/opt/gridlabd/var/gridlabd-pid
+log=${GLD_VAR}/gridlabd-log
+pid=${GLD_VAR}/gridlabd-pid
 workdir=/
 user=
 output=

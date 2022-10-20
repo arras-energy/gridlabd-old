@@ -21,13 +21,17 @@ See also:
 - GridLAB-D --validate command line option
 """
 import sys, os, subprocess
+
+from module.resilience.docs.elevation import GLD_BIN
 assert(sys.version_info.major>2)
 import traceback
 import timeit
 
+GLD_BIN = os.environ["GLD_BIN"]
+
 n_tested = 0
 n_passed = 0
-exename = '/usr/local/opt/gridlabd/bin/gridlabd'
+exename = '{GLD_BIN}/gridlabd'
 dry_run = False
 show_debug = False
 show_failure = False

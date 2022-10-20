@@ -75,7 +75,7 @@ Each build of HiPAS GridLAB-D will be installed in `/usr/local/opt/gridlabd`. Li
 
 You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
 
-You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
+You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
 
 Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
 

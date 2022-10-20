@@ -31,13 +31,15 @@ from rasterio.plot import show
 from pyproj import Transformer
 from datetime import datetime
 
+GLD_ETC = os.environ["GLD_ETC"]
+
 today= datetime.today().strftime('%Y%m%d')
 
 share = os.getenv("GLD_ETC")
 if not share:
-    share = "/usr/local/opt/gridlabd/share/gridlabd"
+    share = "{GLD_ETC}/gridlabd"
 if share not in sys.path:
-    sys.path.append("/usr/local/opt/gridlabd/share/gridlabd")
+    sys.path.append("{GLD_ETC}/gridlabd")
 import fire_danger
 
 #

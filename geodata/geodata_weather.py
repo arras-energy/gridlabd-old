@@ -32,7 +32,7 @@ CONFIGURATION:
 
 ENVIRONMENT:
 
-    GLD_ETC     the path to the shared files (default "/usr/local/opt/gridlabd/share/gridlabd")
+    GLD_ETC     the path to the shared files (default "/usr/local/opt/gridlabd/<version>/share/gridlabd")
 
 CAVEATS:
 
@@ -53,11 +53,12 @@ import math, numpy
 import pandas
 import haversine
 
+GLD_ETC = os.environ["GLD_ETC"]
 share = os.getenv("GLD_ETC")
 if not share:
-    share = "/usr/local/opt/gridlabd/share/gridlabd"
+    share = "{GLD_ETC}/gridlabd"
 if share not in sys.path:
-    sys.path.append("/usr/local/opt/gridlabd/share/gridlabd")
+    sys.path.append("{GLD_ETC}/gridlabd")
 import nsrdb_weather
 
 #

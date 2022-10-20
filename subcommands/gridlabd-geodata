@@ -40,7 +40,7 @@ OPTIONS
 
 REMARKS
 
-The default cache folder is /usr/local/opt/gridlabd/share/gridlabd/geodata. The default
+The default cache folder is /usr/local/opt/gridlabd/<version>/share/gridlabd/geodata. The default
 config file $HOME/.gridlabd/geodata-config. The default maximum thread count
 is 1.
 
@@ -373,7 +373,7 @@ INPUT = "/dev/stdin"
 MODULE = None
 PKGDATA = os.getenv("GLD_ETC")
 if not PKGDATA:
-    PKGDATA = "/usr/local/opt/gridlabd/share/gridlabd"
+    PKGDATA = "/usr/local/share/gridlabd"
 VALID_FORMATS = ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF","XLSX"]
 
 CONFIGFILE = "geodata.conf"
@@ -1265,8 +1265,8 @@ def main(argc,argv):
     n = 1
     DIRECTIVE = []
     if not PKGDATA or not os.path.exists(PKGDATA):
-        warning("package folder '{PKGDATA}' not found, using default /usr/local/opt/gridlabd/share/gridlabd")
-        PKGDATA = "/usr/local/opt/gridlabd/share/gridlabd"
+        warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
+        PKGDATA = "/usr/local/share/gridlabd"
     global CACHE
     CACHE = f"{PKGDATA}/geodata"
     load_config(inplace=True)

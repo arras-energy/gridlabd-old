@@ -503,7 +503,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for mysql
 AS_IF([test -f /usr/local/include/mysql/mysql.h -a /usr/local/lib/libmysqlclient.a ],
-    [MYSQL="/usr/local/opt/gridlabd"],
+    [MYSQL="/usr/local/bin"],
     [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
 	[MYSQL_CPPFLAGS="'-I$MYSQL/include/mysql'"
@@ -563,7 +563,7 @@ AS_CASE([$BRANCHNAME],
     [*], [SUFFIX="no"])
 AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
-PREFIX=/usr/local/opt/gridlabd
+PREFIX=/usr/local/opt
 VERSION_NAME=$(build-aux/version.sh --name)
 DSTDIR=$PREFIX/gridlabd/$VERSION_NAME
 BINDIR=$DSTDIR/bin

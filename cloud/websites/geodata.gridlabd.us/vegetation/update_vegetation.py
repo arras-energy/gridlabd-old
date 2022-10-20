@@ -5,6 +5,8 @@ import math
 from PIL import Image
 import numpy
 
+GLD_ETC = os.getenv("GLD_ETC")
+
 default_options = {
     "year" : 2020,
 }
@@ -95,12 +97,12 @@ for layer in ["base","cover","height"]:
     for lat in lat_range:
         for lon in lon_range:
             name = get_imagename(layer,pos=(lat,lon),scale=1.0)
-            if not os.path.exists(f"/usr/local/opt/gridlabd/share/gridlabd/geodata/vegetation/2020/{name}.tif"):
+            if not os.path.exists(f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"):
                 continue
             print(f"Processing {layer}...",flush=True)
             name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
                     repourl = "http://geodata.gridlabd.us/vegetation",
-                    cachedir = "/usr/local/opt/gridlabd/share/gridlabd/geodata/vegetation")
+                    cachedir = "{GLD_ETC}/gridlabd/geodata/vegetation")
             width = len(tile[0])
             height = len(tile)
             missing = 0
@@ -122,4 +124,4 @@ for layer in ["base","cover","height"]:
                     top = int(bottom+height/10+1)
                     # print(f"{name}: left={left}, right={right}, bottom={bottom}, top={top}")
                     img = Image.fromarray(tile[bottom:top,left:right])
-                    img.save(f"/usr/local/opt/gridlabd/share/gridlabd/geodata/vegetation/2020/{name}.tif")
+                    img.save(f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif")

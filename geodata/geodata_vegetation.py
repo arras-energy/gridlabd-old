@@ -31,7 +31,7 @@ CONFIGURATION
 
     nan_error -  Return NaN values instead of raising exceptions on bad data (default is False)
     
-    cachedir - Location of local data cache (default is "/usr/local/opt/gridlabd/share/gridlabd/geodata/vegetation")
+    cachedir - Location of local data cache (default is "/usr/local/opt/gridlabd/<version>/share/gridlabd/geodata/vegetation")
     
     repourl - Location of remote vegetation data (default is "http://geodata.gridlabd.us/vegetation")
     
@@ -69,6 +69,8 @@ import math, numpy
 import pandas
 from PIL import Image
 
+GLD_ETC = os.environ["GLD_ETC"]
+
 #
 # Default options can be set from the command line only
 #
@@ -85,7 +87,7 @@ default_options = {
 #
 default_config = {
     "nan_error" : False,
-    "cachedir" : "/usr/local/opt/gridlabd/share/gridlabd/geodata/vegetation",
+    "cachedir" : "{GLD_ETC}/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
     "layers" : ["base","cover","height"],
     "layer_units" : {"base":"m","cover":"%","height":"m"},

@@ -343,6 +343,7 @@ GRIDLABD_VER_DIR="@exec_prefix@"
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
+export GLD_PREF=$exec_prefix
 export GLD_LIB=$libdir
 export GLD_DOC=$docdir
 export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"

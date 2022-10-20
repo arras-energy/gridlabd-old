@@ -17,8 +17,11 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
+GLD_ETC = os.environ["GLD_ETC"]
+GLD_BIN = os.environ["GLD_BIN"]
+
 cache_folder = "/tmp"
-CACHE = "/usr/local/opt/gridlabd/share/gridlabd/elevation/10m"
+CACHE = "{GLD_ETC}/gridlabd/elevation/10m"
 COMMANDS = ["config","delete","get","help","index","list","path"]
 
 def help(args=[]):
@@ -161,7 +164,7 @@ def get_elevation(bottom,left):
     tif_file = f"{cache_folder}/{lat}_{lon}.tif"
     if not os.path.exists(tif_file):
         # unfortunately the python API call to elevation.clip does not work correctly
-        result = subprocess.run(["/usr/local/opt/gridlabd/bin/eio",
+        result = subprocess.run(["{GLD_BIN}/bin/eio",
             "--product","SRTM1",
             "clip",
             "-o",tif_file,
