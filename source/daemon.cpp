@@ -21,9 +21,9 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-static char logfile[1024] = {char*(getenv("GLD_VAR")) + char*("/gridlabd/gridlabd-log")};
-static char pidfile[1024] = {char*(getenv("GLD_VAR")) + char*("/gridlabd/gridlabd-pid")};
-static char workdir[1024] = {char*(getenv("GLD_VAR")) + char*("/gridlabd")};
+static char *logfile[1024] = {(getenv("GLD_VAR")) + ("/gridlabd/gridlabd-log")};
+static char *pidfile[1024] = {(getenv("GLD_VAR")) + ("/gridlabd/gridlabd-pid")};
+static char *workdir[1024] = {(getenv("GLD_VAR")) + ("/gridlabd")};
 #endif
 
 // gridlabd stream specifications
