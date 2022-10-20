@@ -16,9 +16,6 @@
 #include <iostream>
 #include <map>
 
-char const* gld_bin_pref = std::getenv("GLD_BIN")
-char const* gld_etc_pref = std::getenv("GLD_ETC")
-
 using namespace std;
 
 SET_MYCONTEXT(DMC_CMDARG)

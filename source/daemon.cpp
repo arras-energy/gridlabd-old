@@ -4,8 +4,6 @@
 
 #include "gldcore.h"
 
-char const* gld_var_pref = std::getenv("GLD_VAR")
-
 SET_MYCONTEXT(DMC_SERVER)
 
 static int disable_daemon_command = false;

@@ -15,7 +15,6 @@
 #define GLOBAL extern
 #endif
 
-char const* gld_etc_pref = std::getenv("GLD_ETC")
 GLOBAL char1024 billing_library INIT(gld_etc_pref);
 GLOBAL char1024 billing_module INIT("default_billing.py");
 GLOBAL char1024 billing_function INIT("compute_bill");
