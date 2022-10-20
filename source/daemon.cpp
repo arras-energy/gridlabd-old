@@ -21,9 +21,9 @@ static char pidfile[1024] = "/tmp/gridlabd-pid";
 static char workdir[1024] = "/tmp";
 #else
 static char user[1024] = "gridlabd";
-const char* varenvlog = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-log");
-const char* varenvpid = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-pid");
-const char* varenvwork = strcat(getenv("GLD_VAR"),"/gridlabd");
+char varenvlog[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-log");
+char varenvpid[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd/gridlabd-pid");
+char varenvwork[sizeof(char1024)] = strcat(getenv("GLD_VAR"),"/gridlabd");
 static char logfile[1024] = {varenvlog};
 static char pidfile[1024] = {varenvpid};
 static char workdir[1024] = {varenvwork};
