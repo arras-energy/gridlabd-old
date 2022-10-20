@@ -21,6 +21,8 @@ VERSION_DIR=$VERSION_DIR
 
 if [ -e "$VAR" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
+else
+	mkdir -p $VAR || sudo mkdir -p $VAR && sudo chown -R "${USER:-root}" "$VAR"
 fi
 
 # create a temp working directory if it does not already exist
