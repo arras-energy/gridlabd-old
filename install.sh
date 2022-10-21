@@ -32,8 +32,6 @@ if [ ! -d "$HOME/temp" ]; then
 	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
 fi
 
-cp ./build-aux/python3.sh $VERSION_DIR/bin/python3.sh
-
 if [ ! -d "$VERSION_DIR" ]; then
     mkdir -p $VERSION_DIR/bin
 	mkdir -p $VERSION_DIR/include

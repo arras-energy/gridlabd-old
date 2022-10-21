@@ -824,40 +824,40 @@ GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
 GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
-GLOBAL char global_datadir[1024] INIT("");
+GLOBAL char global_datadir[1024] INIT();
 
 /* Variable: global_bindir */
-GLOBAL char global_bindir[1024] INIT("");
+GLOBAL char global_bindir[1024] INIT();
 
 /* Variable: global_libdir */
-GLOBAL char global_libdir[1024] INIT("");
+GLOBAL char global_libdir[1024] INIT();
 
 /* Variable: global_vardir */
-GLOBAL char global_vardir[1024] INIT("");
+GLOBAL char global_vardir[1024] INIT();
 
 /* Variable: global_incdir */
-GLOBAL char global_incdir[1024] INIT("");
+GLOBAL char global_incdir[1024] INIT();
 
 /* Variable: global_logfile_dir */
-GLOBAL char global_logfile_dir[1024] INIT("");
+GLOBAL char global_logfile_dir[1024] INIT();
 
 /* Variable: global_pidfile_dir */
-GLOBAL char global_pidfile_dir[1024] INIT("");
+GLOBAL char global_pidfile_dir[1024] INIT();
 
 /* Variable: global_workdir_dir */
-GLOBAL char global_workdir_dir[1024] INIT("");
+GLOBAL char global_workdir_dir[1024] INIT();
 
 /* Variable: global_workdir_dir */
-GLOBAL char global_climate_library_path_dir[1024] INIT("");
+GLOBAL char global_climate_library_path_dir[1024] INIT();
 
 /* Variable: global_workdir_dir */
-GLOBAL char global_configpath_dir[1024] INIT("");
+GLOBAL char global_configpath_dir[1024] INIT();
 
 /* Variable: global_workdir_dir */
-GLOBAL char1024 global_billing_library_dir INIT("");
+GLOBAL char1024 global_billing_library_dir INIT();
 
 /* Variable: global_workdir_dir */
-GLOBAL char global_python_exec_dir[1024] INIT("");
+GLOBAL char global_python_exec_dir[1024] INIT();
 
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
