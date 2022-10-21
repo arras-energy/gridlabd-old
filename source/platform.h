@@ -175,7 +175,7 @@
  */
 
 #ifndef PYTHON_EXEC
-#define PYTHON_EXEC
+#define PYTHON_EXEC getenv("GLD_PY")
 #endif
 
 #endif
