@@ -6,6 +6,7 @@
 #define _REVENUE_H
 
 #include "gridlabd.h"
+#include "globals.h"
 
 #ifdef DLMAIN
 #define INIT(X) = X
