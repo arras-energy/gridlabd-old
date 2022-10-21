@@ -210,7 +210,7 @@ DEPRECATED static KEYWORD pof_keys[] = {
 /* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
 void datadir_init(char)
 {
-	const char *etcpath = getenv("GLD_ETC");
+	char etcpath = getenv("GLD_ETC");
 	if ( etcpath == NULL )
 	{
 		etcpath = "/usr/local/share";
@@ -220,7 +220,7 @@ void datadir_init(char)
 
 void bindir_init(char)
 {
-	const char *binpath = getenv("GLD_BIN");
+	char binpath = getenv("GLD_BIN");
 	if ( binpath == NULL )
 	{
 		binpath = "/usr/local/bin";
@@ -230,7 +230,7 @@ void bindir_init(char)
 
 void libdir_init(char)
 {
-	const char *libpath = getenv("GLD_BIN");
+	char libpath = getenv("GLD_BIN");
 	if ( libpath == NULL )
 	{
 		libpath = "/usr/local/lib";
@@ -240,7 +240,7 @@ void libdir_init(char)
 
 void vardir_init(char)
 {
-	const char *varpath = getenv("GLD_BIN");
+	char varpath = getenv("GLD_BIN");
 	if ( varpath == NULL )
 	{
 		varpath = "/usr/local/var";
@@ -250,7 +250,7 @@ void vardir_init(char)
 
 void incdir_init(char)
 {
-	const char *incpath = getenv("GLD_BIN");
+	char incpath = getenv("GLD_BIN");
 	if ( incpath == NULL )
 	{
 		incpath = "/usr/local/include";
