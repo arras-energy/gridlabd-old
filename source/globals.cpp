@@ -208,7 +208,7 @@ DEPRECATED static KEYWORD pof_keys[] = {
 
 /* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
 /* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(char name)
+void datadir_init(char)
 {
 	const char *etcpath = getenv("GLD_ETC");
 	if ( etcpath == NULL )
@@ -218,7 +218,7 @@ void datadir_init(char name)
 	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
-void bindir_init(char name)
+void bindir_init(char)
 {
 	const char *binpath = getenv("GLD_BIN");
 	if ( binpath == NULL )
@@ -228,7 +228,7 @@ void bindir_init(char name)
 	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
-void libdir_init(char name)
+void libdir_init(char)
 {
 	const char *libpath = getenv("GLD_BIN");
 	if ( libpath == NULL )
@@ -238,7 +238,7 @@ void libdir_init(char name)
 	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
-void vardir_init(char name)
+void vardir_init(char)
 {
 	const char *varpath = getenv("GLD_BIN");
 	if ( varpath == NULL )
@@ -248,7 +248,7 @@ void vardir_init(char name)
 	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
-void incdir_init(char name)
+void incdir_init(char)
 {
 	const char *incpath = getenv("GLD_BIN");
 	if ( incpath == NULL )
@@ -261,37 +261,37 @@ void incdir_init(char name)
 
 /* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
 
-void logfile_dir_init(char name)
+void logfile_dir_init(char)
 {
 	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir);
 }
 
-void pidfile_dir_init(char name)
+void pidfile_dir_init(char)
 {
 	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir);
 }
 
-void workdir_dir_init(char name)
+void workdir_dir_init(char)
 {
 	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir);
 }
 
-void climate_library_path_dir_init(char name)
+void climate_library_path_dir_init(char)
 {
 	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir)-1,"%s/gridlabd/weather/US",global_datadir);
 }
 
-void configpath_dir_init(char name)
+void configpath_dir_init(char)
 {
 	snprintf(global_configpath_dir,sizeof(global_configpath_dir)-1,"%s/gridlabd/",global_vardir);
 }
 
-void billing_library_dir_init(char name)
+void billing_library_dir_init(char)
 {
 	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir)-1,"%s",global_datadir);
 }
 
-void python_exec_dir_init(char name)
+void python_exec_dir_init(char)
 {
 	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir)-1,"%s/python3",global_bindir);
 }
