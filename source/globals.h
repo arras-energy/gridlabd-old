@@ -275,9 +275,6 @@ GLOBAL char global_testoutputfile[1024] INIT("test.txt"); /**< Specifies the tes
 /* Variable: global_xml_encoding */
 GLOBAL int global_xml_encoding INIT(8);  /**< Specifies XML encoding (default is 8) */
 
-/* Variable: global_pidfile */
-GLOBAL char global_pidfile[1024] INIT(""); /**< Specifies that a process id file should be created */
-
 /* Variable: global_no_balance */
 GLOBAL unsigned char global_no_balance INIT(FALSE);
 
@@ -824,33 +821,33 @@ GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
 GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
-GLOBAL char global_datadir[1024] INIT();
+GLOBAL char global_datadir[1024] INIT("/usr/local/opt/gridlabd/current/share/gridlabd");
 
 /* Variable: global_bindir */
-GLOBAL char global_bindir[1024] INIT();
+GLOBAL char global_bindir[1024] INIT("/usr/local/opt/gridlabd/current/bin");
 
 /* Variable: global_libdir */
-GLOBAL char global_libdir[1024] INIT();
+GLOBAL char global_libdir[1024] INIT("/usr/local/opt/gridlabd/current/lib");
 
 /* Variable: global_vardir */
-GLOBAL char global_vardir[1024] INIT();
+GLOBAL char global_vardir[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
 /* Variable: global_incdir */
-GLOBAL char global_incdir[1024] INIT();
+GLOBAL char global_incdir[1024] INIT("/usr/local/opt/gridlabd/current/include");
 
-/* Variable: global_logfile_dir */
+/* Variable: global_logfile */
 GLOBAL char global_logfile[1024] INIT("/tmp/gridlabd-log");
 
-/* Variable: global_pidfile_dir */
-GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid");
+/* Variable: global_pidfile */
+GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid"); /**< Specifies that a process id file should be created */
 
-/* Variable: global_climate_library_path_dir */
+/* Variable: global_climate_library_path */
 GLOBAL char global_climate_library_path[sizeof(char1024)] INIT("/usr/local/opt/gridlabd/current/share/gridlabd/weather/US");
 
-/* Variable: global_configpath_dir */
+/* Variable: global_configpath */
 GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
-/* Variable: global_billing_library_dir */
+/* Variable: global_billing_library */
 GLOBAL char1024 global_billing_library INIT("/usr/local/opt/gridlabd/current/share");
 
 /* Variable: global_pythonpath */
