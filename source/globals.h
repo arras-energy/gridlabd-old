@@ -18,8 +18,6 @@
 #include "build.h"
 #include "validate.h"
 #include "sanitize.h"
-#include "revenue.h"
-#include "climate.h"
 
 #ifdef _MAIN_C
 #define GLOBAL
@@ -829,7 +827,7 @@ GLOBAL char global_datadir[1024] INIT("/usr/local/opt/gridlabd/current/share/gri
 GLOBAL char global_bindir[1024] INIT("/usr/local/opt/gridlabd/current/bin");
 
 /* Variable: global_libdir */
-GLOBAL char global_libdir[1024] INIT("/usr/local/opt/gridlabd/current/lib");
+GLOBAL char global_libdir[1024] INIT("/usr/local/opt/gridlabd/current/lib/gridlabd");
 
 /* Variable: global_vardir */
 GLOBAL char global_vardir[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");

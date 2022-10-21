@@ -281,7 +281,7 @@ void workdir_init(const char *value)
 
 void climate_library_path_init(const char *value)
 {
-	extern char climate_library_path[sizeof(char1024)];
+	extern char climate_library_path[sizeof(char1024)]; // remove
 	snprintf(climate_library_path,sizeof(climate_library_path)-1,"%s/gridlabd/weather/%s",global_datadir,(const char*)global_country);
 }
 
@@ -292,8 +292,7 @@ void configpath_init(const char *value)
 
 void billing_library_init(const char *value)
 {
-	extern char1024 billing_library;
-	snprintf(billing_library,sizeof(billing_library)-1,"%s",global_datadir);
+	snprintf(global_billing_library,sizeof(global_billing_library)-1,"%s",global_datadir);
 }
 
 void pythonexec_init(const char *value)

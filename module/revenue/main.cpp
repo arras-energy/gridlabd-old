@@ -25,7 +25,6 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	// gl_global_create("revenue::summer_season_months",PT_char1024,&summer_season_months,NULL);
 	// gl_global_create("revenue::winter_season_months",PT_char1024,&winter_season_months,NULL);
 	gl_global_create("revenue::billing_module",PT_char1024,&billing_module,NULL);
-	gl_global_create("revenue::billing_library",PT_char1024,&billing_library,NULL);
 	gl_global_create("revenue::billing_function",PT_char1024,&billing_function,NULL);
 	// TODO: register module globals here
 
