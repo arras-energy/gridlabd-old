@@ -215,7 +215,7 @@ void datadir_init(const char *name)
 	{
 		etcpath = "/usr/local/share";
 	}
-	snprintf(global_datadir,sizeof(global_datadir),"%s",etcpath);
+	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
 void bindir_init(const char *name)
@@ -225,7 +225,7 @@ void bindir_init(const char *name)
 	{
 		binpath = "/usr/local/bin";
 	}
-	snprintf(global_bindir,sizeof(global_bindir),"%s",binpath);
+	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
 void libdir_init(const char *name)
@@ -235,7 +235,7 @@ void libdir_init(const char *name)
 	{
 		libpath = "/usr/local/lib";
 	}
-	snprintf(global_libdir,sizeof(global_libdir),"%s",libpath);
+	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
 void vardir_init(const char *name)
@@ -245,7 +245,7 @@ void vardir_init(const char *name)
 	{
 		varpath = "/usr/local/var";
 	}
-	snprintf(global_vardir,sizeof(global_vardir),"%s",varpath);
+	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
 void incdir_init(const char *name)
@@ -255,7 +255,7 @@ void incdir_init(const char *name)
 	{
 		incpath = "/usr/local/include";
 	}
-	snprintf(global_incdir,sizeof(global_incdir),"%s",incpath);
+	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 }
 /* Add more top-level directory variables here. */
 
@@ -263,37 +263,37 @@ void incdir_init(const char *name)
 
 void logfile_dir_init(const char *name)
 {
-	snprintf(global_logfile_dir,sizeof(global_logfile_dir),"%s/gridlabd/gridlabd-log",global_vardir);
+	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir);
 }
 
 void pidfile_dir_init(const char *name)
 {
-	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir),"%s/gridlabd/gridlabd-pid",global_vardir);
+	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir);
 }
 
 void workdir_dir_init(const char *name)
 {
-	snprintf(global_workdir_dir,sizeof(global_workdir_dir),"%s/gridlabd",global_vardir);
+	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir);
 }
 
 void climate_library_path_dir_init(const char *name)
 {
-	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir),"%s/gridlabd/weather/US",global_datadir);
+	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir)-1,"%s/gridlabd/weather/US",global_datadir);
 }
 
 void configpath_dir_init(const char *name)
 {
-	snprintf(global_configpath_dir,sizeof(global_configpath_dir),"%s/gridlabd/",global_vardir);
+	snprintf(global_configpath_dir,sizeof(global_configpath_dir)-1,"%s/gridlabd/",global_vardir);
 }
 
 void billing_library_dir_init(const char *name)
 {
-	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir),"%s",global_datadir);
+	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir)-1,"%s",global_datadir);
 }
 
 void python_exec_dir_init(const char *name)
 {
-	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir),"%s/python3",global_bindir);
+	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir)-1,"%s/python3",global_bindir);
 }
 /* Add more derivative directories here */
 
