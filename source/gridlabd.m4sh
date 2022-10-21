@@ -91,6 +91,7 @@ export GLD_DOC=$docdir
 export GLD_VAR=$exec_prefix/var
 export GLD_INC=$exec_prefix/include
 export GLD_SRC=$exec_prefix/src
+export GLD_PY=$PYTHON_VER_DIR
 export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
