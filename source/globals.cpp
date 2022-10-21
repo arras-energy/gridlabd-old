@@ -208,52 +208,52 @@ DEPRECATED static KEYWORD pof_keys[] = {
 
 /* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
 /* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(char)
+void datadir_init(const char *)
 {
-	char etcpath = getenv("GLD_ETC");
+	const char *etcpath = getenv("GLD_ETC");
 	if ( etcpath == NULL )
 	{
-		etcpath = "/usr/local/share";
+		etcpath = "/usr/local/opt/gridlabd/current/share/gridlabd";
 	}
 	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
-void bindir_init(char)
+void bindir_init(const char *)
 {
-	char binpath = getenv("GLD_BIN");
+	const char * binpath = getenv("GLD_BIN");
 	if ( binpath == NULL )
 	{
-		binpath = "/usr/local/bin";
+		binpath = "/usr/local/opt/gridlabd/current/bin";
 	}
 	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
-void libdir_init(char)
+void libdir_init(const char *)
 {
-	char libpath = getenv("GLD_BIN");
+	const char * libpath = getenv("GLD_LIB");
 	if ( libpath == NULL )
 	{
-		libpath = "/usr/local/lib";
+		libpath = "/usr/local/opt/gridlabd/current/lib";
 	}
 	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
-void vardir_init(char)
+void vardir_init(const char *)
 {
-	char varpath = getenv("GLD_BIN");
+	const char * varpath = getenv("GLD_VAR");
 	if ( varpath == NULL )
 	{
-		varpath = "/usr/local/var";
+		varpath = "/usr/local/opt/gridlabd/current/var/gridlabd";
 	}
 	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
-void incdir_init(char)
+void incdir_init(const char *)
 {
-	char incpath = getenv("GLD_BIN");
+	const char * incpath = getenv("GLD_INC");
 	if ( incpath == NULL )
 	{
-		incpath = "/usr/local/include";
+		incpath = "/usr/local/opt/gridlabd/current/include";
 	}
 	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 }
@@ -279,24 +279,26 @@ void workdir_init(const char *value)
 	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
 }
 
-void climate_library_path_dir_init(const char *value)
+void climate_library_path_init(const char *value)
 {
-	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir)-1,"%s/gridlabd/weather/US",global_datadir);
+	extern char climate_library_path[sizeof(char1024)];
+	snprintf(climate_library_path,sizeof(climate_library_path)-1,"%s/gridlabd/weather/%s",global_datadir,global_country);
 }
 
 void configpath_dir_init(const char *value)
 {
-	snprintf(global_configpath_dir,sizeof(global_configpath_dir)-1,"%s/gridlabd/",global_vardir);
+	snprintf(global_configpath,sizeof(global_configpath)-1,"%s",global_vardir);
 }
 
-void billing_library_dir_init(const char *value)
+void billing_library_init(const char *value)
 {
-	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir)-1,"%s",global_datadir);
+	extern char1024 billing_library;
+	snprintf(billing_library,sizeof(billing_library)-1,"%s",global_datadir);
 }
 
-void python_exec_dir_init(const char *value)
+void pythonexec_init(const char *value)
 {
-	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir)-1,"%s/python3",global_bindir);
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/python3",global_bindir);
 }
 /* Add more derivative directories here */
 
@@ -450,18 +452,17 @@ DEPRECATED static struct s_varmap {
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
-	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd",NULL,pythonexec_init},
 	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
 	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
 	{"vardir",PT_char1024,&global_vardir,PA_REFERENCE,"folder in which share data is stored",NULL,vardir_init},
 	{"libdir",PT_char1024,&global_libdir,PA_REFERENCE,"folder in which share data is stored",NULL,libdir_init},
 	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
 	{"logfile",PT_char1024,&global_logfile,PA_REFERENCE,"daemon logfile name",NULL,logfile_init},
-	{"pidfile_dir",PT_char1024,&global_pidfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
-	{"climate_library_path_dir",PT_char1024,&climate_library_path_dir,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_dir_init},
-	{"configpath_dir",PT_char1024,&configpath_dir,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_dir_init},
-	{"billing_library_dir",PT_char1024,&billing_library_dir,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_dir_init},
-	{"python_exec_dir",PT_char1024,&python_exec_dir,PA_REFERENCE,"folder in which share data is stored",NULL,python_exec_dir_init},
+	{"pidfile_dir",PT_char1024,&global_pidfile,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
+	{"climate_library_path",PT_char1024,&global_climate_library_path,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_init},
+	{"configpath",PT_char1024,&global_configpath,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_init},
+	{"billing_library",PT_char1024,&global_billing_library,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},

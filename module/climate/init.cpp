@@ -4,7 +4,7 @@
 
 #include "climate.h"
 
-char climate_library_path[sizeof(char1024)] = {global_climate_library_path_dir};
+char climate_library_path[sizeof(char1024)] = "/usr/local/opt/gridlabd/current/share/gridlabd/weather/US";
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {

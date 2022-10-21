@@ -845,22 +845,19 @@ GLOBAL char global_logfile[1024] INIT("/tmp/gridlabd-log");
 GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid");
 
 /* Variable: global_climate_library_path_dir */
-GLOBAL char global_climate_library_path_dir[1024] INIT();
+GLOBAL char global_climate_library_path[sizeof(char1024)] INIT("/usr/local/opt/gridlabd/current/share/gridlabd/weather/US");
 
 /* Variable: global_configpath_dir */
-GLOBAL char global_configpath_dir[1024] INIT();
+GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
 /* Variable: global_billing_library_dir */
-GLOBAL char1024 global_billing_library_dir INIT();
-
-/* Variable: global_python_exec_dir */
-GLOBAL char global_python_exec_dir[1024] INIT();
+GLOBAL char1024 global_billing_library INIT("/usr/local/opt/gridlabd/current/share");
 
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
 
 /* Variable: global_pythonexec */
-GLOBAL char1024 global_pythonexec INIT(PYTHON_EXEC);
+GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/python3");
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);

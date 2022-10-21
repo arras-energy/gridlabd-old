@@ -13,6 +13,6 @@ python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
 	@$(bindir)/python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
 
 python-clean:
-	@rm $(top_srcdir)/python/dist/*.{whl,tar.gz}
+	@rm -f $(top_srcdir)/python/dist/*.{whl,tar.gz}
 	@echo "uninstalling $(top_srcdir)/python"
 	@$(bindir)/python3 -m pip uninstall gridlabd -y || (echo "Use '. utilities/cleanwc' instead to clean this build."; exit 1)
