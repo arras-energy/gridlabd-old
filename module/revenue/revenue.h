@@ -6,7 +6,6 @@
 #define _REVENUE_H
 
 #include "gridlabd.h"
-#include "globals.h"
 
 #ifdef DLMAIN
 #define INIT(X) = X
@@ -16,6 +15,7 @@
 #define GLOBAL extern
 #endif
 
+GLOBAL char1024 billing_library INIT("/usr/local/opt/gridlabd/current/share");
 GLOBAL char1024 billing_module INIT("default_billing.py");
 GLOBAL char1024 billing_function INIT("compute_bill");
 // GLOBAL double lowincome_discount INIT(0);
