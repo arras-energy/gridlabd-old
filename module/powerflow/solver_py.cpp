@@ -19,11 +19,10 @@
 // // #define Py_DECREF(X) (X->ob_refcnt--)
 // #define Py_DECREF(X) (fprintf(stderr,"Py_DECREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)--X->ob_refcnt),X->ob_refcnt)
 
-#define CONFIGNAME "solver_py.conf"
 #define CONFIGPATH global_configpath
 
 static SOLVERPYTHONSTATUS solver_py_status = SPS_INIT;
-char1024 solver_py_config = CONFIGPATH CONFIGNAME;
+char1024 solver_py_config = CONFIGPATH;
 static const char *model_busdump = NULL;
 static const char *model_branchdump = NULL;
 static const char *model_dump_handler = NULL;
@@ -138,7 +137,7 @@ void init_kwargs(void)
 
 SOLVERPYTHONSTATUS solver_python_config (
 	const char *localconfig = NULL,
-	const char *shareconfig = CONFIGPATH CONFIGNAME)
+	const char *shareconfig = CONFIGPATH)
 {
 	const char *configname = localconfig ? localconfig : (const char*)solver_py_config;
 	FILE *fp = fopen(configname,"r");

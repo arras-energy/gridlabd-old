@@ -287,7 +287,7 @@ void climate_library_path_init(const char *value)
 
 void configpath_init(const char *value)
 {
-	snprintf(global_configpath,sizeof(global_configpath)-1,"%s",global_vardir);
+	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
 }
 
 void billing_library_init(const char *value)
