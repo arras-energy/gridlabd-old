@@ -282,10 +282,10 @@ void workdir_init(const char *value)
 void climate_library_path_init(const char *value)
 {
 	extern char climate_library_path[sizeof(char1024)];
-	snprintf(climate_library_path,sizeof(climate_library_path)-1,"%s/gridlabd/weather/%s",global_datadir,global_country);
+	snprintf(climate_library_path,sizeof(climate_library_path)-1,"%s/gridlabd/weather/%s",global_datadir,(const char*)global_country);
 }
 
-void configpath_dir_init(const char *value)
+void configpath_init(const char *value)
 {
 	snprintf(global_configpath,sizeof(global_configpath)-1,"%s",global_vardir);
 }
