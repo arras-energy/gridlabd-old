@@ -18,6 +18,8 @@
 #include "build.h"
 #include "validate.h"
 #include "sanitize.h"
+#include "revenue.h"
+#include "climate.h"
 
 #ifdef _MAIN_C
 #define GLOBAL

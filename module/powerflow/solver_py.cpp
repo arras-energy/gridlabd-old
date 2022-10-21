@@ -12,6 +12,8 @@
 
 #include "solver_py.h"
 
+#include "globals.h"
+
 // #undef Py_INCREF
 // #define Py_INCREF(X) (fprintf(stderr,"Py_INCREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)++X->ob_refcnt),X->ob_refcnt)
 // // #define Py_INCREF(X) (X->ob_refcnt++)
