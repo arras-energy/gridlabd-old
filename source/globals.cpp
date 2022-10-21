@@ -261,37 +261,40 @@ void incdir_init(char)
 
 /* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
 
-void logfile_dir_init(char)
+void logfile_init(const char *value)
 {
-	snprintf(global_logfile_dir,sizeof(global_logfile_dir)-1,"%s/gridlabd/gridlabd-log",global_vardir);
+	extern char logfile[1024];
+	snprintf(logfile,sizeof(logfile)-1,"%s/%s",global_vardir,value);
 }
 
-void pidfile_dir_init(char)
+void pidfile_init(const char *value)
 {
-	snprintf(global_pidfile_dir,sizeof(global_pidfile_dir)-1,"%s/gridlabd/gridlabd-pid",global_vardir);
+	extern char pidfile[1024];
+	snprintf(pidfile,sizeof(pidfile)-1,"%s/%s",global_vardir,value);
 }
 
-void workdir_dir_init(char)
+void workdir_init(const char *value)
 {
-	snprintf(global_workdir_dir,sizeof(global_workdir_dir)-1,"%s/gridlabd",global_vardir);
+	extern char workdir[1024];
+	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
 }
 
-void climate_library_path_dir_init(char)
+void climate_library_path_dir_init(const char *value)
 {
 	snprintf(global_climate_library_path_dir,sizeof(global_climate_library_path_dir)-1,"%s/gridlabd/weather/US",global_datadir);
 }
 
-void configpath_dir_init(char)
+void configpath_dir_init(const char *value)
 {
 	snprintf(global_configpath_dir,sizeof(global_configpath_dir)-1,"%s/gridlabd/",global_vardir);
 }
 
-void billing_library_dir_init(char)
+void billing_library_dir_init(const char *value)
 {
 	snprintf(global_billing_library_dir,sizeof(global_billing_library_dir)-1,"%s",global_datadir);
 }
 
-void python_exec_dir_init(char)
+void python_exec_dir_init(const char *value)
 {
 	snprintf(global_python_exec_dir,sizeof(global_python_exec_dir)-1,"%s/python3",global_bindir);
 }
@@ -324,7 +327,7 @@ DEPRECATED static struct s_varmap {
 	{"test", PT_bool, &global_debug_mode, PA_PUBLIC, "test enable flag"},
 	{"verbose", PT_bool, &global_verbose_mode, PA_PUBLIC, "verbose enable flag"},
 	{"iteration_limit", PT_int32, &global_iteration_limit, PA_PUBLIC, "iteration limit"},
-	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory"},
+	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory",NULL,workdir_init},
 	{"dumpfile", PT_char1024, &global_dumpfile, PA_PUBLIC, "dump filename"},
 	{"savefile", PT_char1024, &global_savefile, PA_PUBLIC, "save filename"},
 	{"dumpall", PT_bool, &global_dumpall, PA_PUBLIC, "dumpall enable flag"},
@@ -453,13 +456,12 @@ DEPRECATED static struct s_varmap {
 	{"vardir",PT_char1024,&global_vardir,PA_REFERENCE,"folder in which share data is stored",NULL,vardir_init},
 	{"libdir",PT_char1024,&global_libdir,PA_REFERENCE,"folder in which share data is stored",NULL,libdir_init},
 	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
-	{"logfile_dir",PT_char1024,&global_logfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,logfile_dir_init},
-	{"pidfile_dir",PT_char1024,&global_pidfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_dir_init},
-	{"workdir_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,workdir_dir_init},
-	{"climate_library_path_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_dir_init},
-	{"configpath_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_dir_init},
-	{"billing_library_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_dir_init},
-	{"python_exec_dir",PT_char1024,&global_workdir_dir,PA_REFERENCE,"folder in which share data is stored",NULL,python_exec_dir_init},
+	{"logfile",PT_char1024,&global_logfile,PA_REFERENCE,"daemon logfile name",NULL,logfile_init},
+	{"pidfile_dir",PT_char1024,&global_pidfile_dir,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
+	{"climate_library_path_dir",PT_char1024,&climate_library_path_dir,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_dir_init},
+	{"configpath_dir",PT_char1024,&configpath_dir,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_dir_init},
+	{"billing_library_dir",PT_char1024,&billing_library_dir,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_dir_init},
+	{"python_exec_dir",PT_char1024,&python_exec_dir,PA_REFERENCE,"folder in which share data is stored",NULL,python_exec_dir_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
