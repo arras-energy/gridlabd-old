@@ -490,7 +490,7 @@ CACHEDIR="$DATADIR/.gridlabd-template"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
 COMMIT_INFO=$(curl -sL "$GITAPI/repos/$GITUSER/$GITREPO/branches/$GITBRANCH")
-COMMIT_ID=$(echo $COMMIT_INFO | gridlabd json-get commit sha || error 1 $(echo $COMMIT_INFO | gridlabd json-get message))
+COMMIT_ID=$(echo $COMMIT_INFO | gridlabd json-get commit sha 2>/dev/null || error 1 $(echo $COMMIT_INFO | gridlabd json-get message))
 INDEX=$CACHEDIR/$COMMIT_ID
 
 # process command
