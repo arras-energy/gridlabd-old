@@ -19,12 +19,22 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new billing(module);
 	// TODO: add more classes here
 
+void billing_library_init(const char *value)
+{
+	const char *etcpath = getenv("GLD_ETC");
+	if ( etcpath == NULL )
+	{
+		etcpath = "/usr/local/opt/gridlabd/current/share/gridlabd";
+	}
+	snprintf(billing_library,sizeof(billing_library)-1,"%s",etcpath);
+}
 	// gl_global_create("revenue::lowincome_discount",PT_double,&lowincome_discount,PT_UNITS,"$",NULL);
 	// gl_global_create("revenue::program_credit",PT_double,&program_credit,PT_UNITS,"$",NULL);
 	// gl_global_create("revenue::program_credit_months",PT_char1024,&program_credit_months,NULL);
 	// gl_global_create("revenue::summer_season_months",PT_char1024,&summer_season_months,NULL);
 	// gl_global_create("revenue::winter_season_months",PT_char1024,&winter_season_months,NULL);
 	gl_global_create("revenue::billing_module",PT_char1024,&billing_module,NULL);
+	gl_global_create("revenue::billing_library",PT_char1024,&billing_library,NULL,billing_library_init);
 	gl_global_create("revenue::billing_function",PT_char1024,&billing_function,NULL);
 	// TODO: register module globals here
 

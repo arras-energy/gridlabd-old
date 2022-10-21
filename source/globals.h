@@ -847,9 +847,6 @@ GLOBAL char global_climate_library_path[sizeof(char1024)] INIT("/usr/local/opt/g
 /* Variable: global_configpath */
 GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
-/* Variable: global_billing_library */
-GLOBAL char1024 global_billing_library INIT("/usr/local/opt/gridlabd/current/share");
-
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
 
