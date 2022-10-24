@@ -104,7 +104,14 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 
 # needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
     brew install ca-certificates
-    cp /usr/local/Cellar/ca-certificates/2022-07-19_1/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
+    CERT_DIR="$(echo /usr/local/Cellar/ca-certificates/*/)"
+    cp $CERT_DIR/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
+
+    if [ ! -x $VERSION_DIR/ssl/cert.pem ] ; then
+        echo "The installer was unable to locate certificates for the python build"
+        echo "Please make sure homebrew can install ca-certificates before retrying build."
+        exit 1
+    fi
 
 	# tar xzf Python-$PYTHON_VER.tgz
 	cd $VERSION_DIR/src/Python-$PYTHON_VER
