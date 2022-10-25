@@ -8379,6 +8379,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(filename,file);
+	linenum = 0;
 	strcpy(global_loader_filename,filename);
 	global_loader_linenum = 1;
 
