@@ -393,7 +393,7 @@ elif [ "$LINK" == "yes" ]; then
 	for dir in bin lib include share; do
 		run sudo ln -sf $PREFIX/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
 	done
-	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 fi
 
 # Add gridlabd to path
