@@ -123,7 +123,7 @@ function version-set()
 #			$ACTION rm -rf $GLD_VER/$F/gridlabd
 #			$ACTION ln -s $GLD_VER/current/$F/gridlabd $GLD_VER/$F/gridlabd
 #		fi
-	done
+#	done
 	echo "$L"
 }
 
