@@ -2,7 +2,7 @@
 
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
-GLDDIR="$GLDDIR"
+OPT="$(basename $GLD_VER)"
 
 function error()
 {
@@ -85,18 +85,18 @@ function version-save()
 		SAVED="$(${BIN} --version | cut -f2 -d' ')-saved_$(date '+%Y%m%d')"
 		N=0
 		TRY="$SAVED"
-		while [ -d $GLDDIR/$TRY ]; do
+		while [ -d $OPT/$TRY ]; do
 			TRY="$SAVED-$N"
 			N=$(($N+1))
 		done
 		SAVED="$TRY"
-		$ACTION mkdir -p $GLDDIR/$SAVED/{bin,lib,share,include}
+		$ACTION mkdir -p $OPT/$SAVED/{bin,lib,share,include}
 		for F in bin lib share include; do
-			[ ! -d $GLDDIR/$SAVED/$F ]; $ACTION mkdir -p $GLDDIR/$SAVED/$F
+			[ ! -d $OPT/$SAVED/$F ]; $ACTION mkdir -p $OPT/$SAVED/$F
 			if [ "$F" == "bin" ]; then
-				$ACTION mv $GLDDIR/bin/gridlabd* $GLDDIR/$SAVED/bin
+				$ACTION mv $GLD_VER/bin/gridlabd* $OPT/$SAVED/bin
 			else
-				[ -f $GLDDIR/$F/gridlabd -a ! -L $GLDDIR/$F/gridlabd ] && $ACTION mv $GLDDIR/$F/gridlabd $GLDDIR/$SAVED/$F
+				[ -f $GLD_VER/$F/gridlabd -a ! -L $GLD_VER/$F/gridlabd ] && $ACTION mv $GLD_VER/$F/gridlabd $OPT/$SAVED/$F
 			fi
 		done
 	fi
@@ -106,31 +106,31 @@ function version-set()
 {
 	version-save
 	L="$1"
-	if [ ! -d "$GLDDIR/$L" ]; then
-		L=$(cd $GLDDIR ; ls -1d *$1* | grep -v current)
+	if [ ! -d "$OPT/$L" ]; then
+		L=$(cd $OPT ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
 		L="$(${BIN} --version=name | sed -e 's/^gridlabd-//')"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink $GLDDIR/current)" == "$GLDDIR/$L" ]; then
-		$ACTION rm -f $GLDDIR/current
-		$ACTION ln -s $GLDDIR/$L $GLDDIR/current
+	if [ ! "$(readlink $OPT/current)" == "$OPT/$L" ]; then
+		$ACTION rm -f $OPT/current
+		$ACTION ln -s $OPT/$L $OPT/current
 	fi
-	for F in bin lib share include; do
-		if [ ! "$(readlink $GLDDIR/$F/gridlabd)" == "$GLDDIR/current/$F/gridlabd" ]; then
-			$ACTION rm -rf $GLDDIR/$F/gridlabd
-			$ACTION ln -s $GLDDIR/current/$F/gridlabd $GLDDIR/$F/gridlabd
-		fi
+#	for F in bin lib share include; do
+#		if [ ! "$(readlink $GLD_VER/$F/gridlabd)" == "$OPT/current/$F/gridlabd" ]; then
+#			$ACTION rm -rf $GLD_VER/$F/gridlabd
+#			$ACTION ln -s $GLD_VER/current/$F/gridlabd $GLD_VER/$F/gridlabd
+#		fi
 	done
 	echo "$L"
 }
 
 function version-show()
 {
-	if [ -L $GLDDIR/current ]; then
-		basename $(readlink $GLDDIR/current)
+	if [ -L $OPT/current ]; then
+		basename $(readlink $OPT/current)
 	else
 		echo "Current version is custom installed"
 	fi
@@ -139,16 +139,16 @@ function version-show()
 function version-delete()
 {
 	if [ "$1" == "-a" ]; then
-		L="$(ls -1 $GLDDIR | grep -v current)"
+		L="$(ls -1 $OPT | grep -v current)"
 	else
 		L="$1"
 		if [ ! -d "$L" ]; then
-			L=$(cd $GLDDIR ; ls -1d *$1* | grep -v current)
+			L=$(cd $OPT ; ls -1d *$1* | grep -v current)
 		fi
 	fi
 	if [ ! -z "$L" ]; then
 		for F in $L; do
-			[ ! "$F" == "current" -a -d "$GLDDIR/$F" -a ! "$(readlink $GLDDIR/current)" == "$GLDDIR/$F" ] && $ACTION rm -rf $GLDDIR/$F
+			[ ! "$F" == "current" -a -d "$OPT/$F" -a ! "$(readlink $OPT/current)" == "$OPT/$F" ] && $ACTION rm -rf $OPT/$F
 		done
 	fi
 }
@@ -156,16 +156,16 @@ function version-delete()
 function version-list()
 {
 	if [ $# -eq 0 ]; then
-        for D in $(basename $GLDDIR/*); do
-            if [ "$D" != "current" -a -x "$GLDDIR/$D/bin/gridlabd.bin" ]; then
+        for D in $(basename $OPT/*); do
+            if [ "$D" != "current" -a -x "$OPT/$D/bin/gridlabd.bin" ]; then
                 echo $D
             fi
         done
 	elif [ "$1" == "-l" ]; then
         longlist $2
     else
-        for D in $(basename $GLDDIR/*$1*); do
-            if [ "$D" != "current" -a -x "$GLDDIR/$D/bin/gridlabd.bin" ]; then
+        for D in $(basename $OPT/*$1*); do
+            if [ "$D" != "current" -a -x "$OPT/$D/bin/gridlabd.bin" ]; then
                 echo $D
             fi
         done
@@ -175,18 +175,18 @@ function version-list()
 function longlist()
 {
     if [ $# -eq 0 ]; then
-		LIST=$(basename $GLDDIR/* | grep -v '^current$')
+		LIST=$(basename $OPT/* | grep -v '^current$')
 	else
-		LIST=$(basename $GLDDIR/*$1*)
+		LIST=$(basename $OPT/*$1*)
 	fi
-    echo "total$(du -sh $GLDDIR | cut -c1-4)"
+    echo "total$(du -sh $OPT | cut -c1-4)"
     for D in $LIST; do
-        if [ -x "$GLDDIR/$D/bin/gridlabd.bin" ]; then
+        if [ -x "$OPT/$D/bin/gridlabd.bin" ]; then
             NAME=$(basename $D)
             VERSION=$(echo $NAME | cut -f1 -d-)
             BUILD=$(echo $NAME | cut -f2 -d-)
             BRANCH=$(echo $NAME | cut -f3 -d-)
-            SIZE=$(du -sh $GLDDIR/$D | cut -c1-4)
+            SIZE=$(du -sh $OPT/$D | cut -c1-4)
             echo "$VERSION $BUILD $SIZE $BRANCH"
         fi
     done
