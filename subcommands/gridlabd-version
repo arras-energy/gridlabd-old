@@ -2,7 +2,7 @@
 
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
-OPT="$(basename $GLD_VER)"
+OPT="$(dirname $GLD_VER)"
 
 function error()
 {
