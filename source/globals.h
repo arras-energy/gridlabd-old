@@ -841,14 +841,8 @@ GLOBAL char global_logfile[1024] INIT("/tmp/gridlabd-log");
 /* Variable: global_pidfile */
 GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid"); /**< Specifies that a process id file should be created */
 
-/* Variable: global_climate_library_path */
-GLOBAL char global_climate_library_path[sizeof(char1024)] INIT("/usr/local/opt/gridlabd/current/share/gridlabd/weather/US");
-
 /* Variable: global_configpath */
 GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
-
-/* Variable: global_billing_library */
-GLOBAL char1024 global_billing_library INIT("/usr/local/opt/gridlabd/current/share");
 
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");

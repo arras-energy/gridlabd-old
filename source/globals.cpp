@@ -279,21 +279,9 @@ void workdir_init(const char *value)
 	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
 }
 
-void climate_library_path_init(const char *value)
-{
-	extern char climate_library_path[sizeof(char1024)]; // remove
-	snprintf(climate_library_path,sizeof(climate_library_path)-1,"%s/gridlabd/weather/%s",global_datadir,(const char*)global_country);
-}
-
 void configpath_init(const char *value)
 {
 	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
-}
-
-void billing_library_init(const char *value)
-{
-	extern char1024 billing_library;
-	snprintf(billing_library,sizeof(billing_library)-1,"%s",global_datadir);
 }
 
 void pythonexec_init(const char *value)
@@ -460,9 +448,7 @@ DEPRECATED static struct s_varmap {
 	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
 	{"logfile",PT_char1024,&global_logfile,PA_REFERENCE,"daemon logfile name",NULL,logfile_init},
 	{"pidfile_dir",PT_char1024,&global_pidfile,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
-	{"climate_library_path",PT_char1024,&global_climate_library_path,PA_REFERENCE,"folder in which share data is stored",NULL,climate_library_path_init},
 	{"configpath",PT_char1024,&global_configpath,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_init},
-	{"billing_library",PT_char1024,&global_billing_library,PA_REFERENCE,"folder in which share data is stored",NULL,billing_library_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
