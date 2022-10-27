@@ -176,6 +176,7 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 		#include "capacitor.h"
 		#include "load.h"
 			#include "pqload.h"
+				#include "building.h"
 		#include "meter.h"
 		#include "motor.h"
 		#include "substation.h"

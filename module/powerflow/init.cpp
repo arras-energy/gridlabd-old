@@ -137,6 +137,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new pole(module);
 	new pole_configuration(module);
     new pole_mount(module);
+    new building(module);
 
 	/* always return the first class registered */
 	return node::oclass;

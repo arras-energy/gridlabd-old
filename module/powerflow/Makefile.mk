@@ -18,6 +18,7 @@ module_powerflow_powerflow_la_LIBADD += -ldl
 module_powerflow_powerflow_la_SOURCES = module/powerflow/init.cpp module/powerflow/main.cpp
 
 module_powerflow_powerflow_la_SOURCES += module/powerflow/billdump.cpp module/powerflow/billdump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/building.cpp module/powerflow/building.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/capacitor.cpp module/powerflow/capacitor.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/currdump.cpp module/powerflow/currdump.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/emissions.cpp module/powerflow/emissions.h
