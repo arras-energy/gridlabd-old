@@ -36,7 +36,7 @@ BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A
 VERSION=${VERSION:-`$TOP/build-aux/version.sh --name`}
 
 # local folder
-VAR="$VERSION_DIR"
+VAR="/usr/local/opt/gridlabd"
 VERSION_DIR=$VAR/$VERSION
 
 if [ ! -e $VERSION_DIR/src ] ; then
