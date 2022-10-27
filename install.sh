@@ -390,14 +390,11 @@ elif [ "$LINK" == "yes" ]; then
 	log "ACTIVATE: manual"
 	[ ! -L "$PREFIX/gridlabd/current" ] && run sudo rm -f "$PREFIX/gridlabd/current"
 	run sudo ln -sf "$INSTALL" "$PREFIX/gridlabd/current"
-	for dir in bin lib include share; do
-		run sudo ln -sf $PREFIX/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+	for dir in bin; do
+		run sudo ln -sf $PREFIX/gridlabd/current/$dir/gridlabd /usr/local/$dir/gridlabd
 	done
 	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 fi
-
-# Add gridlabd to path
-sudo ln -sf $PREFIX/bin/gridlabd /usr/local/bin
 
 cd $VERSION_DIR/src
 sudo rm -rf *
