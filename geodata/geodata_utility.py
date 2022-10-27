@@ -70,7 +70,7 @@ GLD_ETC = os.getenv("GLD_ETC")
 
 CACHEDIR = os.getenv("GLD_ETC")
 if not CACHEDIR:
-    CACHEDIR = "{GLD_ETC}/gridlabd"
+    CACHEDIR = f"{GLD_ETC}/gridlabd"
 
 REPOURL = os.getenv("REPOURL")
 if not REPOURL:

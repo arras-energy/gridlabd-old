@@ -37,9 +37,9 @@ today= datetime.today().strftime('%Y%m%d')
 
 share = os.getenv("GLD_ETC")
 if not share:
-    share = "{GLD_ETC}/gridlabd"
+    share = f"{GLD_ETC}/gridlabd"
 if share not in sys.path:
-    sys.path.append("{GLD_ETC}/gridlabd")
+    sys.path.append(f"{GLD_ETC}/gridlabd")
 import fire_danger
 
 #

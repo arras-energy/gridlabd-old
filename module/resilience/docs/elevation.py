@@ -21,7 +21,7 @@ GLD_ETC = os.getenv("GLD_ETC")
 GLD_BIN = os.getenv("GLD_BIN")
 
 cache_folder = "/tmp"
-CACHE = "{GLD_ETC}/gridlabd/elevation/10m"
+CACHE = f"{GLD_ETC}/gridlabd/elevation/10m"
 COMMANDS = ["config","delete","get","help","index","list","path"]
 
 def help(args=[]):

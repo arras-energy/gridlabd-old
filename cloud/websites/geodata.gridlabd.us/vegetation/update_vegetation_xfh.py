@@ -220,10 +220,10 @@ for layer in ["base", "cover", "height"]:
                 if not os.path.exists(f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"):
                     print(f"Downloading " + name)
                     get_image(layer, (lat,lon), forest, name,
-                              cachedir = "{GLD_ETC}/gridlabd/geodata/vegetation")
+                              cachedir = f"{GLD_ETC}/gridlabd/geodata/vegetation")
                     tile = get_imagedata(layer, (lat,lon), scale = 0.1,
                                          repourl = "http://geodata.gridlabd.us/vegetation",
-                                         cachedir = "{GLD_ETC}/gridlabd/geodata/vegetation")
+                                         cachedir = f"{GLD_ETC}/gridlabd/geodata/vegetation")
                 
                 srcname = f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"
                 dstname = f"vegetation/2020/{name}.tif"

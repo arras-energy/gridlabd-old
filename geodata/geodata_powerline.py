@@ -133,7 +133,7 @@ default_options = {
 }
 
 default_config = {
-    "cabletype_file" : "{GLD_ETC}/gridlabd/geodata_powerline_cabletypes.csv",
+    "cabletype_file" : f"{GLD_ETC}/gridlabd/geodata_powerline_cabletypes.csv",
 }
 
 OPTIONS = default_options

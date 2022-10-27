@@ -102,7 +102,7 @@ for layer in ["base","cover","height"]:
             print(f"Processing {layer}...",flush=True)
             name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
                     repourl = "http://geodata.gridlabd.us/vegetation",
-                    cachedir = "{GLD_ETC}/gridlabd/geodata/vegetation")
+                    cachedir = f"{GLD_ETC}/gridlabd/geodata/vegetation")
             width = len(tile[0])
             height = len(tile)
             missing = 0

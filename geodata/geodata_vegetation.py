@@ -87,7 +87,7 @@ default_options = {
 #
 default_config = {
     "nan_error" : False,
-    "cachedir" : "{GLD_ETC}/gridlabd/geodata/vegetation",
+    "cachedir" : f"{GLD_ETC}/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
     "layers" : ["base","cover","height"],
     "layer_units" : {"base":"m","cover":"%","height":"m"},
