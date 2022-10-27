@@ -31,7 +31,7 @@ GLD_BIN = os.getenv("GLD_BIN")
 
 n_tested = 0
 n_passed = 0
-exename = '{GLD_BIN}/gridlabd'
+exename = f'{GLD_BIN}/gridlabd'
 dry_run = False
 show_debug = False
 show_failure = False

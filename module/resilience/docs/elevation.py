@@ -164,7 +164,7 @@ def get_elevation(bottom,left):
     tif_file = f"{cache_folder}/{lat}_{lon}.tif"
     if not os.path.exists(tif_file):
         # unfortunately the python API call to elevation.clip does not work correctly
-        result = subprocess.run(["{GLD_BIN}/bin/eio",
+        result = subprocess.run([f"{GLD_BIN}/bin/eio",
             "--product","SRTM1",
             "clip",
             "-o",tif_file,

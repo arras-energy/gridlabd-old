@@ -22,7 +22,7 @@ def stderr(*msg,file=sys.stderr):
 #
 # GridLAB-D link
 #
-result = subprocess.run("{GLD_BIN}/gridlabd --version=json".split(),capture_output=True)
+result = subprocess.run(f"{GLD_BIN}/gridlabd --version=json".split(),capture_output=True)
 if not result:
     stderr("ERROR: GridLAB-D is not installed on this system")
     quit(-1)
@@ -32,7 +32,7 @@ version = info['version']
 build = info['build_number']
 branch = info['branch']
 system = info['system']
-copyright = subprocess.run("{GLD_BIN}/gridlabd --copyright".split(),capture_output=True).stdout.decode('utf-8')
+copyright = subprocess.run(f"{GLD_BIN}/gridlabd --copyright".split(),capture_output=True).stdout.decode('utf-8')
 
 #
 # No GUI on linux yet
