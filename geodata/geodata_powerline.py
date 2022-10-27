@@ -102,7 +102,7 @@ import pandas
 import json
 from IPython.display import display
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 def TODO(value=float('nan')):
     """TODO default function -- this should never be called in the final product"""

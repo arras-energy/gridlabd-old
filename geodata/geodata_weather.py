@@ -53,7 +53,7 @@ import math, numpy
 import pandas
 import haversine
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 share = os.getenv("GLD_ETC")
 if not share:
     share = "{GLD_ETC}/gridlabd"

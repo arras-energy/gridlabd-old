@@ -12,7 +12,7 @@ import math, numpy
 import pandas
 from PIL import Image
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 #
 # Defaults

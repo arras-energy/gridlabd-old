@@ -66,7 +66,7 @@ import numpy as np
 from shapely.geometry import Point
 from haversine import haversine_vector
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 CACHEDIR = os.getenv("GLD_ETC")
 if not CACHEDIR:

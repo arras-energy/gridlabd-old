@@ -31,7 +31,7 @@ from rasterio.plot import show
 from pyproj import Transformer
 from datetime import datetime
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 today= datetime.today().strftime('%Y%m%d')
 

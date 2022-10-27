@@ -27,7 +27,7 @@ assert(sys.version_info.major>2)
 import traceback
 import timeit
 
-GLD_BIN = os.environ["GLD_BIN"]
+GLD_BIN = os.getenv("GLD_BIN")
 
 n_tested = 0
 n_passed = 0

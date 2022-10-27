@@ -17,8 +17,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-GLD_ETC = os.environ["GLD_ETC"]
-GLD_BIN = os.environ["GLD_BIN"]
+GLD_ETC = os.getenv("GLD_ETC")
+GLD_BIN = os.getenv("GLD_BIN")
 
 cache_folder = "/tmp"
 CACHE = "{GLD_ETC}/gridlabd/elevation/10m"

@@ -37,7 +37,7 @@ import datetime
 import rasterio
 from rasterio.plot import show
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 CACHEDIR = "{GLD_ETC}/gridlabd/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"

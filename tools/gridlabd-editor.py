@@ -8,7 +8,7 @@ import sys, os
 import json
 import subprocess
 
-GLD_BIN = os.environ["GLD_BIN"]
+GLD_BIN = os.getenv("GLD_BIN")
 
 #
 # Console output

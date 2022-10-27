@@ -141,7 +141,7 @@ SEE ALSO
 
 import sys, os, json, requests, pandas, numpy, datetime, math
 
-GLD_ETC = os.environ["GLD_ETC"]
+GLD_ETC = os.getenv("GLD_ETC")
 
 leap = True
 interval = 60
