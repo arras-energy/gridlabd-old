@@ -177,7 +177,9 @@ if test $D_ARCH != "arm64"; then
     fi
 
     cd $HOME/temp
-     sudo mv * $PREF
+    rm -rf *.tarz
+    rm -rf version.h
+    sudo mv * $PREF
     echo "Gridlabd installed. Adding to path."
 
     if ! grep -q "/usr/local/bin" "$HOME/.bashrc"; then
@@ -254,7 +256,9 @@ else
     fi
 
     cd $HOME/temp
-    sudo mv gridlabd /usr/local/opt
+    rm -rf *.tarz
+    rm -rf version.h
+    sudo mv * $PREF
     echo "Gridlabd installed. Adding to path."
 
     if ! grep -q "/usr/local/bin" "$HOME/.bashrc"; then
