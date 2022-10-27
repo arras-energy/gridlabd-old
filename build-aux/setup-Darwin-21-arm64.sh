@@ -137,7 +137,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     CERT_DIR="$(echo /opt/homebrew/Cellar/ca-certificates/*/)"
     cp $CERT_DIR/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
 
-    if [ ! -x $VERSION_DIR/ssl/cert.pem ] ; then
+    if [ ! -f $VERSION_DIR/ssl/cert.pem ] ; then
         echo "The installer was unable to locate certificates for the python build"
         echo "Please make sure homebrew can install ca-certificates before retrying build."
         exit 1
