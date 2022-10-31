@@ -10,18 +10,7 @@ EXPORT_METHOD(building,airtemperature_history);
 EXPORT_METHOD(building,masstemperature_history);
 EXPORT_METHOD(building,building_response);
 EXPORT_METHOD(building,input);
-EXPORT_METHOD(building,temperature_input);
-EXPORT_METHOD(building,temperature_response);
-EXPORT_METHOD(building,occupancy_input);
-EXPORT_METHOD(building,occupancy_response);
-EXPORT_METHOD(building,solar_input);
-EXPORT_METHOD(building,solar_response);
-EXPORT_METHOD(building,loads_input);
-EXPORT_METHOD(building,loads_response);
-EXPORT_METHOD(building,ventilation_input);
-EXPORT_METHOD(building,ventilation_response);
-EXPORT_METHOD(building,systemmode_input);
-EXPORT_METHOD(building,systemmode_response);
+EXPORT_METHOD(building,zip);
 
 CLASS *building::oclass = NULL;
 building *building::defaults = NULL;
@@ -43,14 +32,6 @@ building::building(MODULE *module)
 
 			PT_INHERIT, "load",
 
-			PT_double, "loads_powerfactor", get_loads_powerfactor_offset(),
-				PT_DEFAULT, "0.97",
-				PT_DESCRIPTION, "power factor to use when modeling effect in heat gain from internal loads",
-
-			PT_double, "system_powerfactor", get_system_powerfactor_offset(),
-				PT_DEFAULT, "0.95",
-				PT_DESCRIPTION, "power factor to use when modeling HVAC system power demand",
-
 			PT_double, "timestep[s]", get_timestep_offset(),
 				PT_DEFAULT, "60s",
 				PT_DESCRIPTION, "timestep to use when modeling building response to inputs",
@@ -70,44 +51,16 @@ building::building(MODULE *module)
 			PT_method, "input", method_building_input,
 				PT_DESCRIPTION, "transfer function input specification input (source and numerator coefficients)",
 
-			PT_method, "temperature_input", method_building_temperature_input,
-				PT_DESCRIPTION, "source object and property for temperature input",
+			PT_method, "zip", method_building_zip,
+				PT_DESCRIPTION, "ZIP real and reactive load components",
 
-			PT_method, "temperature_response", method_building_temperature_response,
-				PT_DESCRIPTION, "temperature response parameters (second-order transfer function numerator terms)",
-			
-			PT_method, "occupancy_input", method_building_occupancy_input,
-				PT_DESCRIPTION, "source object and property for occupancy input",
+			PT_double, "air_temperature", PADDR(x[0][0]), 
+				PT_ACCESS, PA_REFERENCE,
+				PT_DESCRIPTION, "indoor air temperature",
 
-			PT_method, "occupancy_response", method_building_occupancy_response,
-				PT_DESCRIPTION, "occupancy response parameters (second-order transfer function numerator terms)",
-			
-			PT_method, "solar_input", method_building_solar_input,
-				PT_DESCRIPTION, "source object and property for solar input",
-
-			PT_method, "solar_response", method_building_solar_response,
-				PT_DESCRIPTION, "solar response parameters (second-order transfer function numerator terms)",
-			
-			PT_method, "loads_input", method_building_loads_input,
-				PT_DESCRIPTION, "source object and property for loads input",
-
-			PT_method, "loads_response", method_building_loads_response,
-				PT_DESCRIPTION, "loads response parameters (second-order transfer function numerator terms)",
-			
-			PT_method, "ventilation_input", method_building_ventilation_input,
-				PT_DESCRIPTION, "source object and property for ventilation input",
-
-			PT_method, "ventilation_response", method_building_ventilation_response,
-				PT_DESCRIPTION, "ventilation response parameters (second-order transfer function numerator terms)",
-			
-			PT_method, "systemmode_input", method_building_systemmode_input,
-				PT_DESCRIPTION, "source object and property for systemmode input",
-
-			PT_method, "systemmode_response", method_building_systemmode_response,
-				PT_DESCRIPTION, "systemmode response parameters (second-order transfer function numerator terms)",
-
-			PT_double, "air_temperature", PADDR(x0),
-			PT_double, "mass_temperature", PADDR(x1),
+			PT_double, "mass_temperature", PADDR(x[1][0]),
+				PT_ACCESS, PA_REFERENCE,
+				PT_DESCRIPTION, "building mass temperature",
 			
 			NULL)<1){
 				char msg[256];
@@ -138,8 +91,8 @@ void building::check_poles(double *a,const char *name)
 	}
 	else // real poles
 	{
-		double z0 = 0.5/a[0]*(-a0[1]-sqrt(zr));
-		double z1 = 0.5/a[0]*(-a0[1]+sqrt(zr));
+		double z0 = 0.5/a[0]*(-a[1]-sqrt(zr));
+		double z1 = 0.5/a[0]*(-a[1]+sqrt(zr));
 		if ( z0 >= 1.0 || z1 >= 1.0 )
 		{
 			warning("building %s response is not stable (poles are %f+,%f)",name,z0,z1);
@@ -159,57 +112,36 @@ int building::init(OBJECT *parent)
 	{
 		output_timestep = timestep;
 	}
-	if ( fabs(loads_powerfactor) > 1.0 )
+	if ( input_list == NULL )
 	{
-		exception("loads_powerfactor must be equal to or between -1 and +1");
+		warning("no inputs specified");
 	}
-	if ( fabs(system_powerfactor) > 1.0 )
+	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
 	{
-		exception("system_powerfactor must be equal to or between -1 and +1");
+		if ( input->state < 0 || input->state > 1 )
+		{
+			exception("%s state %d is not valid",input->source,input->state);
+		}
+		if ( input->b[0] == 0.0 && input->b[1] == 0.0 && input->b[2] == 0.0 )
+		{
+			warning("%s inputs response is null",input->source);
+		}
 	}
-	if ( pT == NULL && pN == NULL && pS == NULL && pL == NULL && pV == NULL && pM == NULL )
-	{
-		warning("all inputs are null");
-	}
-	if ( pT != NULL && bT[0] == 0.0 && bT[1] == 0.0 && bT[2] == 0.0 )
-	{
-		warning("temperature input response is null");
-	}
-	if ( pN != NULL && bN[0] == 0.0 && bN[1] == 0.0 && bN[2] == 0.0 )
-	{
-		warning("occupancy input response is null");
-	}
-	if ( pS != NULL && bS[0] == 0.0 && bS[1] == 0.0 && bS[2] == 0.0 )
-	{
-		warning("solar input response is null");
-	}
-	if ( pL != NULL && bL[0] == 0.0 && bL[1] == 0.0 && bL[2] == 0.0 )
-	{
-		warning("loads input response is null");
-	}
-	if ( pV != NULL && bV[0] == 0.0 && bV[1] == 0.0 && bV[2] == 0.0 )
-	{
-		warning("ventilation input response is null");
-	}
-	if ( pM != NULL && bM[0] == 0.0 && bM[1] == 0.0 && bM[2] == 0.0 )
-	{
-		warning("system input response is null");
-	}
-	if ( a0[0] == 0.0 && a0[1] == 0.0 && a0[2] == 0.0 )
+	if ( a[0][0] == 0.0 && a[0][1] == 0.0 && a[0][2] == 0.0 )
 	{
 		warning("building air response is null");
 	}
 	else
 	{
-		check_poles(a0,"air");
+		check_poles(a[0],"air");
 	}
-	if ( a1[0] == 0.0 && a1[1] == 0.0 && a1[2] == 0.0 )
+	if ( a[1][0] == 0.0 && a[1][1] == 0.0 && a[1][2] == 0.0 )
 	{
 		warning("building mass response is null");
 	}
 	else
 	{
-		check_poles(a1,"mass");
+		check_poles(a[1],"mass");
 	}
 	return load::init(parent);
 }
@@ -241,11 +173,11 @@ int building::airtemperature_history(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf",&x0[0],&x0[1],&x0[2]);
+		return sscanf(buffer,"%lf,%lf,%lf",&x[0][0],&x[0][1],&x[0][2]);
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",x0[0],x0[1],x0[2]);
+		return snprintf(buffer,len,"%lf,%lf,%lf",x[0][0],x[0][1],x[0][2]);
 	}
 }
 
@@ -253,11 +185,11 @@ int building::masstemperature_history(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf",&x1[0],&x1[1],&x1[2]);
+		return sscanf(buffer,"%lf,%lf,%lf",&x[1][0],&x[1][1],&x[1][2]);
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",x1[0],x1[1],x1[2]);
+		return snprintf(buffer,len,"%lf,%lf,%lf",x[1][0],x[1][1],x[1][2]);
 	}
 }
 
@@ -265,46 +197,12 @@ int building::building_response(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&a0[0],&a0[1],&a0[2],&a1[0],&a1[1],&a1[2]);
+		return sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&a[0][0],&a[0][1],&a[0][2],&a[1][0],&a[1][1],&a[1][2]);
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf;%lf,%lf,%lf",a0[0],a0[1],a0[2],a1[0],a1[1],a1[2]);
+		return snprintf(buffer,len,"%lf,%lf,%lf;%lf,%lf,%lf",a[0][0],a[0][1],a[0][2],a[1][0],a[1][1],a[1][2]);
 	}
-}
-
-static int property_method(gld_property **prop, char *buffer, size_t len)
-{
-	char objectname[64];
-	char propertyname[64];
-	if ( buffer != NULL && len == 0 )
-	{
-		if ( sscanf(buffer,"%[^.].%s",objectname,propertyname) == 2 )
-		{
-			*prop = new gld_property(objectname,propertyname);
-			if ( ! (*prop)->is_valid() )
-			{
-				return -1;
-			}
-			return 1;
-		}
-		else
-		{
-			return 0; // invalid input syntax
-		}
-	}
-	else if ( (*prop)->is_valid() )
-	{
-		return (*prop)->to_string(buffer,len);
-	}
-	else
-	{
-		if ( buffer )
-		{
-			strcpy(buffer,"");
-		}
-		return 0;
-	}	
 }
 
 int building::input(char *buffer, size_t len)
@@ -312,31 +210,43 @@ int building::input(char *buffer, size_t len)
 	char objectname[64];
 	char propertyname[64];
 	double b0,b1,b2;
+	double d0, d1;
+	double u0=0,u1=0,u2=0;
+	int state;
 	if ( buffer != NULL && len == 0 )
 	{
-		if ( sscanf(buffer,"%63[^.].%63[^.],%lf,%lf,%lf",objectname,propertyname,&b0,&b1,&b2) == 4)
+		if ( sscanf(buffer,"%63[^.].%63[^.],%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",objectname,propertyname,&state,&b0,&b1,&b2,&d0,&d1,&u0,&u1,&u2) < 7 )
 		{
-			INPUT *last = input_list;
-			input_list = new INPUT;
-			asprintf(&(input_list->source),"%s.%s",objectname,propertyname);
-			input_list->b[0] = b0;
-			input_list->b[1] = b1;
-			input_list->b[2] = b2;
-			input_list->next = last;
-			input_list->prop = new gld_property(objectname,propertyname);
-			if ( ! input_list->prop->is_valid() )
-			{
-				exception("input '%s' not found",input_list->source);
-			}
+			exception("input '%s' specification is not valid",buffer);
 		}
-		return 4;
+		INPUT *last = input_list;
+		input_list = new INPUT;
+		asprintf(&(input_list->source),"%s.%s",objectname,propertyname);
+		input_list->prop = new gld_property(objectname,propertyname);
+		if ( ! input_list->prop->is_valid() )
+		{
+			exception("input '%s' not found",input_list->source);
+		}
+		input_list->state = state;
+		input_list->b[0] = b0;
+		input_list->b[1] = b1;
+		input_list->b[2] = b2;
+		input_list->d[0] = d0;
+		input_list->d[1] = d1;
+		input_list->u[0] = u0;
+		input_list->u[1] = u1;
+		input_list->u[2] = u2;
+		input_list->addr = (double*)input_list->prop->get_addr();
+		input_list->next = last;
+		return strlen(buffer);
 	}
 	else if ( buffer == NULL )
 	{
 		int result = 0;
 		for ( INPUT *item = input_list ; item != NULL ; item = item->next )
 		{
-			result += snprintf(NULL,0,"%s,%lf,%lf,%lf\n",item->source,item->b[0],item->b[1],item->b[2]);
+			result += snprintf(NULL,0,"%s,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+				item->source,item->state,item->b[0],item->b[1],item->b[2],item->d[0],item->d[1],item->u[0],item->u[1],item->u[2]);
 		}
 		return result;
 	}
@@ -345,171 +255,21 @@ int building::input(char *buffer, size_t len)
 		int result = 0;
 		for ( INPUT *item = input_list ; item != NULL ; item = item->next )
 		{
-			result += snprintf(buffer+result,len-result,"%s,%lf,%lf,%lf\n",item->source,item->b[0],item->b[1],item->b[2]);
+			result += snprintf(buffer+result,len-result,"%s,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+				item->source,item->state,item->b[0],item->b[1],item->b[2],item->d[0],item->d[1],item->u[0],item->u[1],item->u[2]);
 		}
 		return result;
 	}
 }
 
-int building::temperature_input(char *buffer, size_t len)
+void building::update_input(void)
 {
-	int result = property_method(&Tin,buffer,len);
-	if ( result < 0 )
+	// update history
+	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
 	{
-		exception("temperature input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pT = (double*)Tin->get_addr();
-		return result;
-	}
-}
-
-int building::temperature_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bT[0],&bT[1],&bT[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bT[0],bT[1],bT[2]);
-	}
-}
-
-int building::occupancy_input(char *buffer, size_t len)
-{
-	int result = property_method(&Nin,buffer,len);
-	if ( result < 0 )
-	{
-		exception("occupancy input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pN = (double*)Nin->get_addr();
-		return result;
-	}
-}
-
-int building::occupancy_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bN[0],&bN[1],&bN[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bN[0],bN[1],bN[2]);
-	}
-}
-
-int building::solar_input(char *buffer, size_t len)
-{
-	int result = property_method(&Sin,buffer,len);
-	if ( result < 0 )
-	{
-		exception("solar input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pS = (double*)Sin->get_addr();
-		return result;
-	}
-}
-
-int building::solar_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bS[0],&bS[1],&bS[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bS[0],bS[1],bS[2]);
-	}
-}
-
-int building::loads_input(char *buffer, size_t len)
-{
-	int result = property_method(&Lin,buffer,len);
-	if ( result < 0 )
-	{
-		exception("loads input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pL = (double*)Lin->get_addr();
-		return result;
-	}
-}
-
-int building::loads_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bL[0],&bL[1],&bL[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bL[0],bL[1],bL[2]);
-	}
-}
-
-int building::ventilation_input(char *buffer, size_t len)
-{
-	int result = property_method(&Vin,buffer,len);
-	if ( result < 0 )
-	{
-		exception("ventilation input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pV = (double*)Vin->get_addr();
-		return result;
-	}
-}
-
-int building::ventilation_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bV[0],&bV[1],&bV[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bV[0],bV[1],bV[2]);
-	}
-}
-
-int building::systemmode_input(char *buffer, size_t len)
-{
-	int result = property_method(&Min,buffer,len);
-	if ( result < 0 )
-	{
-		exception("system control input '%s' not found",buffer);
-		return 0;
-	}
-	else
-	{
-		pM = (double*)Min->get_addr();
-		return result;
-	}
-}
-
-int building::systemmode_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		return sscanf(buffer,"%lf,%lf,%lf",&bM[0],&bM[1],&bM[2]);
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",bM[0],bM[1],bM[2]);
+		input->u[2] = input->u[1];
+		input->u[1] = input->u[0];
+		input->u[0] = *input->addr;
 	}
 }
 
@@ -520,69 +280,34 @@ void building::update_state(unsigned int n)
 	while ( n-- > 0 )
 	{
 		// initialize update
-		x0[2] = x0[1]; 
-		x0[1] = x0[0]; 
-		x0[0] = -a0[1]*x0[1] - a0[2]*x0[2];
-		x1[2] = x1[1]; 
-		x1[1] = x1[0]; 
-		x1[0] = -a1[1]*x1[1] - a1[2]*x1[2];
+		x[0][2] = x[0][1]; 
+		x[0][1] = x[0][0]; 
+		x[0][0] = -a[0][1]*x[0][1] - a[0][2]*x[0][2];
+		x[1][2] = x[1][1]; 
+		x[1][1] = x[1][0]; 
+		x[1][0] = -a[1][1]*x[1][1] - a[1][2]*x[1][2];
 
-		// air temperature update
-		if ( pT != NULL )
+		// add inputs
+		for ( INPUT *input = input_list ; input != NULL ; input = input->next )
 		{
-			x0[0] += bT[0]*T[0] + bT[1]*T[1] + bT[2]*T[2];
-		}
-		if ( pN != NULL )
-		{
-			x0[0] += bN[0]*N[0] + bN[1]*N[1] + bN[2]*N[2];
-		}
-		if ( pV != NULL )
-		{
-			x0[0] += bV[0]*V[0] + bV[1]*V[1] + bV[2]*V[2];
-		}
-		if ( pM != NULL )
-		{
-			x0[0] += bM[0]*M[0] + bM[1]*M[1] + bM[2]*M[2];
-		}
-
-		// mass temperature update
-		if ( pS != NULL )
-		{
-			x1[0] += bS[0]*S[0] + bS[1]*S[1] + bS[2]*S[2];
+			x[input->state][0] += input->b[0]*input->u[0] + input->b[1]*input->u[1] + input->b[2]*input->u[2];
 		}
 
 		// finalize update
-		x0[0] /= a0[0];
-		x1[0] /= a1[0];
-	}
-}
-
-void building::update_input(void)
-{
-	// update history
-	if ( pT != NULL )
-	{
-		T[2] = T[1]; T[1] = T[0]; T[0] = pT[0];
-	}
-	if ( pN != NULL )
-	{
-		N[2] = N[1]; N[1] = N[0]; N[0] = pN[0];
-	}
-	if ( pV != NULL )
-	{
-		V[2] = V[1]; V[1] = V[0]; V[0] = pV[0];
-	}
-	if ( pM != NULL )
-	{
-		M[2] = M[1]; M[1] = M[0]; M[0] = pM[0];
-	}
-	if ( pS != NULL )
-	{
-		S[2] = S[1]; S[1] = S[0]; S[0] = pS[0];
+		x[0][0] /= a[0][0];
+		x[1][0] /= a[1][0];
 	}
 }
 
 void building::update_output(void)
 {
+	double P = 0.0;
+	double Q = 0.0;
+	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
+	{
+		P += input->d[0]*input->u[0];
+		Q += input->d[1]*input->u[0];
+	}
+	constant_power[0] = constant_power[1] = constant_power[2] = complex(P,Q)/3.0;
 	return;
 }
