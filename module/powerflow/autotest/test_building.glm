@@ -1,0 +1,42 @@
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+module powerflow
+{
+	message_flags VERBOSE;
+}
+module climate;
+module tape
+{
+	csv_header_type NAME;
+}
+object weather
+{
+	name "test_weather";
+	temperature 75.2;
+}
+#set verbose=TRUE
+object building
+{
+	phases ABC;
+	nominal_voltage 480;
+	timestep 60;
+	output_timestep 3600;
+	building_response "1,-0.5,0.1;1,-0.5,0.5";
+	input "test_weather.temperature,0,0,1,0,1,1";
+	input "test_weather.temperature,1,0,0,1,1,1";
+	zip "1,0,0;0.1,0,0";
+	object recorder 
+	{
+		property "air_temperature,mass_temperature";
+		file "/tmp/test.csv";
+		interval 60;
+	};
+}
+
+#set filesave_options=ALLINITIAL
+#set dumpfile=/tmp/gridlabd-err.json
+#set savefile=/tmp/gridlabd.json
