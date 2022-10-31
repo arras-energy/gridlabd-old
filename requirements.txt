@@ -4,9 +4,10 @@ pytz==2020.4
 PyGithub==1.54.1
 docker==4.4.4
 folium==0.12.1
+Cython==0.29.32
 scikit-learn==0.24.2
 xlrd==2.0.1
 openpyxl>=3.0.7
-scipy==1.9.1
+scipy==1.9.3
 pandas_access>=0.0.1
 Shapely==1.8.4
