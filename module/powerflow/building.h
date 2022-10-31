@@ -8,11 +8,11 @@
 #error "this header must be included by powerflow.h"
 #endif
 
-DECL_METHOD(building,airtemperature_history);
-DECL_METHOD(building,masstemperature_history);
+DECL_METHOD(building,air_temperature);
+DECL_METHOD(building,mass_temperature);
 DECL_METHOD(building,building_response);
 DECL_METHOD(building,input);
-DECL_METHOD(building,zip);
+DECL_METHOD(building,composition);
 
 class building : public load 
 {
@@ -21,7 +21,7 @@ class building : public load
 		char *source;
 		gld_property *prop;
 		double *addr;
-		int state;
+		unsigned short state;
 		double b[3]; // tf terms
 		double u[3]; // input history
 		double d[2]; // real and reactive power contributions
@@ -32,7 +32,8 @@ private:
 
 	// private data
 	INPUT *input_list;
-	double x[2][3]; // internal state history (TA)
+	double x[2][3]; // internal state history (Ta,Tm) w.r.t x0
+	double x0[2]; // equilibrium state
 
 	// transfer function
 	double ts; // timestep
@@ -46,11 +47,11 @@ public:
 	GL_ATOMIC(double,timestep); // model timestep
 	GL_ATOMIC(double,output_timestep); // model output timestep
 
-	GL_METHOD(building,airtemperature_history); // previous air temperature values
-	GL_METHOD(building,masstemperature_history); // previous mass temperature values
+	GL_METHOD(building,air_temperature); // previous air temperature values
+	GL_METHOD(building,mass_temperature); // previous mass temperature values
 	GL_METHOD(building,building_response); // set tf denominator terms
 	GL_METHOD(building,input); // add tf input
-	GL_METHOD(building,zip); // zip components
+	GL_METHOD(building,composition); // zip components
 	
 private:
 

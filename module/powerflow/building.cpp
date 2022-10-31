@@ -6,11 +6,11 @@
 EXPORT_CREATE(building);
 EXPORT_INIT(building);
 EXPORT_SYNC(building);
-EXPORT_METHOD(building,airtemperature_history);
-EXPORT_METHOD(building,masstemperature_history);
+EXPORT_METHOD(building,air_temperature);
+EXPORT_METHOD(building,mass_temperature);
 EXPORT_METHOD(building,building_response);
 EXPORT_METHOD(building,input);
-EXPORT_METHOD(building,zip);
+EXPORT_METHOD(building,composition);
 
 CLASS *building::oclass = NULL;
 building *building::defaults = NULL;
@@ -39,10 +39,10 @@ building::building(MODULE *module)
 			PT_double, "output_timestep[s]", get_output_timestep_offset(),
 				PT_DESCRIPTION, "timestep to use when outputting response to inputs",
 
-			PT_method, "airtemperature_history", method_building_airtemperature_history,
+			PT_method, "airtemperature_history", method_building_air_temperature,
 				PT_DESCRIPTION, "air temperature history",
 			
-			PT_method, "masstemperature_history", method_building_masstemperature_history,
+			PT_method, "masstemperature_history", method_building_mass_temperature,
 				PT_DESCRIPTION, "mass temperature history",
 			
 			PT_method, "building_response", method_building_building_response,
@@ -51,7 +51,7 @@ building::building(MODULE *module)
 			PT_method, "input", method_building_input,
 				PT_DESCRIPTION, "transfer function input specification input (source and numerator coefficients)",
 
-			PT_method, "zip", method_building_zip,
+			PT_method, "zip", method_building_composition,
 				PT_DESCRIPTION, "ZIP real and reactive load components",
 
 			PT_double, "air_temperature", PADDR(x[0][0]), 
@@ -84,7 +84,11 @@ void building::check_poles(double *a,const char *name)
 		double y = 0.5*sqrt(-zr)/a[0];
 		if ( sqrt(x*x + y*y) >= 1.0 )
 		{
-			warning("building %s response is not stable (poles are %f+/-%fj)",name,x,y);
+			warning("%s response is not stable (poles are %f+/-%fj)",name,x,y);
+		}
+		else
+		{
+			verbose("%s poles are (%f+/-%fj)",name,x,y);
 		}
 		p0 = complex(x,y);
 		p1 = complex(x,-y);
@@ -95,7 +99,11 @@ void building::check_poles(double *a,const char *name)
 		double z1 = 0.5/a[0]*(-a[1]+sqrt(zr));
 		if ( z0 >= 1.0 || z1 >= 1.0 )
 		{
-			warning("building %s response is not stable (poles are %f+,%f)",name,z0,z1);
+			warning("%s response is not stable (poles are %f,%f)",name,z0,z1);
+		}
+		else
+		{
+			verbose("%s poles are (%f,%f)",name,z0,z1);
 		}
 		p0 = complex(z0,0);
 		p1 = complex(z1,0);
@@ -116,32 +124,28 @@ int building::init(OBJECT *parent)
 	{
 		warning("no inputs specified");
 	}
+	static const char *channel[] = {"air_temperature","mass_temperature"};
 	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
 	{
 		if ( input->state < 0 || input->state > 1 )
 		{
-			exception("%s state %d is not valid",input->source,input->state);
+			exception("%s channel '%d' is not valid",input->source,input->state);
 		}
 		if ( input->b[0] == 0.0 && input->b[1] == 0.0 && input->b[2] == 0.0 )
 		{
-			warning("%s inputs response is null",input->source);
+			warning("%s channel %d (%s) input response is null",input->source,input->state,channel[input->state]);
 		}
 	}
-	if ( a[0][0] == 0.0 && a[0][1] == 0.0 && a[0][2] == 0.0 )
+	for ( unsigned short state = 0 ; state < 2 ; state++ )
 	{
-		warning("building air response is null");
-	}
-	else
-	{
-		check_poles(a[0],"air");
-	}
-	if ( a[1][0] == 0.0 && a[1][1] == 0.0 && a[1][2] == 0.0 )
-	{
-		warning("building mass response is null");
-	}
-	else
-	{
-		check_poles(a[1],"mass");
+		if ( a[state][0] == 0.0 && a[state][1] == 0.0 && a[state][2] == 0.0 )
+		{
+			warning("building %s response is null",channel[state]);
+		}
+		else
+		{
+			check_poles(a[state],channel[state]);
+		}
 	}
 	return load::init(parent);
 }
@@ -169,27 +173,45 @@ TIMESTAMP building::sync(TIMESTAMP t0)
 	return load::sync(t0);
 }
 
-int building::airtemperature_history(char *buffer, size_t len)
+int building::air_temperature(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf",&x[0][0],&x[0][1],&x[0][2]);
+		double x1;
+		if ( sscanf(buffer,"%lf",&x1) > 0 )
+		{
+			x[0][0] = x1 - x0[0];
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",x[0][0],x[0][1],x[0][2]);
+		return snprintf(buffer,len,"%lf",x[0][0] + x0[0]);
 	}
 }
 
-int building::masstemperature_history(char *buffer, size_t len)
+int building::mass_temperature(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf",&x[1][0],&x[1][1],&x[1][2]);
+		double x1;
+		if ( sscanf(buffer,"%lf",&x1) > 0 )
+		{
+			x[1][0] = x1 - x0[0];
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf",x[1][0],x[1][1],x[1][2]);
+		return snprintf(buffer,len,"%lf",x[1][0] + x0[1]);
 	}
 }
 
@@ -212,12 +234,17 @@ int building::input(char *buffer, size_t len)
 	double b0,b1,b2;
 	double d0, d1;
 	double u0=0,u1=0,u2=0;
-	int state;
+	unsigned short state;
 	if ( buffer != NULL && len == 0 )
 	{
-		if ( sscanf(buffer,"%63[^.].%63[^.],%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",objectname,propertyname,&state,&b0,&b1,&b2,&d0,&d1,&u0,&u1,&u2) < 7 )
+		int result = sscanf(buffer,"%63[^.].%63[^,],%hu,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",objectname,propertyname,&state,&b0,&b1,&b2,&d0,&d1,&u0,&u1,&u2);
+		if ( result < 1 )
 		{
 			exception("input '%s' specification is not valid",buffer);
+		}
+		else if ( result < 7 )
+		{
+			exception("input '%s' specification field %d is not valid",buffer,result+1);
 		}
 		INPUT *last = input_list;
 		input_list = new INPUT;
@@ -262,6 +289,18 @@ int building::input(char *buffer, size_t len)
 	}
 }
 
+int building::composition(char *buffer, size_t len)
+{
+	if ( buffer != NULL && len == 0 )
+	{
+		return sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&zip[0][0],&zip[0][1],&zip[0][2],&zip[1][0],&zip[1][1],&zip[1][2]) == 6 ? 1 : 0;
+	}
+	else
+	{
+		return snprintf(buffer,len,"%lf,%lf,%lf;%lf,%lf,%lf",zip[0][0],zip[0][1],zip[0][2],zip[1][0],zip[1][1],zip[1][2]);
+	}
+}
+
 void building::update_input(void)
 {
 	// update history
@@ -269,7 +308,17 @@ void building::update_input(void)
 	{
 		input->u[2] = input->u[1];
 		input->u[1] = input->u[0];
-		input->u[0] = *input->addr;
+		if ( input->u[0] != *input->addr )
+		{
+			// input change requires update of temperature values
+			double du = *input->addr - input->u[0];
+			double dx = du * ( input->b[0] + input->b[1] + input->b[2] ) / ( a[input->state][0] + a[input->state][1] + a[input->state][2]);
+			x0[input->state] += dx;
+			x[input->state][0] += dx;
+			x[input->state][1] += dx;
+			x[input->state][2] += dx;
+			input->u[0] = *input->addr;
+		}
 	}
 }
 
