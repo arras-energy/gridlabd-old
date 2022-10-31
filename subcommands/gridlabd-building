@@ -1,0 +1,172 @@
+#!/usr/bin/python3
+"""GridLAB-D powerflow building load model
+
+Syntax:
+
+  $ gridlabd building [OPTIONS ...]
+
+Options:
+
+  -c|--continuous ss A B C D    convert from continuous state-space model
+  -c|--continuous tf NUM DEN    convert from continuous transfer-function model
+  -d|--discrete ss A B C D TS   convert from discrete state-space model
+  -d|--discrete tf NUM DEN TS   convert from discrete transfer-function model
+  -o|--output FILENAME          output the model to the specified file
+  --verbose                     toggle verbose output to stderr
+  --debug                       toggle debug output to stderr
+  --warning                     toggle warning output to stderr
+  --quiet                       toggle error output to stderr
+
+Description:
+
+  The building subcommand is used to create a building model from input data.
+
+Example:
+
+  $ gridlabd building -s statespace.json 
+
+"""
+import os, sys
+import control as cs
+import json
+
+EXENAME = os.path.basename(sys.argv[0])
+ERROR = sys.stderr
+OUTPUT = sys.stdout
+OUTPUT_FORMAT = "json"
+WARNING = True
+VERBOSE = False
+DEBUG = False
+QUIET = False
+JSON_INDENT = 4
+VALUES = {
+	"phases" : "ABC",
+	"nominal_voltage" : "480 V",
+	"composition" : "1,0,0;0.1,0,0",
+}
+
+SS = None
+TF = None
+
+E_OK = 0
+E_SYNTAX = 1
+E_EXCEPTION = 0
+
+def error(msg):
+	if not QUIET:
+		print(f"ERROR [{EXENAME}]: {msg}", file=ERROR)
+
+def exception(msg):
+	print(f"EXCEPTION [{EXENAME}]: {msg}", file=ERROR)
+
+def verbose(msg):
+	if not VERBOSE:
+		print(f"VERBOSE [{EXENAME}]: {msg}", file=ERROR)
+
+def warning(msg):
+	if WARNING:
+		print(f"WARNING [{EXENAME}]: {msg}", file=ERROR)
+
+def debug(msg):
+	if not DEBUG:
+		print(f"DEBUG [{EXENAME}]: {msg}", file=ERROR)
+
+def output(data):
+	print(data,file=OUTPUT)
+
+def main(args):
+
+	if len(args) == 0:
+		print(f"Syntax: ",file=ERROR)
+
+	n = 1
+	while n < len(sys.argv):
+
+		arg = sys.argv[n]
+
+		if arg in ["-h","--help","help"]:
+			
+			print(__doc__)
+			return E_OK
+
+		elif arg in ["-o","--output"]:
+
+			n += 1
+
+			global OUTPUT
+			OUTPUT = open(sys.argv[n],"w")
+
+			global OUTPUT_FORMAT
+			OUTPUT_FORMAT = os.path.splitext(sys.argv[n])[1][1:]
+
+		elif arg in ["-c","--continous"]:
+
+			pass
+
+		elif arg in ["-d","--discrete"]:
+
+			pass
+
+		elif arg in ["--debug"]:
+
+			global DEBUG
+			DEBUG = not DEBUG
+
+		elif arg in ["--quiet"]:
+
+			global QUIET
+			QUIET = not QUIET
+
+		elif arg in ["--verbose"]:
+
+			global VERBOSE
+			VERBOSE = not VERBOSE
+
+		elif arg in ["--warning"]:
+
+			global WARNING
+			WARNING = not WARNING
+
+		else:
+
+			raise Exception(f"argument '{arg}' is invalid")
+			return E_SYNTAX
+
+		n += 1
+
+	data = {}
+	data["application"] = "gridlabd"
+	data["version"] = "4.3.1"
+	data["modules"] = {"powerflow":{"major":"4","minor":"3"}}
+	data["objects"] = {
+		"building:" : VALUES
+	}
+	if OUTPUT_FORMAT == "json":
+		output(json.dumps(data,indent=JSON_INDENT))
+	elif OUTPUT_FORMAT == "glm":
+		properties = [' '.join(x) for x in zip(data)]
+		output(f"""module powerflow;
+object building
+{{
+	{';\n    '.join(properties)}
+}}""")
+	else:
+		raise Exception(f"output format '{OUTPUT_FORMAT}' not supported")
+
+	return E_OK
+
+if __name__ == "__main__":
+	try:
+		result = main(sys.argv)
+	except:
+		import traceback
+		e_type, e_value, e_trace = sys.exc_info()
+		if DEBUG:
+			traceback.print_tb(e_trace)
+		e_stack = traceback.extract_tb(e_trace)
+		e_file = os.path.basename(e_stack[-1].filename)
+		e_line = e_stack[-1].lineno
+		exception(f"{e_type.__name__} at {e_file}:{e_line}: {e_value} ")
+		result = E_EXCEPTION
+	exit(result)
+
