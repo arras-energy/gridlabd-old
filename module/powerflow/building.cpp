@@ -124,29 +124,6 @@ int building::init(OBJECT *parent)
 	{
 		warning("no inputs specified");
 	}
-	static const char *channel[] = {"air_temperature","mass_temperature"};
-	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
-	{
-		if ( input->state < 0 || input->state > 1 )
-		{
-			exception("%s channel '%d' is not valid",input->source,input->state);
-		}
-		if ( input->b[0] == 0.0 && input->b[1] == 0.0 && input->b[2] == 0.0 )
-		{
-			warning("%s channel %d (%s) input response is null",input->source,input->state,channel[input->state]);
-		}
-	}
-	for ( unsigned short state = 0 ; state < 2 ; state++ )
-	{
-		if ( a[state][0] == 0.0 && a[state][1] == 0.0 && a[state][2] == 0.0 )
-		{
-			warning("building %s response is null",channel[state]);
-		}
-		else
-		{
-			check_poles(a[state],channel[state]);
-		}
-	}
 	return load::init(parent);
 }
 
@@ -219,7 +196,32 @@ int building::building_response(char *buffer, size_t len)
 {
 	if ( buffer != NULL && len == 0 ) // read values in buffer
 	{
-		return sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&a[0][0],&a[0][1],&a[0][2],&a[1][0],&a[1][1],&a[1][2]);
+		static const char *channel[] = {"air_temperature","mass_temperature"};
+		int result = sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&a[0][0],&a[0][1],&a[0][2],&a[1][0],&a[1][1],&a[1][2]);
+		for ( INPUT *input = input_list ; input != NULL ; input = input->next )
+		{
+			if ( input->state < 0 || input->state > 1 )
+			{
+				error("%s channel '%d' is not valid",input->source,input->state);
+				return 0;
+			}
+			if ( input->b[0] == 0.0 && input->b[1] == 0.0 && input->b[2] == 0.0 )
+			{
+				warning("%s channel %d (%s) input response is null",input->source,input->state,channel[input->state]);
+			}
+		}
+		for ( unsigned short state = 0 ; state < 2 ; state++ )
+		{
+			if ( a[state][0] == 0.0 && a[state][1] == 0.0 && a[state][2] == 0.0 )
+			{
+				warning("building %s response is null",channel[state]);
+			}
+			else
+			{
+				check_poles(a[state],channel[state]);
+			}
+		}
+		return result;
 	}
 	else // save values to buffer (or return buffer size if buffer is null)
 	{
