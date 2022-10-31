@@ -144,7 +144,7 @@ def main(args):
 	if OUTPUT_FORMAT == "json":
 		output(json.dumps(data,indent=JSON_INDENT))
 	elif OUTPUT_FORMAT == "glm":
-		properties = ';\n    '.join([' '.join(x) for x in list(zip(data["objects"]["building:0"]))])
+		properties = '\n    '.join([f'{x} "{y}";' for x,y in data["objects"]["building:0"].items()])
 		output(f"""module powerflow;
 object building
 {{
