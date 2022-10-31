@@ -139,16 +139,16 @@ def main(args):
 	data["version"] = "4.3.1"
 	data["modules"] = {"powerflow":{"major":"4","minor":"3"}}
 	data["objects"] = {
-		"building:" : VALUES
+		"building:0" : VALUES
 	}
 	if OUTPUT_FORMAT == "json":
 		output(json.dumps(data,indent=JSON_INDENT))
 	elif OUTPUT_FORMAT == "glm":
-		properties = [' '.join(x) for x in zip(data)]
+		properties = ';\n    '.join([' '.join(x) for x in list(zip(data["objects"]["building:0"]))])
 		output(f"""module powerflow;
 object building
 {{
-	{';\n    '.join(properties)}
+	{properties}
 }}""")
 	else:
 		raise Exception(f"output format '{OUTPUT_FORMAT}' not supported")
