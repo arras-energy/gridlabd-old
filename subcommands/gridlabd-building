@@ -13,6 +13,9 @@ Options:
   -d|--discrete tf NUM DEN TS   convert from discrete transfer-function model
   -n|--name NAME                specify building name
   -o|--output FILENAME          output the model to the specified file
+  -i|--input FILENAME           input model
+  -s|--source NAME[,...]        sources for control inputs
+  -z|--zip REAL,REACTIVE        ZIP components for real and reactive power output
   --verbose                     toggle verbose output to stderr
   --debug                       toggle debug output to stderr
   --warning                     toggle warning output to stderr
@@ -57,33 +60,41 @@ VALUES = {
 }
 
 MODEL = None
+SOURCES = None
 FILENAME = None
+ZIP = None
 
 E_OK = 0
 E_SYNTAX = 1
 E_EXCEPTION = 0
 
-def error(msg):
+def error(*msg):
 	if not QUIET:
-		print(f"ERROR [{EXENAME}]: {msg}", file=ERROR)
+		print(f"ERROR [{EXENAME}]: {': '.join(msg)}", file=ERROR)
 
-def exception(msg):
-	print(f"EXCEPTION [{EXENAME}]: {msg}", file=ERROR)
+def exception(*msg):
+	print(f"EXCEPTION [{EXENAME}]: {': '.join(msg)}", file=ERROR)
 
-def verbose(msg):
+def verbose(*msg):
 	if not VERBOSE:
-		print(f"VERBOSE [{EXENAME}]: {msg}", file=ERROR)
+		print(f"VERBOSE [{EXENAME}]: {': '.join(msg)}", file=ERROR)
 
-def warning(msg):
+def warning(*msg):
 	if WARNING:
-		print(f"WARNING [{EXENAME}]: {msg}", file=ERROR)
+		print(f"WARNING [{EXENAME}]: {': '.join(msg)}", file=ERROR)
 
-def debug(msg):
+def debug(*msg):
 	if not DEBUG:
-		print(f"DEBUG [{EXENAME}]: {msg}", file=ERROR)
+		print(f"DEBUG [{EXENAME}]: {': '.join(msg)}", file=ERROR)
 
-def output(data):
-	print(data,file=OUTPUT)
+def output(*data):
+	print(' \n'.join(data),file=OUTPUT)
+
+def to_array(s):
+	return [[float(y) for y in x.split(',')] for x in s.split(';')]
+
+def to_str(a):
+	return ';'.join([','.join([str(y) for y in x]) for x in a])
 
 def main(args):
 
@@ -100,6 +111,15 @@ def main(args):
 			print(__doc__)
 			return E_OK
 
+		elif args[n] in ["-i","--input"]:
+
+			n += 1
+			if len(args) == n:
+				raise GridlabdBuildingException("missing input filename")
+
+			global FILENAME
+			FILENAME = args[n]
+			
 		elif args[n] in ["-o","--output"]:
 
 			n += 1
@@ -108,7 +128,7 @@ def main(args):
 			OUTPUT = open(args[n],"w")
 
 			global OUTPUT_FORMAT
-			OUTPUT_FORMAT = os.path.splitext(sys.argv[n])[1][1:]
+			OUTPUT_FORMAT = os.path.splitext(args[n])[1][1:]
 
 		elif args[n] in ["-c","--continous"]:
 
@@ -138,7 +158,19 @@ def main(args):
 
 			if args[n] == "ss":
 
-				TODO("discrete state-space model")
+				n += 1
+
+				if len(args) < n+5:
+					raise GridlabdBuildingException(f"discrete model missing {n+5-len(args)} model parameters")
+
+				A = to_array(args[n])
+				B = to_array(args[n+1])
+				C = to_array(args[n+2])
+				D = to_array(args[n+3])
+				Ts = int(args[n+4])
+				n += 4
+
+				MODEL = cs.ss(A,B,C,D,Ts)
 
 			elif args[n] == "tf":
 
@@ -147,6 +179,24 @@ def main(args):
 			else:
 
 				error(f"option '{args[n]}' is invalid")
+
+		elif args[n] in ["-s","--source"]:
+
+			n +=1 
+
+			if len(args) == n:
+				raise GridlabdBuildingException("sources missing argument")
+
+			global SOURCES
+			SOURCES = args[n].split(',')
+
+		elif args[n] in ["-z","--zip"]:
+
+			n += 1
+			if len(args) == n:
+				raise GridlabdBuildingException("zip missing argument")
+
+			ZIP = to_array(args[n])
 
 		elif args[n] in ["-n","--name"]:
 
@@ -158,15 +208,6 @@ def main(args):
 			global NAME
 			NAME = args[n]
 
-		elif args[n] in ["-i","--input"]:
-
-			n += 1
-			if len(args) == n:
-				raise GridlabdBuildingException("missing input filename")
-
-			global FILENAME
-			FILENAME = args[n]
-			
 		elif args[n] in ["--debug"]:
 
 			global DEBUG
@@ -196,6 +237,13 @@ def main(args):
 
 	if not MODEL:
 		raise GridlabdBuildingException(f"no model specified")
+	if not SOURCES:
+		raise GridlabdBuildingException(f"no sources specified")
+	if len(MODEL.B) != len(SOURCES):
+		raise GridlabdBuildingException(f"number of sources does not match number of model inputs")
+
+	debug("MODEL",str(MODEL.tf))
+	debug("SOURCE",SOURCES)
 
 	data = {}
 	data["application"] = "gridlabd"
@@ -207,11 +255,12 @@ def main(args):
 	if OUTPUT_FORMAT == "json":
 		output(json.dumps(data,indent=JSON_INDENT))
 	elif OUTPUT_FORMAT == "glm":
-		properties = '\n    '.join([f'{x} "{y}";' for x,y in data["objects"]["building:0"].items()])
+		properties = '\n    '.join([f'{x} "{y}";' for x,y in data["objects"][NAME].items()])
 		output(f"""module powerflow;
 object {NAME}
 {{
 	{properties}
+	building_response "{to_str(MODEL.A)}";
 }}""")
 	else:
 		raise GridlabdBuildingException(f"output format '{OUTPUT_FORMAT}' not supported")
