@@ -11,6 +11,7 @@ Options:
   -c|--continuous tf NUM DEN    convert from continuous transfer-function model
   -d|--discrete ss A B C D TS   convert from discrete state-space model
   -d|--discrete tf NUM DEN TS   convert from discrete transfer-function model
+  -n|--name NAME                specify building name
   -o|--output FILENAME          output the model to the specified file
   --verbose                     toggle verbose output to stderr
   --debug                       toggle debug output to stderr
@@ -26,9 +27,18 @@ Example:
   $ gridlabd building -s statespace.json 
 
 """
+
+class GridlabdBuildingException(Exception):
+
+	pass
+
+def TODO(msg):
+	raise Exception(f"{msg} is TODO")
+
 import os, sys
 import control as cs
 import json
+import random
 
 EXENAME = os.path.basename(sys.argv[0])
 ERROR = sys.stderr
@@ -39,14 +49,15 @@ VERBOSE = False
 DEBUG = False
 QUIET = False
 JSON_INDENT = 4
+NAME = f"building_{hex(random.randint(2**126,2**127))[2:]}"
 VALUES = {
 	"phases" : "ABC",
 	"nominal_voltage" : "480 V",
 	"composition" : "1,0,0;0.1,0,0",
 }
 
-SS = None
-TF = None
+MODEL = None
+FILENAME = None
 
 E_OK = 0
 E_SYNTAX = 1
@@ -76,88 +87,147 @@ def output(data):
 
 def main(args):
 
-	if len(args) == 0:
-		print(f"Syntax: ",file=ERROR)
+	n = 0
 
-	n = 1
-	while n < len(sys.argv):
+	if len(args) == n:
+		print(f"Syntax: {EXENAME} [OPTIONS ...]",file=ERROR)
+		return E_SYNTAX
 
-		arg = sys.argv[n]
+	while n < len(args):
 
-		if arg in ["-h","--help","help"]:
+		if args[n] in ["-h","--help","help"]:
 			
 			print(__doc__)
 			return E_OK
 
-		elif arg in ["-o","--output"]:
+		elif args[n] in ["-o","--output"]:
 
 			n += 1
 
 			global OUTPUT
-			OUTPUT = open(sys.argv[n],"w")
+			OUTPUT = open(args[n],"w")
 
 			global OUTPUT_FORMAT
 			OUTPUT_FORMAT = os.path.splitext(sys.argv[n])[1][1:]
 
-		elif arg in ["-c","--continous"]:
+		elif args[n] in ["-c","--continous"]:
 
-			pass
+			n += 1
 
-		elif arg in ["-d","--discrete"]:
+			if len(args) == n:
+				raise GridlabdBuildingException("continuous model missing model type ('ss' or 'tf')")
 
-			pass
+			if args[n] == "ss":
 
-		elif arg in ["--debug"]:
+				TODO("continuous state-space model")
+
+			elif args[n] == "tf":
+
+				TODO("continuous transfer function")
+
+			else:
+
+				error(f"option '{args[n]}' is invalid")
+
+		elif args[n] in ["-d","--discrete"]:
+
+			n += 1
+
+			if len(args) == n:
+				raise GridlabdBuildingException("discrete model missing model type ('ss' or 'tf')")
+
+			if args[n] == "ss":
+
+				TODO("discrete state-space model")
+
+			elif args[n] == "tf":
+
+				TODO("discrete transfer function")
+
+			else:
+
+				error(f"option '{args[n]}' is invalid")
+
+		elif args[n] in ["-n","--name"]:
+
+			n += 1
+
+			if len(args) == n:
+				raise GridlabdBuildingException("missing building name")
+
+			global NAME
+			NAME = args[n]
+
+		elif args[n] in ["-i","--input"]:
+
+			n += 1
+			if len(args) == n:
+				raise GridlabdBuildingException("missing input filename")
+
+			global FILENAME
+			FILENAME = args[n]
+			
+		elif args[n] in ["--debug"]:
 
 			global DEBUG
 			DEBUG = not DEBUG
 
-		elif arg in ["--quiet"]:
+		elif args[n] in ["--quiet"]:
 
 			global QUIET
 			QUIET = not QUIET
 
-		elif arg in ["--verbose"]:
+		elif args[n] in ["--verbose"]:
 
 			global VERBOSE
 			VERBOSE = not VERBOSE
 
-		elif arg in ["--warning"]:
+		elif args[n] in ["--warning"]:
 
 			global WARNING
 			WARNING = not WARNING
 
 		else:
 
-			raise Exception(f"argument '{arg}' is invalid")
+			raise GridlabdBuildingException(f"argument '{args[n]}' is invalid")
 			return E_SYNTAX
 
 		n += 1
+
+	if not MODEL:
+		raise GridlabdBuildingException(f"no model specified")
 
 	data = {}
 	data["application"] = "gridlabd"
 	data["version"] = "4.3.1"
 	data["modules"] = {"powerflow":{"major":"4","minor":"3"}}
 	data["objects"] = {
-		"building:0" : VALUES
+		NAME : VALUES
 	}
 	if OUTPUT_FORMAT == "json":
 		output(json.dumps(data,indent=JSON_INDENT))
 	elif OUTPUT_FORMAT == "glm":
 		properties = '\n    '.join([f'{x} "{y}";' for x,y in data["objects"]["building:0"].items()])
 		output(f"""module powerflow;
-object building
+object {NAME}
 {{
 	{properties}
 }}""")
 	else:
-		raise Exception(f"output format '{OUTPUT_FORMAT}' not supported")
+		raise GridlabdBuildingException(f"output format '{OUTPUT_FORMAT}' not supported")
 
 	return E_OK
 
 if __name__ == "__main__":
 	try:
-		result = main(sys.argv)
+		result = main(sys.argv[1:])
+	except GridlabdBuildingException as err:
+		import traceback
+		e_type, e_value, e_trace = sys.exc_info()
+		if DEBUG:
+			traceback.print_tb(e_trace)
+		exception(f"{e_type.__name__} {e_value} ")
+		result = E_EXCEPTION
 	except:
 		import traceback
 		e_type, e_value, e_trace = sys.exc_info()
