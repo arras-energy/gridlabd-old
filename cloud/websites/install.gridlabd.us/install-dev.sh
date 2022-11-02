@@ -216,7 +216,7 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown -R ${USER} $VERSION_DIR
+    sudo chown -R ${USER:-root} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
@@ -294,7 +294,7 @@ else
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown -R ${USER} $VERSION_DIR
+    sudo chown -R ${USER:-root} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
