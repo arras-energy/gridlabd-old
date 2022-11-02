@@ -341,7 +341,7 @@ if [ -f /.docker* ] ; then
 
     if test $SYSTEM == "Linux"; then
         sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/lib
-        sudo ln -s $VERSION_DIR/lib/rootlib/* /lib/x86_64-linux-gnu
+        sudo ln -s $VERSION_DIR/lib/rootlib/x86_64-linux-gnu/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
     fi
@@ -349,7 +349,7 @@ if [ -f /.docker* ] ; then
 elif [ $SYSTEM == "Linux" ]; then
 
     sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/local/lib
-    sudo ln -s $VERSION_DIR/lib/rootlib/* /usr/local/lib
+    sudo ln -s $VERSION_DIR/lib/rootlib/x86_64-linux-gnu/* /usr/local/lib
 
 fi
 

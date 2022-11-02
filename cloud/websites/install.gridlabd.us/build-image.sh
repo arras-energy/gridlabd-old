@@ -67,7 +67,7 @@ fi
 if [ $SYSTEM == "Linux" ]; then
     if [ -f /.docker* ]; then 
         cp -r /usr/lib/* $VERSION_DIR/lib/usrlib
-        cd $VERSION_DIR/lib 
+        cd $VERSION_DIR/lib/usrlib 
         rm -rf apt  dpkg  locale  mime  os-release  ssl  sudo	tmpfiles.d  udev
         cp -r /lib/x86_64-linux-gnu $VERSION_DIR/lib/rootlib
     else
