@@ -43,21 +43,33 @@ if [ ! -e $VERSION_DIR/src ] ; then
 fi
 cp $reqdir/requirements.txt $VERSION_DIR/src/
 
+if [ ! -e $VERSION_DIR/lib/locallib ] ; then
+    mkdir $VERSION_DIR/lib/locallib
+fi
+
+if [ ! -e $VERSION_DIR/lib/usrlib ] ; then
+    mkdir $VERSION_DIR/lib/usrlib
+fi
+
+if [ ! -e $VERSION_DIR/lib/rootlib ] ; then
+    mkdir $VERSION_DIR/lib/rootlib
+fi
+
 if [ $SYSTEM == "Darwin" ]; then
     if [ D_ARCH = "arm64" ]; then
-        cp /opt/homebrew/lib/lib* $VERSION_DIR/lib
-        cp /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib
+        cp /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
+        cp /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
     else
-        cp /usr/local/lib/lib* $VERSION_DIR/lib
+        cp /usr/local/lib/lib* $VERSION_DIR/lib/localib
     fi
 fi
 
 if [ $SYSTEM == "Linux" ]; then
     if [ -f /.docker* ]; then 
-        cp -r /usr/lib/* $VERSION_DIR/lib
+        cp -r /usr/lib/* $VERSION_DIR/lib/usrlib
         cd $VERSION_DIR/lib 
         rm -rf apt  dpkg  locale  mime  os-release  ssl  sudo	tmpfiles.d  udev
-        cp -r /lib/x86_64-linux-gnu $VERSION_DIR/lib/r_x86_64-linux-gnu
+        cp -r /lib/x86_64-linux-gnu $VERSION_DIR/lib/rootlib
     else
         echo "Linux images should only be built from clean docker containers for maximum portability!"
         exit 1

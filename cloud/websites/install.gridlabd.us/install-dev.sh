@@ -333,17 +333,23 @@ if test ! -e /usr/local/lib; then
     cd /usr/local
     sudo mkdir lib
 fi
-
-sudo ln -s $VERSION_DIR/lib/* /usr/local/lib
+if [ $SYSTEM == "Darwin" ]; then
+    sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
+fi
 
 if [ -f /.docker* ] ; then 
 
     if test $SYSTEM == "Linux"; then
-        sudo ln -s $VERSION_DIR/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
-        sudo ln -s $VERSION_DIR/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
+        sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/lib
+        sudo ln -s $VERSION_DIR/lib/rootlib/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
     fi
+
+elif [ $SYSTEM == "Linux" ]; then
+
+    sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/local/lib
+    sudo ln -s $VERSION_DIR/lib/rootlib/* /usr/local/lib
 
 fi
 
