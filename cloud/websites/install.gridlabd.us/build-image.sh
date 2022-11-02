@@ -33,12 +33,11 @@ MIN=`sed -En 's/#define REV_MINOR ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 _ | sed 's/_+/_/g;s/_$//;s/^_//'`
 
-VERSION=${`$TOP/build-aux/version.sh --name`}
+VERSION_LOC=${`$TOP/build-aux/version.sh --name`}
 
 # local folder
 VAR="/usr/local/opt/gridlabd"
-VERSION_DIR=$VAR/$VERSION
-
+VERSION_DIR=$VAR/$VERSION_LOC
 if [ ! -e $VERSION_DIR/src ] ; then
     mkdir $VERSION_DIR/src
 fi
