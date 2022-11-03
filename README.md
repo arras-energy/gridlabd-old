@@ -40,15 +40,74 @@ for /f "delims=" %%i in ('cd') do set PWD=%%i
 docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
 ~~~
 
+# Installing from AWS
+
+Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
+
+## Docker
+To install on a linux docker container or in a linux system, use the following commands:
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+~~~
+
+You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+
+## MACOS/Debian
+To install on Mac, use the following commands:
+
+~~~
+curl -OJ https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+~~~
+
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it.
+
 # Developer quick start
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
-Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. *Do not* run the install.sh script with Sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
+Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. *Do not* run the install.sh script with sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
 ~~~
 host% git clone https://source.gridlabd.us/ gridlabd
 host% gridlabd/install.sh
 ~~~
+
+### Docker
+Developers should use a slightly modified install script to work on the develop branch, or to test fast-install images they have created on their own branches:
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+
+### MACOS/Debian
+To install on Mac, use the following commands:
+
+~~~
+curl -OJ https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it, and adjust the commands accordingly.
+
+## Flags
+The fast-install script offers a few select flags for selecting your install.
+
+
+`-b your-branch here` is used to select a branch, otherwise the install will default to the master branch.
+
+`-v #.#.#` is used to specify a specific version, and is used for when you want to use a past fast-install version. Otherwise, the script will default to the latest version of the branch being used.
+
+`-h` is your standard help, and will display these options when called.
+
 ### AWS EC2 Installation 
 Use the AWS Ubuntu AMI to build gridlabd on AWS EC2.
 
@@ -58,7 +117,7 @@ host% export PATH=/usr/local/bin:$PATH
 ~~~
 2) Update work directory permissions, change work directory and clone GitHub repository
 ~~~
-host% sudo chown ${USER:-root} /usr/local/src
+host% sudo chown -R ${USER:-root} /usr/local/src
 host% cd /usr/local/src
 host% git clone https://source.gridlabd.us/ gridlabd
 ~~~
@@ -85,7 +144,22 @@ Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually 
 
 1) Open PowerShell as administrator (Or run the WSL(Ubuntu) or Debian App from the start menu to open a dedicated terminal)
 2) Run `wsl` (Using Debian or Ubuntu)
-3) Change to your working directory `/usr/local/src`
+
+### Using a fast-install image
+
+3a) Since WSL runs as a linux distribution, the linux installation methods also work here. The fastest, recommended way to install would be to follow the linux fast install method.
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+### Building from Source
+
+3b) Change to your working directory `/usr/local/src`
 4) Update `apt` and install `git`
 ~~~
   root@host:/usr/local/src# apt update -y
@@ -134,6 +208,12 @@ All gridlabd builds should be validated after you have completed the build. This
 ## Building and Debugging
 
 You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
+
+## Building your own gridlabd fast-install images
+
+Additional developer documentation for making gridlabd images is located in the readme in cloud/websites/install.gridlabd.us. 
+
+It is strongly recommended to use clean virtual machines or docker images when creating a new image, in order to prevent unnecessary libraries from being saved in to the package. The readme also contains instructions on how to retrieve a built image from these sources. 
 
 ## Notes
 - The version number should contain the _branch-name_.  If not, use the `which gridlabd` command to check that the path is correct.
