@@ -5,8 +5,8 @@
 | Weather | [![validate](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml)
 | Library | [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml)
 | Models | [![validate](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml)
-| Benchmarks | (no status)
-| Examples | (no status)
+| Benchmarks | Manual test (see README.md)
+| Examples | Manual test (see README.md)
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 
