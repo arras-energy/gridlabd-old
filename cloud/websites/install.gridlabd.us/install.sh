@@ -194,7 +194,7 @@ if test $D_ARCH != "arm64"; then
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c "echo \"$VERSION_DIR/lib\" >> /etc/ld.so.conf.d/gridlabd.conf"
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -216,7 +216,7 @@ if test $D_ARCH != "arm64"; then
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown -R ${USER} $VERSION_DIR
+    sudo chown -R ${USER:-root} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
@@ -273,7 +273,7 @@ else
     if [ $SYSTEM == "Linux" ]; then
         if [ ! -e /etc/ld.so.conf.d/gridlabd.conf ]; then
             sudo touch /etc/ld.so.conf.d/gridlabd.conf
-            sudo bash -c 'echo "$VERSION_DIR/lib" >> /etc/ld.so.conf.d/gridlabd.conf'
+            sudo bash -c "echo \"$VERSION_DIR/lib\" >> /etc/ld.so.conf.d/gridlabd.conf"
             sudo ldconfig
             echo "Added gridlabd lib to the dynamic loader library."
         fi
@@ -294,7 +294,7 @@ else
     fi
 
     # give user permissions for writing to site-packages
-    sudo chown -R ${USER} $VERSION_DIR
+    sudo chown -R ${USER:-root} $VERSION_DIR
 
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
@@ -333,17 +333,24 @@ if test ! -e /usr/local/lib; then
     cd /usr/local
     sudo mkdir lib
 fi
-
-sudo ln -s $VERSION_DIR/lib/* /usr/local/lib
+if [ $SYSTEM == "Darwin" ]; then
+    sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
+fi
 
 if [ -f /.docker* ] ; then 
 
     if test $SYSTEM == "Linux"; then
-        sudo ln -s $VERSION_DIR/lib/x86_64-linux-gnu/* /usr/lib/x86_64-linux-gnu
-        sudo ln -s $VERSION_DIR/lib/r_x86_64-linux-gnu/* /lib/x86_64-linux-gnu
+        sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/lib
+        sudo ln -s $VERSION_DIR/lib/rootlib/x86_64-linux-gnu/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
+        sudo apt-get install procps -y
     fi
+
+elif [ $SYSTEM == "Linux" ]; then
+
+    sudo ln -s $VERSION_DIR/lib/usrlib/* /usr/local/lib
+    sudo ln -s $VERSION_DIR/lib/rootlib/x86_64-linux-gnu/* /usr/local/lib
 
 fi
 

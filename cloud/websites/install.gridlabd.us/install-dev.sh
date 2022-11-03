@@ -49,7 +49,7 @@ KERNEL="-$ID-$(echo $VERSION_ID | cut -f1 -d.)"
 L_DISTRO="$ID"
 fi
 D_ARCH=$(uname -m)
-BRANCH=master
+BRANCH=develop
 MAJ=
 MIN=
 PAT=
@@ -344,6 +344,7 @@ if [ -f /.docker* ] ; then
         sudo ln -s $VERSION_DIR/lib/rootlib/x86_64-linux-gnu/* /lib/x86_64-linux-gnu
 
         sudo apt-get install g++ -y
+        sudo apt-get install procps -y
     fi
 
 elif [ $SYSTEM == "Linux" ]; then
