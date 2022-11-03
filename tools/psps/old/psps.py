@@ -394,10 +394,11 @@ def optimizeShutoff(areaDataX: xr.Dataset, resilienceMetricOption: int, fireRisk
     model.objective = pyo.Objective(sense=pyo.minimize, expr=objective_rule)
 
     # Solver
+    # executable='/home/dist/bin/cbc'
     results = pyo.SolverFactory(
-        'cbc', executable='/usr/bin/cbc').solve(model, tee=False)
+        'cbc').solve(model, tee=True)
     end = time.time()
-    model.pprint()
+    # model.pprint()
     print("Model Solved in: ", round(end-start,2), " sec")
     return model, results
 
