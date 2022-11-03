@@ -1,5 +1,12 @@
-![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) 
-![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+| Repository | Status |
+| :---: | :---: |
+| GridLAB-D | ![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+| Templates | [![master](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml) [![develop](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml)
+| Weather | [![validate](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml)
+| Library | [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml)
+| Models | [![validate](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml)
+| Benchmarks | (no status)
+| Examples | (no status)
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 
