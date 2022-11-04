@@ -35,7 +35,8 @@ const char *item::set_value(const char *fmt,...)
 	va_list ptr;
 	va_start(ptr,fmt);
 	char buffer[1024];
-	size_t sz = ((size_t)(vsprintf(buffer,fmt,ptr)/BSZ))*BSZ;
+	vsnprintf(buffer,sizeof(buffer),fmt,ptr);
+	size_t sz = ((size_t)(strlen(buffer)/BSZ))*BSZ;
 	va_end(ptr);
 	if ( value == NULL || SIZE(value) < sz )
 	{
@@ -84,7 +85,7 @@ item *message::set(const char *tag,const char *format,...)
 	va_list ptr;
 	va_start(ptr,format);
 	char value[1024];
-	vsprintf(value,format,ptr);
+	vsnprintf(value,sizeof(value)-1,format,ptr);
 	va_end(ptr);
 	part->set_value("%s",value);
 	return part;
@@ -108,7 +109,7 @@ item *message::add(const char *tag,const char *format,...)
 	va_list ptr;
 	va_start(ptr,format);
 	char value[1024];
-	vsprintf(value,format,ptr);
+	vsnprintf(value,sizeof(value)-1,format,ptr);
 	va_end(ptr);
 	item *part = new item(tag,value);
 	part->set_next(data);
@@ -130,7 +131,7 @@ item *message::find_value(const char *format,...)
 	va_list ptr;
 	va_start(ptr,format);
 	char value[1024];
-	vsprintf(value,format,ptr);
+	vsnprintf(value,sizeof(value)-1,format,ptr);
 	va_end(ptr);
 	item *part;
 	for ( part = data ; part != NULL ; part = part->get_next() )
@@ -219,16 +220,22 @@ int message::read(const char *str, char *errormsg, size_t len)
 }
 size_t message::write(char *str, size_t len)
 {
-	size_t pos = sprintf(str,"%s","{");
+	snprintf(str,len-1,"%s","{");
+	size_t pos = strlen(str);
 	item *part;
 
 	for ( part = data ; pos<len && part != NULL ; part = part->get_next() )
 	{
-		pos += sprintf(str+pos," \"%s\": \"%s\"", part->get_tag(), part->get_value());
+		snprintf(str+pos,len-pos-1," \"%s\": \"%s\"", part->get_tag(), part->get_value());
+		pos = strlen(str);
 		if ( !part->is_last() )
-			pos += sprintf(str+pos," %s",",");
+		{
+			snprintf(str+pos,len-pos-1," %s",",");
+			pos = strlen(str);
+		}
 	}
-	pos += sprintf(str+pos,"%s","}");
+	snprintf(str+pos,len-pos-1,"%s","}");
+	pos = strlen(str);
 	return pos;
 }
 void message::dump(void)

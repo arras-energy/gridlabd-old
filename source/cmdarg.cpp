@@ -378,15 +378,15 @@ int GldCmdarg::profile(int argc, const char *argv[])
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ != NULL )
 	{
-		if ( strcmp(opt,"text") == 0 )
+		if ( stricmp(opt,"text") == 0 || stricmp(opt,"txt") == 0 )
 		{
 			global_profile_output_format = POF_TEXT;
 		}
-		else if ( strcmp(opt,"csv") == 0 )
+		else if ( stricmp(opt,"csv") == 0 )
 		{
 			global_profile_output_format = POF_CSV;
 		}
-		else if ( strcmp(opt,"json") == 0 )
+		else if ( stricmp(opt,"json") == 0 )
 		{
 			global_profile_output_format = POF_JSON;
 		}
@@ -395,8 +395,12 @@ int GldCmdarg::profile(int argc, const char *argv[])
 			output_error("profiler option '%s' is not valid",opt);
 			return CMDERR;
 		}
+		global_profiler = TRUE;
 	}
-	global_profiler = !global_profiler;
+	else
+	{
+		global_profiler = !global_profiler;
+	}
 	return 0;
 }
 
@@ -1958,21 +1962,23 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         }
 
 	/* output the classdef */
-	count = snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	count = strlen(buffer);
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
 	{
 		char temp[1024];
-		const char *value = object_property_to_string(obj, prop->name, temp, 1023);
+		const char *value = object_property_to_string(obj, prop->name, temp, sizeof(temp)-1);
 		if ( strchr(prop->name,'.')!=NULL )
 		{
 			continue; /* do not output structures */
 		}
 		if ( value!=NULL )
 		{
-			count += snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			count = strlen(buffer);
 		}
 	}
-	count += snprintf(buffer+count,sizeof(buffer)-1-count,");\n");
+	snprintf(buffer+count,sizeof(buffer)-1-count,");\n");	
 	output_raw("%s",buffer);
         return CMDOK;
 }

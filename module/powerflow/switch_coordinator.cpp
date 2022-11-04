@@ -73,7 +73,7 @@ switch_coordinator::switch_coordinator(MODULE *module)
 				PT_KEYWORD, "NONE", (set)0,
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 		memset((void*)this,0,sizeof(switch_coordinator));
@@ -172,7 +172,10 @@ int switch_coordinator::connect(char *value, size_t len)
 			for ( gld_keyword *kw = prop.get_first_keyword() ; kw != NULL ; kw = kw->get_next() )
 			{
 				if ( strcmp(kw->get_name(),"NONE") != 0 )
-					rv += sprintf(value+rv,"%s%s",rv>0?"|":"",kw->get_name());
+				{
+					snprintf(value+rv,len-rv-1,"%s%s",rv>0?"|":"",kw->get_name());
+					rv = strlen(value);
+				}
 			}
 			return rv;
 		}
@@ -258,7 +261,7 @@ int switch_coordinator::init(OBJECT *parent)
 	return 1;
 }
 
-int switch_coordinator::precommit(TIMESTAMP t1)
+TIMESTAMP switch_coordinator::precommit(TIMESTAMP t1)
 {
 	debug("switch_coordinator::precommit(TIMESTAMP t1='%s')", (const char*)gld_clock(t1).get_string());
 	if ( status==SCS_TOGGLE )
@@ -273,7 +276,7 @@ int switch_coordinator::precommit(TIMESTAMP t1)
 		}
 	}
 	debug("switch_coordinator::precommit(TIMESTAMP t1='%s') -> 1", (const char*)gld_clock(t1).get_string());
-	return 1;
+	return TS_NEVER;
 }
 
 TIMESTAMP switch_coordinator::sync(TIMESTAMP t1)

@@ -41,7 +41,9 @@ GLM:
 
 # Description
 
-TODO
+This controller is designed to serve as a bidding agent for distributed generation unit.
+
+The controller is in development still.
 
 ## Properties
 

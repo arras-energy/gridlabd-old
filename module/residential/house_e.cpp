@@ -65,10 +65,12 @@ int jprintf(char *buffer, size_t len, ...)
 			gl_error("jprintf(): unexpected NULL value");
 			break;
 		}
-		int rl = snprintf(t,sizeof(t),"\"%s\":\"%s\"",token,value);
+		snprintf(t,sizeof(t)-1,"\"%s\":\"%s\"",token,value);
+		int rl = strlen(t);
 		if ( p + rl >= buffer + len-2 )
 			return -strlen(buffer);
-		p += sprintf(p,"%s%s",count++==0?"":",",t);
+		snprintf(p,(p-buffer)-len-2,"%s%s",count++==0?"":",",t);
+		p = buffer + strlen(buffer);
 	}
 	strcat(p,"}");
 	va_end(ptr);
@@ -168,9 +170,9 @@ int house_e::smart_breaker(char *buffer, size_t len)
 			if ( ok )
 			{	
 				char amps[64];
-				sprintf(amps,"%.0f",c->max_amps);
+				snprintf(amps,sizeof(amps)-1,"%.0f",c->max_amps);
 				char volts[64];
-				sprintf(volts,"%.0f",c->pV->Mag());
+				snprintf(volts,sizeof(volts)-1,"%.0f",c->pV->Mag());
 				char data[1024];
 				jprintf(data,sizeof(data),"breaker",c->status==BRK_OPEN?"OPEN":(c->status==BRK_CLOSED?"CLOSED":(c->status==BRK_FAULT?"FAULT":"ERROR")),
 					"max",amps,
@@ -557,7 +559,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"heating_COP[pu]",PADDR(heating_COP), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system heating performance coefficient",
-			PT_double,"cooling_COP[Btu/kWh]",PADDR(cooling_COP), 
+			PT_double,"cooling_COP[pu]",PADDR(cooling_COP), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system cooling performance coefficient",
 			PT_double,"air_temperature[degF]",PADDR(Tair), 
@@ -1058,7 +1060,7 @@ int house_e::create()
 			char name[64];
 			for ( ; eu->implicit_name!=NULL ; eu++)
 			{
-				sprintf(name,"residential-%s-default",eulist[n_eu]);
+				snprintf(name,sizeof(name)-1,"residential-%s-default",eulist[n_eu]);
 				strlwr(name);
 				// matched enduse and doesn't already exist
 				if (strcmp(eu->schedule_name,name)==0)

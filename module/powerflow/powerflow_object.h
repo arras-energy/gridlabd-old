@@ -134,6 +134,8 @@ public:
 	void add_violation(int vf_type, const char *format, ...);
 	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message);
 	void del_violation(TIMESTAMP t, OBJECT *obj, int vf_type);
+	static void clear_violations(void);
+	void clear_violation(void);
 #ifdef SUPPORT_OUTAGES
 	/* is_normal checks whether the current operating condition is normal */
 	inline bool is_normal(void) const { return condition==OC_NORMAL;};
@@ -151,7 +153,7 @@ public:
 	inline bool is_contact_any(set ph=PHASE_INFO) const { return (condition&OC_CONTACT)!=0 && (condition&ph)!=0;};
 #endif
 	/* get_name acquires the name of an object or 'unnamed' if non set */
-	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
+	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(snprintf(tmp,sizeof(tmp)-1,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
 	
 	/* get_id acquires the object's id */
 	inline unsigned int get_id(void) const {return THISOBJECTHDR->id;};

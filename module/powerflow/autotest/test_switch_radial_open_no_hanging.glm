@@ -20,7 +20,7 @@ module powerflow {
 
 object voltdump {
 	mode rect;
-	file voltage_vals_out.csv;
+	filename voltage_vals_out.csv;
 }
 
 object overhead_line_conductor {

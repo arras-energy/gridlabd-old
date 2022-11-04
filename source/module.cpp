@@ -516,16 +516,18 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, const char *[]))DLSYM(hLib, "subload");
 	mod->test = (void(*)(int,char*[]))DLSYM(hLib,"test");
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
-	mod->globals = NULL;
+	mod->globals = (PROPERTY*)DLSYM(hLib,"globals");;
 	mod->term = (void(*)(void))DLSYM(hLib,"term");
-	mod->on_init = NULL;
-	mod->on_precommit = NULL;
-	mod->on_presync = NULL;
-	mod->on_sync = NULL;
-	mod->on_postsync = NULL;
-	mod->on_commit = NULL;
-	mod->on_term = NULL;
+	mod->on_init = (bool(*)(void))DLSYM(hLib,"on_init");
+	mod->on_precommit = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_precommit");
+	mod->on_presync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_presync");
+	mod->on_sync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_sync");
+	mod->on_postsync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_postsync");
+	mod->on_commit = (bool(*)(TIMESTAMP))DLSYM(hLib,"on_commit");
+	mod->on_term = (void(*)(void))DLSYM(hLib,"on_term");
 	strcpy(mod->name,file);
+	mod->templates_loaded = false;
+	mod->no_templates = false;
 	mod->next = NULL;
 
 	/* check the module version before trying to initialize */
@@ -589,7 +591,9 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			}
 		}
 	}
-	return module_add(mod);
+	module_add(mod);
+	module_load_templates(mod);
+	return last_module;
 }
 
 MODULE *module_add(MODULE *mod)
@@ -2043,10 +2047,13 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
-		sz = snprintf(buf,sz,"%4d   -", n);
+	{
+		snprintf(buf,sz,"%4d   -", n);
+	}
+	sz = strlen(buf);
 	sched_unlock(n);
 	return (int)sz;
 }
@@ -2933,6 +2940,58 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		}
 	}
 	output_raw("\n");
+}
+
+static bool isglm(const char *file)
+{
+	const char *ext = file + strlen(file) - 4;
+	return strcmp(ext,".glm")==0;
+}
+
+void module_load_templates(MODULE *mod)
+{
+	if ( mod->templates_loaded || mod->no_templates )
+	{
+		return;
+	}
+	char loadpath[1024];
+	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",getenv("GLD_ETC"),mod->name);
+	DIR *dp;
+	struct dirent *entry;
+	struct stat statbuf;
+	if ( (dp=opendir(loadpath)) != NULL )
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): reading shared module templates folder '%s'",mod->name,loadpath);
+		while ( (entry=readdir(dp)) )
+		{
+			char file[1024];
+			snprintf(file,sizeof(file)-1,"%s/%s",loadpath,entry->d_name);
+			output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+			if ( lstat(file,&statbuf) != 0 )
+			{
+				output_warning("module_load_templates(MODULE *mod=<%s>): unable to get status of '%s'",mod->name,file);
+			}
+			else if ( S_ISDIR(statbuf.st_mode) )
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): '%s' is a directory -- ignoring",mod->name,file);
+			}
+			else if ( isglm(file) )
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+				if ( my_instance->get_loader()->loadall_glm(file) != SUCCESS )
+				{
+					output_error("module template '%s' load failed",file);
+				}
+			}
+		}
+		closedir(dp);
+		mod->templates_loaded = true;
+	}
+	else
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): shared module templates folder '%s' not found",mod->name,loadpath);
+	}
+	return;
 }
 
 /**@}*/

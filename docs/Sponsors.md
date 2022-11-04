@@ -3,7 +3,7 @@ HiPAS GridLAB-D was developed with funding from the following organizations:
 # California Energy Commission EPIC Program
 [image:cec-logo.png]
 
-The current California version of GridLAB-D is called [HiPAS GridLAB-D 4.2](https://github.com/slacgismo/gridlabd) and is managed by [Stanford University](https://www.stanford.edu/) at [SLAC National Accelerator Laboratory](https://slac.stanford.edu.) under funding from the [California Energy Commission](https://energy.ca.gov/) under the [Electric Program Investment Charge (EPIC) program](https://www.energy.ca.gov/programs-and-topics/programs/electric-program-investment-charge-epic-program).
+The current California version of GridLAB-D is called [HiPAS GridLAB-D](https://source.gridlabd.us/) and is managed by [Stanford University](https://www.stanford.edu/) at [SLAC National Accelerator Laboratory](https://slac.stanford.edu.) under funding from the [California Energy Commission](https://energy.ca.gov/) under the [Electric Program Investment Charge (EPIC) program](https://www.energy.ca.gov/programs-and-topics/programs/electric-program-investment-charge-epic-program).
 
 # US Department of Energy Office of Electricity
 [image:doe-logo.png]

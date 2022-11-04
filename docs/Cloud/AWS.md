@@ -104,7 +104,7 @@ The following command connects to an EC2 instance and installs GridLAB-D:
 ~~~
 user@localhost$ ssh -i my-key.pem ec2-user@my-instance-ip
 ec2-user@my-instance-ip$ sudo yum install git -y
-ec2-user@my-instance-ip$ git clone https://github.com/slacgismo/gridlabd gridlabd
+ec2-user@my-instance-ip$ git clone https://source.gridlabd.us/ gridlabd
 ec2-user@my-instance-ip$ gridlabd/install.sh
 ~~~
 

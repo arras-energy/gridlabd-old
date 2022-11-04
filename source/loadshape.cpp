@@ -1135,20 +1135,20 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 	loadshape *ls = (loadshape*)data;
 	switch (ls->type) {
 	case MT_UNKNOWN:
-		return 0; // sprintf(string,"%s","type: unknown");
+		return 0; 
 	case MT_ANALOG:
 		if (ls->params.analog.energy>0)
-			return sprintf(string,"type: analog; schedule: %s; energy: %g kWh",	ls->schedule->name, ls->params.analog.energy);
+			return snprintf(string,size-1,"type: analog; schedule: %s; energy: %g kWh",	ls->schedule->name, ls->params.analog.energy);
 		else if (ls->params.analog.power>0)
-			return sprintf(string,"type: analog; schedule: %s; power: %g kW",	ls->schedule->name, ls->params.analog.power);
+			return snprintf(string,size-1,"type: analog; schedule: %s; power: %g kW",	ls->schedule->name, ls->params.analog.power);
 		else
-			return sprintf(string,"type: analog; schedule: %s", ls->schedule->name);
+			return snprintf(string,size-1,"type: analog; schedule: %s", ls->schedule->name);
 	case MT_PULSED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; duration: %g s; rng_state: %u",
+			return snprintf(string,size-1,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; duration: %g s; rng_state: %u",
 			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue, ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; power: %g kW; rng_state: %u",
+			return snprintf(string,size-1,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; power: %g kW; rng_state: %u",
 			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue, ls->rng_state);
 		else
 		{
@@ -1157,10 +1157,10 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		}
 	case MT_MODULATED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; duration: %g s; pulse: %g kWh; modulation: %s; rng_state: %u",
+			return snprintf(string,size-1,"type: modulated; schedule: %s; energy: %g kWh; count: %g; duration: %g s; pulse: %g kWh; modulation: %s; rng_state: %u",
 			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation], ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; power: %g kW; pulse: %g kWh; modulation: %s; rng_state: %u",
+			return snprintf(string,size-1,"type: modulated; schedule: %s; energy: %g kWh; count: %g; power: %g kW; pulse: %g kWh; modulation: %s; rng_state: %u",
 			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation], ls->rng_state);
 		else
 		{
@@ -1169,10 +1169,10 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		}
 	case MT_QUEUED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: queue; schedule: %s; energy: %g kWh; count: %g; duration: %g s; q_on: %g; q_off: %g; rng_state: %u",
+			return snprintf(string,size-1,"type: queue; schedule: %s; energy: %g kWh; count: %g; duration: %g s; q_on: %g; q_off: %g; rng_state: %u",
 			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off, ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: queued; schedule: %s; energy: %g kWh; count: %g; power: %g kW; q_on: %g; q_off: %g; rng_state: %u",
+			return snprintf(string,size-1,"type: queued; schedule: %s; energy: %g kWh; count: %g; power: %g kW; q_on: %g; q_off: %g; rng_state: %u",
 			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off, ls->rng_state);
 		else
 		{
@@ -1180,7 +1180,7 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 			return 0;
 		}
 	case MT_SCHEDULED:
-		return sprintf(string,"type: scheduled; weekdays: %s; on-time: %.3g; off-time: %.3g; on-ramp: %.3g; off-ramp: %.3g; low: %.3g; high: %.3g; dt: %.3g m",
+		return snprintf(string,size-1,"type: scheduled; weekdays: %s; on-time: %.3g; off-time: %.3g; on-ramp: %.3g; off-ramp: %.3g; low: %.3g; high: %.3g; dt: %.3g m",
 			schedule_weekday_to_string(ls->params.scheduled.weekdays, buffer,sizeof(buffer)), ls->params.scheduled.on_time, ls->params.scheduled.off_time, 
 			ls->params.scheduled.on_ramp, ls->params.scheduled.off_ramp, ls->params.scheduled.low, ls->params.scheduled.high, (double)ls->params.scheduled.dt/60);
 	}

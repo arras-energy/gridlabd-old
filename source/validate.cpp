@@ -299,7 +299,7 @@ const char *GetLastErrorMsg(void)
 	char *p;
 	while ( (p=strchr((char*)lpMsgBuf,'\n'))!=NULL ) *p=' ';
 	while ( (p=strchr((char*)lpMsgBuf,'\r'))!=NULL ) *p=' ';
-    sprintf(szBuf, "%s (error code %d)", lpMsgBuf, dw); 
+    snprintf(szBuf,sizeof(szBuf)-1, "%s (error code %d)", lpMsgBuf, dw); 
  
     LocalFree(lpMsgBuf);
 	wunlock(&lock);
@@ -309,7 +309,7 @@ DIR *opendir(const char *dirname)
 {
 	WIN32_FIND_DATA fd;
 	char search[MAX_PATH];
-	sprintf(search,"%s/*",dirname);
+	snprintf(search,sizeof(search)-1,"%s/*",dirname);
 	HANDLE dh = FindFirstFile(search,&fd);
 	if ( dh==INVALID_HANDLE_VALUE )
 	{
@@ -386,7 +386,7 @@ static int vsystem(const char *fmt, ...)
 	char command[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(command,fmt,ptr);
+	vsnprintf(command,sizeof(command)-1,fmt,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("calling system('%s')",command);
 	int rc = system(command);
@@ -406,7 +406,7 @@ static bool destroy_dir(char *name)
 		if ( strcmp(dp->d_name,".")!=0 && strcmp(dp->d_name,"..")!=0 )
 		{
 			char file[1024];
-			sprintf(file,"%s/%s",name,dp->d_name);
+			snprintf(file,sizeof(file)-1,"%s/%s",name,dp->d_name);
 			if ( unlink(file)!=0 )
 			{
 				output_error("destroy_dir(char *name='%s'): unlink('%s') returned '%s'", name, dp->d_name,strerror(errno));
@@ -703,7 +703,7 @@ static size_t process_dir(const char *path, bool runglms=false)
 {
 	// check for block file
 	char blockfile[1024];
-	sprintf(blockfile,"%s/validate.no",path);
+	snprintf(blockfile,sizeof(blockfile)-1,"%s/validate.no",path);
 	if ( access(blockfile,00)==0 && !global_isdefined("force_validate") )
 	{
 		IN_MYCONTEXT output_debug("processing directory '%s' blocked by presence of 'validate.no' file", path);
@@ -721,7 +721,7 @@ static size_t process_dir(const char *path, bool runglms=false)
 	while ( (dp=readdir(dirp))!=NULL )
 	{
 		char item[1024];
-		sprintf(item,"%s/%s",path,dp->d_name);
+		snprintf(item,sizeof(item)-1,"%s/%s",path,dp->d_name);
 		char *ext = strrchr(item,'.');
 		if ( dp->d_name[0]=='.' ) continue; // ignore anything that starts with a dot
 		if ( dp->d_type==DT_DIR && strcmp(dp->d_name,"autotest")==0 )

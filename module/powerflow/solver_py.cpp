@@ -962,11 +962,11 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,17,bus[n].I[2].i);
 
 			SET_BUS(n,18,bus[n].V[0].Mag());
-			SET_BUS(n,19,bus[n].V[0].Ang());
+			SET_BUS(n,19,bus[n].V[0].Arg());
 			SET_BUS(n,20,bus[n].V[1].Mag());
-			SET_BUS(n,21,bus[n].V[1].Ang());
+			SET_BUS(n,21,bus[n].V[1].Arg());
 			SET_BUS(n,22,bus[n].V[2].Mag());
-			SET_BUS(n,23,bus[n].V[2].Ang());
+			SET_BUS(n,23,bus[n].V[2].Arg());
 		}
 	}
 	else if ( dir == ED_IN )
@@ -1165,6 +1165,13 @@ unsigned long long get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, 
     return hashcode;
 }
 
+// Run python solver
+//
+// Returns:
+//   -1 call NR and initialize with guess
+//    0 use guess and proceed without running NR
+//   <-1 error encountered, run NR and don't use the guess
+//
 int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
@@ -1192,7 +1199,7 @@ int solver_python_solve (
 		else if ( pResult && PyLong_Check(pResult) )
 		{
 			result = PyLong_AsLong(pResult);
-			if ( result >= 0 )
+			if ( result == -1 || result == 0 ) // -1 means no solution but guess is ok, 0 means solution is ok
 			{
 				sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			}
