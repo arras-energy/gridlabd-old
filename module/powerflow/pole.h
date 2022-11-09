@@ -34,6 +34,7 @@ public:
     GL_ATOMIC(object, weather);
     GL_ATOMIC(double, wind_speed);
     GL_ATOMIC(double, wind_direction);
+    GL_ATOMIC(double, wind_pressure); 
     GL_ATOMIC(double, wind_gusts);
     GL_ATOMIC(double, pole_moment);		// (see Section D)
 	GL_ATOMIC(double, pole_moment_nowind); // wire moment without the wind component for wind speed at failure calc
