@@ -89,7 +89,7 @@ pole::pole(MODULE *mod)
                 PT_DEFAULT, "0 m/s",
                 PT_DESCRIPTION, "local wind speed",
 
-            PT_double, "wind_pressure[lb/ft/ft]", get_wind_gusts_offset(),
+            PT_double, "wind_pressure[lb/ft/ft]", get_wind_pressure_offset(),
                 PT_DEFAULT, "0[lb/ft/ft] ",
                 PT_DESCRIPTION, "local wind pressure",
 
