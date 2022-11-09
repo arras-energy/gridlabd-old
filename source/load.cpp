@@ -2557,6 +2557,22 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 					else
 						strcpy(value,"");
 				}
+				else if (strcmp(varname,"parent")==0)
+				{
+					if (current_object && current_object->parent)
+					{
+						if ( current_object->parent->name )
+						{
+							snprintf(value,sizeof(value)-1,"%s",current_object->parent->name);
+						}
+						else
+						{
+							snprintf(value,sizeof(value)-1,"%s:%d",current_object->parent->oclass->name,current_object->parent->id);							
+						}
+					}
+					else
+						strcpy(value,"");
+				}
 				else if ( object_get_value_by_name(current_object,varname,value,sizeof(value)))
 				{
 					/* value is ok */
@@ -8363,6 +8379,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(filename,file);
+	linenum = 0;
 	strcpy(global_loader_filename,filename);
 	global_loader_linenum = 1;
 
