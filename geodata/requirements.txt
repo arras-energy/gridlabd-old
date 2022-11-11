@@ -1,5 +1,5 @@
 haversine==2.3.0
-Fiona==1.8.21
+Fiona==1.8.22
 pandas==1.4.3
 Shapely==1.8.4
 geopandas>=0.9.0

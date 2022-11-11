@@ -2944,6 +2944,12 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 	output_raw("\n");
 }
 
+static bool isglm(const char *file)
+{
+	const char *ext = file + strlen(file) - 4;
+	return strcmp(ext,".glm")==0;
+}
+
 void module_load_templates(MODULE *mod)
 {
 	if ( mod->templates_loaded || mod->no_templates )
@@ -2971,7 +2977,7 @@ void module_load_templates(MODULE *mod)
 			{
 				output_debug("module_load_templates(MODULE *mod=<%s>): '%s' is a directory -- ignoring",mod->name,file);
 			}
-			else
+			else if ( isglm(file) )
 			{
 				output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
 				if ( my_instance->get_loader()->loadall_glm(file) != SUCCESS )

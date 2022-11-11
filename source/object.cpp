@@ -2088,10 +2088,13 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 	{
 		long long ok = 0;
 		int rc = object_event(obj,obj->events.init?obj->events.init:obj->oclass->events.init,&ok);
-		if ( rc != 0 || ok != 0 )
+		if ( rc != 0 || ok == 1 )
 		{
 			output_error("object %s:%d init at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
-			rv = 0;
+		}
+		else if ( ok == 2 )
+		{
+			rv = 2;
 		}
 	}
 	object_profile(obj,OPI_INIT,t);
