@@ -707,10 +707,10 @@ int GldCmdarg::version(int argc, const char *argv[])
 		global_suppress_repeat_messages = false;
 		output_message("{");
 #define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
-#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"%s\"\n}",TAG,escape(VALUE))
 #define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
-#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
-#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",escape(VALUE))
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",escape(VALUE))
 #define OUTPUT_MULTILINE(TAG,VALUE) {\
 		const char *value = VALUE;\
 		char *token=NULL, *last=NULL;\

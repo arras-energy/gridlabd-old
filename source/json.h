@@ -18,6 +18,7 @@
 DEPRECATED CDECL int json_dump(const char *filename);
 DEPRECATED CDECL int json_output(FILE *fp);
 DEPRECATED CDECL int json_to_glm(const char *jsonfile, char *glmfile);
+DEPRECATED CDECL const char * escape(const char *buffer, size_t len = 1024);
 
 class GldJsonWriter
 {
