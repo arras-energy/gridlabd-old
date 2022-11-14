@@ -563,7 +563,7 @@ AS_CASE([$BRANCHNAME],
     [*], [SUFFIX="no"])
 AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
-PREFIX=$(prefix:-/usr/local/opt)
+PREFIX=${prefix:-/usr/local/opt}
 VERSION_NAME=$(build-aux/version.sh --name)
 DSTDIR=$PREFIX/gridlabd/$VERSION_NAME
 BINDIR=$DSTDIR/bin
