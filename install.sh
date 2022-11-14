@@ -1,6 +1,8 @@
 #!/bin/bash
 
+# Set Variable defaults (Prefix can be changed by flag)
 VERSION=${VERSION:-`build-aux/version.sh --name`}
+PREFIX="/usr/local/opt"
 
 # set the path to use during installation
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
@@ -186,13 +188,7 @@ while [ $# -gt 0 ]; do
 done
 
 # local folder
-export VAR="/usr/local/opt/gridlabd"
-
-if [ -z "$PREFIX" ]; then 
-	echo "PREFIX unset, using default install directory in /usr/local/opt/gridlabd"
-else 
-	VAR="$PREFIX/gridlabd"
-fi
+export VAR="$PREFIX/gridlabd"
 
 VERSION_DIR=$VAR/$VERSION
 
@@ -200,7 +196,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
 fi
 
-if [ -e "$VAR" ] && [ "$VAR" == "/usr/local/opt/gridlabd" ] ; then
+if [ -e "$VAR" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
 fi
 
