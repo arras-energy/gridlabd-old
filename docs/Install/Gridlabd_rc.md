@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-/usr/local/opt/gridlabd/share/gridlabd/gridlabd.rc
+/usr/local/opt/gridlabd/<version>/share/gridlabd/gridlabd.rc
 $HOME/.gridlabd/gridlabd.rc
 ./gridlabd.rc
 ~~~
@@ -12,7 +12,7 @@ $HOME/.gridlabd/gridlabd.rc
 
 The `gridlabd.rc` file can be used to execute commands that alter the environment in which gridlabd.bin runs.  There are three locations where this file may be deployed. They will be run this order
 
-1. `/usr/local/opt/gridlabd/share/gridlabd/gridlabd.rc`
+1. `/usr/local/opt/gridlabd/<version>/share/gridlabd/gridlabd.rc`
 2. `$HOME/.gridlabd/gridlabd.rc`
 3. `./gridlabd.rc`
 

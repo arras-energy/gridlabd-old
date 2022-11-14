@@ -57,10 +57,10 @@ fi
 
 if [ $SYSTEM == "Darwin" ]; then
     if [ D_ARCH = "arm64" ]; then
-        cp /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
-        cp /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
+        cp -r /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
+        cp -r /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
     else
-        cp /usr/local/lib/lib* $VERSION_DIR/lib/localib
+        cp -r /usr/local/lib/lib* $VERSION_DIR/lib/localib
     fi
 fi
 
