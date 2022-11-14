@@ -287,7 +287,7 @@ if [ "$SETUP" == "yes" ]; then
 		# update permissions for site-packages (and all other gridlabd dirs) to be writable by user post-setup, unless root
 		# do the same for share dirs
 		if [ ! -z $USER ] ; then
-			sudo chown -R "${USER:-root}" /usr/local/opt/gridlabd/$VERSION
+			sudo chown -R "${USER:-root}" $VAR/$VERSION
 			echo "Setting Gridlabd package permissions to ${USER:-root}"
 		else
 			echo "Running as root, not updating site package ownership."
@@ -301,7 +301,7 @@ fi
 
 require git
 # dynamic variables
-INSTALL=${INSTALL:-$PREFIX/gridlabd/$VERSION}
+INSTALL=${INSTALL:-$VERSION_DIR}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
