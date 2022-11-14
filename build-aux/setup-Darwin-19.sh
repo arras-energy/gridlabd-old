@@ -1,10 +1,8 @@
 #!/bin/bash
-echo "$VAR"
-echo "Did it pass through?"
-exit 1
+
+# VAR is defined in install.sh and exported, to be available here
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
-    VAR="/usr/local/opt/gridlabd"
     VERSION_DIR=$VAR/$VERSION
     PYTHON_DIR=Python.framework/Versions/Current
     PYTHON_VER=3.9.13
