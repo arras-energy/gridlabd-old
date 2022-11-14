@@ -186,7 +186,7 @@ while [ $# -gt 0 ]; do
 done
 
 # local folder
-VAR="/usr/local/opt/gridlabd"
+export VAR="/usr/local/opt/gridlabd"
 
 if [ -z "$PREFIX" ]; then 
 	echo "PREFIX unset, using default install directory in /usr/local/opt/gridlabd"
@@ -200,7 +200,7 @@ if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
 fi
 
-if [ -e "$VAR" ] ; then
+if [ -e "$VAR" ] && [ "$VAR" == "/usr/local/opt/gridlabd" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
 fi
 
