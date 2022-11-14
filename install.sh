@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION=${VERSION:-`build-aux/version.sh --name`}
+
 # set the path to use during installation
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -12,59 +14,6 @@ if [ "$(whoami)" == "root" ]; then
 else
 	sudo --version >/dev/null 2>&1 || (echo "$0: sudo is required"; exit 1)
 fi
-
-VERSION=${VERSION:-`build-aux/version.sh --name`}
-
-# local folder
-VAR="/usr/local/opt/gridlabd"
-VERSION_DIR=$VAR/$VERSION
-
-if [ ! -d "$VAR" ]; then
-	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
-fi
-
-if [ -e "$VAR" ] ; then
-	sudo chown -R "${USER:-root}" "$VAR"
-fi
-
-# create a temp working directory if it does not already exist
-if [ ! -d "$HOME/temp" ]; then
-	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
-fi
-
-if [ ! -d "$VERSION_DIR" ]; then
-    mkdir -p $VERSION_DIR/bin
-	mkdir -p $VERSION_DIR/include
-	mkdir -p $VERSION_DIR/lib
-	mkdir -p $VERSION_DIR/man
-	mkdir -p $VERSION_DIR/share
-	mkdir -p $VERSION_DIR/src
-	mkdir -p $VERSION_DIR/var
-	mkdir -p $VERSION_DIR/opt
-	mkdir -p $VERSION_DIR/etc
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
-fi
-export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-
-# setup logging
-LOG="$VERSION_DIR/var/install.log"
-function log()
-{
-	case "$*" in 
-	("clear")
-		rm -f $LOG
-		shift 1
-		;;
-	(*)
-		echo "$*" >> $LOG
-		return
-		;;
-	esac
-}
 
 # setup exit handling
 function on_exit()
@@ -235,6 +184,64 @@ while [ $# -gt 0 ]; do
 	esac
 	shift 1
 done
+
+# local folder
+VAR="/usr/local/opt/gridlabd"
+
+if [ -z "$PREFIX" ]; then 
+	echo "PREFIX unset, using default install directory in /usr/local/opt/gridlabd"
+else 
+	VAR=$PREFIX
+fi
+
+VERSION_DIR=$VAR/$VERSION
+
+if [ ! -d "$VAR" ]; then
+	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
+fi
+
+if [ -e "$VAR" ] ; then
+	sudo chown -R "${USER:-root}" "$VAR"
+fi
+
+# create a temp working directory if it does not already exist
+if [ ! -d "$HOME/temp" ]; then
+	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
+fi
+
+if [ ! -d "$VERSION_DIR" ]; then
+    mkdir -p $VERSION_DIR/bin
+	mkdir -p $VERSION_DIR/include
+	mkdir -p $VERSION_DIR/lib
+	mkdir -p $VERSION_DIR/man
+	mkdir -p $VERSION_DIR/share
+	mkdir -p $VERSION_DIR/src
+	mkdir -p $VERSION_DIR/var
+	mkdir -p $VERSION_DIR/opt
+	mkdir -p $VERSION_DIR/etc
+fi
+
+if ! grep -q "$VERSION_DIR/bin" "$HOME/.bashrc"; then
+    touch "$HOME/.bashrc"
+    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
+fi
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# setup logging
+LOG="$VERSION_DIR/var/install.log"
+function log()
+{
+	case "$*" in 
+	("clear")
+		rm -f $LOG
+		shift 1
+		;;
+	(*)
+		echo "$*" >> $LOG
+		return
+		;;
+	esac
+}
 
 # start logging
 log clear

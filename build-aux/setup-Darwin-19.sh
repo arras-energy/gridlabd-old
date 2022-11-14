@@ -1,5 +1,7 @@
 #!/bin/bash
-
+echo $VAR
+echo "Did it pass through?"
+exit 1
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VAR="/usr/local/opt/gridlabd"
