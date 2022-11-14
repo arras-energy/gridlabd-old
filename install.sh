@@ -144,7 +144,7 @@ while [ $# -gt 0 ]; do
 		if [ ! -d "$PREFIX" ]; then
 			error "$PREFIX does not exist"
 		fi
-		INSTALL="$PREFIX/$VERSION"
+		INSTALL="$PREFIX/gridlabd/$VERSION"
 		shift 1
 		;;
     (--no-setup)
@@ -191,7 +191,7 @@ export VAR="/usr/local/opt/gridlabd"
 if [ -z "$PREFIX" ]; then 
 	echo "PREFIX unset, using default install directory in /usr/local/opt/gridlabd"
 else 
-	VAR=$PREFIX
+	VAR="$PREFIX/gridlabd"
 fi
 
 VERSION_DIR=$VAR/$VERSION
