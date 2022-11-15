@@ -55,12 +55,13 @@ if [ ! -e $VERSION_DIR/lib/rootlib ] ; then
     mkdir $VERSION_DIR/lib/rootlib
 fi
 
+# Darwin apparently expects a capital -R and not lowercase. Apple always has to be special.
 if [ $SYSTEM == "Darwin" ]; then
     if [ D_ARCH = "arm64" ]; then
-        cp -r /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
-        cp -r /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
+        cp -R /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
+        cp -R /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
     else
-        cp -r /usr/local/lib/lib* $VERSION_DIR/lib/localib
+        cp -R /usr/local/lib/lib* $VERSION_DIR/lib/localib
     fi
 fi
 
