@@ -353,7 +353,7 @@ if [ -e "$INSTALL/bin/gridlabd" -a "$FORCE" == "no" ]; then
 fi
 mkdir -p "$INSTALL" || ( run sudo mkdir -p "$INSTALL" && run sudo chown -R "${USER:-root}" "$INSTALL" )
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
-    run ./configure --prefix="$PREFIX" $*
+    run ./configure --prefix="$INSTALL" $*
 fi
 
 NPROC=1
