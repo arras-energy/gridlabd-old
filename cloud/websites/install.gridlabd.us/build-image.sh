@@ -61,7 +61,7 @@ if [ $SYSTEM == "Darwin" ]; then
         cp -R /opt/homebrew/lib/lib* $VERSION_DIR/lib/locallib
         cp -R /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
     else
-        cp -R /usr/local/lib/lib* $VERSION_DIR/lib/localib
+        cp -R /usr/local/lib/lib* $VERSION_DIR/lib/locallib
     fi
 fi
 
