@@ -42,14 +42,31 @@ Calling git on newer MacOS systems will likely prompt installation of the xcode 
 Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. *Do not* run the install.sh script with sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
 ~~~
 host% git clone https://source.gridlabd.us/ gridlabd
-host% gridlabd/install.sh 
+host% cd gridlabd
+host% ./install.sh 
 ~~~
 
-To clone a specific branch for development, use
+To clone a specific branch for development into a specfic location, use
 ~~~
-host% git clone -b `branch` https://source.gridlabd.us/ gridlabd
-host% gridlabd/install.sh 
+host% git clone -b desired-branch https://source.gridlabd.us/ gridlabd
+host% cd gridlabd
+host% ./install.sh --prefix /path/to/install/location
 ~~~
+
+And finally, some helpful flags during the install:
+
+~~~
+host% ./install.sh -v -t -p
+~~~
+
+-v: Verbose install (great for tracking install progress or spotting issues)
+
+-t: no testing during install. Helps speed up the install process.
+
+-p: Enables parallelism where possible. This can greatly speed up the installation process.
+
+Further details on supported flags can be found below, in the `options` section.
+
 
 ### Manual installation
 
