@@ -92,7 +92,7 @@ if not token:
 try:
 	git = github.Github(token)
 
-	repo = git.get_repo("slacgismo/gridlabd")
+	repo = git.get_repo("hipas/gridlabd")
 	for user in repo.get_contributors():
 		if login:
 			output(user.login)

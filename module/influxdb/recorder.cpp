@@ -29,15 +29,6 @@ recorder::recorder(MODULE *module)
 			PT_char1024,"fields",get_property_offset(),
 				PT_REQUIRED,
 				PT_DESCRIPTION,"target property name",
-			PT_char1024,"property",get_property_offset(),
-				PT_DEPRECATED,
-				PT_DESCRIPTION,"target property name",
-			PT_char1024,"table",get_table_offset(),
-				PT_DEPRECATED,
-				PT_DESCRIPTION,"table name to store samples",
-			PT_char1024,"file",get_table_offset(),
-				PT_DEPRECATED,
-				PT_DESCRIPTION,"file name (for tape compatibility)",
 			PT_char1024,"measurement",get_table_offset(),
 				PT_REQUIRED,
 				PT_DESCRIPTION,"table name to store samples",
@@ -54,7 +45,7 @@ recorder::recorder(MODULE *module)
 				PT_DESCRIPTION,"tags to include with each record",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}

@@ -6,6 +6,10 @@
 //#set verbose=TRUE
 //#set debug=TRUE
 
+#ifexist ../controller_1_armed.player
+#define DIR=..
+#endif
+
 clock
 {
 	timezone UTC0;						//Local timezone for the simulation
@@ -17,7 +21,10 @@ module powerflow {
 	solver_method NR;
 	convergence_error_handling IGNORE;
 }
-module tape;
+module tape
+{
+	csv_header_type NAME;
+}
 
 // nodes
 object meter {
@@ -59,16 +66,19 @@ object switch_coordinator {
 	connect switch_4;
 	object player {
 		property armed;
-		file "../controller_1_armed.player";
+		file "${DIR:-.}/controller_1_armed.player";
 	};
 	object player {
 		property status;
-		file "../controller_1_status.player";
+		file "${DIR:-.}/controller_1_status.player";
 	};
 	object recorder {
 		property status,armed;
-		file controller_1.csv;
+		file "test_switch_coordinator.csv";
 		interval -1;
 	};
 }
 
+#ifexist ../test_switch_coordinate.csv
+#on_exit 0 diff -q ../test_switch_coordinate.csv test_switch_coordinate.csv
+#endif

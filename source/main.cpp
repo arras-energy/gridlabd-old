@@ -19,16 +19,11 @@ void GldMain::pause_at_exit(void)
 {
 	if (global_pauseatexit)
 	{
-		int rc =
-#if defined WIN32
-		system("pause");
-#else
-		system("read -p 'Press [RETURN] to end... ");
-#endif
-		if ( rc != 0 )
-		{
-			fprintf(stderr,"non-zero exit code (rc=%d) from system pause\n",rc);
-		}
+		output_verbose("pausing at exit");
+		fprintf(stdout,"Press [RETURN] to exit... ");
+		fflush(stdout);
+		char buffer[80];
+		fgets(buffer,sizeof(buffer)-1,stdin);
 	}
 }
 
@@ -265,7 +260,10 @@ void GldMain::set_global_command_line(int argc, const char *argv[])
 	for (i=0; i<argc; i++)
 	{
 		if (pos < (int)(sizeof(global_command_line)-strlen(argv[i])))
-			pos += sprintf(global_command_line+pos,"%s%s",pos>0?" ":"",argv[i]);
+		{
+			snprintf(global_command_line+pos,sizeof(global_command_line)-pos-1,"%s%s",pos>0?" ":"",argv[i]);
+			pos = strlen(global_command_line);
+		}
 	}
 	return;
 }
@@ -378,17 +376,6 @@ int GldMain::run_on_exit(int return_code)
 
 	/* restore locale */
 	locale_pop();
-
-	/* if pause enabled */
-#ifndef WIN32
-	if (global_pauseatexit)
-	{
-		IN_MYCONTEXT output_verbose("pausing at exit");
-		while (true) {
-			sleep(5);
-		}
-	}
-#endif
 
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
@@ -792,7 +779,8 @@ int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE 
 		{
 			while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL )
 			{
-				len += snprintf(output_buffer+len,output_size-len-1,"%s",line);
+				snprintf(output_buffer+len,output_size-len-1,"%s",line);
+				len = strlen(output_buffer);
 			}
 			if ( ferror(pipes->child_output) )
 			{

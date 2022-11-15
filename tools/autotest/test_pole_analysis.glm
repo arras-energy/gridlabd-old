@@ -1,0 +1,12 @@
+// autotest/test_pole_analysis.glm
+
+#ifexist ../test_pole_analysis_opt.glm
+#define DIR=..
+#endif
+
+#python -m pole_analysis ${DIR:-.}/test_pole_analysis_opt.glm --analysis=loading_scenario --output=test_pole_analysis_opt.csv
+
+#ifexist test_create_poles_opt.glm
+#on_exit 0 diff -I '^[#/].*' ${DIR:-.}/test_pole_analysis_opt.csv test_pole_analysis_opt.csv > gridlabd.diff
+#endif
+

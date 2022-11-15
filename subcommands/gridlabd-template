@@ -10,11 +10,12 @@ fi
 
 # configurable parameters
 GITHUB="https://github.com"
+GITAPI="https://api.github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 if [ "${ORGANIZATION}" == "" ]; then
     export ORGANIZATION="US/CA/SLAC"
 fi
-GITUSER=slacgismo
+GITUSER=hipas
 GITREPO="gridlabd-template"
 GITBRANCH="master"
 DATADIR="$GLD_ETC/template/$ORGANIZATION"
@@ -113,11 +114,12 @@ function config()
         fi
     elif [ "$1" == "reset" ]; then
         debug "resetting config"        
-        rm -f $CONFIGFILE $INDEX || error 1 "unable to reset $CONFIGFILE"
+        rm -rf "$CONFIGFILE" || error 1 "unable to delete '$CONFIGFILE'"
+        rm -rf "${INDEX}" || error 1 "unable to delete template '${INDEX}'"
     elif [ "$1" == "set" -a $# == 3 ]; then
         debug "updating config: $2 = '$3'"
-        echo "$2=\"$3\"" >> $CONFIGFILE
-        rm -f ${INDEX}
+        echo "$2=\"$3\"" >> "$CONFIGFILE"
+        rm -rf "${INDEX}" || error 1 "unable to delete template '${INDEX}'"
     elif [ "$1" == "get" -a $# == 2 ]; then
         if [ ! -r $CONFIGFILE ]; then
             value=$(config show | grep $2)
@@ -291,6 +293,12 @@ function get()
         fi
         FOUND=$((${FOUND}+1))
     done
+    for FILE in $(cd $DSTDIR; ls -1 module_*.glm 2>/dev/null); do
+        GLMNAME=${FILE/module_/}
+        MODNAME=${GLMNAME/.glm/}
+        mkdir -p $GLD_ETC/module.d/$MODNAME
+        ln -sf $DSTDIR/$FILE $GLD_ETC/module.d/$MODNAME/$TEMPLATE.glm
+    done
     if [ ${FOUND} -eq 0 ]; then
         error 1 "no template(s) not found"
     fi
@@ -333,6 +341,7 @@ function delete()
         if [ -d "$DATADIR/$f" ]; then
             rm -rf "$DATADIR/$f" || error 1 "unable to delete $f"
         fi
+        ( rm $GLD_ETC/module.d/*/$1.glm || true ) 2>/dev/null
     done
 
 }
@@ -480,7 +489,8 @@ done
 CACHEDIR="$DATADIR/.gridlabd-template"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
-COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
+COMMIT_INFO=$(curl -sL "$GITAPI/repos/$GITUSER/$GITREPO/branches/$GITBRANCH")
+COMMIT_ID=$(echo $COMMIT_INFO | gridlabd json-get commit sha || error 1 $(echo $COMMIT_INFO | gridlabd json-get message))
 INDEX=$CACHEDIR/$COMMIT_ID
 
 # process command

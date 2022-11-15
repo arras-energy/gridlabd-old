@@ -202,7 +202,7 @@ object triplex_meter {
 	nominal_voltage 120;
 	groupid House_Meter;
 	// object recorder {
-		// property measured_real_power,measured_reactive_power,power_12;
+		// property measured_real_power,measured_reactive_power,constant_constant_power_12;
 		// file const_pf_meter.csv;
 		// interval 3600;
 	// };

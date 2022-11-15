@@ -1,6 +1,4 @@
-"""Copyright (C) 2021 Regents of the Leland Stanford Junior University
-
-See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, documentation, and tutorials.
+"""See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, documentation, and tutorials.
 """
 
 #
@@ -32,6 +30,7 @@ version = info['version']
 build = info['build_number']
 branch = info['branch']
 system = info['system']
+copyright = subprocess.run("/usr/local/bin/gridlabd --copyright".split(),capture_output=True).stdout.decode('utf-8')
 
 #
 # No GUI on linux yet
@@ -102,4 +101,4 @@ if __name__ == "__main__":
     except Exception as err:
         print("EXCEPTION:",err)
     messagebox.showinfo("Welcome",
-        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}")
+        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{copyright}\n{__doc__}")
