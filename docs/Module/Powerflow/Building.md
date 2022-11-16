@@ -25,7 +25,7 @@ more pair transfer functions from each input to the each of the output channels.
 The static load model is of the form
 
 $$
-    y_0(t) = M(m(t)) w(t)
+    y_1(t) = M(m(t)) ~ w(t) + y_0(m(t))
 $$
 
 where $M$ is the system mode matrix, and $w$ is the weather. If the system has
@@ -38,17 +38,17 @@ mode.
 The dynamic model is of the form
 
 $$
-    \dot x = A x + B_1 u + B_2 v
+    \dot x = A x + B u
 $$
 
 $$
-    y_1(t) = C x + D_1 u + D_2 v
+    y_2(t) = C x + D u
 $$
 
-where all the matrix and variables are time-varying, but the matrices varying
-more slowly than the state variable $x$.
+where all the matrix and variables are time-varying, but the matrices $A$, $B$,
+$C$, and $D$ vary slowly relative to the state variable $x$.
 
-The total load is $y(t) = y_0(t) + y_1(t)$.
+The total load is $y(t) = y_1(t) + y_2(t)$.
 
 ## Inputs
 
