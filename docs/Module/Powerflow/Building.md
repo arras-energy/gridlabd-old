@@ -22,6 +22,16 @@ object building
 The `building` object implements a general building load model as a one or
 more pair transfer functions from each input to the each of the output channels.
 
+The static model is TODO.
+
+The dynamic model is of the form
+
+$$
+    \dot x = A x + B_1 u + B_2 v
+\\
+    y = C x + D_1 u + D_2 v
+$$
+
 ## Inputs
 
 Inputs are specified with the source object and property and the target channel, 
@@ -50,19 +60,31 @@ The outputs are given by the contribution of each input
     y[channel][t] = d[channel]*u[t]
 ~~~
 
-with channel 0 for real power and channel 1 for reactive power.
+with channel 0 for real power and channel 1 for reactive power. 
+
+The values of `zip` are scalars for the power contributions in units of `kW`
+from the output `y` to each component of load.
 
 # Example
 
 ~~~
+class weather
+{
+    double temperature[degF];
+}
+object weather
+{
+    temperature 50 degF;
+}
+module powerflow;
 object building
 {
     phases ABC;
     nominal_voltage 480;
     timestep 60;
     building_response "0,0,1;0,0,1";
-    input "test_weather.temperature,0,0,0,1,1,1";
-    input "test_weather.temperature,1,0,0,1,1,1";
+    input "weather.temperature,0,0,0,1,1,1";
+    input "weather.temperature,1,0,0,1,1,1";
     zip "1,0,0;0.1,0,0";
 }
 ~~~
