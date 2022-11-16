@@ -22,15 +22,33 @@ object building
 The `building` object implements a general building load model as a one or
 more pair transfer functions from each input to the each of the output channels.
 
-The static model is TODO.
+The static load model is of the form
+
+$$
+    y_0(t) = M(m(t)) w(t)
+$$
+
+where $M$ is the system mode matrix, and $w$ is the weather. If the system has
+$K$ modes, then the matrix $M$ expresses the weather contribution of each
+weather parameters to the total static load for each mode $m(t)$. If the
+weather contains four variables, then the matrix $M$ is $2x4$ such that it
+produces the real and reactive power contributions to the load in the current
+mode.
 
 The dynamic model is of the form
 
 $$
     \dot x = A x + B_1 u + B_2 v
-\\
-    y = C x + D_1 u + D_2 v
 $$
+
+$$
+    y_1(t) = C x + D_1 u + D_2 v
+$$
+
+where all the matrix and variables are time-varying, but the matrices varying
+more slowly than the state variable $x$.
+
+The total load is $y(t) = y_0(t) + y_1(t)$.
 
 ## Inputs
 
