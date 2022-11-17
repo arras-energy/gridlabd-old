@@ -6,7 +6,7 @@ import getopt
 import datetime
 import re
 
-from geometry import *
+from idfparse import IDF, Polygon
 
 config = {
 	"input" : "idf",
@@ -39,8 +39,8 @@ def vertices(data):
 			pts.append(value)
 	return Polygon(pts)
 
-
-input_file = "autotest/test_idf2glm_input.idf"
+# TODO: remove default files (only for dev)
+input_files = ["autotest/test_idf2glm_input.idf"]
 output_file = "autotest/test_idf2glm_output.glm"
 options = {}
 
@@ -55,13 +55,13 @@ for opt, arg in opts:
 		help()
 		sys.exit(0)
 	elif opt in ("-i","--input"):
-		input_file = arg.strip()
+		input_files.append(arg.strip())
 	elif opt in ("-o","--output"):
 		output_file = arg.strip()
 	else:
 		error(f"{opt}={arg} is not a valid option");
 
-if input_file == None:
+if not input_files:
 	error("missing input file name")
 elif output_file == None:
 	error("missing output file name")
@@ -82,43 +82,8 @@ class building {{
 	double foundation_f[Btu/degF/h];
 }}
 """)
-	for file in input_file.split(","):
-		with open(file,"rt") as fh:
-			idf = {}
-			section = None
-			for line in fh.readlines():
-				if not line or line[0] == '\n':
-					continue
-				if line and line[0] in [' ','\t']:
-					value,name = line.split('!-')
-					name = name.strip(' ,;\n')
-					def convert(x):
-						x = x.strip(' ,;')
-						try: return int(x)
-						except: pass
-						try: return float(x)
-						except: pass
-						return x
-					value = [convert(x) for x in value.split(',')]
-					while value and value[-1] in (None,''):
-						del value[-1]
-					if name == 'Name':
-						subsection = value[0]
-						idf[section][subsection] = {}
-						continue
-					if len(value) == 0:
-						value = None
-					elif len(value) == 1:
-						value = value[0]
-					if subsection:
-						idf[section][subsection][name] = value
-					else:
-						idf[section][name] = value
-				else:
-					section = line.strip(' ,\n')
-					if section not in idf:
-						idf[section] = {}
-					subsection = None
+	for file in input_files:
+		idf = IDF(file)
 
 		# clean the name
 		name = re.sub('[^-0-9A-Za-z_]','',list(idf['Building'].keys())[0].replace(' ','_'));
@@ -143,7 +108,7 @@ class building {{
 		foundation_f = sum([data['F-Factor {W/m-K}']*data['PerimeterExposed {m}'] for data in idf['Construction:FfactorGroundFloor'].values()])
 
 		glm.write(f"""
-// input from {input_file}
+// input from {file}
 object building {{
 	name "{name[:63]}";
 	latitude {latitude};

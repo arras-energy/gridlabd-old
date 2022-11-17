@@ -1,3 +1,4 @@
+"""Basic 3D polygon geometry calculation"""
 import math
 
 #determinant of matrix a
