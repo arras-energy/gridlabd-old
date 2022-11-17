@@ -32,6 +32,14 @@ def error(msg):
 	print(f'ERROR	[{config["input"]}2{config["output"]}]: {msg}')
 	sys.exit(1)
 
+def vertices(data):
+	pts = []
+	for key,value in data.items():
+		if key.startswith('X,Y,Z Vertex'):
+			pts.append(value)
+	return Polygon(pts)
+
+
 input_file = "autotest/test_idf2glm_input.idf"
 output_file = "autotest/test_idf2glm_output.glm"
 options = {}
@@ -126,12 +134,12 @@ class building {{
 		equipment = sum([data['Watts per Zone Floor Area {W/m2}'] for data in idf['ElectricEquipment'].values()])
 		
 		# basic building properties
-		floor_area = sum([area(vertices(data)) for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Floor'])
-		wall_perimeter = sum([perimeter(vertices(data)) for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Floor'])
-		wall_height = max([height(vertices(data)) for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Wall'])
-		wall_area = sum([area(vertices(data)) for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Wall'])
-		window_area = sum([area(vertices(data)) for data in idf['FenestrationSurface:Detailed'].values() if data['Surface Type'] == 'Window'])
-		roof_area = sum([area(vertices(data)) for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Roof'])
+		floor_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Floor'])
+		wall_perimeter = sum([vertices(data).perimeter() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Floor'])
+		wall_height = max([vertices(data).height() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Wall'])
+		wall_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Wall'])
+		window_area = sum([vertices(data).area() for data in idf['FenestrationSurface:Detailed'].values() if data['Surface Type'] == 'Window'])
+		roof_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Roof'])
 		foundation_f = sum([data['F-Factor {W/m-K}']*data['PerimeterExposed {m}'] for data in idf['Construction:FfactorGroundFloor'].values()])
 
 		glm.write(f"""
@@ -149,7 +157,7 @@ object building {{
 	window_area {window_area:.3g} m^2;
 	wall_area {wall_area:.3g} m^2;
 	roof_area {roof_area:.3g} m^2;
-	foundation_f {foundation_f} W/K;
+	foundation_f {foundation_f:.1g} W/K;
 }}
 //#set savefile=${{modelname/.glm/.json}}
 """)
