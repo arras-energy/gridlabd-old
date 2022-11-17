@@ -18,6 +18,7 @@ dist_pkgdata_DATA += converters/csv-schneider2glm-player.py
 dist_pkgdata_DATA += converters/csv-table2glm-library.py
 dist_pkgdata_DATA += converters/csv-table2glm-object.py
 dist_pkgdata_DATA += converters/csv-visualcrossing-weather2glm-weather.py
+dist_pkgdata_DATA += converters/geometry.py
 dist_pkgdata_DATA += converters/csv2glm.py
 
 # gz -> glm
