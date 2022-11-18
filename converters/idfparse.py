@@ -1,8 +1,6 @@
 """EnergyPlus IDF parser"""
 # https://bigladdersoftware.com/epx/docs/8-2/input-output-reference/group-simulation-parameters.html#group----simulation-parameters
 
-from geometry import Polygon
-
 class IDF:
 
 	def __init__(self,filename):

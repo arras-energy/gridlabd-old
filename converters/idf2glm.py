@@ -6,7 +6,9 @@ import getopt
 import datetime
 import re
 
-from idfparse import IDF, Polygon
+from geometry import Polygon
+from geohash import geohash
+from idfparse import IDF
 
 config = {
 	"input" : "idf",
@@ -113,7 +115,7 @@ object building {{
 	name "{name[:63]}";
 	latitude {latitude};
 	longitude {longitude};
-	weather "${{GEOCODE {latitude},{longitude}#6}}";
+	weather "{geohash(latitude,longitude,6)}";
 	occupancy {occupancy:.3g} unit/m^2;
 	lighting {lighting:.3g} W/m^2;
 	equipment {equipment:.3g} W/m^2;
