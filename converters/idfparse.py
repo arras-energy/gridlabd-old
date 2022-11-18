@@ -1,6 +1,18 @@
 """EnergyPlus IDF parser"""
 # https://bigladdersoftware.com/epx/docs/8-2/input-output-reference/group-simulation-parameters.html#group----simulation-parameters
 
+import requests
+
+IDD = None
+
+def get_idd(major,minor=0,patch=0):
+	url = f"https://raw.githubusercontent.com/NREL/EnergyPlus/develop/idd/V{major}-{minor}-{patch}-Energy%2B.idd"
+	idd = requests.get(url)
+	if idd.status_code != 200:
+		raise Exception(f"{url} status code {idd.status_code}")
+	global IDD
+	IDD = idd.text
+
 class IDF:
 
 	def __init__(self,filename):
@@ -12,8 +24,10 @@ class IDF:
 				if not line or line[0] == '\n':
 					continue
 				if line and line[0] in [' ','\t']:
-					value,name = line.split('!-')
-					name = name.strip(' ,;\n')
+					value,name = line.split('!')
+					name = name.strip('- ,;\n')
+					if section == "Version" and name == "Version Identifier":
+						IDD = get_idd(*(value.strip(' ,;').split('.')))
 					def convert(x):
 						x = x.strip(' ,;')
 						try: return int(x)
