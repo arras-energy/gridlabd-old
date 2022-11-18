@@ -28,18 +28,30 @@ class building : public load
 		struct s_input *next;
 	} INPUT;
 
+	typedef struct s_static
+	{
+		double **M;
+		double *y0;
+	} STATIC;
+
+
 private:
 
 	// private data
+	STATIC *static_model;
+	double y1[2];
+
 	INPUT *input_list;
 	double x[2][3]; // internal state history (Ta,Tm) w.r.t x0
 	double x0[2]; // equilibrium state
 
-	// transfer function
 	double ts; // timestep
 	double a[2][3]; // transfer function denominator terms
 	complex p0, p1; // transfer function poles
+	double y2[2];
+
 	double zip[2][3]; // output ZIP components
+	double y[2];
 
 public:
 
