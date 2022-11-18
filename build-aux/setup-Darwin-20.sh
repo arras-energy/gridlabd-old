@@ -104,7 +104,12 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 
 # needed for SSL module to make proper connections, as openssl does not actually provide the certificates.
     brew install ca-certificates
-    CERT_DIR="$(echo /usr/local/Cellar/ca-certificates/*/)"
+    CERT_DIR="$(echo /usr/local/Cellar/ca-certificates)"
+    unset -v latest
+    for file in "$CERT_DIR"/* ; do
+        [[ $file -nt $latest ]] && latest=$file
+    done
+    CERT_DIR=$(basename $latest)
     cp $CERT_DIR/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
 
     if [ ! -f $VERSION_DIR/ssl/cert.pem ] ; then
