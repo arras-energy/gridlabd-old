@@ -1,4 +1,4 @@
-xarray==2022.10.0
+xarray==2022.3.0
 Pyomo==6.4.2
 meteostat==1.6.5
 plotly==5.8.2
