@@ -109,7 +109,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     for file in "$CERT_DIR"/* ; do
         [[ $file -nt $latest ]] && latest=$file
     done
-    CERT_DIR=$(basename $latest)
+    CERT_DIR=$latest
     cp $CERT_DIR/share/ca-certificates/* $VERSION_DIR/ssl/cert.pem
 
     if [ ! -f $VERSION_DIR/ssl/cert.pem ] ; then
