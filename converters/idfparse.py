@@ -3,15 +3,20 @@
 
 import requests
 
-IDD = None
+class IDD:
 
-def get_idd(major,minor=0,patch=0):
-	url = f"https://raw.githubusercontent.com/NREL/EnergyPlus/develop/idd/V{major}-{minor}-{patch}-Energy%2B.idd"
-	idd = requests.get(url)
-	if idd.status_code != 200:
-		raise Exception(f"{url} status code {idd.status_code}")
-	global IDD
-	IDD = idd.text
+	cache = {}
+
+	def __init__(self,major,minor=0,patch=0):
+		url = f"https://raw.githubusercontent.com/NREL/EnergyPlus/develop/idd/V{major}-{minor}-{patch}-Energy%2B.idd"
+		if not url in self.cache:
+			idd = requests.get(url)
+			if idd.status_code != 200:
+				raise Exception(f"{url} status code {idd.status_code}")
+
+			self.cache[url] = idd.text
+		self.data = self.cache[url].split('\n')
+
 
 class IDF:
 
@@ -27,7 +32,7 @@ class IDF:
 					value,name = line.split('!')
 					name = name.strip('- ,;\n')
 					if section == "Version" and name == "Version Identifier":
-						IDD = get_idd(*(value.strip(' ,;').split('.')))
+						idd = IDD(*(value.strip(' ,;').split('.')))
 					def convert(x):
 						x = x.strip(' ,;')
 						try: return int(x)
