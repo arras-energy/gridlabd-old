@@ -38,6 +38,12 @@ VERSION_LOC=$($TOP/build-aux/version.sh --name)
 # local folder
 VAR="/usr/local/opt/gridlabd"
 VERSION_DIR=$VAR/$VERSION_LOC
+if [ ! -e $VERSION_DIR ] ; then
+    echo "The version of gridlabd you are trying to build does not exist."
+    echo "Build this updated version of gridlabd and then try again."
+    exit 1
+fi
+
 if [ ! -e $VERSION_DIR/src ] ; then
     mkdir $VERSION_DIR/src
 fi
