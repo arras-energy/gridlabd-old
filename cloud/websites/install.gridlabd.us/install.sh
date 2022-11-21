@@ -335,6 +335,8 @@ if test ! -e /usr/local/lib; then
 fi
 if [ $SYSTEM == "Darwin" ]; then
     sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
+    sudo ln -s $VERSION_DIR/opt/* /usr/local/opt
+    sudo ln -s $VERSION_DIR/opt/gettext/lib/* /usr/local/lib
 fi
 
 if [ -f /.docker* ] ; then 

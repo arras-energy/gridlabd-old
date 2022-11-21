@@ -10,7 +10,7 @@ Help()
    echo
    echo "Syntax: ./install.sh [-b|h]"
    echo "options:"
-   echo "b     Set the image branch (default master)"
+   echo "b     Set the image branch (default develop)"
    echo "h     Print this Help."
    echo "v     Manually select the version using #.#.#"
    echo
@@ -123,11 +123,11 @@ elif [ "$DLTOOL" = "wget" ]; then
 fi
 
 if [ ! -f "$HOME/temp/version.h" ]; then
-    echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    echo "Invalid branch selected, please submit a valid branch or run as default to install the develop branch."
     rm -rf version.h
     exit 1
 elif grep -q "404: Not Found" "$HOME/temp/version.h"; then
-    echo "Invalid branch selected, please submit a valid branch or run as default to install the master branch."
+    echo "Invalid branch selected, please submit a valid branch or run as default to install the develop branch."
     rm -rf version.h
     exit 1
 fi
