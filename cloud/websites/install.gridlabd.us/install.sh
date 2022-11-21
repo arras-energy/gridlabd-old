@@ -161,6 +161,8 @@ if test $D_ARCH != "arm64"; then
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    sudo chown -R $USER *
+    
     VERSION_NAME="$(echo $search_dir/*/)"
     VERSION_NAME="$(basename $VERSION_NAME)"
     VERSION_DIR="$PREF/$VERSION_NAME"
@@ -239,6 +241,7 @@ else
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
+    sudo chown -R $USER *
 
     VERSION_NAME="$(echo $search_dir/*/)"
     VERSION_NAME="$(basename $VERSION_NAME)"
