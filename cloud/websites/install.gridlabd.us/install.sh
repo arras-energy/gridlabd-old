@@ -332,13 +332,13 @@ if test ! -e /usr/local/lib; then
 fi
 
 # be thorough with ownership. Ownership problems are very annoying.
-cd /usr/local/opt
-sudo chown -R ${USER:-root} gridlabd
+cd /usr/local
+sudo chown -R ${USER:-root} *
 
 if [ $SYSTEM == "Darwin" ]; then
-    sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
-    sudo ln -s $VERSION_DIR/opt/* /usr/local/opt
-    sudo ln -s $VERSION_DIR/opt/gettext/lib/* /usr/local/lib
+    ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
+    ln -s $VERSION_DIR/opt/* /usr/local/opt
+    ln -s $VERSION_DIR/opt/gettext/lib/* /usr/local/lib
 fi
 
 if [ -f /.docker* ] ; then 
@@ -378,6 +378,7 @@ if [ -e $VERSION_DIR/src/requirements.txt ] ; then
         
     # Add symlink for binary to /usr/local/bin
     sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
+    ln -sf $PREF/current/opt/gettext/lib/* /usr/local/lib
 fi
 
 echo "Refresh your terminal or open a new terminal window to begin using this version of gridlabd!"
