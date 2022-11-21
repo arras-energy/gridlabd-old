@@ -374,7 +374,7 @@ fi
 # potential to circumvent bugs with compressed and uncompressed packages if image also contains requirements file
 if [ -e $VERSION_DIR/src/requirements.txt ] ; then
     cd $VERSION_DIR/src
-    gridlabd python -m pip install -r requirements.txt
+    $VERSION_DIR/bin/gridlabd python -m pip install -r requirements.txt
 fi
 
-echo "Refresh your terminal or open a new terminal window to begin using gridlabd!"
+echo "Refresh your terminal or open a new terminal window to begin using this version of gridlabd!"
