@@ -336,6 +336,10 @@ if test ! -e /usr/local/lib; then
     sudo mkdir lib
 fi
 
+# be thorough with ownership. Ownership problems are very annoying.
+cd /usr/local/opt
+sudo chown -R $USER gridlabd
+
 if [ $SYSTEM == "Darwin" ]; then
     sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
     sudo ln -s $VERSION_DIR/opt/* /usr/local/opt
