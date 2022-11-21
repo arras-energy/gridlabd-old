@@ -50,6 +50,9 @@ brew doctor
         sudo mkdir etc
     fi
 
+export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 
 # install homebrew instance for gridlabd
     brew update
@@ -59,47 +62,6 @@ brew doctor
     export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
     brew update-reset
     brew doctor
-
-# adding necessary paths to user bash and zsh terminals
-# apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zshrc"; then
-    touch "$HOME/.zshrc"
-    echo "export PATH=$VERSION_DIR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
-    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zshrc
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zsh_profile"; then
-    touch "$HOME/.zsh_profile"
-    echo "export PATH=$VERSION_DIR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
-    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.zsh_profile
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.bash_profile"; then
-    touch "$HOME/.bash_profile"
-    echo "export PATH=$VERSION_DIR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bash_profile
-fi
-
-if ! grep -q "$VERSION_DIR/lib" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=$VERSION_DIR/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export eval "$(/opt/homebrew/bin/brew shellenv)"" >> $HOME/.bashrc
-fi
-
-export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:/opt/homebrew/lib:$LIBRARY_PATH
 
 # build tools
 

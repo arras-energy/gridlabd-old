@@ -35,43 +35,6 @@ brew doctor
         sudo mkdir etc
     fi
 
-# adding necessary paths to user bash and zsh terminals
-# apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zshrc"; then
-    touch "$HOME/.zshrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zsh_profile"; then
-    touch "$HOME/.zsh_profile"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.bash_profile"; then
-    touch "$HOME/.bash_profile"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
-fi
-
-if ! grep -q "$VERSION_DIR/lib" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
-fi
-
-export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
-
 # build tools
 
     brew install autoconf automake libtool gnu-sed gawk git
@@ -83,6 +46,10 @@ export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
     [ ! -e /usr/local/bin/sed ] && sudo ln -sf /usr/local/bin/gsed /usr/local/bin/sed
     [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
     [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /usr/local/bin/glibtool /usr/local/bin/libtool
+
+export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2

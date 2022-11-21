@@ -62,6 +62,23 @@ if [ $SYSTEM == "Darwin" ]; then
         cp -R /opt/homebrew/opt/*/lib/lib*.* $VERSION_DIR/lib/locallib
     else
         cp -R /usr/local/lib/lib* $VERSION_DIR/lib/locallib
+        cp -R /usr/local/Cellar/g* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/l* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/g* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/mono* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/mysql* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/naturaldocs* $VERSION_DIR/opt
+        cp -R /usr/local/Cellar/sqlite* $VERSION_DIR/opt
+        cd $VERSION_DIR/opt
+        rm -rf python*
+        rm -rf git
+        for dir in $VERSION_DIR/opt/* ;
+        do
+            cd $dir
+            cd *
+            mv * ..
+        done
+
     fi
 fi
 

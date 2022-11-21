@@ -35,41 +35,10 @@ brew doctor
         sudo mkdir etc
     fi
 
-# adding necessary paths to user bash and zsh terminals
-# apparently, which profile or rc file is used varies wildly across Macs. RIP me. Add to all. =')
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zshrc"; then
-    touch "$HOME/.zshrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zshrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zshrc
-fi
 
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.zsh_profile"; then
-    touch "$HOME/.zsh_profile"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.zsh_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.zsh_profile
-fi
-
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.bash_profile"; then
-    touch "$HOME/.bash_profile"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bash_profile
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bash_profile
-fi
-
-if ! grep -q "$VERSION_DIR/lib" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
-    echo "export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:\$DYLD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LD_LIBRARY_PATH=$VERSION_DIR/lib:\$LD_LIBRARY_PATH" >> $HOME/.bashrc
-    echo "export LIBRARY_PATH=$VERSION_DIR/lib:\$LIBRARY_PATH" >> $HOME/.bashrc
-fi
 
 export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 
 # build tools
