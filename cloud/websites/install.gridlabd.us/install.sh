@@ -161,7 +161,7 @@ if test $D_ARCH != "arm64"; then
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-    sudo chown -R $USER *
+    sudo chown -R ${USER:-root} *
 
     VERSION_NAME="$(echo $search_dir/*/)"
     VERSION_NAME="$(basename $VERSION_NAME)"
@@ -220,9 +220,6 @@ if test $D_ARCH != "arm64"; then
     # give user permissions for writing to site-packages
     sudo chown -R ${USER:-root} $VERSION_DIR
 
-    # Add symlink for binary to /usr/local/bin
-    sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
-
 # Code for arm64 installations
 else
 
@@ -241,7 +238,7 @@ else
         exit 1
     fi
     tar -xzf gridlabd-$MAJ\_$MIN\_$PAT-$SYSTEM$KERNEL-$RELEASE-$D_ARCH-$BRA.tarz
-    sudo chown -R $USER *
+    sudo chown -R ${USER:-root} *
 
     VERSION_NAME="$(echo $search_dir/*/)"
     VERSION_NAME="$(basename $VERSION_NAME)"
@@ -299,9 +296,6 @@ else
     # give user permissions for writing to site-packages
     sudo chown -R ${USER:-root} $VERSION_DIR
 
-    # Add symlink for binary to /usr/local/bin
-    sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
-
 fi
 
 # Darwin can vary a lot in how their shells add to path. So just hit them all. 
@@ -339,7 +333,7 @@ fi
 
 # be thorough with ownership. Ownership problems are very annoying.
 cd /usr/local/opt
-sudo chown -R $USER gridlabd
+sudo chown -R ${USER:-root} gridlabd
 
 if [ $SYSTEM == "Darwin" ]; then
     sudo ln -s $VERSION_DIR/lib/locallib/* /usr/local/lib
@@ -381,6 +375,9 @@ if [ -e $VERSION_DIR/src/requirements.txt ] ; then
     cd $VERSION_DIR/src
     $VERSION_DIR/bin/gridlabd python -m pip install -r requirements.txt
     $VERSION_DIR/bin/gridlabd version set $VERSION_NAME
+        
+    # Add symlink for binary to /usr/local/bin
+    sudo ln -sf $PREF/current/bin/gridlabd* /usr/local/bin
 fi
 
 echo "Refresh your terminal or open a new terminal window to begin using this version of gridlabd!"
