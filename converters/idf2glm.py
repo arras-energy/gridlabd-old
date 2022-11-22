@@ -73,15 +73,18 @@ with open(output_file,"wt") as glm:
 // output to {output_file}
 class building {{
 	char32 weather;
-	double occupancy[unit/sf];
-	double lighting[W/sf];
-	double equipment[W/sf];
+	double occupancy[unit];
+	double lighting[W];
+	double equipment[W];
 	double floor_area[sf];
 	double perimeter[ft];
 	double roof_area[sf];
 	double window_area[sf];
 	double wall_area[sf];
-	double foundation_f[Btu/degF/h];
+	double thermal_conductance[Btu/degF/h];
+	double thermal_mass[Btu/degF];
+	double solar_absorptance[pu];
+	double solar_transmittance[pu];
 }}
 """)
 	for file in input_files:
@@ -107,7 +110,46 @@ class building {{
 		wall_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Wall'])
 		window_area = sum([vertices(data).area() for data in idf['FenestrationSurface:Detailed'].values() if data['Surface Type'] == 'Window'])
 		roof_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Roof'])
-		foundation_f = sum([data['F-Factor {W/m-K}']*data['PerimeterExposed {m}'] for data in idf['Construction:FfactorGroundFloor'].values()])
+
+		# surface properties
+		thermal_conductance = 0.0
+		thermal_mass = 0.0
+		solar_absorptance = 0.0
+		solar_transmittance = 0.0;
+		for surface in idf['BuildingSurface:Detailed'].values():
+			surface_name = surface['Construction Name']
+			area = vertices(surface).area()
+			if surface_name in idf['Construction:FfactorGroundFloor']:
+				construction = idf['Construction:FfactorGroundFloor'][surface_name]
+				# print(construction)
+				f_factor = construction['F-Factor {W/m-K}']
+				perimeter = construction['PerimeterExposed {m}']
+				thermal_conductance += f_factor * perimeter
+			elif surface_name in idf['Construction']:
+				construction = idf['Construction'][surface_name]
+				for name in construction.values():
+					if name in idf['Material']:
+						layer = idf['Material'][name]
+						conductivity = layer['Conductivity {W/m-K}']
+						thickness= layer['Thickness {m}']
+						specific_heat = layer['Specific Heat {J/kg-K}']
+						density = layer['Density {kg/m3}']
+						thermal_conductance += conductivity*thickness*area
+						thermal_mass += specific_heat*density*thickness*area
+					elif name in idf['Material:NoMass']:
+						layer = idf['Material:NoMass'][name]
+						resistance = layer['Thermal Resistance {m2-K/W}']
+						thermal_conductance += area/resistance
+					else:
+						raise Exception(f"'{name}' not found")
+					# TODO: get absorptance values
+			else:
+				raise Exception(f"'{surface_name}' not found")
+
+		for surface in idf['FenestrationSurface:Detailed'].values():
+			#print(surface)
+			# TODO: get window values
+			pass
 
 		glm.write(f"""
 // input from {file}
@@ -116,15 +158,18 @@ object building {{
 	latitude {latitude};
 	longitude {longitude};
 	weather "{geohash(latitude,longitude,6)}";
-	occupancy {occupancy:.3g} unit/m^2;
-	lighting {lighting:.3g} W/m^2;
-	equipment {equipment:.3g} W/m^2;
-	floor_area {floor_area:.4g} m^2;
-	perimeter {wall_perimeter:.3g} m;
-	window_area {window_area:.3g} m^2;
-	wall_area {wall_area:.3g} m^2;
-	roof_area {roof_area:.3g} m^2;
-	foundation_f {foundation_f:.1g} W/K;
+	occupancy {occupancy*floor_area:.0f} unit;
+	lighting {lighting*floor_area:.0f} W;
+	equipment {equipment*floor_area:.0f} W;
+	floor_area {floor_area:.1f} m^2;
+	perimeter {wall_perimeter:.1f} m;
+	window_area {window_area:.1f} m^2;
+	wall_area {wall_area:.1f} m^2;
+	roof_area {roof_area:.1f} m^2;
+	thermal_conductance {thermal_conductance:.1f} W/K;
+	thermal_mass {thermal_mass/1e6:.1f} MJ/K;
+	solar_absorptance {solar_absorptance:.3f} pu;
+	solar_transmittance {solar_transmittance:.3f} pu;
 }}
 //#set savefile=${{modelname/.glm/.json}}
 """)
