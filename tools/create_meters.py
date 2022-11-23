@@ -2,7 +2,7 @@
 
 SYNOPSIS
 
-    gridlabd create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
+    bash$ gridlabd create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
 
 DESCRIPTION
 
