@@ -1,3 +1,5 @@
+// module/powerflow/autotest/test_building.glm
+
 #set suppress_repeat_messages=FALSE
 clock
 {
@@ -25,7 +27,7 @@ object meter
 {
 	phases ABC;
 	nominal_voltage 480;
-	object building:..100
+	object building:..10
 	{
 		phases ABC;
 		nominal_voltage 480;
@@ -75,7 +77,7 @@ object meter
 	object recorder 
 	{
 		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
-		file "/tmp/test.csv";
+		file "test_building.csv";
 		interval 1h;
 	};
 }
@@ -83,3 +85,7 @@ object meter
 #set filesave_options=ALLINITIAL
 #set dumpfile=/tmp/gridlabd-err.json
 #set savefile=/tmp/gridlabd.json
+
+#ifexist "../test_building.csv"
+#on_exit 0 diff ../test_building.csv test_building.csv > gridlabd.diff
+#endif
