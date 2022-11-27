@@ -1,4 +1,4 @@
-// module/loads/building.h
+// module/powerflow/building.h
 // Copyright (C) 2022 Regents of the Leland Stanford Junior University
 
 #ifndef _BUILDING_H
@@ -20,8 +20,10 @@ class building : public load
 
 private:
 
-	Matrix A, B, C, D, x, u, y;
-	bool thermal_flag, design_flag, control_flag, input_flag, output_flag;
+	Matrix A, B, C, D, x, u, y; // model data
+	bool thermal_flag, design_flag, control_flag, input_flag, state_flag, output_flag; // update flags
+	TIMESTAMP last_meter_update; // time of last meter update
+	complex last_measured_energy; // energy at last meter update
 
 public:
 
@@ -75,15 +77,27 @@ public:
 	GL_ATOMIC(double,PPH); // constant power ventilation real power (W/person)
 	GL_ATOMIC(double,QPH); // constant power ventilation reactive power (VAr/person)
 	
+	// meter
+	GL_ATOMIC(double,measured_real_power);
+	GL_ATOMIC(double,measured_reactive_power);
+	GL_ATOMIC(double,measured_real_energy);
+	GL_ATOMIC(double,measured_real_energy_delta);
+	GL_ATOMIC(double,measured_reactive_energy);
+	GL_ATOMIC(double,measured_reactive_energy_delta);
+	GL_ATOMIC(double,measured_energy_delta_timestep);
+	GL_ATOMIC(double,measured_demand);
+	GL_ATOMIC(double,measured_demand_timestep);
+
 private:
 
-	// private methods
+	// private methods (flag_only=true to mark for update, flag_only=false to perform update if marked)
 	void update_thermal(bool flag_only=false);
 	void update_design(bool flag_only=false);
 	void update_control(bool flag_only=false);
 	void update_input(bool flag_only=false);
+	void update_state(bool flag_only=false);
 	void update_output(bool flag_only=false);
-	void update_equipment(void);
+	void update_equipment(void); // only called when QH needs to be checked (or autosized if QH=0)
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);
@@ -94,9 +108,10 @@ public:
 	building(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	TIMESTAMP precommit(TIMESTAMP t1, TIMESTAMP t2);
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP sync(TIMESTAMP t0);
+	TIMESTAMP postsync(TIMESTAMP t0);
+	TIMESTAMP commit(TIMESTAMP t0, TIMESTAMP t1);
 	int isa(char *classname);
 
 public:

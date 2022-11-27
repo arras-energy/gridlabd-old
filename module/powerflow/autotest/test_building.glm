@@ -5,9 +5,11 @@ clock
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
 }
+//#set debug=TRUE
+//#set output_message_context=NONE
 module powerflow
 {
-	message_flags VERBOSE;
+	// message_flags DEBUG;
 }
 module climate;
 module tape
@@ -19,46 +21,62 @@ object weather
 	name "test_weather";
 	temperature 75.2;
 }
-// #set verbose=TRUE
-object building
+object meter
 {
 	phases ABC;
 	nominal_voltage 480;
-	dt 1h;
+	object building:..1000
+	{
+		phases ABC;
+		nominal_voltage 480;
+		dt 1h;
 
-	// thermal parameters
-	UA 300 W/K;
-	CA 2e6 J/K;
-	UI 6000 W/K;
-	CM 8e6 J/K;
-	UM 600 W/K;
+		// thermal parameters
+		UA 300 W/K;
+		CA 2e6 J/K;
+		UI 6000 W/K;
+		CM 8e6 J/K;
+		UM 600 W/K;
 
-	// design parameters
-	TH -20 degC;
-	TC 40 degC;
-	// QH 50000.0 W;
-	QE 10000 W/unit;
-	QG 1000 W/unit;
-	QO 1200 W/unit;
-	QV 400 W/unit;
-	SA 10 m^2;
+		// design parameters
+		TH -20 degC;
+		TC 40 degC;
+		QH 50000.0 W; // 0 to autosize
+		QE 10000 W/unit;
+		QG 1000 W/unit;
+		QO 1200 W/unit;
+		QV 400 W/unit;
+		SA 10 m^2;
 
-	// control parameters
-	K 1.0;
+		// control parameters
+		K 1.0;
 
-	// inputs
-	TO -20 degC;
-	EU 0.1 unit;
-	NG 0.1 unit;
-	NH 2 unit;
-	QS 1000 W/m^2;
-	TS 20 degC;
+		// inputs
+		TO -20 degC;
+		EU 0.1 unit;
+		NG 0.1 unit;
+		NH 2 unit;
+		QS 1000 W/m^2;
+		TS 20 degC;
 
+		// outputs
+		PZM 0 pu; // constant impedance HVAC real power (pu.W)
+		PPM 0.3 pu; // constant power HVAC real power (pu.W)
+		QPM 0.03 pu; // constant power HVAC reactive power (pu.VAr)
+		PZE 500 W/unit; // constant impedance end-use real power (W)
+		PIE 0 W/unit; // constant current end-use real power (W)
+		PPE 500 W/unit; // constant power end-use real power (W)
+		QZE 50 VAr/unit; // constant impedance end-use reactive power (VAr)
+		QIE 0 VAr/unit; // constant current end-use reactive power (VAr)
+		QPE 50 VAr/unit; // constant power end-use reactive power (VAr)
+		PPH 0.06 pu; // constant power ventilation real power (pu.W/person)
+		QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
+	};
 	object recorder 
 	{
-		property "TA,TM";
+		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
 		file "/tmp/test.csv";
-		interval 5min;
+		interval 1h;
 	};
 }
 

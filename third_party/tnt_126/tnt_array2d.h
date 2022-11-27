@@ -72,7 +72,7 @@ class Array2D
 		inline int ref_count_data();
 		inline int ref_count_dim1();
 		Array2D subarray(int i0, int i1, int j0, int j1);
-		inline int printf(FILE *fp,	const char *format, const char *label = "", const char *indent = "", const char *delimiter=" ", const char *newline="\n");
+		inline int printf(const char *label = "", FILE *fp=stderr,const char *format="%+8.4f", const char *indent = "", const char *delimiter=" ", const char *newline="\n");
 };
 
 
@@ -329,21 +329,20 @@ inline int Array2D<T>::ref_count_dim1()
 
 
 template <class T>
-int Array2D<T>::printf(FILE *fp, const char *format, const char *label, const char *indent, const char *delimiter, const char *newline)
+int Array2D<T>::printf(const char *label, FILE *fp, const char *format, const char *indent, const char *delimiter, const char *newline)
 {
   int len = 0;
-
-	for (int i=0; i<m_; i++)
+  for (int i=0; i<m_; i++)
+  {
+    len += fprintf(fp,"%s",i==0?label:indent);
+    for (int j=0; j<n_; j++)
     {
-    	len += fprintf(fp,"%s",i==0?label:indent);
-        for (int j=0; j<n_; j++)
-        {
-            len += fprintf(fp,format,v_[i][j]);
-            len += fprintf(fp,"%s",delimiter);
-        }
-        len += fprintf(fp,"%s",newline);
+        len += fprintf(fp,format,v_[i][j]);
+        len += fprintf(fp,"%s",delimiter);
     }
-    return len;
+    len += fprintf(fp,"%s",newline);
+  }
+  return len;
 }
 
 
