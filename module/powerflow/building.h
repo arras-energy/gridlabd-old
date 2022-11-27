@@ -27,7 +27,7 @@ private:
 
 public:
 
-	// public data
+	// model data
 	GL_ATOMIC(double,dt); // model timestep
 
 	// state variables
