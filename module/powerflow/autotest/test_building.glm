@@ -25,7 +25,7 @@ object meter
 {
 	phases ABC;
 	nominal_voltage 480;
-	object building:..1000
+	object building:..100
 	{
 		phases ABC;
 		nominal_voltage 480;
