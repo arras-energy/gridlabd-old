@@ -158,11 +158,7 @@ $$
 
 ## Inputs
 
-Inputs are specified with the source object and property and the target channel, 
-i.e., 0 for air temperature and 1 for mass temperature.  The values of `b` specify
-the coefficients for the numerator of the transfer function, and the values of `d`
-specify the coefficients for the output.  The values of `u` provide the historical
-values to facilitate initialization.
+Weather inputs are the outdoor air temperature $T_O$ and insolation $Q_S$. The indoor temperature setpoint $T_S$ is also an input. Additionally, the fractional electric end-use load $E$, gas end-use load $G$, and occupant load $H$ are inputs per unit of nominal installed electric load, gas load, and occupancy, respectively.
 
 ## Outputs
 
