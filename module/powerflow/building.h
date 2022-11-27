@@ -8,70 +8,85 @@
 #error "this header must be included by powerflow.h"
 #endif
 
-DECL_METHOD(building,air_temperature);
-DECL_METHOD(building,mass_temperature);
-DECL_METHOD(building,building_response);
-DECL_METHOD(building,input);
-DECL_METHOD(building,composition);
+#include "../../third_party/tnt_126/tnt.h"
+#include "../../third_party/jama125/jama_cholesky.h"
+
+using namespace TNT;
 
 class building : public load 
 {
-	typedef struct s_input
-	{
-		char *source;
-		gld_property *prop;
-		double *addr;
-		unsigned short state;
-		double b[3]; // tf terms
-		double u[3]; // input history
-		double d[2]; // real and reactive power contributions
-		struct s_input *next;
-	} INPUT;
 
-	typedef struct s_static
-	{
-		double **M;
-		double *y0;
-	} STATIC;
-
+	typedef Array2D<double> Matrix;
 
 private:
 
-	// private data
-	STATIC *static_model;
-	double y1[2];
-
-	INPUT *input_list;
-	double x[2][3]; // internal state history (Ta,Tm) w.r.t x0
-	double x0[2]; // equilibrium state
-
-	double ts; // timestep
-	double a[2][3]; // transfer function denominator terms
-	complex p0, p1; // transfer function poles
-	double y2[2];
-
-	double zip[2][3]; // output ZIP components
-	double y[2];
+	Matrix A, B, C, D, x, u, y;
+	bool thermal_flag, design_flag, control_flag, input_flag, output_flag;
 
 public:
 
 	// public data
-	GL_ATOMIC(double,timestep); // model timestep
-	GL_ATOMIC(double,output_timestep); // model output timestep
+	GL_ATOMIC(double,dt); // model timestep
 
-	GL_METHOD(building,air_temperature); // previous air temperature values
-	GL_METHOD(building,mass_temperature); // previous mass temperature values
-	GL_METHOD(building,building_response); // set tf denominator terms
-	GL_METHOD(building,input); // add tf input
-	GL_METHOD(building,composition); // zip components
+	// state variables
+	GL_ATOMIC(double,TA); // indoor air temperature (degC)
+	GL_ATOMIC(double,TM); // building mass temperature (degC)
+	GL_ATOMIC(double,M); // HVAC system mode (pu.QH)
+
+	// thermal parameters
+	GL_ATOMIC(double,UA); // conductance from interior air to outdoor air (W/K)
+	GL_ATOMIC(double,CA); // heat capacity of indoor air volume (J/K)
+	GL_ATOMIC(double,UI); // conductance from building mass to indoor air (W/K)
+	GL_ATOMIC(double,CM); // heat capacity of building mass (J/K)
+	GL_ATOMIC(double,UM); // conductance of building mass to outdoor air (W/K)
+
+	// design parameters
+	GL_ATOMIC(double,TH); // heating design temperature (degC)
+	GL_ATOMIC(double,TC); // cooling design temperature (degC)
+	GL_ATOMIC(double,DF); // over-design factor (pu)
+	GL_ATOMIC(double,QH); // HVAC system capacity (W)
+	GL_ATOMIC(double,QE); // enduse loads (W)
+	GL_ATOMIC(double,QG); // gas load heat gains (W/kg)
+	GL_ATOMIC(double,QO); // occupant heat gain (W/person)
+	GL_ATOMIC(double,QV); // ventilation heat gain (W/person)
+	GL_ATOMIC(double,SA); // mass area exposed to solar radiation (m^2)
+
+	// control parameters
+	GL_ATOMIC(double,K); // HVAC control gain w.r.t temperature
+
+	// inputs
+	GL_ATOMIC(double,TO); // outdoor air temperature (degC_
+	GL_ATOMIC(double,EU); // fraction of end-uses active
+	GL_ATOMIC(double,NG); // natural usage in kG
+	GL_ATOMIC(double,NH); // number of occupants
+	GL_ATOMIC(double,QS); // solar radiation (W/m^2)
+	GL_ATOMIC(double,TS); // indoor temperature setpoint (degC)
+
+	// outputs
+	GL_ATOMIC(double,PZM); // constant impedance HVAC real power (W)
+	GL_ATOMIC(double,PPM); // constant power HVAC real power (W)
+	GL_ATOMIC(double,QPM); // constant power HVAC reactive power (VAr)
+	GL_ATOMIC(double,PZE); // constant impedance end-use real power (W)
+	GL_ATOMIC(double,PIE); // constant current end-use real power (W)
+	GL_ATOMIC(double,PPE); // constant power end-use real power (W)
+	GL_ATOMIC(double,QZE); // constant impedance end-use reactive power (VAr)
+	GL_ATOMIC(double,QIE); // constant current end-use reactive power (VAr)
+	GL_ATOMIC(double,QPE); // constant power end-use reactive power (VAr)
+	GL_ATOMIC(double,PPH); // constant power ventilation real power (W/person)
+	GL_ATOMIC(double,QPH); // constant power ventilation reactive power (VAr/person)
 	
 private:
 
 	// private methods
-	void check_poles(double *a,const char *name);
-	void update_state(unsigned int n=1);
-	void update_input(void);
-	void update_output();
+	void update_thermal(bool flag_only=false);
+	void update_design(bool flag_only=false);
+	void update_control(bool flag_only=false);
+	void update_input(bool flag_only=false);
+	void update_output(bool flag_only=false);
+	void update_equipment(void);
+
+	// solvers
+	Matrix solve_UL(Matrix &A, Matrix &b);
 
 public:
 

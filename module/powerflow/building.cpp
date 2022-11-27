@@ -6,11 +6,6 @@
 EXPORT_CREATE(building);
 EXPORT_INIT(building);
 EXPORT_SYNC(building);
-EXPORT_METHOD(building,air_temperature);
-EXPORT_METHOD(building,mass_temperature);
-EXPORT_METHOD(building,building_response);
-EXPORT_METHOD(building,input);
-EXPORT_METHOD(building,composition);
 
 CLASS *building::oclass = NULL;
 building *building::defaults = NULL;
@@ -21,7 +16,8 @@ building::building(MODULE *module)
 	if (oclass==NULL)
 	{
 		// register to receive notice for first top down. bottom up, and second top down synchronizations
-		oclass = gld_class::create(module,"building",sizeof(building),PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
+		oclass = gld_class::create(module,"building",sizeof(building),
+			PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
 		if (oclass==NULL)
 			throw "unable to register class building";
 		else
@@ -32,36 +28,48 @@ building::building(MODULE *module)
 
 			PT_INHERIT, "load",
 
-			PT_double, "timestep[s]", get_timestep_offset(),
-				PT_DEFAULT, "60s",
+			PT_double, "dt[s]", get_dt_offset(),
+				PT_DEFAULT, "1h",
 				PT_DESCRIPTION, "timestep to use when modeling building response to inputs",
 
-			PT_double, "output_timestep[s]", get_output_timestep_offset(),
-				PT_DESCRIPTION, "timestep to use when outputting response to inputs",
+#define PUBLISH(TYPE,NAME,UNIT,DESCRIPTION) PT_##TYPE, #NAME "[" UNIT "]", get_##NAME##_offset(), PT_DESCRIPTION, DESCRIPTION,
 
-			PT_method, "airtemperature_history", method_building_air_temperature,
-				PT_DESCRIPTION, "air temperature history",
-			
-			PT_method, "masstemperature_history", method_building_mass_temperature,
-				PT_DESCRIPTION, "mass temperature history",
-			
-			PT_method, "building_response", method_building_building_response,
-				PT_DESCRIPTION, "building response parameters (second-order transfer function denominator terms)",
-			
-			PT_method, "input", method_building_input,
-				PT_DESCRIPTION, "transfer function input specification input (source and numerator coefficients)",
+			// state variables
+			PUBLISH(double,TA,"degC","indoor air temperature") PT_REQUIRED,
+			PUBLISH(double,TM,"degC","building mass temperature") PT_REQUIRED,
+			PUBLISH(double,M,"pu","system mode per unit system capacity") PT_REQUIRED,
 
-			PT_method, "zip", method_building_composition,
-				PT_DESCRIPTION, "ZIP real and reactive load components",
+			// thermal parameters
+			PUBLISH(double,UA,"W/K","conductance from interior air to outdoor air") PT_REQUIRED,
+			PUBLISH(double,CA,"J/K","heat capacity of indoor air volume") PT_REQUIRED,
+			PUBLISH(double,UI,"W/K","conductance from building mass to indoor air") PT_REQUIRED,
+			PUBLISH(double,CM,"J/K","heat capacity of building mass") PT_REQUIRED,
+			PUBLISH(double,UM,"W/K","conductance of building mass to outdoor air") PT_REQUIRED,
 
-			PT_double, "air_temperature", PADDR(x[0][0]), 
-				PT_ACCESS, PA_REFERENCE,
-				PT_DESCRIPTION, "indoor air temperature",
+			// design parameters
+			PUBLISH(double,TH,"degC","heating design temperature") PT_REQUIRED,
+			PUBLISH(double,TC,"degC","cooling design temperature") PT_REQUIRED,
+			PUBLISH(double,DF,"pu","system over-design factor")
+			PUBLISH(double,QH,"W","HVAC system capacity") PT_REQUIRED,
+			PUBLISH(double,QE,"W/unit","nomimal enduse load capacity") PT_REQUIRED,
+			PUBLISH(double,QG,"W/unit","natural gas heat per unit nominal enduse capacity") PT_REQUIRED,
+			PUBLISH(double,QO,"W/unit","heat gain per occupant") PT_REQUIRED,
+			PUBLISH(double,QV,"W/unit","ventilation gain per occupant") PT_REQUIRED,
+			PUBLISH(double,SA,"m^2","building mass area exposed to solar radiation") PT_REQUIRED,
 
-			PT_double, "mass_temperature", PADDR(x[1][0]),
-				PT_ACCESS, PA_REFERENCE,
-				PT_DESCRIPTION, "building mass temperature",
-			
+			// control parameters
+			PUBLISH(double,K,"pu","HVAC mode proportional control gain w.r.t indoor temperature")
+
+			// inputs
+			PUBLISH(double,TO,"degC","outdoor air temperature")
+			PUBLISH(double,EU,"unit","enduse load fraction")
+			PUBLISH(double,NG,"unit","natural gas demand")
+			PUBLISH(double,NH,"unit","building occupants")
+			PUBLISH(double,QS,"W/m^2","insolation")
+			PUBLISH(double,TS,"degC","thermostat setpoint") PT_REQUIRED,
+
+			// outputs
+
 			NULL)<1){
 				char msg[256];
 				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
@@ -70,69 +78,50 @@ building::building(MODULE *module)
 	}
 }
 
-int building::create(void) 
+int building::isa(char *type)
 {
-	return load::create(); /* return 1 on success, 0 on failure */
+	return strcmp(type,"building") || load::isa(type);
 }
 
-void building::check_poles(double *a,const char *name)
+int building::create(void) 
 {
-	double zr = a[1]*a[1] - 4*a[0]*a[2];
-	if ( zr < 0 ) // complex poles
-	{
-		double x = -0.5*a[1]/a[0];
-		double y = 0.5*sqrt(-zr)/a[0];
-		if ( sqrt(x*x + y*y) >= 1.0 )
-		{
-			warning("%s response is not stable (poles are %f+/-%fj)",name,x,y);
-		}
-		else
-		{
-			verbose("%s poles are (%f+/-%fj)",name,x,y);
-		}
-		p0 = complex(x,y);
-		p1 = complex(x,-y);
-	}
-	else // real poles
-	{
-		double z0 = 0.5/a[0]*(-a[1]-sqrt(zr));
-		double z1 = 0.5/a[0]*(-a[1]+sqrt(zr));
-		if ( z0 >= 1.0 || z1 >= 1.0 )
-		{
-			warning("%s response is not stable (poles are %f,%f)",name,z0,z1);
-		}
-		else
-		{
-			verbose("%s poles are (%f,%f)",name,z0,z1);
-		}
-		p0 = complex(z0,0);
-		p1 = complex(z1,0);
-	}
+	thermal_flag = design_flag = control_flag = input_flag = output_flag = true;
+	DF = 0.5;
+	K = 1.0;
+	return load::create(); /* return 1 on success, 0 on failure */
 }
 
 int building::init(OBJECT *parent)
 {
-	if ( timestep <= 0 )
+	if ( dt <= 0 )
 	{
 		exception("timestep must be positive");
 	}
-	if ( output_timestep == 0.0 )
-	{
-		output_timestep = timestep;
-	}
-	if ( input_list == NULL )
-	{
-		warning("no inputs specified");
-	}
+
+	// initialize working matrices
+	A = Matrix(3,3,0.0);
+	B = Matrix(3,6,0.0);
+	C = Matrix(6,3,0.0);
+	D = Matrix(6,6,0.0);
+	x = Matrix(3,1,0.0);
+	u = Matrix(6,1,0.0);
+	y = Matrix(6,1,0.0);
+
+	// equipment size
+	update_thermal();
+	update_design();
+	update_control();
+	update_equipment();
+	update_input();
+	
 	return load::init(parent);
 }
 
 TIMESTAMP building::precommit(TIMESTAMP t1, TIMESTAMP t2)
 {
-	if ( t2 % (int)timestep == 0 )
+	if ( t2 % (int)dt == 0 )
 	{
 		update_input();
-		update_state((t2-t1)/timestep);
 		update_output();
 	}
 	return TS_NEVER;
@@ -141,7 +130,7 @@ TIMESTAMP building::precommit(TIMESTAMP t1, TIMESTAMP t2)
 TIMESTAMP building::presync(TIMESTAMP t0)
 {
 	TIMESTAMP t2 = load::presync(t0);
-	TIMESTAMP t1 = (TIMESTAMP)((TIMESTAMP)(t0/output_timestep)+1)*output_timestep;
+	TIMESTAMP t1 = (TIMESTAMP)(((TIMESTAMP)(t0/dt)+1)*dt);
 	return t1 < t2 ? -t1 : t2;
 }
 
@@ -150,215 +139,175 @@ TIMESTAMP building::sync(TIMESTAMP t0)
 	return load::sync(t0);
 }
 
-int building::air_temperature(char *buffer, size_t len)
+building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 {
-	if ( buffer != NULL && len == 0 ) // read values in buffer
+	int M = A.dim1();
+	int N = A.dim2();
+	int K = b.dim2();
+	assert ( M == N ); // check that A is square
+	assert ( M != b.dim1() ); // check for dimension match
+	for ( int m = 1 ; m < M ; m++ )
 	{
-		double x1;
-		if ( sscanf(buffer,"%lf",&x1) > 0 )
+		for ( int n = m ; n < N ; n++ )
 		{
-			x[0][0] = x1 - x0[0];
-			return 1;
-		}
-		else
-		{
-			return 0;
+			assert( A[m][n] == 0.0 );
 		}
 	}
-	else // save values to buffer (or return buffer size if buffer is null)
+
+	Matrix  x(M,K,0.0);
+	for ( int k = 0 ; k < K ; k++ )
 	{
-		return snprintf(buffer,len,"%lf",x[0][0] + x0[0]);
+		for ( int m = 0 ; m < M ; m++ ) // rows
+		{
+			x[m][k] = b[M-m-1][k];
+			for ( int n = 0 ; n < m ; n++ ) // columns
+			{
+				x[m][k] -= A[M-m-1][n]*x[n][k];
+			}
+			x[m][k] /= A[M-m-1][m];
+		}
 	}
+	return x;
 }
 
-int building::mass_temperature(char *buffer, size_t len)
+void building::update_equipment(void)
 {
-	if ( buffer != NULL && len == 0 ) // read values in buffer
+	if ( QH == 0.0 )
 	{
-		double x1;
-		if ( sscanf(buffer,"%lf",&x1) > 0 )
-		{
-			x[1][0] = x1 - x0[0];
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf",x[1][0] + x0[1]);
-	}
-}
+		// autosize heating system
+		Matrix Ah(2,2,0.0);
+		Ah.set(UI/CA,DF/CA,
+			-(UM+UI)/CM,0.0);
 
-int building::building_response(char *buffer, size_t len)
-{
-	if ( buffer != NULL && len == 0 ) // read values in buffer
-	{
-		static const char *channel[] = {"air_temperature","mass_temperature"};
-		int result = sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&a[0][0],&a[0][1],&a[0][2],&a[1][0],&a[1][1],&a[1][2]);
-		for ( INPUT *input = input_list ; input != NULL ; input = input->next )
-		{
-			if ( input->state < 0 || input->state > 1 )
-			{
-				error("%s channel '%d' is not valid",input->source,input->state);
-				return 0;
-			}
-			if ( input->b[0] == 0.0 && input->b[1] == 0.0 && input->b[2] == 0.0 )
-			{
-				warning("%s channel %d (%s) input response is null",input->source,input->state,channel[input->state]);
-			}
-		}
-		for ( unsigned short state = 0 ; state < 2 ; state++ )
-		{
-			if ( a[state][0] == 0.0 && a[state][1] == 0.0 && a[state][2] == 0.0 )
-			{
-				warning("building %s response is null",channel[state]);
-			}
-			else
-			{
-				check_poles(a[state],channel[state]);
-			}
-		}
-		return result;
-	}
-	else // save values to buffer (or return buffer size if buffer is null)
-	{
-		return snprintf(buffer,len,"%lf,%lf,%lf;%lf,%lf,%lf",a[0][0],a[0][1],a[0][2],a[1][0],a[1][1],a[1][2]);
-	}
-}
+		Matrix Bh(2,2,0.0);
+		Bh.set(UA/CA,-(UA+UI)/CA,
+			UM/CM,UI/CM);
 
-int building::input(char *buffer, size_t len)
-{
-	char objectname[64];
-	char propertyname[64];
-	double b0,b1,b2;
-	double d0, d1;
-	double u0=0,u1=0,u2=0;
-	unsigned short state;
-	if ( buffer != NULL && len == 0 )
-	{
-		int result = sscanf(buffer,"%63[^.].%63[^,],%hu,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",objectname,propertyname,&state,&b0,&b1,&b2,&d0,&d1,&u0,&u1,&u2);
-		if ( result < 1 )
-		{
-			exception("input '%s' specification is not valid",buffer);
-		}
-		else if ( result < 7 )
-		{
-			exception("input '%s' specification field %d is not valid",buffer,result+1);
-		}
-		INPUT *last = input_list;
-		input_list = new INPUT;
-		asprintf(&(input_list->source),"%s.%s",objectname,propertyname);
-		input_list->prop = new gld_property(objectname,propertyname);
-		if ( ! input_list->prop->is_valid() )
-		{
-			exception("input '%s' not found",input_list->source);
-		}
-		input_list->state = state;
-		input_list->b[0] = b0;
-		input_list->b[1] = b1;
-		input_list->b[2] = b2;
-		input_list->d[0] = d0;
-		input_list->d[1] = d1;
-		input_list->u[0] = u0;
-		input_list->u[1] = u1;
-		input_list->u[2] = u2;
-		input_list->addr = (double*)input_list->prop->get_addr();
-		input_list->next = last;
-		return strlen(buffer);
-	}
-	else if ( buffer == NULL )
-	{
-		int result = 0;
-		for ( INPUT *item = input_list ; item != NULL ; item = item->next )
-		{
-			result += snprintf(NULL,0,"%s,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-				item->source,item->state,item->b[0],item->b[1],item->b[2],item->d[0],item->d[1],item->u[0],item->u[1],item->u[2]);
-		}
-		return result;
+		Matrix uh(2,1);
+		uh.set(TH,TS);
+
+		Matrix bh = -Bh % uh;
+		Matrix xh = solve_UL(Ah,bh);
+
+		// autosize cooling system
+		Matrix Ac(2,2,0.0);
+		Ac.set(UI/CA, DF/CA, 
+			-(UM+UI)/CM, 0.0);
+
+		Matrix Bc(2,3,0.0);
+		Bc.set(UA/CA,-(UA+UI)/CA, 0.0,
+			UM/CM, UI/CM, (QE+QG+QO+QV+1300*SA)/CM);
+
+		Matrix uc(3,1,0.0);
+		uc.set(TC,TS,1.0);
+
+		Matrix bc = -Bc % uc;
+		Matrix xc = solve_UL(Ac,bc);
+
+		// autosize with larger system
+		QH = max(-xc[1][0],xh[1][0]);
 	}
 	else
 	{
-		int result = 0;
-		for ( INPUT *item = input_list ; item != NULL ; item = item->next )
+		// check heating equipment size
+		Matrix uh(6,1,0.0);
+		uh[0][0] = TH;
+		uh[5][0] = TS;
+		Matrix bh(-B%uh);
+		Matrix xh(solve_UL(A,bh));
+		if ( xh[2][0] > DF )
 		{
-			result += snprintf(buffer+result,len-result,"%s,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-				item->source,item->state,item->b[0],item->b[1],item->b[2],item->d[0],item->d[1],item->u[0],item->u[1],item->u[2]);
+			warning("system is undersized for TH = %.1f degC, MH = %.2f",TH,xh[2][0]);
 		}
-		return result;
+		
+		// check cooling equipment size
+		Matrix uc(6,1,1.0);
+		uc[0][0] = TC;
+		uc[5][0] = TS;
+		Matrix bc(-B%uc);
+		Matrix xc(solve_UL(A,bc));
+		if ( -xc[2][0] > DF )
+		{
+			warning("system is undersized for TC = %.1f degC, MC = %.2f",TC,xc[2][0]);
+		}
+		
 	}
 }
 
-int building::composition(char *buffer, size_t len)
+void building::update_thermal(bool flag_only)
 {
-	if ( buffer != NULL && len == 0 )
+	if ( ! flag_only && thermal_flag )
 	{
-		return sscanf(buffer,"%lf,%lf,%lf;%lf,%lf,%lf",&zip[0][0],&zip[0][1],&zip[0][2],&zip[1][0],&zip[1][1],&zip[1][2]) == 6 ? 1 : 0;
+		A[0][0] = -(UA+UI)/CA;
+		A[0][1] = UI/CA;
+		A[0][2] = QH/CA;
+		A[1][0] = UI/CM;
+		A[1][1] = -(UM+UI)/CM;
+		B[0][0] = UA/CA;
+		B[0][1] = QE/CA;
+		B[0][2] = QG/CA;
+		B[0][3] = (QO+QV)/CA;
+		B[1][0] = UM/CM;
+		B[1][4] = SA/CM;
 	}
 	else
 	{
-		return snprintf(buffer,len,"%lf,%lf,%lf;%lf,%lf,%lf",zip[0][0],zip[0][1],zip[0][2],zip[1][0],zip[1][1],zip[1][2]);
+		thermal_flag |= flag_only;		
 	}
 }
 
-void building::update_input(void)
+void building::update_design(bool flag_only)
 {
-	// update history
-	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
+	if ( ! flag_only && design_flag )
 	{
-		input->u[2] = input->u[1];
-		input->u[1] = input->u[0];
-		if ( input->u[0] != *input->addr )
-		{
-			// input change requires update of temperature values
-			double du = *input->addr - input->u[0];
-			double dx = du * ( input->b[0] + input->b[1] + input->b[2] ) / ( a[input->state][0] + a[input->state][1] + a[input->state][2]);
-			x0[input->state] += dx;
-			x[input->state][0] += dx;
-			x[input->state][1] += dx;
-			x[input->state][2] += dx;
-			input->u[0] = *input->addr;
-		}
+		A[0][2] = QH/CA;
+		B[1][4] = SA/CM;
+	}
+	else
+	{
+		design_flag |= flag_only;
 	}
 }
 
-void building::update_state(unsigned int n)
+void building::update_control(bool flag_only)
 {
-	// update timesteps
-	// TODO: use poles to do this faster when doing more than 3 timesteps
-	while ( n-- > 0 )
+	if ( ! flag_only && control_flag )
 	{
-		// initialize update
-		x[0][2] = x[0][1]; 
-		x[0][1] = x[0][0]; 
-		x[0][0] = -a[0][1]*x[0][1] - a[0][2]*x[0][2];
-		x[1][2] = x[1][1]; 
-		x[1][1] = x[1][0]; 
-		x[1][0] = -a[1][1]*x[1][1] - a[1][2]*x[1][2];
-
-		// add inputs
-		for ( INPUT *input = input_list ; input != NULL ; input = input->next )
-		{
-			x[input->state][0] += input->b[0]*input->u[0] + input->b[1]*input->u[1] + input->b[2]*input->u[2];
-		}
-
-		// finalize update
-		x[0][0] /= a[0][0];
-		x[1][0] /= a[1][0];
+		A[2][0] = K;
+		B[2][5] = -K;
+	}
+	else
+	{
+		control_flag |= flag_only;
 	}
 }
 
-void building::update_output(void)
+void building::update_input(bool flag_only)
 {
-	double P = 0.0;
-	double Q = 0.0;
-	for ( INPUT *input = input_list ; input != NULL ; input = input->next )
+	if ( ! flag_only && input_flag )
 	{
-		P += input->d[0]*input->u[0];
-		Q += input->d[1]*input->u[0];
+		u[0][0] = TO;
+		u[1][0] = EU;
+		u[2][0] = NG;
+		u[3][0] = NH;
+		u[4][0] = QS;
+		u[5][0] = TS;
 	}
-	constant_power[0] = constant_power[1] = constant_power[2] = complex(P,Q)/3.0;
-	return;
+	else
+	{
+		input_flag |= flag_only;
+	}
 }
+
+void building::update_output(bool flag_only)
+{
+	if ( ! flag_only && output_flag )
+	{
+		// TODO
+	}
+	else
+	{
+		output_flag |= flag_only;
+	}
+}
+

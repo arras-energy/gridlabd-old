@@ -1,3 +1,4 @@
+#set suppress_repeat_messages=FALSE
 clock
 {
 	timezone "PST+8PDT";
@@ -18,22 +19,46 @@ object weather
 	name "test_weather";
 	temperature 75.2;
 }
-#set verbose=TRUE
+// #set verbose=TRUE
 object building
 {
 	phases ABC;
 	nominal_voltage 480;
-	timestep 60;
-	output_timestep 3600;
-	building_response "1,-0.5,0.1;1,-0.5,0.5";
-	input "test_weather.temperature,0,0,1,0,1,1";
-	input "test_weather.temperature,1,0,0,1,1,1";
-	zip "1,0,0;0.1,0,0";
+	dt 1h;
+
+	// thermal parameters
+	UA 300 W/K;
+	CA 2e6 J/K;
+	UI 6000 W/K;
+	CM 8e6 J/K;
+	UM 600 W/K;
+
+	// design parameters
+	TH -20 degC;
+	TC 40 degC;
+	// QH 50000.0 W;
+	QE 10000 W/unit;
+	QG 1000 W/unit;
+	QO 1200 W/unit;
+	QV 400 W/unit;
+	SA 10 m^2;
+
+	// control parameters
+	K 1.0;
+
+	// inputs
+	TO -20 degC;
+	EU 0.1 unit;
+	NG 0.1 unit;
+	NH 2 unit;
+	QS 1000 W/m^2;
+	TS 20 degC;
+
 	object recorder 
 	{
-		property "air_temperature,mass_temperature";
+		property "TA,TM";
 		file "/tmp/test.csv";
-		interval 60;
+		interval 5min;
 	};
 }
 
