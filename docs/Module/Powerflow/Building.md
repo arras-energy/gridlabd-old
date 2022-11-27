@@ -98,25 +98,25 @@ The HVAC system mode is included as a state variable such that the mode $M$ repr
 
 The state space model is thus
 $$
-    \left[ \begin{matrix} \dot T_A \\ \dot T_M \\ \dot M \end{matrix} \right]
+    \left[ \begin{array}{c} \dot T_A \\ \dot T_M \\ \dot M \end{array} \right]
     =
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{ccc} 
         -{U_A+U_I \over C_A} & {U_I \over C_A} & {Q_H \over C_A}
     \\
         {U_I \over C_M} & -{U_M+U_I \over C_M} & 0
     \\
         K & 0 & 0
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_A \\ T_M \\ M \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_A \\ T_M \\ M \end{array} \right]
     +
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{cccccc} 
         { U_A \over C_A } & {Q_E \over C_A} & {Q_G \over C_A} & {Q_O+Q_V \over C_A} & 0 & 0
     \\
         { U_M \over C_M } & 0 & 0 & 0 & {S_A \over C_M} & 0
     \\
         0 & 0 & 0 & 0 & 0 & -K
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_O \\ E \\ G \\ H \\ Q_S \\ T_S \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_O \\ E \\ G \\ H \\ Q_S \\ T_S \end{array} \right]
     \qquad(3)
 $$
 
@@ -124,36 +124,36 @@ $$
 
 If the system size is not given, then $Q_H$ must be calculated for the design conditions.  The heating system capacity is found by solving Eq. (3) at steady-state for $Q_H$ given the $T_O=T_H$, $T_A=T_S$, $E=G=H=Q_S=0$, and $M=D_F$, the system over-design factor. This gives us the system
 $$
-    \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
+    \left[ \begin{array}{c} 0 \\ 0 \end{array} \right]
     =
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{cc} 
         {U_I \over C_A} & {D_F \over C_A} \\
         -{U_M+U_I \over C_M} & 0
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_M \\ Q_H \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_M \\ Q_H \end{array} \right]
     +
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{cc} 
         {U_A \over C_A} & -{U_A+U_I \over C_A} \\
         {U_M \over C_M} & {U_I \over C_M}
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_H \\ T_S \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_H \\ T_S \end{array} \right]
 $$
 
 The same method is used for cooling but with all internal gains on and maximum solar gain.
 $$
-    \left[ \begin{matrix} 0 \\ 0 \end{matrix} \right]
+    \left[ \begin{array}{cc} 0 \\ 0 \end{array} \right]
     =
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{cc} 
         {U_I \over C_A} & {D_F \over C_A} \\
         -{U_M+U_I \over C_M} & 0
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_M \\ Q_H \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_M \\ Q_H \end{array} \right]
     +
-    \left[ \begin{matrix} 
+    \left[ \begin{array}{ccc} 
         {U_A \over C_A} & -{U_A+U_I \over C_A} & 0 \\
         {U_M \over C_M} & {U_I \over C_M} & { QE+QG+QO+QV+1300S_A \over CA }
-    \end{matrix} \right]
-    \left[ \begin{matrix} T_H \\ T_S \\ 1 \end{matrix} \right]
+    \end{array} \right]
+    \left[ \begin{array}{c} T_H \\ T_S \\ 1 \end{matrix} \right]
 $$
 
 ## Inputs
@@ -168,10 +168,10 @@ values to facilitate initialization.
 
 The real and reactive ZIP components, $\mathbf P$ and $\mathbf Q$, respectively, are obtained from the enduse loads $Q_E$ and the state of the HVAC system $M$, including the system efficiency $\eta$, and the real and reactive power load compositions:
 $$
-    \left[ \begin{matrix} P_Z \\ P_I \\ P_P \\ Q_Z \\ Q_I \\ Q_P \end{matrix} \right]
+    \left[ \begin{array}{c} P_Z \\ P_I \\ P_P \\ Q_Z \\ Q_I \\ Q_P \end{array} \right]
     =
-    \left[ \begin{matrix}
-        0 & 0 & P_{Z_M} 
+    \left[ \begin{array}{ccc}
+        0 & 0 & P_{Z_M}
     \\
         0 & 0 & 0
     \\
@@ -182,10 +182,10 @@ $$
         0 & 0 & 0 
     \\
         0 & 0 & Q_{P_M}
-    \end{matrix} \right] 
-    \left[ \begin{matrix} T_A \\ T_M \\ M \end{matrix} \right]
+    \end{array} \right] 
+    \left[ \begin{array}{c} T_A \\ T_M \\ M \end{array} \right]
     +
-    \left[ \begin{matrix}
+    \left[ \begin{array}{cccccc}
         0 & P_{Z_E} & 0 & 0 & 0 & 0 
     \\
         0 & P_{I_E} & 0 & 0 & 0 & 0 
@@ -197,8 +197,8 @@ $$
         0 & Q_{I_E} & 0 & 0 & 0 & 0 
     \\
         0 & Q_{P_E} & 0 & Q_{P_H} & 0 & 0 
-    \end{matrix} \right] 
-    \left[ \begin{matrix} T_O \\ E \\ G \\ H \\ Q_S \\ T_S \end{matrix} \right]
+    \end{array} \right] 
+    \left[ \begin{array}{c} T_O \\ E \\ G \\ H \\ Q_S \\ T_S \end{array} \right]
 $$
 
 # Example
