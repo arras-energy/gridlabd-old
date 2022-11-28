@@ -104,14 +104,22 @@ object triplex_meter {
      phases AS;
      nominal_voltage 124.00;
      bill_mode UNIFORM;
-	 monthly_fee 0;
+     monthly_fee 0;
      price 1;
 
      bill_day 1;
-//	 power_1 2;
-	 power_2 1;
-	 power_12 1;
-	 object recorder {
+     object triplex_load {
+          phases AS;
+          nominal_voltage 124.00;
+          constant_power_2 1;
+          constant_power_12 1;
+          object player {
+               file ../billing_power.player;
+               loop 1;
+               property constant_power_1;
+          };
+     };
+     object recorder {
 		limit 7000;
 		interval 83600;
 		file uniform_bills.csv; 
@@ -173,9 +181,4 @@ object triplex_meter {
 		once ONCE_TRUE;
 		in '2006-02-08 00:00:00 CST';
 	};
-	object player {
-          file ../billing_power.player;
-          loop 1;
-          property power_1;
-     };
 }

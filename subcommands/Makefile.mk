@@ -26,4 +26,4 @@ bin_SCRIPTS += subcommands/gridlabd-validate
 bin_SCRIPTS += subcommands/gridlabd-version
 bin_SCRIPTS += subcommands/gridlabd-weather
 
-python_requirements += subcommands/requirements.txt
+python_requirements += $(top_srcdir)/subcommands/requirements.txt

@@ -77,7 +77,7 @@ g_assert::g_assert(MODULE *module)
 				PT_DESCRIPTION, "a duration over which the assertion must be violated before failing",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}
@@ -87,6 +87,7 @@ int g_assert::create(void)
 {
 	target_list = NULL;
 	started = TS_NEVER;
+	set_value2("0");
 	return 1; /* return 1 on success, 0 on failure */
 }
 

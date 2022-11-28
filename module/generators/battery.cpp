@@ -143,10 +143,6 @@ battery::battery(MODULE *module)
 			PT_double, "parasitic_power_draw[W]", PADDR(parasitic_power_draw),  
 				PT_DEFAULT,"0 W", PT_DESCRIPTION, "LEGACY MODEL: the parasytic power draw of the battery when idle.",
 
-			PT_double, "Rated_kVA[kVA]", PADDR(Rated_kVA),  
-				PT_DEPRECATED,  
-				PT_DEFAULT,"1 kVA",  
-				PT_DESCRIPTION, "LEGACY MODEL: the rated power of the battery.",
 			PT_complex, "V_Out[V]", PADDR(V_Out),  
 				PT_DESCRIPTION, "LEGACY MODEL: the AC voltage at the terminals of the battery.",
 			PT_complex, "I_Out[A]", PADDR(I_Out),  
@@ -239,14 +235,14 @@ void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -261,14 +257,14 @@ void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *pa
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -283,14 +279,14 @@ void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}

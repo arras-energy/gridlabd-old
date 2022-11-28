@@ -13,6 +13,8 @@ using namespace std;
 CLASS* underground_line::oclass = NULL;
 CLASS* underground_line::pclass = NULL;
 
+EXPORT_COMMIT(underground_line)
+
 underground_line::underground_line(MODULE *mod) : line(mod)
 {
 	if(oclass == NULL)

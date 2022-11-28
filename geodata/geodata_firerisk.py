@@ -39,6 +39,7 @@ if not share:
     share = "/usr/local/share/gridlabd"
 if share not in sys.path:
     sys.path.append("/usr/local/share/gridlabd")
+
 import fire_danger
 
 #
@@ -91,6 +92,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
         coords= [transformer.transform(x, y) for x,y in data.itertuples(index=False)]
         coordsRC= []
         band= usgsMap.read(1)
+
         for x, y in coords:        
             if np.isnan(x):
                 coordsRC.append(0)

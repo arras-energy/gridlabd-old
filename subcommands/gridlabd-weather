@@ -13,7 +13,7 @@ fi
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 COUNTRY="US"
-GITUSER=slacgismo
+GITUSER=hipas
 GITREPO="gridlabd-weather"
 GITBRANCH="master"
 DATADIR="$GLD_ETC/weather/$COUNTRY"
@@ -180,7 +180,7 @@ function delete()
 
 function metar()
 {
-	/usr/local/bin/python3 ${GLD_ETC}/metar2glm.py $*
+	$GLD_BIN/python3 ${GLD_ETC}/metar2glm.py $*
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then

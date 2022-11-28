@@ -309,7 +309,7 @@ STATUS GldLoader::exec(const char *format,...)
 	char cmd[1024];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(cmd,format,ptr);
+	vsnprintf(cmd,sizeof(cmd)-1,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
 	int rc = my_instance->subcommand(cmd);
@@ -2515,6 +2515,64 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 					else
 						strcpy(value,"");
 				}
+				else if (strcmp(varname,"groupid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%s",(const char *)current_object->groupid);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rank")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rank);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rng_state")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rng_state);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"latitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->latitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"longitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->longitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"guid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%llx%llx",current_object->guid[0],current_object->guid[1]);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"parent")==0)
+				{
+					if (current_object && current_object->parent)
+					{
+						if ( current_object->parent->name )
+						{
+							snprintf(value,sizeof(value)-1,"%s",current_object->parent->name);
+						}
+						else
+						{
+							snprintf(value,sizeof(value)-1,"%s:%d",current_object->parent->oclass->name,current_object->parent->id);							
+						}
+					}
+					else
+						strcpy(value,"");
+				}
 				else if ( object_get_value_by_name(current_object,varname,value,sizeof(value)))
 				{
 					/* value is ok */
@@ -2765,6 +2823,11 @@ int GldLoader::module_properties(PARSER, MODULE *mod)
 			syntax_error(filename,linenum,"missing class name in module %s class declaration", mod->name);
 			REJECT;
 		}
+	}
+	OR if ( LITERAL("no_templates") && (WHITE,LITERAL(";")) )
+	{
+		mod->no_templates = true;
+		ACCEPT;
 	}
 	OR if (TERM(name(HERE,propname,sizeof(propname))) && (WHITE))
 	{
@@ -4356,7 +4419,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if ( object_set_complex_by_name(obj,propname,cval) == 0 )
 				{
-					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
+					syntax_error(filename,linenum,"complex property %s of %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -5239,7 +5302,7 @@ int GldLoader::schedule(PARSER)
 	char schedname[64];
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
+	if (LITERAL("schedule") && WHITE && TERM(dashed_name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
 	{
 		char buffer[65536], *p=buffer;
 		int nest=0;
@@ -6306,7 +6369,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(dashed_name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )
@@ -7635,7 +7698,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
+			snprintf(line,size-1,"@%s;%d\n",value,0);
+			int len = strlen(line);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context
@@ -7652,7 +7716,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				len = snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				len = strlen(line);
 				line+=len; size-=len;
 				return size>0;
 			}
@@ -7709,6 +7774,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			/* C include file */
 			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
 			my_instance->subcommand("%s",value);
+			// TODO: insert stdout here
+			strcpy(line,"\n");
 			return TRUE;
 		}
 		else
@@ -7927,7 +7994,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#debug",6)==0)
 	{
-		char *term = strchr(line+8,' ');
+		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
@@ -8312,6 +8379,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(filename,file);
+	linenum = 0;
 	strcpy(global_loader_filename,filename);
 	global_loader_linenum = 1;
 
@@ -8427,7 +8496,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		ext++;
 	}
 	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext);
+	snprintf(converter_name,sizeof(converter_name)-1,"%s2glm.py",ext);
 	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
@@ -8446,7 +8515,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		strcpy(glmext,".glm");
 	char load_options[1024] = "";
 	char load_options_var[64];
-	sprintf(load_options_var,"%s_load_options",ext);
+	snprintf(load_options_var,sizeof(load_options_var)-1,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char *unquoted = load_options;
 	if ( load_options[0] == '"' )

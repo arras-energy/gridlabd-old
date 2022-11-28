@@ -143,10 +143,14 @@ object triplex_meter {
      phases AS;
      name tpm_rtp_A1;
      groupid rtp_meter;
-	 power_1 3;
-	 power_2 3;
-	 power_12 4;
-	 object recorder {
+     object triplex_load {
+          nominal_voltage 124;
+          phases AS;
+          constant_power_1 3;
+          constant_power_2 3;
+          constant_power_12 4;
+     };
+	object recorder {
 		limit 1000000;
 		interval 1800;
 		file stub_bills.csv; 

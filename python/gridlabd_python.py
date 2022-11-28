@@ -1,4 +1,7 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 import sys
 assert(sys.version_info.major>2)
 import traceback

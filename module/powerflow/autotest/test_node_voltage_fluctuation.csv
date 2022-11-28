@@ -1,0 +1,7 @@
+timestamp,object,type,description
+2000-01-01 00:00:00,node_2,VOLTAGE,"node_2 phase A voltage magnitude 2184.0 V outside 4.0% violation threshold for node_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,node_2,VOLTAGE,"node_2 phase B voltage magnitude 2184.0 V outside 4.0% violation threshold for node_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,node_2,VOLTAGE,"node_2 phase C voltage magnitude 2184.0 V outside 4.0% violation threshold for node_2 DER_value 100000.0+0.0j kVA"
+2000-01-01 00:00:00,node_2,VOLTAGE,"node phase A voltage 2257.7 V is outside 5.0% violation threshold"
+2000-01-01 00:00:00,node_2,VOLTAGE,"node phase B voltage 2258.8 V is outside 5.0% violation threshold"
+2000-01-01 00:00:00,node_2,VOLTAGE,"node phase C voltage 2259.5 V is outside 5.0% violation threshold"

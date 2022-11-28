@@ -42,7 +42,7 @@ parking::parking(MODULE *module)
             PT_complex,"total_power[VA]",get_total_power_offset(),PT_DEFAULT,"0 VA",PT_DESCRIPTION,"power total demand for parking structure",
             NULL)<1){
                 char msg[256];
-                sprintf(msg, "unable to publish properties in %s",__FILE__);
+                snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
                 throw msg;
         }
         gl_global_create("commercial::nightlight_threshold[W/m^2]",PT_double,&default_nightlight_threshold,NULL);

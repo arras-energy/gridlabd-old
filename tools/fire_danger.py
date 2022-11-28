@@ -37,7 +37,10 @@ import datetime
 import rasterio
 from rasterio.plot import show
 
-CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
+
+GLD_ETC = os.getenv("GLD_ETC",)
+
+CACHEDIR = f"{GLD_ETC}/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
 REFRESH = False
 SHOW = False
@@ -132,3 +135,4 @@ if __name__ == "__main__":
 	except Exception as err:
 		etype,evalue,etrace = sys.exc_info()
 		print(f"ERROR [{BASENAME}]: {etype.__name__} {evalue}",file=sys.stderr)
+

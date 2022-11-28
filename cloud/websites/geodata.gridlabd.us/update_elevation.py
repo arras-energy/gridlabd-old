@@ -41,7 +41,8 @@ DEBUG = False
 
 ROOTURL = "https://e4ftl01.cr.usgs.gov/ASTT/ASTGTM.003/2000.03.01/ASTGTMV003_N"
 TMPDIR = "/tmp"
-CACHEDIR = "/usr/local/share/gridlabd/geodata/elevation/30m"
+GLD_ETC = os.getenv("GLD_ETC")
+CACHEDIR = f"{GLD_ETC}/gridlabd/geodata/elevation/30m"
 HOMEDIR = os.getenv("HOME")
 CONFIGDIR = f"{HOMEDIR}/.earthdata"
 

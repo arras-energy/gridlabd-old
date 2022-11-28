@@ -80,7 +80,14 @@ GLM:
 
 # Description
 
-TODO
+The auction provides a means for different objects within the GridLAB-D program to base their supply or demand on a dynamic or real time price. The market implemented in the auction object is implemented as a double-auction market. A double-auction market is one where suppliers and demanders (sellers and bidders) submit their bids of desired price for a set quantity simultaneously. Once the bidding submission period ends, the market "clears" by selecting the intersection point of the supply and demand curves. After the market clears and the relevant latency interval expires, the market price becomes active. At this point, devices that bid into the market will respond appropriately based on internal logic comparing their bid price to the market clearing price. The auction object does not provide any book-keeping or enforcement of the market, it simply provides a central market for buyers and sellers to bid their respective prices and quantities.
+
+Additionally, the auction objects has published functions that can be used in runtime classes or other objects to get bid information into the auction object (submit_bid and submit_bid_state). The two are similar, except the latter has an additional input to define whether the state or if the load is currently ON or OFF (1 or 0) when the bid occurs. This is used for accounting in the capacity_reference_bid_quantity. The format is:
+
+~~~
+submit_bid( market object, bidding object, quantity, price, market id )
+submit_bid_state( market object, bidding object, quantity, price, current state, market id )
+~~~
 
 ## Properties
 
@@ -90,7 +97,7 @@ TODO
   char32 unit;
 ~~~
 
-Unit of quantity
+This describes the unit the auction is expecting to have information provided and delivered (input and output) for quantities. If a variable has units assigned to it, the auction will check to verify units are correct and convert where necessary (e.g. W->kW). If the variable does NOT have a unit assigned, such as a schedule or player file, the auction will assume the values are in this unit. Typical units are kW or MWh.
 
 ### `period`
 
@@ -98,7 +105,7 @@ Unit of quantity
   double period[s];
 ~~~
 
-Interval of time between market clearings
+Defines the time between market clearings. This is also the valid bidding period for the market.
 
 ### `latency`
 
@@ -106,7 +113,7 @@ Interval of time between market clearings
   double latency[s];
 ~~~
 
-Latency between market clearing and delivery
+Defines the time between the market clearing and the price becoming active. For example, if the latency was set to 300 seconds (5 minutes), once the market clears, the current price would be "active" 5 minutes later.
 
 ### `market_id`
 
@@ -114,7 +121,7 @@ Latency between market clearing and delivery
   int64 market_id;
 ~~~
 
-Unique identifier of market clearing
+This value is a unique identifier for each market frame, and is used to track bids across multiple time frames.
 
 ### `network`
 
@@ -122,7 +129,7 @@ Unique identifier of market clearing
   object network;
 ~~~
 
-The comm network used by object to talk to the market (if any)
+Future implementation and is not currently supported. Will be used to define the communications network to support market operations.
 
 ### `verbose`
 
@@ -130,7 +137,7 @@ The comm network used by object to talk to the market (if any)
   bool verbose;
 ~~~
 
-Enable verbose auction operations
+Enables verbose output of the market. This will output all individual bid submissions, as well as information about the market clearing. Useful for debugging market interactions, or getting a more thorough view of the market proceedings.
 
 ### `linkref`
 
@@ -138,23 +145,16 @@ Enable verbose auction operations
   object linkref;
 ~~~
 
-Reference to link object that has demand as power_out (only used when not all loads are bidding)
+This is a deprecated value that has similar properties to capacity_reference_object, but is no longer supported.
 
-### `pricecap`
+### `pricecap` or `price_cap`
 
 ~~~
   double pricecap;
-~~~
-
-The maximum price (magnitude) allowed
-
-### `price_cap`
-
-~~~
   double price_cap;
 ~~~
 
-The maximum price (magnitude) allowed
+Defines a maximum allowable bid price on the system. This bid effectively represents an infinite bid (this buyer must be satisfied first, or this seller must only be used as a last resort). Any bids above (or below the negative of) the amount will be truncated to this value and generate a warning message.
 
 ### `special_mode`
 
@@ -162,7 +162,7 @@ The maximum price (magnitude) allowed
   enumeration {BUYERS_ONLY, SELLERS_ONLY, NONE} special_mode;
 ~~~
 
-TODO
+Enables different market type modes. The default `NONE` is the normal double-blind auction operation. With `SELLERS_ONLY` set, the market assumes no buyers will bid into the market and uses a fixed price or quantity (defined by fixed_price or fixed_quantity below) for the buyer's market. This is implemented as a single-blind auction scenario. `BUYERS_ONLY` is the converse scenario with the assumption that no sellers are on the system. The seller's market is then defined by the fixed_price or fixed_quantity inputs.
 
 ### `statistic_mode`
 
@@ -170,7 +170,7 @@ TODO
   enumeration {OFF, ON} statistic_mode;
 ~~~
 
-TODO
+By default, this is `ON`, and activates the calculation of market statistics a la Olympic Peninsula demonstration.
 
 ### `fixed_price`
 
@@ -178,7 +178,8 @@ TODO
   double fixed_price;
 ~~~
 
-TODO
+Defines the fixed price for special market bids. If `special_mode` is defined as something other than `NONE`, the market will use this price as the bidding price of the absent party (buyer or seller) for all market clearing scenarios.
+
 
 ### `fixed_quantity`
 
@@ -186,7 +187,8 @@ TODO
   double fixed_quantity;
 ~~~
 
-TODO
+Defines the fixed quantity for special market bids. If `special_mode` is defined as something other than `NONE`, the market will use this quantity as the bidding quantity of the absent party (buyer or seller) for all market clearing scenarios.
+
 
 ### `capacity_reference_object`
 
@@ -194,7 +196,7 @@ TODO
   object capacity_reference_object;
 ~~~
 
-TODO
+Defines an object in the current system that contains a cumulative `units` property. This property represents the total demand on the market and is to be used to help estimate unresponsive buyers on the system. The secondary variable, `capacity_reference_property` is the specific property of the object use. In a power system market, `capacity_reference_object` would be the feeder-level transformer object, and `capacity_reference_property` would be a property like `power_in`.
 
 ### `capacity_reference_property`
 
@@ -202,7 +204,7 @@ TODO
   char32 capacity_reference_property;
 ~~~
 
-TODO
+Defines the property of an object in the current system that contains a cumulative `units` value. This value represents the total demand on the market and is to be used to help estimate unresponsive buyers on the system. This property is read from the object specified in `capacity_reference_object`. In a power system market, `capacity_reference_object` would be the feeder-level transformer object, and `capacity_reference_property` would be a property like `power_in`.
 
 ### `capacity_reference_bid_price`
 
@@ -210,7 +212,7 @@ TODO
   double capacity_reference_bid_price;
 ~~~
 
-TODO
+Defines the price that the capacity reference should be bid at (typically `price_cap` or wholesale market price).
 
 ### `max_capacity_reference_bid_quantity`
 
@@ -218,7 +220,7 @@ TODO
   double max_capacity_reference_bid_quantity;
 ~~~
 
-TODO
+Defines the maximum quantity that the capacity reference should be bid at (e.g. the maximum rated power at the sustation).
 
 ### `capacity_reference_bid_quantity`
 
@@ -226,7 +228,7 @@ TODO
   double capacity_reference_bid_quantity;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `init_price`
 
@@ -234,7 +236,7 @@ TODO
   double init_price;
 ~~~
 
-TODO
+Defines the initial value to populate the market statistic buffer with. This will result in a mean of `init_price` for all starting intervals. For example, if `init_price` is `5.0`, then `current_mean_1d` would be `5.0`. The calculated means will immediately become "valid" and slowly update toward the actual mean as the initial buffer is fully populated with clearing prices. This is typically used in conjunction with `warmup 0` to avoid the startup transient.
 
 ### `init_stdev`
 
@@ -242,7 +244,7 @@ TODO
   double init_stdev;
 ~~~
 
-TODO
+Defines the initial value for populating any uninitialized standard deviations. If the standard deviation is not initialized on auction creation, it will revert to this value until the statistics interval is valid. For example, with a 1-hour market period, current_stdev_1d would remain at `init_stdev` until 24 market clearing prices are obtained. At this point, the current_stdev_1d value will represent the calculated standard deviation, not the value in `init_stdev`. This value must be specified, or the explicit `past_stdev_T` or `current_stdev_T` must be initialized to a user specified value. If unspecified, the auction will refuse to start and return an error.
 
 ### `future_mean_price`
 
@@ -250,7 +252,7 @@ TODO
   double future_mean_price;
 ~~~
 
-TODO
+Value of the mean, if representing a day-ahead market.
 
 ### `use_future_mean_price`
 
@@ -258,7 +260,7 @@ TODO
   bool use_future_mean_price;
 ~~~
 
-TODO
+By default, this is deactivated (0). If activated, ignores mean value calculations and uses future_mean_price as the mean to calculate the standard deviation around. This is used when day-ahead markets are considered.
 
 ### `current_market.start_time`
 
@@ -266,7 +268,7 @@ TODO
   timestamp current_market.start_time;
 ~~~
 
-TODO
+Represents the time this market becomes active.
 
 ### `current_market.end_time`
 
@@ -274,7 +276,7 @@ TODO
   timestamp current_market.end_time;
 ~~~
 
-TODO
+Represents the time this market becomes inactive.
 
 ### `current_market.clearing_price`
 
@@ -282,7 +284,7 @@ TODO
   double current_market.clearing_price[$];
 ~~~
 
-TODO
+Represents this market's clearing price.
 
 ### `current_market.clearing_quantity`
 
@@ -290,7 +292,7 @@ TODO
   double current_market.clearing_quantity;
 ~~~
 
-TODO
+Represents this market's clearing quantity.
 
 ### `current_market.clearing_type`
 
@@ -298,23 +300,16 @@ TODO
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} current_market.clearing_type;
 ~~~
 
-TODO
+Represent the type of clearing situation that has occurred in the current market.
 
-### `current_market.marginal_quantity_load`
+### `current_market.marginal_quantity_load` or `current_market.marginal_quantity`
 
 ~~~
   double current_market.marginal_quantity_load;
-~~~
-
-TODO
-
-### `current_market.marginal_quantity`
-
-~~~
   double current_market.marginal_quantity;
 ~~~
 
-TODO
+Represents the marginal quantity of this market. Useful for debugging, as well as providing information for marginal buyers and sellers to handle proportional responses.
 
 ### `current_market.marginal_quantity_bid`
 
@@ -322,7 +317,7 @@ TODO
   double current_market.marginal_quantity_bid;
 ~~~
 
-TODO
+Represents the marginal bid of this market. Useful for debugging, as well as providing information for marginal buyers and sellers to handle proportional responses.
 
 ### `current_market.marginal_quantity_frac`
 
@@ -330,7 +325,7 @@ TODO
   double current_market.marginal_quantity_frac;
 ~~~
 
-TODO
+Represents the fraction of the bid quantity at the marginal quantity of this market. Useful for debugging, as well as providing information for marginal buyers and sellers to handle proportional responses.
 
 ### `current_market.seller_total_quantity`
 
@@ -338,7 +333,7 @@ TODO
   double current_market.seller_total_quantity;
 ~~~
 
-TODO
+Represents the cumulative quantity of all sellers in the seller curve, corresponding to the upper right corner.
 
 ### `current_market.buyer_total_quantity`
 
@@ -346,7 +341,7 @@ TODO
   double current_market.buyer_total_quantity;
 ~~~
 
-TODO
+Represents the cumulative quantity of all buyers in the buyer curve, corresponding to the lower right corner.
 
 ### `current_market.seller_min_price`
 
@@ -354,7 +349,7 @@ TODO
   double current_market.seller_min_price;
 ~~~
 
-TODO
+Represents the price of the lowest seller in the market.
 
 ### `current_market.buyer_total_unrep`
 
@@ -362,7 +357,7 @@ TODO
   double current_market.buyer_total_unrep;
 ~~~
 
-TODO
+Represents the total load of the unresponsive buyers in the current market, as defined by those who bid at the price cap.
 
 ### `current_market.cap_ref_unrep`
 
@@ -370,199 +365,23 @@ TODO
   double current_market.cap_ref_unrep;
 ~~~
 
-TODO
+Represents the total load of the unresponsive buyers in the current market as it was estimated within the capacity reference object.
 
-### `next_market.start_time`
-
-~~~
-  timestamp next_market.start_time;
-~~~
-
-TODO
-
-### `next_market.end_time`
+### `next_market.*`
 
 ~~~
-  timestamp next_market.end_time;
+  timestamp next_market.*;
 ~~~
 
-TODO
+Represents the next market information, analogous to `current_market.*`.
 
-### `next_market.clearing_price`
-
-~~~
-  double next_market.clearing_price[$];
-~~~
-
-TODO
-
-### `next_market.clearing_quantity`
+### `past_market.*`
 
 ~~~
-  double next_market.clearing_quantity;
+  timestamp past_market.*;
 ~~~
 
-TODO
-
-### `next_market.clearing_type`
-
-~~~
-  enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} next_market.clearing_type;
-~~~
-
-TODO
-
-### `next_market.marginal_quantity_load`
-
-~~~
-  double next_market.marginal_quantity_load;
-~~~
-
-TODO
-
-### `next_market.marginal_quantity_bid`
-
-~~~
-  double next_market.marginal_quantity_bid;
-~~~
-
-TODO
-
-### `next_market.marginal_quantity_frac`
-
-~~~
-  double next_market.marginal_quantity_frac;
-~~~
-
-TODO
-
-### `next_market.seller_total_quantity`
-
-~~~
-  double next_market.seller_total_quantity;
-~~~
-
-TODO
-
-### `next_market.buyer_total_quantity`
-
-~~~
-  double next_market.buyer_total_quantity;
-~~~
-
-TODO
-
-### `next_market.seller_min_price`
-
-~~~
-  double next_market.seller_min_price;
-~~~
-
-TODO
-
-### `next_market.cap_ref_unrep`
-
-~~~
-  double next_market.cap_ref_unrep;
-~~~
-
-TODO
-
-### `past_market.start_time`
-
-~~~
-  timestamp past_market.start_time;
-~~~
-
-TODO
-
-### `past_market.end_time`
-
-~~~
-  timestamp past_market.end_time;
-~~~
-
-TODO
-
-### `past_market.clearing_price`
-
-~~~
-  double past_market.clearing_price[$];
-~~~
-
-TODO
-
-### `past_market.clearing_quantity`
-
-~~~
-  double past_market.clearing_quantity;
-~~~
-
-TODO
-
-### `past_market.clearing_type`
-
-~~~
-  enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} past_market.clearing_type;
-~~~
-
-TODO
-
-### `past_market.marginal_quantity_load`
-
-~~~
-  double past_market.marginal_quantity_load;
-~~~
-
-TODO
-
-### `past_market.marginal_quantity_bid`
-
-~~~
-  double past_market.marginal_quantity_bid;
-~~~
-
-TODO
-
-### `past_market.marginal_quantity_frac`
-
-~~~
-  double past_market.marginal_quantity_frac;
-~~~
-
-TODO
-
-### `past_market.seller_total_quantity`
-
-~~~
-  double past_market.seller_total_quantity;
-~~~
-
-TODO
-
-### `past_market.buyer_total_quantity`
-
-~~~
-  double past_market.buyer_total_quantity;
-~~~
-
-TODO
-
-### `past_market.seller_min_price`
-
-~~~
-  double past_market.seller_min_price;
-~~~
-
-TODO
-
-### `past_market.cap_ref_unrep`
-
-~~~
-  double past_market.cap_ref_unrep;
-~~~
-
-TODO
+Represents the last market information, analogous to `current_market.*`.
 
 ### `margin_mode`
 
@@ -570,7 +389,8 @@ TODO
   enumeration {PROB, DENY, NORMAL} margin_mode;
 ~~~
 
-TODO
+Controls the way in which a market’s marginal devices behave, when `use_override` is `ON`. `NORMAL` indicates that marginal bidders will run normally. `DENY` will send a ‘turn off’ signal to marginal bidders. `PROB` indicates that the market has a chance of controlling the device to run, where the chance is the ratio of the marginal quantity to the bid quantity. (a 4.5kW HVAC has an 80% chance of running should the marginal quantity be 3.6kW).
+
 
 ### `warmup`
 
@@ -578,7 +398,7 @@ TODO
   int32 warmup;
 ~~~
 
-TODO
+Activates or de-activates bidding during the first 24 hours of the market to assist in "boot-strapping" of the market. If =1, bids will be ignored during first 24 hours of simulation.
 
 ### `ignore_failed_market`
 
@@ -594,7 +414,7 @@ TODO
   enumeration {TRUE, FALSE} ignore_pricecap;
 ~~~
 
-TODO
+Tells the auction that market cycles that clear at the price_cap shall not be used to calculate the mean price and its standard deviation. This prevents moments of market failure or similar price shocks from destabilizing the auction with wildly swinging price statistics.
 
 ### `transaction_log_file`
 
@@ -602,7 +422,7 @@ TODO
   char256 transaction_log_file;
 ~~~
 
-TODO
+By default, this is off. If given a file name, this log will record every bid (market id, time, price, quantity, state, and object) for both buyers and sellers up to a limit defined by `transaction_log_limit`.
 
 ### `transaction_log_limit`
 
@@ -610,7 +430,7 @@ TODO
   int32 transaction_log_limit;
 ~~~
 
-TODO
+Defines how many market cycles to capture in the transaction_log_file in terms of number of unique market ids. By default, this will capture every market from beginning to end of simulation.
 
 ### `curve_log_file`
 
@@ -618,7 +438,7 @@ TODO
   char256 curve_log_file;
 ~~~
 
-TODO
+By default, this is off. If given a file name, this log will record the final buyer and seller curve at the end of each market clearing.
 
 ### `curve_log_limit`
 
@@ -626,7 +446,7 @@ TODO
   int32 curve_log_limit;
 ~~~
 
-TODO
+Defines the number of market cycles to capture in the curve_log_file in terms of number of uniqure market ids. By default, this will capture every market from beginning to end of simulation.
 
 ### `curve_log_info`
 
@@ -634,79 +454,76 @@ TODO
   enumeration {EXTRA, NORMAL} curve_log_info;
 ~~~
 
-TODO
+Determines how much information to record in the curve_log_file. If `NORMAL`, this will only record the buyer and seller curves. If `EXTRA`, it will also record a number of additional values of interest, such as .clearing_type, .marginal_quantity, responsive and unresponsive loading, etc.
 
 # Example
 
+This is an auction setup for a single-sided market that allows controllers to respond to changes in price relative to the standard deviation and mean of the previous 24 hours:
+
 ~~~
-  object auction {
-    unit "";
-    period "0.0";
-    latency "0.0";
-    market_id "0";
-    verbose "FALSE";
-    pricecap "0.0";
-    price_cap "0.0";
-    special_mode "0";
-    statistic_mode "0";
-    fixed_price "0.0";
-    fixed_quantity "0.0";
-    capacity_reference_property "";
-    capacity_reference_bid_price "0.0";
-    max_capacity_reference_bid_quantity "0.0";
-    capacity_reference_bid_quantity "0.0";
-    init_price "0.0";
-    init_stdev "0.0";
-    future_mean_price "0.0";
-    use_future_mean_price "FALSE";
-    current_market.start_time "TS_ZERO";
-    current_market.end_time "TS_ZERO";
-    current_market.clearing_price "0.0";
-    current_market.clearing_quantity "0.0";
-    current_market.clearing_type "0";
-    current_market.marginal_quantity_load "0.0";
-    current_market.marginal_quantity "0.0";
-    current_market.marginal_quantity_bid "0.0";
-    current_market.marginal_quantity_frac "0.0";
-    current_market.seller_total_quantity "0.0";
-    current_market.buyer_total_quantity "0.0";
-    current_market.seller_min_price "0.0";
-    current_market.buyer_total_unrep "0.0";
-    current_market.cap_ref_unrep "0.0";
-    next_market.start_time "TS_ZERO";
-    next_market.end_time "TS_ZERO";
-    next_market.clearing_price "0.0";
-    next_market.clearing_quantity "0.0";
-    next_market.clearing_type "0";
-    next_market.marginal_quantity_load "0.0";
-    next_market.marginal_quantity_bid "0.0";
-    next_market.marginal_quantity_frac "0.0";
-    next_market.seller_total_quantity "0.0";
-    next_market.buyer_total_quantity "0.0";
-    next_market.seller_min_price "0.0";
-    next_market.cap_ref_unrep "0.0";
-    past_market.start_time "TS_ZERO";
-    past_market.end_time "TS_ZERO";
-    past_market.clearing_price "0.0";
-    past_market.clearing_quantity "0.0";
-    past_market.clearing_type "0";
-    past_market.marginal_quantity_load "0.0";
-    past_market.marginal_quantity_bid "0.0";
-    past_market.marginal_quantity_frac "0.0";
-    past_market.seller_total_quantity "0.0";
-    past_market.buyer_total_quantity "0.0";
-    past_market.seller_min_price "0.0";
-    past_market.cap_ref_unrep "0.0";
-    margin_mode "0";
-    warmup "0";
-    ignore_failed_market "0";
-    ignore_pricecap "0";
-    transaction_log_file "";
-    transaction_log_limit "0";
-    curve_log_file "";
-    curve_log_limit "0";
-    curve_log_info "0";
-  }
+class auction {
+    double current_price_mean_24h;
+    double current_price_stdev_24h;
+}
+object auction {
+    name Market_1;
+    period 900;
+    special_mode BUYERS_ONLY;
+    unit kW;
+     object player {
+         file price.player;
+         loop 10;
+         property current_market.clearing_price;
+     };
+}
+~~~
+
+You could also set up your own static values and not use the built-in statistics:
+
+~~~
+class auction {
+    double my_avg;
+    double my_std;
+}
+object auction {
+    name Market_1;
+    period 900;
+    special_mode BUYERS_ONLY;
+    unit kW;
+    statistic_mode OFF;
+    my_avg 0.110000;
+    my_std 0.037953;
+     object player {
+         file price.player;
+         loop 10;
+         property current_market.clearing_price;
+     };
+}
+~~~
+
+To set up a congestion object with a full double-auction market, where the capacity object could bid in the LMP of the feeder, with a power limit of 1200 kW, and starts collecting bids immediately:
+
+~~~
+class auction {
+    double current_price_mean_24h;
+    double current_price_stdev_24h;
+}
+object auction {
+    name Market_1;
+    period 900;
+    unit kW;
+    capacity_reference_object Substation_Transformer;
+    capacity_reference_property power_out_real;
+    max_capacity_reference_bid_quantity 1200; //Defaults to 1200 kW
+    init_price 0.10;
+    init_stdev 0.03;
+    warmup 0;
+     object player {
+         file price.player;
+         loop 10;
+         property capacity_reference_bid_price;
+     };    
+}
 ~~~
 
 # See also

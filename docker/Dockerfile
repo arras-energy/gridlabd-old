@@ -1,4 +1,4 @@
-FROM slacgismo/gridlabd_dockerhub_base:220322
+FROM hipas/gridlabd_base:220921
 
 
 ENV container docker
@@ -9,7 +9,7 @@ ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
 ARG RUN_VALIDATION
-ENV LD_LIBRARY_PATH /usr/local/lib
+ENV LD_LIBRARY_PATH /usr/local/opt/gridlabd/lib
 
 
 VOLUME [ "/sys/fs/cgroup" ]

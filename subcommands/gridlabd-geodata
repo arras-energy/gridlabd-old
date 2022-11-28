@@ -1,4 +1,7 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
 The geodata command gathers and joins geographic data. The geodata subcommand
@@ -37,7 +40,7 @@ OPTIONS
 
 REMARKS
 
-The default cache folder is /usr/local/share/gridlabd/geodata. The default
+The default cache folder is /usr/local/opt/gridlabd/<version>/share/gridlabd/geodata. The default
 config file $HOME/.gridlabd/geodata-config. The default maximum thread count
 is 1.
 
@@ -335,7 +338,7 @@ data acquired from the address dataset.
     #write /tmp/write.csv house:address
 
     // get lat,lon from address and write to csv
-    #geodata merge -D address /tmp/write.csv --reverse --format GLM:latitude,longitude -o /tmp/read.glm
+    #geodata merge -D address /tmp/write.csv --reverse --format GLM:@latitude,longitude -o /tmp/read.glm
 
     // read csv as modify
     #include "/tmp/read.glm"

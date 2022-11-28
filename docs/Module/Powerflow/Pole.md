@@ -246,12 +246,12 @@ Guy wire attachment height.
 
 # Model
 
-The pole failure model is described in [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/module/powerflow/docs/pole_loading.pdf).
+The pole failure model is described in [Pole Loading Model](https://source.gridlabd.us/raw/master/module/powerflow/docs/pole_loading.pdf).
 
 The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
 
 # See also
 
 * [[/Module/Powerflow/Pole_configuration]]
-* [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/module/powerflow/docs/pole_loading.pdf)
+* [Pole Loading Model](https://source.gridlabd.us/raw/master/module/powerflow/docs/pole_loading.pdf)
 * [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457)
