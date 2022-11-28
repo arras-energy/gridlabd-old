@@ -68,10 +68,6 @@ object meter
 		QPE 50 VAr/unit; // constant power end-use reactive power (VAr)
 		PPH 0.06 pu; // constant power ventilation real power (pu.W/person)
 		QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
-
-		power_fraction_A 1.0;
-		power_fraction_B 1.0;
-		power_fraction_C 1.0;
 	};
 	object recorder 
 	{

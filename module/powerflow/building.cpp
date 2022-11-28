@@ -493,9 +493,10 @@ void building::update_output(bool flag_only )
 		update_input();
 		update_state();
 		if ( TRACE_DEBUG ) debug("  updating output");
-		C[0][2] = PZM*QH;
-		C[2][2] = PPM*QH;
-		C[5][2] = QPM*QH;
+		double QC = ( M<0 ? -QH : QH );
+		C[0][2] = PZM*QC;
+		C[2][2] = PPM*QC;
+		C[5][2] = QPM*QC;
 		DUMP(C);
 		D[0][1] = PZE;
 		D[1][1] = PIE;
@@ -511,14 +512,48 @@ void building::update_output(bool flag_only )
 
 		// copy y to load data
 		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
-		double P = ((y[0][0]*nominal_voltage+y[1][0])*nominal_voltage+y[2][0]) / n_phases;
-		double Q = ((y[3][0]*nominal_voltage+y[4][0])*nominal_voltage+y[5][0]) / n_phases;
-		debug("M = %.2f pu, P = %.3f W, Q = %.3f VAr",M,P*n_phases,Q*n_phases);
+		double P = ((y[0][0]*nominal_voltage+y[1][0])*nominal_voltage+y[2][0]);
+		double Q = ((y[3][0]*nominal_voltage+y[4][0])*nominal_voltage+y[5][0]);
 		complex S(P,Q);
+		debug("M = %.2f pu, P = %.3f W, Q = %.3f VAr, S=%.3f%+.3fj",M,P*n_phases,Q*n_phases,S.r,S.i);
 		double Sm = S.Mag();
-		if ( phases&PHASE_A ) base_power[0] = Sm;
-		if ( phases&PHASE_B ) base_power[1] = Sm;
-		if ( phases&PHASE_C ) base_power[2] = Sm;
+		double Sn = Sm / n_phases;
+		double Pz = complex(y[0][0],y[3][0]).Mag() / Sm;
+		double Pi = complex(y[1][0],y[4][0]).Mag() / Sm;
+		double Pp = complex(y[2][0],y[5][0]).Mag() / Sm;
+		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
+		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
+		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
+		if ( phases&PHASE_A ) 
+		{
+			base_power[0] = Sn;
+			impedance_fraction[0] = Pz;			
+			current_fraction[0] = Pi;
+			power_fraction[0] = Pp;
+			impedance_pf[0] = Fz;
+			current_pf[0] = Fi;
+			power_pf[0] = Fp;
+		}
+		if ( phases&PHASE_B ) 
+		{
+			base_power[1] = Sn;
+			impedance_fraction[1] = Pz;
+			current_fraction[1] = Pi;
+			power_fraction[1] = Pp;
+			impedance_pf[1] = Fz;
+			current_pf[1] = Fi;
+			power_pf[1] = Fp;
+		}
+		if ( phases&PHASE_C ) 
+		{
+			base_power[2] = Sn;
+			impedance_fraction[2] = Pz;
+			current_fraction[2] = Pi;
+			power_fraction[2] = Pp;
+			impedance_pf[2] = Fz;
+			current_pf[2] = Fi;
+			power_pf[2] = Fp;
+		}
 
 		output_flag = false;
 	}
