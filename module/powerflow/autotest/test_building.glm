@@ -2,7 +2,7 @@
 
 //#set debug=TRUE
 
-#option profile
+//#option profile
 
 #set randomseed=1
 #set suppress_repeat_messages=FALSE
@@ -21,6 +21,17 @@ clock
 	timezone "PST+8PDT";
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
+}
+class weather
+{
+	double temperature[degC];
+	double insolation[W/m^2];
+}
+object weather
+{
+	name "weather";
+	temperature -5 degC;
+	insolation 500 W/m^2;
 }
 object meter
 {
@@ -53,11 +64,9 @@ object meter
 		K 1.0;
 
 		// inputs
-		TO random.triangle(-10,40) degC;
 		EU random.triangle(0.1,0.2) unit;
 		NG random.triangle(0.1,0.2) unit;
 		NH random.triangle(0,4) unit;
-		QS random.triangle(0,1000) W/m^2;
 		TS random.triangle(18,22) degC;
 
 		// outputs
@@ -72,6 +81,9 @@ object meter
 		QPE 50 VAr/unit; // constant power end-use reactive power (VAr)
 		PPH 0.06 pu; // constant power ventilation real power (pu.W/person)
 		QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
+
+		temperature_source "weather.temperature";
+		solar_source "weather.insolation";
 	};
 	object recorder 
 	{

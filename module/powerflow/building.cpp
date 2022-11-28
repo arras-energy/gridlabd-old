@@ -96,6 +96,10 @@ building::building(MODULE *module)
 			PUBLISH(double,measured_demand,"W","maximum metered real power interval demand"), PT_OUTPUT,
 			PUBLISH(double,measured_demand_timestep,"s","maximum power metering interval"), PT_OUTPUT,
 
+			// weather sources
+			PT_char256,"temperature_source",get_temperature_source_offset(),PT_DESCRIPTION,"temperature weather object source property",
+			PT_char256,"solar_source",get_solar_source_offset(),PT_DESCRIPTION,"solar weather object source property",
+
 			NULL)<1) {
 				throw "unable to publish building properties";
 		}
@@ -122,6 +126,24 @@ int building::create(void)
 int building::init(OBJECT *parent)
 {
 	if ( TRACE_DEBUG ) debug("*** building load init");
+
+	if ( strcmp(temperature_source,"") != 0 )
+	{
+		temperature = new gld_property(temperature_source);
+		if ( temperature == NULL || ! temperature->is_valid() )
+		{
+			error("temperature source '%s' is not valid",(const char*)temperature_source);
+		}
+	}
+	if ( strcmp(solar_source,"") != 0 )
+	{
+		solar = new gld_property(solar_source);
+		if ( solar == NULL || ! solar->is_valid() )
+		{
+			error("solar source '%s' is not valid",(const char*)solar_source);
+		}
+	}
+
 	if ( dt <= 0 )
 	{
 		exception("timestep must be positive");
@@ -441,10 +463,18 @@ void building::update_input(bool flag_only )
 	if ( ! flag_only && input_flag )
 	{
 		if ( TRACE_DEBUG ) debug("  updating input");
+		if ( temperature )
+		{
+			TO = temperature->get_double();
+		}
 		u[0][0] = TO;
 		u[1][0] = EU;
 		u[2][0] = NG;
 		u[3][0] = NH;
+		if ( solar )
+		{
+			QS = solar->get_double();
+		}
 		u[4][0] = QS;
 		u[5][0] = TS;
 		DUMP(u);
@@ -565,3 +595,8 @@ void building::update_output(bool flag_only )
 	if ( TRACE_DEBUG ) debug("exiting update_output(%s)",flag_only?"true":"");
 }
 
+int building::load_data(void)
+{
+	// TODO: read loadshapes files
+	return 1;
+}

@@ -26,6 +26,14 @@ private:
 	complex last_measured_energy; // energy at last meter update
 
 public:
+	static char1024 electric_enduses_filename;
+	static char1024 gas_enduses_filename;
+	static char1024 occupancies_filename;
+	static char1024 setpoints_filename;
+	gld_property *temperature;
+	gld_property *solar;
+
+public:
 
 	// model data
 	GL_ATOMIC(double,dt); // model timestep
@@ -88,6 +96,14 @@ public:
 	GL_ATOMIC(double,measured_demand);
 	GL_ATOMIC(double,measured_demand_timestep);
 
+	// schedules
+	GL_ATOMIC(int32,electric_enduse);
+	GL_ATOMIC(int32,gas_enduse);
+	GL_ATOMIC(int32,occupancy);
+	GL_ATOMIC(int32,setpoint);
+	GL_STRING(char256,temperature_source);
+	GL_STRING(char256,solar_source);
+
 private:
 
 	// private methods (flag_only=true to mark for update, flag_only=false to perform update if marked)
@@ -98,6 +114,9 @@ private:
 	void update_state(bool flag_only=false);
 	void update_output(bool flag_only=false);
 	void update_equipment(void); // only called when QH needs to be checked (or autosized if QH=0)
+
+	// loaders
+	int load_data(void);
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);
