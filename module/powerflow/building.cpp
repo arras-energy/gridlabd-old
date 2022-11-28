@@ -23,7 +23,7 @@ building::building(MODULE *module)
 	{
 		// register to receive notice for first top down. bottom up, and second top down synchronizations
 		oclass = gld_class::create(module,"building",sizeof(building),
-			PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
+			PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK|PC_OBSERVER);
 		if (oclass==NULL)
 			throw "unable to register class building";
 		else
@@ -208,8 +208,8 @@ TIMESTAMP building::postsync(TIMESTAMP t0)
 
 TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 {
-	double dt = (double)(t0 - last_meter_update) / 3600;
-	if ( dt > 0 && measured_energy_delta_timestep > 0 && t0 % (TIMESTAMP)measured_energy_delta_timestep == 0 )
+	double ts = (double)(t0 - last_meter_update) / 3600;
+	if ( ts > 0 && measured_energy_delta_timestep > 0 && t0 % (TIMESTAMP)measured_energy_delta_timestep == 0 )
 	{
 		complex *S = get_power_injection();
 
@@ -234,8 +234,8 @@ TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 		// compute measured energy
 		if ( last_meter_update > 0 )
 		{
-			measured_real_energy += measured_real_power * dt;
-			measured_reactive_energy += measured_reactive_power * dt;
+			measured_real_energy += measured_real_power * ts;
+			measured_reactive_energy += measured_reactive_power * ts;
 			measured_real_energy_delta = measured_real_energy - last_measured_energy.r;
 			measured_reactive_energy_delta = measured_reactive_energy - last_measured_energy.i;
 		}
