@@ -1,12 +1,16 @@
 // module/powerflow/autotest/test_building.glm
 
+//#set debug=TRUE
+
+#option profile
+
 #set randomseed=1
 #set suppress_repeat_messages=FALSE
-//#set debug=TRUE
-//#set output_message_context=NONE
+#set output_message_context=NONE
+
 module powerflow
 {
-	// message_flags DEBUG;
+	message_flags DEBUG;
 }
 module tape
 {
