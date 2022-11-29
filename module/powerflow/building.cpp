@@ -114,11 +114,13 @@ int building::isa(char *type)
 int building::create(void) 
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load create");
+
 	thermal_flag = design_flag = control_flag = input_flag = state_flag = output_flag = true;
 	DF = 2.0;
 	K = 1.0;
 	measured_real_energy = measured_reactive_energy = measured_demand = 0.0;
 	measured_energy_delta_timestep = measured_demand_timestep = 3600;
+	prev_measured_energy = last_measured_energy = this_measured_demand = 0.0;
 
 	return load::create(); /* return 1 on success, 0 on failure */
 }
@@ -126,6 +128,8 @@ int building::create(void)
 int building::init(OBJECT *parent)
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load init");
+
+	ts_offset = gld_clock(gl_globalclock).get_tzoffset() + TS_DAY0;
 
 	if ( strcmp(temperature_source,"") != 0 )
 	{
@@ -152,11 +156,11 @@ int building::init(OBJECT *parent)
 	CHECK_NONNEGATIVE(measured_energy_delta_timestep,exception)
 	CHECK_NONNEGATIVE(measured_demand_timestep,exception)
 	CHECK_NONNEGATIVE(QH,exception)
-	if ( measured_energy_delta_timestep < dt || (TIMESTAMP)measured_energy_delta_timestep % (TIMESTAMP)dt != 0 )
+	if ( measured_energy_delta_timestep < dt || (TIMESTAMP)(measured_energy_delta_timestep-ts_offset) % (TIMESTAMP)dt != 0 )
 	{
 		warning("measured_energy_delta_timestep must a multiple of dt");
 	}
-	if ( measured_demand_timestep < dt || (TIMESTAMP)measured_demand_timestep % (TIMESTAMP)dt != 0 )
+	if ( measured_demand_timestep < dt || (TIMESTAMP)(measured_demand_timestep-ts_offset) % (TIMESTAMP)dt != 0 )
 	{
 		warning("measured_demand_timestep must a multiple of dt");
 	}
@@ -201,34 +205,34 @@ int building::init(OBJECT *parent)
 TIMESTAMP building::presync(TIMESTAMP t0)
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load presync");
-	if ( t0 % (int)dt == 0 )
+
+	ts_offset = gld_clock(t0).get_tzoffset() + TS_DAY0;
+	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
 	{
 		update_input(true);
 		update_state(true);
 	}
 	TIMESTAMP t2 = load::presync(t0);
 	TIMESTAMP t1 = (TIMESTAMP)(((TIMESTAMP)(t0/dt)+1)*dt);
+
 	return t1 < t2 ? -t1 : t2;
 }
 
 TIMESTAMP building::sync(TIMESTAMP t0)
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load sync");
+
 	update_output();
+
 	return load::sync(t0);
 }
 
 TIMESTAMP building::postsync(TIMESTAMP t0)
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load postsync");
-	return load::postsync(t0);
-}
 
-TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
-{
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load postsync");
 	double ts = (double)(t0 - last_meter_update) / 3600;
-	if ( ts > 0 && measured_energy_delta_timestep > 0 && t0 % (TIMESTAMP)measured_energy_delta_timestep == 0 )
+	if ( ts > 0 && measured_energy_delta_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_energy_delta_timestep == 0 )
 	{
 		complex *S = get_power_injection();
 
@@ -253,26 +257,42 @@ TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 		// compute measured energy
 		if ( last_meter_update > 0 )
 		{
-			measured_real_energy += measured_real_power * ts;
-			measured_reactive_energy += measured_reactive_power * ts;
+			// update measured energy value for this iteration
+			complex measured_energy(measured_real_power*ts,measured_reactive_power*ts);
+			measured_real_energy += measured_energy.r - prev_measured_energy.r;
+			measured_reactive_energy += measured_energy.i - prev_measured_energy.i;
+			prev_measured_energy = measured_energy;
+			
+			// update measured energy delta
 			measured_real_energy_delta = measured_real_energy - last_measured_energy.r;
 			measured_reactive_energy_delta = measured_reactive_energy - last_measured_energy.i;
 		}
-		last_measured_energy = complex(measured_real_energy,measured_reactive_energy);
 
-		// reset measured demand
-		if ( measured_demand_timestep > 0 && t0 % (TIMESTAMP)measured_demand_timestep == 0 )
+		// update measured demand
+		if ( measured_real_power > this_measured_demand )
 		{
-			measured_demand = 0;
+			this_measured_demand = measured_real_power;
 		}
-		last_meter_update = t0;
 	}
 
-	// compute measured demand
-	if ( measured_real_power > measured_demand )
+	return load::postsync(t0);
+}
+
+TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
+{
+	if ( TRACE_DEBUG >= 1 ) debug("*** building load commit");
+
+	// update/reset meter demand values
+	if ( measured_demand_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_demand_timestep == 0 )
 	{
-		measured_demand = measured_real_power;
+		measured_demand = this_measured_demand;
 	}
+
+	// update/reset meter energy values
+	last_measured_energy = complex(measured_real_energy,measured_reactive_energy);
+	last_meter_update = t0;
+	prev_measured_energy = complex(0);
+
 	return TS_NEVER;
 }
 

@@ -84,19 +84,21 @@ object meter
 
 		temperature_source "weather.temperature";
 		solar_source "weather.insolation";
+
+		measured_demand_timestep 1wk;
 	};
 	object recorder 
 	{
 		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
-		file "test_building.csv";
+		file ${modelname/.glm/.csv};
 		interval 1h;
 	};
 }
 
 #set filesave_options=ALLINITIAL
 #set dumpfile=gridlabd.json
-#set savefile=test_building.json
+#set savefile=${modelname/.glm/.json}
 
-#ifexist "../test_building.csv"
-#on_exit 0 diff ../test_building.csv test_building.csv > gridlabd.diff
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff ../${modelname/.glm/.csv} t${modelname/.glm/.csv} > gridlabd.diff
 #endif

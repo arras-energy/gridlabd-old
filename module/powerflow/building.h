@@ -13,6 +13,8 @@
 
 using namespace TNT;
 
+#define TS_DAY0 3*86400
+
 class building : public load 
 {
 
@@ -23,7 +25,10 @@ private:
 	Matrix A, B, C, D, x, u, y; // model data
 	bool thermal_flag, design_flag, control_flag, input_flag, state_flag, output_flag; // update flags
 	TIMESTAMP last_meter_update; // time of last meter update
-	complex last_measured_energy; // energy at last meter update
+	complex last_measured_energy; // energy at last meter commit
+	complex prev_measured_energy; // energy at previous meter postsync iteration
+	double this_measured_demand; // measured demand for this interval
+	int ts_offset; // offset to use for interval checks
 
 public:
 	static char1024 electric_enduses_filename;
