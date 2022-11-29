@@ -208,6 +208,7 @@ fi
 
 sudo ln -s /opt/homebrew/bin/* /usr/local/bin
 sudo ln -s /opt/homebrew/etc/* /usr/local/etc
+sudo ln -s /opt/homebrew/lib/* /usr/local/lib
 
 cd /usr/local/bin
 sudo rm -rf brew

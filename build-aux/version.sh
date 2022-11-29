@@ -25,7 +25,7 @@ case $1 in
         echo "$NUM" ;;
     --install | -i)
         if [ -d /usr/local/opt/gridlabd -a -w /usr/local/opt/gridlabd ]; then
-            echo "/usr/local/opt/gridlabd/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA-$SYS-$HDW"
+            echo "/usr/local/opt/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA-$SYS-$HDW"
         else
             echo "$HOME/opt/$PKG/$MAJ.$MIN.$PAT-$NUM-$BRA-$SYS-$HDW"
         fi
