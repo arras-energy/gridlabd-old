@@ -2,13 +2,24 @@
 
 SYNOPSIS
 
-    gridlabd create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
+    bash$ gridlabd create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
 
 DESCRIPTION
 
     The `create_meters` tool adds meters and optionally recorders
     to the input JSON file.  If the output JSON file is not specified
     the output is written to the input JSON file.
+
+    Meters are added to all load and triplex_load objects that do not
+    already have meters. If the load is connected using a link, the
+    meter is assigned as the load's parent and link is reconnected to
+    the meter.  If the load is connected using a parent object, then
+    the parent object is converted to a meter if it is a node, otherwise
+    the object is assigned a new meter parent and the meter is linked
+    to the model.
+
+    If the `--with-ami` is included, each new meter will be assigned
+    a recorder with a sampling interval of 1 hour.
 """
 
 import os, sys
