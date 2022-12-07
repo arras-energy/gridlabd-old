@@ -444,6 +444,9 @@ STATUS GldGlobals::init(void)
 				that message and try again.
 			*/
 		} else {
+			char buffer[1024];
+			getvar(p->name,buffer,sizeof(buffer)-1);
+			var->initial = strdup(buffer);
 			var->prop->keywords = p->keys;
 			var->callback = p->callback;
 		}
