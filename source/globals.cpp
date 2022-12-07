@@ -651,6 +651,10 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 			}
+			else if ( proptype == PT_DEFAULT )
+			{
+				var->initial = strdup(va_arg(arg,char*));
+			}
 			else if ( proptype == PT_DESCRIPTION )
 			{
 				prop->description = va_arg(arg,char*);
@@ -705,6 +709,14 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 			{
 				prop = NULL;
 			}
+		}
+	}
+
+	if ( var->initial != NULL )
+	{
+		if ( class_string_to_property(var->prop,(void*)var->prop->addr,var->initial) <= 0 )
+		{
+				throw_exception("global_create(char *name='%s',...): cannot set initial value '%s'", name, var->initial);
 		}
 	}
 

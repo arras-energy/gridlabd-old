@@ -365,7 +365,11 @@ int GldJsonWriter::write_globals(FILE *fp)
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
 			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
 			if ( prop->flags ) len += write("\t\t\t\t\"flags\" : \"%s\",",flags);
-			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
+			if ( var->initial != NULL )
+			{
+				len += write("\n\t\t\t\"initial\" : \"%s\"", escape(var->initial));
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);		
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
