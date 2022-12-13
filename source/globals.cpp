@@ -1418,6 +1418,7 @@ DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
 {
     int len = 0;
+    buffer[0] = '\0';
     FINDLIST *finder = findlist_create(FL_NEW, spec);
     for ( OBJECT *obj = find_first(finder) ; obj != NULL ; obj = find_next(finder,obj) )
     {
