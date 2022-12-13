@@ -447,6 +447,7 @@ object player {{
             WRITEOPTIONS["header"] = DATA.columns
 
         # generate CSV output
+        DATA.index = DATA.index.astype('int32')
         DATA.sort_index().to_csv(OUTPUTCSV,**WRITEOPTIONS)
 
     except BrokenPipeError:
