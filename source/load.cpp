@@ -7241,6 +7241,10 @@ bool found_in_list(const char *tag, const char* taglist, char delim=',')
 
 int writefile(char *fname, char *specs)
 {
+	if ( strcmp(specs,"") == 0 )
+	{
+		return saveall(fname);
+	}
 	// identify filetype based on extension
 	enum e_filetype {NONE, CSV, JSON, GLM} filetype = NONE;
 	char *ext = strrchr(fname,'.');
@@ -8254,8 +8258,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#write", 6) == 0 )
 	{
-		char fname[1024], specs[1024];
-		if ( sscanf(line+6,"%s %s",fname,specs) == 2)
+		char fname[1024], specs[1024] = "";
+		if ( sscanf(line+6,"%s %s",fname,specs) >= 1)
 		{
 			if ( writefile(fname,specs) < 0 )
 			{
