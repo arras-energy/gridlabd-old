@@ -24,6 +24,7 @@ DESCRIPTION
 
 import os, sys
 import json
+import datetime
 
 BASENAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 
@@ -31,14 +32,145 @@ if len(sys.argv) == 1:
     print(f"Syntax: gridlabd {BASENAME} [OPTIONS ...] INPUT [OUTPUT]",file=sys.stderr)
     exit(1)
 
+# default configuration
 INPUTFILE = None
 OUTPUTFILE = None
 WITHAMI = False
+MODIFY = False
 
+# modify defaults (GLM only)
+MODIFY_LIST = []
+NEWOBJ_LIST = []
+DELOBJ_LIST = []
+LINKLIST = {}
+LINKOBJS = {}
+
+#
+# Utility functions
+#
+def get_links(name):
+    global LINKLIST
+    if not LINKLIST:
+        for tag, obj in OBJECTS.items():
+            if 'to' in obj and 'from' in obj:
+                # print(tag,obj)
+                add_links(obj['to'],obj['from'],tag)
+            elif 'parent' in obj:
+                return get_links(obj['parent'])
+    try:
+        return LINKLIST[name]
+    except KeyError:
+        return None
+
+def add_links(a,b,name):
+    # print(f"add_links(a='{a}',b='{b}',name='{name}')",file=sys.stderr)
+    global LINKLIST
+    if a not in LINKLIST:
+        LINKLIST[a] = [b]
+        add_links(b,a,name)
+    elif b not in LINKLIST[a]:
+        LINKLIST[a].append(b)
+        add_links(b,a,name)
+
+    global LINKOBS
+    if a not in LINKOBJS:
+        LINKOBJS[a] = [name]
+    elif name not in LINKOBJS[a]:
+        LINKOBJS[a].append(name)
+
+def set_link(old,new):
+    # print(old,'-->',new,':',LINKOBJS[old])
+    for link in LINKOBJS[old]:
+        for d in ['to','from']:
+            if get_data(link,d) == old:
+                set_data(link,d,new)
+                # print(link,d,old,'-->',OBJECTS[link][d])
+
+def get_data(name,tag=None):
+    try:
+        return OBJECTS[name][tag] if tag else OBJECTS[name]
+    except KeyError:
+        return None
+
+def set_data(name,tag,value=None):
+    if value:
+        for key in list(OBJECTS[name].keys()):
+            if OBJECTS[name][key] != value and [name,tag,value] not in MODIFY_LIST:
+                MODIFY_LIST.append([name,tag,value])
+                OBJECTS[name][tag] = value
+    else:
+        del OBJECTS[name][tag]
+        DELOBJ_LIST.append([name,tag])
+
+def add_object(name,data):
+    global MODEL
+    if name in OBJECTS:
+        raise ValueError(f"object '{name}' exists")
+    OBJECTS[name] = data
+    OBJECTS[name]['id'] = len(OBJECTS.keys())
+    if 'meter' in data['class'] and WITHAMI:
+        add_object(name+'_ami',{
+            'class' : 'recorder',
+            'file' : name+'.csv',
+            'interval' : '3600',
+            'parent' : name,
+            'property' : 'measured_real_energy_delta,measured_demand'
+            })
+    NEWOBJ_LIST.append([name,data])
+
+def get_parent(name):
+    try:
+        return OBJECTS[name]['parent']
+    except KeyError:
+        return None
+
+def fix_parent(parent,name,oclass):
+    pclass = get_data(parent,'class')
+
+    # change parent nodes to meters
+    if pclass and pclass == oclass.replace('load','node'):
+
+        # change node to meter
+        nclass = pclass.replace('load','meter')
+        set_data(parent,'class',nclass)
+
+    else:
+
+        # change parent
+        parent = get_parent(parent)
+        if parent:
+            fix_parent(parent,name,oclass)
+            set_data(name,'parent',parent)
+
+def warning(msg):
+    print(f"WARNING [{BASENAME}]: {msg}",file=sys.stderr)
+
+def error(msg):
+    print(f"ERROR [{BASENAME}]: {msg}",file=sys.stderr)
+
+def write_modify(fh,item):
+    print(f"modify {item[0]}.{item[1]} {item[2]};",file=fh)
+
+def write_newobj(fh,item):
+    print(f"object {item[1]['class']} {{",file=fh)
+    print(f"    name \"{item[0]}\";",file=fh)
+    for key, value in item[1].items():
+        if key not in ['class','id','rank','guid','flags',]:
+            print(f"    {key} \"{value}\";",file=fh)
+    print("}",file=fh)
+
+def write_delobj(fh,item):
+    print(f"modify {item[0]}.in_svc NEVER;",file=fh)
+
+#
+# Main processing script
+#
 for arg in sys.argv[1:]:
     if arg.startswith('-'):
         if arg == '--with-ami':
             WITHAMI = True
+        elif arg == '--modify':
+            MODIFY = True
         else:
             raise Exception(f"argument {arg} is invalid")
     elif not INPUTFILE:
@@ -47,6 +179,10 @@ for arg in sys.argv[1:]:
         OUTPUTFILE = arg
     else:
         raise Exception(f"argument {arg} not expected")
+
+if MODIFY and os.path.splitext(OUTPUTFILE)[1] != ".glm":
+    print("ERROR [create_meters]: open '--modify' can only be used with GLM output")
+    exit(1)
 
 with open(INPUTFILE,"rt") as fh:
     MODEL = json.load(fh)
@@ -79,101 +215,6 @@ if WITHAMI and 'recorder' not in MODEL['modules']:
                 "description" : "list of properties to sample"
             },
         }
-
-LINKLIST = {}
-LINKOBJS = {}
-def get_links(name):
-    global LINKLIST
-    if not LINKLIST:
-        for tag, obj in OBJECTS.items():
-            try:
-                add_links(obj['to'],obj['from'],tag)
-            except KeyError:
-                pass
-    try:
-        return LINKLIST[name]
-    except KeyError:
-        return None
-
-def add_links(a,b,name):
-    global LINKLIST
-    if a not in LINKLIST:
-        LINKLIST[a] = [b]
-        add_links(b,a,name)
-    elif b not in LINKLIST[a]:
-        LINKLIST[a].append(b)
-        add_links(b,a,name)
-
-    global LINKOBS
-    if a not in LINKOBJS:
-        LINKOBJS[a] = [name]
-    elif name not in LINKOBJS[a]:
-        LINKOBJS[a].append(name)
-
-def set_link(old,new):
-    # print(old,'-->',new,':',LINKOBJS[old])
-    for link in LINKOBJS[old]:
-        for d in ['to','from']:
-            if get_data(link,d) == old:
-                set_data(link,d,new)
-                # print(link,d,old,'-->',OBJECTS[link][d])
-
-def get_data(name,tag=None):
-    try:
-        return OBJECTS[name][tag] if tag else OBJECTS[name]
-    except KeyError:
-        return None
-
-def set_data(name,tag,value=None):
-    if value:
-        OBJECTS[name][tag] = value
-    else:
-        del OBJECTS[name][tag]
-
-def add_object(name,data):
-    global MODEL
-    if name in OBJECTS:
-        raise ValueError(f"object '{name}' exists")
-    OBJECTS[name] = data
-    OBJECTS[name]['id'] = len(OBJECTS.keys())
-    if 'meter' in data['class'] and WITHAMI:
-        add_object(name+'_ami',{
-            'class' : 'recorder',
-            'file' : name+'.csv',
-            'interval' : '3600',
-            'parent' : name,
-            'property' : 'measured_real_energy_delta,measured_demand'
-            })
-
-def get_parent(name):
-    try:
-        return OBJECTS[name]['parent']
-    except KeyError:
-        return None
-
-def fix_parent(parent,name,oclass):
-    pclass = get_data(parent,'class')
-
-    # change parent nodes to meters
-    if pclass and pclass == oclass.replace('load','node'):
-
-        # change node to meter
-        nclass = pclass.replace('load','meter')
-        set_data(parent,'class',nclass)
-
-    else:
-
-        # change parent
-        parent = get_parent(parent)
-        if parent:
-            fix_parent(parent,name,oclass)
-            set_data(name,'parent',parent)
-
-def warning(msg):
-    print(f"WARNING [{BASENAME}]: {msg}",file=sys.stderr)
-
-def error(msg):
-    print(f"ERROR [{BASENAME}]: {msg}",file=sys.stderr)
 
 for name in list(OBJECTS):
     obj = OBJECTS[name]
@@ -210,5 +251,28 @@ for name in list(OBJECTS):
     else:
         pass
 
-with open(OUTPUTFILE,"wt") as fh:
-    json.dump(MODEL,fh,indent=4)
+if OUTPUTFILE.endswith(".json"):
+
+    with open(OUTPUTFILE,"wt") as fh:
+        json.dump(MODEL,fh,indent=4)
+
+elif OUTPUTFILE.endswith(".glm"):
+
+    if MODIFY:
+        with open(OUTPUTFILE,"wt") as fh:
+            print(f"// generated by '{' '.join(sys.argv)}' on {datetime.datetime.now()}",file=fh)
+            print(f"// NEW OBJECTS",file=fh)
+            for item in NEWOBJ_LIST:
+                write_newobj(fh,item)
+            print(f"// MODIFIED OBJECTS",file=fh)
+            for item in MODIFY_LIST:
+                write_modify(fh,item)
+            print(f"// DELETED OBJECTS",file=fh)
+            for item in DELOBJ_LIST:
+                write_delobj(fh,item)
+    else:
+        error("unmodified GLM output not implemented")
+
+else:
+
+    error("output format not supported")

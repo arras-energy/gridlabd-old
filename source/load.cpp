@@ -8324,6 +8324,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			output_error("unable to resolve all object references");
 		}
+		for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = obj->next )
+		{
+			object_set_parent(obj,obj->parent);
+		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
