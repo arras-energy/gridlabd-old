@@ -94,7 +94,7 @@ def convert(ifile,ofile,json_type="gridlabd",noclock=False,ignore_globals=None) 
 				fw.write("\n }")
 
 		else : 
-			if noclock : 
+			if not noclock : 
 				# clock
 				header_str = '\n' + 'clock {'
 				tmzone_str = '\n' + '\t' + 'timezone ' + data['globals']['timezone_locale']['value']+';'
