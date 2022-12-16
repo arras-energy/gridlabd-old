@@ -12,6 +12,8 @@ def help():
     -i|--ifile <filename>    [REQUIRED] JSON input file
     -o|--ofile <filename>    [OPTIONAL] GLM output file name
     -t|--type 				 type of input file
+    -n|--noclock             omit clock data
+    -g|--ignoreglobals LIST  omit globals
 """
 
 def main():
@@ -48,19 +50,19 @@ def main():
 			error(f"{opt}={arg} is not a valid option")
 
 
-	convert(ifile=filename_json,ofile=filename_glm,json_type=json_type,cflag=clockflag,ig_list=ignored_globals_list)
+	convert(ifile=filename_json,ofile=filename_glm,json_type=json_type,noclock=clockflag,ignore_globals=ignored_globals_list)
 
-def convert(ifile,ofile,json_type,cflag,ig_list) :
+def convert(ifile,ofile,json_type="gridlabd",noclock=False,ignore_globals=None) :
 	if os.path.exists(ofile):
 		os.remove(ofile)
 	data = {}
 	objects_ignore = ["id", "class", "rank", "clock", "flags"]
-	if cflag : 
+	if noclock : 
 		globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
-	elif ig_list : 
-		globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] + ig_list
-	else : 
+	else:
 		globals_ignore = []
+	if ignore_globals : 
+		globals_ignore.extend(ignore_globals.split(','))
 	classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
 	house_variables = ['heating_system_type', 'gross_wall_area', 'floor_area', 'envelope_UA']
 
@@ -92,7 +94,7 @@ def convert(ifile,ofile,json_type,cflag,ig_list) :
 				fw.write("\n }")
 
 		else : 
-			if cflag : 
+			if noclock : 
 				# clock
 				header_str = '\n' + 'clock {'
 				tmzone_str = '\n' + '\t' + 'timezone ' + data['globals']['timezone_locale']['value']+';'
