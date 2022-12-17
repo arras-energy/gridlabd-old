@@ -774,7 +774,7 @@ int node::init(OBJECT *parent)
 				{	//Essentially a replication of the no-phase section with more check
 					if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | ((obj->parent->parent!=NR_swing_bus) && (obj->parent->parent!=NULL)))	//Our parent is another child
 					{
-						gl_set_parent(obj->parent,obj->parent->parent);
+						obj->parent = obj->parent->parent;
 						warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
 						/*  TROUBLESHOOT
 						Parent-child connections in Newton-Raphson may not go more than one level deep.  Grandchildren
@@ -861,8 +861,8 @@ int node::init(OBJECT *parent)
 			{
 				if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | (obj->parent->parent!=NULL))	//Our parent is another child
 				{
-					gl_set_parent(obj->parent,obj->parent->parent);
 					warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
+					obj->parent = obj->parent->parent;
 					//Defined above
 				}
 				else	//Our parent is unchilded (or has the swing bus as a parent)
@@ -908,15 +908,16 @@ int node::init(OBJECT *parent)
 			}//end no issues phase
 
 			//Make sure nominal voltages match
-			if ( fabs(nominal_voltage-parNode->nominal_voltage) > nominal_voltage/1e4 )
+			if (nominal_voltage != parNode->nominal_voltage)
 			{
 				warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
 				/*  TROUBLESHOOT
 				A node object was parented to another node object with a different nominal_voltage set.  The childed object will now
 				take the parent nominal_voltage.  If this is not intended, please add a transformer between these nodes.
 				*/
+
+				nominal_voltage = parNode->nominal_voltage;
 			}
-			nominal_voltage = parNode->nominal_voltage;
 		}
 		else	//Non-childed node gets the count updated
 		{
@@ -1145,11 +1146,13 @@ int node::init(OBJECT *parent)
 				}
 
 				//Make sure nominal voltages match
-				if ( fabs(nominal_voltage-parNode->nominal_voltage) > nominal_voltage/1e4 )
+				if (nominal_voltage != parNode->nominal_voltage)
 				{
 					warning("Node:%s does not have the same nominal voltage as its parent - copying voltage from parent.",(obj->name ? obj->name : "unnamed"));
+					//Define above
+
+					nominal_voltage = parNode->nominal_voltage;
 				}
-				nominal_voltage = parNode->nominal_voltage;
 			}//No else here, may be a line due to FBS implementation, so we don't want to fail on that
 		}
 	}
