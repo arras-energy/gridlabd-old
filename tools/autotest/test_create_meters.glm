@@ -1,0 +1,11 @@
+#ifexist ../ieee13.glm
+#define DIR=..
+#endif
+
+#gridlabd -C ${DIR:-.}/ieee13.glm -o ${DIR:-.}/ieee13.json
+#python -m create_meters ${DIR:-.}/ieee13.json ieee13-meters.json
+#input "ieee13-meters.json"
+
+//#ifexist ../ieee13-meters.json
+//#on_exit 0 diff ../ieee13-meters.json ieee13-meters.json
+//#endif

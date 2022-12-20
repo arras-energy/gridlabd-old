@@ -1419,7 +1419,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
     PyDict_SetItemString(data,"rng_state",(unsigned long long)(obj->rng_state));
     PyDict_SetItemString(data,"heartbeat",(unsigned long long)(obj->heartbeat));
-    snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->guid[0]);
+    snprintf(buffer,sizeof(buffer),"%llx%llx",(unsigned long long)obj->guid[0],(unsigned long long)obj->guid[1]);
     PyDict_SetItemString(data,"guid",buffer);
 
     ReadLock rlock;
