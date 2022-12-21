@@ -23,6 +23,7 @@ import json
 BRANCH = "main"
 INSTALL = []
 
+# process the command line arguments
 for arg in sys.argv[1:]:
     spec = arg.split("=")
     tag,value = (spec[0],True) if len(spec) == 1 else (spec[0],'='.join(spec[1:]))
@@ -63,7 +64,7 @@ for item in INSTALL:
         os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH))
 
     except Exception as err:
-        
+
         print(f"ERROR [install]: {err}",file=sys.stderr)
         exit(1)
 
