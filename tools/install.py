@@ -7,7 +7,6 @@ Syntax:
 Options:
 
     --branch|-b=BRANCH   select a branch (default is "main")
-
 """
 
 import sys, os
