@@ -13,6 +13,22 @@ The 'application' tag must be 'gridlabd' and the version must be the same the
 current version of 'gridlabd'.  When these conditions are satisfied,
 the 'install-command' is executed in a shell, with the 'branch' variable
 inserted where specified by the '{branch}' string.
+
+Developer Guide:
+
+Example `install.json` manifest file
+
+    {
+      "application" : "gridlabd",
+      "version" : 4.3,
+      "install-command" : "curl -sL https://raw.githubusercontent.com/dchassin/gridlabd-advisor/{branch}/install.sh | bash"
+    }
+
+Example `install.sh` install command
+
+    python3 -m pip install -qq openai
+    mkdir -p $HOME/.openai
+    curl -sL https://raw.githubusercontent.com/dchassin/gridlabd-advisor/main/advisor.py -o $(gridlabd --version=install)/share/gridlabd/advisor.py || echo "ERROR: install failed" > /dev/stderr
 """
 
 import sys, os
