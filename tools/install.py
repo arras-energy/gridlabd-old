@@ -8,11 +8,11 @@ Options:
 
     --branch|-b=BRANCH   select a branch (default is "main")
 
-The installer inspect the repository install manifest file 'install.json'.
-The 'application' tag must be 'gridlabd' and the version must be the same
-or newer than the current version of 'gridlabd'.  When these conditions
-are satisfied, the 'install-command' is executed in a shell, with the 
-'branch' variable inserted where specified by the '{branch}' string.
+The installer inspects the repository's install manifest file 'install.json'.
+The 'application' tag must be 'gridlabd' and the version must be the same the
+current version of 'gridlabd'.  When these conditions are satisfied,
+the 'install-command' is executed in a shell, with the 'branch' variable
+inserted where specified by the '{branch}' string.
 """
 
 import sys, os
@@ -41,21 +41,29 @@ if not INSTALL:
     print("Syntax: gridlabd install [OPTIONS ...] ORGANIZATION/REPOSITORY ...",file=sys.stderr)
     exit(1)
 
+# run for each install item specified
 for item in INSTALL:
     try:
+
+        # get the manifest on the specified branch
         response = requests.get(f"https://raw.githubusercontent.com/{item}/{BRANCH}/install.json")
         if response.status_code != 200:
             raise Exception("repository does not contain 'install.json' manifest file")
-        # print(response.text.encode('utf-8'))
+
+        # extract the manifest data and check it
         data = json.loads(response.text.encode('utf-8'))
         if data["application"] != "gridlabd":
             raise Exception("repository does not contain a gridlabd tool") 
         result = subprocess.run(['gridlabd','--version=number'],capture_output=True)
         version = float('.'.join(result.stdout.decode('utf-8').split('.')[0:2]))
-        if data["version"] < version:
+        if data["version"] == version:
             raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")            
+
+        # run the install command
         os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH))
+
     except Exception as err:
+        
         print(f"ERROR [install]: {err}",file=sys.stderr)
         exit(1)
 
