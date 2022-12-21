@@ -38,6 +38,7 @@ for arg in sys.argv[1:]:
     else:
         INSTALL.append(arg)
 
+# check for install items
 if not INSTALL:
     print("Syntax: gridlabd install [OPTIONS ...] ORGANIZATION/REPOSITORY ...",file=sys.stderr)
     exit(1)
