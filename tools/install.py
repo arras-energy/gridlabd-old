@@ -75,13 +75,17 @@ for item in INSTALL:
         result = subprocess.run(['gridlabd','--version=number'],capture_output=True)
         version = float('.'.join(result.stdout.decode('utf-8').split('.')[0:2]))
         if data["version"] != version:
-            raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")            
+            raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")
+        if "tool-name" in data:
+            toolname = data['tool-name']
+        else:
+            toolname = item.split('/')[1]
 
         # run the install command
         if os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH)):
             print(f"ERROR [install]: '{' '.join(sys.argv)}' failed")
         else:
-            print(f"Done. Run 'gridlabd {item.split('/')[1].replace('gridlabd-','')} help' for more information.")
+            print(f"Done. Run 'gridlabd {toolname} help' for more information.")
 
     except Exception as err:
 
