@@ -74,7 +74,7 @@ for item in INSTALL:
             raise Exception("repository does not contain a gridlabd tool") 
         result = subprocess.run(['gridlabd','--version=number'],capture_output=True)
         version = float('.'.join(result.stdout.decode('utf-8').split('.')[0:2]))
-        if data["version"] == version:
+        if data["version"] != version:
             raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")            
 
         # run the install command
