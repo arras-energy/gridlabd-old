@@ -78,7 +78,10 @@ for item in INSTALL:
             raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")            
 
         # run the install command
-        os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH))
+        if os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH)):
+            print(f"ERROR [install]: '{' '.join(sys.argv)}' failed")
+        else:
+            print(f"Done. Run 'gridlabd {item.split('/')[1].replace('gridlabd-','')} help' for more information.")
 
     except Exception as err:
 
