@@ -73,15 +73,19 @@ for item in INSTALL:
         data = json.loads(response.text.encode('utf-8'))
         if data["application"] != "gridlabd":
             raise Exception(f"repository {item} does not contain a gridlabd tool") 
+        
+        # check the version
         result = subprocess.run(['gridlabd','--version=number'],capture_output=True)
         version = float('.'.join(result.stdout.decode('utf-8').split('.')[0:2]))
         if "version" in data and data["version"] != version:
             raise Exception(f"tool {item} version {data['version']} is not compatible with GridLAB-D version {version}")
+        
+        # get the tool name
         toolname = data['tool-name'] if "tool-name" in data else item.split('/')[1]
 
         # run the install command
         if os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH)):
-            print(f"ERROR [install]: '{' '.join(sys.argv)}' failed")
+            raise Exception(f"{' '.join(sys.argv)} failed")
         else:
             print(f"Install of {item} done. Run 'gridlabd {toolname} help' for more information.")
 
