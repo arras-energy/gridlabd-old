@@ -21,6 +21,7 @@ Example `install.json` manifest file
     {
       "application" : "gridlabd",
       "version" : 4.3,
+      "tool-name" : "my_tool",
       "install-command" : "curl -sL https://raw.githubusercontent.com/dchassin/gridlabd-advisor/{branch}/install.sh | bash"
     }
 
@@ -66,26 +67,23 @@ for item in INSTALL:
         # get the manifest on the specified branch
         response = requests.get(f"https://raw.githubusercontent.com/{item}/{BRANCH}/install.json")
         if response.status_code != 200:
-            raise Exception("repository does not contain 'install.json' manifest file")
+            raise Exception(f"repository {item} does not contain 'install.json' manifest file")
 
         # extract the manifest data and check it
         data = json.loads(response.text.encode('utf-8'))
         if data["application"] != "gridlabd":
-            raise Exception("repository does not contain a gridlabd tool") 
+            raise Exception(f"repository {item} does not contain a gridlabd tool") 
         result = subprocess.run(['gridlabd','--version=number'],capture_output=True)
         version = float('.'.join(result.stdout.decode('utf-8').split('.')[0:2]))
-        if data["version"] != version:
-            raise Exception(f"tool version {data['version']} is not compatible with GridLAB-D version {version}")
-        if "tool-name" in data:
-            toolname = data['tool-name']
-        else:
-            toolname = item.split('/')[1]
+        if "version" in data and data["version"] != version:
+            raise Exception(f"tool {item} version {data['version']} is not compatible with GridLAB-D version {version}")
+        toolname = data['tool-name'] if "tool-name" in data else item.split('/')[1]
 
         # run the install command
         if os.system(data["install-command"].format(branch=BRANCH,BRANCH=BRANCH)):
             print(f"ERROR [install]: '{' '.join(sys.argv)}' failed")
         else:
-            print(f"Done. Run 'gridlabd {toolname} help' for more information.")
+            print(f"Install of {item} done. Run 'gridlabd {toolname} help' for more information.")
 
     except Exception as err:
 
