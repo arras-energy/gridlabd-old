@@ -1313,6 +1313,9 @@ def main(argc,argv):
         elif argv[n] in ["-h","--help"]:
             help()
             exit(E_OK)
+        elif argv[n] in ["help"]:
+            print(__doc__)
+            exit(E_OK)
         elif argv[n] in ["-j","--join"]:
             n += 1
             if not argv[n] in ["inner","outer","left","right"]:

@@ -7,6 +7,9 @@ STDERR="/dev/null"
 if [ $# -eq 0 ]; then
     /usr/local/bin/python3 -m pip freeze
     exit 0
+elif [ "$1" == "help" ]; then
+    echo "Syntax: gridlabd require [--requirements] [--verbose] [REQUIREMENT]"
+    exit 0
 fi
 
 while [ $# -gt 0 ]; do

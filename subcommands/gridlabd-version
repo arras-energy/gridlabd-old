@@ -32,20 +32,20 @@ esac
 function version-help()
 {
 	cat <<-END
-		Syntax: gridlabd version [--dryrun] <command> <options...>
-		Commands:
-		  help                    get this list of commands
-		  check [-v|-q|-w]        check for a newer version
-		    -v                      enable verbose output
-		    -q                      disable all output
-		    -w                      only output warnings and errors and log check result
-		  list [<pattern>]        get a list of available versions
-		  show                    show the current active version
-		  set [<pattern>]         set the active version
-		  source                  open source code of the active version
-		  delete [-a|<pattern>]   delete versions
-		    -a                      delete all version except current one
-	END
+Syntax: gridlabd version [--dryrun] <command> <options...>
+Commands:
+  help                    get this list of commands
+  check [-v|-q|-w]        check for a newer version
+    -v                      enable verbose output
+    -q                      disable all output
+    -w                      only output warnings and errors and log check result
+  list [<pattern>]        get a list of available versions
+  show                    show the current active version
+  set [<pattern>]         set the active version
+  source                  open source code of the active version
+  delete [-a|<pattern>]   delete versions
+    -a                      delete all version except current one
+END
 }
 
 function version-check()

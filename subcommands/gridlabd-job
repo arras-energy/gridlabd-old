@@ -101,8 +101,8 @@ if __name__ == "__main__":
 	freeze_support()
 	n = 1
 	while n < len(sys.argv):
-		if sys.argv[n] in ["-h","--help"]:
-			print(SYNTAX,file=sys.stderr)
+		if sys.argv[n] in ["-h","--help","help"]:
+			print(SYNTAX,file=sys.stdout)
 			quit(0)
 		elif sys.argv[n] in ["-d","--debug"]:
 			DEBUG=True

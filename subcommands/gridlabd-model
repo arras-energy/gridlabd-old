@@ -4,7 +4,7 @@
 #
 
 if [ $# -eq 0 ]; then
-    echo "Syntax: $(basename $0) SUBCOMMAND [ARGS...]"
+    echo "Syntax: gridlabd model SUBCOMMAND [ARGS...]"
     exit 1
 fi
 
@@ -64,7 +64,7 @@ elif [ $1 == 'index' ]; then
     curl -sL https://api.github.com/repos/slacgismo/gridlabd-models/git/trees/master\?recursive=1 | gridlabd json-get tree path -c | grep '\.glm$' | grep ^gridlabd-$VERSION/$PATTERN | sed -e 's/\.glm$//;s/gridlabd-[0-9]\///'
     exit 0
 elif [ $1 == 'help' ]; then
-    echo "Syntax: $(basename $0) SUBCOMMAND [ARGS...]"
+    echo "Syntax: gridlabd model SUBCOMMAND [ARGS...]"
     echo "Subcommands"
     echo "  get GROUP/NAME"
     echo "  help"

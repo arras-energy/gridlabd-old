@@ -134,7 +134,7 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-			Syntax: gridlabd [options] library <command> [...]
+			Syntax: gridlabd library [options] <command> [...]
 			Options:
 			  -f|--format <format> Change output format (e.g., json, glm, csv, default)
 			  -v|--verbose         Provide extra output to stderr

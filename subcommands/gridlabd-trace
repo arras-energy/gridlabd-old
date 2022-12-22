@@ -14,7 +14,7 @@ STDOUT=/dev/stdout
 STDERR=/dev/stderr
 VERBOSE=/dev/null
 
-SYNTAX="Syntax: $EXECNAME [<options> ...] <command> <arguments>"
+SYNTAX="Syntax: gridlabd trace [<options> ...] <command> <arguments>"
 
 # help [exitcode]
 function help()
@@ -65,7 +65,7 @@ function getpid ()
 function trace-save ()
 {
 	if [ "$1" == "help" ]; then
-		echo "Syntax: $EXECNAME save [help|<job>]"
+		echo "Syntax: gridlabd trace save [help|<job>]"
 		echo "Commands:"
 		echo "  help    get this help output"
 		echo "  <job>   perform dump core dump of gridlabd job"
@@ -85,7 +85,7 @@ function trace-save ()
 function trace-debug ()
 {
 	if [ "$1" == "help" ]; then
-		echo "Syntax: $EXECNAME debug <command>"
+		echo "Syntax: gridlabd trace debug <command>"
 		echo "Commands:"
 		echo "  help    get this help output"
 		exit 0
@@ -102,7 +102,7 @@ function trace-debug ()
 function trace-dump ()
 {
 	if [ "$1" == "help" ]; then
-		echo "Syntax: $EXECNAME dump <command>"
+		echo "Syntax: gridlabd trace dump <command>"
 		echo "Commands:"
 		echo "  help    get this help output"
 		exit 0
