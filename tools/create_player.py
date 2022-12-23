@@ -447,7 +447,7 @@ object player {{
             WRITEOPTIONS["header"] = DATA.columns
 
         # generate CSV output
-        DATA.index = DATA.index.astype('int32')
+        DATA.index = [dt.datetime.fromtimestamp(x,dt.timezone.utc) for x in DATA.index.astype('uint64')/1000000000]
         DATA.sort_index().to_csv(OUTPUTCSV,**WRITEOPTIONS)
 
     except BrokenPipeError:
