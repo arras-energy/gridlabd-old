@@ -43,7 +43,7 @@ Options:
 
 DESCRIPTION
 
-The `create_player` tool collated CSV files and prepares data for use by
+The `create_player` tool collates CSV files and prepares data for use by
 GridLAB-D player objects.
 
 Each input file is loaded using the specified read options and concatenated
