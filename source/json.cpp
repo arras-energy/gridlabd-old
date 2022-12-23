@@ -35,7 +35,7 @@ GldJsonWriter::~GldJsonWriter(void)
 	free((void*)filename);
 }
 
-const char * escape(const char *buffer, size_t len = 1024)
+const char * escape(const char *buffer, size_t len)
 {
 	static char *result = NULL;
 	static size_t result_len = 0;
