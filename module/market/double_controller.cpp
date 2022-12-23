@@ -87,8 +87,8 @@ double_controller::double_controller(MODULE *module)
 
 int double_controller::create( ) {
 	memset((void*)this, 0, sizeof(double_controller));
-	sprintf(avg_target, "avg24");
-	sprintf(std_target, "std24");
+	snprintf(avg_target,sizeof(avg_target)-1, "avg24");
+	snprintf(std_target,sizeof(std_target)-1, "std24");
 	controller_bid.rebid = false;
 	controller_bid.bid_accepted = true;
 	return 1;
@@ -123,14 +123,14 @@ void double_controller::fetch(double **value, const char *name, OBJECT *parent, 
 	if ( *prop == NULL ) {
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
-		sprintf(tname, "double_controller:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "double_controller:%i", hdr->id);
 		GL_THROW("%s: double_controller unable to find property \'%s\'", namestr, name);
 	} else {
 		*value = gl_get_double(parent, *prop);
 		if ( *value == 0 ) {
 			char tname[32];
 			const char *namestr = (hdr->name ? hdr->name : tname);
-			sprintf(tname, "double_controller:%i", hdr->id);
+			snprintf(tname,sizeof(tname)-1, "double_controller:%i", hdr->id);
 			GL_THROW("%s: property \'%s\' is not a double", namestr, name);
 		}
 	}
@@ -141,7 +141,7 @@ int double_controller::init(OBJECT *parent ) {
 	char tname[32];
 	const char *namestr = (hdr->name ? hdr->name : tname);
 
-	sprintf(tname, "double_controller:%i", hdr->id);
+	snprintf(tname,sizeof(tname)-1, "double_controller:%i", hdr->id);
 
 	cheat();
 

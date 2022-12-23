@@ -1378,7 +1378,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -1533,7 +1533,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -1686,7 +1686,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -1838,7 +1838,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -1992,7 +1992,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2145,7 +2145,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2297,7 +2297,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2451,7 +2451,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2604,7 +2604,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2759,7 +2759,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -2913,7 +2913,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3066,7 +3066,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3218,7 +3218,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3372,7 +3372,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3525,7 +3525,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3677,7 +3677,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3831,7 +3831,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -3984,7 +3984,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4139,7 +4139,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4293,7 +4293,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4446,7 +4446,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4598,7 +4598,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4752,7 +4752,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -4905,7 +4905,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -5057,7 +5057,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -5211,7 +5211,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;
@@ -5364,7 +5364,7 @@ object transformer {
 	to node_${LOADID}${PHASE};
 	configuration xfmr_config_${PHASE};
 }
-object triplex_node {
+object triplex_load {
 	name node_${LOADID}${PHASE};
 	phases ${PHASE}S;
 	nominal_voltage 120;

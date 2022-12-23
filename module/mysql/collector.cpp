@@ -39,7 +39,7 @@ collector::collector(MODULE *module)
 				PT_KEYWORD,"PURGE",(int64)MO_DROPTABLES,PT_DESCRIPTION,"flag to drop tables before creation",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 
@@ -148,13 +148,18 @@ int collector::init(OBJECT *parent)
 		if ( !(options&MO_NOCREATE) )
 		{
 			char buffer[4096];
-			size_t eos = sprintf(buffer,"CREATE TABLE IF NOT EXISTS `%s` ("
+			snprintf(buffer,sizeof(buffer)-1,"CREATE TABLE IF NOT EXISTS `%s` ("
 				"id INT AUTO_INCREMENT PRIMARY KEY, "
 				"t TIMESTAMP, ", get_table());
+			size_t eos = strlen(buffer);
 			size_t n;
 			for ( n=0 ; n<n_aggregates ; n++ )
-				eos += sprintf(buffer+eos,"`%s` double, ",names[n]);
-			eos += sprintf(buffer+eos,"%s","INDEX i_t (t))");
+			{
+				snprintf(buffer+eos,sizeof(buffer)-eos-1"`%s` double, ",names[n]);
+				eos = strlen(buffer);
+			}
+			snprintf(buffer+eos,sizeof(buffer)-eos-1"%s","INDEX i_t (t))");
+			eos = strlen(buffer);
 
 			if ( !db->query(buffer) )
 				exception("unable to create table '%s' in schema '%s'", get_table(), db->get_schema());
@@ -208,14 +213,22 @@ TIMESTAMP collector::commit(TIMESTAMP t0, TIMESTAMP t1)
 	if ( dt==0 || ( t1==next_t && next_t!=TS_NEVER ) )
 	{
 		char buffer[4096];
-		size_t eos = sprintf(buffer,"INSERT INTO `%s` (t", get_table());
+		size_t eos = snprintf(buffer,sizeof(buffer)-1,"INSERT INTO `%s` (t", get_table());
 		size_t n;
 		for ( n=0 ; n<n_aggregates ; n++ )
-			eos += sprintf(buffer+eos,",`%s`",names[n]);
-		eos += sprintf(buffer+eos,") VALUES (from_unixtime(%lli)",db->convert_to_dbtime(gl_globalclock));
+		{
+			snprintf(buffer+eos,sizeof(buffer)-eos-1",`%s`",names[n]);
+			eos = strlen(buffer);
+		}
+		snprintf(buffer+eos,sizeof(buffer)-eos-1") VALUES (from_unixtime(%lli)",db->convert_to_dbtime(gl_globalclock));
+		eos = strlen(buffer);
 		for ( n=0 ; n<n_aggregates ; n++ )
-			eos += sprintf(buffer+eos,",%g",list[n].get_value());
-		sprintf(buffer+eos,"%s",")");
+		{
+			snprintf(buffer+eos,sizeof(buffer)-eos-1",%g",list[n].get_value());
+			eos = strlen(buffer);
+		}
+		snprintf(buffer+eos,sizeof(buffer)-eos-1"%s",")");
+		eos = strlen(buffer);
 
 		if ( !db->query(buffer) )
 			exception("unable to add data to '%s' - %s", get_table(), mysql_error(mysql));

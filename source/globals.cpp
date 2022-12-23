@@ -430,7 +430,7 @@ STATUS GldGlobals::init(void)
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
 	strcat(global_datadir,"/share/gridlabd");
-	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
+	snprintf(global_version,sizeof(global_version)-1,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
 		struct s_varmap *p = &(map[i]);
@@ -830,7 +830,7 @@ DEPRECATED const char *global_guid(char *buffer, int size)
 			srand(entropy_source());
 			guid_first = 0;
 		}
-		sprintf(buffer,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
+		snprintf(buffer,size-1,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
 			rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0x0fff,rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0xffff);
 		return buffer;
 	}
@@ -887,7 +887,7 @@ DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_uniform(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_uniform(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -901,7 +901,7 @@ DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_normal(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_normal(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -1008,8 +1008,12 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	for ( double value = start ; value <= stop ; value += step )
 	{
 		if ( len > 0 )
-			len += sprintf(temp+len,"%c",delim);
-		len += sprintf(temp+len,"%g",value);
+		{
+			snprintf(temp+len,size-len-1,"%c",delim);
+			len = strlen(temp);
+		}
+		snprintf(temp+len,size-len-1,"%g",value);
+		len = strlen(temp);
 		if ( len > size )
 		{
 			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
@@ -1149,7 +1153,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",++(*addr));
+		snprintf(buffer,size-1,"%d",++(*addr));
 		return 1;
 	}
 
@@ -1161,7 +1165,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",--(*addr));
+		snprintf(buffer,size-1,"%d",--(*addr));
 		return 1;
 	}
 
@@ -1173,7 +1177,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",(*addr));
+		snprintf(buffer,size-1,"%d",(*addr));
 		if ( strcmp(op,"++")==0 ) { (*addr)++; return 1; }
 		else if ( strcmp(op,"--")==0 ) { (*addr)--; return 1; }
 	}
@@ -1245,18 +1249,18 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
 		{
 			int32 *addr = (int32*)var->prop->addr;
-			sprintf(buffer,"%d",(*addr));
-			if ( strcmp(op,"+=")==0 ) { sprintf(buffer,"%d",(*addr)+=number); return 1; }
-			if ( strcmp(op,"-=")==0 ) { sprintf(buffer,"%d",(*addr)-=number); return 1; }
-			if ( strcmp(op,"*=")==0 ) { sprintf(buffer,"%d",(*addr)*=number); return 1; }
-			if ( strcmp(op,"/=")==0 ) { sprintf(buffer,"%d",(*addr)/=number); return 1; }
-			if ( strcmp(op,"%=")==0 ) { sprintf(buffer,"%d",(*addr)%=number); return 1; }
-			if ( strcmp(op,"&=")==0 ) { sprintf(buffer,"%d",(*addr)&=number); return 1; }
-			if ( strcmp(op,"|=")==0 ) { sprintf(buffer,"%d",(*addr)|=number); return 1; }
-			if ( strcmp(op,"^=")==0 ) { sprintf(buffer,"%d",(*addr)^=number); return 1; }
-			if ( strcmp(op,"&=~")==0 ) { sprintf(buffer,"%d",(*addr)&=~number); return 1; }
-			if ( strcmp(op,"|=~")==0 ) { sprintf(buffer,"%d",(*addr)|=~number); return 1; }
-			if ( strcmp(op,"^=~")==0 ) { sprintf(buffer,"%d",(*addr)^=~number); return 1; }
+			snprintf(buffer,size-1,"%d",(*addr));
+			if ( strcmp(op,"+=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+=number); return 1; }
+			else if ( strcmp(op,"-=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-=number); return 1; }
+			else if ( strcmp(op,"*=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*=number); return 1; }
+			else if ( strcmp(op,"/=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/=number); return 1; }
+			else if ( strcmp(op,"%=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%=number); return 1; }
+			else if ( strcmp(op,"&=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=number); return 1; }
+			else if ( strcmp(op,"|=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=number); return 1; }
+			else if ( strcmp(op,"^=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=number); return 1; }
+			else if ( strcmp(op,"&=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=~number); return 1; }
+			else if ( strcmp(op,"|=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=~number); return 1; }
+			else if ( strcmp(op,"^=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=~number); return 1; }
 		}
 	}
 
@@ -1273,7 +1277,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		else
 			addr = (int32*)var->prop->addr;
 		*addr = number;
-		sprintf(buffer,"%d",number);
+		snprintf(buffer,size-1,"%d",number);
 		return 1;
 	}
 
@@ -1426,21 +1430,24 @@ DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
         }
         else
         {
-            sz = snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+            snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+            sz = strlen(name);
         }
         if ( sz > size-len )
         {
             output_error("global buffer for FIND is too small to contain result");
             return NULL;
         }
-        len += snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
+        snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
+        len = strlen(buffer);
     }
     return buffer;
 }
 
+static const char geocode_decodemap[] = "0123456789bcdefghjkmnpqrstuvwxyz";
+static const unsigned char *geocode_encodemap = NULL;
 const char *geocode_encode(char *buffer, int len, double lat, double lon, int resolution=12)
 {
-	static const char *base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 	if ( len < resolution+1 )
 	{
 		output_warning("geocode_encode(buffer=%p, len=%d, lat=%g, lon=%g, resolution=%d): buffer too small for specified resolution, result truncated", 
@@ -1491,7 +1498,7 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 		}
 		else
 		{
-			*geohash++ = base32[ch];
+			*geohash++ = geocode_decodemap[ch];
 			i++;
 			bit = 0;
 			ch = 0;
@@ -1499,6 +1506,78 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 	}
 	*geohash++ = '\0';
 	return buffer;
+}
+
+DEPRECATED const char *geocode_decode(char *buffer, int size, const char *code)
+{
+	double lat_err = 90, lon_err = 180;
+	double lat_interval[] = {-lat_err,lat_err};
+	double lon_interval[] = {-lon_err,lon_err};
+	bool is_even = true;
+	size_t maxlen = strlen(geocode_decodemap);
+	if ( geocode_encodemap == NULL )
+	{
+		static unsigned char map[256];
+		for ( size_t p = 0 ; p < maxlen ; p++ )
+		{
+			int c = (int)geocode_decodemap[p];
+			map[c] = p+1; 
+			if ( c >= 'a' && c <= 'z' )
+			{
+				map[c + 'A' - 'a'] = map[c];
+			}
+		}
+		geocode_encodemap = map;
+	}
+	const char *c = NULL;
+	for ( c = code ; *c != '\0' && *c != '.' ; c++ )
+	{
+		int cd = geocode_encodemap[(size_t)*c] - 1;
+		if ( cd < 0 )
+		{
+			return NULL;
+		}
+		for ( int mask = 16 ; mask > 0 ; mask /= 2 )
+		{
+			if ( is_even )
+			{
+				lon_err /= 2;
+				lon_interval[cd&mask?0:1] = (lon_interval[0] + lon_interval[1])/2;
+			}
+			else
+			{
+				lat_err /= 2;
+				lat_interval[cd&mask?0:1] = (lat_interval[0] + lat_interval[1])/2;
+			}
+			is_even = ! is_even;
+		}
+	}
+	const char *spec = NULL;
+	if ( *c == '.' )
+	{
+		spec = c+1;
+	}
+	int res = -(int)log10(lat_err);
+	if ( spec == NULL )
+	{
+		return snprintf(buffer,size,"%.*lf,%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2,
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lat") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lon") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else 
+	{
+		return NULL;
+	}
 }
 
 DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
@@ -1519,6 +1598,10 @@ DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
 		{
 			return geocode_encode(buffer,size,lat,lon,res);
 		}
+	}
+	else if ( geocode_decode(buffer,size,spec) )
+	{
+		return buffer;
 	}
 	output_warning("${GEOCODE %s}: geocode spec is not valid",spec);
 	buffer[0] = '\0';

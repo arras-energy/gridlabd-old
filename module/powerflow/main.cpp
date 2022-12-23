@@ -6,3 +6,9 @@
 #include <stdlib.h>
 #include "gridlabd.h"
 #include "powerflow.h"
+
+EXPORT TIMESTAMP on_precommit(TIMESTAMP t1)
+{
+    powerflow_object::clear_violations();
+    return TS_NEVER;
+}

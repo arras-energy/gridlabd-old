@@ -139,7 +139,7 @@ SEE ALSO
 * [https://nsrdb.nrel.gov/data-sets/api-instructions.html]
 """
 
-import sys, os, json, requests, pandas, numpy, datetime
+import sys, os, json, requests, pandas, numpy, datetime, math
 
 leap = True
 interval = 60
@@ -293,7 +293,7 @@ def heat_index(T,RH):
             + 0.00085282*T*RH*RH \
             - 0.00000199*T*T*RH*RH
         if RH < 13 and T < 112:
-            return HI - ((13-RH)/4)*sqrt((17-fabs(T-95.))/17)
+            return HI - ((13-RH)/4)*math.sqrt((17-math.fabs(T-95.))/17)
         elif RH > 85 and T < 87:
             return HI + ((RH-85)/10) * ((87-T)/5)
         else:

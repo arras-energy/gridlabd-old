@@ -13,6 +13,8 @@
 class pole : public gld_object
 {
 public:
+	static double pole_overdesign_factor;
+public:
 	static CLASS *oclass;
 	static CLASS *pclass;
     static pole *defaults;
@@ -45,10 +47,8 @@ public:
 	GL_ATOMIC(double, wire_weight);		// (see Section F)
 	GL_ATOMIC(double, wire_moment_x);		// wire moment in x-axis due to tension and wind load
 	GL_ATOMIC(double, wire_moment_y);		// wire moment in y-axis due to tension and wind load
-	GL_ATOMIC(double, wire_moment_z);		// wire moment in z-axis due to weight
 	GL_ATOMIC(double, equipment_moment_x);	// equipment moment in x-axis due to wind load
 	GL_ATOMIC(double, equipment_moment_y);	// equipment moment in y-axis due to wind load
-	GL_ATOMIC(double, equipment_moment_z);	// equipment moment in z-axis due to weight
 	GL_ATOMIC(double, wire_moment_nowind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, wind_pressure);		// (see Section D)
 	GL_ATOMIC(double, wire_tension);	// (see Section G)

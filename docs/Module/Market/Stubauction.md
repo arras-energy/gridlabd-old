@@ -26,7 +26,7 @@ GLM:
 
 # Description
 
-TODO
+This object performs in a similar manner to an auction object in the BUYERS_ONLY mode. This object will most likely be deprecated in versions 3.0 and greater.
 
 ## Properties
 
@@ -36,7 +36,7 @@ TODO
   char32 unit;
 ~~~
 
-Unit of quantity
+This describes the unit the auction is expecting to have information provided and delivered (input and output) for quantities. If a variable has units assigned to it, the auction will check to verify units are correct and convert where necessary (e.g. W->kW). If the variable does NOT have a unit assigned, such as a schedule or player file, the auction will assume the values are in this unit. Typical units are kW or MWh.
 
 ### `period`
 
@@ -44,87 +44,45 @@ Unit of quantity
   double period[s];
 ~~~
 
-Interval of time between market clearings
+Defines the time between market clearings. This is also the valid bidding period for the market.
 
-### `last.P`
+### `last.P`, `past_market.clearing_price`
 
 ~~~
   double last.P;
-~~~
-
-Last cleared price
-
-### `current_market.clearing_price`
-
-~~~
-  double current_market.clearing_price;
-~~~
-
-Next cleared price
-
-### `past_market.clearing_price`
-
-~~~
   double past_market.clearing_price;
 ~~~
 
-Last cleared price
+This is the previous market's clearing price, similar to auction.
 
-### `next.P`
+### `next.P`, `current_market.clearing_price`
 
 ~~~
   double next.P;
+  double current_market.clearing_price;
 ~~~
 
-Next cleared price
+This is the current market's clearing price, similar to auction.
 
-### `avg24`
+### `avg24`, `avg72`, `avg168`
 
 ~~~
   double avg24;
-~~~
-
-Daily average of price
-
-### `std24`
-
-~~~
-  double std24;
-~~~
-
-Daily stdev of price
-
-### `avg72`
-
-~~~
   double avg72;
-~~~
-
-Three day price average
-
-### `std72`
-
-~~~
-  double std72;
-~~~
-
-Three day price stdev
-
-### `avg168`
-
-~~~
   double avg168;
 ~~~
 
-Weekly average of price
+Unlike the auction object, statistics are not customizable in the stubauction. These values calculate the mean price over the previous day, 3-day, and 1-week periods.
 
-### `std168`
+### `std24`, `std72`, `std168`
 
 ~~~
+  double std24;
+  double std72;
   double std168;
 ~~~
 
-Weekly stdev of price
+Unlike the auction object, statistics are not customizable in the stubauction. These values calculate the standard deviation of price over the previous day, 3-day, and 1-week periods.
 
 ### `market_id`
 
@@ -132,7 +90,7 @@ Weekly stdev of price
   int64 market_id;
 ~~~
 
-Unique identifier of market clearing
+This value is a unique identifier for each market frame, and is used to track bids across multiple time frames.
 
 ### `verbose`
 
@@ -140,7 +98,7 @@ Unique identifier of market clearing
   bool verbose;
 ~~~
 
-Enable verbose stubauction operations
+Enables verbose output of the market. This will output all individual bid submissions, as well as information about the market clearing. Useful for debugging market interactions, or getting a more thorough view of the market proceedings.
 
 ### `control_mode`
 
@@ -148,7 +106,7 @@ Enable verbose stubauction operations
   enumeration {DISABLED, NORMAL} control_mode;
 ~~~
 
-The control mode to use for determining average and deviation calculations
+TTurns the statistic calculations on and off (`NORMAL` or on by default).
 
 # Example
 

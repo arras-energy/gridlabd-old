@@ -64,7 +64,7 @@ void connection_transport::error(char *fmt, ...)
 	char msg[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(msg,fmt,ptr);
+	vsnprintf(msg,sizeof(msg)-1,fmt,ptr);
 	va_end(ptr);
 	gl_error("connection/%s: %s",get_transport_name(), msg);
 }
@@ -73,7 +73,7 @@ void connection_transport::warning(char *fmt, ...)
 	char msg[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(msg,fmt,ptr);
+	vsnprintf(msg,sizeof(msg)-1,fmt,ptr);
 	va_end(ptr);
 	gl_warning("connection/%s: %s",get_transport_name(), msg);
 }
@@ -82,7 +82,7 @@ void connection_transport::info(char *fmt, ...)
 	char msg[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(msg,fmt,ptr);
+	vsnprintf(msg,sizeof(msg)-1,fmt,ptr);
 	va_end(ptr);
 	gl_output("connection/%s: %s",get_transport_name(), msg);
 }
@@ -91,17 +91,18 @@ void connection_transport::debug(int level, const char *fmt, ...)
 	char msg[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(msg,fmt,ptr);
+	vsnprintf(msg,sizeof(msg)-1,fmt,ptr);
 	va_end(ptr);
 	gl_debug("connection/%s: %s",get_transport_name(), msg);
 }
 void connection_transport::exception(const char *fmt, ...)
 {
 	static char msg[1024];
-	size_t len = sprintf(msg,"connection/%s: ", get_transport_name());
+	snprintf(msg,sizeof(msg)-1,"connection/%s: ", get_transport_name());
+	len = strlen(msg);
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(msg+len,fmt,ptr);
+	vsnprintf(msg+len,sizeof(msg)-len-1,fmt,ptr);
 	va_end(ptr);
 	throw msg;
 }
@@ -149,7 +150,8 @@ int connection_transport::message_append(char *fmt,...)
 		error("message append received with no pending message");
 		return -1;
 	}
-	int len = vsprintf(temp,fmt,ptr);
+	vsnprintf(temp,sizeof(temp)-1,fmt,ptr);
+	len = strlen(temp);
 	if ( len>get_size() )
 	{
 		error("message exceeds protocol size limit");
@@ -162,7 +164,8 @@ int connection_transport::message_append(char *fmt,...)
 			error("message exceeds protocol size limit");
 			return -1;
 		}
-		position += sprintf(output+position,"%s",delimiter);
+		snprintf(output+position,output-position-1,"%s",delimiter);
+		position = strlen(output);
 	}
 	strncpy(output+position,temp,len);
 	position += len;

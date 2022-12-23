@@ -14,7 +14,7 @@ bash$ ./install.sh [<install-options>] [<configure-options>]
 
 Building GridLAB-D from the source code is only for developers of the commercial *HiPAS* version of GridLAB-D. General users do not need to do this, and should refer to the [[/Getting Started]] page instead.  
 
-This installer is for the commercial *HiPAS* version of GridLAB-D (GridLAB-D 4.2) only.  The installers for research release versions of GridLAB-D are available at http://sourceforge.net/projects/gridlab-d/files/ (for Version 3 and older) or https://github.com/gridlab-d/gridlab-d (Version 4 or later).
+This installer is for the commercial *HiPAS* version of GridLAB-D (GridLAB-D 4.3) only.  The installers for research release versions of GridLAB-D are available at http://sourceforge.net/projects/gridlab-d/files/ (for Version 3 and older) or https://github.com/gridlab-d/gridlab-d (Version 4 or later).
 
 # Downloading and installing from the source repository
 
@@ -47,7 +47,7 @@ bash$ curl -L http://code.gridlabd.us/<branch>/install.sh | bash
 Manual installation is discouraged because the process is complex, highly error-prone, and varies widely from one platform to another.  However, it is necessary on platforms that are not supported by the automated installation script.  The general approach is roughly as follows, keeping in mind that the specific will vary from one system to another, and you may need to install certain tools and libraries to be successful.
 
 ~~~
-bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
+bash$ git clone https://source.gridlabd.us/ gridlabd
 bash$ cd gridlabd
 bash$ autoreconf -isf
 bash$ ./configure

@@ -96,7 +96,7 @@
 
             start = new Date(prompt("Enter report start date (yyyy-mm-dd): ",stop.getFullYear() + "-" + (stop.getMonth()+1) + "-01"));
 
-            r = run_query("/repos/slacgismo/gridlabd/issues?state=open&per_page=100&sort=updated&direction=asc&since="+start+"T00:00:00Z");
+            r = run_query("/repos/hipas/gridlabd/issues?state=open&per_page=100&sort=updated&direction=asc&since="+start+"T00:00:00Z");
             item_number = 1;
             if ( r.status == 200 )
             {
@@ -154,7 +154,7 @@
                             if ( start <= closed_dt && closed_dt <= stop )
                             {
                                 // console.info("*** output ***");
-                                report += "\n" + item_number + ". " + title + " ([" + number + "](https://github.com/slacgismo/gridlabd/issues/" + number + ") updated " + updated_at.substring(0,updated_at.indexOf("T")) + ")\n";
+                                report += "\n" + item_number + ". " + title + " ([" + number + "](https://source.gridlabd.us/issues/" + number + ") updated " + updated_at.substring(0,updated_at.indexOf("T")) + ")\n";
                                 // report += "Opened " + created_at.substring(0,created_at.indexOf("T")) + "\n";
                                 //report += "\n" + body + "\n\n";
                                 count += 1;

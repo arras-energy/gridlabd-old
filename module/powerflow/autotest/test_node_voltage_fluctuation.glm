@@ -1,0 +1,110 @@
+clock
+{
+	timezone "UTC0";
+	stoptime "2000-01-01 00:00:00 UTC";
+	stoptime "2001-01-01 00:00:00 UTC";
+}
+
+module powerflow
+{
+	solver_method NR;
+	violation_record "test_node_voltage_fluctuation.csv";
+	voltage_fluctuation_threshold 0.04;
+	DER_violation_test ALL;
+}
+
+object node {
+	name "main";
+	bustype SWING;
+	nominal_voltage 2400 V;
+	phases ABCN;
+	voltage_A 2400 V;
+	voltage_B 2400 V;
+	voltage_C 2400 V;
+	flags DEBUG;
+}
+
+object overhead_line_conductor
+{
+	name "ohl";
+	geometric_mean_radius 0.031300;
+	diameter 0.927 in;
+	resistance 0.185900;
+}
+
+object line_spacing {
+	name "ls";
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 5.656854;
+	distance_AN 4.272002;
+	distance_CN 5.0;
+	distance_AE 28.0;
+	distance_BE 28.0;
+	distance_CE 28.0;
+	distance_NE 24.0;
+}
+
+object line_configuration {
+	name "lc";
+	conductor_A "ohl";
+	conductor_B "ohl";
+	conductor_C "ohl";
+	conductor_N "ohl";
+	spacing "ls";
+}
+
+object overhead_line
+{
+	phases ABCN;
+	from "main";
+	to "load_1";
+	length 1 mile;
+	configuration "lc";
+}
+
+object load 
+{
+	phases ABCN;
+	nominal_voltage 2400 V;
+	name "load_1";
+	constant_power_A 0.2 MW;
+	constant_power_B 0.2 MW;
+	constant_power_C 0.2 MW;
+	DER_value 50 kW;
+}
+
+object overhead_line
+{
+	phases ABCN;
+	from "load_1";
+	to "node_2";
+	length 1 mile;
+	configuration "lc";
+}
+
+object node
+{
+	name "node_2";
+	phases ABCN;
+	nominal_voltage 2400 V;
+}
+
+object load
+{
+	parent "node_2";
+	phases ABCN;
+	nominal_voltage 2400 V;
+	name "load_2";
+	constant_power_A 0.2 MW;
+	constant_power_B 0.2 MW;
+	constant_power_C 0.2 MW;
+	DER_value 100 kW;
+}
+
+#ifexist ../test_node_voltage_fluctuation.csv
+#on_exit 0 diff ../test_node_voltage_fluctuation.csv test_node_voltage_fluctuation.csv >gridlabd.diff
+#endif
+
+#set savefile=test_node_voltage_fluctuation.json
