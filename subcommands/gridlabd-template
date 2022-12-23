@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Syntax: template [OPTIONS ...] COMMAND [ARGUMENTS ...]
 # ensure only one template call runs at a time
 . $(dirname $0)/gridlabd-lock
 

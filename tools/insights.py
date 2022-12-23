@@ -1,3 +1,4 @@
+# insights CATEGORY [OPTIONS ...]
 """Gather data on gridlabd usage
 
 SYNTAX

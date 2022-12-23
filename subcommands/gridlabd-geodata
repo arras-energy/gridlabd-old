@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3
-"""Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
+# Syntax: geodata [OPTIONS ...] DIRECTIVE [ARGUMENTS ...]
+"""Syntax: gridlabd geodata [OPTIONS ...] DIRECTIVE [ARGUMENTS ...]
 
 The geodata command gathers and joins geographic data. The geodata subcommand
 uses directives that are documented in the DIRECTIVES section below.

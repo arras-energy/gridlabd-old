@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: trace [OPTIONS ...] COMMAND [ARGUMENTS ...]
 #
 # Access gridlabd core/stack/memory/debug information
 #

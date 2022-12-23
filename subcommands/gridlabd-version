@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: version [--dryrun] COMMAND [ARGUMENTS ...]
 
 EXE="$(basename $0)"
 BIN=${0/-version/.bin}
@@ -32,7 +33,7 @@ esac
 function version-help()
 {
 	cat <<-END
-Syntax: gridlabd version [--dryrun] <command> <options...>
+Syntax: gridlabd version [--dryrun] COMMAND [ARGUMENTS ...]
 Commands:
   help                    get this list of commands
   check [-v|-q|-w]        check for a newer version

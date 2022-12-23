@@ -1,10 +1,11 @@
 #!/bin/bash
+# Syntax: model [OPTIONS ...] COMMAND [ARGUMENTS ...]
 #
 # Get models from the gridlabd-models repo
 #
 
 if [ $# -eq 0 ]; then
-    echo "Syntax: gridlabd model SUBCOMMAND [ARGS...]"
+    echo "Syntax: gridlabd model [OPTIONS ...] COMMAND [ARGUMENTS ...]"
     exit 1
 fi
 

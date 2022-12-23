@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: requirements
 if [ $# -gt 0 -a "$1" == "help" ]; then
     echo "Syntax: gridlabd requirements"
     exit 0

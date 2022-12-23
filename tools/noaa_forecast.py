@@ -1,3 +1,4 @@
+# noaa_forecast [OPTIONS ...]
 """NOAA weather forecast tool
 
 SYNOPSIS

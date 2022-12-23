@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Syntax: weather COMMAND [ARGUMENTS ...]
 # ensure only one weather call runs at a time
 . $(dirname $0)/gridlabd-lock
 
@@ -89,7 +89,7 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-Syntax: gridlabd weather <command> [...]
+Syntax: gridlabd weather COMMAND [ARGUMENTS ...]
 Commands:
   help               Get the list of weather subcommands
   index <pattern>    Index of available weather data matching <pattern> in archive

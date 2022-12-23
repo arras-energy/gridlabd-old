@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Syntax: require [--requirements] [--verbose] [REQUIREMENT]
 QUIET="-q"
 STDOUT="/dev/null"
 STDERR="/dev/null"

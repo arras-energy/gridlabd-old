@@ -1,6 +1,7 @@
 #!/bin/bash
+# Syntax: openfido [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 if [ $# -eq 0 -o "$1" == "help" ]; then
-	echo "Syntax: gridlabd openfido [OPTIONS ...] FUNCTION [...]"
+	echo "Syntax: gridlabd openfido [OPTIONS ...] FUNCTION [ARGUMENTS ...]"
 	exit 0
 fi
 if [ ! -x /usr/local/bin/openfido ]; then

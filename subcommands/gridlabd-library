@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: library [OPTIONS ...] COMMAND [ARGUMENTS ...]
 
 # ensure only one weather call runs at a time
 . $(dirname $0)/gridlabd-lock

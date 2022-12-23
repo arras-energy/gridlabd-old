@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+# metar2glm [--index|STATION ...]
 import sys
 sys.path.append(sys.argv[0].split()[0:-1])
 import ucar_weather

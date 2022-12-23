@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+# Syntax: timezone [OPTIONS ...] LOCATION
 """Syntax: gridlabd timezone [OPTIONS...] LOCATION
 
 The gridlabd timezone subcommand obtains the timezone for the location given
