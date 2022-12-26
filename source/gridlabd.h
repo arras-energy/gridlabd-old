@@ -2397,7 +2397,7 @@ public:
 	
 	// Constructor: gld_unit
 	// Construct a container for a named or derived unit
-	inline gld_unit(char *name) { UNIT *unit=callback->unit_find(name); if (unit) memcpy(&core,unit,sizeof(UNIT)); else memset(&core,0,sizeof(UNIT)); };
+	inline gld_unit(const char *name) { UNIT *unit=callback->unit_find(name); if (unit) memcpy(&core,unit,sizeof(UNIT)); else memset(&core,0,sizeof(UNIT)); };
 	
 	// Operator: UNIT*
 	// Cast to a UNIT structure
@@ -2453,13 +2453,13 @@ public:
 
 	// Method: set_unit
 	// Change the unit
-	inline bool set_unit(char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
+	inline bool set_unit(const char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
 
 public: 
 
 	// Method: convert
 	// Convert a value to another named or derived unit
-	inline bool convert(char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
+	inline bool convert(const char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
 	
 	// Method: convert
 	// Convert a value to another UNIT
