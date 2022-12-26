@@ -100,5 +100,5 @@ object meter
 #set savefile=${modelname/.glm/.json}
 
 #ifexist "../${modelname/.glm/.csv}"
-#on_exit 0 diff ../${modelname/.glm/.csv} t${modelname/.glm/.csv} > gridlabd.diff
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
 #endif
