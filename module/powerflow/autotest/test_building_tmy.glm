@@ -1,0 +1,90 @@
+// module/powerflow/autotest/test_building.glm
+
+//#set debug=TRUE
+
+//#option profile
+
+#set randomseed=1
+#set suppress_repeat_messages=FALSE
+#set output_message_context=NONE
+
+module powerflow
+{
+	message_flags DEBUG;
+}
+module tape
+{
+	csv_header_type NAME;
+}
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+#weather get WA-Yakima_Air_Terminal.tmy3
+#input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
+object building
+{
+	phases ABC;
+	nominal_voltage 480;
+	dt 1h;
+
+	// thermal parameters
+	UA random.triangle(200,400) W/K;
+	CA random.triangle(1.5e6,2.5e6) J/K;
+	UI random.triangle(5000,7000) W/K;
+	CM random.triangle(7e6,9.e6) J/K;
+	UM random.triangle(500,700) W/K;
+
+	// design parameters
+	TH random.triangle(-20,-10) degC;
+	TC random.triangle(35,45) degC;
+	QH 150000.0 W; // 0 to autosize
+	QE random.triangle(5000,15000) W/unit;
+	QG random.triangle(0,2000) W/unit;
+	QO random.triangle(800,1600) W/unit;
+	QV random.triangle(200,600) W/unit;
+	SA random.triangle(10,20) m^2;
+
+	// control parameters
+	K 1.0;
+
+	// inputs
+	EU random.triangle(0.1,0.2) unit;
+	NG random.triangle(0.1,0.2) unit;
+	NH random.triangle(0,4) unit;
+	TS random.triangle(18,22) degC;
+
+	// outputs
+	PZM 0 pu; // constant impedance HVAC real power (pu.W)
+	PPM 0.3 pu; // constant power HVAC real power (pu.W)
+	QPM 0.03 pu; // constant power HVAC reactive power (pu.VAr)
+	PZE 500 W/unit; // constant impedance end-use real power (W)
+	PIE 0 W/unit; // constant current end-use real power (W)
+	PPE 500 W/unit; // constant power end-use real power (W)
+	QZE 50 VAr/unit; // constant impedance end-use reactive power (VAr)
+	QIE 0 VAr/unit; // constant current end-use reactive power (VAr)
+	QPE 50 VAr/unit; // constant power end-use reactive power (VAr)
+	PPH 0.06 pu; // constant power ventilation real power (pu.W/person)
+	QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
+
+	temperature_source "weather.temperature";
+	solar_source "weather.solar_global";
+
+	measured_demand_timestep 1wk;
+	object recorder 
+	{
+		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
+		file ${modelname/.glm/.csv};
+		interval 1h;
+	};
+}
+
+#set filesave_options=ALLINITIAL
+#set dumpfile=gridlabd.json
+#set savefile=${modelname/.glm/.json}
+
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#endif
