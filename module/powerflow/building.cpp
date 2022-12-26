@@ -526,12 +526,12 @@ void building::update_state(bool flag_only )
 		M = x[2][0];
 		if ( M < -1.0 )
 		{
-			warning("cooling control saturation");
+			warning("cooling control saturation (M=%.2f, QC=%.1f kW)",M,-QH/1000);
 			M = -1.0;
 		}
 		else if ( M > 1.0 )
 		{
-			warning("heating control saturation");
+			warning("heating control saturation (M=%.2f, QH=%.1f kW)",M,QH/1000);
 			M = 1.0;
 		}
 		DUMP(x);
