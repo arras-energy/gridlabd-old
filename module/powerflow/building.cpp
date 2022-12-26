@@ -476,13 +476,24 @@ void building::update_control(bool flag_only )
 
 void building::update_input(bool flag_only )
 {
+	static gld_unit *degC = NULL;
+	if ( degC == NULL )
+	{
+		degC = new gld_unit("degC");
+	}
+	static gld_unit *Wpersm = NULL;
+	if ( Wpersm == NULL )
+	{
+		Wpersm = new gld_unit("W/m^2");
+	}
+
 	if ( TRACE_DEBUG >= 2 ) debug("entering update_input(%s)",flag_only?"true":"");
 	if ( ! flag_only && input_flag )
 	{
 		if ( TRACE_DEBUG >= 3 ) debug("  updating input");
 		if ( temperature )
 		{
-			TO = temperature->get_double();
+			TO = temperature->get_double(*degC);
 		}
 		u[0][0] = TO;
 		u[1][0] = EU;
@@ -490,7 +501,7 @@ void building::update_input(bool flag_only )
 		u[3][0] = NH;
 		if ( solar )
 		{
-			QS = solar->get_double();
+			QS = solar->get_double(*Wpersm);
 		}
 		u[4][0] = QS;
 		u[5][0] = TS;
@@ -526,7 +537,7 @@ void building::update_state(bool flag_only )
 		M = x[2][0];
 		if ( M < -1.0 )
 		{
-			warning("cooling control saturation (M=%.2f, QC=%.1f kW)",M,-QH/1000);
+			warning("cooling control saturation (M=%.2f, QH=%.1f kW)",M,QH/1000);
 			M = -1.0;
 		}
 		else if ( M > 1.0 )
