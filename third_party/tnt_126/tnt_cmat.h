@@ -485,15 +485,16 @@ inline Matrix<T> matmult(const Matrix<T>  &A,
     T sum;
 
     for (Subscript i=0; i<M; i++)
-    for (Subscript k=0; k<K; k++)
     {
-        sum = 0;
-        for (Subscript j=0; j<N; j++)
-            sum = sum +  A[i][j] * B[j][k];
+        for (Subscript k=0; k<K; k++)
+        {
+            sum = 0;
+            for (Subscript j=0; j<N; j++)
+                sum = sum +  A[i][j] * B[j][k];
 
-        tmp[i][k] = sum; 
+            tmp[i][k] = sum; 
+        }
     }
-
     return tmp;
 }
 
@@ -502,6 +503,26 @@ inline Matrix<T> operator*(const Matrix<T>  &A,
     const Matrix<T> &B)
 {
     return matmult(A,B);
+}
+
+template <class T>
+inline Matrix<T> operator*(const Matrix<T> &A,
+    double b)
+{
+    Subscript M = A.num_rows();
+    Subscript N = A.num_cols();
+
+    Matrix<T> tmp(M,N);
+    T sum;
+
+    for (Subscript i=0; i<M; i++)
+    {
+        for (Subscript j=0; j<N; j++)
+        {
+            tmp[i][j] =  A[i][j] * b;
+        }
+    }
+    return tmp;
 }
 
 template <class T>
