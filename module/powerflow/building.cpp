@@ -17,6 +17,8 @@ EXPORT_COMMIT(building);
 CLASS *building::oclass = NULL;
 building *building::defaults = NULL;
 
+char1024 building::building_defaults_filename = "building_defaults.csv";
+
 building::building(MODULE *module)
 : load(module)
 {
@@ -90,20 +92,31 @@ building::building(MODULE *module)
 			PUBLISH(double,measured_real_power,"W","metered real power demand"), PT_OUTPUT,
 			PUBLISH(double,measured_reactive_power,"VAr","metered reactive power demand"), PT_OUTPUT,
 			PUBLISH(double,measured_real_energy,"Wh","cumulative metered real energy consumption"), PT_OUTPUT,
-			PUBLISH(double,measured_real_energy_delta,"Wh","cumulative metered real energy interval consumption"), PT_OUTPUT,
+			PUBLISH(double,measured_real_energy_delta,"Wh","metered real energy interval consumption"), PT_OUTPUT,
 			PUBLISH(double,measured_reactive_energy,"Wh","cumulative metered reactive energy consumption"), PT_OUTPUT,
-			PUBLISH(double,measured_reactive_energy_delta,"Wh","cumulative metered reactive energy interval consumption"), PT_OUTPUT,
+			PUBLISH(double,measured_reactive_energy_delta,"Wh","metered reactive energy interval consumption"), PT_OUTPUT,
 			PUBLISH(double,measured_energy_delta_timestep,"s","energy metering interval"), PT_OUTPUT,
 			PUBLISH(double,measured_demand,"W","maximum metered real power interval demand"), PT_OUTPUT,
 			PUBLISH(double,measured_demand_timestep,"s","maximum power metering interval"), PT_OUTPUT,
 
 			// weather sources
-			PT_char256,"temperature_source",get_temperature_source_offset(),PT_DESCRIPTION,"temperature weather object source property",
-			PT_char256,"solar_source",get_solar_source_offset(),PT_DESCRIPTION,"solar weather object source property",
+			PT_char256,"temperature_source",get_temperature_source_offset(),
+				PT_DESCRIPTION,"temperature weather object source property",
+			PT_char256,"solar_source",get_solar_source_offset(),
+				PT_DESCRIPTION,"solar weather object source property",
+			PT_char256,"cooling_design",get_cooling_design_offset(),
+				PT_DESCRIPTION,"cooling design temperature source property",
+			PT_char256,"heating_design",get_heating_design_offset(),
+				PT_DESCRIPTION,"heating design temperature source property",
+
+			// building type
+			PT_char32,"building_type",get_building_type_offset(),
+				PT_DESCRIPTION,"building type used to be lookup defaults and enduse loadshapes",
 
 			NULL)<1) {
 				throw "unable to publish building properties";
 		}
+		gl_global_create("powerflow::building_defaults",PT_char1024,(const char*)building_defaults_filename,NULL);
 	}
 }
 
@@ -148,6 +161,32 @@ int building::init(OBJECT *parent)
 			error("solar source '%s' is not valid",(const char*)solar_source);
 		}
 	}
+	if ( strcmp(heating_design,"") != 0 )
+	{
+		gld_property Tdesign(heating_design);
+		if ( Tdesign.is_valid() )
+		{
+			TH = Tdesign.get_double("degC");
+		}
+		else
+		{
+			error("heating design source '%s' is not valid",(const char*)heating_design);
+		}
+	}
+	if ( strcmp(cooling_design,"") != 0 )
+	{
+		gld_property Tdesign(cooling_design);
+		if ( Tdesign.is_valid() )
+		{
+			TC = Tdesign.get_double("degC");
+		}
+		else
+		{
+			error("cooling design source '%s' is not valid",(const char*)cooling_design);
+		}
+	}
+
+	load_defaults();
 
 #define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
 #define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
@@ -303,10 +342,9 @@ TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 {
 	int M = A.dim1();
-	int N = A.dim2();
 	int K = b.dim2();
-
 #if ASSERTIONS > 0
+	int N = A.dim2();
 	assert ( M == N ); // check that A is square
 	assert ( M != b.dim1() ); // check for dimension match
 	for ( int m = 1 ; m < M ; m++ )
@@ -647,8 +685,108 @@ void building::update_output(bool flag_only )
 	if ( TRACE_DEBUG >= 2 ) debug("exiting update_output(%s)",flag_only?"true":"");
 }
 
-int building::load_data(void)
+int building::load_defaults(void)
 {
-	// TODO: read loadshapes files
+	if ( strcmp(building_type,"") != 0 )
+	{
+		char filename[sizeof(building_defaults_filename)];
+		strcpy(filename,building_defaults_filename);
+		gl_findfile(building_defaults_filename,NULL,R_OK,filename,sizeof(filename)-1);
+		FILE *fp = fopen(filename,"r");
+		if ( fp == NULL )
+		{
+			error("building defaults data file '%s' not found",filename);
+		}
+		char header[1024];
+		if ( fgets(header,sizeof(header)-1,fp) == NULL )
+		{
+			error("file '%s' header read failed",filename);
+		}
+		else if ( strncmp(header,"building_type,",14) != 0 )
+		{
+			error("file '%s' header column 0 data is not building type index",filename);
+		}
+		else
+		{
+			bool found = false;
+			while ( ! feof(fp) && ! ferror(fp) && ! found )
+			{
+				char line[65536];
+				if ( fgets(line,sizeof(line)-1,fp) != NULL )
+				{
+					if ( strncmp(line,building_type,strlen(building_type)) == 0 && line[strlen(building_type)] == ',' )
+					{
+						char *field, *last_field = NULL;
+						char *value, *last_value = NULL;
+						while ( (field = strtok_r(last_field?NULL:(header+14),",\n",&last_field)) != NULL )
+						{
+							gld_property prop(my(),field);
+							if ( ! prop.is_valid() )
+							{
+								error("%s: field '%s' is not valid",filename,field);
+								break;
+							}
+							value = strtok_r(last_value?NULL:(line+strlen(building_type)+1),",\n",&last_value);
+							if ( value == NULL )
+							{
+								error("%s: value for field '%s' is missing",filename,field);
+								break;
+							}
+							prop.from_string(value);
+						}
+						found = true;
+					}
+				}
+			}
+			if ( ! found )
+			{
+				error("building type '%s' not found in '%s'",(const char*)building_type,filename);
+			}
+		}
+		fclose(fp);
+	}
 	return 1;
+}
+
+input::input(const char *filename)
+{
+	FILE *fp = fopen(filename,"r");
+	if ( fp == NULL )
+	{
+		GL_THROW("file '%s' open failed",filename);
+	}
+	char header[65536];
+	if ( fgets(header,sizeof(header)-1,fp) == NULL )
+	{
+		fclose(fp);
+		GL_THROW("file '%s' header read failed",filename);
+	}
+	while ( ! feof(fp) && ! ferror(fp) )
+	{
+		char line[65536];
+		if ( fgets(line,sizeof(line)-1,fp) != NULL )
+		{
+			// TODO
+		}
+	}
+	fclose(fp);
+}
+
+input::SERIES *input::get_series(const char *name)
+{
+	return NULL; // TODO
+}
+
+double input::get_value(input::SERIES *series, 
+						const TIMESTAMP timestamp,
+						const int32 tz_offset,
+						bool is_dst,
+						const double scale)
+{
+	if ( timestamp == last_timestamp )
+	{
+		return series->value[last_offset] * scale;
+	}
+	// TODO get series offset and data
+	return QNAN;
 }
