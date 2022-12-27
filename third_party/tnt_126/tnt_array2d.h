@@ -63,6 +63,7 @@ class Array2D
 		inline const T* operator[](int i) const;
 		inline Array2D<T> operator-(void);
 		inline Array2D<T> operator%(const Array2D<T> &A);
+		inline Array2D<T> operator*(double A);
 		inline int dim1() const;
 		inline int dim2() const;
 		~Array2D();
@@ -185,6 +186,16 @@ template <class T>
 Array2D<T> Array2D<T>::operator%(const Array2D &A)
 {
 	Array2D B(matmult(*this,A));
+	return B;
+}
+
+template <class T>
+Array2D<T> Array2D<T>::operator*(double A)
+{
+	Array2D B(m_,n_);
+	for (int i=0; i<m_; i++)
+		for (int j=0; j<n_; j++)
+			B[i][j] = v_[i][j] * A;
 	return B;
 }
 
