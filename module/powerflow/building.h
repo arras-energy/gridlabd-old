@@ -15,6 +15,31 @@ using namespace TNT;
 
 #define TS_DAY0 3*86400
 
+class input 
+{
+	typedef struct s_series
+	{
+		const char *name;
+		double value[12*7*24]; // month, weekday, hour
+		struct s_series *next;
+	} SERIES;
+private:
+
+	SERIES *data;
+	int32 last_timestamp;
+	int32 last_offset;
+
+public:
+
+	SERIES *get_series(const char *name);
+	double get_value(SERIES *series, const TIMESTAMP timestamp, const int32 tz_offset, bool is_dst, const double scale=1.0);
+
+public:
+
+	input(const char *filename);
+	~input(void);
+};
+
 class building : public load 
 {
 
@@ -35,6 +60,7 @@ public:
 	static char1024 gas_enduses_filename;
 	static char1024 occupancies_filename;
 	static char1024 setpoints_filename;
+	static char1024 building_defaults_filename;
 	gld_property *temperature;
 	gld_property *solar;
 
@@ -70,6 +96,7 @@ public:
 	GL_ATOMIC(double,K); // HVAC control gain w.r.t temperature
 
 	// inputs
+	GL_STRING(char32,building_type); // building type (used to lookup data)
 	GL_ATOMIC(double,TO); // outdoor air temperature (degC_
 	GL_ATOMIC(double,EU); // fraction of end-uses active
 	GL_ATOMIC(double,NG); // natural usage in kG
@@ -108,6 +135,8 @@ public:
 	GL_ATOMIC(int32,setpoint);
 	GL_STRING(char256,temperature_source);
 	GL_STRING(char256,solar_source);
+	GL_STRING(char256,cooling_design);
+	GL_STRING(char256,heating_design);
 
 private:
 
@@ -121,7 +150,7 @@ private:
 	void update_equipment(void); // only called when QH needs to be checked (or autosized if QH=0)
 
 	// loaders
-	int load_data(void);
+	int load_defaults(void);
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);
