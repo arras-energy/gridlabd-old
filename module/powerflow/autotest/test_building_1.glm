@@ -4,6 +4,8 @@
 
 //#option profile
 
+#define CITY=Yakima WA
+
 #set randomseed=1
 #set suppress_repeat_messages=FALSE
 #set output_message_context=NONE
@@ -22,17 +24,9 @@ clock
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
 }
-class weather
-{
-	double temperature[degC];
-	double insolation[W/m^2];
-}
-object weather
-{
-	name "weather";
-	temperature -5 degC;
-	insolation 500 W/m^2;
-}
+#weather get WA-Yakima_Air_Terminal.tmy3
+#input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
+
 object building
 {
 	phases ABC;
@@ -49,15 +43,16 @@ object building
 	// design parameters
 	TH random.triangle(-20,-10) degC;
 	TC random.triangle(35,45) degC;
-	//QH 50000.0 W; // 0 to autosize
+	//QH 50.0 kW; // 0 to autosize
 	QE random.triangle(5000,15000) W/unit;
 	QG random.triangle(0,2000) W/unit;
 	QO random.triangle(800,1600) W/unit;
 	QV random.triangle(200,600) W/unit;
 	SA random.triangle(10,20) m^2;
+	//DF 3;
 
 	// control parameters
-	K 1.0;
+	K 1;
 
 	// inputs
 	EU random.triangle(0.1,0.2) unit;
@@ -79,14 +74,15 @@ object building
 	QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
 
 	temperature_source "weather.temperature";
-	solar_source "weather.insolation";
+	solar_source "weather.solar_global";
 
 	measured_demand_timestep 1wk;
 	object recorder 
 	{
-		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
+		property "measured_real_power[kW],TO,TA,QH";
 		file ${modelname/.glm/.csv};
 		interval 1h;
+		line_units NONE;
 	};
 }
 
@@ -96,4 +92,6 @@ object building
 
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='measured_real_power[kW],TO,TA' --plot:grid=True --show
 #endif

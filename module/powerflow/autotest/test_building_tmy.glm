@@ -4,8 +4,9 @@
 
 //#option profile
 
-#define N=25 // number of buildings
-#define CITY=Yakima WA
+#define N=100 // number of buildings
+#define CITY=Minneapolis MN
+#define WEATHER=MN-Minneapolis_Crystal.tmy3
 
 #set randomseed=1
 #set suppress_repeat_messages=FALSE
@@ -25,8 +26,8 @@ clock
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
 }
-#weather get WA-Yakima_Air_Terminal.tmy3
-#input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
+#weather get ${WEATHER}
+#input "${WEATHER}" --property=name=weather
 object meter 
 {
 	name meter;
@@ -37,7 +38,7 @@ object meter
 	{
 		phases inherit;
 		nominal_voltage inherit;
-		dt 5 min;
+		dt 1 h;
 
 		// thermal parameters
 		UA random.triangle(200,400) W/K;
@@ -57,7 +58,7 @@ object meter
 		SA random.triangle(10,20) m^2;
 
 		// control parameters
-		K 0.03;
+		K 1.0;
 
 		// inputs
 		EU random.triangle(0.1,0.2) unit;
@@ -86,9 +87,10 @@ object meter
 }
 object multi_recorder 
 {
-	property "meter:measured_real_power,weather:temperature";
+	property "meter:measured_real_power[MW],weather:temperature";
 	file ${modelname/.glm/.csv};
 	interval 1h;
+	line_units NONE;
 };
 
 #set filesave_options=ALLINITIAL
@@ -98,5 +100,5 @@ object multi_recorder
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
 #else
-#on_exit 0 gridlabd plot -i=test_building_tmy.csv --plot:y=meter:measured_real_power --plot:x=weather:temperature --plot:marker=. --plot:linewidth=0 --plot:xlabel='Temperature (degF)' --plot:ylabel='Load (kW)' --plot:title='${N} Buildings in ${CITY}' --plot:grid=True --show
+#on_exit 0 gridlabd plot -i=test_building_tmy.csv --plot:y='meter:measured_real_power[MW]' --plot:x=weather:temperature --plot:marker=. --plot:linewidth=0 --plot:xlabel='Temperature (degF)' --plot:ylabel='Load (MW)' --plot:title='${N} Buildings in ${CITY}' --plot:grid=True --show
 #endif

@@ -1,8 +1,6 @@
 // module/powerflow/autotest/test_building.glm
 
-//#set debug=TRUE
-
-//#option profile
+#define CITY=Yakima WA
 
 #set randomseed=1
 #set suppress_repeat_messages=FALSE
@@ -22,17 +20,9 @@ clock
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
 }
-class weather
-{
-	double temperature[degC];
-	double insolation[W/m^2];
-}
-object weather
-{
-	name "weather";
-	temperature -5 degC;
-	insolation 500 W/m^2;
-}
+#weather get WA-Yakima_Air_Terminal.tmy3
+#input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
+
 object meter
 {
 	phases ABC;
@@ -83,15 +73,16 @@ object meter
 		QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
 
 		temperature_source "weather.temperature";
-		solar_source "weather.insolation";
+		solar_source "weather.solar_global";
 
 		measured_demand_timestep 1wk;
 	};
 	object recorder 
 	{
-		property "measured_real_power,measured_real_energy,measured_real_energy_delta,measured_demand";
+		property "measured_real_power[kW]";
 		file ${modelname/.glm/.csv};
 		interval 1h;
+		line_units NONE;
 	};
 }
 
@@ -101,4 +92,6 @@ object meter
 
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='measured_real_power[kW]' --plot:ylabel='Load (kW)' --plot:grid=True --show
 #endif
