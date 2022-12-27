@@ -20,7 +20,7 @@ class input
 	typedef struct s_series
 	{
 		const char *name;
-		double value[12*7*24]; // month, weekday, hour
+		double value[12*4*24]; // month (0-11), daytype (0-3), hour (0-23)
 		struct s_series *next;
 	} SERIES;
 private:
