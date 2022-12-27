@@ -3245,8 +3245,8 @@ public:
 	// Method: get_double(gld_unit&to)
 	inline double get_double(gld_unit&to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
-	// Method: get_double(char*to)
-	inline double get_double(char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+	// Method: get_double(const char*to)
+	inline double get_double(const char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_complex
 	inline complex get_complex(void) { errno=0; if ( pstruct.prop->ptype==PT_complex ) return *(complex*)get_addr(); else return complex(QNAN,QNAN); };
