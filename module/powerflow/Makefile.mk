@@ -80,4 +80,6 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/triplexline_test.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/undergroundline_test.h
 
 dist_pkgdata_DATA += module/powerflow/solver_py.conf
+dist_pkgdata_DATA += module/powerflow/building_defaults.csv
+
 bin_SCRIPTS += module/powerflow/check_powerflow.py
