@@ -5,6 +5,7 @@
 
 #define TRACE_DEBUG 0 // 0 none, 1 = events only, 2 = update events, 3 = all updates
 #define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = all DUMP calls
+#define ASSERTIONS 0 // 0 = none, 1 = all
 
 #define DUMP(X) if ( STATE_DEBUG >= 2 ) X.printf(#X ":\n")
 
@@ -222,7 +223,10 @@ TIMESTAMP building::sync(TIMESTAMP t0)
 {
 	if ( TRACE_DEBUG >= 1 ) debug("*** building load sync");
 
-	update_output();
+	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
+	{
+		update_output();
+	}
 
 	return load::sync(t0);
 }
@@ -301,6 +305,8 @@ building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 	int M = A.dim1();
 	int N = A.dim2();
 	int K = b.dim2();
+
+#if ASSERTIONS > 0
 	assert ( M == N ); // check that A is square
 	assert ( M != b.dim1() ); // check for dimension match
 	for ( int m = 1 ; m < M ; m++ )
@@ -310,6 +316,7 @@ building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 			assert( A[m][n] == 0.0 );
 		}
 	}
+#endif
 
 	Matrix x(M,K,0.0);
 	for ( int k = 0 ; k < K ; k++ )
@@ -530,8 +537,10 @@ void building::update_state(bool flag_only )
 		update_control();
 		update_input();
 		if ( TRACE_DEBUG >= 3 ) debug("  updating state");
-		x.set(TA,TM,min(max(M,-1.0),1.0));
-		x += A%x + B%u;
+		Matrix b = -B%u;
+		DUMP(b);
+		DUMP(A);
+		x = solve_UL(A,b); // equilibrium solution (assumes a sufficiently large dt)
 		TA = x[0][0];
 		TM = x[1][0];
 		M = x[2][0];
