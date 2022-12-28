@@ -37,7 +37,7 @@ object building
 {
 	phases AN;
 	nominal_voltage 240;
-	building_type HOUSE;
+	building_type SMALLOFFICE;
 
 	// inputs
 	EU random.triangle(0.1,0.2) unit;

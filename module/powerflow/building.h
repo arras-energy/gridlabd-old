@@ -21,15 +21,16 @@ public:
 
 	typedef struct s_loadshape
 	{
-		const char *name;
+		const char *building_type;
+		const char *fuel;
 		double value[4*2*24]; // season (0-3), daytype (0-1), hour (0-23)
-		struct s_series *next;
+		struct s_loadshape *next;
 	} LOADSHAPE;
 
 private:
 
+	static LOADSHAPE *first_shape;
 	static char *buffer;
-	LOADSHAPE *data;
 	int32 last_timestamp;
 	int32 last_offset;
 

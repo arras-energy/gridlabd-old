@@ -795,12 +795,24 @@ input::~input(void)
 	// TODO: cleanup
 }
 
+input::LOADSHAPE *input::first_shape = NULL;
 input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 {
+	LOADSHAPE *shape = new LOADSHAPE;
+	if ( shape == NULL )
+	{
+		GL_THROW("input::get_loadshape('%s','%s'): memory allocation failed",type,source);
+	}
+	shape->building_type = strdup(type);
+	shape->fuel = strdup(source);
+	shape->next = first_shape;
+	first_shape = shape;
+
 	char *data = strdup(buffer);
 	char *line, *last = NULL;
 	char *header = NULL;
 	unsigned int n = 0;
+	unsigned int found = 0;
 	while ( (line=strtok_r(last?NULL:data,"\n",&last)) != NULL )
 	{
 		n++;
@@ -811,21 +823,46 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 		else
 		{
 			char building_type[64];
-			char season[64];
+			char season_name[64];
 			char fuel[64];
-			char daytype[64];
+			char daytype_name[64];
 			unsigned int hour;
 			double load;
-			if ( sscanf(line,"%63[A-Z],%63[A-Z],%63[A-Z],%63[A-Z],%u,%lf",building_type,season,fuel,daytype,&hour,&load) < 6 )
+			if ( sscanf(line,"%63[A-Z],%63[A-Z],%63[A-Z],%63[A-Z],%u,%lf",building_type,season_name,fuel,daytype_name,&hour,&load) < 6 )
 			{
 				GL_THROW("input::get_loadshape('%s','%s'): error parsing line %d (too few fields)",type,source,n);
 			}
 			if ( strcmp(building_type,type) == 0 && strcmp(source,fuel) == 0 )
 			{
-				printf("%s\n",line);
+				// printf("%s\n",line);
+				found++;
 				// TODO save this record
+				int season = 0;
+				switch(season_name[1]) // quick test for season
+				{
+				case 'I': // WINTER
+					season = 0;
+					break;
+				case 'P': // SPRING
+					season = 1;
+					break;
+				case 'U': // SUMMER
+					season = 2;
+					break;
+				case 'A': // FALL
+					season = 3;
+					break;
+
+				}
+				int daytype = (daytype_name[4]=='E');
+				int offset = hour + daytype*24 + season*24*2;
+				shape->value[offset] = load;
 			}
 		}
+	}
+	if ( found == 0 )
+	{
+		gl_warning("loadshape for building type '%s' fuel '%s' not found",type,source);
 	}
 	free(data);
 	return NULL; // TODO
@@ -837,10 +874,12 @@ double input::get_load(input::LOADSHAPE *series,
 						bool is_dst,
 						const double scale)
 {
-	if ( timestamp == last_timestamp )
+	if ( timestamp != last_timestamp )
 	{
-		return series->value[last_offset] * scale;
+		DATETIME dt;
+		gl_localtime(timestamp,&dt);
+		last_offset = dt.hour + (dt.weekday>=1&&dt.weekday<=5?0:1)*24+ int(dt.month/4)*24*2;
+		last_timestamp = timestamp;
 	}
-	// TODO get series offset and data
-	return QNAN;
+	return series->value[last_offset] * scale;
 }
