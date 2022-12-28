@@ -822,6 +822,7 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 			}
 			if ( strcmp(building_type,type) == 0 && strcmp(source,fuel) == 0 )
 			{
+				printf("%s\n",line);
 				// TODO save this record
 			}
 		}
