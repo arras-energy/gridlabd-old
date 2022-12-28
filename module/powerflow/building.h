@@ -17,22 +17,26 @@ using namespace TNT;
 
 class input 
 {
-	typedef struct s_series
+public:
+
+	typedef struct s_loadshape
 	{
 		const char *name;
-		double value[12*4*24]; // month (0-11), daytype (0-3), hour (0-23)
+		double value[4*2*24]; // season (0-3), daytype (0-1), hour (0-23)
 		struct s_series *next;
-	} SERIES;
+	} LOADSHAPE;
+
 private:
 
-	SERIES *data;
+	static char *buffer;
+	LOADSHAPE *data;
 	int32 last_timestamp;
 	int32 last_offset;
 
 public:
 
-	SERIES *get_series(const char *name);
-	double get_value(SERIES *series, const TIMESTAMP timestamp, const int32 tz_offset, bool is_dst, const double scale=1.0);
+	LOADSHAPE *get_loadshape(const char *building_type, const char *fuel);
+	double get_load(LOADSHAPE *series, const TIMESTAMP timestamp, const int32 tz_offset, bool is_dst, const double scale=1.0);
 
 public:
 
@@ -61,8 +65,11 @@ public:
 	static char1024 occupancies_filename;
 	static char1024 setpoints_filename;
 	static char1024 building_defaults_filename;
+	static char1024 building_loadshapes_filename;
 	gld_property *temperature;
 	gld_property *solar;
+	input::LOADSHAPE *electric_load;
+	input::LOADSHAPE *gas_load;
 
 public:
 
@@ -151,6 +158,7 @@ private:
 
 	// loaders
 	int load_defaults(void);
+	int load_loadshapes(void);
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);

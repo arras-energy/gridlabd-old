@@ -18,6 +18,7 @@ CLASS *building::oclass = NULL;
 building *building::defaults = NULL;
 
 char1024 building::building_defaults_filename = "building_defaults.csv";
+char1024 building::building_loadshapes_filename = "building_loadshapes.csv";
 
 building::building(MODULE *module)
 : load(module)
@@ -117,6 +118,7 @@ building::building(MODULE *module)
 				throw "unable to publish building properties";
 		}
 		gl_global_create("powerflow::building_defaults",PT_char1024,(const char*)building_defaults_filename,NULL);
+		gl_global_create("powerflow::building_loadshapes",PT_char1024,(const char*)building_loadshapes_filename,NULL);
 	}
 }
 
@@ -187,6 +189,7 @@ int building::init(OBJECT *parent)
 	}
 
 	load_defaults();
+	load_loadshapes();
 
 #define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
 #define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
@@ -748,36 +751,86 @@ int building::load_defaults(void)
 	return 1;
 }
 
-input::input(const char *filename)
+int building::load_loadshapes(void)
 {
-	FILE *fp = fopen(filename,"r");
-	if ( fp == NULL )
-	{
-		GL_THROW("file '%s' open failed",filename);
-	}
-	char header[65536];
-	if ( fgets(header,sizeof(header)-1,fp) == NULL )
-	{
-		fclose(fp);
-		GL_THROW("file '%s' header read failed",filename);
-	}
-	while ( ! feof(fp) && ! ferror(fp) )
-	{
-		char line[65536];
-		if ( fgets(line,sizeof(line)-1,fp) != NULL )
-		{
-			// TODO
-		}
-	}
-	fclose(fp);
+
+	electric_load = input(building_loadshapes_filename).get_loadshape(building_type,"ELECTRIC");
+	gas_load = input(building_loadshapes_filename).get_loadshape(building_type,"GAS");
+	return 1;
 }
 
-input::SERIES *input::get_series(const char *name)
+char *input::buffer = NULL;
+input::input(const char *filename)
 {
+	if ( buffer == NULL )
+	{
+		struct stat info;
+		if ( stat(filename,&info) != 0 )
+		{
+			GL_THROW("unable to stat file '%s'",filename);
+		}
+		buffer = (char*)malloc(info.st_size+1);
+		FILE *fp = fopen(filename,"r");
+		if ( fp == NULL )
+		{
+			GL_THROW("file '%s' open failed",filename);
+		}
+		size_t len = fread(buffer,1,info.st_size,fp);
+		if ( len < (size_t)info.st_size )
+		{
+			GL_THROW("file '%s' read failed (wanted %lld bytes, but read only %lld",filename,info.st_size,len);
+		}
+		fclose(fp);		
+#define HEADER "building_type,season,fuel,daytype,hour,load"
+		if ( strncmp(buffer,HEADER,sizeof(HEADER)-1) != 0 )
+		{
+			buffer[sizeof(HEADER)-1] = '\0';
+			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')",filename, HEADER,buffer);
+		}
+	}
+}
+
+input::~input(void)
+{
+	// TODO: cleanup
+}
+
+input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
+{
+	char *data = strdup(buffer);
+	char *line, *last = NULL;
+	char *header = NULL;
+	unsigned int n = 0;
+	while ( (line=strtok_r(last?NULL:data,"\n",&last)) != NULL )
+	{
+		n++;
+		if ( header == NULL )
+		{
+			header = line;
+		}
+		else
+		{
+			char building_type[64];
+			char season[64];
+			char fuel[64];
+			char daytype[64];
+			unsigned int hour;
+			double load;
+			if ( sscanf(line,"%63[A-Z],%63[A-Z],%63[A-Z],%63[A-Z],%u,%lf",building_type,season,fuel,daytype,&hour,&load) < 6 )
+			{
+				GL_THROW("input::get_loadshape('%s','%s'): error parsing line %d (too few fields)",type,source,n);
+			}
+			if ( strcmp(building_type,type) == 0 && strcmp(source,fuel) == 0 )
+			{
+				// TODO save this record
+			}
+		}
+	}
+	free(data);
 	return NULL; // TODO
 }
 
-double input::get_value(input::SERIES *series, 
+double input::get_load(input::LOADSHAPE *series, 
 						const TIMESTAMP timestamp,
 						const int32 tz_offset,
 						bool is_dst,

@@ -15,6 +15,12 @@
 module powerflow
 {
 	message_flags DEBUG;
+#ifexist ../data/building_defaults.csv
+	building_defaults "../data/building_defaults.csv";
+#endif
+#ifexist ../data/building_loadshapes.csv
+	building_loadshapes "../data/building_loadshapes.csv";
+#endif
 }
 module tape
 {
