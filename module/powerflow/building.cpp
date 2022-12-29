@@ -4,7 +4,7 @@
 #include "powerflow.h"
 
 #define TRACE_DEBUG 0 // 0 none, 1 = events only, 2 = update events, 3 = all updates
-#define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
+#define STATE_DEBUG 3 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
 #define POWER_DEBUG 0 // 0 = none, 1 = ZIP components
 #define ASSERTIONS 0 // 0 = none, 1 = all
 
@@ -596,6 +596,7 @@ void building::update_input(bool flag_only )
 		{
 			NG = gas_load->get_load(gl_globalclock);
 		}
+		fprintf(stderr,"EU=%.4fg, NG=%.4g, ef=%.4g, ee=%.4g, eg=%.4g\n",EU,NG,electrification_fraction,electrification_efficiency,electric_gain_fraction);
 		u[1][0] = (EU + electrification_fraction*NG/electrification_efficiency) * electric_gain_fraction;
 		u[2][0] = (1-electrification_fraction)*NG * gas_gain_fraction;
 		u[3][0] = NH;
@@ -605,7 +606,7 @@ void building::update_input(bool flag_only )
 		}
 		u[4][0] = QS;
 		u[5][0] = TS;
-		u.printf("u:\n");
+		// u.printf("u:\n");
 		DUMP(u);
 		update_state(true);
 		update_output(true);
@@ -673,6 +674,7 @@ void building::update_output(bool flag_only )
 		C[2][2] = PPM*QC;
 		C[5][2] = QPM*QC;
 		DUMP(C);
+		DUMP(x);
 		D[0][1] = PZE;
 		D[1][1] = PIE;
 		D[2][1] = PPE;
@@ -682,23 +684,24 @@ void building::update_output(bool flag_only )
 		D[5][1] = QPE;
 		D[5][3] = QPH*QH;
 		DUMP(D);
+		DUMP(u);
 		y = C%x + D%u;
-		if ( STATE_DEBUG >= 2 ) y.printf("y:\n");
+		DUMP(y);
 
 		// copy y to load data
 		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
-		double P = ((y[0][0]*nominal_voltage+y[1][0])*nominal_voltage+y[2][0]);
-		double Q = ((y[3][0]*nominal_voltage+y[4][0])*nominal_voltage+y[5][0]);
+		double P = (y[0][0]+y[1][0]+y[2][0]);
+		double Q = (y[3][0]+y[4][0]+y[5][0]);
 		complex S(P,Q);
 		double Sm = S.Mag();
 		if ( STATE_DEBUG >= 1 ) fprintf(stderr,"TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f\n",
 			TO,QS,TA,TM,M,P,Q,Sm);
 		double Sn = Sm / n_phases;
-		double Pz = complex(y[0][0],y[3][0]).Mag()*nominal_voltage*nominal_voltage / Sm;
-		double Pi = complex(y[1][0],y[4][0]).Mag()*nominal_voltage / Sm;
+		double Pz = complex(y[0][0],y[3][0]).Mag() / Sm;
+		double Pi = complex(y[1][0],y[4][0]).Mag() / Sm;
 		double Pp = complex(y[2][0],y[5][0]).Mag() / Sm;
-		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0]*nominal_voltage*nominal_voltage / Sm;
-		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0]*nominal_voltage / Sm;
+		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
+		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
 		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
 		if ( POWER_DEBUG ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
 		if ( phases&PHASE_A ) 
