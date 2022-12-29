@@ -54,6 +54,10 @@ class building : public load
 
 	typedef Array2D<double> Matrix;
 
+	typedef struct s_occupancy {
+		double value;
+	} OCCUPANCY;
+
 private:
 
 	Matrix A, B, C, D, x, u, y; // model data
@@ -65,16 +69,19 @@ private:
 	int ts_offset; // offset to use for interval checks
 
 public:
+
 	static char1024 electric_enduses_filename;
 	static char1024 gas_enduses_filename;
 	static char1024 occupancies_filename;
 	static char1024 setpoints_filename;
 	static char1024 building_defaults_filename;
 	static char1024 building_loadshapes_filename;
+	static char1024 building_occupancy_filename;
 	gld_property *temperature;
 	gld_property *solar;
 	input *electric_load;
 	input *gas_load;
+	OCCUPANCY *occupancy_schedule;
 
 public:
 
@@ -147,10 +154,7 @@ public:
 	GL_ATOMIC(double,measured_demand_timestep);
 
 	// schedules
-	GL_ATOMIC(int32,electric_enduse);
-	GL_ATOMIC(int32,gas_enduse);
 	GL_ATOMIC(int32,occupancy);
-	GL_ATOMIC(int32,setpoint);
 	GL_STRING(char256,temperature_source);
 	GL_STRING(char256,solar_source);
 	GL_STRING(char256,cooling_design);
@@ -170,6 +174,7 @@ private:
 	// loaders
 	int load_defaults(void);
 	int load_loadshapes(void);
+	int load_occupancy(void);
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);

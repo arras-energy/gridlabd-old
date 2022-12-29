@@ -82,5 +82,6 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/undergroundline_test.h
 dist_pkgdata_DATA += module/powerflow/solver_py.conf
 dist_pkgdata_DATA += module/powerflow/data/building_defaults.csv
 dist_pkgdata_DATA += module/powerflow/data/building_loadshapes.csv
+dist_pkgdata_DATA += module/powerflow/data/building_occupancy.csv
 
 bin_SCRIPTS += module/powerflow/check_powerflow.py

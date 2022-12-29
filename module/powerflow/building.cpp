@@ -20,6 +20,7 @@ building *building::defaults = NULL;
 
 char1024 building::building_defaults_filename = "building_defaults.csv";
 char1024 building::building_loadshapes_filename = "building_loadshapes.csv";
+char1024 building::building_occupancy_filename = "building_occupancy.csv";
 
 building::building(MODULE *module)
 : load(module)
@@ -128,12 +129,15 @@ building::building(MODULE *module)
 			PT_double,"electrification_efficiency[pu]",get_electrification_efficiency_offset(), PT_REQUIRED,
 				PT_DEFAULT, "+2 pu",
 				PT_DESCRIPTION,"performance of electric end-use relative to gas enduse",
+			PT_int32,"occupancy",get_occupancy_offset(),
+				PT_DESCRIPTION,"building occupancy",
 
 			NULL)<1) {
 				throw "unable to publish building properties";
 		}
 		gl_global_create("powerflow::building_defaults",PT_char1024,(const char*)building_defaults_filename,NULL);
 		gl_global_create("powerflow::building_loadshapes",PT_char1024,(const char*)building_loadshapes_filename,NULL);
+		gl_global_create("powerflow::building_occupancy",PT_char1024,(const char*)building_occupancy_filename,NULL);
 	}
 }
 
@@ -152,6 +156,7 @@ int building::create(void)
 	measured_real_energy = measured_reactive_energy = measured_demand = 0.0;
 	measured_energy_delta_timestep = measured_demand_timestep = 3600;
 	prev_measured_energy = last_measured_energy = this_measured_demand = 0.0;
+	occupancy_schedule = NULL;
 
 	return load::create(); /* return 1 on success, 0 on failure */
 }
@@ -203,6 +208,9 @@ int building::init(OBJECT *parent)
 		}
 	}
 
+#define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
+#define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
+
 	// check building type and supporting data
 	if ( building_type[0] != '\0' )
 	{
@@ -212,10 +220,12 @@ int building::init(OBJECT *parent)
 		}
 		load_defaults();
 		load_loadshapes();
+		CHECK_NONNEGATIVE(occupancy,exception)
+		if ( occupancy > 0 )
+		{
+			load_occupancy();
+		}
 	}
-
-#define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
-#define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
 	CHECK_POSITIVE(K,exception)
 	CHECK_POSITIVE(dt,exception)
 	CHECK_POSITIVE(DF,exception)
@@ -237,6 +247,13 @@ int building::init(OBJECT *parent)
 	if ( PZE+PIE+PPE != 1.0 )
 	{
 		warning("real power output fractions must add to 1.0");
+	}
+	CHECK_POSITIVE(electrification_efficiency,exception);
+	CHECK_POSITIVE(electric_gain_fraction,exception);
+	CHECK_POSITIVE(gas_gain_fraction,exception);
+	if ( electrification_fraction < 0 || electrification_fraction > 1 )
+	{
+		exception("electrification fraction must be between 0 and 1");
 	}
 
 	// initialize working matrices
@@ -588,6 +605,7 @@ void building::update_input(bool flag_only )
 		}
 		u[4][0] = QS;
 		u[5][0] = TS;
+		u.printf("u:\n");
 		DUMP(u);
 		update_state(true);
 		update_output(true);
@@ -682,21 +700,6 @@ void building::update_output(bool flag_only )
 		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0]*nominal_voltage*nominal_voltage / Sm;
 		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0]*nominal_voltage / Sm;
 		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
-		// double Ps = Pz+Pi+Pp;
-		// if ( Ps != 1.0 )
-		// {
-		// 	if ( Ps != 0.0 )
-		// 	{
-		// 		Pz /= Ps;
-		// 		Pi /= Ps;
-		// 		Pp /= Ps;
-		// 	}
-		// 	else
-		// 	{
-		// 		Pz = Pi = 0.0;
-		// 		Pp = 1.0;
-		// 	}
-		// }	
 		if ( POWER_DEBUG ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
 		if ( phases&PHASE_A ) 
 		{
@@ -808,6 +811,54 @@ int building::load_loadshapes(void)
 	return 1;
 }
 
+int building::load_occupancy(void)
+{
+	// cannot load occupancy data without a building type
+	if ( building_type[0] == '\0' )
+	{
+		return 0;
+	}
+
+	// one-time load of raw data
+	static char *building_occupancy_data = NULL;
+	if ( building_occupancy_data == NULL )
+	{
+		char pathname[1024];
+		strcpy(pathname,building_occupancy_filename);
+		gl_findfile(building_occupancy_filename,NULL,R_OK,pathname,sizeof(pathname)-1);
+
+		struct stat info;
+		if ( stat(pathname,&info) != 0 )
+		{
+			GL_THROW("unable to stat file '%s'",pathname);
+		}
+		building_occupancy_data = (char*)malloc(info.st_size+1);
+		FILE *fp = fopen(pathname,"r");
+		if ( fp == NULL )
+		{
+			GL_THROW("file '%s' open failed",pathname);
+		}
+		size_t len = fread(building_occupancy_data,1,info.st_size,fp);
+		if ( len < (size_t)info.st_size )
+		{
+			GL_THROW("file '%s' read failed (wanted %lld bytes, but read only %lld",pathname,info.st_size,len);
+		}
+		fclose(fp);		
+#define HEADER "building_type,daytype,start,stop,occupied,unoccupied"
+		if ( strncmp(building_occupancy_data,HEADER,sizeof(HEADER)-1) != 0 )
+		{
+			building_occupancy_data[sizeof(HEADER)-1] = '\0';
+			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')", pathname, HEADER, building_occupancy_data);
+		}
+#undef HEADER	
+	}
+
+	// extract values for this building type
+	// TODO
+
+	return 1;
+}
+
 char *input::buffer = NULL;
 input::input(const char *filename)
 {
@@ -840,6 +891,7 @@ input::input(const char *filename)
 			buffer[sizeof(HEADER)-1] = '\0';
 			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')",pathname, HEADER,buffer);
 		}
+#undef HEADER
 	}
 	shape = NULL;
 }
