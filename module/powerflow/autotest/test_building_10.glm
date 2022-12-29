@@ -3,8 +3,6 @@
 #define CITY=Yakima WA
 
 #set randomseed=1
-#set suppress_repeat_messages=FALSE
-#set output_message_context=NONE
 
 module powerflow
 {
@@ -70,12 +68,12 @@ object meter
 		PZM 0 pu; // constant impedance HVAC real power (pu.W)
 		PPM 0.3 pu; // constant power HVAC real power (pu.W)
 		QPM 0.03 pu; // constant power HVAC reactive power (pu.VAr)
-		PZE 500 W/unit; // constant impedance end-use real power (W)
-		PIE 0 W/unit; // constant current end-use real power (W)
-		PPE 500 W/unit; // constant power end-use real power (W)
-		QZE 50 VAr/unit; // constant impedance end-use reactive power (VAr)
-		QIE 0 VAr/unit; // constant current end-use reactive power (VAr)
-		QPE 50 VAr/unit; // constant power end-use reactive power (VAr)
+		PZE 0.5 pu; // constant impedance end-use real power (W)
+		PIE 0 pu; // constant current end-use real power (W)
+		PPE 0.5 pu; // constant power end-use real power (W)
+		QZE 0.05 pu; // constant impedance end-use reactive power (VAr)
+		QIE 0 pu; // constant current end-use reactive power (VAr)
+		QPE 0.5 pu; // constant power end-use reactive power (VAr)
 		PPH 0.06 pu; // constant power ventilation real power (pu.W/person)
 		QPH 0.01 pu; // constant power ventilation reactive power (pu.VAr/person)
 

@@ -7,8 +7,6 @@
 #define CITY=Yakima WA
 
 #set randomseed=1
-//#set suppress_repeat_messages=FALSE
-#set output_message_context=NONE
 
 module powerflow
 {
@@ -57,8 +55,8 @@ object building
 	solar_source "weather.solar_global";
 	heating_design "weather.record.low";
 	cooling_design "weather.record.high";
-	electrification_fraction 1;
-	electrification_efficiency 1;
+	//electrification_fraction 1;
+	//electrification_efficiency 1.5;
 
 	measured_demand_timestep 30day;
 	object recorder 

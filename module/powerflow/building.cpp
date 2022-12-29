@@ -4,10 +4,11 @@
 #include "powerflow.h"
 
 #define TRACE_DEBUG 0 // 0 none, 1 = events only, 2 = update events, 3 = all updates
-#define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = all DUMP calls
+#define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
+#define POWER_DEBUG 0 // 0 = none, 1 = ZIP components
 #define ASSERTIONS 0 // 0 = none, 1 = all
 
-#define DUMP(X) if ( STATE_DEBUG >= 2 ) X.printf(#X ":\n")
+#define DUMP(X) if ( STATE_DEBUG >= 3 ) X.printf(#X ":\n")
 
 EXPORT_CREATE(building);
 EXPORT_INIT(building);
@@ -77,17 +78,17 @@ building::building(MODULE *module)
 			PUBLISH(double,TS,"degC","thermostat setpoint"), PT_REQUIRED,
 
 			// outputs
-			PUBLISH(double,PZM,"pu","constant impedance HVAC real power per unit nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,PPM,"pu","constant power HVAC real power per unit nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,QPM,"pu","constant power HVAC reactive power per unit nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,PZE,"W/unit","constant impedance end-use real power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,PIE,"W/unit","constant current end-use real power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,PPE,"W/unit","constant power end-use real power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,QZE,"VAr/unit","constant impedance end-use reactive power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,QIE,"VAr/unit","constant current end-use reactive power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,QPE,"VAr/unit","constant power end-use reactive power nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,PPH,"pu","constant power ventilation real power per unit nominal capacity"), PT_OUTPUT,
-			PUBLISH(double,QPH,"pu","constant power ventilation reactive power per unit nominal capacity"), PT_OUTPUT,
+			PUBLISH(double,PZM,"pu","constant impedance HVAC real power per unit system capacity"), PT_OUTPUT,
+			PUBLISH(double,PPM,"pu","constant power HVAC real power per unit system capacity"), PT_OUTPUT,
+			PUBLISH(double,QPM,"pu","constant power HVAC reactive power per unit system capacity"), PT_OUTPUT,
+			PUBLISH(double,PZE,"pu","constant impedance end-use real power fraction"), PT_OUTPUT,
+			PUBLISH(double,PIE,"pu","constant current end-use real power fraction"), PT_OUTPUT,
+			PUBLISH(double,PPE,"pu","constant power end-use real power fraction"), PT_OUTPUT,
+			PUBLISH(double,QZE,"pu","constant impedance end-use reactive fraction"), PT_OUTPUT,
+			PUBLISH(double,QIE,"pu","constant current end-use reactive fraction"), PT_OUTPUT,
+			PUBLISH(double,QPE,"pu","constant power end-use reactive fraction"), PT_OUTPUT,
+			PUBLISH(double,PPH,"pu","constant power ventilation real power per unit occupancy"), PT_OUTPUT,
+			PUBLISH(double,QPH,"pu","constant power ventilation reactive power per unit occupancy"), PT_OUTPUT,
 
 			// meter
 			PUBLISH(double,measured_real_power,"W","metered real power demand"), PT_OUTPUT,
@@ -143,7 +144,7 @@ int building::isa(char *type)
 
 int building::create(void) 
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load create");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load create\n");
 
 	thermal_flag = design_flag = control_flag = input_flag = state_flag = output_flag = true;
 	DF = 2.0;
@@ -157,7 +158,7 @@ int building::create(void)
 
 int building::init(OBJECT *parent)
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load init");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load init\n");
 
 	ts_offset = gld_clock(gl_globalclock).get_tzoffset() + TS_DAY0;
 
@@ -213,7 +214,6 @@ int building::init(OBJECT *parent)
 		load_loadshapes();
 	}
 
-
 #define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
 #define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
 	CHECK_POSITIVE(K,exception)
@@ -233,6 +233,10 @@ int building::init(OBJECT *parent)
 	if ( measured_demand_timestep < measured_energy_delta_timestep )
 	{
 		warning("measured_demand_timestep must be greater than or equal to measured_energy_delta_timestep");
+	}
+	if ( PZE+PIE+PPE != 1.0 )
+	{
+		warning("real power output fractions must add to 1.0");
 	}
 
 	// initialize working matrices
@@ -270,7 +274,7 @@ int building::init(OBJECT *parent)
 
 TIMESTAMP building::presync(TIMESTAMP t0)
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load presync");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load presync\n");
 
 	ts_offset = gld_clock(t0).get_tzoffset() + TS_DAY0;
 	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
@@ -286,7 +290,7 @@ TIMESTAMP building::presync(TIMESTAMP t0)
 
 TIMESTAMP building::sync(TIMESTAMP t0)
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load sync");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load sync\n");
 
 	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
 	{
@@ -298,7 +302,7 @@ TIMESTAMP building::sync(TIMESTAMP t0)
 
 TIMESTAMP building::postsync(TIMESTAMP t0)
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load postsync");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load postsync\n");
 
 	double ts = (double)(t0 - last_meter_update) / 3600;
 	if ( ts > 0 && measured_energy_delta_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_energy_delta_timestep == 0 )
@@ -349,7 +353,7 @@ TIMESTAMP building::postsync(TIMESTAMP t0)
 
 TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 {
-	if ( TRACE_DEBUG >= 1 ) debug("*** building load commit");
+	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load commit\n");
 
 	// update/reset meter demand values
 	if ( measured_demand_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_demand_timestep == 0 )
@@ -400,10 +404,10 @@ building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 
 void building::update_equipment(void)
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_equipment(void)");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_equipment(void)\n");
 	if ( QH == 0.0 )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  autosizing equipment");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  autosizing equipment\n");
 		// autosize heating system
 		Matrix Ah(2,2,0.0);
 		Ah.set(UI/CA,1/DF/CA,
@@ -445,7 +449,7 @@ void building::update_equipment(void)
 		update_thermal();
 		update_design();
 
-		if ( TRACE_DEBUG >= 3 ) debug("  checking equipment");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  checking equipment\n");
 		// check heating equipment size
 		Matrix uh(6,1,0.0);
 		uh[0][0] = TH;
@@ -469,15 +473,15 @@ void building::update_equipment(void)
 		}
 		
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_equipment(void)...");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_equipment(void)...\n");
 }
 
 void building::update_thermal(bool flag_only )
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_thermal(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_thermal(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && thermal_flag )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  updating thermal");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating thermal\n");
 		A[0][0] = -(UA+UI)/CA;
 		A[0][1] = UI/CA;
 		A[0][2] = QH/CA;
@@ -496,19 +500,19 @@ void building::update_thermal(bool flag_only )
 	}
 	else if ( ! thermal_flag && flag_only ) 
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging thermal");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging thermal\n");
 		update_state(true);
 		thermal_flag = true;		
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_thermal(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_thermal(%s)\n",flag_only?"true":"");
 }
 
 void building::update_design(bool flag_only )
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_design(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_design(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && design_flag )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  updating design");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating design\n");
 		A[0][2] = QH/CA;
 		DUMP(A);
 		B[1][4] = SA/CM;
@@ -518,19 +522,19 @@ void building::update_design(bool flag_only )
 	}
 	else if ( ! design_flag && flag_only ) 
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging design");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging design\n");
 		update_state(true);
 		design_flag = true;
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_design(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_design(%s)\n",flag_only?"true":"");
 }
 
 void building::update_control(bool flag_only )
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_control(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_control(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && control_flag )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  updating control");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating control\n");
 		A[2][0] = -K;
 		DUMP(A);
 		B[2][5] = K;
@@ -539,10 +543,10 @@ void building::update_control(bool flag_only )
 	}
 	else if ( ! control_flag && flag_only )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging control");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging control\n");
 		control_flag = true;
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_control(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_control(%s)\n",flag_only?"true":"");
 }
 
 void building::update_input(bool flag_only )
@@ -558,10 +562,10 @@ void building::update_input(bool flag_only )
 		Wpersm = new gld_unit("W/m^2");
 	}
 
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_input(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_input(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && input_flag )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  updating input");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating input\n");
 		if ( temperature )
 		{
 			TO = temperature->get_double(*degC);
@@ -591,24 +595,24 @@ void building::update_input(bool flag_only )
 	}
 	else if ( ! input_flag && flag_only )
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging input");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging input\n");
 		update_state(true);
 		update_output(true);
 		input_flag = true;
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_input(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_input(%s)\n",flag_only?"true":"");
 }
 
 void building::update_state(bool flag_only )
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_state(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_state(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && state_flag )
 	{
 		update_thermal();
 		update_design();
 		update_control();
 		update_input();
-		if ( TRACE_DEBUG >= 3 ) debug("  updating state");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating state\n");
 		Matrix b = -B%u;
 		DUMP(b);
 		DUMP(A);
@@ -632,20 +636,20 @@ void building::update_state(bool flag_only )
 	}
 	else if ( ! state_flag && flag_only ) 
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging state");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging state\n");
 		update_output(true);
 		state_flag = true;
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_state(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_state(%s)\n",flag_only?"true":"");
 }
 
 void building::update_output(bool flag_only )
 {
-	if ( TRACE_DEBUG >= 2 ) debug("entering update_output(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_output(%s)\n",flag_only?"true":"");
 	if ( ! flag_only && output_flag )
 	{
 		update_state();
-		if ( TRACE_DEBUG >= 3 ) debug("  updating output");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating output\n");
 		double QC = ( M<0 ? -QH : QH );
 		C[0][2] = PZM*QC;
 		C[2][2] = PPM*QC;
@@ -660,8 +664,8 @@ void building::update_output(bool flag_only )
 		D[5][1] = QPE;
 		D[5][3] = QPH*QH;
 		DUMP(D);
-		y = C%x + D%y;
-		DUMP(y);
+		y = C%x + D%u;
+		if ( STATE_DEBUG >= 2 ) y.printf("y:\n");
 
 		// copy y to load data
 		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
@@ -669,15 +673,31 @@ void building::update_output(bool flag_only )
 		double Q = ((y[3][0]*nominal_voltage+y[4][0])*nominal_voltage+y[5][0]);
 		complex S(P,Q);
 		double Sm = S.Mag();
-		if ( STATE_DEBUG >= 1 ) debug("TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f",
+		if ( STATE_DEBUG >= 1 ) fprintf(stderr,"TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f\n",
 			TO,QS,TA,TM,M,P,Q,Sm);
 		double Sn = Sm / n_phases;
-		double Pz = complex(y[0][0],y[3][0]).Mag() / Sm;
-		double Pi = complex(y[1][0],y[4][0]).Mag() / Sm;
+		double Pz = complex(y[0][0],y[3][0]).Mag()*nominal_voltage*nominal_voltage / Sm;
+		double Pi = complex(y[1][0],y[4][0]).Mag()*nominal_voltage / Sm;
 		double Pp = complex(y[2][0],y[5][0]).Mag() / Sm;
-		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
-		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
+		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0]*nominal_voltage*nominal_voltage / Sm;
+		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0]*nominal_voltage / Sm;
 		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
+		// double Ps = Pz+Pi+Pp;
+		// if ( Ps != 1.0 )
+		// {
+		// 	if ( Ps != 0.0 )
+		// 	{
+		// 		Pz /= Ps;
+		// 		Pi /= Ps;
+		// 		Pp /= Ps;
+		// 	}
+		// 	else
+		// 	{
+		// 		Pz = Pi = 0.0;
+		// 		Pp = 1.0;
+		// 	}
+		// }	
+		if ( POWER_DEBUG ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
 		if ( phases&PHASE_A ) 
 		{
 			base_power[0] = Sn;
@@ -713,10 +733,10 @@ void building::update_output(bool flag_only )
 	}
 	else if ( ! output_flag && flag_only ) 
 	{
-		if ( TRACE_DEBUG >= 3 ) debug("  flagging output");
+		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging output\n");
 		output_flag = true;
 	}
-	if ( TRACE_DEBUG >= 2 ) debug("exiting update_output(%s)",flag_only?"true":"");
+	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_output(%s)\n",flag_only?"true":"");
 }
 
 int building::load_defaults(void)
@@ -871,9 +891,7 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 			}
 			if ( strcmp(building_type,type) == 0 && strcmp(source,fuel) == 0 )
 			{
-				// printf("%s\n",line);
 				found++;
-				// TODO save this record
 				int season = 0;
 				switch(season_name[1]) // quick test for season
 				{
