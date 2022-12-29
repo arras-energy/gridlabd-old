@@ -813,28 +813,32 @@ input::input(const char *filename)
 {
 	if ( buffer == NULL )
 	{
+		char pathname[1024];
+		strcpy(pathname,filename);
+		gl_findfile(filename,NULL,R_OK,pathname,sizeof(pathname)-1);
+
 		struct stat info;
-		if ( stat(filename,&info) != 0 )
+		if ( stat(pathname,&info) != 0 )
 		{
-			GL_THROW("unable to stat file '%s'",filename);
+			GL_THROW("unable to stat file '%s'",pathname);
 		}
 		buffer = (char*)malloc(info.st_size+1);
-		FILE *fp = fopen(filename,"r");
+		FILE *fp = fopen(pathname,"r");
 		if ( fp == NULL )
 		{
-			GL_THROW("file '%s' open failed",filename);
+			GL_THROW("file '%s' open failed",pathname);
 		}
 		size_t len = fread(buffer,1,info.st_size,fp);
 		if ( len < (size_t)info.st_size )
 		{
-			GL_THROW("file '%s' read failed (wanted %lld bytes, but read only %lld",filename,info.st_size,len);
+			GL_THROW("file '%s' read failed (wanted %lld bytes, but read only %lld",pathname,info.st_size,len);
 		}
 		fclose(fp);		
 #define HEADER "building_type,season,fuel,daytype,hour,load"
 		if ( strncmp(buffer,HEADER,sizeof(HEADER)-1) != 0 )
 		{
 			buffer[sizeof(HEADER)-1] = '\0';
-			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')",filename, HEADER,buffer);
+			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')",pathname, HEADER,buffer);
 		}
 	}
 	shape = NULL;
