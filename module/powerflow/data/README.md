@@ -11,4 +11,4 @@ To automatically update data, do the following:
 
 1. Run `make`.
 
-Load data is stored in `W/sf`.
+Load data is stored in `W/sf`, with HVAC loads omitted.

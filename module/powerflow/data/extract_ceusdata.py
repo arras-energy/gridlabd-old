@@ -36,6 +36,7 @@ enduse_code = {
     "Motors" : ["Motors","MOTORS"],
     "Air Compressors" : ["AirComp","AIRCOMPRESSION"],
 }
+enduse_ignore = ["Heat","Cool"]
 fuel_code = {
     "Elec" : "ELECTRIC",
     "Gas" : "GAS"
@@ -80,7 +81,9 @@ for file in os.listdir("CEUS"):
             # print(segment,enduse,"data:",series.loc[segment,enduse])
             for fuel in series.loc[segment,enduse].index.get_level_values(0).unique():
                 # print(series.loc[segment,enduse,fuel]['load'])
-                if fuel in floorarea[segment] and enduse in floorarea[segment][fuel]:
+                if enduse in enduse_ignore:
+                    series.loc[(segment,enduse,fuel),'load'] = 0.0
+                elif fuel in floorarea[segment] and enduse in floorarea[segment][fuel]:
                     series.loc[(segment,enduse,fuel),'load'] = (series.loc[(segment,enduse,fuel),'load'].astype('float') / floorarea[segment][fuel][enduse]["Floor area"]).round(4)
                 else:
                     print("WARNING: no floor area given for  {fuel} {segment} {enduse}",file=sys.stderr)
