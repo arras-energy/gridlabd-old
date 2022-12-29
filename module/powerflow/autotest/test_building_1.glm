@@ -33,6 +33,15 @@ clock
 #weather get WA-Yakima_Air_Terminal.tmy3
 #input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
 
+schedule setpoint
+{
+	* 7-17 * * 1-5 22.0;
+	* 18-6 * 10-4 1-5 18.0;
+	* 18-6 * 5-9 1-5 24.0;
+	* * * 10-4 6-0 18.0;
+	* * * 5-9 6-0 24.0; 
+}
+
 object building
 {
 	phases AN;
@@ -40,16 +49,18 @@ object building
 	building_type SMALLOFFICE;
 
 	// inputs
-	EU random.triangle(0.1,0.2) unit;
-	NG random.triangle(0.1,0.2) unit;
 	NH random.triangle(0,4) unit;
+	floor_area 150 m^2;
+	TA setpoint;
 
 	temperature_source "weather.temperature";
 	solar_source "weather.solar_global";
 	heating_design "weather.record.low";
 	cooling_design "weather.record.high";
+	electrification_fraction 1;
+	electrification_efficiency 1;
 
-	measured_demand_timestep 1wk;
+	measured_demand_timestep 30day;
 	object recorder 
 	{
 		property "measured_real_power[kW],TO,TA,QH";
@@ -66,5 +77,5 @@ object building
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
 #else
-#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='measured_real_power[kW],TO,TA' --plot:grid=True --show
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO,TA,measured_real_power[kW]' --plot:grid=True --plot:legend=True --show
 #endif

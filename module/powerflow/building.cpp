@@ -59,8 +59,8 @@ building::building(MODULE *module)
 			PUBLISH(double,TC,"degC","cooling design temperature"), PT_REQUIRED,
 			PUBLISH(double,DF,"pu","system over-design factor"),
 			PUBLISH(double,QH,"W","HVAC system capacity"), PT_REQUIRED, PT_OUTPUT,
-			PUBLISH(double,QE,"W/unit","nomimal enduse load capacity"), PT_REQUIRED,
-			PUBLISH(double,QG,"W/unit","natural gas heat per unit nominal enduse capacity"), PT_REQUIRED,
+			PUBLISH(double,QE,"W/m^2","nomimal enduse load capacity"), PT_REQUIRED,
+			PUBLISH(double,QG,"W/m^2","natural gas heat per unit nominal enduse capacity"), PT_REQUIRED,
 			PUBLISH(double,QO,"W/unit","heat gain per occupant"), PT_REQUIRED,
 			PUBLISH(double,QV,"W/unit","ventilation gain per occupant"), PT_REQUIRED,
 			PUBLISH(double,SA,"m^2","building mass area exposed to solar radiation"), PT_REQUIRED,
@@ -113,6 +113,20 @@ building::building(MODULE *module)
 			// building type
 			PT_char32,"building_type",get_building_type_offset(),
 				PT_DESCRIPTION,"building type used to be lookup defaults and enduse loadshapes",
+			PT_double,"floor_area[m^2]",get_floor_area_offset(), PT_REQUIRED,
+				PT_DESCRIPTION,"building floor area",
+			PT_double,"electric_gain_fraction[pu]",get_electric_gain_fraction_offset(), PT_REQUIRED,
+				PT_DEFAULT, "+1 pu",
+				PT_DESCRIPTION,"fraction of electric end-use heat gain to the building",
+			PT_double,"gas_gain_fraction[pu]",get_gas_gain_fraction_offset(), PT_REQUIRED,
+				PT_DEFAULT, "+0.5 pu",
+				PT_DESCRIPTION,"fraction of gas end-use heat gain to the building",
+			PT_double,"electrification_fraction[pu]",get_electrification_fraction_offset(), PT_REQUIRED,
+				PT_DEFAULT, "+0 pu",
+				PT_DESCRIPTION,"fraction of gas enduses that are converted to electricity",
+			PT_double,"electrification_efficiency[pu]",get_electrification_efficiency_offset(), PT_REQUIRED,
+				PT_DEFAULT, "+2 pu",
+				PT_DESCRIPTION,"performance of electric end-use relative to gas enduse",
 
 			NULL)<1) {
 				throw "unable to publish building properties";
@@ -188,8 +202,17 @@ int building::init(OBJECT *parent)
 		}
 	}
 
-	load_defaults();
-	load_loadshapes();
+	// check building type and supporting data
+	if ( building_type[0] != '\0' )
+	{
+		if ( floor_area <= 0 )
+		{
+			error("floor area must be positive");
+		}
+		load_defaults();
+		load_loadshapes();
+	}
+
 
 #define CHECK_POSITIVE(X,C) if ( X <= 0 ) { C(#X " must be positive"); }
 #define CHECK_NONNEGATIVE(X,C) if ( X < 0 ) { C(#X " must be non-negative"); }
@@ -462,8 +485,8 @@ void building::update_thermal(bool flag_only )
 		A[1][1] = -(UM+UI)/CM;
 		DUMP(A);
 		B[0][0] = UA/CA;
-		B[0][1] = QE/CA;
-		B[0][2] = QG/CA;
+		B[0][1] = floor_area*10.764/CA;
+		B[0][2] = floor_area*10.764/CA;
 		B[0][3] = (QO+QV)/CA;
 		B[1][0] = UM/CM;
 		B[1][4] = SA/CM;
@@ -544,8 +567,16 @@ void building::update_input(bool flag_only )
 			TO = temperature->get_double(*degC);
 		}
 		u[0][0] = TO;
-		u[1][0] = EU;
-		u[2][0] = NG;
+		if ( electric_load )
+		{
+			EU = electric_load->get_load(gl_globalclock);
+		}
+		if ( gas_load )
+		{
+			NG = gas_load->get_load(gl_globalclock);
+		}
+		u[1][0] = (EU + electrification_fraction*NG/electrification_efficiency) * electric_gain_fraction;
+		u[2][0] = (1-electrification_fraction)*NG * gas_gain_fraction;
 		u[3][0] = NH;
 		if ( solar )
 		{
@@ -690,72 +721,70 @@ void building::update_output(bool flag_only )
 
 int building::load_defaults(void)
 {
-	if ( strcmp(building_type,"") != 0 )
+	char filename[sizeof(building_defaults_filename)];
+	strcpy(filename,building_defaults_filename);
+	gl_findfile(building_defaults_filename,NULL,R_OK,filename,sizeof(filename)-1);
+	FILE *fp = fopen(filename,"r");
+	if ( fp == NULL )
 	{
-		char filename[sizeof(building_defaults_filename)];
-		strcpy(filename,building_defaults_filename);
-		gl_findfile(building_defaults_filename,NULL,R_OK,filename,sizeof(filename)-1);
-		FILE *fp = fopen(filename,"r");
-		if ( fp == NULL )
+		error("building defaults data file '%s' not found",filename);
+	}
+	char header[1024];
+	if ( fgets(header,sizeof(header)-1,fp) == NULL )
+	{
+		error("file '%s' header read failed",filename);
+	}
+	else if ( strncmp(header,"building_type,",14) != 0 )
+	{
+		error("file '%s' header column 0 data is not building type index",filename);
+	}
+	else
+	{
+		bool found = false;
+		while ( ! feof(fp) && ! ferror(fp) && ! found )
 		{
-			error("building defaults data file '%s' not found",filename);
-		}
-		char header[1024];
-		if ( fgets(header,sizeof(header)-1,fp) == NULL )
-		{
-			error("file '%s' header read failed",filename);
-		}
-		else if ( strncmp(header,"building_type,",14) != 0 )
-		{
-			error("file '%s' header column 0 data is not building type index",filename);
-		}
-		else
-		{
-			bool found = false;
-			while ( ! feof(fp) && ! ferror(fp) && ! found )
+			char line[65536];
+			if ( fgets(line,sizeof(line)-1,fp) != NULL )
 			{
-				char line[65536];
-				if ( fgets(line,sizeof(line)-1,fp) != NULL )
+				if ( strncmp(line,building_type,strlen(building_type)) == 0 && line[strlen(building_type)] == ',' )
 				{
-					if ( strncmp(line,building_type,strlen(building_type)) == 0 && line[strlen(building_type)] == ',' )
+					char *field, *last_field = NULL;
+					char *value, *last_value = NULL;
+					while ( (field = strtok_r(last_field?NULL:(header+14),",\n",&last_field)) != NULL )
 					{
-						char *field, *last_field = NULL;
-						char *value, *last_value = NULL;
-						while ( (field = strtok_r(last_field?NULL:(header+14),",\n",&last_field)) != NULL )
+						gld_property prop(my(),field);
+						if ( ! prop.is_valid() )
 						{
-							gld_property prop(my(),field);
-							if ( ! prop.is_valid() )
-							{
-								error("%s: field '%s' is not valid",filename,field);
-								break;
-							}
-							value = strtok_r(last_value?NULL:(line+strlen(building_type)+1),",\n",&last_value);
-							if ( value == NULL )
-							{
-								error("%s: value for field '%s' is missing",filename,field);
-								break;
-							}
-							prop.from_string(value);
+							error("%s: field '%s' is not valid",filename,field);
+							break;
 						}
-						found = true;
+						value = strtok_r(last_value?NULL:(line+strlen(building_type)+1),",\n",&last_value);
+						if ( value == NULL )
+						{
+							error("%s: value for field '%s' is missing",filename,field);
+							break;
+						}
+						prop.from_string(value);
 					}
+					found = true;
 				}
 			}
-			if ( ! found )
-			{
-				error("building type '%s' not found in '%s'",(const char*)building_type,filename);
-			}
 		}
-		fclose(fp);
+		if ( ! found )
+		{
+			error("building type '%s' not found in '%s'",(const char*)building_type,filename);
+		}
 	}
+	fclose(fp);
 	return 1;
 }
 
 int building::load_loadshapes(void)
 {
-
-	electric_load = input(building_loadshapes_filename).get_loadshape(building_type,"ELECTRIC");
-	gas_load = input(building_loadshapes_filename).get_loadshape(building_type,"GAS");
+	electric_load = new input(building_loadshapes_filename);
+	electric_load->get_loadshape(building_type,"ELECTRIC");
+	gas_load = new input(building_loadshapes_filename);
+	gas_load->get_loadshape(building_type,"GAS");
 	return 1;
 }
 
@@ -788,6 +817,7 @@ input::input(const char *filename)
 			GL_THROW("file '%s' header is incorrect (expected '%s' but got '%s')",filename, HEADER,buffer);
 		}
 	}
+	shape = NULL;
 }
 
 input::~input(void)
@@ -796,9 +826,16 @@ input::~input(void)
 }
 
 input::LOADSHAPE *input::first_shape = NULL;
+TIMESTAMP input::last_timestamp = 0;
+unsigned int input::last_offset = 0;
 input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 {
-	LOADSHAPE *shape = new LOADSHAPE;
+	for ( shape = first_shape ; shape != NULL ; shape = shape->next )
+	{
+		if ( strcmp(type,shape->building_type) == 0 && strcmp(source,shape->fuel) == 0 )
+			return shape;
+	}
+	shape = new LOADSHAPE;
 	if ( shape == NULL )
 	{
 		GL_THROW("input::get_loadshape('%s','%s'): memory allocation failed",type,source);
@@ -868,11 +905,7 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 	return NULL; // TODO
 }
 
-double input::get_load(input::LOADSHAPE *series, 
-						const TIMESTAMP timestamp,
-						const int32 tz_offset,
-						bool is_dst,
-						const double scale)
+double input::get_load(const TIMESTAMP timestamp, const double scale)
 {
 	if ( timestamp != last_timestamp )
 	{
@@ -881,5 +914,5 @@ double input::get_load(input::LOADSHAPE *series,
 		last_offset = dt.hour + (dt.weekday>=1&&dt.weekday<=5?0:1)*24+ int(dt.month/4)*24*2;
 		last_timestamp = timestamp;
 	}
-	return series->value[last_offset] * scale;
+	return shape->value[last_offset] * scale;
 }

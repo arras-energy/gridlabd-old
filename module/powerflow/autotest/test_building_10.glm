@@ -37,6 +37,7 @@ object meter
 	{
 		phases ABC;
 		nominal_voltage 480;
+		floor_area 1500 sf;
 		dt 1h;
 
 		// thermal parameters
@@ -50,8 +51,8 @@ object meter
 		TH random.triangle(-20,-10) degC;
 		TC random.triangle(35,45) degC;
 		//QH 50000.0 W; // 0 to autosize
-		QE random.triangle(5000,15000) W/unit;
-		QG random.triangle(0,2000) W/unit;
+		QE random.triangle(3,9) W/m^2;
+		QG random.triangle(0,2) W/m^2;
 		QO random.triangle(800,1600) W/unit;
 		QV random.triangle(200,600) W/unit;
 		SA random.triangle(10,20) m^2;

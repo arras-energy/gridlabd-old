@@ -31,13 +31,17 @@ private:
 
 	static LOADSHAPE *first_shape;
 	static char *buffer;
-	int32 last_timestamp;
-	int32 last_offset;
+	static TIMESTAMP last_timestamp;
+	static unsigned int last_offset;
+
+public:
+
+	LOADSHAPE *shape;
 
 public:
 
 	LOADSHAPE *get_loadshape(const char *building_type, const char *fuel);
-	double get_load(LOADSHAPE *series, const TIMESTAMP timestamp, const int32 tz_offset, bool is_dst, const double scale=1.0);
+	double get_load(const TIMESTAMP timestamp, const double scale=1.0);
 
 public:
 
@@ -69,8 +73,8 @@ public:
 	static char1024 building_loadshapes_filename;
 	gld_property *temperature;
 	gld_property *solar;
-	input::LOADSHAPE *electric_load;
-	input::LOADSHAPE *gas_load;
+	input *electric_load;
+	input *gas_load;
 
 public:
 
@@ -99,6 +103,12 @@ public:
 	GL_ATOMIC(double,QO); // occupant heat gain (W/person)
 	GL_ATOMIC(double,QV); // ventilation heat gain (W/person)
 	GL_ATOMIC(double,SA); // mass area exposed to solar radiation (m^2)
+	GL_ATOMIC(double,floor_area); // floor area (m^2)
+	GL_ATOMIC(double,electric_gain_fraction); // fraction of electric end-use that go to building heat gains
+	GL_ATOMIC(double,gas_gain_fraction); // fraction of gas end-use that go to building heat gains
+	GL_ATOMIC(double,electrification_fraction); // fraction of gas end-use that are electrified
+	GL_ATOMIC(double,electrification_efficiency); // performance of electric end-use relative to gas enduse
+
 
 	// control parameters
 	GL_ATOMIC(double,K); // HVAC control gain w.r.t temperature
