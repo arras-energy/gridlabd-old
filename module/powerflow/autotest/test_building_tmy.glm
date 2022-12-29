@@ -85,6 +85,7 @@ object meter
 
 		temperature_source "weather.temperature";
 		solar_source "weather.solar_global";
+		electric_heat TRUE;
 
 		measured_demand_timestep 1wk;
 	};

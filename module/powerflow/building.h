@@ -115,6 +115,7 @@ public:
 	GL_ATOMIC(double,gas_gain_fraction); // fraction of gas end-use that go to building heat gains
 	GL_ATOMIC(double,electrification_fraction); // fraction of gas end-use that are electrified
 	GL_ATOMIC(double,electrification_efficiency); // performance of electric end-use relative to gas enduse
+	GL_ATOMIC(bool,electric_heat); // flag whether heating is from electric
 
 
 	// control parameters

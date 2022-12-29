@@ -4,7 +4,7 @@
 #include "powerflow.h"
 
 #define TRACE_DEBUG 0 // 0 none, 1 = events only, 2 = update events, 3 = all updates
-#define STATE_DEBUG 3 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
+#define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
 #define POWER_DEBUG 0 // 0 = none, 1 = ZIP components
 #define ASSERTIONS 0 // 0 = none, 1 = all
 
@@ -131,6 +131,8 @@ building::building(MODULE *module)
 				PT_DESCRIPTION,"performance of electric end-use relative to gas enduse",
 			PT_int32,"occupancy",get_occupancy_offset(),
 				PT_DESCRIPTION,"building occupancy",
+			PT_bool,"electric_heat",get_electric_heat_offset(),
+				PT_DESCRIPTION,"flag to specified whether heating is electric",
 
 			NULL)<1) {
 				throw "unable to publish building properties";
@@ -596,7 +598,7 @@ void building::update_input(bool flag_only )
 		{
 			NG = gas_load->get_load(gl_globalclock);
 		}
-		fprintf(stderr,"EU=%.4fg, NG=%.4g, ef=%.4g, ee=%.4g, eg=%.4g\n",EU,NG,electrification_fraction,electrification_efficiency,electric_gain_fraction);
+		if ( POWER_DEBUG > 0 ) fprintf(stderr,"EU=%.4fg, NG=%.4g, ef=%.4g, ee=%.4g, eg=%.4g\n",EU,NG,electrification_fraction,electrification_efficiency,electric_gain_fraction);
 		u[1][0] = (EU + electrification_fraction*NG/electrification_efficiency) * electric_gain_fraction;
 		u[2][0] = (1-electrification_fraction)*NG * gas_gain_fraction;
 		u[3][0] = NH;
@@ -669,20 +671,28 @@ void building::update_output(bool flag_only )
 	{
 		update_state();
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating output\n");
-		double QC = ( M<0 ? -QH : QH );
+		double QC = 0;
+		if ( M < 0 )
+		{
+			QC = -QH;
+		}
+		else if ( electric_heat )
+		{
+			QC = QH;
+		}
 		C[0][2] = PZM*QC;
 		C[2][2] = PPM*QC;
 		C[5][2] = QPM*QC;
 		DUMP(C);
 		DUMP(x);
-		D[0][1] = PZE;
-		D[1][1] = PIE;
-		D[2][1] = PPE;
-		D[2][3] = PPH*QH;
-		D[3][1] = QZE;
-		D[4][1] = QIE;
-		D[5][1] = QPE;
-		D[5][3] = QPH*QH;
+		D[0][1] = floor_area*10.764*PZE;
+		D[1][1] = floor_area*10.764*PIE;
+		D[2][1] = floor_area*10.764*PPE;
+		D[2][3] = PPH*QH*0.1;
+		D[3][1] = floor_area*10.764*QZE;
+		D[4][1] = floor_area*10.764*QIE;
+		D[5][1] = floor_area*10.764*QPE;
+		D[5][3] = QPH*QH*0.01;
 		DUMP(D);
 		DUMP(u);
 		y = C%x + D%u;
@@ -703,7 +713,7 @@ void building::update_output(bool flag_only )
 		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
 		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
 		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
-		if ( POWER_DEBUG ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
+		if ( POWER_DEBUG > 0 ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
 		if ( phases&PHASE_A ) 
 		{
 			base_power[0] = Sn;

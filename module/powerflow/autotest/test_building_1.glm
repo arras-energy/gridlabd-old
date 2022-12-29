@@ -47,10 +47,10 @@ object building
 {
 	phases AN;
 	nominal_voltage 240;
-	building_type SMALLOFFICE;
+	building_type RETAIL;
 
 	// inputs
-	NH random.triangle(0,4) unit;
+	NH 4;
 	floor_area 150 m^2;
 	TA setpoint;
 
@@ -58,8 +58,9 @@ object building
 	solar_source "weather.solar_global";
 	heating_design "weather.record.low";
 	cooling_design "weather.record.high";
-	electrification_fraction 1.0;
-	//electrification_efficiency 1.5;
+	electric_heat TRUE;
+	electrification_fraction 0.5;
+	electrification_efficiency 2.0;
 
 	measured_demand_timestep 30day;
 	object recorder 
