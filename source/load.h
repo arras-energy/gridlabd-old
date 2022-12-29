@@ -371,7 +371,7 @@ private:
 	int set_language(const char *name);
 	inline const LANGUAGE *get_language(void) { return language; };
 	int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size);
-	int include_file(char *incname, char *buffer, int size, int _linenum);
+	int include_file(char *incname, char *buffer, int size);
 	int process_macro(char *line, int size, char *_filename, int linenum);
 	static void kill_processes(void);
 	static void wait_processes(void);
