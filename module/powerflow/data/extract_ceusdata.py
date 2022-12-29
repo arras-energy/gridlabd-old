@@ -55,7 +55,7 @@ for file in os.listdir("CEUS"):
         summary = book["Summary"]
         floorarea[segment] = {
             "Elec" : dict([(enduse_code[str(summary[row][1].value)][0],{"Floor area":float(summary[row][2].value)}) for row in range(5,18)]),
-            "Gas" : dict([(enduse_code[summary[row][1].value][0],{"Floor area":float(summary[row][2].value)}) for row in range(26,32)])
+            "Gas" : dict([(enduse_code[summary[row][1].value][0],{"Floor area":float(summary[row][2].value)*3.412}) for row in range(26,32)]) # include conversion of kBTU to kWh
         }
         # json.dump(data,sys.stdout,indent=4)
 
