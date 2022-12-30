@@ -11,8 +11,8 @@ module powerflow {
 	char1024 building_occupancy;
 }
 class building {
-    parent load;
-    // model parameters
+	parent load;
+	// model parameters
 	double dt[s]; // timestep to use when modeling building response to inputs
 	double TA[degC]; // (OUTPUT) indoor air temperature
 	double TM[degC]; // (OUTPUT) building mass temperature
@@ -128,17 +128,17 @@ The `building` object implements a general building load model as an integrated 
 
 ## Outputs
 
-* `PZM` - constant impedance HVAC real power (W). See [#Composition].
-* `PPM` - constant power HVAC real power (W). See [#Composition].
-* `QPM` - constant power HVAC reactive power (VAr). See [#Composition].
-* `PZE` - constant impedance end-use real power (W). See [#Composition].
-* `PIE` - constant current end-use real power (W). See [#Composition].
-* `PPE` - constant power end-use real power (W). See [#Composition].
-* `QZE` - constant impedance end-use reactive power (VAr). See [#Composition].
-* `QIE` - constant current end-use reactive power (VAr). See [#Composition].
-* `QPE` - constant power end-use reactive power (VAr). See [#Composition].
-* `PPH` - constant power ventilation real power (W/person). See [#Composition].
-* `QPH` - constant power ventilation reactive power (VAr/person). See [#Composition].
+* `PZM` - Constant impedance HVAC real power (W). See [#Composition].
+* `PPM` - Constant power HVAC real power (W). See [#Composition].
+* `QPM` - Constant power HVAC reactive power (VAr). See [#Composition].
+* `PZE` - Constant impedance end-use real power (W). See [#Composition].
+* `PIE` - Constant current end-use real power (W). See [#Composition].
+* `PPE` - Constant power end-use real power (W). See [#Composition].
+* `QZE` - Constant impedance end-use reactive power (VAr). See [#Composition].
+* `QIE` - Constant current end-use reactive power (VAr). See [#Composition].
+* `QPE` - Constant power end-use reactive power (VAr). See [#Composition].
+* `PPH` - Constant power ventilation real power (W/person). See [#Composition].
+* `QPH` - Constant power ventilation reactive power (VAr/person). See [#Composition].
 
 ## Meter
 
@@ -154,7 +154,7 @@ The `building` object implements a general building load model as an integrated 
 
 # Weather
 
-Any object can be used as a weather source by specifying the `temperature_source`, `source_source`, `heating_design`, and `cooling_design` properties.  For example, using a TMY3 input file you can specify the climate object's `temperature`, `solar_global`, `record.low`, and `record.high` property, i.e.,
+Any object can be used as a weather source by specifying the `temperature_source`, `solar_source`, `heating_design`, and `cooling_design` properties.  For example, using a TMY3 input file you can specify the climate object's `temperature`, `solar_global`, `record.low`, and `record.high` property, i.e.,
 
 ~~~
 #weather get CA-San_Francisco_Intl_Ap.tmy3
@@ -216,7 +216,7 @@ The `building_type` may be set to any building type you wish to define.  The sea
 
 # Composition
 
-Building design and load compositions can be used using the building type. Design and composition values are looked up according to the `building_type` property when it is set. The building composition file is specified by the module global `building_defaults`. You may specify your own building design defaults by setting the `building_defaults` module global to your file's pathname.  The file must be formatted similarly to the default file:
+Building design and load compositions can be set by specifying the `building_type` property. The building type is looked in the building design and composition file, which is specified by the module global `building_defaults`. You may specify your own building design defaults by setting the `building_defaults` module global to your file's pathname.  The file must be formatted similarly to the default file:
 
 | building_type | UA | CA | UI | CM | UM | DF | K | QE | QG | QO | QV | SA | TS | PZM | PPM | QPM | PZE | PIE | PPE | QZE | QIE | QPE | PPH | QPH |
 | ------------- | -- | -- | -- | -- | -- | -- | - | -- | -- | -- | -- | -- | -- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 
@@ -233,7 +233,7 @@ Building design and load compositions can be used using the building type. Desig
 | SMALLOFFICE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
 | TOWNHOUSE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
 
-The `building_type` may be set to any building type you wish to define.  The remaining values must be set in the units used by the `building`'s properties. 
+The `building_type` may be set to any building type you wish to define.  The values must be set in the units used by the `building`'s properties. 
 
 # See also
 
