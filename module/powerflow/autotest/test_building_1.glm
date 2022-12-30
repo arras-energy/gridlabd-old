@@ -46,7 +46,7 @@ object building
 	// inputs
 	NH 4;
 	floor_area 150 m^2;
-	TA setpoint;
+	TS setpoint;
 
 	temperature_source "weather.temperature";
 	solar_source "weather.solar_global";
