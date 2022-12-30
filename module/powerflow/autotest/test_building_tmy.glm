@@ -1,9 +1,5 @@
 // module/powerflow/autotest/test_building.glm
 
-//#set debug=TRUE
-
-//#option profile
-
 #define N=100 // number of buildings
 #define CITY=Minneapolis MN
 #define WEATHER=MN-Minneapolis_Crystal.tmy3

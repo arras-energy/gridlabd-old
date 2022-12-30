@@ -1,7 +1,5 @@
 // module/powerflow/autotest/test_building.glm
 
-#define CITY=Yakima WA
-
 #set randomseed=1
 
 module powerflow

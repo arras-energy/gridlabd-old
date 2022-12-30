@@ -158,7 +158,7 @@ int building::create(void)
 	measured_real_energy = measured_reactive_energy = measured_demand = 0.0;
 	measured_energy_delta_timestep = measured_demand_timestep = 3600;
 	prev_measured_energy = last_measured_energy = this_measured_demand = 0.0;
-	occupancy_schedule = NULL;
+	memset(occupancy_schedule,0,sizeof(occupancy_schedule));
 
 	return load::create(); /* return 1 on success, 0 on failure */
 }
@@ -601,7 +601,7 @@ void building::update_input(bool flag_only )
 		if ( POWER_DEBUG > 0 ) fprintf(stderr,"EU=%.4fg, NG=%.4g, ef=%.4g, ee=%.4g, eg=%.4g\n",EU,NG,electrification_fraction,electrification_efficiency,electric_gain_fraction);
 		u[1][0] = (EU + electrification_fraction*NG/electrification_efficiency) * electric_gain_fraction;
 		u[2][0] = (1-electrification_fraction)*NG * gas_gain_fraction;
-		u[3][0] = NH;
+		u[3][0] = NH*get_occupancy(gl_globalclock);
 		if ( solar )
 		{
 			QS = solar->get_double(*Wpersm);
@@ -828,7 +828,7 @@ int building::load_occupancy(void)
 {
 	// cannot load occupancy data without a building type
 	if ( building_type[0] == '\0' )
-	{
+	{	
 		return 0;
 	}
 
@@ -867,9 +867,83 @@ int building::load_occupancy(void)
 	}
 
 	// extract values for this building type
-	// TODO
-
+	char *data = strdup(building_occupancy_data);
+	char *line, *last = NULL;
+	char *header = NULL;
+	unsigned int n = 0;
+	unsigned int found = 0;
+	while ( (line=strtok_r(last?NULL:data,"\n",&last)) != NULL )
+	{
+		n++;
+		if ( header == NULL )
+		{
+			header = line;
+		}
+		else
+		{
+			char type[64] = "";
+			char daytype[64];
+			unsigned int start, stop;
+			double occupied, unoccupied;
+			if ( sscanf(line,"%63[A-Z],%63[A-Z],%u,%u,%lf,%lf",type,daytype,&start,&stop,&occupied,&unoccupied) < 6 )
+			{
+				GL_THROW("input::load_occupancy(): error parsing line %d (too few fields)",n);
+			}
+			if ( strcmp(building_type,type) == 0 )
+			{
+				if ( start > 24 || stop > 24 || stop < start || occupied < 0 || occupied > 1 || unoccupied < 0 || unoccupied > 1 )
+				{
+					GL_THROW("input::load_occupancy(): invalid schedule for daytype '%s' on line %d",daytype,n);
+				}
+				int day = 0;
+				if ( strcmp(daytype,"WEEKDAY") == 0 )
+				{
+					found++;
+				}
+				else if ( strcmp(daytype,"WEEKEND") == 0 )
+				{
+					found++;
+					day = 1;
+				}
+				else
+				{
+					GL_THROW("input::load_occupancy(): invalid daytype '%s' on line %d",daytype,n);
+				}
+				occupancy_schedule[day].start = start;
+				occupancy_schedule[day].stop = stop;
+				occupancy_schedule[day].occupied = occupied;
+				occupancy_schedule[day].unoccupied = unoccupied;
+			}
+		}
+	}
+	if ( found == 0 )
+	{
+		gl_warning("occupancy schedule for building type '%s' not found",(const char*)building_type);
+	}
+	free(data);
 	return 1;
+}
+
+double building::get_occupancy(TIMESTAMP timestamp)
+{
+	static TIMESTAMP last_timestamp = 0;
+	static unsigned int day=0, hour=0;
+	if ( timestamp != last_timestamp )
+	{
+		DATETIME dt;
+		gl_localtime(timestamp,&dt);
+		day = ( dt.weekday>=1&&dt.weekday<=5 ? 0 : 1 );
+		hour = dt.hour;
+		last_timestamp = timestamp;
+	}
+	if ( hour >= occupancy_schedule[day].start && hour < occupancy_schedule[day].stop )
+	{
+		return occupancy_schedule[day].occupied;
+	}
+	else
+	{
+		return occupancy_schedule[day].unoccupied;
+	}
 }
 
 char *input::buffer = NULL;
@@ -989,7 +1063,7 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 		gl_warning("loadshape for building type '%s' fuel '%s' not found",type,source);
 	}
 	free(data);
-	return NULL; // TODO
+	return shape; // TODO
 }
 
 double input::get_load(const TIMESTAMP timestamp, const double scale)

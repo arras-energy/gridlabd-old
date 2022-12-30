@@ -1,10 +1,4 @@
-// module/powerflow/autotest/test_building.glm
-
-//#set debug=TRUE
-
-//#option profile
-
-#define CITY=Yakima WA
+// module/powerflow/autotest/test_building_1.glm
 
 #set randomseed=1
 
@@ -31,8 +25,8 @@ clock
 	starttime "2020-01-01 00:00:00 PST";
 	stoptime "2021-01-01 00:00:00 PST";
 }
-#weather get WA-Yakima_Air_Terminal.tmy3
-#input "WA-Yakima_Air_Terminal.tmy3" --property=name=weather
+#weather get CA-San_Francisco_Intl_Ap.tmy3
+#input "CA-San_Francisco_Intl_Ap.tmy3" --property=name=weather
 
 schedule setpoint
 {
@@ -61,6 +55,7 @@ object building
 	electric_heat TRUE;
 	electrification_fraction 0.5;
 	electrification_efficiency 2.0;
+	occupancy 4;
 
 	measured_demand_timestep 30day;
 	object recorder 

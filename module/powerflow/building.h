@@ -55,7 +55,8 @@ class building : public load
 	typedef Array2D<double> Matrix;
 
 	typedef struct s_occupancy {
-		double value;
+		unsigned int start, stop;
+		double occupied, unoccupied;
 	} OCCUPANCY;
 
 private:
@@ -81,7 +82,7 @@ public:
 	gld_property *solar;
 	input *electric_load;
 	input *gas_load;
-	OCCUPANCY *occupancy_schedule;
+	OCCUPANCY occupancy_schedule[2]; // weekday, weekend occupancy fraction per unit occupancy
 
 public:
 
@@ -176,6 +177,7 @@ private:
 	int load_defaults(void);
 	int load_loadshapes(void);
 	int load_occupancy(void);
+	double get_occupancy(TIMESTAMP timestamp);
 
 	// solvers
 	Matrix solve_UL(Matrix &A, Matrix &b);
