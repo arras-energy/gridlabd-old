@@ -21,6 +21,7 @@ building *building::defaults = NULL;
 char1024 building::building_defaults_filename = "building_defaults.csv";
 char1024 building::building_loadshapes_filename = "building_loadshapes.csv";
 char1024 building::building_occupancy_filename = "building_occupancy.csv";
+bool building::dynamic_solver = FALSE;
 
 building::building(MODULE *module)
 : load(module)
@@ -140,6 +141,7 @@ building::building(MODULE *module)
 		gl_global_create("powerflow::building_defaults",PT_char1024,(const char*)building_defaults_filename,NULL);
 		gl_global_create("powerflow::building_loadshapes",PT_char1024,(const char*)building_loadshapes_filename,NULL);
 		gl_global_create("powerflow::building_occupancy",PT_char1024,(const char*)building_occupancy_filename,NULL);
+		// gl_global_create("powerflow::building_dynamics",PT_bool,&dynamic_solver,NULL);
 	}
 }
 
@@ -608,7 +610,6 @@ void building::update_input(bool flag_only )
 		}
 		u[4][0] = QS;
 		u[5][0] = TS;
-		// u.printf("u:\n");
 		DUMP(u);
 		update_state(true);
 		update_output(true);
@@ -634,10 +635,23 @@ void building::update_state(bool flag_only )
 		update_control();
 		update_input();
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating state\n");
-		Matrix b = -B%u;
-		DUMP(b);
-		DUMP(A);
-		x = solve_UL(A,b); // equilibrium solution (assumes a sufficiently large dt)
+		if ( dynamic_solver )
+		{
+			// TODO: implement discretization of this model
+			// for ( double ts = 0 ; ts < dt/3600 ; ts += 1.0/60 )
+			// {
+			// 	if ( x[2][0] > 1.0 ) x[2][0] = 1.0;
+			// 	else if ( x[2][0] < -1.0 ) x[2][0] = -1.0;
+			// 	x += (A%x + B%u) * (1.0/60);
+			// }
+		}
+		else
+		{
+			Matrix b = -B%u;
+			DUMP(b);
+			DUMP(A);
+			x = solve_UL(A,b); // equilibrium solution (assumes a sufficiently large dt)
+		}
 		TA = x[0][0];
 		TM = x[1][0];
 		M = x[2][0];

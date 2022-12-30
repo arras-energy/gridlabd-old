@@ -78,6 +78,7 @@ public:
 	static char1024 building_defaults_filename;
 	static char1024 building_loadshapes_filename;
 	static char1024 building_occupancy_filename;
+	static bool dynamic_solver;
 	gld_property *temperature;
 	gld_property *solar;
 	input *electric_load;
