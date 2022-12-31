@@ -94,7 +94,7 @@ public:
 	GL_ATOMIC(double,TA); // indoor air temperature (degC)
 	GL_ATOMIC(double,TM); // building mass temperature (degC)
 	GL_ATOMIC(double,M); // HVAC system mode (pu.QH)
-	GL_ATOMIC(double,ES); // stored energy
+	GL_ATOMIC(double,ES); // stored energy (J)
 
 	// thermal parameters
 	GL_ATOMIC(double,UA); // conductance from interior air to outdoor air (W/K)
@@ -120,15 +120,16 @@ public:
 	GL_ATOMIC(double,electrification_efficiency); // performance of electric end-use relative to gas enduse
 	GL_ATOMIC(bool,electric_heat); // flag whether heating is from electric
 	GL_ATOMIC(double,PV); // area of photovoltaic panels (m^2)
-	GL_ATOMIC(double,BS); // battery capacity (Wh)
+	GL_ATOMIC(double,BS); // battery capacity (J)
 	GL_ATOMIC(double,PX); // maximum export power (W)
+	GL_ATOMIC(double,PG); // inverter capacity (J)
 
 	// control parameters
 	GL_ATOMIC(double,K); // HVAC control gain w.r.t temperature
 
 	// inputs
 	GL_STRING(char32,building_type); // building type (used to lookup data)
-	GL_ATOMIC(double,TO); // outdoor air temperature (degC_
+	GL_ATOMIC(double,TO); // outdoor air temperature (degC)
 	GL_ATOMIC(double,EU); // fraction of end-uses active
 	GL_ATOMIC(double,NG); // natural usage in kG
 	GL_ATOMIC(double,NH); // number of occupants

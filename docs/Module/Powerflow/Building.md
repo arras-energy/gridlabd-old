@@ -12,11 +12,11 @@ module powerflow {
 }
 class building {
 	parent load;
-	// model parameters
 	double dt[s]; // timestep to use when modeling building response to inputs
 	double TA[degC]; // (OUTPUT) indoor air temperature
 	double TM[degC]; // (OUTPUT) building mass temperature
 	double M[pu]; // (OUTPUT) system mode per unit system capacity
+	double ES[J]; // (OUTPUT) stored energy
 	double UA[W/K]; // (REQUIRED) conductance from interior air to outdoor air
 	double CA[J/K]; // (REQUIRED) heat capacity of indoor air volume
 	double UI[W/K]; // (REQUIRED) conductance from building mass to indoor air
@@ -31,6 +31,10 @@ class building {
 	double QO[W/unit]; // (REQUIRED) heat gain per occupant
 	double QV[W/unit]; // (REQUIRED) ventilation gain per occupant
 	double SA[m^2]; // (REQUIRED) building mass area exposed to solar radiation
+	double PV[m^2]; // area of photovoltaic rooftop panels
+	double BS[J]; // battery storage capacity
+	double PX[W]; // maximum export power
+	double PG[W]; // maximum inverter power
 	double K[pu]; // HVAC mode proportional control gain w.r.t indoor temperature
 	double TO[degC]; // outdoor air temperature
 	double EU[unit]; // enduse load fraction
@@ -77,6 +81,12 @@ class building {
 
 The `building` object implements a general building load model as an integrated powerflow load object, meter, and thermal model.  The thermal model is based on a two-zone air/mass model with a general building HVAC system. The model computes the HVAC system duty-cycle required to maintain steady state given the system capacity.
 
+The HVAC system capacity can be set using the `QH` property. If `QH` is not set, then the system is automatically sized to meet the `TH` and `TC` heating and cooling design conditions, respsectively, given the `DF` over-design factor.  The property `SA` specified the envelope area exposed to solar radiation, which is typicaly half the total building envelope area, and should include all absorption factors. Heat gains for electric end-uses `QE`, gas enduses `QG`, occupancy `QO`, and ventilation `QV` can be specified as well.
+
+Solar and energy storage can be modeled by making `PV` and `BS` non-zero, respectively. In addition, inverter capacity `PG` and the export limit `PX` can be set to limit the power generated and exported, respectively.
+
+For information load and meter outputs, see [[/Module/Powerflow/Load]] and [[/Module/Powerflow/Meter]].
+
 ## Model parameters
 
 * `dt` - Simulation timestep stored in `s`. The default value is 1 hour.
@@ -96,7 +106,7 @@ The `building` object implements a general building load model as an integrated 
 * `QE` - Enduse loads (W). See [#Composition].
 * `QG` - Gas load heat gains (W/kg). See [#Composition].
 * `QO` - Occupancy heat gain in `W/person`.  See [#Occupancy].
-* `QV` - Ventilation heat gain (W/person).. See [#Composition].
+* `QV` - Ventilation heat gain (W/person). See [#Composition].
 * `SA` - Mass area exposed to solar radiation (m^2). See [#Composition].
 * `floor_area` - Building floor area (m^2).
 * `electric_gain_fraction` - Fraction of electric end-use that go to building heat gains.
@@ -106,8 +116,9 @@ The `building` object implements a general building load model as an integrated 
 * `electric_heat` - Flag whether heating is from electric.
 * `K` - Control feedback gain (only used for dynamic models). See [#Composition].
 * `PV` - Solar panel area in m^2.
-* `PX` - Maximum power generating capacity in W.
+* `PX` - Maximum power export permitted in W.
 * `BS` - Maximum energy storage capacity in Wh.
+* `PG` - Maximum power generation capacity in W.
 
 ## State variables
 
@@ -243,3 +254,4 @@ The `building_type` may be set to any building type you wish to define.  The val
 # See also
 
 * [[/Module/Powerflow/Load]]
+* [[/Module/Powerflow/Meter]]

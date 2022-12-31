@@ -49,7 +49,7 @@ building::building(MODULE *module)
 			PUBLISH(double,TA,"degC","indoor air temperature"), PT_OUTPUT,
 			PUBLISH(double,TM,"degC","building mass temperature"), PT_OUTPUT,
 			PUBLISH(double,M,"pu","system mode per unit system capacity"), PT_OUTPUT,
-			PUBLISH(double,ES,"Wh","storage energy"), PT_OUTPUT,
+			PUBLISH(double,ES,"J","stored energy"), PT_OUTPUT,
 
 			// thermal parameters
 			PUBLISH(double,UA,"W/K","conductance from interior air to outdoor air"), PT_REQUIRED,
@@ -69,8 +69,9 @@ building::building(MODULE *module)
 			PUBLISH(double,QV,"W/unit","ventilation gain per occupant"), PT_REQUIRED,
 			PUBLISH(double,SA,"m^2","building mass area exposed to solar radiation"), PT_REQUIRED,
 			PUBLISH(double,PV,"m^2","area of photovoltaic rooftop panels"),
-			PUBLISH(double,BS,"Wh","battery storage capacity"),
+			PUBLISH(double,BS,"J","battery storage capacity"),
 			PUBLISH(double,PX,"W","maximum export power"),
+			PUBLISH(double,PG,"W","maximum inverter power"),
 
 			// control parameters
 			PUBLISH(double,K,"pu","HVAC mode proportional control gain w.r.t indoor temperature"),
@@ -721,6 +722,51 @@ void building::update_output(bool flag_only )
 		DUMP(u);
 		y = C%x + D%u;
 		DUMP(y);
+
+		// handle energy storage
+		if ( BS > 0 )
+		{
+			double &p = y[2][0]; // constant real power reference (changes are reflected in y)
+			double &q = y[5][0]; // constant reactive power reference (changes are reflected in y)
+			double r = ( PG > 0 ? ( p < 0 ? -min(-p,PG) : min(p,PG) ) : p );
+			fprintf(stderr,"capacity: p = %.4g, q = %.4g, r = %.4g\n",p,q,r);
+			if ( p < 0 && ES < BS ) // excess power and available storage capacity
+			{
+				// store excess energy
+				double excess = -p*dt;
+				double able = min(BS-ES,-r*dt);
+				if ( excess > able )
+				{
+					// only store up to capacity
+					ES = BS; 
+					// cannot adjust reactive power
+				}
+				else
+				{
+					// store entire excess
+					ES += excess;
+					q = 0;
+				}
+				p += able/dt; 
+				fprintf(stderr,"  storage: excess = %.4g, able =%.4g, ES = %.4g, p = %.4f\n",excess,able,ES,p);
+			}
+			else if ( p > 0 && ES > 0 ) // no export and available stored energy
+			{
+				// release stored energy as needed
+				double available = min(ES/dt,r);
+				if ( p > available )
+				{
+					// release entire storage
+					p -= available; // cannot adjust reactive power
+				}
+				else
+				{
+					p = q = 0;
+				}
+				ES -= available*dt;
+				fprintf(stderr,"  release: available = %.4g, ES = %.4g, p = %.4f\n",available,ES,p);
+			}
+		}
 
 		// copy y to load data
 		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);

@@ -22,8 +22,8 @@ module tape
 clock
 {
 	timezone "PST+8PDT";
-	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2021-01-01 00:00:00 PST";
+	starttime "2020-07-01 00:00:00 PST";
+	stoptime "2020-08-01 00:00:00 PST";
 }
 #weather get CA-San_Francisco_Intl_Ap.tmy3
 #input "CA-San_Francisco_Intl_Ap.tmy3" --property=name=weather
@@ -57,7 +57,9 @@ object building
 	electrification_efficiency 2.0;
 	occupancy 4;
 	PV 200 sf;
-	PX 10 kW;
+	PX 0 kW;
+	BS 10 kWh;
+	PG 10 kW;
 
 	measured_demand_timestep 30day;
 	object recorder 
