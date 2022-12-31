@@ -36,6 +36,7 @@ class building {
 	double PX[W]; // maximum export power
 	double PG[W]; // maximum inverter power
 	double K[pu]; // HVAC mode proportional control gain w.r.t indoor temperature
+	enumeration {UL1741=3, CARULE21=2, IEEE1547=1, UNITY=0} IC; // inverter power factor control
 	double TO[degC]; // outdoor air temperature
 	double EU[unit]; // enduse load fraction
 	double NG[unit]; // natural gas demand
@@ -62,6 +63,7 @@ class building {
 	double measured_energy_delta_timestep[s]; // (OUTPUT) energy metering interval
 	double measured_demand[W]; // (OUTPUT) maximum metered real power interval demand
 	double measured_demand_timestep[s]; // (OUTPUT) maximum power metering interval
+	double measured_resource_power[W]; // (OUTPUT) measured net distributed generation production from solar and batteries
 	char256 temperature_source; // temperature weather object source property
 	char256 solar_source; // solar weather object source property
 	char256 cooling_design; // cooling design temperature source property
@@ -115,6 +117,7 @@ For information load and meter outputs, see [[/Module/Powerflow/Load]] and [[/Mo
 * `electrification_efficiency` - Performance of electric end-use relative to gas enduse.
 * `electric_heat` - Flag whether heating is from electric.
 * `K` - Control feedback gain (only used for dynamic models). See [#Composition].
+* `IC` - Inverter control strategy, e.g., UNITY, CARULE21, IEEE1547, or UL1741 (default is UNITY). See [#Inverter].
 * `PV` - Solar panel area in m^2.
 * `PX` - Maximum power export permitted in W.
 * `BS` - Maximum energy storage capacity in Wh.
@@ -167,6 +170,7 @@ For information load and meter outputs, see [[/Module/Powerflow/Load]] and [[/Mo
 * `measured_energy_delta_timestep` - Delta measurement interval timestep in `s`.
 * `measured_demand` - Peak power measurement in last demand interval in `W`.
 * `measured_demand_timestep` - Peak power measurement demand interval in `s`.
+* `measured_resource_power` - Power generated from distributed energy resources in `W`. See [#Inverter].
 
 # Weather
 
@@ -250,6 +254,19 @@ Building design and load compositions can be set by specifying the `building_typ
 | TOWNHOUSE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
 
 The `building_type` may be set to any building type you wish to define.  The values must be set in the units used by the `building`'s properties. 
+
+# Inverter
+
+The inverters for solar and battery storage are controlled using the strategy specified by the `IC` parameters.  Inverter control settings are stored in the file specified by the module global `inverter_settings`, which may be set to a custom file. The file format must match the default file format:
+
+| standard | Vmin | Vmax | Qmin | Qmax | Slow | Shigh |
+| -------- | ---- | ---- | ---- | ---- | ---- | ----- |
+| UNITY | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
+| IEEE1547 | 0.95 | 1.05 | -0.1 | 0.1 | 0.05 | 0.05 |
+| CARULE21 | 0.95 | 1.05 | -0.1 | 0.1 | 0.05 | 0.05 |
+| UL1741 | 0.95 | 1.05 | -0.1 | 0.1 | 0.05 | 0.05 |
+
+The values of `Vmin` and `Vmax` specify the deadband voltage per unit nominal voltage outside of which the low or high var control takes effect. The controller gains are the slopes `Slow` and `Shigh` for the low and high voltage responses, respectively.  The values of `Qmax` and `Qmin` specify the maximum and minimum VAR generation allowed per unit of total permitted power generation.
 
 # See also
 

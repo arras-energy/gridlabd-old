@@ -6,9 +6,15 @@
 #define TRACE_DEBUG 0 // 0 none, 1 = events only, 2 = update events, 3 = all updates
 #define STATE_DEBUG 0 // 0 = none, 1 = state only, 2 = output only, 3 = all DUMP calls
 #define POWER_DEBUG 0 // 0 = none, 1 = ZIP components
+#define STORAGE_DEBUG 0 // 0 = none, 1 = battery
+#define CONTROL_DEBUG 0 // 0 = none, 1 = inverter control
 #define ASSERTIONS 0 // 0 = none, 1 = all
 
+#if STATE_DEBUG > 0
 #define DUMP(X) if ( STATE_DEBUG >= 3 ) X.printf(#X ":\n")
+#else
+#define DUMP(X)
+#endif
 
 EXPORT_CREATE(building);
 EXPORT_INIT(building);
@@ -21,6 +27,7 @@ building *building::defaults = NULL;
 char1024 building::building_defaults_filename = "building_defaults.csv";
 char1024 building::building_loadshapes_filename = "building_loadshapes.csv";
 char1024 building::building_occupancy_filename = "building_occupancy.csv";
+char1024 building::inverter_settings_filename = "inverter_settings.csv";
 bool building::dynamic_solver = FALSE;
 
 building::building(MODULE *module)
@@ -75,6 +82,13 @@ building::building(MODULE *module)
 
 			// control parameters
 			PUBLISH(double,K,"pu","HVAC mode proportional control gain w.r.t indoor temperature"),
+			PT_enumeration, "IC", get_IC_offset(),
+				PT_KEYWORD, "UNITY", PFC_UNITY,
+				PT_KEYWORD, "IEEE1547", PFC_IEEE1547,
+				PT_KEYWORD, "CARULE21", PFC_CARULE21,
+				PT_KEYWORD, "UL1741", PFC_UL1741,
+				PT_DEFAULT, "UNITY", 
+				PT_DESCRIPTION, "inverter power factor control",
 
 			// inputs
 			PUBLISH(double,TO,"degC","outdoor air temperature"),
@@ -107,6 +121,9 @@ building::building(MODULE *module)
 			PUBLISH(double,measured_energy_delta_timestep,"s","energy metering interval"), PT_OUTPUT,
 			PUBLISH(double,measured_demand,"W","maximum metered real power interval demand"), PT_OUTPUT,
 			PUBLISH(double,measured_demand_timestep,"s","maximum power metering interval"), PT_OUTPUT,
+			PT_double,"measured_resource_power[W]",get_DG_offset(),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "measured net distributed generation production from solar and batteries",
 
 			// weather sources
 			PT_char256,"temperature_source",get_temperature_source_offset(),
@@ -146,6 +163,7 @@ building::building(MODULE *module)
 		gl_global_create("powerflow::building_defaults",PT_char1024,(const char*)building_defaults_filename,NULL);
 		gl_global_create("powerflow::building_loadshapes",PT_char1024,(const char*)building_loadshapes_filename,NULL);
 		gl_global_create("powerflow::building_occupancy",PT_char1024,(const char*)building_occupancy_filename,NULL);
+		gl_global_create("powerflow::inverter_settings",PT_char1024,(const char*)inverter_settings_filename,NULL);
 		// gl_global_create("powerflow::building_dynamics",PT_bool,&dynamic_solver,NULL);
 	}
 }
@@ -157,7 +175,9 @@ int building::isa(char *type)
 
 int building::create(void) 
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load create\n");
+#endif
 
 	thermal_flag = design_flag = control_flag = input_flag = state_flag = output_flag = true;
 	DF = 2.0;
@@ -172,7 +192,9 @@ int building::create(void)
 
 int building::init(OBJECT *parent)
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load init\n");
+#endif
 
 	ts_offset = gld_clock(gl_globalclock).get_tzoffset() + TS_DAY0;
 
@@ -268,7 +290,7 @@ int building::init(OBJECT *parent)
 	CHECK_NONNEGATIVE(BS,exception);
 	CHECK_NONNEGATIVE(PV,exception);
 	CHECK_NONNEGATIVE(ES,exception);
-
+	inverter = new controller(inverter_settings_filename);
 
 	// initialize working matrices
 	A = Matrix(3,3,0.0);
@@ -305,7 +327,9 @@ int building::init(OBJECT *parent)
 
 TIMESTAMP building::presync(TIMESTAMP t0)
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load presync\n");
+#endif
 
 	ts_offset = gld_clock(t0).get_tzoffset() + TS_DAY0;
 	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
@@ -321,7 +345,9 @@ TIMESTAMP building::presync(TIMESTAMP t0)
 
 TIMESTAMP building::sync(TIMESTAMP t0)
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load sync\n");
+#endif
 
 	if ( (t0-ts_offset) % (TIMESTAMP)dt == 0 )
 	{
@@ -333,7 +359,9 @@ TIMESTAMP building::sync(TIMESTAMP t0)
 
 TIMESTAMP building::postsync(TIMESTAMP t0)
 {
+#if TRACE_DEBUG > 0	
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load postsync\n");
+#endif
 
 	double ts = (double)(t0 - last_meter_update) / 3600;
 	if ( ts > 0 && measured_energy_delta_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_energy_delta_timestep == 0 )
@@ -384,7 +412,9 @@ TIMESTAMP building::postsync(TIMESTAMP t0)
 
 TIMESTAMP building::commit(TIMESTAMP t0, TIMESTAMP t1)
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 1 ) fprintf(stderr,"*** building load commit\n");
+#endif
 
 	// update/reset meter demand values
 	if ( measured_demand_timestep > 0 && (t0-ts_offset) % (TIMESTAMP)measured_demand_timestep == 0 )
@@ -435,10 +465,14 @@ building::Matrix building::solve_UL(building::Matrix  &A, building::Matrix  &b)
 
 void building::update_equipment(void)
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_equipment(void)\n");
+#endif
 	if ( QH == 0.0 )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  autosizing equipment\n");
+#endif
 		// autosize heating system
 		Matrix Ah(2,2,0.0);
 		Ah.set(UI/CA,1/DF/CA,
@@ -480,7 +514,9 @@ void building::update_equipment(void)
 		update_thermal();
 		update_design();
 
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  checking equipment\n");
+#endif
 		// check heating equipment size
 		Matrix uh(6,1,0.0);
 		uh[0][0] = TH;
@@ -504,15 +540,21 @@ void building::update_equipment(void)
 		}
 		
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_equipment(void)...\n");
+#endif
 }
 
 void building::update_thermal(bool flag_only )
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_thermal(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && thermal_flag )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating thermal\n");
+#endif
 		A[0][0] = -(UA+UI)/CA;
 		A[0][1] = UI/CA;
 		A[0][2] = QH/CA;
@@ -531,19 +573,27 @@ void building::update_thermal(bool flag_only )
 	}
 	else if ( ! thermal_flag && flag_only ) 
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging thermal\n");
+#endif
 		update_state(true);
 		thermal_flag = true;		
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_thermal(%s)\n",flag_only?"true":"");
+#endif
 }
 
 void building::update_design(bool flag_only )
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_design(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && design_flag )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating design\n");
+#endif
 		A[0][2] = QH/CA;
 		DUMP(A);
 		B[1][4] = SA/CM;
@@ -553,19 +603,27 @@ void building::update_design(bool flag_only )
 	}
 	else if ( ! design_flag && flag_only ) 
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging design\n");
+#endif
 		update_state(true);
 		design_flag = true;
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_design(%s)\n",flag_only?"true":"");
+#endif
 }
 
 void building::update_control(bool flag_only )
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_control(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && control_flag )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating control\n");
+#endif
 		A[2][0] = -K;
 		DUMP(A);
 		B[2][5] = K;
@@ -574,10 +632,14 @@ void building::update_control(bool flag_only )
 	}
 	else if ( ! control_flag && flag_only )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging control\n");
+#endif
 		control_flag = true;
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_control(%s)\n",flag_only?"true":"");
+#endif
 }
 
 void building::update_input(bool flag_only )
@@ -593,10 +655,14 @@ void building::update_input(bool flag_only )
 		Wpersm = new gld_unit("W/m^2");
 	}
 
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_input(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && input_flag )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating input\n");
+#endif
 		if ( temperature )
 		{
 			TO = temperature->get_double(*degC);
@@ -610,7 +676,9 @@ void building::update_input(bool flag_only )
 		{
 			NG = gas_load->get_load(gl_globalclock);
 		}
+#if POWER_DEBUG > 0
 		if ( POWER_DEBUG > 0 ) fprintf(stderr,"EU=%.4fg, NG=%.4g, ef=%.4g, ee=%.4g, eg=%.4g\n",EU,NG,electrification_fraction,electrification_efficiency,electric_gain_fraction);
+#endif
 		u[1][0] = (EU + electrification_fraction*NG/electrification_efficiency) * electric_gain_fraction;
 		u[2][0] = (1-electrification_fraction)*NG * gas_gain_fraction;
 		u[3][0] = NH*get_occupancy(gl_globalclock);
@@ -627,24 +695,32 @@ void building::update_input(bool flag_only )
 	}
 	else if ( ! input_flag && flag_only )
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging input\n");
+#endif
 		update_state(true);
 		update_output(true);
 		input_flag = true;
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_input(%s)\n",flag_only?"true":"");
+#endif
 }
 
 void building::update_state(bool flag_only )
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_state(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && state_flag )
 	{
 		update_thermal();
 		update_design();
 		update_control();
 		update_input();
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating state\n");
+#endif
 		if ( dynamic_solver )
 		{
 			// TODO: implement discretization of this model
@@ -681,20 +757,28 @@ void building::update_state(bool flag_only )
 	}
 	else if ( ! state_flag && flag_only ) 
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging state\n");
+#endif
 		update_output(true);
 		state_flag = true;
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_state(%s)\n",flag_only?"true":"");
+#endif
 }
 
 void building::update_output(bool flag_only )
 {
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"entering update_output(%s)\n",flag_only?"true":"");
+#endif
 	if ( ! flag_only && output_flag )
 	{
 		update_state();
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  updating output\n");
+#endif
 		double QC = 0;
 		if ( M < 0 )
 		{
@@ -723,53 +807,27 @@ void building::update_output(bool flag_only )
 		y = C%x + D%u;
 		DUMP(y);
 
+		DG = -D[2][4]*u[4][0]; // solar PV power output, if any
+		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
+
 		// handle energy storage
 		if ( BS > 0 )
 		{
-			double &p = y[2][0]; // constant real power reference (changes are reflected in y)
-			double &q = y[5][0]; // constant reactive power reference (changes are reflected in y)
-			double r = ( PG > 0 ? ( p < 0 ? -min(-p,PG) : min(p,PG) ) : p );
-			fprintf(stderr,"capacity: p = %.4g, q = %.4g, r = %.4g\n",p,q,r);
-			if ( p < 0 && ES < BS ) // excess power and available storage capacity
-			{
-				// store excess energy
-				double excess = -p*dt;
-				double able = min(BS-ES,-r*dt);
-				if ( excess > able )
-				{
-					// only store up to capacity
-					ES = BS; 
-					// cannot adjust reactive power
-				}
-				else
-				{
-					// store entire excess
-					ES += excess;
-					q = 0;
-				}
-				p += able/dt; 
-				fprintf(stderr,"  storage: excess = %.4g, able =%.4g, ES = %.4g, p = %.4f\n",excess,able,ES,p);
-			}
-			else if ( p > 0 && ES > 0 ) // no export and available stored energy
-			{
-				// release stored energy as needed
-				double available = min(ES/dt,r);
-				if ( p > available )
-				{
-					// release entire storage
-					p -= available; // cannot adjust reactive power
-				}
-				else
-				{
-					p = q = 0;
-				}
-				ES -= available*dt;
-				fprintf(stderr,"  release: available = %.4g, ES = %.4g, p = %.4f\n",available,ES,p);
-			}
+			double S = update_storage();
+			y[2][0] -= S; 
+			DG -= S;
+		}
+
+		// inverter controls, if either solar or battery active
+		if ( inverter != NULL && DG > 0 )
+		{
+			double V = ((phases&PHASE_A?voltage[0]:complex(0)) + (phases&PHASE_B?voltage[1]:complex(0)) + (phases&PHASE_C?voltage[2]:complex(0))).Mag() / n_phases / nominal_voltage;
+			complex ic = inverter->output(IC,DG,V,PX);
+			y[2][0] += ic.r; 
+			y[5][0] += ic.i;
 		}
 
 		// copy y to load data
-		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
 		double P = (y[0][0]+y[1][0]+y[2][0]);
 		double Q = (y[3][0]+y[4][0]+y[5][0]);
 		complex S(P,Q);
@@ -784,9 +842,13 @@ void building::update_output(bool flag_only )
 			Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
 			Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
 			Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
+#if STATE_DEBUG > 0
 			if ( STATE_DEBUG >= 1 ) fprintf(stderr,"TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f\n",
 				TO,QS,TA,TM,M,P,Q,Sm);
+#endif
+#if POWER_DEBUG > 0
 			if ( POWER_DEBUG > 0 ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
+#endif
 		}
 		else
 		{
@@ -829,10 +891,65 @@ void building::update_output(bool flag_only )
 	}
 	else if ( ! output_flag && flag_only ) 
 	{
+#if TRACE_DEBUG > 0
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  flagging output\n");
+#endif
 		output_flag = true;
 	}
+#if TRACE_DEBUG > 0
 	if ( TRACE_DEBUG >= 2 ) fprintf(stderr,"exiting update_output(%s)\n",flag_only?"true":"");
+#endif
+}
+
+double building::update_storage(void)
+// returns DG supply (<0) or load (>0)
+{
+	double p = y[2][0]; 
+	double r = ( PG > 0 ? ( p < 0 ? -min(-p,PG) : min(p,PG) ) : p );
+	double dg = 0;
+#if STORAGE_DEBUG > 0
+	if ( STORAGE_DEBUG == 1 ) fprintf(stderr,"capacity: p = %.4g, q = %.4g, r = %.4g\n",p,q,r);
+#endif
+	if ( p < 0 && ES < BS ) // excess power and available storage capacity
+	{
+		// store excess energy
+		double excess = -p*dt;
+		double able = min(BS-ES,-r*dt);
+		if ( excess > able )
+		{
+			// only store up to capacity
+			ES = BS;
+		}
+		else
+		{
+			// store excess
+			ES += excess;
+		}
+		dg = able / dt;
+#if STORAGE_DEBUG > 0
+		if ( STORAGE_DEBUG == 1 ) fprintf(stderr,"  storage: excess = %.4g, able =%.4g, ES = %.4g, dg = %.4f\n",excess,able,ES,dg);
+#endif
+	}
+	else if ( p > 0 && ES > 0 ) // no export and available stored energy
+	{
+		// release stored energy as needed
+		double available = min(ES/dt,r);
+		if ( p > available )
+		{
+			// release entire storage
+			dg = -available; 
+			// TODO: adjust reactive power
+		}
+		else
+		{
+			dg = -p;
+		}
+		ES -= available*dt;
+#if STORAGE_DEBUG > 0
+		if ( STORAGE_DEBUG == 1 ) fprintf(stderr,"  release: available = %.4g, ES = %.4g, dg = %.4f\n",available,ES,dg);
+#endif
+	}
+	return dg;
 }
 
 int building::load_defaults(void)
@@ -1031,6 +1148,122 @@ double building::get_occupancy(TIMESTAMP timestamp)
 	}
 }
 
+//
+// Inverter control implementation
+//
+
+complex controller::output(unsigned int mode, double dg, double v, double pmax)
+// returns real and reactive power correction from DG given available dg power and voltage at bus
+{
+	assert(mode<_MAX_PFC);
+	SETTINGS ic = control[mode];
+	if ( v < ic.Vmin )
+	{
+		double r = min((ic.Vmin-v)*ic.Slow,ic.Qmax)*pmax;
+		// TODO: undervoltage control --> need capacitance
+		complex ic;
+		ic.SetPolar(dg,asin(r/dg));
+#if CONTROL_DEBUG > 0
+		fprintf(stderr,"controller_output(%d,%.4g,%.4g): r = %.4g, ic = %.4g%+.4gj\n",mode,dg,v,r,ic.r,ic.i);
+#endif
+		return complex(dg)-ic; 		
+	}
+	else if ( v > ic.Vmax )
+	{
+		double r = max((ic.Vmax-v)*ic.Shigh,ic.Qmin)*pmax;
+		// TODO: undervoltage control --> need inductance
+		complex ic;
+		ic.SetPolar(dg,-asin(r/dg));
+#if CONTROL_DEBUG > 0
+		fprintf(stderr,"controller_output(%d,%.4g,%.4g): r = %.4g, ic = %.4g%+.4gj\n",mode,dg,v,r,ic.r,ic.i);
+#endif
+		return complex(dg)-ic; 		
+	}
+	else
+	{
+		// no control necessary
+		return complex(0.0); 		
+	}
+}
+
+controller::SETTINGS *controller::control = NULL;
+controller::controller(const char *filename)
+{
+	if ( control == NULL )
+	{
+		char pathname[1024];
+		strcpy(pathname,filename);
+		gl_findfile(filename,NULL,R_OK,pathname,sizeof(pathname)-1);
+		FILE *fp = fopen(pathname,"r");
+		if ( fp == NULL )
+		{
+			GL_THROW("file '%s' open failed",pathname);
+		}
+		int n = 0;
+		control = new SETTINGS[_PFC_MAX];
+		char header[1024] = "";
+		while ( ! feof(fp) && ! ferror(fp) )
+		{
+			if ( header[0] == '\0' )
+			{
+				if ( fgets(header,sizeof(header)-1,fp) == NULL )
+				{
+					GL_THROW("%s(%u): missing header line",pathname,n+1);
+				}
+#define HEADER "standard,Vmin,Vmax,Qmin,Qmax,Slow,Shigh" // valid inverter settings header
+				if ( strcmp(header,HEADER "\n") != 0 )
+				{
+					GL_THROW("%s(%u): invalid header line (expected '" HEADER "')",pathname,n+1);
+				}
+#undef HEADER
+			}
+			else
+			{
+				char mode[64];
+				SETTINGS ic;
+				int len = fscanf(fp,"%63[^,],%lg,%lg,%lg,%lg,%lg,%lg\n",mode,&ic.Vmin,&ic.Vmax,&ic.Qmin,&ic.Qmax,&ic.Slow,&ic.Shigh);
+				if ( len < 7 )
+				{
+					GL_THROW("%s(%u): missing control settings data (expected 7 values but got %u instead)",pathname,n+2,len>0?len:0);
+				}
+				if ( n >= _PFC_MAX )
+				{
+					GL_THROW("%s(%d): too many inverter standards defined to define mode '%s' (max is %u)",pathname,n+2,mode,_PFC_MAX);
+				}
+				if ( ic.Vmax < ic.Vmin )
+				{
+					GL_THROW("%s(%d): voltage deadband is inverted (Vmin>Vmax)",pathname,n+2);
+				}
+				if ( ic.Qmax < ic.Qmin )
+				{
+					GL_THROW("%s(%d): reactive power limits are inverted (Qmin>Qmax)",pathname,n+2);
+				}
+				if ( ic.Slow < 0 || ic.Shigh < 0 )
+				{
+					GL_THROW("%s(%d): control gains are inverted (Slow<0 or Shigh<0)",pathname,n+2);
+				}
+#define DO(M) if ( strcmp(mode,#M) == 0 ) { control[n] = ic; }
+				DO(UNITY)
+				else DO(IEEE1547)
+				else DO(UL1741)
+				else DO(CARULE21)
+				// TODO: add new standards here after adding them to PFC defines and incrementing _PFC_MAX
+				else
+				{
+					GL_THROW("%s(%u): inverter control '%s' is not valid",pathname,n+2,mode);
+				}
+				n++;
+			}
+		}
+	}
+}
+controller::~controller(void)
+{
+}
+
+//
+// Input implementation
+//
 char *input::buffer = NULL;
 input::input(const char *filename)
 {

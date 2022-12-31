@@ -83,5 +83,6 @@ dist_pkgdata_DATA += module/powerflow/solver_py.conf
 dist_pkgdata_DATA += module/powerflow/data/building_defaults.csv
 dist_pkgdata_DATA += module/powerflow/data/building_loadshapes.csv
 dist_pkgdata_DATA += module/powerflow/data/building_occupancy.csv
+dist_pkgdata_DATA += module/powerflow/data/inverter_settings.csv
 
 bin_SCRIPTS += module/powerflow/check_powerflow.py

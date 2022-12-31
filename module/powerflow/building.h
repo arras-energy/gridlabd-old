@@ -8,13 +8,48 @@
 #error "this header must be included by powerflow.h"
 #endif
 
+// matrix math support
 #include "../../third_party/tnt_126/tnt.h"
 #include "../../third_party/jama125/jama_cholesky.h"
-
 using namespace TNT;
 
-#define TS_DAY0 3*86400
+#define TS_DAY0 3*86400 // day of week for day 0 of epoch (1/1/1970 is Thursday)
 
+//
+// Inverter power factor control
+//
+#define PFC_UNITY		((enumeration)0x00)
+#define PFC_IEEE1547	((enumeration)0x01)
+#define PFC_CARULE21	((enumeration)0x02)
+#define PFC_UL1741		((enumeration)0x03)
+// TODO: add new standards here, don't forget to increment _PFC_MAX and add DO() to controller constructor
+#define _PFC_MAX		4
+
+class controller
+{
+private:
+
+	typedef struct s_settings
+	{
+		double Vmin, Vmax; // voltage deadband
+		double Qmin, Qmax; // reactive power limits
+		double Slow, Shigh; // response slopes for low and high voltages
+	} SETTINGS;
+	static SETTINGS *control;
+
+public:
+
+	complex output(unsigned int mode, double dg, double voltage, double pmax); // real and reactive power corrections
+
+public:
+
+	controller(const char *filename);
+	~controller(void);
+};
+
+//
+// Loadshapes
+//
 class input 
 {
 public:
@@ -49,6 +84,9 @@ public:
 	~input(void);
 };
 
+//
+// Building
+//
 class building : public load 
 {
 
@@ -78,12 +116,14 @@ public:
 	static char1024 building_defaults_filename;
 	static char1024 building_loadshapes_filename;
 	static char1024 building_occupancy_filename;
+	static char1024 inverter_settings_filename;
 	static bool dynamic_solver;
 	gld_property *temperature;
 	gld_property *solar;
 	input *electric_load;
 	input *gas_load;
 	OCCUPANCY occupancy_schedule[2]; // weekday, weekend occupancy fraction per unit occupancy
+	controller *inverter;
 
 public:
 
@@ -121,11 +161,12 @@ public:
 	GL_ATOMIC(bool,electric_heat); // flag whether heating is from electric
 	GL_ATOMIC(double,PV); // area of photovoltaic panels (m^2)
 	GL_ATOMIC(double,BS); // battery capacity (J)
-	GL_ATOMIC(double,PX); // maximum export power (W)
+	GL_ATOMIC(double,PX); // maximum export power permitted (W)
 	GL_ATOMIC(double,PG); // inverter capacity (J)
 
 	// control parameters
 	GL_ATOMIC(double,K); // HVAC control gain w.r.t temperature
+	GL_ATOMIC(enumeration,IC); // Inverter power factor control mode (see PFC_*)
 
 	// inputs
 	GL_STRING(char32,building_type); // building type (used to lookup data)
@@ -159,6 +200,7 @@ public:
 	GL_ATOMIC(double,measured_energy_delta_timestep);
 	GL_ATOMIC(double,measured_demand);
 	GL_ATOMIC(double,measured_demand_timestep);
+	GL_ATOMIC(double,DG);
 
 	// schedules
 	GL_ATOMIC(int32,occupancy);
@@ -177,6 +219,7 @@ private:
 	void update_state(bool flag_only=false);
 	void update_output(bool flag_only=false);
 	void update_equipment(void); // only called when QH needs to be checked (or autosized if QH=0)
+	double update_storage(void); // only called when output with BS > 0
 
 	// loaders
 	int load_defaults(void);

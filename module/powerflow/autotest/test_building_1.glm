@@ -14,6 +14,9 @@ module powerflow
 #ifexist ../data/building_occupancy.csv
 	building_occupancy "../data/building_occupancy.csv";
 #endif
+#ifexist ../data/inverter_settings.csv
+	inverter_settings "../data/inverter_settings.csv";
+#endif
 }
 module tape
 {
@@ -42,6 +45,8 @@ object building
 	phases AN;
 	nominal_voltage 240;
 	building_type RETAIL;
+	bustype SWING;
+	voltage_A 216 V; // undervoltage will require added reactive power by DG
 
 	// inputs
 	NH 4;
@@ -56,15 +61,16 @@ object building
 	electrification_fraction 0.5;
 	electrification_efficiency 2.0;
 	occupancy 4;
-	PV 200 sf;
+	PV 0 sf;
 	PX 0 kW;
-	BS 10 kWh;
-	PG 10 kW;
+	BS 0 kWh;
+	PG 0 kW;
+	IC UNITY;
 
 	measured_demand_timestep 30day;
 	object recorder 
 	{
-		property "measured_real_power[kW],TO,TA,QH";
+		property "voltage_A,measured_real_power[kW],measured_reactive_power[kVA],TO,TA,QH,measured_resource_power[kW]";
 		file ${modelname/.glm/.csv};
 		interval 1h;
 		line_units NONE;
@@ -78,5 +84,5 @@ object building
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
 #else
-#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO,TA,measured_real_power[kW]' --plot:grid=True --plot:legend=True --show
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO,TA,measured_real_power[kW],measured_reactive_power[kVA]' --plot:grid=True --plot:legend=True --show
 #endif
