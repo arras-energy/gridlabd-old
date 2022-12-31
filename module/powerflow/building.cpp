@@ -49,6 +49,7 @@ building::building(MODULE *module)
 			PUBLISH(double,TA,"degC","indoor air temperature"), PT_OUTPUT,
 			PUBLISH(double,TM,"degC","building mass temperature"), PT_OUTPUT,
 			PUBLISH(double,M,"pu","system mode per unit system capacity"), PT_OUTPUT,
+			PUBLISH(double,ES,"Wh","storage energy"), PT_OUTPUT,
 
 			// thermal parameters
 			PUBLISH(double,UA,"W/K","conductance from interior air to outdoor air"), PT_REQUIRED,
@@ -67,6 +68,9 @@ building::building(MODULE *module)
 			PUBLISH(double,QO,"W/unit","heat gain per occupant"), PT_REQUIRED,
 			PUBLISH(double,QV,"W/unit","ventilation gain per occupant"), PT_REQUIRED,
 			PUBLISH(double,SA,"m^2","building mass area exposed to solar radiation"), PT_REQUIRED,
+			PUBLISH(double,PV,"m^2","area of photovoltaic rooftop panels"),
+			PUBLISH(double,BS,"Wh","battery storage capacity"),
+			PUBLISH(double,PX,"W","maximum export power"),
 
 			// control parameters
 			PUBLISH(double,K,"pu","HVAC mode proportional control gain w.r.t indoor temperature"),
@@ -259,6 +263,11 @@ int building::init(OBJECT *parent)
 	{
 		exception("electrification fraction must be between 0 and 1");
 	}
+	CHECK_NONNEGATIVE(PX,exception);
+	CHECK_NONNEGATIVE(BS,exception);
+	CHECK_NONNEGATIVE(PV,exception);
+	CHECK_NONNEGATIVE(ES,exception);
+
 
 	// initialize working matrices
 	A = Matrix(3,3,0.0);
@@ -703,6 +712,7 @@ void building::update_output(bool flag_only )
 		D[1][1] = floor_area*10.764*PIE;
 		D[2][1] = floor_area*10.764*PPE;
 		D[2][3] = PPH*QH*0.1;
+		D[2][4] = -PV; 
 		D[3][1] = floor_area*10.764*QZE;
 		D[4][1] = floor_area*10.764*QIE;
 		D[5][1] = floor_area*10.764*QPE;
@@ -718,16 +728,26 @@ void building::update_output(bool flag_only )
 		double Q = (y[3][0]+y[4][0]+y[5][0]);
 		complex S(P,Q);
 		double Sm = S.Mag();
-		if ( STATE_DEBUG >= 1 ) fprintf(stderr,"TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f\n",
-			TO,QS,TA,TM,M,P,Q,Sm);
-		double Sn = Sm / n_phases;
-		double Pz = complex(y[0][0],y[3][0]).Mag() / Sm;
-		double Pi = complex(y[1][0],y[4][0]).Mag() / Sm;
-		double Pp = complex(y[2][0],y[5][0]).Mag() / Sm;
-		double Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
-		double Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
-		double Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
-		if ( POWER_DEBUG > 0 ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
+		double Sn = P / n_phases;
+		double Pz,Pi,Pp,Fz,Fi,Fp;
+		if ( y[2][0] >= 0 )
+		{
+			Pz = y[0][0] / P;
+			Pi = y[1][0] / P;
+			Pp = y[2][0] / P;
+			Fz = (y[3][0] < 0 ? -1:1) * y[0][0] / Sm;
+			Fi = (y[4][0] < 0 ? -1:1) * y[1][0] / Sm;
+			Fp = (y[5][0] < 0 ? -1:1) * y[2][0] / Sm;
+			if ( STATE_DEBUG >= 1 ) fprintf(stderr,"TO=%+.1f, QS=%.1f, TA=%+.1f, TM=%+.1f, M=%+.2f pu, P=%.1f, Q=%.1f, |S|=%.1f\n",
+				TO,QS,TA,TM,M,P,Q,Sm);
+			if ( POWER_DEBUG > 0 ) fprintf(stderr,"%s: P=%g, Q=%g, Sm=%g, Pz=%g, Pi=%g, Pp=%g, Fz=%g,Fi=%g,Fp=%g\n",my()->name,P,Q,Sm,Pz,Pi,Pp,Fz,Fi,Fp);
+		}
+		else
+		{
+			Sn = max(P,-PX);
+			Pp = Fz = Fi = Fp = 1.0;
+			Pz = Pi = 0.0;
+		}
 		if ( phases&PHASE_A ) 
 		{
 			base_power[0] = Sn;
@@ -899,7 +919,12 @@ int building::load_occupancy(void)
 			char daytype[64];
 			unsigned int start, stop;
 			double occupied, unoccupied;
-			if ( sscanf(line,"%63[A-Z],%63[A-Z],%u,%u,%lf,%lf",type,daytype,&start,&stop,&occupied,&unoccupied) < 6 )
+			int m = sscanf(line,"%63[A-Z],%63[A-Z],%u,%u,%lf,%lf",type,daytype,&start,&stop,&occupied,&unoccupied);
+			if ( m <= 0 )
+			{
+				break;
+			}
+			if ( m < 6 )
 			{
 				GL_THROW("input::load_occupancy(): error parsing line %d (too few fields)",n);
 			}
@@ -1042,7 +1067,12 @@ input::LOADSHAPE *input::get_loadshape(const char *type, const char *source)
 			char daytype_name[64];
 			unsigned int hour;
 			double load;
-			if ( sscanf(line,"%63[A-Z],%63[A-Z],%63[A-Z],%63[A-Z],%u,%lf",building_type,season_name,fuel,daytype_name,&hour,&load) < 6 )
+			int m = sscanf(line,"%63[A-Z],%63[A-Z],%63[A-Z],%63[A-Z],%u,%lf",building_type,season_name,fuel,daytype_name,&hour,&load);
+			if ( m <= 0 )
+			{
+				break;
+			}
+			if ( m < 6 )
 			{
 				GL_THROW("input::get_loadshape('%s','%s'): error parsing line %d (too few fields)",type,source,n);
 			}

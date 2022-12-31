@@ -56,6 +56,8 @@ object building
 	electrification_fraction 0.5;
 	electrification_efficiency 2.0;
 	occupancy 4;
+	PV 200 sf;
+	PX 10 kW;
 
 	measured_demand_timestep 30day;
 	object recorder 

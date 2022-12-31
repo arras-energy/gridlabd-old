@@ -105,12 +105,16 @@ The `building` object implements a general building load model as an integrated 
 * `electrification_efficiency` - Performance of electric end-use relative to gas enduse.
 * `electric_heat` - Flag whether heating is from electric.
 * `K` - Control feedback gain (only used for dynamic models). See [#Composition].
+* `PV` - Solar panel area in m^2.
+* `PX` - Maximum power generating capacity in W.
+* `BS` - Maximum energy storage capacity in Wh.
 
 ## State variables
 
 * `TA` - Indoor air temperature in `degC`.
 * `TM` - Building mass temperature in `degC`.
 * `M` - System mode in `pu` of system capacity `QH`. Note that $M<0$ when cooling and $0 \le |M| \le 1$.
+* `ES` - Stored energy in batteries in `Wh`.
 
 ## Inputs
 
@@ -139,6 +143,7 @@ The `building` object implements a general building load model as an integrated 
 * `QPE` - Constant power end-use reactive power (VAr). See [#Composition].
 * `PPH` - Constant power ventilation real power (W/person). See [#Composition].
 * `QPH` - Constant power ventilation reactive power (VAr/person). See [#Composition].
+* `PV` - Area of photovoltaic solar panels (m^2).
 
 ## Meter
 
