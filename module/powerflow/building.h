@@ -13,10 +13,8 @@
 #include "../../third_party/jama125/jama_cholesky.h"
 using namespace TNT;
 
-#define TS_DAY0 3*86400 // day of week for day 0 of epoch (1/1/1970 is Thursday)
-
 //
-// Inverter power factor control
+// Inverter controller
 //
 #define PFC_UNITY		((enumeration)0x00)
 #define PFC_IEEE1547	((enumeration)0x01)

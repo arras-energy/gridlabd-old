@@ -474,8 +474,8 @@ void building::update_equipment(void)
 		if ( TRACE_DEBUG >= 3 ) fprintf(stderr,"  autosizing equipment\n");
 #endif
 		// autosize heating system
-		Matrix Ah(2,2,0.0);
-		Ah.set(UI/CA,1/DF/CA,
+		Matrix As(2,2,0.0);
+		As.set(UI/CA,1/DF/CA,
 			-(UM+UI)/CM,0.0);
 
 		Matrix Bh(2,2,0.0);
@@ -486,13 +486,9 @@ void building::update_equipment(void)
 		uh.set(TH,TS);
 
 		Matrix bh = -Bh % uh;
-		Matrix xh = solve_UL(Ah,bh);
+		Matrix xh = solve_UL(As,bh);
 
 		// autosize cooling system
-		Matrix Ac(2,2,0.0);
-		Ac.set(UI/CA, 1/DF/CA, 
-			-(UM+UI)/CM, 0.0);
-
 		Matrix Bc(2,3,0.0);
 		Bc.set(UA/CA,-(UA+UI)/CA, 0.0,
 			UM/CM, UI/CM, (QE+QG+QO+QV+1300*SA)/CM);
@@ -501,7 +497,7 @@ void building::update_equipment(void)
 		uc.set(TC,TS,1.0);
 
 		Matrix bc = -Bc % uc;
-		Matrix xc = solve_UL(Ac,bc);
+		Matrix xc = solve_UL(As,bc);
 
 		// autosize with larger system
 		QH = max(-xc[1][0],xh[1][0]);
@@ -807,7 +803,7 @@ void building::update_output(bool flag_only )
 		y = C%x + D%u;
 		DUMP(y);
 
-		DG = -D[2][4]*u[4][0]; // solar PV power output, if any
+		DG = PV * QS; // solar PV power output, if any
 		int n_phases = (phases&PHASE_A?1:0) + (phases&PHASE_B?1:0) + (phases&PHASE_C?1:0);
 
 		// handle energy storage
@@ -1157,12 +1153,13 @@ complex controller::output(unsigned int mode, double dg, double v, double pmax)
 {
 	assert(mode<_MAX_PFC);
 	SETTINGS ic = control[mode];
+	double m = min(fabs(dg),pmax);
 	if ( v < ic.Vmin )
 	{
-		double r = min((ic.Vmin-v)*ic.Slow,ic.Qmax)*pmax;
+		double r = min((ic.Vmin-v)*ic.Slow,ic.Qmax)*m;
 		// TODO: undervoltage control --> need capacitance
 		complex ic;
-		ic.SetPolar(dg,asin(r/dg));
+		ic.SetPolar(m,asin(r/m));
 #if CONTROL_DEBUG > 0
 		fprintf(stderr,"controller_output(%d,%.4g,%.4g): r = %.4g, ic = %.4g%+.4gj\n",mode,dg,v,r,ic.r,ic.i);
 #endif
@@ -1170,10 +1167,10 @@ complex controller::output(unsigned int mode, double dg, double v, double pmax)
 	}
 	else if ( v > ic.Vmax )
 	{
-		double r = max((ic.Vmax-v)*ic.Shigh,ic.Qmin)*pmax;
+		double r = max((ic.Vmax-v)*ic.Shigh,ic.Qmin)*m;
 		// TODO: undervoltage control --> need inductance
 		complex ic;
-		ic.SetPolar(dg,-asin(r/dg));
+		ic.SetPolar(m,-asin(r/m));
 #if CONTROL_DEBUG > 0
 		fprintf(stderr,"controller_output(%d,%.4g,%.4g): r = %.4g, ic = %.4g%+.4gj\n",mode,dg,v,r,ic.r,ic.i);
 #endif
