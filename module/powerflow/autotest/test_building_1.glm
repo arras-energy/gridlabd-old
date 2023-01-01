@@ -61,16 +61,16 @@ object building
 	electrification_fraction 0.5;
 	electrification_efficiency 2.0;
 	occupancy 4;
-	PV 0 sf;
-	PX 0 kW;
-	BS 0 kWh;
-	PG 0 kW;
+	PV 200 sf;
+	PX 10 kW;
+	BS 10 kWh;
+	PG 10 kW;
 	IC UNITY;
 
 	measured_demand_timestep 30day;
 	object recorder 
 	{
-		property "voltage_A,measured_real_power[kW],measured_reactive_power[kVA],TO,TA,QH,measured_resource_power[kW]";
+		property "voltage_A,measured_real_power[kW],measured_reactive_power[kVA],TO[degC],TA[degC],QH[kW],measured_resource_power[kW]";
 		file ${modelname/.glm/.csv};
 		interval 1h;
 		line_units NONE;
@@ -84,5 +84,5 @@ object building
 #ifexist "../${modelname/.glm/.csv}"
 #on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
 #else
-#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO,TA,measured_real_power[kW],measured_reactive_power[kVA]' --plot:grid=True --plot:legend=True --show
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO[degC],TA[degC],measured_real_power[kW],measured_reactive_power[kVA]' --plot:grid=True --plot:legend=True --show
 #endif
