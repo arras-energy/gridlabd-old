@@ -26,6 +26,7 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/fault_check.cpp module
 module_powerflow_powerflow_la_SOURCES += module/powerflow/frequency_gen.cpp module/powerflow/frequency_gen.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/fuse.cpp module/powerflow/fuse.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/impedance_dump.cpp module/powerflow/impedance_dump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/industrial.cpp module/powerflow/industrial.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line_configuration.cpp
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line_configuration.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line.cpp module/powerflow/line.h
