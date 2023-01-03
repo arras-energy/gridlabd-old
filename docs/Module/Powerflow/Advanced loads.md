@@ -15,10 +15,10 @@ Advanced load models are derived from the `load` object and include load models 
 
 | Customer category                    | Metering | Thermal model | Load composition | Load schedule | Weather sensitivities
 | ------------------------------------ | -------- | ------------- | ---------------- | ------------- | -------------------
-| [[/Module/Powerflow/Building]]       | Yes      | Yes           | No               | No            | temperature, solar  
-| [[/Module/Powerflow/Industrial]]     | Yes      | No            | Yes              | Yes           | none
-| [[/Module/Powerflow/Public service]] | Yes      | No            | Yes              | Yes           | solar, rainfall
-| [[/Module/Powerflow/Agricultural]]   | Yes      | No            | Yes              | Yes           | temperature, solar, rainfall
+| [[/Module/Powerflow/Building~]]       | Yes      | Yes           | No               | No            | temperature, solar  
+| [[/Module/Powerflow/Industrial~]]     | Yes      | No            | Yes              | Yes           | none
+| [[/Module/Powerflow/Public service~]] | Yes      | No            | Yes              | Yes           | solar, rainfall
+| [[/Module/Powerflow/Agricultural~]]   | Yes      | No            | Yes              | Yes           | temperature, solar, rainfall
 
 # See also
 
@@ -26,4 +26,3 @@ Advanced load models are derived from the `load` object and include load models 
 * [[/Module/Powerflow/Industrial]]
 * [[/Module/Powerflow/Public service]]
 * [[/Module/Powerflow/Agricultural]]
-* 
