@@ -75,4 +75,6 @@ The industrial load is metered as a 3-phase load, with base power on each phase 
 # See also
 
 * [[/Module/Powerflow/Load]]
+* [[/Module/Powerflow/Meter]]
+* [[/Module/Powerflow/Advanced_loads]]
 * [[/Module/Industrial]]

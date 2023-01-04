@@ -17,6 +17,7 @@ module_powerflow_powerflow_la_LIBADD += -ldl
 
 module_powerflow_powerflow_la_SOURCES = module/powerflow/init.cpp module/powerflow/main.cpp
 
+module_powerflow_powerflow_la_SOURCES += module/powerflow/agricultural.cpp module/powerflow/agricultural.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/billdump.cpp module/powerflow/billdump.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/building.cpp module/powerflow/building.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/capacitor.cpp module/powerflow/capacitor.h
@@ -48,6 +49,7 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_library.cpp 
 module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_object.cpp module/powerflow/powerflow_object.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/power_metrics.cpp module/powerflow/power_metrics.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/pqload.cpp module/powerflow/pqload.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/public_service.cpp module/powerflow/public_service.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/recloser.cpp module/powerflow/recloser.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/regulator_configuration.cpp module/powerflow/regulator_configuration.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/regulator.cpp module/powerflow/regulator.h

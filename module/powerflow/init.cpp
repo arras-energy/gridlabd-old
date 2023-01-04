@@ -139,6 +139,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
     new pole_mount(module);
     new building(module);
     new industrial(module);
+    new agricultural(module);
+    new public_service(module);
 
 	/* always return the first class registered */
 	return node::oclass;

@@ -272,3 +272,4 @@ The values of `Vmin` and `Vmax` specify the deadband voltage per unit nominal vo
 
 * [[/Module/Powerflow/Load]]
 * [[/Module/Powerflow/Meter]]
+* [[/Module/Powerflow/Advanced_loads]]

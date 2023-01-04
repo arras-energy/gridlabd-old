@@ -94,7 +94,7 @@ int industrial::init(OBJECT *parent)
 
     if ( P0 <= 0 )
     {
-        exception("nameplate power must be positive");
+        exception("nameplate power P0 must be positive");
     }
     if ( strcmp(industry_code,"") == 0 )
     {
