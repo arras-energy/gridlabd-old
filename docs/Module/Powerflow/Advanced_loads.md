@@ -13,11 +13,11 @@ object agricultural { ... }
 
 Advanced load models are derived from the `load` object and include load models based on customer category.  The advanced load models support the following:
 
-| Customer category                    | Metering | Thermal model | Load composition | Load schedule | Weather sensitivities
+| Customer category                    | Metering | Thermal model | Load composition | Load schedule | Sensitivities
 | ------------------------------------ | -------- | ------------- | ---------------- | ------------- | -------------------
 | [[/Module/Powerflow/Building~]]       | Yes      | Yes           | No               | No            | Temperature, solar  
 | [[/Module/Powerflow/Industrial~]]     | Yes      | No            | Yes              | Yes           | None
-| [[/Module/Powerflow/Public service~]] | Yes      | No            | Yes              | Yes           | Any source threshold
+| [[/Module/Powerflow/Public_service~]] | Yes      | No            | Yes              | Yes           | Any source threshold
 | [[/Module/Powerflow/Agricultural~]]   | Yes      | No            | Yes              | Yes           | Any source linear function
 
 All load models support 3-phase loads. Building load models can be single phase but unbalanced split phase load is not modeled.
@@ -28,5 +28,5 @@ Sensitivity implementations differ when supported.  For buildings, temperature a
 
 * [[/Module/Powerflow/Building]]
 * [[/Module/Powerflow/Industrial]]
-* [[/Module/Powerflow/Public service]]
+* [[/Module/Powerflow/Public_service]]
 * [[/Module/Powerflow/Agricultural]]
