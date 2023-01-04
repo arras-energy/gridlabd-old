@@ -1,0 +1,36 @@
+// module/powerflow/autotest/test_agricultural.glm
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+
+module powerflow;
+module tape
+{
+    csv_header_type NAME;
+}
+
+object agricultural
+{
+    phases ABC;
+    nominal_voltage 4.2 kV;
+    P0 1 MW;
+    Mc 1 pu;
+    object recorder
+    {
+        file ${modelname/.glm/.csv};
+        interval 1h;
+        property "measured_real_power[MW],measured_reactive_power[MVAr]";
+    };
+}
+
+#set savefile=${modelname/.glm/.json}
+
+#ifexist ../${modelname/.glm/.csv}
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='measured_real_power[MW],measured_reactive_power[MVAr]' --plot:grid=True --plot:legend=True --show
+#endif
