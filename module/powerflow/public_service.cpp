@@ -189,7 +189,6 @@ static bool threshold_test(gld_property *threshold,double value,bool invert)
             result = !invert;
         }
     }
-    fprintf(stderr,"threshold_test(%s.%s,%.4lg,%s): value = %.4lg --> %s\n",threshold->get_object()->name,threshold->get_name(),value,invert?"TRUE":"FALSE",threshold->get_double(),result?"TRUE":"FALSE");
     return result;
 }
 

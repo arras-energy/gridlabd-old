@@ -9,7 +9,7 @@ clock
 {
     timezone "PST+8PDT";
     starttime "2020-01-01 00:00:00 PST";
-    stoptime "2020-01-08 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
 }
 
 module powerflow;
@@ -23,9 +23,11 @@ object public_service
     phases ABC;
     nominal_voltage 4.2 kV;
     P0 1 MW;
-    Pz 1 pu;
+    Pi 1 pu;
+    // street lighting schedule
     schedule "1-12,0-6,0-11,0.5,0.95";
     schedule "1-12,0-6,12-23,1.0,0.99";
+    // daylight sensor
     threshold_source "weather.solar_global";
     threshold_value 5 W/m^2;
     threshold_invert TRUE;
