@@ -38,7 +38,7 @@ The `public_service` class support street lighting, water pumping, and other pub
 Loads can be scheduled using the `schedule` method. Load schedules can be aggregated per-unit using the syntax `M-M,D-D,H-H,Pt`, where `M-M` is the closed month range (1-12), `D-D` is the closed weekday range (0-6, with Monday=0), and `H-H` is the hour range (0-23).  The value of `Pt` is specified per-unit `P0` multiplied by the load components.  Extended syntaxes include the following:
 * `M-M,D-D,H-H,Pt,Pf`, where `Pf` is the power factor;
 * `M-M,D-D,H-H,Ma,Mb,Mc,Md,Pe,Z,I`, where the values are the load components; and
-* `M-M,D-D,H-H,Ma,Mb,Mc,Md,Pe,Z,I,Pf`, where the values are the load components.
+* `M-M,D-D,H-H,Ma,Mb,Mc,Md,Pe,Z,I,Pf`, where the values are the load components, including the power factor.
 
 The load threshold can be used to specify a threshold condition for which the load is enabled.  When the source object and property is specified, then the `threshold_value` is compared to source value, and the load is enabled when the source value exceeds it.  The property `threshold_invert` reverses the logic so that the load is enabled when the source values is lesser.
 
