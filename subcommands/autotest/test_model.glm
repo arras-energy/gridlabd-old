@@ -1,0 +1,5 @@
+#model get IEEE/13
+
+#ifexist ../13.glm
+#on_exit 0 diff ../13.glm 13.glm > gridlabd.diff
+#endif
