@@ -32,6 +32,9 @@ private:
     double this_measured_demand; // measured demand for this interval
     int ts_offset; // offset to use for interval checks
 
+    // threshold handling
+    gld_property *threshold;
+
 public:
 
     // load model
@@ -39,8 +42,7 @@ public:
     GL_ATOMIC(double,P0); // nameplate power
 
     // sensitivities
-    GL_STRING(char256,threshold_source);
-    gld_property *threshold;
+    GL_STRING(char256,threshold_source); // object name and property name
     GL_ATOMIC(double,threshold_value); // threshold above which load is off
     GL_ATOMIC(bool,threshold_invert); // invert effect of threshold
 
