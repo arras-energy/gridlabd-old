@@ -45,6 +45,7 @@ typedef struct s_globalvar
 	uint32 flags;
 	void (*callback)(const char *);
 	LOCKVAR lock;
+	const char *initial;
 	struct s_globalvar *next;
 } GLOBALVAR;
 
