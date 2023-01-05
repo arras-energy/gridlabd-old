@@ -4,6 +4,8 @@
 #define CITY=Minneapolis MN
 #define WEATHER=MN-Minneapolis_Crystal.tmy3
 
+#option profile
+
 #set randomseed=1
 
 module powerflow
