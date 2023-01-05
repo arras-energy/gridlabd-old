@@ -32,11 +32,19 @@ private:
     double this_measured_demand; // measured demand for this interval
     int ts_offset; // offset to use for interval checks
 
+    // sensitivity handling
+    gld_property *sensitivity;
+
 public:
 
     // load model
     GL_METHOD(agricultural,schedule); // operating schedule name
     GL_ATOMIC(double,P0); // nameplate power
+
+    // sensitivities
+    GL_STRING(char256,sensitivity_source); // object name and property name
+    GL_ATOMIC(double,sensitivity_base); // constant component of sensitivity function
+    GL_ATOMIC(double,sensitivity_value); // slope component of sensitivity function
 
     // composition fractions
     GL_ATOMIC(double,Pz); // constant impedance load fraction

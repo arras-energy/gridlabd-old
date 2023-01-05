@@ -40,6 +40,14 @@ agricultural::agricultural(MODULE *module)
                 PT_REQUIRED,
                 PT_DESCRIPTION, "agricultural load nameplate power",
 
+            // load sensitivities
+            PT_char256,"sensitivity_source",get_sensitivity_source_offset(),
+                PT_DESCRIPTION,"source for sensitivity value",
+            PT_double,"sensitivity_base",get_sensitivity_base_offset(),
+                PT_DESCRIPTION,"load sensitivity constant",
+            PT_double,"sensitivity_value",get_sensitivity_value_offset(),
+                PT_DESCRIPTION,"load sensitivity slope",
+
             // load composition fractions
             PUBLISH(double,Pz,"pu","constant impedance load fraction"),
             PUBLISH(double,Pi,"pu","constant current load fraction"),
@@ -77,6 +85,7 @@ int agricultural::create(void)
     measured_real_energy = measured_reactive_energy = measured_demand = 0.0;
     measured_energy_delta_timestep = measured_demand_timestep = 3600;
     prev_measured_energy = last_measured_energy = this_measured_demand = 0.0;
+    Pf = 1.0;
     return load::create(); /* return 1 on success, 0 on failure */
 }
 
@@ -105,6 +114,45 @@ int agricultural::init(OBJECT *parent)
     Md /= sum;
     Pe /= sum;
 
+    // check sensitivity source
+    if ( strcmp(sensitivity_source,"") != 0 )
+    {
+        sensitivity = new gld_property(sensitivity_source);
+        if ( sensitivity == NULL || ! sensitivity->is_valid() )
+        {
+            error("sensitivity source '%s' is not valid",(const char*)sensitivity_source);
+        }
+    }
+
+    // check schedule
+    sum = 0;
+    for ( unsigned int m = 0 ; m < 12 ; m++ )
+    {
+        for ( unsigned int d = 0 ; d < 7; d++ )
+        {
+            for ( unsigned int h = 0 ; h < 24 ; h++ )
+            {
+                COMPOSITION x = load_schedule[m][d][h];
+                if ( x.total < 0 || x.total > 1 )
+                {
+                    warning("invalid load schedule %s total %.4g for month %d, weekday %d, hour %d",x.aggregate?"aggregated":"disaggregated",x.total,m,d,h);
+                }
+                else if ( x.pf < -1 || x.pf > 1 )
+                {
+                    warning("invalid load schedule power factor %.4g for month %d, weekday %d, hour %d",x.pf,m,d,h);
+                }
+                else
+                {
+                    sum += x.total;
+                }
+            }
+        }
+    }
+    if ( sum == 0 )
+    {
+        warning("missing or null load schedule");
+    }
+
     return load::init(parent);
 }
 
@@ -132,9 +180,10 @@ TIMESTAMP agricultural::sync(TIMESTAMP t0)
 {
     if ( t0 % 3600 == 0 ) // update only at top of the hour
     {
-        // compute composite load
         COMPOSITION ls = load_schedule[month][weekday][hour];
-        double P,Z,I;
+        double P = 0, Z = 0, I = 0;
+        
+        // compute composite load
         if ( ls.aggregate )
         {
             Z = Pz * ls.total * P0;
@@ -149,14 +198,22 @@ TIMESTAMP agricultural::sync(TIMESTAMP t0)
         }
 
         // update load components
-        double S = P+Z+I;
+        double S = P + Z + I;
+        if ( sensitivity != NULL && S != 0 )
+        {
+            double scale = (S + sensitivity_value * sensitivity->get_double() + sensitivity_base) / S;
+            Z *= scale;
+            I *= scale;
+            P *= scale;
+            S *= scale;
+        } 
         base_power[0] = base_power[1] = base_power[2] = S/3;
         impedance_pf[0] = impedance_pf[1] = impedance_pf[2] = ls.pf;
-        impedance_fraction[0] = impedance_fraction[1] = impedance_fraction[2] = (S!=0?Z/S:0);
+        impedance_fraction[0] = impedance_fraction[1] = impedance_fraction[2] = (S!=0 ? Z/S : 0);
         current_pf[0] = current_pf[1] = current_pf[2] = ls.pf;
-        current_fraction[0] = current_fraction[1] = current_fraction[2] = (S!=0?I/S:0);
+        current_fraction[0] = current_fraction[1] = current_fraction[2] = (S!=0 ? I/S : 0);
         power_pf[0] = power_pf[1] = power_pf[2] = ls.pf;
-        power_fraction[0] = power_fraction[1] = power_fraction[2] = (S!=0?P/S:0);
+        power_fraction[0] = power_fraction[1] = power_fraction[2] = (S!=0 ? P/S : 0);
     }
     return load::sync(t0);
 }
@@ -253,7 +310,7 @@ int agricultural::schedule(char *buffer, size_t len)
         while ( (data=strtok_r(last?NULL:buffer,";\n",&last)) != NULL )
         {
             int start_month,stop_month,start_day,stop_day,start_hour,stop_hour;
-            double a,b=1.0,c,d,e,z,i,pf=1.0;
+            double a,b=Pf,c,d,e,z,i,pf=Pf;
             int count = sscanf(data,"%u-%u,%u-%u,%u-%u,%lg,%lg,%lg,%lg,%lg,%lg,%lg,%lg", 
                 &start_month, &stop_month, &start_day, &stop_day, &start_hour, &stop_hour, 
                 &a,&b,&c,&d,&e,&z,&i,&pf);
@@ -293,6 +350,13 @@ int agricultural::schedule(char *buffer, size_t len)
                             load_schedule[m-1][d][h].aggregate = true;
                             load_schedule[m-1][d][h].total = a;
                             load_schedule[m-1][d][h].pf = b;
+                            load_schedule[m-1][d][h].a = 0;
+                            load_schedule[m-1][d][h].b = 0;
+                            load_schedule[m-1][d][h].c = 0;
+                            load_schedule[m-1][d][h].d = 0;
+                            load_schedule[m-1][d][h].e = 0;
+                            load_schedule[m-1][d][h].z = 0;
+                            load_schedule[m-1][d][h].i = 0;
                             break;
                         case 13:
                         case 14:
@@ -304,10 +368,11 @@ int agricultural::schedule(char *buffer, size_t len)
                             load_schedule[m-1][d][h].e = e;
                             load_schedule[m-1][d][h].z = z;
                             load_schedule[m-1][d][h].i = i;
+                            load_schedule[m-1][d][h].total = a+b+c+d+e+i+z;
                             load_schedule[m-1][d][h].pf = pf;
                             break;
                         default:
-                            exception("agricultural::schedule(buffer='%s',len=%d): internal error",buffer,len);
+                            exception("public_service::schedule(buffer='%s',len=%d): internal error",buffer,len);
                             break;
                         }
                     }
