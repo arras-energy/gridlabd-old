@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Cleaning repository to source state for clean build
+git clean -fxd
+
 # Set Variable defaults (Prefix can be changed by flag)
 VERSION=${VERSION:-`build-aux/version.sh --name`}
 PREFIX="/usr/local/opt"
@@ -217,10 +220,6 @@ if [ ! -d "$VERSION_DIR" ]; then
 	mkdir -p $VERSION_DIR/etc
 fi
 
-if ! grep -q "$VERSION_DIR/bin" "$HOME/.bashrc"; then
-    touch "$HOME/.bashrc"
-    echo "export PATH=$VERSION_DIR/bin:\$PATH" >> $HOME/.bashrc
-fi
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # setup logging
