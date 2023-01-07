@@ -174,9 +174,9 @@ $(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
 	test ! -e $@ || rm -rf $@
 	test -d $@/source || mkdir -p $@/source
 	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/source
-	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
-	mv $@/source/usr/local/include $@/devel/usr/local/include
-	mv $@/source/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
+	cd $@ && mkdir -p climate-data/$(exec_prefix)/lib/gridlabd devel/$(exec_prefix)/lib/gridlabd # libxerces-c/usr/lib
+	mv $@/source/$(exec_prefix)/include $@/devel/$(exec_prefix)/include
+	mv $@/source/$(exec_prefix)/lib/gridlabd/*.la $@/devel/$(exec_prefix)/lib/gridlabd/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
@@ -302,7 +302,7 @@ install-exec-hook: index python-requirements docs
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
+	@$(bindir)/python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet

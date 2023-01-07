@@ -9,7 +9,7 @@ Shell:
 
 GLM:
 
-  #define LOCATION=${SHELL python3 -m find_location PDX}
+  #define LOCATION=${shell $(bindir)/python3 -m find_location PDX}
 
 Python:
 
