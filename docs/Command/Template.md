@@ -10,7 +10,7 @@ $ gridlabd ... [-t|--template] <template-name> ...
 
 # Description
 
-The `-t` or `--template` command line option directs the loader to load a template GLM file from the current organization's template folder.  The standard location for a template is in the folder `/usr/local/share/gridlabd/template/$ORGANIZATION/<template-name>/<template-name>.glm`.
+The `-t` or `--template` command line option directs the loader to load a template GLM file from the current organization's template folder.  The standard location for a template is in the folder `/usr/local/opt/gridlabd/share/gridlabd/template/$ORGANIZATION/<template-name>/<template-name>.glm`.
 
 ## `ORGANIZAITON`
 

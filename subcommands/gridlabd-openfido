@@ -4,13 +4,13 @@ if [ $# -eq 0 -o "$1" == "help" ]; then
 	echo "Syntax: gridlabd openfido [OPTIONS ...] FUNCTION [ARGUMENTS ...]"
 	exit 0
 fi
-if [ ! -x /usr/local/bin/openfido ]; then
+if [ ! -x $GLD_BIN/openfido ]; then
 	curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
 fi
 
-if [ ! -x /usr/local/bin/openfido ]; then
+if [ ! -x $GLD_BIN/openfido ]; then
     echo "ERROR [openfido]: CLI is not installed" > /dev/stderr
 	exit 1
 else
-    /usr/local/bin/openfido $*
+    $GLD_BIN/openfido $*
 fi

@@ -15,7 +15,7 @@ chmod -R 775 /usr/local
 chown -R root:adm /usr/local
 
 # Install needed system tools
-yum -q update -y ; 
+yum -q update -y
 yum -q clean all
 yum -q groupinstall "Development Tools" -y
 yum -q install cmake -y 
@@ -23,6 +23,7 @@ yum -q install ncurses-devel -y
 #yum -q install epel-release -y
 yum -q install libcurl-devel -y
 yum -q install mdbtools -y
+yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel xz-devel
 
 # python3.9.x support needed as of 4.2
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then

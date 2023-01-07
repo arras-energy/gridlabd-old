@@ -1,5 +1,10 @@
 #!/usr/local/bin/python3
 # Syntax: matrix [OPTIONS ...] FUNCTION [ARGUMENTS ...]
+
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """GridLAB-D matrix subcommand
 
 SYNTAX

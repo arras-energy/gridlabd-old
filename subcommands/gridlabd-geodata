@@ -1,6 +1,9 @@
 #!/usr/local/bin/python3
-# Syntax: geodata [OPTIONS ...] DIRECTIVE [ARGUMENTS ...]
 """Syntax: gridlabd geodata [OPTIONS ...] DIRECTIVE [ARGUMENTS ...]
+
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
 
 The geodata command gathers and joins geographic data. The geodata subcommand
 uses directives that are documented in the DIRECTIVES section below.
@@ -38,7 +41,7 @@ OPTIONS
 
 REMARKS
 
-The default cache folder is /usr/local/share/gridlabd/geodata. The default
+The default cache folder is /usr/local/opt/gridlabd/<version>/share/gridlabd/geodata. The default
 config file $HOME/.gridlabd/geodata-config. The default maximum thread count
 is 1.
 
