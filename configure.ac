@@ -42,10 +42,10 @@ m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 m4_define([pkginstall], sbuild_m4_esyscmd_s([build-aux/version.sh --install]))
 m4_define([pkgorigin],sbuild_m4_esyscmd_s([git rev-parse --abbrev-ref HEAD]))
 
-AC_PREREQ([2.63])
-AC_INIT(pkgname, pkgversion, [gridlabd@gmail.com], pkg)
+AC_PREREQ([2.71])
+AC_INIT([pkgname],[pkgversion],[gridlabd@gmail.com],[pkg])
 AC_CONFIG_SRCDIR([source/gridlabd.h])
-AC_CONFIG_HEADER([source/config.h])
+AC_CONFIG_HEADERS([source/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -106,7 +106,7 @@ AC_MSG_NOTICE
 : ${CFLAGS="-Wall"}
 : ${CXXFLAGS="-Wall"}
 AC_PROG_CC
-AC_GNU_SOURCE   # defines _GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
 
 AS_IF([test "x$debug" = "true"], [GLD_CFLAGS="$GLD_CFLAGS -g"])
@@ -244,7 +244,9 @@ AC_C_CONST
 AC_C_INLINE
 AC_C_RESTRICT
 AC_HEADER_STDBOOL
-AC_HEADER_STDC
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_STRUCT_TM
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
@@ -440,9 +442,8 @@ AC_MSG_NOTICE
 
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_PREREQ([2.2])
-AC_LIBTOOL_DLOPEN
-AC_PROG_LIBTOOL
-AC_PROG_RANLIB # (DPC 2019-09-15) don't remove this, doing so will cause a warning in autoscan instead of autoreconf
+
+LT_INIT
 LT_INIT([dlopen win32-dll shared disable-static])
 AC_SUBST([LIBTOOL_DEPS])
 
