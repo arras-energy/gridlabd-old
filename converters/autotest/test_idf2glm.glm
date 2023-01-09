@@ -1,1 +1,3 @@
 #input "test_idf2glm_input.idf"
+
+#set savefile=${modelname/.glm/.json}

@@ -134,7 +134,8 @@ class IDF:
 					subsection = None
 
 	def __getitem__(self,key):
-		return self.data[key]
+		return self.data[key] if key in self.data else {}
+
 
 if __name__ == "__main__":
 	import json, sys

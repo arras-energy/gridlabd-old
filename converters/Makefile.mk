@@ -31,6 +31,10 @@ dist_pkgdata_DATA += converters/csv2glm.py
 # gz -> glm
 dist_pkgdata_DATA += converters/gz2glm.py
 
+# idf -> glm
+dist_pkgdata_DATA += converters/idf2glm.py
+dist_pkgdata_DATA += converters/idfparse.py
+
 # mdb -> glm
 dist_pkgdata_DATA += converters/mdb-cyme2glm.py
 dist_pkgdata_DATA += converters/mdb-table2glm-object.py
