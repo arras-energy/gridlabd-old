@@ -3,7 +3,7 @@
 The scripts parses IDF files to compute the defaults for the powerflow building model
 """
 
-SAMPLE_RATE=1000
+SAMPLE_RATE=10000
 
 import sys, os
 import json
@@ -33,7 +33,11 @@ def vertices(data):
             pts.append(value)
     return Polygon(pts)
 
-building_data = {"building_type":[],"floor_area":[],"UA":[],"CM":[],"CA":[],"UM":[],"UI":[]}
+building_data = {"building_type":[],"floor_area":[],
+    "UA":[],"CA":[],"UI":[],"CM":[],"UM":[],
+    "DF":[],"K":[],"QE":[],"QG":[],"QO":[],"QV":[],"SA":[],"TS":[],
+    "PZM":[],"PPM":[],"QPM":[],"PZE":[],"PIE":[],"PPE":[],"QZE":[],"QIE":[],"QPE":[],"PPH":[],"QPH":[]}
+building_id = {"building_type":[],"building_id":[]}
 for dirname in sys.argv[1:]:
     print("Reading folder",dirname,"...",file=sys.stderr,flush=True)
     try:
@@ -64,7 +68,7 @@ for dirname in sys.argv[1:]:
             if name[0] == '-':
                 name = name[1:63]
 
-            building_type = name.split('-')[0]
+            building_type = name.split('-')[0].upper()
 
             location = list(idf['Site:Location'].keys())[0]
             latitude = idf['Site:Location'][location]['Latitude {deg}']
@@ -82,6 +86,13 @@ for dirname in sys.argv[1:]:
             roof_area = sum([vertices(data).area() for data in idf['BuildingSurface:Detailed'].values() if data['Surface Type'] == 'Roof'])
             air_volume = floor_area * wall_height; # m^3
             air_mass = air_volume * 1.2; # kg
+
+            # TODO: this is not considered in the UI calculation
+            internal_mass_area = sum(data['Surface Area {m2}'] for data in idf['InternalMass'].values())
+
+            heating_design_factor = idf['Sizing:Zone']['Zone Heating Sizing Factor']
+            cooling_design_factor = idf['Sizing:Zone']['Zone Cooling Sizing Factor']
+            design_factor = max(heating_design_factor if heating_design_factor else 2.0,cooling_design_factor if cooling_design_factor else 2.0)
 
             # surface properties
             thermal_conductance = 0.0
@@ -126,12 +137,36 @@ for dirname in sys.argv[1:]:
             building_data["building_type"].append(building_type)
             building_data["floor_area"].append(round(floor_area,2)) # m^2
             building_data["UA"].append(round(thermal_conductance,4)) # W/K
-            building_data["CM"].append(round(thermal_mass,1)) # J/K
             building_data["CA"].append(air_mass*1.006) # J/K
             building_data["UI"].append(round(thermal_conductance,4)/2) # W/K
+            building_data["CM"].append(round(thermal_mass,1)) # J/K
             building_data["UM"].append(round(thermal_conductance,4)/2) # W/K
+            building_data["DF"].append(design_factor)
+            building_data["K"].append(1.0)
+            building_data["QE"].append(float('nan')) # TODO
+            building_data["QG"].append(float('nan')) # TODO
+            building_data["QO"].append(float('nan')) # TODO
+            building_data["QV"].append(float('nan')) # TODO
+            building_data["SA"].append(float('nan')) # TODO
+            building_data["TS"].append(float('nan')) # TODO
+            building_data["PZM"].append(float('nan')) # TODO
+            building_data["PPM"].append(float('nan')) # TODO
+            building_data["QPM"].append(float('nan')) # TODO
+            building_data["PZE"].append(float('nan')) # TODO
+            building_data["PIE"].append(float('nan')) # TODO
+            building_data["PPE"].append(float('nan')) # TODO
+            building_data["QZE"].append(float('nan')) # TODO
+            building_data["QIE"].append(float('nan')) # TODO
+            building_data["QPE"].append(float('nan')) # TODO
+            building_data["PPH"].append(float('nan')) # TODO
+            building_data["QPH"].append(float('nan')) # TODO
+
+            building_id["building_type"].append(building_type)
+            building_id["building_id"].append(os.path.splitext(file)[0])
 
     building_data = pandas.DataFrame(building_data).set_index(['building_type'])
+    building_id = pandas.DataFrame(building_id).set_index("building_type")
+    building_data = building_data.join(building_id,on="building_type").reset_index().set_index(['building_type','building_id'])
     building_data.to_csv(f"{os.path.basename(dirname)}.csv",index=True,header=True,float_format='%.4g')
     building_types = building_data.groupby('building_type')
     counts = pandas.DataFrame(building_types.count())
