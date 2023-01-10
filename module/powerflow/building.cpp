@@ -1005,6 +1005,11 @@ int building::load_defaults(void)
 		}
 	}
 	fclose(fp);
+	UA *= floor_area;
+	CA *= floor_area;
+	UI *= floor_area;
+	CM *= floor_area;
+	UM *= floor_area;
 	return 1;
 }
 

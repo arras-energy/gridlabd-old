@@ -11,6 +11,12 @@ module powerflow
 #ifexist ../data/building_loadshapes.csv
 	building_loadshapes "../data/building_loadshapes.csv";
 #endif
+#ifexist ../data/building_occupancy.csv
+	building_occupancy "../data/building_occupancy.csv";
+#endif
+#ifexist ../data/inverter_settings.csv
+	inverter_settings "../data/inverter_settings.csv";
+#endif
 }
 module tape
 {

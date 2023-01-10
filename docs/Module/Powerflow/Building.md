@@ -191,40 +191,18 @@ object building
 
 # Occupancy
 
-Building occupancy data is provided by the `building_occupancy.csv` data file.  You may specify your own occupancy data by setting the module global `building_occupancy` to your file's pathname and specifying the `building_type` property in the building object.  The file must be formatted similarly to the default file:
+Building occupancy data is provided by the `building_occupancy.csv` data file.  You may specify your own occupancy data by setting the module global `building_occupancy` to your file's pathname and specifying the `building_type` property in the building object.  The file must be formatted similarly to the default entry for a single-family home:
 
 | building_type | daytype | start | stop | occupied | unoccupied |
 | ------------- | ------- | ----- | ---- | -------- | ---------- |
-| APARTMENT | WEEKDAY | 8 | 18 | 0.2 | 1.0 |
-| APARTMENT | WEEKEND | 0 | 24 | 1.0 | 0.0 |
-| CONDO | WEEKDAY | 8 | 18 | 0.2 | 1.0 |
-| CONDO | WEEKEND | 0 | 24 | 1.0 | 0.0 |
-| EDUCATION | WEEKDAY | 7 | 16 | 1.0 | 0.0 |
-| EDUCATION | WEEKEND | 0 | 24 | 0.0 | 0.0 |
-| GROCERY | WEEKDAY | 8 | 20 | 1.0 | 0.0 |
-| GROCERY | WEEKEND | 8 | 20 | 1.0 | 0.0 |
 | HOUSE | WEEKDAY | 8 | 18 | 0.2 | 1.0 |
 | HOUSE | WEEKEND | 0 | 24 | 1.0 | 0.0 |
-| HEALTHCARE | WEEKDAY | 6 | 22 | 1.0 | 0.5 |
-| HEALTHCARE | WEEKEND | 6 | 22 | 1.0 | 0.5 |
-| LARGEOFFICE | WEEKDAY | 9 | 17 | 1.0 | 0.0 |
-| LARGEOFFICE | WEEKEND | 0 | 24 | 0.1 | 0.0 |
-| LODGING | WEEKDAY | 6 | 8 | 1.0 | 0.5 |
-| LODGING | WEEKEND | 5 | 9 | 1.0 | 0.5 |
-| RESTAURANT | WEEKDAY | 10 | 20 | 1.0 | 0.0 |
-| RESTAURANT | WEEKEND | 10 | 20 | 1.0 | 0.0 |
-| RETAIL | WEEKDAY | 10 | 18 | 1.0 | 0.0 |
-| RETAIL | WEEKEND | 10 | 18 | 1.0 | 0.0 |
-| SMALLOFFICE | WEEKDAY | 9 | 17 | 1.0 | 0.0 |
-| SMALLOFFICE | WEEKEND | 0 | 24 | 0.1 | 0.0 |
-| TOWNHOUSE | WEEKDAY | 8 | 18 | 0.2 | 1.0 |
-| TOWNHOUSE | WEEKEND | 0 | 24 | 1.0 | 0.0 |
 
 The `building_type` may be set to any building type you wish to define.  The `daytype` must be either `WEEKDAY` or `WEEKEND`. The `start` and `stop` hours must be in the range $(0-23)$ and `start` must be less than `stop`.  The `occupied` values are used when the hour is between `start` inclusive and `stop` exclusive. The `unoccupied` values are used otherwise.  If you need to define night-time occupancy, keep in the hours in the proper order and exchange the occupancy values.
 
 # Loadshape
 
-Building end-use load shapes are provided by the `building_loadshapes.csv` data file.  You may specify your own end-use load shape data by setting the module global `building_loadshapes` to your file's pathname and specifying the `building_type` property in the building object.  The file must be formatted similarly to the default file:
+Building end-use load shapes are provided by the `building_loadshapes.csv` data file.  You may specify your own end-use load shape data by setting the module global `building_loadshapes` to your file's pathname and specifying the `building_type` property in the building object.  The file must be formatted similarly to the default entry for a school weekend in winter:
 
 | building_type | season | fuel | daytype | hour | load |
 | ------------- | ------ | ---- | ------- | ---- | ---- |
@@ -236,24 +214,15 @@ The `building_type` may be set to any building type you wish to define.  The sea
 
 # Composition
 
-Building design and load compositions can be set by specifying the `building_type` property. The building type is looked in the building design and composition file, which is specified by the module global `building_defaults`. You may specify your own building design defaults by setting the `building_defaults` module global to your file's pathname.  The file must be formatted similarly to the default file:
+Building design and load compositions can be set by specifying the `building_type` property. The building type is looked up in the building design and composition file, which is specified by the module global `building_defaults`. You may specify your own building design defaults by setting the `building_defaults` module global to your file's pathname.  The file must be formatted similarly to the default file:
 
 | building_type | UA | CA | UI | CM | UM | DF | K | QE | QG | QO | QV | SA | TS | PZM | PPM | QPM | PZE | PIE | PPE | QZE | QIE | QPE | PPH | QPH |
-| ------------- | -- | -- | -- | -- | -- | -- | - | -- | -- | -- | -- | -- | -- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | 
-| APARTMENT | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| CONDO | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| EDUCATION | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| GROCERY | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| HOUSE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| HEALTHCARE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| LARGEOFFICE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| LODGING | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| RESTAURANT | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| RETAIL | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| SMALLOFFICE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
-| TOWNHOUSE | 300.0 | 2E+06 | 5000.0 | 8E+06 | 600.0 | 2.0 | 1.0 | 1E+04 | 1E+03 | 1.2E+03 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
+| ------------- | -- | -- | -- | -- | -- | -- | - | -- | -- | -- | -- | -- | -- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| HOUSE | 2.0 | 13333.3 | 33.3 | 53333.3 | 4.0 | 2.0 | 1.0 | 10000.0 | 1000.0 | 1200.0 | 400.0 | 15.0 | 22.0 | 0.0 | 0.3 | 0.03 | 0.5 | 0.0 | 0.5 | 0.05 | 0.0 | 0.05 | 0.06 | 0.01 |
 
 The `building_type` may be set to any building type you wish to define.  The values must be set in the units used by the `building`'s properties. 
+
+**Important note**: the thermal properties `UA`, `CA`, `UI`, `CM`, and `UM` are specified *per unit building floor area*, not per unit building envelope area.
 
 # Inverter
 
