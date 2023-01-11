@@ -35,7 +35,7 @@ def vertices(data):
 
 building_data = {"building_type":[],"floor_area":[],
     "UA":[],"CA":[],"UI":[],"CM":[],"UM":[],
-    "DF":[],"K":[],"QE":[],"QG":[],"QO":[],"QV":[],"SA":[],"TS":[],
+    "DF":[],"K":[],"QE":[],"QG":[],"QO":[],"QV":[],"SA":[],"TC":[],"TH":[],
     "PZM":[],"PPM":[],"QPM":[],"PZE":[],"PIE":[],"PPE":[],"QZE":[],"QIE":[],"QPE":[],"PPH":[],"QPH":[]}
 building_id = {"building_type":[],"building_id":[]}
 for dirname in sys.argv[1:]:
@@ -94,6 +94,17 @@ for dirname in sys.argv[1:]:
             cooling_design_factor = idf['Sizing:Zone']['Zone Cooling Sizing Factor']
             design_factor = max(heating_design_factor if heating_design_factor else 2.0,cooling_design_factor if cooling_design_factor else 2.0)
 
+            # thermostat setpoints - TODO: extract detailed schedule
+            heating_setpoint_names = [data['Heating Setpoint Temperature Schedule Name'] for data in idf['ThermostatSetpoint:DualSetpoint'].values()]
+            cooling_setpoint_names = [data['Cooling Setpoint Temperature Schedule Name'] for data in idf['ThermostatSetpoint:DualSetpoint'].values()]
+            daily_schedules = idf['Schedule:Day:Interval']
+            # print(heating_setpoint_names,daily_schedules)
+            heating_setpoints = [daily_schedules[f"{name} Default"]['Value Until Time 1'] for name in heating_setpoint_names if daily_schedules[f"{name} Default"]['Schedule Type Limits Name'] == 'Temperature']
+            cooling_setpoints = [daily_schedules[f"{name} Default"]['Value Until Time 1'] for name in cooling_setpoint_names if daily_schedules[f"{name} Default"]['Schedule Type Limits Name'] == 'Temperature']
+            # setpoint_temperatures = [data['Value Until Time 1'] for data in idf['Schedule:Day:Interval'].values()]
+            # print(heating_setpoint_names,heating_setpoints,flush=True)
+            # print(cooling_setpoint_names,cooling_setpoints,flush=True)
+
             # surface properties
             thermal_conductance = 0.0
             thermal_mass = 0.0
@@ -143,12 +154,13 @@ for dirname in sys.argv[1:]:
             building_data["UM"].append(round(thermal_conductance,4)/2) # W/K
             building_data["DF"].append(design_factor)
             building_data["K"].append(1.0)
-            building_data["QE"].append(float('nan')) # TODO
+            building_data["QE"].append((lighting+equipment)*floor_area)
             building_data["QG"].append(float('nan')) # TODO
-            building_data["QO"].append(float('nan')) # TODO
+            building_data["QO"].append(100.0*occupancy*floor_area)
             building_data["QV"].append(float('nan')) # TODO
             building_data["SA"].append(float('nan')) # TODO
-            building_data["TS"].append(float('nan')) # TODO
+            building_data["TC"].append(sum(heating_setpoints)/len(heating_setpoints) if heating_setpoints else 22.0)
+            building_data["TH"].append(sum(cooling_setpoints)/len(cooling_setpoints) if cooling_setpoints else 24.0)
             building_data["PZM"].append(float('nan')) # TODO
             building_data["PPM"].append(float('nan')) # TODO
             building_data["QPM"].append(float('nan')) # TODO
