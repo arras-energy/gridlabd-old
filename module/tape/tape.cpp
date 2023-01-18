@@ -192,9 +192,9 @@ TAPEFUNCS *get_ftable(char *mode){
 	return funcs;
 }
 
-CDECL int method_recorder_property(OBJECT *obj, char *value, size_t size);
-CDECL int method_collector_property(OBJECT *obj, char *value, size_t size);
-CDECL int method_multi_recorder_property(OBJECT *obj, char *value, size_t size);
+CDECL int method_recorder_property(OBJECT *obj, ...);
+CDECL int method_collector_property(OBJECT *obj, ...);
+CDECL int method_multi_recorder_property(OBJECT *obj, ...);
 
 EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 {
