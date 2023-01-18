@@ -63,7 +63,7 @@ bash$ sudo make install
 As far as I remember, this is the order that you must install in: fontconfig, freetype, jpegsrc, zlib, libpng, pkg-config, readline, gd. There may be some flexibility in the order, but it is important to install gd last.
 Compiling gnuplot
 
-Once all that is done you should be ok to compile gnuplot. Download and extract the version 4.4 source code archive http://gnuplot.sourceforge.net/development/binaries/. By default, gnuplot will install to /usr/local/bin. I have added that directory to my path. But if you want it to install to /usr/bin then you can use the --exec-prefix=/usr configuration option, as shown below.
+Once all that is done you should be ok to compile gnuplot. Download and extract the version 4.4 source code archive http://gnuplot.sourceforge.net/development/binaries/. By default, gnuplot will install to /usr/local/opt/gridlabd/bin. I have added that directory to my path. But if you want it to install to /usr/bin then you can use the --exec-prefix=/usr configuration option, as shown below.
 
 bash$ ./configure â€“exec-prefix=/usr
 bash$ make
@@ -76,7 +76,7 @@ So I compiled gd and gnuplot successfully with truetype support, but gnuplot can
 
 export GDFONTPATH=~/.fonts
 
-Then I copied the fonts from the /usr/local/fonts/truetype directory on my linux box to ~/.fonts on my Mac Mini.
+Then I copied the fonts from the /usr/local/opt/gridlabd/fonts/truetype directory on my linux box to ~/.fonts on my Mac Mini.
 
 My gnuplot installation is working fairly well now, except I might go back and recompile freetype with kerning.
 Help!
