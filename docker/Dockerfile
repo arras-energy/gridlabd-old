@@ -3,11 +3,11 @@ FROM hipas/gridlabd_base:220921
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
-ARG BRANCH
+ENV BRANCH=develop-add-loads
 RUN echo "Building $BRANCH"
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
-ENV REMOVE_SOURCE=yes
+ENV REMOVE_SOURCE=no
 ARG RUN_VALIDATION
 ENV LD_LIBRARY_PATH /usr/local/opt/gridlabd/lib
 
