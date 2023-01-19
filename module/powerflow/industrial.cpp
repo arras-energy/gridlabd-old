@@ -72,7 +72,27 @@ industrial::industrial(MODULE *module)
                 throw "unable to publish industrial properties";
         }
         gl_global_create("powerflow::NAICS_datafile",PT_char1024,(const char*)NAICS_datafile,NULL);
-    }
+        
+        //Publish deltamode functions
+        if (gl_publish_function(oclass, "delta_linkage_node", (FUNCTIONADDR)delta_linkage)==NULL)
+            GL_THROW("Unable to publish load delta_linkage function");
+        if (gl_publish_function(oclass, "interupdate_pwr_object", (FUNCTIONADDR)interupdate_load)==NULL)
+            GL_THROW("Unable to publish load deltamode function");
+        if (gl_publish_function(oclass, "delta_freq_pwr_object", (FUNCTIONADDR)delta_frequency_node)==NULL)
+            GL_THROW("Unable to publish load deltamode function");
+        if (gl_publish_function(oclass, "pwr_object_swing_swapper", (FUNCTIONADDR)swap_node_swing_status)==NULL)
+            GL_THROW("Unable to publish load swing-swapping function");
+        if (gl_publish_function(oclass, "pwr_current_injection_update_map", (FUNCTIONADDR)node_map_current_update_function)==NULL)
+            GL_THROW("Unable to publish load current injection update mapping function");
+        if (gl_publish_function(oclass, "attach_vfd_to_pwr_object", (FUNCTIONADDR)attach_vfd_to_node)==NULL)
+            GL_THROW("Unable to publish load VFD attachment function");
+        if (gl_publish_function(oclass, "pwr_object_reset_disabled_status", (FUNCTIONADDR)node_reset_disabled_status) == NULL)
+            GL_THROW("Unable to publish load island-status-reset function");
+        if (gl_publish_function(oclass, "pwr_object_load_update", (FUNCTIONADDR)update_load_values) == NULL)
+            GL_THROW("Unable to publish load impedance-conversion/update function");
+        if (gl_publish_function(oclass, "pwr_object_swing_status_check", (FUNCTIONADDR)node_swing_status) == NULL)
+            GL_THROW("Unable to publish load swing-status check function");
+     }
 }
 
 int industrial::isa(char *type)
