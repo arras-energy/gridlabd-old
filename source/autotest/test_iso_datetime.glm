@@ -27,4 +27,4 @@ object test {
 };
 
 script on_term gridlabd:dump test_clock.json;
-#on_exit 0 python3 ../test_iso_datetime.py
+#on_exit 0 $GLD_BIN/python3 ../test_iso_datetime.py

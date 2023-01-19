@@ -561,8 +561,13 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 }
 
 #define BLOCKSIZE 1024
-EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
+EXPORT int method_multi_recorder_property(OBJECT *obj, ...)
 {
+	va_list args;
+	va_start(args,obj);
+	char *value = va_arg(args,char*);
+	size_t size = va_arg(args,size_t);
+
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	if ( value == NULL ) // size query
 	{
@@ -614,6 +619,7 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 		strcpy(value,my->property ? my->property : "");
 		return len;
 	}
+	va_end(args);
 }
 
 RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)

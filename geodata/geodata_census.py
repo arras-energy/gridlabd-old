@@ -32,6 +32,8 @@ import pickle
 from shapely.geometry import Point
 import censusdata
 
+GLD_ETC = os.getenv("GLD_ETC")
+
 default_options = {
     "state_fields" : "STUSPS",
     "zipcode_fields" : "ZCTA5CE10",
@@ -40,7 +42,7 @@ default_options = {
 
 default_config = {
     "urladdr" : "https://www2.census.gov/geo/tiger/TIGER2020",
-    "cachedir" : "/usr/local/share/gridlabd/geodata/census",
+    "cachedir" : f"{GLD_ETC}/gridlabd/geodata/census",
     "states_filename" : "tl_2020_us_state.zip",
     "zipcode_filename" : "tl_2020_us_zcta510.zip",
 

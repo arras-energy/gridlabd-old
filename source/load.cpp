@@ -4901,7 +4901,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error_here(HERE); REJECT; }
+	// else { syntax_error_here(HERE); REJECT; }
 
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
