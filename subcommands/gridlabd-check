@@ -1,5 +1,10 @@
 #!/usr/local/bin/python3
 # Syntax: check [OPTIONS] FILE ...
+
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """GridLAB-D model check routines
 
 Syntax: gridlabd check [OPTIONS] FILE ...

@@ -1,4 +1,9 @@
 # metar2glm [--index|STATION ...]
+
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 import sys
 sys.path.append(sys.argv[0].split()[0:-1])
 import ucar_weather
