@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += module/powerflow/powerflow.la
 
-module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell $(bindir)/python3 -c 'import numpy; print(numpy.get_include())')
+module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell python3 -c 'import numpy; print(numpy.get_include())')
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/module/powerflow
 module_powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)

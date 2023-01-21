@@ -25,7 +25,7 @@ bash$ gridlabd 'my-script.py my-arg1 my-arg2'
 
 # Caveat
 
-Only `python3` is supported, and the Python executable must installed (or linked) in the `/usr/local/opt/gridlabd/bin` folder.
+Only `python3` is supported, and the Python executable must installed (or linked) in the `/usr/local/bin` folder.
 
 # See also
 

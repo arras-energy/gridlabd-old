@@ -180,7 +180,7 @@ function delete()
 
 function metar()
 {
-	$GLD_BIN/python3 ${GLD_ETC}/metar2glm.py $*
+	/usr/local/bin/python3 ${GLD_ETC}/metar2glm.py $*
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then

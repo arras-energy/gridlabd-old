@@ -42,10 +42,10 @@ m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 m4_define([pkginstall], sbuild_m4_esyscmd_s([build-aux/version.sh --install]))
 m4_define([pkgorigin],sbuild_m4_esyscmd_s([git rev-parse --abbrev-ref HEAD]))
 
-AC_PREREQ([2.71])
-AC_INIT([pkgname],[pkgversion],[gridlabd@gmail.com],[pkg])
+AC_PREREQ([2.63])
+AC_INIT(pkgname, pkgversion, [gridlabd@gmail.com], pkg)
 AC_CONFIG_SRCDIR([source/gridlabd.h])
-AC_CONFIG_HEADERS([source/config.h])
+AC_CONFIG_HEADER([source/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -106,7 +106,7 @@ AC_MSG_NOTICE
 : ${CFLAGS="-Wall"}
 : ${CXXFLAGS="-Wall"}
 AC_PROG_CC
-AC_USE_SYSTEM_EXTENSIONS   # defines _GNU_SOURCE
+AC_GNU_SOURCE   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
 
 AS_IF([test "x$debug" = "true"], [GLD_CFLAGS="$GLD_CFLAGS -g"])
@@ -244,15 +244,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_C_RESTRICT
 AC_HEADER_STDBOOL
-m4_warn([obsolete],
-[The preprocessor macro `STDC_HEADERS' is obsolete.
-  Except in unusual embedded environments, you can safely include all
-  ISO C90 headers unconditionally.])dnl
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
-
+AC_HEADER_STDC
 AC_STRUCT_TM
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
@@ -448,11 +440,8 @@ AC_MSG_NOTICE
 
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_PREREQ([2.2])
-_LT_SET_OPTION([LT_INIT],[dlopen])
-m4_warn([obsolete],[AC_LIBTOOL_DLOPEN: Remove this warning and the call to _LT_SET_OPTION when you
-put the 'dlopen' option into LT_INIT's first parameter.])
-
-LT_INIT
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
 AC_PROG_RANLIB # (DPC 2019-09-15) don't remove this, doing so will cause a warning in autoscan instead of autoreconf
 LT_INIT([dlopen win32-dll shared disable-static])
 AC_SUBST([LIBTOOL_DEPS])
@@ -503,7 +492,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for mysql
 AS_IF([test -f /usr/local/include/mysql/mysql.h -a /usr/local/lib/libmysqlclient.a ],
-    [MYSQL="/usr/local/bin"],
+    [MYSQL="/usr/local"],
     [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
 	[MYSQL_CPPFLAGS="'-I$MYSQL/include/mysql'"
@@ -521,6 +510,16 @@ AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
 AC_SUBST([MYSQL_LIBS])
 AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
+
+# Verify python version
+AM_PATH_PYTHON(3.7)
+HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
+AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m} -shared -Wl-undefined,dynamic_lookup"],
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}"])
 
 # check for mono
 AS_IF([test -z "$(which mono)" ],
@@ -563,27 +562,17 @@ AS_CASE([$BRANCHNAME],
     [*], [SUFFIX="no"])
 AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
-VERSION_NAME=$(build-aux/version.sh --name)
-PREFIX=${prefix:-/usr/local/opt}
-DSTDIR=${prefix:-PREFIX/gridlabd/$VERSION_NAME}
-BINDIR=$DSTDIR/bin
-LIBDIR=$DSTDIR/lib/gridlabd
-ETCDIR=$DSTDIR/share/gridlabd
-DOCDIR=$DSTDIR/share/doc/gridlabd
-
-# Verify python version
-HAVE_PYTHON="$($BINDIR/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($BINDIR/python3 -c "import os; print(os.path.realpath('$BINDIR/python3'))")"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
-AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
-AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-    [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
-    [PYTHON_LIB="-lpython${PYTHON_VER}"])
-
 ###############################################################################
 # The End
 ###############################################################################
 
+VERSION_NAME=$(build-aux/version.sh --name)
+PREFIX=/usr/local/opt/gridlabd
+DSTDIR=$PREFIX/$VERSION_NAME
+BINDIR=$DSTDIR/bin
+LIBDIR=$DSTDIR/lib/gridlabd
+ETCDIR=$DSTDIR/share/gridlabd
+DOCDIR=$DSTDIR/share/doc/gridlabd
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
@@ -594,7 +583,6 @@ AC_MSG_RESULT([
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
-    Python Location: ............ $PYTHON_EXEC
 
   Dependencies:
 
@@ -651,9 +639,8 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
-CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-CXXFLAGS="$($BINDIR/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-LDFLAGS="$($BINDIR/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+CXXFLAGS="$(python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])

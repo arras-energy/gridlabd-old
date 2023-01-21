@@ -5,7 +5,6 @@
 
 #include "gldcore.h"
 
-
 //SET_MYCONTEXT(DMC_FIND) // 
 
 int compare_int(int64 a, FINDOP op, int64 b)
@@ -1326,13 +1325,13 @@ const char *find_file(const char *name, /**< the name of the file to find */
 		}
 	}
 #else
-	snprintf(tempfp, sizeof(tempfp), "%s/gridlabd/%s", global_libdir, name);
+	snprintf(tempfp, sizeof(tempfp), "/usr/local/lib/gridlabd/%s", name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;
 	}
-	snprintf(tempfp, sizeof(tempfp), "%s/gridlabd/%s", global_datadir, name);
+	snprintf(tempfp, sizeof(tempfp), "/usr/local/share/gridlabd/%s", name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);

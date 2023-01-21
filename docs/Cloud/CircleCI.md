@@ -1,8 +1,3 @@
-# Deprecated
-
-CircleCI support has been deprecated in favor of github actions for running CI/CD Processes. This page is no longer in use.
-
-
 [[/Cloud/CircleCI]] -- Cloud Continuous Integration support
 
 # Synopsis

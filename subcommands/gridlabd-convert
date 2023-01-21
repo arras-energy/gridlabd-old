@@ -1,9 +1,5 @@
 #!/usr/local/bin/python3
-
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+# Syntax: convert [OPTIONS ...]
 """General GridLAB-D file format converter for command line and macro usage.
 """
 import sys, os

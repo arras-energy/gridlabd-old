@@ -101,7 +101,7 @@ SEE ALSO
 * [https://www.weather.gov/documentation/services-web-api]
 """
 
-import sys, os, json, requests, pandas, numpy, datetime, dateutil, time
+import sys, os, json, requests, pandas, numpy, datetime, dateutil
 
 server = "https://api.weather.gov/points/{latitude},{longitude}"
 user_agent = "(gridlabd.us, gridlabd@gmail.com)"
@@ -109,7 +109,6 @@ interpolate_time = 60
 interpolate_method = 'quadratic'
 float_format = "%.1f"
 date_format = "%Y-%m-%d %H:%M:%S"
-max_retries = 5
 
 def getforecast(lat,lon):
     """Get NOAA location"""
@@ -117,23 +116,13 @@ def getforecast(lat,lon):
     headers = {'User-agent' : user_agent}
     location = json.loads(requests.get(url,headers=headers).content.decode("utf-8"))
 
-    data = {}
+    data = json.loads(requests.get(location["properties"]["forecastHourly"],headers=headers).content.decode("utf-8"))
     result = {
         "datetime" : [],
         "temperature[degF]" : [],
         "wind_speed[m/s]" : [],
         "wind_dir[deg]" : [],
     }
-
-    cur_tries = 0
-    while cur_tries <= max_retries:
-        data = json.loads(requests.get(location["properties"]["forecastHourly"],headers=headers).content.decode("utf-8"))
-        if "properties" in data.keys():
-            break
-        time.sleep(2)
-        cur_tries += 1
-
-
     if not "properties" in data.keys():
         raise Exception(f"data does not contain required properties information (data={data})")
     if not "periods" in data["properties"]:
@@ -242,14 +231,6 @@ if __name__ == "__main__":
             name = value
         elif token in ["-c","--csv"]:
             csv = value
-        elif token in ["-r","--retries"]:
-            try:
-                max_retries = int(value)
-                max_retries = abs(max_retries)
-            except ValueError:
-                print("Retries can only use integer values")
-                print("Running default maximum of 5 retries")
-                max_retries = 5
         elif token == "--test":
             position = [45.62,-122.70]
             glm = "test.glm"

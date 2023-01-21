@@ -3879,10 +3879,9 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to implement a load method function of a class when the GridLAB-D class name differs from the C++ class name.
 	See <EXPORT_LOADMETHOD>.
  */
-#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, ...) \
+#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, char *value, size_t len=0) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-	va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
-	return my->N(value,size); va_end(args); \
+	return my->N(value,len); \
 	} else return 0; } \
 	T_CATCHALL(X,loadmethod); }
 
@@ -3898,7 +3897,7 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to declare a method function of a class.
 	See <EXPORT_METHOD_C>.
  */
-#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, ...)
+#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, char *value, size_t size)
 
 /*	Define: EXPORT_METHOD_C(classname,class,name)
 
@@ -3907,8 +3906,7 @@ int dllkill() { return do_kill(NULL); }
  */
 #define EXPORT_METHOD_C(X,C,N) DECL_METHOD(X,N) \
 		{	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-			va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
-			return my->N(value,size); va_end(args); \
+			return my->N(value,size); \
 			} else return 0; } \
 			T_CATCHALL(X,method); }
 
