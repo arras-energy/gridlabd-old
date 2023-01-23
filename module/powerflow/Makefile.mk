@@ -20,6 +20,7 @@ module_powerflow_powerflow_la_SOURCES = module/powerflow/init.cpp module/powerfl
 module_powerflow_powerflow_la_SOURCES += module/powerflow/billdump.cpp module/powerflow/billdump.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/capacitor.cpp module/powerflow/capacitor.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/currdump.cpp module/powerflow/currdump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/ductbank.cpp module/powerflow/ductbank.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/emissions.cpp module/powerflow/emissions.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/fault_check.cpp module/powerflow/fault_check.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/frequency_gen.cpp module/powerflow/frequency_gen.h
