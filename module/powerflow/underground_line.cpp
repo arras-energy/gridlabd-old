@@ -29,6 +29,7 @@ underground_line::underground_line(MODULE *mod) : line(mod)
 
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "line",
+			PT_object,"ductbank",get_ductbank_offset(),PT_DESCRIPTION,"duct bank in which cable lies",
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 		if (gl_publish_function(oclass,	"create_fault", (FUNCTIONADDR)create_fault_ugline)==NULL)
 			GL_THROW("Unable to publish fault creation function");

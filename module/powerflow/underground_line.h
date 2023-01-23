@@ -15,6 +15,10 @@ public:
     static CLASS *pclass;
 
 public:
+
+	GL_ATOMIC(object,ductbank);
+
+public:
 	int init(OBJECT *parent);
 	void recalc(void);
 	underground_line(MODULE *mod);
