@@ -6,7 +6,7 @@
 
 	@{
 **/
-//3.2
+
 #include "powerflow.h"
 using namespace std;
 
