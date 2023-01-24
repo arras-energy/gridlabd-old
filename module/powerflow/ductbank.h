@@ -9,11 +9,16 @@
 class ductbank : public gld_object 
 {
 
+	static double default_ground_temperature;
+	static double warning_cable_temperature;
+	static double alert_cable_temperature;
+
 private:
 
 	GL_ATOMIC(double,air_temperature);
-	GL_ATOMIC(double,shell_temperature);
-	GL_ATOMIC(double,ground_temperature);
+	GL_ATOMIC(double,cable_temperature);
+	GL_ATOMIC(double,cross_section);
+	GL_ATOMIC(double,insulation);
 
 public:
 
