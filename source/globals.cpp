@@ -206,6 +206,91 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"JSON",		POF_JSON,		NULL},
 };
 
+/* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
+/* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
+void datadir_init(const char *)
+{
+	const char *etcpath = getenv("GLD_ETC");
+	if ( etcpath == NULL )
+	{
+		etcpath = "/usr/local/opt/gridlabd/current/share/gridlabd";
+	}
+	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
+}
+
+void bindir_init(const char *)
+{
+	const char * binpath = getenv("GLD_BIN");
+	if ( binpath == NULL )
+	{
+		binpath = "/usr/local/opt/gridlabd/current/bin";
+	}
+	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
+}
+
+void libdir_init(const char *)
+{
+	const char * libpath = getenv("GLD_LIB");
+	if ( libpath == NULL )
+	{
+		libpath = "/usr/local/opt/gridlabd/current/lib";
+	}
+	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
+}
+
+void vardir_init(const char *)
+{
+	const char * varpath = getenv("GLD_VAR");
+	if ( varpath == NULL )
+	{
+		varpath = "/usr/local/opt/gridlabd/current/var/gridlabd";
+	}
+	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
+}
+
+void incdir_init(const char *)
+{
+	const char * incpath = getenv("GLD_INC");
+	if ( incpath == NULL )
+	{
+		incpath = "/usr/local/opt/gridlabd/current/include";
+	}
+	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
+}
+/* Add more top-level directory variables here. */
+
+/* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
+
+void logfile_init(const char *value)
+{
+	extern char logfile[1024];
+	snprintf(logfile,sizeof(logfile)-1,"%s/%s",global_vardir,value);
+}
+
+void pidfile_init(const char *value)
+{
+	extern char pidfile[1024];
+	snprintf(pidfile,sizeof(pidfile)-1,"%s/%s",global_vardir,value);
+}
+
+void workdir_init(const char *value)
+{
+	extern char workdir[1024];
+	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
+}
+
+void configpath_init(const char *value)
+{
+	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
+}
+
+void pythonexec_init(const char *value)
+{
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/python3",global_bindir);
+}
+/* Add more derivative directories here */
+
+
 DEPRECATED static struct s_varmap {
 	const char *name;
 	PROPERTYTYPE type;
@@ -232,7 +317,7 @@ DEPRECATED static struct s_varmap {
 	{"test", PT_bool, &global_debug_mode, PA_PUBLIC, "test enable flag"},
 	{"verbose", PT_bool, &global_verbose_mode, PA_PUBLIC, "verbose enable flag"},
 	{"iteration_limit", PT_int32, &global_iteration_limit, PA_PUBLIC, "iteration limit"},
-	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory"},
+	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory",NULL,workdir_init},
 	{"dumpfile", PT_char1024, &global_dumpfile, PA_PUBLIC, "dump filename"},
 	{"savefile", PT_char1024, &global_savefile, PA_PUBLIC, "save filename"},
 	{"dumpall", PT_bool, &global_dumpall, PA_PUBLIC, "dumpall enable flag"},
@@ -355,8 +440,15 @@ DEPRECATED static struct s_varmap {
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
-	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
-	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd",NULL,pythonexec_init},
+	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
+	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
+	{"vardir",PT_char1024,&global_vardir,PA_REFERENCE,"folder in which share data is stored",NULL,vardir_init},
+	{"libdir",PT_char1024,&global_libdir,PA_REFERENCE,"folder in which share data is stored",NULL,libdir_init},
+	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
+	{"logfile",PT_char1024,&global_logfile,PA_REFERENCE,"daemon logfile name",NULL,logfile_init},
+	{"pidfile_dir",PT_char1024,&global_pidfile,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
+	{"configpath",PT_char1024,&global_configpath,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
@@ -444,6 +536,9 @@ STATUS GldGlobals::init(void)
 				that message and try again.
 			*/
 		} else {
+			char buffer[1024];
+			getvar(p->name,buffer,sizeof(buffer)-1);
+			var->initial = strdup(buffer);
 			var->prop->keywords = p->keys;
 			var->callback = p->callback;
 		}
@@ -651,6 +746,10 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 			}
+			else if ( proptype == PT_DEFAULT )
+			{
+				var->initial = strdup(va_arg(arg,char*));
+			}
 			else if ( proptype == PT_DESCRIPTION )
 			{
 				prop->description = va_arg(arg,char*);
@@ -705,6 +804,14 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 			{
 				prop = NULL;
 			}
+		}
+	}
+
+	if ( var->initial != NULL )
+	{
+		if ( class_string_to_property(var->prop,(void*)var->prop->addr,var->initial) <= 0 )
+		{
+				throw_exception("global_create(char *name='%s',...): cannot set initial value '%s'", name, var->initial);
 		}
 	}
 

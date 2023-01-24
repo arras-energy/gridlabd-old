@@ -1,15 +1,17 @@
-#!/usr/local/bin/python3
-# Syntax: pandas [-i INPUTFILE] [-o OUTPUTFILE]
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """GridLAB-D pandas subcommand
 
 SYNTAX
 
 GLM:
-    #pandas [-i INPUTFILE] [-o OUTPUTFILE]
+    #pandas [-i input.from] [-o output.to]
 
 Shell:
 
-    $ gridlabd pandas [-i INPUTFILE] [-o OUTPUTFILE]
+    $ gridlabd pandas [-i input.from] [-o output.to]
 
 DESCRIPTION
 
