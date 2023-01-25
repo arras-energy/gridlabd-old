@@ -29,7 +29,7 @@ private:
 
 public:
 	
-	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return line::commit(t1,t2); };
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 
 public:
 

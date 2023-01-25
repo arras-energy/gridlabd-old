@@ -191,9 +191,19 @@ int underground_line::init(OBJECT *parent)
 				link_rating[0][index] = temp_rating_continuous;
 				link_rating[1][index] = temp_rating_emergency;
 			}
+	
+		if ( ductbank )
+		{
+			class ductbank *duct = (class ductbank *)(ductbank+1);
+			double *diameter = get_double(temp_obj,"outer_diameter");
+			if ( diameter != NULL )
+			{
+				duct->add_cable( (*diameter) / 39 ); // in to meter
+			}
+		} 
+
 		}//End Phase valid
 	}//End FOR
-
 
 
 	return result;
@@ -1136,6 +1146,15 @@ void underground_line::test_phases(line_configuration *config, const char ph)
 * @return 1 for a successfully created object, 0 for error
 */
 
+TIMESTAMP underground_line::commit(TIMESTAMP t1, TIMESTAMP t2) 
+{ 
+	if ( ductbank )
+	{
+		class ductbank *duct = (class ductbank *)(ductbank+1);
+		duct->add_heatgain(power_loss.Mag(),length*12*2.54/100);
+	} 
+	return line::commit(t1,t2); 
+}
 
 /* This can be added back in after tape has been moved to commit
 EXPORT TIMESTAMP commit_underground_line(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)

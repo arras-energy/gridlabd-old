@@ -1,0 +1,2 @@
+name,section_area,insulation_R,airgap_R,duct_R
+default,0,0.1,1.0,0.2
