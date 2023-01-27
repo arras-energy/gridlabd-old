@@ -10,11 +10,12 @@ EXPORT_PRECOMMIT(ductbank);
 
 CLASS *ductbank::oclass = NULL;
 ductbank *ductbank::defaults = NULL;
-double ductbank::default_ground_temperature = 10; // degC
+double ductbank::default_ground_temperature = 25; // degC
 double ductbank::warning_cable_temperature = 80; // degC
 double ductbank::alert_cable_temperature = 90; // degC
 char1024 ductbank::ductbank_configuration_file = "ductbank_configurations.csv";
 DUCTBANK_DATA *ductbank::ductbank_data = NULL;
+double ductbank::air_effective_conductivity = 0.20; // W/K.m
 
 ductbank::ductbank(MODULE *module)
 {
@@ -33,42 +34,48 @@ ductbank::ductbank(MODULE *module)
 			PT_char1024, "configuration", get_configuration_offset(),
 				PT_DESCRIPTION, "ductbank configuration name",
 
-			PT_double, "ground_temperature[degC]", get_ground_temperature_offset(),
-				PT_DESCRIPTION, "duct ground temperature",
+			PT_char256, "temperature_source", get_temperature_source_offset(),
+				PT_DESCRIPTION, "source for surface temperature",
 
-			PT_double, "duct_R[K*m/W]", get_duct_R_offset(),
-				PT_DESCRIPTION, "duct thermal resistance per unit duct length",
+			PT_double, "surface_temperature[degC]", get_ground_temperature_offset(),
+				PT_DESCRIPTION, "ground temperature at the surface of fill",
 
-			PT_double, "airgap_R[K*m/W]", get_airgap_R_offset(),
-				PT_DESCRIPTION, "air gap thermal resistance per unit duct length",
+			PT_int32, "channels", get_channels_offset(),
+				PT_DESCRIPTION, "number of channels in duct",
 
-			PT_double, "insulation_R[K*m/W]", get_insulation_R_offset(),
-				PT_DESCRIPTION, "cable insulation thermal resistance per unit duct length",
+			PT_double, "fill_R[K/W]", get_fill_R_offset(),
+				PT_DESCRIPTION, "fill soil thermal resistance",
 
-			PT_double, "section_area[m^2]", get_section_area_offset(),
+			PT_double, "duct_R[K/W]", get_duct_R_offset(),
+				PT_DESCRIPTION, "duct thermal resistance",
+
+			PT_double, "air_R[K/W]", get_airgap_R_offset(),
+				PT_DESCRIPTION, "air gap thermal resistance",
+
+			PT_double, "insulation_R[K/W]", get_insulation_R_offset(),
+				PT_DESCRIPTION, "cable insulation thermal",
+
+			PT_double, "duct_area[m^2]", get_duct_area_offset(),
 				PT_DESCRIPTION, "cross sectional area of interior air space",
 
 			PT_double, "heatgain[W/m]", get_heatgain_offset(),
 				PT_OUTPUT,
 				PT_DESCRIPTION, "cable heat per unit length",
 
-			PT_double, "duct_temperature[degC]", get_duct_temperature_offset(),
-				PT_OUTPUT,
-				PT_DESCRIPTION, "duct shell temperature",
-
-			PT_double, "air_temperature[degC]", get_air_temperature_offset(),
-				PT_OUTPUT,
-				PT_DESCRIPTION, "duct air temperature",
-
 			PT_double, "cable_temperature[degC]", get_cable_temperature_offset(),
 				PT_OUTPUT,
-				PT_DESCRIPTION, "duct cable temperature",
+				PT_DESCRIPTION, "cable temperature in duct",
+
+			PT_double, "peak_temperature[degC]", get_peak_temperature_offset(),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "peak cable temperature in duct",
 
 			PT_enumeration, "cable_status", get_cable_status_offset(),
 				PT_OUTPUT,
 				PT_KEYWORD, "OK", (enumeration)CS_OK,
 				PT_KEYWORD, "WARNING", (enumeration)CS_WARNING,
 				PT_KEYWORD, "ALERT", (enumeration)CS_ALERT,
+				PT_KEYWORD, "UNKNOWN", (enumeration)CS_UNKNOWN,
 				PT_DESCRIPTION, "cable status",
 
 			NULL)<1)
@@ -80,26 +87,34 @@ ductbank::ductbank(MODULE *module)
 		gl_global_create("powerflow::warning_cable_temperature",PT_double,&warning_cable_temperature,PT_UNITS,"degC",NULL);
 		gl_global_create("powerflow::alert_cable_temperature",PT_double,&alert_cable_temperature,PT_UNITS,"degC",NULL);
 		gl_global_create("powerflow::ductbank_configuration_file",PT_char1024,&ductbank_configuration_file,NULL);
+		gl_global_create("powerflow::air_effective_conductivity",PT_double,&air_effective_conductivity,PT_UNITS,"W/K*m",NULL);
 	}
 }
 
 int ductbank::create(void) 
 {
+	cable_area = air_area = 0.0;
+	peak_temperature = cable_temperature = ground_temperature = default_ground_temperature;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
 int ductbank::init(OBJECT *parent)
 {
-	cable_temperature = air_temperature = ground_temperature = default_ground_temperature;
-
 	load_data(configuration);
 #define CHECK_POSITIVE(X) if ( X <= 0 ) { error(#X " must be positive"); }
-	CHECK_POSITIVE(section_area)
+	CHECK_POSITIVE(duct_area)
+	CHECK_POSITIVE(fill_R)
 	CHECK_POSITIVE(duct_R)
-	CHECK_POSITIVE(airgap_R)
-	CHECK_POSITIVE(insulation_R)
+	CHECK_POSITIVE(channels)
 
-	air_area = section_area;
+	if ( strcmp(temperature_source,"") != 0 )
+	{
+		temperature = new gld_property(temperature_source);
+		if ( temperature == NULL || ! temperature->is_valid() )
+		{
+			error("temperature source '%s' is not valid",(const char*)temperature_source);
+		}
+	}
 
 	return 1;
 }
@@ -119,15 +134,15 @@ void ductbank::load_data(const char *name)
 		while ( fp != NULL && ! feof(fp) && ! ferror(fp) )
 		{
 			char item[256];
-			double A=0, RI=0, RA=0, RD=0;
+			double A=0, RF=0, RD=0;
+			unsigned int N;
 			if ( lineno == 0 )
 			{
 				if ( fgets(header,sizeof(header)-1,fp) == NULL )
 				{
 					break;
 				}
-
-				if ( strcmp(header,"name,section_area,insulation_R,airgap_R,duct_R\n") != 0 )
+				if ( strcmp(header,"name,duct_area,fill_R,duct_R,channels\n") != 0 )
 				{
 					error("invalid header in ductbank configuration file '%s' (%s)", pathname, header);
 				}
@@ -137,16 +152,21 @@ void ductbank::load_data(const char *name)
 				}
 			}
 			lineno++;
-			if ( fscanf(fp,"%[^,],%lf,%lf,%lf,%lf",item,&A,&RI,&RA,&RD) != 5 )
+			int len = fscanf(fp,"%[^,],%lf,%lf,%lf,%u\n",item,&A,&RF,&RD,&N);
+			if ( len == 0 || item[0] == '#' || item[0] == '\n' )
 			{
-				error("%s@%d: invalid header (%s)", pathname, lineno, header);			
+				continue;
+			}
+			else if ( len != 5 )
+			{
+				error("%s@%d: invalid data ('%s...')", pathname, lineno, item);			
 			}
 			DUCTBANK_DATA *data = new DUCTBANK_DATA;
 			data->name = strdup(item);
 			data->A = A;
-			data->R[0] = RI;
-			data->R[1] = RA;
-			data->R[2] = RD;
+			data->RF = RF;
+			data->RD = RD;
+			data->N = N;
 			data->next = ductbank_data;
 			ductbank_data = data;
 		}
@@ -172,58 +192,77 @@ void ductbank::load_data(const char *name)
 	{
 		error("ductbank configuration '%s' not found",name);		
 	}
-	if ( section_area == 0 ) section_area = data->A;
-	if ( duct_R == 0 ) duct_R = data->R[0];
-	if ( airgap_R == 0 ) airgap_R = data->R[1];
-	if ( insulation_R == 0 ) insulation_R = data->R[2];
+	if ( duct_area == 0 && data->A > 0 ) duct_area = data->A;
+	if ( fill_R == 0 && data->RF > 0 ) fill_R = data->RF;
+	if ( duct_R == 0 && data->RD > 0 ) duct_R = data->RD;
+	if ( channels == 0 && data->N > 0 ) channels = data->N;
 }
 
 TIMESTAMP ductbank::precommit(TIMESTAMP t1)
 {
-	heatgain = 140000.0/2000.0;
+	heatgain = 0;
+	if ( air_area == 0 )
+	{
+		if ( cable_area > duct_area )
+		{
+			error("cannot fit anymore cables (cable=%.2lg m^2, open=%.2lg m^2, total=%.2lg)",cable_area,air_area,duct_area);
+		}
+		else
+		{
+			air_area = duct_area - cable_area;
+			double d = sqrt(air_area/channels)/2; // mean distance from cable to duct
+			airgap_R = 1/((airgap_R>0?1/airgap_R:0) + air_effective_conductivity/d);
+		}
+	}
 	return TS_NEVER;
 }
 
-void ductbank::add_cable(double diameter)
+void ductbank::add_cable(double diameter,double R_value)
 {
-	double area = diameter*diameter*PI/4.0;
-	if ( area > section_area )
+	cable_area += diameter*diameter*PI/4;
+	if ( R_value > 0 )
 	{
-		error("cannot fit anymore cables");
-	}
-	else
-	{
-		section_area -= area;
-		double d = sqrt(section_area)/2; // mean distance from cable to shell
-		double u = 0.02572; // W/m.K air conductivity
-		airgap_R = d/u;
-		// fprintf(stderr,"adding cable: cable area = %.4lg m^2, duct area = %.4lg m^2, airgap_R = %.04lg\n",area,section_area,airgap_R);
+		insulation_R = 1/((insulation_R>0?1/insulation_R:0)+1/R_value);
 	}
 }
 
-void ductbank::add_heatgain(double losses, double length)
+void ductbank::add_heatgain(double losses, double cable_length)
 {
-	heatgain += length>0 ? losses / length : losses;
+	heatgain += cable_length>0 ? losses / cable_length : losses;
 }
 
 TIMESTAMP ductbank::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
-	duct_temperature = ground_temperature + heatgain*duct_R;
-	air_temperature = duct_temperature + heatgain*airgap_R;
-	cable_temperature = air_temperature + heatgain*insulation_R;
-	if ( cable_temperature > alert_cable_temperature )
+	if ( temperature )
 	{
-		cable_status = CS_ALERT;
-		warning("cable temperature alert (%.0lf degC)",cable_temperature);
+		ground_temperature = temperature->get_double("degC"); // convert to degC
 	}
-	else if ( cable_temperature > warning_cable_temperature )
-	{
-		cable_status = CS_WARNING;
-		warning("cable temperature warning (%.0lf degC)",cable_temperature);
+	double total_R = fill_R + duct_R + airgap_R + insulation_R;
+	if ( total_R > 0 )
+	{	
+		cable_temperature = ground_temperature + heatgain / total_R;
+		if ( cable_temperature > peak_temperature )
+		{
+			peak_temperature = cable_temperature;
+		}
+		if ( cable_temperature > alert_cable_temperature )
+		{
+			cable_status = CS_ALERT;
+			warning("cable temperature alert (%.0lf degC)",cable_temperature);
+		}
+		else if ( cable_temperature > warning_cable_temperature )
+		{
+			cable_status = CS_WARNING;
+			warning("cable temperature warning (%.0lf degC)",cable_temperature);
+		}
+		else
+		{
+			cable_status = CS_OK;
+		}
 	}
 	else
 	{
-		cable_status = CS_OK;
+		cable_status = CS_UNKNOWN;
 	}
 	return TS_NEVER;
 }

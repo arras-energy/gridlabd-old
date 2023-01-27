@@ -196,9 +196,10 @@ int underground_line::init(OBJECT *parent)
 		{
 			class ductbank *duct = (class ductbank *)(ductbank+1);
 			double *diameter = get_double(temp_obj,"outer_diameter");
+			double *insulation_R = get_double(temp_obj,"insulation_R");
 			if ( diameter != NULL )
 			{
-				duct->add_cable( (*diameter) / 39 ); // in to meter
+				duct->add_cable( (*diameter)/39.4, insulation_R?*insulation_R:10.0 ); // convert to meters
 			}
 		} 
 

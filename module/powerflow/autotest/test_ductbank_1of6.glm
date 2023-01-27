@@ -1,7 +1,5 @@
 // module/powerflow/autotest/test_ductbank.glm
 
-#set suppress_repeat_messages=FALSE
-
 clock
 {
 	timezone "PST+8PDT";
@@ -9,10 +7,7 @@ clock
 	stoptime "2024-01-01 00:00:00 PST";
 }
 
-#set savefile=test_ductbank.json
-
-#weather get "CA-Bakersfield_Meadows_Field.tmy3"
-#input "CA-Bakersfield_Meadows_Field.tmy3" -p name=weather
+#set savefile=${modelname/.glm/.json}
 
 module powerflow;
 module assert;
@@ -21,21 +16,21 @@ object node
 {
 	name "source";
 	bustype SWING;
-	nominal_voltage 12.47 kV;
+	nominal_voltage 17 kV;
 	phases ABCN;
-	voltage_A 12.47 kV;
-	voltage_B 12.47 kV;
-	voltage_C 12.47 kV;
+	voltage_A 17 kV;
+	voltage_B 17 kV;
+	voltage_C 17 kV;
 }
 
 object load
 {
 	name "sink";
-	nominal_voltage 12.47 kV;
+	nominal_voltage 17 kV;
 	phases ABCN;
-	constant_power_A 2 MVA;
-	constant_power_B 2 MVA;
-	constant_power_C 2 MVA;
+	constant_power_A 1 MVA;
+	constant_power_B 1 MVA;
+	constant_power_C 1 MVA;
 }
 
 object underground_line 
@@ -52,8 +47,7 @@ object underground_line
 object ductbank
 {
 	name "duct";
-	configuration "default";
-	temperature_source "weather.temperature";
+	configuration "box3x2";
 	object assert
 	{
 		target "cable_temperature";
@@ -66,17 +60,17 @@ object ductbank
 object underground_line_conductor 
 { 
 	name "conductor_type";
-	outer_diameter 1.060000 in;
-	conductor_gmr 0.011100 ft;
-	neutral_gmr 0.01113 ft;
-	conductor_diameter 0.368000 in;
-	conductor_resistance 0.970000 Ohm/mile;
-	neutral_resistance 0.607 Ohm/mile;
-	insulation_relative_permitivitty 2.3;
-	shield_gmr 0.0365 ft;
-	shield_resistance 4.2786 Ohm/mile;
-	shield_diameter 0.88 in;
-	shield_thickness 0.005 in;
+	conductor_gmr 0.576 in;
+	conductor_diameter 1.0 in;
+	conductor_resistance 0.13136 Ohm/mile;
+	shield_gmr 0.606 in;
+	shield_resistance 2.0 Ohm/mile;
+	shield_diameter 1.212 in;
+	shield_thickness 0.03 in;
+	neutral_gmr 2.0 in;
+	neutral_resistance 0.307 Ohm/mile;
+	insulation_relative_permitivitty 1.0;
+	outer_diameter 2.0236 in;
 }
 
 object line_configuration 
@@ -95,7 +89,7 @@ object line_spacing
 	distance_AB 2.5;
 	distance_AC 4.5;
 	distance_BC 7.0;
-	distance_BN 0.25;//5.656854;
-	distance_AN 0.25;//4.272002;
-	distance_CN 0.25;//5.0;
+	distance_BN 0.25;
+	distance_AN 0.25;
+	distance_CN 0.25;
 }
