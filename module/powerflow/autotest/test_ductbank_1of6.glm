@@ -1,11 +1,6 @@
 // module/powerflow/autotest/test_ductbank.glm
 
-clock
-{
-	timezone "PST+8PDT";
-	starttime "2023-01-01 00:00:00 PST";
-	stoptime "2024-01-01 00:00:00 PST";
-}
+#define NLOADS=2
 
 #set savefile=${modelname/.glm/.json}
 
