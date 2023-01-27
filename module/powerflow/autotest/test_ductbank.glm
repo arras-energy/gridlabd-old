@@ -9,7 +9,7 @@ clock
 	stoptime "2024-01-01 00:00:00 PST";
 }
 
-#set savefile=test_ductbank.json
+#set savefile=${modelname/.glm/.json}
 
 #weather get "CA-Bakersfield_Meadows_Field.tmy3"
 #input "CA-Bakersfield_Meadows_Field.tmy3" -p name=weather
