@@ -2,7 +2,6 @@ import json
 import os 
 import sys, getopt
 from datetime import datetime 
-from feeder import *
 
 config = {"input":"tmy3","output":"glm","type":[]}
 

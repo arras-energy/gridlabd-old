@@ -190,7 +190,7 @@ auction::auction(MODULE *module)
 
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 			}
 		gl_publish_function(oclass,	"submit_bid_state", (FUNCTIONADDR)submit_bid_state);
@@ -833,22 +833,22 @@ void auction::record_curve(double bu, double su)
 		char tstr[256];
 		switch(cleared_frame.clearing_type){
 			case CT_NULL:
-				sprintf(tstr, "null");
+				snprintf(tstr,sizeof(tstr)-1, "null");
 				break;
 			case CT_SELLER:
-				sprintf(tstr, "marginal_seller");
+				snprintf(tstr,sizeof(tstr)-1, "marginal_seller");
 				break;
 			case CT_BUYER:
-				sprintf(tstr, "marginal_buyer");
+				snprintf(tstr,sizeof(tstr)-1, "marginal_buyer");
 				break;
 			case CT_PRICE:
-				sprintf(tstr, "marginal_price");
+				snprintf(tstr,sizeof(tstr)-1, "marginal_price");
 				break;
 			case CT_EXACT:
-				sprintf(tstr, "exact_p_and_q");
+				snprintf(tstr,sizeof(tstr)-1, "exact_p_and_q");
 				break;
 			case CT_FAILURE:
-				sprintf(tstr, "failure");
+				snprintf(tstr,sizeof(tstr)-1, "failure");
 				break;
 		}
 		fprintf(curve_file, "# marginal quantity of %f %s (%f %%)\n", cleared_frame.marginal_quantity, this->unit.get_string(), cleared_frame.marginal_frac);
@@ -884,7 +884,7 @@ void auction::clear_market(void)
 		
 		if(pRefload == NULL){
 			char msg[256];
-			sprintf(msg, "unable to retreive property '%s' from capacity reference object '%s'", capacity_reference_property->name, capacity_reference_object->name);
+			snprintf(msg,sizeof(msg)-1, "unable to retreive property '%s' from capacity reference object '%s'", capacity_reference_property->name, capacity_reference_object->name);
 			throw msg;
 			/* TROUBLESHOOT
 				The specified capacity reference property cannot be retrieved as a double.  Verify that it is a double type property.
@@ -897,7 +897,7 @@ void auction::clear_market(void)
 			if(capacity_reference_property->unit != 0){
 				if(gl_convert(capacity_reference_property->unit->name,unit.get_string(),&refload) == 0){
 					char msg[256];
-					sprintf(msg, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", gl_name(linkref,name,sizeof(name)), capacity_reference_property->unit->name, unit.get_string());
+					snprintf(msg,sizeof(msg)-1, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", gl_name(linkref,name,sizeof(name)), capacity_reference_property->unit->name, unit.get_string());
 					throw msg;
 					/* TROUBLESHOOT
 						If capacity_reference_property has units specified, the units must be convertable to the units used by its auction object.
@@ -940,7 +940,7 @@ void auction::clear_market(void)
 		double caprefq;
 		if(pCaprefq == NULL) {
 			char msg[256];
-			sprintf(msg, "unable to retreive property '%s' from capacity reference object '%s'", capacity_reference_property->name, capacity_reference_object->name);
+			snprintf(msg,sizeof(msg)-1, "unable to retreive property '%s' from capacity reference object '%s'", capacity_reference_property->name, capacity_reference_object->name);
 			throw msg;
 		}
 		caprefq = *pCaprefq;
@@ -948,7 +948,7 @@ void auction::clear_market(void)
 			if (capacity_reference_property->unit != 0) {
 				if(gl_convert(capacity_reference_property->unit->name,unit.get_string(),&caprefq) == 0) {
 					char msg[256];
-					sprintf(msg, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", capacity_reference_property->name, capacity_reference_property->unit->name, unit.get_string());
+					snprintf(msg,sizeof(msg)-1, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", capacity_reference_property->name, capacity_reference_property->unit->name, unit.get_string());
 					throw msg;
 				} else {
 					submit_nolock((const char *)THISOBJECTHDR->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price, (int64)THISOBJECTHDR->id, BS_ON, false, market_id);
@@ -1476,7 +1476,7 @@ void auction::record_bid(const char *from, double quantity, double real_price, B
 					break;
 			}
 			tStr = (gl_strtime(&dt,buffer,sizeof(buffer)) ? buffer : unk);
-			sprintf(bigbuffer, "%d,%s,%s,%f,%f,%s", (int32)market_id, tStr, from, real_price, quantity, pState);
+			snprintf(bigbuffer,sizeof(bigbuffer)-1, "%d,%s,%s,%f,%f,%s", (int32)market_id, tStr, from, real_price, quantity, pState);
 			fprintf(trans_file, "%s\n", bigbuffer);
 			--trans_log_count;
 		} else {

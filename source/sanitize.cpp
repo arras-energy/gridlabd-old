@@ -19,7 +19,7 @@ static const char *sanitize_name(OBJECT *obj)
 	if ( !safe ) return NULL;
 	safe->old = strdup(obj->name);
 	char buffer[1024];
-	sprintf(buffer,"%s%llX",global_sanitizeprefix.get_string(),(unsigned int64)safe);
+	snprintf(buffer,sizeof(buffer)-1,"%s%llX",global_sanitizeprefix.get_string(),(unsigned int64)safe);
 	safe->name = object_set_name(obj,buffer);
 	safe->next = safename_list;
 	safename_list = safe;

@@ -63,14 +63,14 @@ void supervisory_control::fetch_double(double **prop, const char *name, OBJECT *
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "supervisory_control:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "supervisory_control:%i", hdr->id);
 		if ( *name == '\0' )
 		{
-			sprintf(msg, "%s: supervisory_control unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: supervisory_control unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: supervisory_control unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: supervisory_control unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}

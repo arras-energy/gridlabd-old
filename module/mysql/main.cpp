@@ -62,7 +62,7 @@ const char *get_table_name(const char *format, ...)
 	strcat(fullfmt,format);
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(buffer,fullfmt,ptr);
+	vsnprintf(buffer,sizeof(buffer)-1,fullfmt,ptr);
 	va_end(ptr);
 	return buffer;
 }
@@ -229,7 +229,7 @@ static bool query_quiet(MYSQL *mysql, const char *format, ...)
 	char query_string[65536];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(query_string,format,ptr);
+	vsnprintf(query_string,sizeof(query_string)-1,format,ptr);
 	va_end(ptr);
 	if ( show_query )
 		gl_verbose("running query [%s]",query_string);
@@ -246,7 +246,7 @@ static bool query(MYSQL *mysql, const char *format, ...)
 	char query_string[65536];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(query_string,format,ptr);
+	vsnprintf(query_string,sizeof(query_string)-1,format,ptr);
 	va_end(ptr);
 	if ( !query_quiet(mysql,"%s",query_string) )
 	{
@@ -908,7 +908,7 @@ static bool export_globals(MYSQL *mysql)
 			mysql_real_escape_string(mysql,quoted,value,strlen(value)); // protect SQL from contents
 		char unit[1024] = "NULL";
 		if ( prop->unit!=NULL )
-			sprintf(unit,"\"%s\"",prop->unit->name);
+			snprintf(unit,sizeof(unit)-1,"\"%s\"",prop->unit->name);
 		if ( !query(mysql,"REPLACE INTO `%s` (`name`,`type`,`flags`,`value`,`unit`,`description`) VALUES (\"%s\",%d,%d,\"%s\",%s,\"%s\")",
 				get_table_name("globals"), prop->name, prop->ptype, var.get_flags(), quoted, unit, prop->description) )
 			return false;
@@ -923,7 +923,7 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 	MODULE *mod = cls->module;
 	char modname[128] = "NULL";
 	if ( mod )
-		sprintf(modname,"\"%s\"",mod->name);
+		snprintf(modname,sizeof(modname)-1,"\"%s\"",mod->name);
 
 	// handle parent class first
 	if ( cls->parent!=NULL )
@@ -938,7 +938,7 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("%s_%s",mod?mod->name:"", cls->name)) )
 		return false;
 	char query_string[65536] = "";
-	int len = sprintf(query_string,"CREATE TABLE IF NOT EXISTS `%s` ("
+	int len = snprintf(query_string,sizeof(query_string)-1,"CREATE TABLE IF NOT EXISTS `%s` ("
 			"`id` mediumint primary key",
 			get_table_name("%s_%s",mod?mod->name:"", cls->name));
 	for ( PROPERTY *prop = cls->pmap ; prop!=NULL && prop->oclass==cls ; prop=prop->next )
@@ -948,21 +948,23 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 
 		// write class structure info
 		char units[1024] = "NULL";
-		if ( prop->unit!=NULL ) sprintf(units,"\"%s\"",prop->unit->name);
+		if ( prop->unit!=NULL ) snprintf(units,sizeof(units)-1,"\"%s\"",prop->unit->name);
 		char description[1024] = "NULL";
-		if ( prop->description!=NULL ) sprintf(description,"\"%s\"",prop->description);
+		if ( prop->description!=NULL ) snprintf(description,sizeof(description)-1,"\"%s\"",prop->description);
 		if ( !query(mysql,"REPLACE INTO `%s` (`name`,`module`,`property`,`type`,`flags`,`units`,`description`) "
 				"VALUES (\"%s\",%s,\"%s\",%d,%d,%s,%s)",
 				get_table_name("classes"), prop->oclass->name,modname,prop->name,prop->ptype,prop->flags,units,description) )
 			return false;
 
 		// write class table
-		len += sprintf(query_string+len, ", `%s` text", prop->name);
+		snprintf(query_string+len,sizeof(query_string)-len-1, ", `%s` text", prop->name);
+		len = strlen(query_string);
 		if ( prop->description!=NULL )
 		{
 			char quoted[4096];
 			mysql_real_escape_string(mysql,quoted,prop->description,strlen(prop->description));
-			len += sprintf(query_string+len, " comment \"%s\"", quoted);
+			snprintf(query_string+len,sizeof(query_string)-len-1, " comment \"%s\"", quoted);
+			len = strlen(query_string);
 		}
 
 		// write keyword list (if any)
@@ -974,7 +976,8 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 				return false;
 		}
 	}
-	len += sprintf(query_string+len,")");
+	snprintf(query_string+len,sizeof(query_string)-len-1,")");
+	len = strlen(query_string);
 	if ( !no_create && !query(mysql,"%s",query_string) )
 		return false;
 	return true;
@@ -1024,7 +1027,8 @@ static bool export_properties(MYSQL *mysql, OBJECT *obj, CLASS *cls = NULL)
 		gld_property var(obj,prop);
 		if ( !var.get_access(PA_R|PA_S) )
 			continue; // ignore properties that not readable or saveable
-		len_names += sprintf(names+len_names,",`%s`", prop->name);
+		snprintf(names+len_names,sizeof(name)-len_names-1",`%s`", prop->name);
+		len_names = strlen(names);
 		char buffer[4096]="", quoted[4096*2+1+3]="", *value = buffer;
 		TIMESTAMP ts;
 		if ( prop->ptype==PT_timestamp && (var.getp(ts),ts)==TS_ZERO )
@@ -1033,10 +1037,14 @@ static bool export_properties(MYSQL *mysql, OBJECT *obj, CLASS *cls = NULL)
 		{
 			OBJECT **os = (OBJECT**)var.get_addr();
 			if ( os!=NULL && *os!=NULL )
-				sprintf(value,"%s:%d", (*os)->oclass->name, (*os)->id);
+			{
+				snprintf(value,sizeof(value)-1,"%s:%d", (*os)->oclass->name, (*os)->id);
+			}
 		}
 		else
+		{
 			strcpy(value,var.get_string());
+		}
 		if ( value[0]=='"' )
 		{
 			value[strlen(value)-1] = '\0'; // remove quotes
@@ -1046,10 +1054,14 @@ static bool export_properties(MYSQL *mysql, OBJECT *obj, CLASS *cls = NULL)
 		if ( strlen(value)>0 )
 		{
 			mysql_real_escape_string(mysql,quoted,value,strlen(value)); // protect SQL from contents
-			len_values += sprintf(values+len_values,",\"%s\"", quoted);
+			snprintf(values+len_values,sizeof(values)-len_values-1",\"%s\"", quoted);
+			len_values = strlen(values);
 		}
 		else
-			len_values += sprintf(values+len_values,",NULL");
+		{
+			snprintf(values+len_values,sizeof(values)-len_values-1",NULL");
+			len_values = strlen(values);
+		}
 	}
 	if ( !query(mysql,"REPLACE INTO `%s` (`id`%s) VALUES (%d%s)", get_table_name("%s_%s",mod?mod->name:"", cls->name), names, obj->id, values) )
 		return false;
@@ -1098,18 +1110,18 @@ static bool export_objects(MYSQL *mysql)
 		char in_svc[64] = MYSQL_TS_NEVER;
 		char out_svc[64] = MYSQL_TS_NEVER;
 		char heartbeat[64] = MYSQL_TS_NEVER;
-		if ( mod!=NULL ) sprintf(modname,"\"%s\"", mod->name);
-		if ( obj->name!=NULL ) sprintf(name,"\"%s\"", obj->name);
-		if ( strcmp(obj->groupid,"")!=0 ) sprintf(groupid,"\"%s\"", (const char*)obj->groupid);
-		if ( obj->parent!=NULL ) sprintf(parent,"%d", obj->parent->id);
-		if ( !isnan(obj->latitude) ) sprintf(latitude,"%g", obj->latitude);
-		if ( !isnan(obj->longitude) ) sprintf(longitude,"%g", obj->longitude);
-		if ( obj->clock<TS_NEVER ) {if ( obj->clock==TS_ZERO) strcpy(clock,MYSQL_TS_ZERO); else sprintf(clock,"from_unixtime(%lld)", obj->clock);}
-		if ( obj->valid_to<TS_NEVER ) {if ( obj->valid_to==TS_ZERO) strcpy(valid_to,MYSQL_TS_ZERO); else sprintf(valid_to,"from_unixtime(%lld)", obj->valid_to);}
-		if ( obj->schedule_skew<TS_NEVER ) {if ( obj->schedule_skew==TS_ZERO) strcpy(schedule_skew,MYSQL_TS_ZERO); else sprintf(schedule_skew,"from_unixtime(%lld)", obj->schedule_skew);}
-		if ( obj->in_svc<TS_NEVER ) {if ( obj->in_svc==TS_ZERO) strcpy(in_svc,MYSQL_TS_ZERO); else sprintf(in_svc,"from_unixtime(%lld)", obj->in_svc);}
-		if ( obj->out_svc<TS_NEVER ) {if ( obj->out_svc==TS_ZERO) strcpy(out_svc,MYSQL_TS_ZERO); else sprintf(out_svc,"from_unixtime(%lld)", obj->out_svc);}
-		if ( obj->heartbeat<TS_NEVER ) {if ( obj->heartbeat==TS_ZERO) strcpy(heartbeat,MYSQL_TS_ZERO); else sprintf(heartbeat,"from_unixtime(%lld)", obj->heartbeat);}
+		if ( mod!=NULL ) snprintf(modname,sizeof(modname)-1,"\"%s\"", mod->name);
+		if ( obj->name!=NULL ) snprintf(name,sizeof(name)-1,"\"%s\"", obj->name);
+		if ( strcmp(obj->groupid,"")!=0 ) snprintf(groupid,sizeof(groupid)-1,"\"%s\"", (const char*)obj->groupid);
+		if ( obj->parent!=NULL ) snprintf(parent,sizeof(parent)-1,"%d", obj->parent->id);
+		if ( !isnan(obj->latitude) ) snprintf(latitude,sizeof(latitude)-1,"%g", obj->latitude);
+		if ( !isnan(obj->longitude) ) snprintf(longitude,sizeof(longitude)-1,"%g", obj->longitude);
+		if ( obj->clock<TS_NEVER ) {if ( obj->clock==TS_ZERO) strcpy(clock,MYSQL_TS_ZERO); else snprintf(clock,sizeof(clock)-1,"from_unixtime(%lld)", obj->clock);}
+		if ( obj->valid_to<TS_NEVER ) {if ( obj->valid_to==TS_ZERO) strcpy(valid_to,MYSQL_TS_ZERO); else snprintf(valid_to,sizeof(valid_to)-1,"from_unixtime(%lld)", obj->valid_to);}
+		if ( obj->schedule_skew<TS_NEVER ) {if ( obj->schedule_skew==TS_ZERO) strcpy(schedule_skew,MYSQL_TS_ZERO); else snprintf(schedule_skew,sizeof(schedule_skew)-1,"from_unixtime(%lld)", obj->schedule_skew);}
+		if ( obj->in_svc<TS_NEVER ) {if ( obj->in_svc==TS_ZERO) strcpy(in_svc,MYSQL_TS_ZERO); else snprintf(in_svc,sizeof(in_svc)-1,"from_unixtime(%lld)", obj->in_svc);}
+		if ( obj->out_svc<TS_NEVER ) {if ( obj->out_svc==TS_ZERO) strcpy(out_svc,MYSQL_TS_ZERO); else snprintf(out_svc,sizeof(out_svc)-1,"from_unixtime(%lld)", obj->out_svc);}
+		if ( obj->heartbeat<TS_NEVER ) {if ( obj->heartbeat==TS_ZERO) strcpy(heartbeat,MYSQL_TS_ZERO); else snprintf(heartbeat,sizeof(heartbeat)-1,"from_unixtime(%lld)", obj->heartbeat);}
 		if ( !query(mysql,"REPLACE INTO `%s`"
 				" (`id`,`module`,`class`,`name`,`groupid`,`parent`,`rank`,`latitude`,`longitude`,"
 				" `clock`,`valid_to`,`schedule_skew`,`in_svc`,`in_svc_micro`,`out_svc`,`out_svc_micro`,"
@@ -1211,7 +1223,7 @@ bool export_transforms(MYSQL *mysql)
 				gl_error("export transform source address cannot be resolved to a valid object");
 				return false;
 			}
-			sprintf(source,"%s:%u.%s",prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
+			snprintf(source,sizeof(source)-1,"%s:%u.%s",prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
 			break; }
 		case XS_SCHEDULE:
 			strcpy(source,xform->source_schedule->name);
@@ -1226,11 +1238,15 @@ bool export_transforms(MYSQL *mysql)
 		const char *function;
 		switch (xform->function_type) {
 		case XT_LINEAR:
-			len = sprintf(specs,"*%g+%g",xform->scale,xform->bias);
+			snprintf(specs,sizeof(specs)-1,"*%g+%g",xform->scale,xform->bias);
+			len = strlen(specs);
 			break;
 		case XT_EXTERNAL:
 			if ( xform->nlhs>1 )
-				len += sprintf(specs+len,"%s","(");
+			{
+				snprintf(specs+len,sizeof(specs)-len-1"%s","(");
+				len = strlen(specs);
+			}
 			for ( int n = 1 ; n < xform->nlhs ; n++)
 			{
 				gld_property prop = find_property_at_addr(xform->plhs[n].addr);
@@ -1239,17 +1255,22 @@ bool export_transforms(MYSQL *mysql)
 					gl_error("export transform external function lhs[%u] property '%s' address cannot be resolved to an object",n, xform->plhs[n].prop->name);
 					return false;
 				}
-				len += sprintf(specs+len,"%s%s:%d.%s",n>1?",":"", prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
+				snprintf(specs+len,sizeof(specs)-len-1,"%s%s:%d.%s",n>1?",":"", prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
+				len = strlen(specs);
 			}
 			if ( xform->nlhs>1 )
-				len += sprintf(specs+len,"%s",")");
+			{
+				snprintf(specs+len,sizeof(specs)-len-1,"%s",")");
+				len = strlen(specs);
+			}
 			function = gl_module_find_transform_function(xform->function);
 			if ( function==NULL )
 			{
 				gl_error("export transform cannot resolve a module transfer function");
 				return false;
 			}
-			len += sprintf(specs+len,"=%s(",function);
+			snprintf(specs+len,sizeof(specs)-len-1,"=%s(",function);
+			len = strlen(specs);
 			for ( int n = 1; n < xform->nrhs ; n++ )
 			{
 				gld_property prop = find_property_at_addr(xform->prhs[n].addr);
@@ -1258,9 +1279,11 @@ bool export_transforms(MYSQL *mysql)
 					gl_error("export transform external function rhs[%u] property '%s' address cannot be resolved to an object",n, xform->prhs[n].prop->name);
 					return false;
 				}
-				len += sprintf(specs+len,"%s%s:%d.%s",n>1?",":"", prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
+				snprintf(specs+len,sizeof(specs)-len-1,"%s%s:%d.%s",n>1?",":"", prop.get_object()->oclass->name, prop.get_object()->id, prop.get_property()->name);
+				len = strlen(specs);
 			}
-			len += sprintf(specs+len,"%s",")");
+			snprintf(specs+len,sizeof(specs)-len-1,"%s",")");
+			len = strlen(specs);
 			return false;
 		default:
 			gl_error("transform type %d not supported", xform->function_type);

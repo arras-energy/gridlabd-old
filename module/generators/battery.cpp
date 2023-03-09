@@ -235,14 +235,14 @@ void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -257,14 +257,14 @@ void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *pa
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -279,14 +279,14 @@ void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "battery:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "battery:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: battery unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}

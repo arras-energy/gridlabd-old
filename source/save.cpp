@@ -70,12 +70,12 @@ int saveall(const char *filename)
 			errno = EINVAL;
 			return 0;
 		}
-		sprintf(converter_name,"glm2%s.py",ext);
+		snprintf(converter_name,sizeof(converter_name)-1,"glm2%s.py",ext);
 		char converter_path[1024];
 		if ( ! find_file(converter_name,NULL,R_OK,converter_path,sizeof(converter_path)) )
 		{
 			/* try using python output converter through json */
-			sprintf(converter_name,"json2%s.py",ext);
+			snprintf(converter_name,sizeof(converter_name)-1,"json2%s.py",ext);
 			if ( ! find_file(converter_name,NULL,R_OK,converter_path,sizeof(converter_path)) )
 			{
 				output_error("saveall: extension '.%s' not a known format", ext);
@@ -121,7 +121,7 @@ int saveall(const char *filename)
 			return 0;
 		}
 		char options_name[1024];
-		sprintf(options_name,"%s_save_options",ext);
+		snprintf(options_name,sizeof(options_name)-1,"%s_save_options",ext);
 		char buffer[1024];
 		const char *save_options = global_getvar(options_name,buffer,sizeof(buffer));
 		if ( buffer[0] == '"' )

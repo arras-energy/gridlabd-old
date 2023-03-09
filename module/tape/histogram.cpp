@@ -374,7 +374,7 @@ int histogram::init(OBJECT *parent)
 	if (strcmp(fname,"")==0)
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, ftype.get_string());
+		snprintf(fname,sizeof(fname)-1,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, ftype.get_string());
 
 	/* if type is file or file is stdin */
 	tf = get_ftable(mode);
@@ -508,9 +508,12 @@ TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 		
 		/* write bins */
 		for(i = 0; i < bin_count; ++i){
-			off += sprintf(line+off, "%i", binctr[i]);
-			if(i != bin_count){
-				off += sprintf(line+off, ",");
+			snprintf(line+off,sizeof(line)-off, "%i", binctr[i]);
+			off = strlen(line);
+			if(i != bin_count)
+			{
+				snprintf(line+off,sizeof(line)-off, ",");
+				off = strlen(line);
 			}
 		}
 

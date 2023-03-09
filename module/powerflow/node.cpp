@@ -513,6 +513,9 @@ int node::create(void)
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
 
+	undervoltage_violation_threshold = default_undervoltage_violation_threshold;
+	overvoltage_violation_threshold = default_overvoltage_violation_threshold;
+
 	return result;
 }
 
@@ -1441,21 +1444,9 @@ int node::init(OBJECT *parent)
 	{
 		voltage_violation_threshold = 0.0;
 	}
-	if ( undervoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	if ( undervoltage_violation_threshold > overvoltage_violation_threshold ) // this is not good
 	{
-		undervoltage_violation_threshold = default_undervoltage_violation_threshold;
-	}
-	else if ( undervoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		undervoltage_violation_threshold = 0.0;
-	}
-	if ( overvoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		overvoltage_violation_threshold = default_overvoltage_violation_threshold;
-	}
-	else if ( overvoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		overvoltage_violation_threshold = 0.0;
+		warning("undervoltage_violation_threshold is greater than overvoltage_violation_threshold");
 	}
 	if ( voltage_fluctuation_threshold == 0.0 ) // 0.0 --> use global default threshold
 	{
