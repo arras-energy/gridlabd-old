@@ -1,6 +1,6 @@
 
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 """General GridLAB-D file format converter for command line and macro usage.

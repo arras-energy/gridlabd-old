@@ -1,4 +1,4 @@
 #!/bin/bash
 for REQ in $(find . -name requirements.txt -print); do
-    $GLD_BIN/python3 -m pip -r $REQ
+    $GLD_BIN/pkgenv/bin/python3 -m pip -r $REQ
 done

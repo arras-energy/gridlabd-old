@@ -87,12 +87,12 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 #	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d-config $VERSION_DIR/$PYTHON_DIR/bin/python3-config
 #	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/pydoc
 #	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/idle${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/idle
-    sudo ln -sf $VERSION_DIR/bin/$PYTHON_DIR/* $VERSION_DIR/bin
+#    sudo ln -sf $VERSION_DIR/bin/$PYTHON_DIR/* $VERSION_DIR/bin
 
-    $VERSION_DIR/bin/python3 -m ensurepip --upgrade
-	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    $VERSION_DIR/bin/python3 -m pip install build
-    $VERSION_DIR/bin/python3 -m pip install pyproj
+    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m ensurepip --upgrade
+	$VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install build
+    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install pyproj
 
 #    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
 #    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/include/* $VERSION_DIR/include
@@ -101,9 +101,9 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 fi
 
 # check for successful python build
-if [ ! -x $VERSION_DIR/bin/python3 ]; then
+if [ ! -x $VERSION_DIR/bin/$PYTHON_DIR/python3 ]; then
     echo "Could not locate python executable in"
-    echo "PYTHON LOCATION: $VERSION_DIR/bin/python3"
+    echo "PYTHON LOCATION: $VERSION_DIR/bin/$PYTHON_DIR/python3"
     echo "Exiting build."
     exit 1
 fi
@@ -145,6 +145,9 @@ fi
 #    brew install mysql
 #    brew install mysql-client
 
-sudo ln -s /opt/homebrew/bin/* /usr/local/bin
-sudo ln -s /opt/homebrew/etc/* /usr/local/etc
-sudo ln -s /opt/homebrew/lib/* /usr/local/lib
+sudo ln -sf /opt/homebrew/bin/* /usr/local/bin
+# sudo ln -sf /opt/homebrew/etc/* /usr/local/etc
+sudo ln -sf /opt/homebrew/lib/* /usr/local/lib
+
+cd /usr/local/bin
+sudo rm -rf brew

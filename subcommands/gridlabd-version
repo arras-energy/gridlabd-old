@@ -206,7 +206,7 @@ fi
 if [ -z "$(which gridlabd)" ]; then
 	warning "gridlabd is not in the current PATH environment"
 fi
-if [ ! -x "$GLD_BIN/python3" ]; then
-	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/python3"
+if [ ! -x "$GLD_BIN/pkgenv/bin/python3" ]; then
+	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/pkgenv/bin/python3"
 fi
 

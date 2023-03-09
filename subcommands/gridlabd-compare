@@ -1,5 +1,5 @@
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 """gridlabd-compare subcommand
