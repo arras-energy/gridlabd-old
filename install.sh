@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Cleaning repository to source state for clean build
-git clean -fxd
-
 # Set Variable defaults (Prefix can be changed by flag)
 VERSION=${VERSION:-`build-aux/version.sh --name`}
 PREFIX="/usr/local/opt"
