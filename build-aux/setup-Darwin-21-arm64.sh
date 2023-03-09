@@ -15,7 +15,7 @@
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VERSION_DIR=$VAR/$VERSION
     PYTHON_DIR=pkgenv/bin
-    PYTHON_VER=3.9.13
+    PYTHON_VER=3.9
     PY_EXE=3.9
 
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
@@ -53,12 +53,10 @@ export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 
 # install homebrew instance for gridlabd
-    /opt/homebrew/bin/brew update
     if test ! -e /opt/homebrew; then 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
     export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
-    /opt/homebrew/bin/brew update-reset
     /opt/homebrew/bin/brew doctor
 
 # build tools
@@ -84,7 +82,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     /opt/homebrew/bin/python3.9 -m venv pkgenv
 
 #	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python3 $VERSION_DIR/$PYTHON_DIR/bin/python3
-    $VERSION_DIR/$PYTHON_DIR/bin/python3 -m ensurepip --upgrade
+    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m ensurepip --upgrade
 
 #	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/python${PY_EXE}d-config $VERSION_DIR/$PYTHON_DIR/bin/python3-config
 #	sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/$PYTHON_DIR/bin/pydoc
