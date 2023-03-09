@@ -62,6 +62,6 @@ EXPORT int calc_pfmetrics(OBJECT *callobj, OBJECT *calcobj, int number_int, int 
 EXPORT int reset_pfinterval_metrics(OBJECT *callobj, OBJECT *calcobj);
 EXPORT int reset_pfannual_metrics(OBJECT *callobj, OBJECT *calcobj);
 EXPORT void *init_pf_reliability_extra(OBJECT *myhdr, OBJECT *callhdr);
-EXPORT int logfile_extra(OBJECT *myhdr, char *BufferArray);
+EXPORT int logfile_extra(OBJECT *myhdr, char *BufferArray, size_t len);
 
 #endif // _POWER_METRICS_H

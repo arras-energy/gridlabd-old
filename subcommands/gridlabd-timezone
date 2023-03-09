@@ -1,4 +1,7 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """Syntax: gridlabd timezone [OPTIONS...] LOCATION
 
 The gridlabd timezone subcommand obtains the timezone for the location given

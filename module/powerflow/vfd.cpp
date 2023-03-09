@@ -16,6 +16,8 @@ CLASS* vfd::pclass = NULL;
 // vfd CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
+EXPORT_COMMIT(vfd)
+
 vfd::vfd(MODULE *mod) : link_object(mod)
 {
 	if(oclass == NULL)

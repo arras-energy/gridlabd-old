@@ -1,6 +1,4 @@
-"""Copyright (C) 2021 Regents of the Leland Stanford Junior University
-
-See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, documentation, and tutorials.
+"""See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, documentation, and tutorials.
 """
 
 #
@@ -9,6 +7,8 @@ See https://www.gridlabd.us/ for license, acknowledgments, credits, manuals, doc
 import sys, os
 import json
 import subprocess
+
+GLD_BIN = os.getenv("GLD_BIN")
 
 #
 # Console output
@@ -22,7 +22,7 @@ def stderr(*msg,file=sys.stderr):
 #
 # GridLAB-D link
 #
-result = subprocess.run("/usr/local/bin/gridlabd --version=json".split(),capture_output=True)
+result = subprocess.run(f"{GLD_BIN}/gridlabd --version=json".split(),capture_output=True)
 if not result:
     stderr("ERROR: GridLAB-D is not installed on this system")
     quit(-1)
@@ -32,6 +32,7 @@ version = info['version']
 build = info['build_number']
 branch = info['branch']
 system = info['system']
+copyright = subprocess.run(f"{GLD_BIN}/gridlabd --copyright".split(),capture_output=True).stdout.decode('utf-8')
 
 #
 # No GUI on linux yet
@@ -102,4 +103,4 @@ if __name__ == "__main__":
     except Exception as err:
         print("EXCEPTION:",err)
     messagebox.showinfo("Welcome",
-        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{__doc__}")
+        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{copyright}\n{__doc__}")

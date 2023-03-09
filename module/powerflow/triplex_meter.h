@@ -37,6 +37,7 @@ public:
 	complex tpmeter_power_consumption; ///< power consumed by meter operation
 	bool tpmeter_interrupted;		///< Reliability flag - goes active if the customer is in an "interrupted" state
 	bool tpmeter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in a "secondary interrupted" state - i.e., momentary
+	enumeration service_level; ///< reliability service level (LOW, NORMAL, HIGH, CRITICAL)
 	TIMESTAMP next_time;
 	TIMESTAMP dt;
 	TIMESTAMP last_t;

@@ -1,5 +1,12 @@
-![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) 
-![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+| Repository | Status |
+| :---: | :---: |
+| [GridLAB-D](https://github.com/slacgismo/gridlabd) | ![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+| [Templates](https://github.com/slacgismo/gridlabd-template) | [![master](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml) [![develop](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml)
+| [Weather](https://github.com/slacgismo/gridlabd-weather) | [![validate](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml)
+| [Library](https://github.com/slacgismo/gridlabd-library) | [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/validate.yml)
+| [Models](https://github.com/slacgismo/gridlabd-models) | [![validate](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml)
+| [Benchmarks](https://github.com/slacgismo/gridlabd-benchmarks) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-benchmarks/blob/main/README.md))
+| [Examples](https://github.com/slacgismo/gridlabd-examples) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-examples/blob/master/README.md))
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 
@@ -21,40 +28,109 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
 
 # User quick start
 
-The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/slacgismo/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
-  host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+  host% docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~ 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 ~~~
-  host% alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
+  host% alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
+
+Windows users can accomplish something similar using a small batch file named `gridlabd.bat` containing the following 3 lines:
+~~~
+@echo off
+for /f "delims=" %%i in ('cd') do set PWD=%%i
+docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
+~~~
+
+# Installing from AWS
+
+Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
+
+## Docker
+To install on a linux docker container or in a linux system, use the following commands:
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+~~~
+
+You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+
+## MACOS/Debian
+To install on Mac, use the following commands:
+
+~~~
+curl -OJ https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+~~~
+
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it.
 
 # Developer quick start
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
-Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
+Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. *Do not* run the install.sh script with sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
 ~~~
-host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% git clone https://source.gridlabd.us/ gridlabd
 host% gridlabd/install.sh
 ~~~
+
+### Docker
+Developers should use a slightly modified install script to work on the develop branch, or to test fast-install images they have created on their own branches:
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+
+### MACOS/Debian
+To install on Mac, use the following commands:
+
+~~~
+curl -OJ https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it, and adjust the commands accordingly.
+
+## Flags
+The fast-install script offers a few select flags for selecting your install.
+
+
+`-b your-branch here` is used to select a branch, otherwise the install will default to the master branch.
+
+`-v #.#.#` is used to specify a specific version, and is used for when you want to use a past fast-install version. Otherwise, the script will default to the latest version of the branch being used.
+
+`-h` is your standard help, and will display these options when called.
+
 ### AWS EC2 Installation 
+Use the AWS Ubuntu AMI to build gridlabd on AWS EC2.
+
 1) Set the path variable
 ~~~
-host% sudo su
 host% export PATH=/usr/local/bin:$PATH
 ~~~
-2) Change work dictionary and clone GitHub repository
+2) Update work directory permissions, change work directory and clone GitHub repository
 ~~~
+host% sudo chown -R ${USER:-root} /usr/local/src
 host% cd /usr/local/src
-host% git clone https://github.com/slacgismo/gridlabd gridlabd
+host% git clone https://source.gridlabd.us/ gridlabd
 ~~~
 3) Run installation 
 ~~~ 
+host% cd gridlabd
 host% gridlabd/install.sh
 ~~~
 To rebuild the source code and install again, use the `make system` command.  You can use parallel builds using the `make -j<nproc> system` command.
@@ -63,7 +139,7 @@ If you have modified the branch name or version information, you must reconfigur
 
 Each build of HiPAS GridLAB-D will be installed in `/usr/local/opt/gridlabd`. Links to the active version are added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`. Additional links are created in `/usr/local/lib` and `/usr/local/share`, as needed. 
 
-You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
+You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
 
 You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
 
@@ -71,11 +147,26 @@ Before using a build of gridlabd, you should always validate it using `gridlabd 
 
 ## Windows WSL
 
-Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. You can build, install, and run GridLAB-D in WSL as well by doing the following:
+Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. Building, running and installing Gridlabd in WSL is not that different from a normal linux installation. You can follow Microsoft's instructions on setting up WSL and adding/changing distro's [here](https://learn.microsoft.com/en-us/windows/wsl/install). These instructions work for both cases on supported operating systems, which you can find in the build-aux directory.
 
-1) Open PowerShell as administrator
-2) Run `wsl` (the Debian distro is preferred, but Ubuntu should work also)
-3) Change directory to `/usr/local/src`
+1) Open PowerShell as administrator (Or run the WSL(Ubuntu) or Debian App from the start menu to open a dedicated terminal)
+2) Run `wsl` (Using Debian or Ubuntu)
+
+### Using a fast-install image
+
+3a) Since WSL runs as a linux distribution, the linux installation methods also work here. The fastest, recommended way to install would be to follow the linux fast install method.
+
+~~~
+apt-get update
+apt-get install sudo wget -y
+wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
+chmod 755 install-dev.sh
+./install-dev.sh -b image-branch-name
+~~~
+
+### Building from Source
+
+3b) Change to your working directory `/usr/local/src`
 4) Update `apt` and install `git`
 ~~~
   root@host:/usr/local/src# apt update -y
@@ -83,34 +174,59 @@ Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually 
 ~~~
 5) Clone `gridlabd` and change to the `gridlabd` directory
 ~~~
+  root@host:/usr/local/src# sudo chown ${USER:-root} /usr/local/src
   root@host:/usr/local/src# git clone https://source.gridlabd.us/
   root@host:/usr/local/src# cd gridlabd
 ~~~
-6) Run `autoconf`
+6) Run `install.sh` for your first-time setup. *Do not* run the install.sh script with Sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
 ~~~
+  root@host:/usr/local/src/gridlabd# ./install.sh
+~~~
+
+After the initial setup, if you want to make changes to the gridlabd build, you can run the following steps to rebuild gridlabd with your updates.
+
+7) Clean old build and Run `autoconf` (make sure any of your changes are committed!)
+~~~
+  root@host:/usr/local/src/gridlabd# git clean -fxd
   root@host:/usr/local/src/gridlabd# autoreconf -isf
 ~~~
-7) Run `configure`
+8) Run `configure`
 ~~~
   root@host:/usr/local/src/gridlabd# ./configure
 ~~~
-8) Make `system`
+9) Make `system`
 ~~~
   root@host:/usr/local/src/gridlabd# make system
 ~~~
-9) Validate `gridlabd`
+
+## Validation
+All gridlabd builds should be validated after you have completed the build. This is to ensure that the build was successful and gridlabd is running as intended. Validation is run the exact same way across all operating systems.
+
+1) Change to your downloaded gridlabd repository
+~~~
+  root@host:~# cd /usr/local/src/gridlabd
+~~~
+
+2) Validate `gridlabd`
 ~~~
   root@host:/usr/local/src/gridlabd# gridlabd --validate
 ~~~
 
 ## Building and Debugging
 
-You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
+You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
+
+## Building your own gridlabd fast-install images
+
+Additional developer documentation for making gridlabd images is located in the readme in cloud/websites/install.gridlabd.us. 
+
+It is strongly recommended to use clean virtual machines or docker images when creating a new image, in order to prevent unnecessary libraries from being saved in to the package. The readme also contains instructions on how to retrieve a built image from these sources. 
 
 ## Notes
 - The version number should contain the _branch-name_.  If not, use the `which gridlabd` command to check that the path is correct.
 - You can control whether your local version run the docker image instead of the local install using the `--docker` command-line option.
 - In theory all validate tests of the master should pass. However, sometimes issues arise that aren't caught until after a merge into master.  If you encounter a validation error, please check the issues to see if it has not already been reported.  When reporting such a problem, please include the `--origin` command line option output, the `validate.txt` output, and the output from `uname -a` to assist in reproducing and diagnosing the problem.
+- Each version of gridlabd is built as an entirely independent package, with its own independent python installation. This means that if you update the version or change the branch, you will likely need to run another complete build of gridlabd using the `install.sh` script. 
 
 ## Pro tip
 
@@ -129,10 +245,10 @@ Chassin, D.P., et al., "GridLAB-D Version _major_._minor_._patch_-_build_ (_bran
 You may use the `--cite` command option to obtain the correct citation for your version:
 ~~~
 host% gridlabd --cite
-Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://github.com/slacgismo/gridlabd/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
+Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://source.gridlabd.us/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
 ~~~
 This will allow anyone to identify the exact version you are using to obtain it from GitHub.
 
 ## Contributions
 
-Please see https://github.com/slacgismo/gridlabd/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
+Please see https://source.gridlabd.us/blob/master/CONTRIBUTING.md for information on making contributions to this repository.

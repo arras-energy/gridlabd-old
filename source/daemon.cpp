@@ -14,17 +14,10 @@ static char clientmask[32] = "127.0.0.1";
 static char addr[32] = "127.0.0.1";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
-#ifdef MACOSX
 static char user[1024] = "";
-static char logfile[1024] = "/tmp/gridlabd-log";
-static char pidfile[1024] = "/tmp/gridlabd-pid";
-static char workdir[1024] = "/tmp";
-#else
-static char user[1024] = "gridlabd";
-static char logfile[1024] = "/usr/local/var/gridlabd/gridlabd-log";
-static char pidfile[1024] = "/usr/local/var/gridlabd/gridlabd-pid";
-static char workdir[1024] = "/usr/local/var/gridlabd";
-#endif
+char logfile[1024] = "/tmp/gridlabd-log";
+char pidfile[1024] = "/tmp/gridlabd-pid";
+char workdir[1024] = ".";
 
 // gridlabd stream specifications
 static char output[1024] = "";

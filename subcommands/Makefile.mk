@@ -13,6 +13,7 @@ bin_SCRIPTS += subcommands/gridlabd-library
 bin_SCRIPTS += subcommands/gridlabd-lock
 bin_SCRIPTS += subcommands/gridlabd-manual
 bin_SCRIPTS += subcommands/gridlabd-matrix
+bin_SCRIPTS += subcommands/gridlabd-model
 bin_SCRIPTS += subcommands/gridlabd-openfido
 bin_SCRIPTS += subcommands/gridlabd-pandas
 bin_SCRIPTS += subcommands/gridlabd-plot
@@ -26,4 +27,4 @@ bin_SCRIPTS += subcommands/gridlabd-validate
 bin_SCRIPTS += subcommands/gridlabd-version
 bin_SCRIPTS += subcommands/gridlabd-weather
 
-python_requirements += subcommands/requirements.txt
+python_requirements += $(top_srcdir)/subcommands/requirements.txt

@@ -84,9 +84,13 @@ object meter {
 object triplex_meter {
 	name tripmeterval;
 	phases AS;
-	power_12_real load_value*10500;
-	power_12_reac 3300;
 	nominal_voltage 120.0;
+	object triplex_load {
+		constant_power_12_real load_value*10500;
+		constant_power_12_reac 3300;
+		phases AS;
+		nominal_voltage 120.0;
+	};
 }
 
 

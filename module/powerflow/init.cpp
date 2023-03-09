@@ -74,6 +74,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	gl_global_create("powerflow::solver_profile_headers_included", PT_bool, &solver_profile_headers_included,PT_DESCRIPTION, "Flag to include headers in NR solver profile file",NULL);
 	extern char1024 solver_headers;
 	gl_global_create("powerflow::solver_headers", PT_char1024, &solver_headers,PT_DESCRIPTION, "Headers in NR solver profile file",NULL);
+	extern bool solver_profile_csv;
+	gl_global_create("powerflow::solver_profile_csv", PT_bool, &solver_profile_csv,PT_DESCRIPTION, "Flag output solver profile in CSV format",NULL);
 
 	extern char1024 solver_py_config;
 	gl_global_create("powerflow::solver_py_config", PT_char1024, &solver_py_config, PT_DESCRIPTION, "PY solver configuration file location",NULL);

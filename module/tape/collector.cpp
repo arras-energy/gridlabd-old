@@ -95,7 +95,7 @@ static int collector_open(OBJECT *obj)
 	{
 		char *p;
 		/* use group spec as default file name */
-		sprintf(fname,"%s.%s",(char*)(my->group),(char*)(my->filetype));
+		snprintf(fname,sizeof(fname)-1,"%s.%s",(char*)(my->group),(char*)(my->filetype));
 
 		/* but change disallowed characters to _ */
 		for (p=fname; *p!='\0'; p++)
@@ -144,7 +144,7 @@ static TIMESTAMP collector_write(OBJECT *obj)
 		gl_strtime(&dt, ts, sizeof(ts));
 	}
 	else
-		sprintf(ts,"%" FMT_INT64 "d", my->last.ts);
+		snprintf(ts,sizeof(ts)-1,"%" FMT_INT64 "d", my->last.ts);
 	if ((my->limit>0 && my->samples>my->limit) /* limit reached */
 		|| write_collector(my,ts,my->last.value)==0) /* write failed */
 	{
@@ -253,7 +253,8 @@ int read_aggregates(AGGREGATION *aggr, char *buffer, int size)
 	gl_global_getvar("double_format", fmt, 32);
 	for ( p = aggr; p != NULL ; p = p->next )
 	{
-		int sz = snprintf(tmp,sizeof(tmp)-1,fmt,gl_run_aggregate(p));
+		snprintf(tmp,sizeof(tmp)-1,fmt,gl_run_aggregate(p));
+		int sz = strlen(tmp);
 		if ( count + sz >= size )
 		{
 			gl_error("tape/collector.c:read_aggregates(): buffer too small to handle output size");
@@ -289,7 +290,7 @@ EXPORT TIMESTAMP sync_collector(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	/* read property */
 	if (my->aggr==NULL)
 	{
-		sprintf(buffer,"'%s' contains an aggregate that is not found in the group '%s'", my->property, (char*)my->group);
+		snprintf(buffer,sizeof(buffer)-1,"'%s' contains an aggregate that is not found in the group '%s'", my->property, (char*)my->group);
 		my->status = TS_ERROR;
 		goto Error;
 	}
@@ -307,7 +308,7 @@ EXPORT TIMESTAMP sync_collector(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	if(my->aggr != NULL && (my->interval == 0 || my->interval == -1)){
 		if(read_aggregates(my->aggr,buffer,sizeof(buffer))==0)
 		{
-			sprintf(buffer,"unable to read aggregate '%s' of group '%s'", my->property, (char*)my->group);
+			snprintf(buffer,sizeof(buffer)-1,"unable to read aggregate '%s' of group '%s'", my->property, (char*)my->group);
 			close_collector(my);
 			my->status = TS_ERROR;
 		}
@@ -316,7 +317,7 @@ EXPORT TIMESTAMP sync_collector(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	if(my->aggr != NULL && my->interval > 0){
 		if((t0 >= my->last.ts + my->interval) || (t0 == my->last.ts)){
 			if(read_aggregates(my->aggr,buffer,sizeof(buffer))==0){
-				sprintf(buffer,"unable to read aggregate '%s' of group '%s'", my->property, (char*)my->group);
+				snprintf(buffer,sizeof(buffer)-1,"unable to read aggregate '%s' of group '%s'", my->property, (char*)my->group);
 				close_collector(my);
 				my->status = TS_ERROR;
 			}

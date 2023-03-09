@@ -18,7 +18,7 @@ module climate;
 object assert {
 	parent "weather";
 	target "wind_speed";
-	value 4 m/s;
+	value "+4 m/s";
 }
 
 object assert {
