@@ -249,7 +249,12 @@ STATUS GldCmdarg::no_cmdargs(void)
 {
 	char guiname[1024] = "gridlabd-editor.py";
 	char guipath[1024];
-	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
+	char glmpath[1024];
+	if ( find_file("gridlabd.glm",".",R_OK,glmpath,sizeof(glmpath)) )
+	{
+		return loadall(glmpath);
+	}
+	else if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
 		char command[2048];
 		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
