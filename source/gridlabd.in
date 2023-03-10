@@ -368,7 +368,7 @@ export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
 export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
-export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
+export PYTHONPATH=.:${GLD_BIN}/pkgenv/lib/python3.9/site-packages${PYTHONPATH:+:}${PYTHONPATH}
 
 if test "x$GLPATH" = x
 then :
