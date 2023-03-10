@@ -2,7 +2,7 @@
 
 #if ${github_actions:-no}==no
 
-#python -m noaa_forecast -p=37.5,-122.3 -c=test_noaa_forecast.csv -g=test_noaa_forecast_opt.glm -n=test >> gridlabd.err
+#python -m noaa_forecast -r=10 -p=37.5,-122.3 -c=test_noaa_forecast.csv -g=test_noaa_forecast_opt.glm -n=test >> gridlabd.err
 
 #include "test_noaa_forecast_opt.glm"
 

@@ -1,4 +1,7 @@
-module powerflow;
+module powerflow
+{
+     solver_method NR;
+}
 
 object overhead_line_conductor 
 {

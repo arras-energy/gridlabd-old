@@ -35,7 +35,7 @@ GldJsonWriter::~GldJsonWriter(void)
 	free((void*)filename);
 }
 
-const char * escape(const char *buffer, size_t len = 1024)
+const char * escape(const char *buffer, size_t len)
 {
 	static char *result = NULL;
 	static size_t result_len = 0;
@@ -365,7 +365,11 @@ int GldJsonWriter::write_globals(FILE *fp)
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
 			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
 			if ( prop->flags ) len += write("\t\t\t\t\"flags\" : \"%s\",",flags);
-			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
+			if ( var->initial != NULL )
+			{
+				len += write("\n\t\t\t\"initial\" : \"%s\",", escape(var->initial));
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);		
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
@@ -657,7 +661,9 @@ int GldJsonWriter::write_output(FILE *fp)
 	int len = 0;
 	json = fp;
 	len += write("{\t\"application\": \"gridlabd\",\n");
-	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
+	len += write("\t\"version\" : \"%u.%u.%u\",\n",global_version_major,global_version_minor,global_version_patch);
+	len += write("\t\"branch\": \"%s\",\n",BRANCH);
+	len += write("\t\"build\": \"%06d\"",BUILDNUM);
 	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
 	{
 		len += write_modules(fp);
@@ -741,7 +747,9 @@ int GldJsonWriter::dump_modules()
 	int len = 0;
 	json = stdout;
 	len += write("{\t\"application\": \"gridlabd\",\n");
-	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
+	len += write("\t\"version\" : \"%u.%u.%u\",\n",global_version_major,global_version_minor,global_version_patch);
+	len += write("\t\"branch\": \"%s\",\n",BRANCH);
+	len += write("\t\"build\": \"%06d\"",BUILDNUM);
 	len += write_modules(json);
 	len += write_classes(json,true);
 	len += write("\n}\n");

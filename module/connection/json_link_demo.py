@@ -1,4 +1,6 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
 
 """
 json_link_demo

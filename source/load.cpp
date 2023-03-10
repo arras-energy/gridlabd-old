@@ -4901,7 +4901,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error_here(HERE); REJECT; }
+	// else { syntax_error_here(HERE); REJECT; }
 
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
@@ -8238,11 +8238,11 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#for",4) == 0 )
 	{
-		char var[64], range[1024];
+		char var[64], range[1024] = "";
 		if ( line[0] == '"' ) line++;
 		char *end = line + strlen(line);
 		if ( end[-1] == '"') end[-1] = '\0';
-		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) == 2 )
+		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) >= 1 )
 		{
 			strcpy(line,"\n");
 			return for_open(var,range) ? TRUE : FALSE;
@@ -8379,6 +8379,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
+	strcpy(filename,file);
+	linenum = 0;
 	strcpy(global_loader_filename,filename);
 	global_loader_linenum = 1;
 
