@@ -99,7 +99,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     $VERSION_DIR/bin/$PYTHON_DIR/python3 -m ensurepip --upgrade
 	$VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
     $VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install build
-    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install pyproj
+    $VERSION_DIR/bin/$PYTHON_DIR/python3 -m pip install pyproj wheel
 
 #    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/bin/* $VERSION_DIR/bin
 #    sudo ln -sf $VERSION_DIR/$PYTHON_DIR/include/* $VERSION_DIR/include
