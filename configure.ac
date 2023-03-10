@@ -572,8 +572,8 @@ ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
 # Verify python version
-HAVE_PYTHON="$($BINDIR/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($BINDIR/python3 -c "import os; print(os.path.realpath('$BINDIR/python3'))")"
+HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
@@ -652,8 +652,8 @@ AC_MSG_RESULT([
 ])
 
 CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-CXXFLAGS="$($BINDIR/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-LDFLAGS="$($BINDIR/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+CXXFLAGS="$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+LDFLAGS="$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
