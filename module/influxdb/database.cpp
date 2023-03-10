@@ -56,7 +56,7 @@ database::database(MODULE *module)
             PT_method,"logtag",get_logtag_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"property tag add method",
             NULL)<1){
                 char msg[256];
-                sprintf(msg, "unable to publish properties in %s",__FILE__);
+                snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
                 throw msg;
         }
 
@@ -704,10 +704,17 @@ const char *database::get_header_value(OBJECT *obj, const char *item, char *buff
     return buffer;
 }
 
-EXPORT int method_database_logtag(OBJECT *obj, char *buffer, size_t size)
+EXPORT int method_database_logtag(OBJECT *obj, ...)
 {
+    va_list args;
+    va_start(args,obj);
+    char *buffer = va_arg(args,char*);
+    size_t size = va_arg(args,size_t);
+
     class database *my = OBJECTDATA(obj,class database);
     return my->logtag(buffer,size);
+
+    va_end(args);
 }
 
 ////////////////////

@@ -46,7 +46,7 @@ int metrics_collector_writer::init(OBJECT *parent)
 	// check for filename
 	if(0 == filename[0]){
 		// if no filename, auto-generate based on ID
-		sprintf(filename, "%256s-%256i-metrics_collector_output.json", oclass->name, obj->id);
+		snprintf(filename,sizeof(filename)-1, "%256s-%256i-metrics_collector_output.json", oclass->name, obj->id);
 		gl_warning("metrics_collector_writer::init(): no filename defined, auto-generating '%s'", filename.get_string());
 		/* TROUBLESHOOT
 			group_recorder requires a filename.  If none is provided, a filename will be generated
@@ -293,7 +293,7 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 	// Write Time -> represents the time from the StartTime
 	metrics_writer_Output_time["Time"] = (Json::Int64)(t1 - startTime); // in seconds
 	int writeTime = t1 - startTime; // in seconds
-	sprintf(time_str, "%d", writeTime);
+	snprintf(time_str,sizeof(time_str)-1, "%d", writeTime);
 
 	// Go through each metrics_coolector object, and check its time interval given
 	OBJECT *obj = NULL;

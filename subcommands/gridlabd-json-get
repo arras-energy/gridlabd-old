@@ -1,4 +1,6 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
 
 import sys
 import json
@@ -61,8 +63,11 @@ try:
         for key in keys:
             if type(data) is dict and key in data.keys() :
                 data = data[key];
-            elif type(data) is list and int(key) >=0 and int(key) <= len(data) :
-                data = data[int(key)];
+            elif type(data) is list:
+                try:
+                    data = data[int(key)];
+                except:
+                    data = [x[key] for x in data]
             else :
                 error(2,"%s is not valid"%key);
         if keys_only:

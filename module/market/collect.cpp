@@ -134,14 +134,14 @@ void collect::fetch_double(double **prop, PROPERTYNAME name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		static char msg[256];
-		sprintf(tname, "collect:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "collect:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: collect unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: collect unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: collect unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: collect unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -156,14 +156,14 @@ void collect::fetch_int(int **prop, PROPERTYNAME name, OBJECT *parent)
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		static char msg[256];
-		sprintf(tname, "collect:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "collect:%i", hdr->id);
 		if ( name == NULL )
 		{
-			sprintf(msg, "%s: collect unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: collect unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: collect unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: collect unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}

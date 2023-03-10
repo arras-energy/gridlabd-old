@@ -43,6 +43,19 @@ typedef __int64 (*FUNCTIONADDR)(void*,...);
 	The entry point of a module function
  */
 typedef int64 (*FUNCTIONADDR)(void*,...); 
+typedef int64 (*CREATEFUNCTIONADDR)(struct s_object_list **,struct s_object_list *);
+typedef int64 (*DESTROYFUNCTIONADDR)(struct s_object_list *);
+typedef int64 (*INITFUNCTIONADDR)(struct s_object_list *,struct s_object_list *);
+typedef int64 (*PRECOMMITFUNCTIONADDR)(struct s_object_list *,long long t1);
+typedef int64 (*SYNCFUNCTIONADDR)(struct s_object_list *,long long t0,unsigned long pass);
+typedef int64 (*COMMITFUNCTIONADDR)(struct s_object_list *,long long t1,long long t2);
+typedef int64 (*FINALIZEFUNCTIONADDR)(struct s_object_list *);
+typedef int64 (*NOTIFYFUNCTIONADDR)(struct s_object_list *, int e_notifymodule,struct s_property_map *);
+typedef int64 (*ISAFUNCTIONADDR)(struct s_object_list *,const char *);
+typedef int64 (*PLCFUNCTIONADDR)(struct s_object_list *,long long t1);
+typedef int64 (*RECALCFUNCTIONADDR)(struct s_object_list *);
+typedef int64 (*UPDATEFUNCTIONADDR)(struct s_object_list *,long long,unsigned long long,unsigned long,unsigned int);
+typedef int64 (*HEARTBEATFUNCTIONADDR)(struct s_object_list *);
 
 #endif // __MINGW32__
 
@@ -246,8 +259,9 @@ private:
 		static char buf[1024]; 
 		va_list ptr;
 		va_start(ptr,msg);
-		sprintf(buf,"%s", name?name:""); 
-		vsprintf(buf+strlen(buf), msg, ptr); 
+		snprintf(buf,sizeof(buf)-1,"%s", name?name:""); 
+		size_t len = strlen(buf);
+		vsnprintf(buf+len,sizeof(buf)-len-1, msg, ptr); 
 		throw (const char*)buf;
 		va_end(ptr);
 	};

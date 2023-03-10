@@ -42,7 +42,7 @@ INDEX="yes"
 # Set the install prefix. By default most system use "/usr/local" for add-on software
 # like GridLAB-D. The prefix is changed using the "--prefix <path>" option.
 #
-PREFIX="/usr/local"
+PREFIX="/usr/local/opt"
 
 #
 # Enable linking of gridlabd command. By default the most recent install is linked

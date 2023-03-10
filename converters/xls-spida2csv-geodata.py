@@ -25,14 +25,18 @@ OPTIONS:
 - `extract_equipment=yes`: enable the conversion of pole-mounted equipment, dummy values will be used for equipment properties (default None)
 
 - `include_network=yes`: enable the generation of a bus-type feeder, dummy values will be used for properties of feeder and equipment (default None)
+
+- `include_weather=NAME`: name the weather object and do not use dummy values for weather data (default None)
 	
 """
+
 import pandas
 
 default_options = {
 	"precision" : 2,
 	"extract_equipment" : None,
 	"include_network" : None,
+	"include_weather" : None,
 }
 
 def string_clean(input_str):
@@ -118,8 +122,11 @@ def convert(input_file, output_file, options={}):
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
 	df_pole_library.loc[:,'name'] = pole_name
-
-	df_pole_library.loc[:,'wind_speed'] = '0 m/s'
+	if include_weather:
+		df_pole_library.loc[:,'weather'] = include_weather
+	else:
+		df_pole_library.loc[:,'wind_speed'] = '0 m/s'
+		df_pole_library.loc[:,'wind_direction'] = '0 deg'
 	df_pole_library.loc[:,'flags'] = 'NONE'
 	df['Design - Pole']= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
 
