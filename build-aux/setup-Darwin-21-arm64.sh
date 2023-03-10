@@ -79,6 +79,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     /opt/homebrew/bin/brew install python@$PYTHON_VER
 
 	cd $VERSION_DIR/bin
+    sudo ln -sf /opt/homebrew/opt/python@$PY_EXE/Frameworks/Python.framework/Versions/$PY_EXE/bin/python$PY_EXE-config $VERSION_DIR/bin/python3-config
     /opt/homebrew/bin/python3.9 -m venv pkgenv
 
 #	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python3 $VERSION_DIR/$PYTHON_DIR/bin/python3
