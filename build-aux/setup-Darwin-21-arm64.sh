@@ -71,6 +71,9 @@ export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
     [ ! -e /usr/local/bin/libtoolize ] && sudo ln -sf /opt/homebrew/bin/glibtoolize /usr/local/bin/libtoolize
     [ ! -e /usr/local/bin/libtool ] && sudo ln -sf /opt/homebrew/bin/glibtool /usr/local/bin/libtool
 
+export DYLD_LIBRARY_PATH=$VERSION_DIR/lib:$DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
@@ -79,8 +82,11 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
     /opt/homebrew/bin/brew install python@$PYTHON_VER
 
 	cd $VERSION_DIR/bin
-    sudo ln -sf /opt/homebrew/opt/python@$PY_EXE/Frameworks/Python.framework/Versions/$PY_EXE/bin/python$PY_EXE-config $VERSION_DIR/bin/python3-config
     /opt/homebrew/bin/python3.9 -m venv pkgenv
+
+    sudo ln -sf /opt/homebrew/opt/python@$PY_EXE/Frameworks/Python.framework/Versions/$PY_EXE/bin/python$PY_EXE-config $VERSION_DIR/bin/$PYTHON_DIR/python3-config
+    sudo ln -sf /opt/homebrew/opt/python@$PY_EXE/Frameworks/Python.framework/Versions/$PY_EXE/bin/python$PY_EXE-config $VERSION_DIR/bin/python3-config
+    sudo ln -sf /opt/homebrew/opt/python@$PY_EXE/Frameworks/Python.framework/Versions/$PY_EXE/include/python$PY_EXE/* $VERSION_DIR/lib
 
 #	sudo ln -s $VERSION_DIR/$PYTHON_DIR/bin/python3 $VERSION_DIR/$PYTHON_DIR/bin/python3
     $VERSION_DIR/bin/$PYTHON_DIR/python3 -m ensurepip --upgrade
