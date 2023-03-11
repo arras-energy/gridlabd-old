@@ -7,7 +7,7 @@
 # This file can be used to execute commands that alter the environment in
 # which gridlabd.bin runs.  There are three locations where this file
 # may be deployed. They will be run this order
-#   $GLD_ETC/gridlabd/gridlabd.rc
+#   /usr/local/share/gridlabd/gridlabd.rc
 #   $HOME/.gridlabd/gridlabd.rc
 #   ./gridlabd.rc
 #
@@ -19,7 +19,7 @@
 # runtime libraries and load-time parser hooks are required.
 #
 
-export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-$GLD_LIB/gridlabd}
+export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/lib/gridlabd}
 
 #
 # Run the user's RC file, if found

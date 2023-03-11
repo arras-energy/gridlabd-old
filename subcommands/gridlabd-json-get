@@ -1,6 +1,5 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
+#!/usr/local/bin/python3
+# Syntax: json-get [OPTIONS ...]
 
 import sys
 import json

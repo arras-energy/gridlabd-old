@@ -1,7 +1,5 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+#!/usr/local/bin/python3
+# Syntax: compare [OPTIONS] FILE1 FILE2
 """gridlabd-compare subcommand
 """
 
@@ -21,7 +19,7 @@ class config:
 def help():
     """Obtain command line help information
     """
-    print("""Syntax: gridlabd-compare [OPTIONS] FILE1 FILE2
+    print("""Syntax: gridlabd compare [OPTIONS] FILE1 FILE2
 Options:
     -g|--glm        output differences are GLM modify commands (implies verbose)
     -h|--help       obtain this help
@@ -181,7 +179,7 @@ def main():
     opts,args = getopt.getopt(sys.argv[1:],'ghqvO:',
         ['glm','help','quiet','verbose','object='])
 
-    if not opts and not args:
+    if ( not opts and not args ) or sys.argv[1] == 'help':
         help()
         sys.exit(-1)
 

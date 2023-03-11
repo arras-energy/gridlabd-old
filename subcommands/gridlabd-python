@@ -1,8 +1,7 @@
 #!/bin/bash
-
+# Syntax: python [OPTIONS ...] -c COMMAND | -m MODULE | FILE | - [ARGUMENTS ...]
 if [ "$1" == "help" ]; then
-	echo "Syntax: gridlabd python"
-	${GLD_BIN:-/opt/gridlabd/bin}/python3 --help | head -n 1 | cut -f3- -d' '
+	echo -n 'Syntax: gridlabd python [OPTIONS ...] -c COMMAND | -m MODULE | FILE | - [ARGUMENTS ...]'
 else
-	$GLD_BIN/python3 $*
+	/usr/local/bin/python3 $*
 fi

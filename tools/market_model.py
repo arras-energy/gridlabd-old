@@ -1,3 +1,4 @@
+# market_model [OPTIONS ...]
 """Create market model from ISO data
 
 SYNTAX

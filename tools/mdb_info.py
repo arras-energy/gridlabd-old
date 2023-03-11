@@ -1,3 +1,4 @@
+# mdb_info MDBFILE COMMAND [ARGS ...
 """Convert MDB table to a CSV player
 
 SYNOPSIS
@@ -57,7 +58,10 @@ def error(msg,code=None):
 
 def main(argv):
 
-    if len(argv) < 3:
+    if len(sys.argv) == 2 and argv[1] in ['-h','--help','help']:
+        print(__doc__)
+        exit(0)
+    elif len(argv) < 3:
         print("Syntax: gridlabd mdb_info MDBFILE COMMAND [ARGS ...]",file=sys.stderr)
         exit(1)
 

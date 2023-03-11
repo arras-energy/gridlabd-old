@@ -704,17 +704,10 @@ const char *database::get_header_value(OBJECT *obj, const char *item, char *buff
     return buffer;
 }
 
-EXPORT int method_database_logtag(OBJECT *obj, ...)
+EXPORT int method_database_logtag(OBJECT *obj, char *buffer, size_t size)
 {
-    va_list args;
-    va_start(args,obj);
-    char *buffer = va_arg(args,char*);
-    size_t size = va_arg(args,size_t);
-
     class database *my = OBJECTDATA(obj,class database);
     return my->logtag(buffer,size);
-
-    va_end(args);
 }
 
 ////////////////////

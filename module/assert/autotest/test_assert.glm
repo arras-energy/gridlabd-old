@@ -41,7 +41,7 @@ object test {
 	object assert {
 		target "double_value";
 		relation "==";
-		value +50;
+		value 50;
 	};
 	object assert {
 		target "double_value";

@@ -1,3 +1,4 @@
+# nsrdb_weather [OPTIONS ...]
 """NSRDB weather data tool
 
 SYNOPSIS
@@ -70,7 +71,7 @@ The module uses several parameters to control its behavior.
     email="gridlabd@gmail.com" # credential email
     verbose = False # verbose output enable
     server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv" # NSRDB server URL
-    cachedir = "/usr/local/opt/gridlabd/<version>/share/gridlabd/weather" # local NSRDB cache folder
+    cachedir = "/usr/local/share/gridlabd/weather" # local NSRDB cache folder
     attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle' # NSRDB fields to download
     credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json" # local credential file location
     geocode_precision = 5 # about 2.5 km geohash resolution (uses for automatic naming of weather objects)
@@ -141,8 +142,6 @@ SEE ALSO
 
 import sys, os, json, requests, pandas, numpy, datetime, math
 
-GLD_ETC = os.getenv("GLD_ETC")
-
 leap = True
 interval = 60
 utc = False
@@ -150,7 +149,7 @@ email = None # by default this will be the first key in the credentials file
 interpolate_time = None
 interpolate_method = 'linear'
 server = "https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv"
-cachedir = f"{GLD_ETC}/gridlabd/weather"
+cachedir = "/usr/local/share/gridlabd/weather"
 attributes = 'ghi,dhi,dni,cloud_type,dew_point,air_temperature,surface_albedo,wind_speed,wind_direction,solar_zenith_angle,relative_humidity,surface_pressure'
 credential_file = f"{os.getenv('HOME')}/.nsrdb/credentials.json"
 geocode_precision = 6 

@@ -21,17 +21,13 @@ See also:
 - GridLAB-D --validate command line option
 """
 import sys, os, subprocess
-
-from module.resilience.docs.elevation import GLD_BIN
 assert(sys.version_info.major>2)
 import traceback
 import timeit
 
-GLD_BIN = os.getenv("GLD_BIN")
-
 n_tested = 0
 n_passed = 0
-exename = f'{GLD_BIN}/gridlabd'
+exename = '/usr/local/bin/gridlabd'
 dry_run = False
 show_debug = False
 show_failure = False
@@ -110,7 +106,7 @@ def runtest(workdir,glmname) :
 	run_command("cp %s.glm %s" % (workdir,workdir))
 	run_command("cd %s" % workdir)
 	print("Running %s..." % glmname)
-	rc = run_command("$GLD_BIN/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
+	rc = run_command("/usr/local/bin/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
 	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
