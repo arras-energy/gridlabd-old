@@ -1,3 +1,4 @@
+# create_player [OPTIONS ...]
 """Player object creation tool
 
 SYNOPSIS

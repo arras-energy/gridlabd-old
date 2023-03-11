@@ -66,6 +66,9 @@ underground_line_conductor::underground_line_conductor(MODULE *mod) : powerflow_
 			PT_double, "rating.winter.emergency[A]", PADDR(winter.emergency),
 				PT_DEFAULT, "2000 A",
 				PT_DESCRIPTION,"amp rating in winter, short term",
+			PT_double, "insulation_R[K/W]", PADDR(insulation_R),
+				PT_DEFAULT, "+10 K/W",
+				PT_DESCRIPTION,"insulation thermal resistance",
             NULL) < 1) GL_THROW("unable to publish underground_line_conductor properties in %s",__FILE__);
     }
 }
@@ -129,6 +132,10 @@ int underground_line_conductor::init(OBJECT *parent)
 			Please put a valid resistance value if that is the case.
 			*/
 		}
+	}
+	if ( insulation_R <= 0 )
+	{
+		GL_THROW("insulation_R must be positive");
 	}
 
 	return 1;

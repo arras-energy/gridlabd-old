@@ -1,3 +1,4 @@
+# gridlabd fire_danger [OPTIONS ...] 
 """Fire danger forecast data tool
 
 SYNTAX

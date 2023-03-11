@@ -7,11 +7,11 @@ exec "$GLD_BIN/python3" "$0" "$@"
 SYNTAX
 
 GLM:
-    #pandas [-i input.from] [-o output.to]
+    #pandas [-i INPUTFILE] [-o OUTPUTFILE]
 
 Shell:
 
-    $ gridlabd pandas [-i input.from] [-o output.to]
+    $ gridlabd pandas [-i INPUTFILE] [-o OUTPUTFILE]
 
 DESCRIPTION
 

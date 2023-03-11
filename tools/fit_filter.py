@@ -1,3 +1,4 @@
+# fit_filter [OPTIONS ...]
 """Create filters from data
 
 SYNTAX
