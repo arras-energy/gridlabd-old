@@ -1,6 +1,6 @@
 // test geodata utility dataset
 #setenv POS=37.4205,-122.2046
-#define RES=${SHELL gridlabd geodata -d merge -D utility $POS -f RAW:NAME}
+#define RES=${SHELL gridlabd geodata merge -D utility $POS -f RAW:NAME}
 #define ANS=PACIFIC GAS & ELECTRIC CO.
 #if ${RES} != ${ANS}
     #error "geodata merge -D utility $POS -f RAW:NAME is incorrect: expected '${ANS}' but got '${RES}' instead"

@@ -69,7 +69,7 @@ module powerflow {
 	solver_profile_filename "solver_nr_profile.csv";
 	solver_profile_headers_included "TRUE";
 	solver_headers "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
-	solver_py_config "${GLD_ETC}/solver_py.conf";
+	solver_py_config "/usr/local/var/gridlabd/solver_py.conf";
 	solver_dump_enable "FALSE";
 	violation_record "";
 	violation_count "0";

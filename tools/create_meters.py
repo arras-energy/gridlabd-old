@@ -1,3 +1,4 @@
+# create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
 """Add meters to a MODEL
 
 SYNOPSIS
@@ -39,6 +40,9 @@ for arg in sys.argv[1:]:
     if arg.startswith('-'):
         if arg == '--with-ami':
             WITHAMI = True
+        if arg in ['-h','--help','help']:
+            print(__doc__)
+            exit(0)
         else:
             raise Exception(f"argument {arg} is invalid")
     elif not INPUTFILE:

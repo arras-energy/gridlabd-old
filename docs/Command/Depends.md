@@ -36,7 +36,7 @@ bash$ gridlabd example.glm --depends
 
 all: example.glm
 
-example.glm: local-file.glm /usr/local/opt/gridlabd/share/gridlabd/system-file.glm remote-file.glm
+example.glm: local-file.glm /usr/local/share/gridlabd/system-file.glm remote-file.glm
 
 remote-file.glm: http://server/remote-file.glm
 

@@ -1,11 +1,8 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+#!/usr/local/bin/python3
+# Syntax: check [OPTIONS] FILE ...
 """GridLAB-D model check routines
 
-Syntax:
-	gridlabd check [OPTIONS] FILE ...
+Syntax: gridlabd check [OPTIONS] FILE ...
 
 Options:
 	-d|--debug     Enable python traceback output when problems are encountered
@@ -41,7 +38,10 @@ def main(args):
 	count = 0
 	files = []
 	for item in args:
-		if item in ['-f','--fix']:
+		if item in ['-h','--help','help']:
+			print(__doc__)
+			exit(0)
+		elif item in ['-f','--fix']:
 			OPTIONS.fix = True
 		elif item in ['-d','--debug']:
 			OPTIONS.debug = True

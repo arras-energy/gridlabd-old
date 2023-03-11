@@ -1,7 +1,5 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+#!/usr/local/bin/python3
+# Syntax: matrix [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 """GridLAB-D matrix subcommand
 
 SYNTAX

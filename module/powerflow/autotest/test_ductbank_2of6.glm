@@ -1,0 +1,89 @@
+// module/powerflow/autotest/test_ductbank.glm
+
+#set savefile=${modelname/.glm/.json}
+
+module powerflow;
+module assert;
+
+object node
+{
+	name "source";
+	bustype SWING;
+	nominal_voltage 17 kV;
+	phases ABCN;
+	voltage_A 17 kV;
+	voltage_B 17 kV;
+	voltage_C 17 kV;
+}
+
+#for N in 1 2
+object load
+{
+	name "load_${N}";
+	nominal_voltage 17 kV;
+	phases ABCN;
+	constant_power_A 1 MVA;
+	constant_power_B 1 MVA;
+	constant_power_C 1 MVA;
+}
+object underground_line 
+{ 
+	phases "ABCN";
+	name "line_${N}";
+	from "source";
+	to "load_${N}";
+	length 1 mile;
+	configuration "line_configuration";
+	ductbank "duct";
+}
+#done
+
+object ductbank
+{
+	name "duct";
+	configuration "box3x2";
+	object assert
+	{
+		target "cable_temperature";
+		relation "<";
+		value 80;
+	};
+}
+
+// Phase Conductor for 607: 1/0 AA,TS N: 1/0 Cu
+object underground_line_conductor 
+{ 
+	name "conductor_type";
+	conductor_gmr 0.576 in;
+	conductor_diameter 1.0 in;
+	conductor_resistance 0.13136 Ohm/mile;
+	shield_gmr 0.606 in;
+	shield_resistance 2.0 Ohm/mile;
+	shield_diameter 1.212 in;
+	shield_thickness 0.03 in;
+	neutral_gmr 2.0 in;
+	neutral_resistance 0.307 Ohm/mile;
+	insulation_relative_permitivitty 1.0;
+	outer_diameter 2.0236 in;
+}
+
+object line_configuration 
+{
+	name "line_configuration";
+	conductor_A "conductor_type";
+	conductor_B "conductor_type";
+	conductor_C "conductor_type";
+	conductor_N "conductor_type";
+	spacing "line_spacing";
+}
+
+object line_spacing 
+{
+	name "line_spacing";
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 0.25;
+	distance_AN 0.25;
+	distance_CN 0.25;
+}

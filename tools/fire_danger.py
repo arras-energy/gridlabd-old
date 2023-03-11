@@ -1,3 +1,4 @@
+# gridlabd fire_danger [OPTIONS ...] 
 """Fire danger forecast data tool
 
 SYNTAX
@@ -37,9 +38,7 @@ import datetime
 import rasterio
 from rasterio.plot import show
 
-GLD_ETC = os.getenv("GLD_ETC",)
-
-CACHEDIR = f"{GLD_ETC}/usgs/firedanger"
+CACHEDIR = "/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger"
 USGSURL = "https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/firedanger/download-tool/source_rasters/w{TYPE}-forecast-{DAYAHEAD}/emodis-w{TYPE}-forecast-{DAYAHEAD}_data_{DATE}_{DATE}.zip"
 REFRESH = False
 SHOW = False

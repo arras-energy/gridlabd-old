@@ -1,3 +1,4 @@
+# gridlabd find_location [OPTIONS] KEY
 """Find_location -- find the latitude and longitude of a location
 
 SYNOPSIS
@@ -9,7 +10,7 @@ Shell:
 
 GLM:
 
-  #define LOCATION=${shell $(bindir)/python3 -m find_location PDX}
+  #define LOCATION=${SHELL python3 -m find_location PDX}
 
 Python:
 

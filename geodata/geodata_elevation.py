@@ -12,8 +12,6 @@ import math, numpy
 import pandas
 from PIL import Image
 
-GLD_ETC = os.getenv("GLD_ETC")
-
 #
 # Defaults
 #
@@ -26,7 +24,7 @@ default_options = {
 
 GLD_ETC = os.getenv("GLD_ETC")
 if not GLD_ETC:
-    GLD_ETC = f"{GLD_ETC}/gridlabd"
+    GLD_ETC = "/usr/local/share/gridlabd"
 default_config = {
     "nan_error" : False,
     "cachedir" : f"{GLD_ETC}/geodata/elevation/10m",

@@ -76,7 +76,7 @@ typedef struct s_procinfo PROCINFO;
 typedef struct s_module_list MODULE;
 #endif
 
-typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,const char*[]); 
+typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,const char*[]);
 
 typedef int (*EXTERNALCALLBACK)(void*,void*);
 

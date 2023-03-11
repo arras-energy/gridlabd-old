@@ -2453,13 +2453,13 @@ public:
 
 	// Method: set_unit
 	// Change the unit
-	inline bool set_unit(char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
+	inline bool set_unit(const char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
 
 public: 
 
 	// Method: convert
 	// Convert a value to another named or derived unit
-	inline bool convert(char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
+	inline bool convert(const char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
 	
 	// Method: convert
 	// Convert a value to another UNIT
@@ -3246,7 +3246,7 @@ public:
 	inline double get_double(gld_unit&to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_double(char*to)
-	inline double get_double(char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+	inline double get_double(const char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_complex
 	inline complex get_complex(void) { errno=0; if ( pstruct.prop->ptype==PT_complex ) return *(complex*)get_addr(); else return complex(QNAN,QNAN); };
@@ -3879,10 +3879,9 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to implement a load method function of a class when the GridLAB-D class name differs from the C++ class name.
 	See <EXPORT_LOADMETHOD>.
  */
-#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, ...) \
+#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, char *value, size_t len=0) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-	va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
-	return my->N(value,size); va_end(args); \
+	return my->N(value,len); \
 	} else return 0; } \
 	T_CATCHALL(X,loadmethod); }
 
@@ -3898,7 +3897,7 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to declare a method function of a class.
 	See <EXPORT_METHOD_C>.
  */
-#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, ...)
+#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, char *value, size_t size)
 
 /*	Define: EXPORT_METHOD_C(classname,class,name)
 
@@ -3907,8 +3906,7 @@ int dllkill() { return do_kill(NULL); }
  */
 #define EXPORT_METHOD_C(X,C,N) DECL_METHOD(X,N) \
 		{	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-			va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
-			return my->N(value,size); va_end(args); \
+			return my->N(value,size); \
 			} else return 0; } \
 			T_CATCHALL(X,method); }
 

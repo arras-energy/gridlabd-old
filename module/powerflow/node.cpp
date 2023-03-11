@@ -2872,7 +2872,6 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					// process every bus looking for DER to apply
 					if ( DER_buslist == NULL )
 					{
-
 						// first count the busses we need to check
 						DER_buscount = 0;
 						for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )

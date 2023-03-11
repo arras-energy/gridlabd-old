@@ -252,33 +252,33 @@ struct s_class_list {
 	// Field: fmap
 	FUNCTION *fmap;
 	// Field: create
-	CREATEFUNCTIONADDR create;
+	FUNCTIONADDR create;
 	// Field: destroy
-	DESTROYFUNCTIONADDR destroy;
+	FUNCTIONADDR destroy;
 	// Field: init
-	INITFUNCTIONADDR init;
+	FUNCTIONADDR init;
 	// Field: precommit
-	PRECOMMITFUNCTIONADDR precommit;
+	FUNCTIONADDR precommit;
 	// Field: sync
-	SYNCFUNCTIONADDR sync;
+	FUNCTIONADDR sync;
 	// Field: commit
-	COMMITFUNCTIONADDR commit;
+	FUNCTIONADDR commit;
 	// Field: finalize
-	FINALIZEFUNCTIONADDR finalize;
+	FUNCTIONADDR finalize;
 	// Field: notify
-	NOTIFYFUNCTIONADDR notify;
+	FUNCTIONADDR notify;
 	// Field: isa
-	ISAFUNCTIONADDR isa;
+	FUNCTIONADDR isa;
 	// Field: plc
-	PLCFUNCTIONADDR plc;
+	FUNCTIONADDR plc;
 	// Field: passconfig
 	PASSCONFIG passconfig;
 	// Field: recalc
-	RECALCFUNCTIONADDR recalc;
+	FUNCTIONADDR recalc;
 	// Field: update
-	UPDATEFUNCTIONADDR update;
+	FUNCTIONADDR update;
 	// Field: 
-	HEARTBEATFUNCTIONADDR heartbeat;
+	FUNCTIONADDR heartbeat;
 	// Field: loadmethods
 	LOADMETHOD *loadmethods;
 	// Field: parent
