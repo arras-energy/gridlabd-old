@@ -1,5 +1,7 @@
-#!/usr/local/bin/python3
-# Syntax: compare [OPTIONS] FILE1 FILE2
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """gridlabd-compare subcommand
 """
 

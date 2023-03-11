@@ -1,5 +1,7 @@
-#!/usr/local/bin/python3
-# Syntax: contributors [OPTIONS ...]
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 import sys, os, github
 
 E_NONE = None

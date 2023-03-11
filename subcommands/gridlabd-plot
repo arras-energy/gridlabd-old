@@ -1,5 +1,7 @@
-#!/usr/local/bin/python3
-# Syntax: plot [OPTIONS ...]
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """GridLAB-D plot subcommand
 
 SYNOPSIS

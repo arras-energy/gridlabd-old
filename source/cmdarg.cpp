@@ -257,7 +257,7 @@ STATUS GldCmdarg::no_cmdargs(void)
 	else if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
 	{
 		char command[2048];
-		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
+		snprintf(command,sizeof(command)-1,"%s/python3 %s &",global_bindir,guipath);
 		system(command);
 		return SUCCESS;
 	}
@@ -476,7 +476,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 		{
 			etcpath = "/usr/local/share/gridlabd";
 		}
-		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
 	}
 	else
@@ -500,7 +500,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 		{
 			etcpath = "/usr/local/share/gridlabd";
 		}
-		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		if ( strstr(global_pythonpath,pathname) == NULL )
 		{
 			if ( strcmp(global_pythonpath,":") != 0 )
@@ -509,7 +509,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 			}
 			strcat(global_pythonpath,pathname);
 		}
-		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s/%s.glm",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1],argv[1]);
+		snprintf(pathname,sizeof(pathname)-1,"%s/template/%s/%s/%s/%s/%s.glm",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1],argv[1]);
 		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
 	}
 	else
