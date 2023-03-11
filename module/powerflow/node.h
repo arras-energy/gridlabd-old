@@ -137,16 +137,11 @@ private:
 	FUNCTIONADDR VFD_updating_function;		///< Address for VFD updating function, if it is present
 	OBJECT *VFD_object;						///< Object pointer for the VFD - for later function calls
 
-public:
-
-	NRSOLVERMODE powerflow_type;
-	
 	// DER globals
 	static unsigned int DER_nodecount;		///< count of DER nodes
 	static OBJECT **DER_objectlist;			///< list of DER objects to examine for voltage fluctuations violations
-	static unsigned int DER_buscount;		///< count of DER busses
-	static unsigned int *DER_buslist;		///< list of DER bus id to examine for voltage violations
 
+public:
 	double frequency;			///< frequency (only valid on reference bus) */
 	object reference_bus;		///< reference bus from which frequency is defined */
 	static unsigned int n;		///< node count */
