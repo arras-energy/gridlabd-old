@@ -66,11 +66,9 @@ import numpy as np
 from shapely.geometry import Point
 from haversine import haversine_vector
 
-GLD_ETC = os.getenv("GLD_ETC")
-
 CACHEDIR = os.getenv("GLD_ETC")
 if not CACHEDIR:
-    CACHEDIR = f"{GLD_ETC}/gridlabd"
+    CACHEDIR = "/usr/local/share/gridlabd"
 
 REPOURL = os.getenv("REPOURL")
 if not REPOURL:
@@ -107,7 +105,7 @@ def read_kml():
     global CONFIG
     if type(kmldata) == type(None):
         if not os.path.exists(CONFIG["kmlfile"]):
-            fiona.drvsupport.supported_drivers['KML'] = 'rw'
+            geopandas.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
             kmldata = geopandas.read_file(CONFIG["kmlrepo"], driver="KML")
             os.makedirs(CONFIG["cachedir"],exist_ok=True)
             with open(CONFIG["kmlfile"], "wb") as fh:

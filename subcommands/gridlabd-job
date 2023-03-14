@@ -1,6 +1,5 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
+#!/usr/local/bin/python3
+# Syntax: job [OPTIONS ...] FILE [...]
 #
 # This script runs multiple jobs as specified by the controlfile.csv, 
 # where the columns are the globals and rows are the job number.
@@ -103,8 +102,8 @@ if __name__ == "__main__":
 	freeze_support()
 	n = 1
 	while n < len(sys.argv):
-		if sys.argv[n] in ["-h","--help"]:
-			print(SYNTAX,file=sys.stderr)
+		if sys.argv[n] in ["-h","--help","help"]:
+			print(SYNTAX,file=sys.stdout)
 			quit(0)
 		elif sys.argv[n] in ["-d","--debug"]:
 			DEBUG=True

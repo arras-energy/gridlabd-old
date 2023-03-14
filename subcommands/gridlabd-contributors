@@ -1,7 +1,5 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+#!/usr/local/bin/python3
+# Syntax: contributors [OPTIONS ...]
 import sys, os, github
 
 E_NONE = None
@@ -42,8 +40,8 @@ while n < len(sys.argv):
 		value = sys.argv[n+1]
 	else:
 		value = None
-	if tag in ["-h","--help"]:
-		print(f"Syntax: gridlabd-contributors [<options>]")
+	if tag in ["-h","--help","help"]:
+		print(f"Syntax: gridlabd contributors [<options>]")
 		print("Options:")
 		print("  -h|--help           get this help list")
 		print("  -k|--known          print known users only")

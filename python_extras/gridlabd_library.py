@@ -1,7 +1,4 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
-
+#!/usr/local/bin/python3
 """Syntax: gridlabd_library <subcommand> <options>...
 Subcommands:
   help

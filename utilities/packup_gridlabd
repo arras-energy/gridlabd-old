@@ -1,4 +1,4 @@
 #!/bin/bash
 test x$MSYSTEM == x && BIN=bin
-tar -C ${1:-/usr/local/opt/gridlabd} --exclude '.??*' -c -f $PWD/$(gridlabd --version | sed -e 's/ /_/g').tar bin/gridlabd.${BIN:-exe} include/gridlabd lib/gridlabd share/gridlabd share/doc/gridlabd 
+tar -C ${1:-/usr/local} --exclude '.??*' -c -f $PWD/$(gridlabd --version | sed -e 's/ /_/g').tar bin/gridlabd.${BIN:-exe} include/gridlabd lib/gridlabd share/gridlabd share/doc/gridlabd 
 

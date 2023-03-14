@@ -2870,6 +2870,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					// process every bus looking for DER to apply
 					for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )
 					{
+
 						BUSDATA *der_bus = NR_busdata + der;
 						node *der_data = OBJECTDATA(der_bus->obj,node);
 						if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )

@@ -1,6 +1,4 @@
-''':'
-exec "$GLD_BIN/python3" "$0" "$@"
-:' '''
+#!/usr/local/bin/python3
 
 """
 ****************

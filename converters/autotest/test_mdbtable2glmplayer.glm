@@ -9,7 +9,7 @@
 // To access this data you must read, agree to, and sign the NDA covering this data.
 //
 
-#ifmissing ${GLD_BIN}/mdb-schema
+#ifmissing /usr/local/bin/mdb-schema
 
 #warning mdbtools is not available
 
@@ -80,4 +80,4 @@ object collector
 
 #endif // exist ami_data.mdb
 
-#endif // missing ${GLD_BIN}/mdb-schema
+#endif // missing /usr/local/bin/mdb-schema

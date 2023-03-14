@@ -59,7 +59,7 @@ The following example obtains the image name the same data
 
 ~~~
 sh$ gridlabd fire_danger -f=5 -d=2021-08-20 -t=fpi
-/usr/local/opt/gridlabd/gridlabd/current/share/gridlabd/usgs/firedanger/fpi_20210820_5.tif
+/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger/fpi_20210820_5.tif
 ~~~
 
 The following example obtains the image name in Python:
@@ -69,5 +69,5 @@ The following example obtains the image name in Python:
 >>> sys.path.append("/usr/local/share/gridlabd")
 >>> import fire_danger
 >>> fire_danger.get_data(5,'20210820','fpi')
-'/usr/local/opt/gridlabd/gridlabd/current/share/gridlabd/usgs/firedanger/fpi_20210820_5.tif'
+'/usr/local/opt/gridlabd/current/share/gridlabd/usgs/firedanger/fpi_20210820_5.tif'
 ~~~

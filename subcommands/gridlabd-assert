@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: assert [OPTIONS...] EXPRESSION
 #
 # EXIT 0 - ok
 # EXIT 1 - test failed

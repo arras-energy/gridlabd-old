@@ -3,14 +3,11 @@
 HiPAS GridLAB-D was developed to support cloud operations. Currently the following cloud services are supported.
 
 * [[/Cloud/AWS]]
-* [[/Cloud/Docker]]
-* [[/Cloud/Git]]
+* [[/Cloud/CircleCI]]
 
 Coming soon:
 
+* [[/Cloud/Docker]]
+* [[/Cloud/Git]]
 * [[/Cloud/Gcp]]
 * [[/Cloud/Az]]
-
-Deprecated:
-
-* [[/Cloud/CircleCI]]
