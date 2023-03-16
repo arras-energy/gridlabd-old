@@ -8,7 +8,7 @@
 
 To use in terminal: 
 ~~~~
-gridlabd -D csv_load_options="-f config -t config" <file_name>.csv
+gridlabd -D csv_load_options="-f <from> -t <type>" <file_name>.csv
 ~~~~
 
 # Description
