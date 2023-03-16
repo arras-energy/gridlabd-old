@@ -23,7 +23,7 @@ All powerline package calculations require the following data:
 
         The cable types are listed in the file geodata_powerline_cabletypes.csv
         located in the GridLAB-D shared geodata folder, which is by default
-        /usr/local/share/gridlabd/geodata.
+        /usr/local/opt/gridlabd/<version>/share/gridlabd/geodata.
 
     distance - optional column in the data, if absent it will be computed
 
@@ -101,6 +101,11 @@ from PIL import Image
 import pandas
 import json
 from IPython.display import display
+# new
+from math import exp
+from scipy import stats
+
+GLD_ETC = os.getenv("GLD_ETC")
 
 def TODO(value=float('nan')):
     """TODO default function -- this should never be called in the final product"""
@@ -131,7 +136,7 @@ default_options = {
 }
 
 default_config = {
-    "cabletype_file" : "/usr/local/share/gridlabd/geodata_powerline_cabletypes.csv",
+    "cabletype_file" : f"{GLD_ETC}/gridlabd/geodata_powerline_cabletypes.csv",
 }
 
 OPTIONS = default_options
@@ -411,6 +416,9 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     """Calculate line sag values"""
     global OPTIONS
     d_vert = abs(z0-z1)
+    # get the positive slope
+    k_slope = d_vert/d_hori 
+    S_L = sqrt(d_hori**2 + d_vert**2)    
     k_init = get_line_tension_coefficient(d_hori)
     span = sqrt(d_hori*d_hori + d_vert*d_vert)
     rts = cable['rated_tensile_strength']
@@ -475,82 +483,373 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     r = r[~np.iscomplex(r)]
     H_load = np.absolute(r[r > 0.0])
 
-    sag_load = total_unit_weight*span*span/(8*H_load)
+    # sag_load = total_unit_weight*span*span/(8*H_load)
     sag_angle = atan(wind_unit_weight/(ice_unit_weight+unit_weight))
-    C_catenary = H_load / (ice_unit_weight+unit_weight)
+    C_catenary = H_load/total_unit_weight      # should be total_unit_weight; ok
+    # calculate the D; 
+    D = total_unit_weight*S_L**2/8/H_load 
     if z0 > z1:
-        d0_hori = d_hori/2 + H_load*d_vert/(total_unit_weight*d_hori)
+        # d0_hori = d_hori/2 + H_load*d_vert/(total_unit_weight*d_hori)
+        d0_hori = d_hori/2 + d_hori*d_vert/8/D
         d1_hori = d_hori - d0_hori
+        # sag0 is D_A, the longer side of the line sag
+        # https://electricalengineerresources.com/2018/02/16/sample-calculation-of-sag-and-tension-in-transmission-line-uneven-elevation/
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         dt = get_distance(p0,p1)
-        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
-        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
+        sag0_cosh = sag0 - k_slope*dt - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 - k_slope*dt - sag0_cosh*cos(sag_angle)
+        # sag0_cosh = 1
     else:
-        d0_hori = d_hori/2 - H_load*d_vert/(total_unit_weight*d_hori)
+        # d0_hori = d_hori/2 - H_load*d_vert/(total_unit_weight*d_hori)
+        d0_hori = d_hori/2 - d_hori*d_vert/8/D
         d1_hori = d_hori - d0_hori
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         dt = get_distance(p0,p1)
-        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
-        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
+        sag0_cosh = sag0 + k_slope*dt - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 + k_slope*dt - sag0_cosh*cos(sag_angle)
+        # sag0_cosh = 0
     result = sag_elevation[0]
     # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
     return result
 
 def linesway(data):
-    """TODO"""
-    data['linesway'] = 0.0 # default result
+    # just copy the linesag code
 
-    if not 'wind_speed' in data.columns or not 'wind_direction' in data.columns:
+    data['linesway'] = float('nan') # default result
+    result = data['linesway'].to_dict()
+
+    # read cable specs from cable type
+    global OPTIONS
+    if not 'cable_type' in data.columns and not 'cable_type' in OPTIONS.keys():
+        WARNING("cannot compute line sag without any cable type")
         return data['linesway']
 
-    WARNING("linesway not implemented yet")
-    data['linesway'] = TODO() # default result
+    # read optional initial hold values
+    for name,value in OPTIONS.items():
+        if not name in data.columns:
+            hold0(name,'init')
+    air_temperature = hold0('air_temperature')
+    wind_speed = hold0('wind_speed')
+    wind_direction = hold0('wind_direction')
+    ice_thickness = hold0('ice_thickness')
+    power_flow = hold0('power_flow')
+    global_horizontal_irradiance = hold0('global_horizontal_irradiance')
+    ground_reflectance = hold0('ground_reflectance')
+    ice_density = hold0('ice_density')
+    cable_type = hold0('cable_type')
+    elevation = hold0('elevation')
 
-    return data['linesway']
+    # check lat,lon
+    if not 'latitude' in data.columns or not 'longitude' in data.columns:
+        WARNING("cannot compute line sag without latitude and longitude fields")
+        return data['linesway']
 
-def linegallop(data):
-    """TODO"""
-    #
-    # Galloping due to icing effect
-    #
-    # Frequency calculation
-    #
-    #   F (Hz) = sqrt(T*g/W) * 0.5*n/L
-    #
-    # where:
-    #
-    #   T = conductor tension (N)
-    #   g = 9.81 m/s^2 (gravitational acceleration)
-    #   W = conductor weight (N/m)
-    #   L = conductor length
-    #   n = standing wave node count (>=1)
-    #
-    # See https://preformed.com/images/pdfs/Energy/Transmission/Motion_Control/Air_Flow_Spoiler/Conductor_Galloping_Basics-EN-ML-1166.pdf
-    #
-    # Magnitude calculation
-    #
-    # Mitigation strategies
-    #
-    #  1) Detuning pendulum
-    #  2) Airflow spoiler
-    #
-    # Source: https://preformed.com/images/pdfs/Energy/Transmission/Motion_Control/Air_Flow_Spoiler/Conductor_Galloping_Basics-EN-ML-1166.pdf
-    #
-    data['linegallop'] = 0.0 # default result
+    # TODO: vectorize this loop
+    p0 = None # start pole lat,lon
+    p1 = None # end pole lat,lon
+    z0 = None # start pole sag (elevation+height)
+    z1 = None # end pole sag height (elevation+height)
+    ld = {} # line data at waypoints
+    for id, line in data.iterrows():
+        if 'cable_type' in data.columns:
+            cable_type = hold0('cable_type',line['cable_type'])
+        global CABLETYPES
+        if not cable_type:
+            WARNING(f"cable_type not specified")
+            break
+        elif not cable_type in CABLETYPES.index:
+            WARNING(f"cable_type={cable_type.__repr__()} not found")
+            break
+        else:
+            cable = CABLETYPES.loc[cable_type]
 
-    if not 'ice_thickness' in data.columns:
-        return data['linegallop']
+        # air Temperature
+        if 'air_temperature' in data.columns:
+            air_temperature = hold0('air_temperature',line['air_temperature'])
 
-    WARNING("linegallop not implemented yet")
-    data['linegallop'] = TODO() # default result
+        # wind speed
+        if 'wind_speed' in data.columns:
+            wind_speed = hold0('wind_speed',line['wind_speed'])
 
-    return data['linegallop']
+        # wind direction
+        if 'wind_direction' in data.columns:
+            wind_direction = hold0('wind_direction',line['wind_direction'])
 
-def contact(data, options=default_options, config=default_config, warning=print):
+        # ice thickness
+        if 'ice_thickness' in data.columns:
+            ice_thickness = hold0('ice_thickness',line['ice_thickness'])
 
-    contact = ( data['linesag'] - data['height'] < options['margin']['vertical'] ) * data['cover']
+        # power flow
+        if 'power_flow' in data.columns:
+            power_flow = hold0('power_flow',line['power_flow'])
+
+        # ground reflectance
+        if 'ground_reflectance' in data.columns:
+            ground_reflectance = hold0('ground_reflectance',line['ground_reflectance'])
+
+        # elevation
+        if 'elevation' in data.columns:
+            elevation = hold0('elevation',line['elevation'])
+
+        # pole height - only present for pole, absent at waypoints
+        # breakpoint()
+        if 'pole_height' in data.columns and not isnan(line['pole_height']):
+
+            if not p0: # start of a line segment
+
+                p0 = [line['latitude'],line['longitude']]
+                d0 = 0.0
+                z0 = elevation + line['pole_height']
+                sag = 0.0
+                result[id] = sag
+
+            else: # end of a line segment
+
+                p1 = [line['latitude'],line['longitude']]
+                d1 = get_distance(p0,p1)
+                z1 = elevation + line['pole_height']
+                sag = 0.0
+                result[id] = sag
+
+                # compute linesway at waypoints
+                for n,l in ld.items():
+                    p = [l['latitude'],l['longitude']]
+                    # print(p)
+                    d_hori = get_distance(p0,p1)        # the distance between two poles; constant
+                    try:
+                        elevation = l['elevation']
+                    except:
+                        pass
+                    sag = get_sway_value(d_hori,line,cable,p0,p,z0,z1,
+                        power_flow,global_horizontal_irradiance,ground_reflectance,
+                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+                    # the line sag is defined as the distance between the interested point on the line and the ground
+                    # sag = sag - elevation
+                    result[n] = round(sag,OPTIONS["precision"]["linesag"])
+
+                # reset for next segment
+                p0 = p1
+                z0 = z1
+                ld = {}
+
+
+        elif p0: # continue a line segment
+
+            # end last segment
+            ld[id] = line
+
+        else:
+
+            WARNING("ignoring waypoints before first pole")
+
+
+    if ld:
+        WARNING("ignoring waypoints after last pole")
+
+    return pandas.DataFrame(result.values(),columns=["linesway"],index=result.keys())["linesway"]
+
+def get_sway_value(d_hori,line,cable,p0,p1,z0,z1,
+        power_flow,global_horizontal_irradiance,ground_reflectance,
+        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density):
+    # p1 is the location (lat, lon) of interested point, while p0 is the previous pole
+    """Calculate line sag values"""
+    global OPTIONS
+    d_vert = abs(z0-z1)
+    # get the positive slope
+    k_slope = d_vert/d_hori 
+    S_L = sqrt(d_hori**2 + d_vert**2)
+    k_init = get_line_tension_coefficient(d_hori)
+    span = sqrt(d_hori*d_hori + d_vert*d_vert)
+    rts = cable['rated_tensile_strength']
+    unit_weight = cable['unit_weight']
+    diameter = cable['diameter']
+    air_mass, k_f, air_viscosity = get_air_properties(air_temperature)
+    # calculate the line heading and the angle between line heading and wind direction
+    try:
+        line_angle = line['heading']
+    except:
+        line_angle = 180*atan2(p1[0]-p0[0],p1[1]-p0[1])/np.pi
+    phi = (wind_direction - line_angle)*np.pi/180
+    # calculate the new line sag at loaded condition
+    ice_unit_weight = ice_density*np.pi*ice_thickness*(diameter+ice_thickness)*g
+    wind_unit_weight = 0.5*air_mass*(wind_speed*sin(phi))**2 *(diameter+2*ice_thickness)
+    total_unit_weight = sqrt(wind_unit_weight**2+(unit_weight+ice_unit_weight)**2)
+    if d_vert/d_hori > 0.1:
+        k_init = min(k_init, total_unit_weight*d_hori*d_hori/(2*d_vert*rts))
+    H_init = rts*k_init
+    sag_init = unit_weight*span*span/(8*H_init)
+    # for Q_I
+    P_rated = power_flow
+    Vll_rated = cable['voltage_rating']
+    Irms =  P_rated/(sqrt(3)*Vll_rated)
+    R_20C = cable['nominal_resistance']
+    coeff_Al = cable['resistivity']
+    Q_I_coeff_first = Irms*Irms*R_20C*coeff_Al
+    Q_I_coeff_constant = Irms*Irms*R_20C*(1-coeff_Al*(20.0+273.0))
+    # for Q_S
+    k_a = 1.0 - cable['reflectivity'] # solar radiation absorption coefficient
+    GHI = global_horizontal_irradiance # unit: W/m2
+    k_g = ground_reflectance # ground reflect
+    Q_S_constant = k_a*(diameter+2*ice_thickness)*(1+k_g)*GHI
+    # for Q_C
+    k_angle = 1.194 - cos(phi) + 0.194*cos(2*phi) + 0.368*sin(2*phi)
+    Nre = wind_speed * (diameter + 2*ice_thickness) * air_mass / air_viscosity
+    if wind_speed < 0.82:
+        Q_C_coeff_first = k_angle*(1.01+1.35*Nre**0.52)*k_f
+        Q_C_constant = -k_angle*(1.01+1.35*Nre**0.52)*k_f*(air_temperature+273.0)
+    else:
+        Q_C_coeff_first = k_angle*0.754*(Nre**0.6)*k_f
+        Q_C_constant = -k_angle*0.754*(Nre**0.6)*k_f*(air_temperature+273.0)
+    # for Q_R
+    k_e = cable['emissivity']
+    Q_R_constant = -5.6704e-8*k_e*(diameter+2.0*ice_thickness)*np.pi*(air_temperature+273.0)**4
+    Q_R_coeff_fourth = 5.6704e-8*k_e*(diameter+2.0*ice_thickness)*np.pi
+    # for new conductor temp under loading
+    coef_sag = [-Q_R_coeff_fourth,0.0,0.0,Q_I_coeff_first-Q_C_coeff_first,Q_I_coeff_constant+Q_S_constant-Q_C_constant-Q_R_constant]
+    r = np.roots(coef_sag)
+    r = r[~np.iscomplex(r)]
+    temp_load = np.absolute(r[r > 0.0]) # unit: K
+    temp_load = temp_load - 273.0 # unit: DegC
+
+    area = cable['conductor_crosssection_area']
+    elasticity = cable['elasticity']
+    temp_init = OPTIONS['nominal_temperature']
+    coef_thermal = cable['thermal_expansion']
+    H_load_second = (unit_weight*d_hori)**2 *area*elasticity/(24*H_init**2)-H_init+(temp_load-temp_init)*coef_thermal*area*elasticity
+    H_load_constant = -(total_unit_weight*d_hori)**2 *area*elasticity/24
+    coef_H = [1, float(H_load_second), 0.0, float(H_load_constant)]
+    r = np.roots(coef_H)
+    r = r[~np.iscomplex(r)]
+    H_load = np.absolute(r[r > 0.0])
+
+    # sag_load = total_unit_weight*span*span/(8*H_load)
+    sag_angle = atan(wind_unit_weight/(ice_unit_weight+unit_weight))
+    C_catenary = H_load/total_unit_weight      # should be total_unit_weight; ok
+    # calculate the D; 
+    D = total_unit_weight*S_L**2/8/H_load 
+    if z0 > z1:
+        # d0_hori = d_hori/2 + H_load*d_vert/(total_unit_weight*d_hori)
+        d0_hori = d_hori/2 + d_hori*d_vert/8/D
+        d1_hori = d_hori - d0_hori
+        # sag0 is D_A, the longer side of the line sag
+        # https://electricalengineerresources.com/2018/02/16/sample-calculation-of-sag-and-tension-in-transmission-line-uneven-elevation/
+        sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
+        dt = get_distance(p0,p1)
+        sag0_cosh = sag0 - k_slope*dt - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = sag0_cosh*sin(sag_angle)
+        # sag0_cosh = 1
+    else:
+        # d0_hori = d_hori/2 - H_load*d_vert/(total_unit_weight*d_hori)
+        d0_hori = d_hori/2 - d_hori*d_vert/8/D
+        d1_hori = d_hori - d0_hori
+        sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
+        dt = get_distance(p0,p1)
+        # dt is the distance to p0
+        sag0_cosh = sag0 + k_slope*dt - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = sag0_cosh*sin(sag_angle)
+        # sag0_cosh = 0
+    result = sag_elevation[0]
+    # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
+    # print(sag0_cosh)
+    return result
+
+
+# show a small probability when tree_height < powerline_height
+def contact(data):
+    # data includes the results, such as linesag and linesway
+
+    # calculate vegetation sway
+    # susceptibility is a function of the tree height, captured by suscep_factor
+    suscep_factor = 0.01 
+    vege_sway = data['wind_speed'] * suscep_factor * data['height']
+
+    # (1) horizontal contact probability
+    n_hori = 2
+    contact = ((data['linesway'] + vege_sway)/data['width'])**2 * data['cover']
+    # set the upper limit
+    contact[contact>1] = 1
+
+    # (2) vertical contact probability
+    # tree_height < line_sag (powerline to ground distance)
+    # contact[data['height'] < data['linesag']] = 0
+    height  = data['height']
+    linesag = data['linesag']
+    idx = height < linesag
+    n_vert = 2
+    upper_lim = 0.1
+    contact[idx] = (height[idx]/linesag[idx])**n_vert*upper_lim
+
+    contact = round(contact, 2)
 
     return contact
+
+# provide the lognormal cdf
+def lognorm_cdf(x, mu, sigma):
+    shape  = sigma
+    loc    = 0
+    scale  = exp(mu)
+
+    return stats.lognorm.cdf(x, shape, loc, scale)
+
+# calculate the tree strike risk factor
+def linegallop(data):
+    # data includes the results, such as linesag and linesway
+
+    min_strike = (data['linesag']**2 + (data['width']-data['linesway'])**2)**0.5
+
+    strike_range = (data['height']**2 - data['linesag']**2)**0.5 - (data['width'] - data['linesway'])
+    # strike_range[strike_range<0]=0
+
+    # calculate # of trees in the strike area
+    n_tree = min_strike         # initilization
+    point_resolution = 30       # investigated point resolution
+    strike_area = strike_range*point_resolution
+    # given parameters
+    avg_density = 170           # average tree density in California, trees/acre
+    avg_cover   = 0.422         # average tree cover from the sample data set
+    cover =data['cover']*1      # tree cover info
+    acre2mm = 4046.86           # acre to meter^2
+    n_tree = cover/avg_cover*avg_density*strike_area/acre2mm
+    n_tree = round(n_tree)
+    n_tree[n_tree<0] = 0
+    height = data['height']*1
+    n_tree[height<min_strike] = 0
+
+    # include the fragility curve [fitted results from MATLAB]
+    # beta_0, beta_1*tree height, beta_2*ratio
+    beta_mu = [7.9,  -0.07, -3.05]
+    beta_sig= [0.19, 0.002, -0.05]
+    # tree height = 0; while tree base is not zero
+    # height = data['height']*1
+    base   = data['base']*1
+    index_err = height<base
+    height[index_err] = base[index_err]+1
+    crown = height - base
+    mu = beta_mu[0]  + beta_mu[1]*height  + beta_mu[2]*(crown/height)
+    sig= beta_sig[0] + beta_sig[1]*height + beta_sig[2]*(crown/height)
+
+    # cannot do vector
+    # cdf = lognorm_cdf(data['wind_speed']*1, mu, sig)
+    # cdf_vec = [0]*len(mu)        # for initilization
+    cdf_vec = min_strike
+    strike  = min_strike
+    wind_speed = data['wind_speed']
+    for idx, x in enumerate(mu):
+        cdf = lognorm_cdf(wind_speed[idx]*3, x, sig[idx])
+        cdf_vec[idx]= cdf
+        strike[idx] = 1 - (1-cdf)**n_tree[idx]
+
+    # strike = cdf_vec
+    # strike = mu
+    # strike = strike_range
+
+    # no strike risk
+    strike[height<min_strike] = 0
+
+    strike = round(strike, 3)
+
+    # return strike
+    return strike
 
 def apply(data, options=default_options, config=default_config, warning=print):
 
@@ -576,13 +875,13 @@ def apply(data, options=default_options, config=default_config, warning=print):
     except Exception as err:
         WARNING(f"cannot run function LINEWAY and {err} is missing or invalid")
     try:
-        result["linegallop"] = linegallop(data)
+       result["contact"] = contact(result)
     except Exception as err:
-        WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")
+       WARNING(f"cannot run function CONTACT and {err} is missing or invalid")
     try:
-        result["contact"] = contact(result)
+        result["strike"] = linegallop(result)
     except Exception as err:
-        WARNING(f"cannot run function CONTACT and {err} is missing or invalid")
+        WARNING(f"cannot run function LINEGALLOP and {err} is missing or invalid")       
     return result
 
 # perform validation tests

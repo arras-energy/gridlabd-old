@@ -185,6 +185,7 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 	#include "volt_var_control.h"
 #include "billdump.h"
 #include "currdump.h"
+#include "ductbank.h"
 #include "impedance_dump.h"
 #include "load_tracker.h"
 #include "voltdump.h"

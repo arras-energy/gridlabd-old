@@ -1,3 +1,4 @@
+# create_filter NAME NUMERATOR DENOMINATOR [OPTIONS ...]
 """[[/Utilities/Create_filter]] - Create a filter from a transfer function
 
 SYNOPSIS

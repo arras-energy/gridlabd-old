@@ -1,3 +1,4 @@
+# create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
 """Add meters to a MODEL
 
 SYNOPSIS
@@ -38,10 +39,60 @@ OUTPUTFILE = None
 WITHAMI = False
 MODIFY = False
 
+
 # modify defaults (GLM only)
 MODIFY_LIST = []
 NEWOBJ_LIST = []
 DELOBJ_LIST = []
+
+for arg in sys.argv[1:]:
+    if arg.startswith('-'):
+        if arg == '--with-ami':
+            WITHAMI = True
+        if arg in ['-h','--help','help']:
+            print(__doc__)
+            exit(0)
+        else:
+            raise Exception(f"argument {arg} is invalid")
+    elif not INPUTFILE:
+        INPUTFILE = arg
+    elif not OUTPUTFILE:
+        OUTPUTFILE = arg
+    else:
+        raise Exception(f"argument {arg} not expected")
+
+with open(INPUTFILE,"rt") as fh:
+    MODEL = json.load(fh)
+    OBJECTS = MODEL['objects']
+
+if WITHAMI and 'recorder' not in MODEL['modules']:
+    VERSION = MODEL['version'].split('.')
+    MODEL['modules']['tape'] = {
+        "major": VERSION[0],
+        "minor": VERSION[1]
+    }
+    MODEL['classes']['recorder'] = {
+            "file" : {
+                "type" : "char1024",
+                "access" : "PUBLIC",
+                "flags" : "REQUIRED",
+                "description" : "file in which to record data"
+            },
+            "interval" : {
+                "type" : "double",
+                "access" : "PUBLIC",
+                "unit" : "s",
+                "default" : "-1 s",
+                "description" : "sampling interval"
+            },
+            "property" : {
+                "type" : "method",
+                "access" : "PUBLIC",
+                "flags" : "REQUIRED",
+                "description" : "list of properties to sample"
+            },
+        }
+
 LINKLIST = {}
 LINKOBJS = {}
 
