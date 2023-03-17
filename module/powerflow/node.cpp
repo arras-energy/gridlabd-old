@@ -776,7 +776,8 @@ int node::init(OBJECT *parent)
 				{	//Essentially a replication of the no-phase section with more check
 					if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | ((obj->parent->parent!=NR_swing_bus) && (obj->parent->parent!=NULL)))	//Our parent is another child
 					{
-						GL_THROW("NR: Grandchildren are not supported at this time!");
+						obj->parent = obj->parent->parent;
+						warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
 						/*  TROUBLESHOOT
 						Parent-child connections in Newton-Raphson may not go more than one level deep.  Grandchildren
 						(a node parented to a node parented to a node) are unsupported at this time.  Please rearrange your
@@ -862,7 +863,8 @@ int node::init(OBJECT *parent)
 			{
 				if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | (obj->parent->parent!=NULL))	//Our parent is another child
 				{
-					GL_THROW("NR: Grandchildren are not supported at this time!");
+					warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
+					obj->parent = obj->parent->parent;
 					//Defined above
 				}
 				else	//Our parent is unchilded (or has the swing bus as a parent)

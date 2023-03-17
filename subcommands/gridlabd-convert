@@ -95,11 +95,11 @@ while n < len(sys.argv):
 if not INPUTFILE:
 	INPUTFILE = "/dev/stdin"
 elif not INPUTTYPE:
-	INPUTTYPE = os.path.splitext(INPUTFILE)[1]
+	INPUTTYPE = os.path.splitext(INPUTFILE)[1][1:]
 if not OUTPUTFILE:
 	OUTPUTFILE = "/dev/stdout"
 elif not OUTPUTTYPE:
-	OUTPUTTYPE = os.path.splitext(OUTPUTFILE)[1]
+	OUTPUTTYPE = os.path.splitext(OUTPUTFILE)[1][1:]
 
 modname = f'{MODPATH}/{INPUTTYPE}2{OUTPUTTYPE}.py'
 if os.path.exists(modname):
