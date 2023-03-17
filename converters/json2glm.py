@@ -23,7 +23,7 @@ def main():
 	clockflag = False
 	ignored_globals_list = ''
 	try : 
-		opts, args = getopt.getopt(sys.argv[1:],"chi:o:t:ng:",["config","help","ifile=","ofile=","type=","noclock","ignoreglobals="])
+		opts, args = getopt.getopt(sys.argv[1:],"chni:o:t:g:",["config","help","noclock","ifile=","ofile=","type=","ignoreglobals="])
 	except getopt.GetoptError:
 		sys.exit(2)
 	if not opts : 
