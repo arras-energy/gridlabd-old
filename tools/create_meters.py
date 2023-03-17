@@ -33,7 +33,6 @@ if len(sys.argv) == 1:
     print(f"Syntax: gridlabd {BASENAME} [OPTIONS ...] INPUT [OUTPUT]",file=sys.stderr)
     exit(1)
 
-# default configuration
 INPUTFILE = None
 OUTPUTFILE = None
 WITHAMI = False
@@ -54,9 +53,9 @@ for arg in sys.argv[1:]:
             exit(0)
         else:
             raise Exception(f"argument {arg} is invalid")
-    elif not INPUTFILE:
+    elif INPUTFILE is None:
         INPUTFILE = arg
-    elif not OUTPUTFILE:
+    elif OUTPUTFILE is None:
         OUTPUTFILE = arg
     else:
         raise Exception(f"argument {arg} not expected")
@@ -95,26 +94,20 @@ if WITHAMI and 'recorder' not in MODEL['modules']:
 
 LINKLIST = {}
 LINKOBJS = {}
-
-#
-# Utility functions
-#
 def get_links(name):
     global LINKLIST
     if not LINKLIST:
         for tag, obj in OBJECTS.items():
-            if 'to' in obj and 'from' in obj:
-                # print(tag,obj)
+            try:
                 add_links(obj['to'],obj['from'],tag)
-            elif 'parent' in obj:
-                return get_links(obj['parent'])
+            except KeyError:
+                pass
     try:
         return LINKLIST[name]
     except KeyError:
         return None
 
 def add_links(a,b,name):
-    # print(f"add_links(a='{a}',b='{b}',name='{name}')",file=sys.stderr)
     global LINKLIST
     if a not in LINKLIST:
         LINKLIST[a] = [b]
@@ -212,60 +205,6 @@ def write_newobj(fh,item):
 
 def write_delobj(fh,item):
     print(f"modify {item[0]}.in_svc NEVER;",file=fh)
-
-#
-# Main processing script
-#
-for arg in sys.argv[1:]:
-    if arg.startswith('-'):
-        if arg == '--with-ami':
-            WITHAMI = True
-        elif arg == '--modify':
-            MODIFY = True
-        else:
-            raise Exception(f"argument {arg} is invalid")
-    elif not INPUTFILE:
-        INPUTFILE = arg
-    elif not OUTPUTFILE:
-        OUTPUTFILE = arg
-    else:
-        raise Exception(f"argument {arg} not expected")
-
-if MODIFY and os.path.splitext(OUTPUTFILE)[1] != ".glm":
-    print("ERROR [create_meters]: open '--modify' can only be used with GLM output")
-    exit(1)
-
-with open(INPUTFILE,"rt") as fh:
-    MODEL = json.load(fh)
-    OBJECTS = MODEL['objects']
-
-if WITHAMI and 'recorder' not in MODEL['modules']:
-    VERSION = MODEL['version'].split('.')
-    MODEL['modules']['tape'] = {
-        "major": VERSION[0],
-        "minor": VERSION[1]
-    }
-    MODEL['classes']['recorder'] = {
-            "file" : {
-                "type" : "char1024",
-                "access" : "PUBLIC",
-                "flags" : "REQUIRED",
-                "description" : "file in which to record data"
-            },
-            "interval" : {
-                "type" : "double",
-                "access" : "PUBLIC",
-                "unit" : "s",
-                "default" : "-1 s",
-                "description" : "sampling interval"
-            },
-            "property" : {
-                "type" : "method",
-                "access" : "PUBLIC",
-                "flags" : "REQUIRED",
-                "description" : "list of properties to sample"
-            },
-        }
 
 for name in list(OBJECTS):
     obj = OBJECTS[name]
