@@ -21,6 +21,23 @@ DESCRIPTION
 
     If the `--with-ami` is included, each new meter will be assigned
     a recorder with a sampling interval of 1 hour.
+
+VALIDATION
+
+    0. load parent to meter --> do nothing
+    1. load parent to node --> load parent to meter (changed node to meter)
+    2. load parent to ~node --> load parent to meter (new meter), ~node parent to meter
+        (load)(!node) --> (load)(meter) + (!node)(meter)
+    3. load link to meter --> do nothing
+    4. load link to node --> load link to meter (changed from node to meter)
+    5. load link to ~node --> load parent to meter link to ~node (add meter)
+
+IMPLEMENTATION:
+
+    0. only do this for (triplex_)loads that don't have meters
+    1. always add parent object (triplex_)meter to (triplex_)loads
+    2. if (triplex_)load has links, change them to (triplex_)meter
+    3. else fix any grandparents s.t. (A)->(B)->(C) and change to (A)->(C) + (B)->(C)
 """
 
 import os, sys
