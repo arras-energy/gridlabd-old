@@ -1,11 +1,20 @@
-#ifexist ../ieee13.glm
+//////////////// Scenario 0: Load parent to meter ////////////////
+
+#ifexist ../meters-withloads.glm
 #define DIR=..
 #endif
 
-#gridlabd -C ${DIR:-.}/ieee13.glm -o ${DIR:-.}/ieee13.json
-#python -m create_meters ${DIR:-.}/ieee13.json ieee13-meters.json
-#input "ieee13-meters.json"
+#for MODEL_NAME in "meters-withloads, nodes-withloads, notnodes-withloads"
 
-//#ifexist ../ieee13-meters.json
-//#on_exit 0 diff ../ieee13-meters.json ieee13-meters.json
-//#endif
+#gridlabd -C ${DIR:-.}/${MODEL_NAME}.glm -o ${DIR:-.}/${MODEL_NAME}.json
+#python -m create_meters ${DIR:-.}/${MODEL_NAME}.json ${MODEL_NAME}-meters.json
+#input "${MODEL_NAME}-meters.json"
+
+#ifexist ../${MODEL_NAME}-meters.json
+#on_exit 0 diff ../${MODEL_NAME}-meters.json ${MODEL_NAME}-meters.json
+#endif
+
+#done
+
+
+
