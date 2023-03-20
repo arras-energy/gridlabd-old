@@ -31,6 +31,7 @@ VALIDATION
     3. load link to meter --> do nothing
     4. load link to node --> load link to meter (changed from node to meter)
     5. load link to ~node --> load parent to meter link to ~node (add meter)
+    6. All of the above
 
 IMPLEMENTATION:
 
