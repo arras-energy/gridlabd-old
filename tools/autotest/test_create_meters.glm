@@ -4,7 +4,7 @@
 #define DIR=..
 #endif
 
-#for MODEL_NAME in "meters-withloads, nodes-withloads, notnodes-withloads, linkstometer, linkstotriplexmeter"
+#for MODEL_NAME in "meters-withloads, nodes-withloads, notnodes-withloads, links-to-meter, links-to-triplexmeter"
 
 #gridlabd -C ${DIR:-.}/${MODEL_NAME}.glm -o ${DIR:-.}/${MODEL_NAME}.json
 #python -m create_meters ${DIR:-.}/${MODEL_NAME}.json ${MODEL_NAME}-meters.json
