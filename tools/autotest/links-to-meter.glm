@@ -50,26 +50,15 @@ object meter {
      voltage_A 7216.88+0.0j;
      voltage_B -3608.44-6250j;
      voltage_C -3608.44+6250j;
-     // object recorder {
-          // property voltage_A,voltage_B,voltage_C,voltage_AB,voltage_BC,voltage_CA;
-          // interval 60;
-          // limit 1440;
-          // file "meter_4382.csv";
-     // };
-     object complex_assert{
-          target voltage_A;
-          value +7216.87+0.0121068j;
-          within 3;
+     object assert{
+          target measured_real_power;
+          value +400000;
+          within 1;
      };
-     object complex_assert{
-          target voltage_B;
-          value -3608.41-6249.98j;
-          within 3;
-     };
-     object complex_assert{
-          target voltage_C;
-          value -3608.44+6249.96j;
-          within 3;
+     object assert{
+          target measured_reactive_power;
+          value +290000;
+          within 1;
      };
 
 }
@@ -83,21 +72,9 @@ object load
      constant_power_B 120000+90000j;
      constant_power_C 120000+90000j;
      nominal_voltage 2401.7771;
-
-     object complex_assert{
-          target constant_power_A;
-          value +160000+110000j;
-          within 1;
-     };
-     object complex_assert{
-          target constant_power_B;
-          value +120000+90000j;
-          within 1;
-     };
-     object complex_assert{
-          target constant_power_C;
-          value +120000+90000j;
-          within 1;
-     };
 }
+
+
+
+
 

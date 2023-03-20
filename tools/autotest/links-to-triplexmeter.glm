@@ -1,0 +1,101 @@
+clock{
+     timezone PST+8PDT;
+     timestamp '2023-01-01 0:00:00';
+     stoptime '2023-01-02 0:00:00';
+}
+module powerflow
+{
+     solver_method NR;
+}
+module assert;
+module tape;
+
+///////////////// Scenario 4: Triplex load to triplex meter /////////////////
+object triplex_line_conductor {
+     name triplex_1/0 AA;
+     resistance 0.97;
+     geometric_mean_radius 0.0111;
+}
+
+object triplex_line_configuration:1 {
+     conductor_1 triplex_1/0 AA;
+     conductor_2 triplex_1/0 AA;
+     conductor_N triplex_1/0 AA;
+     insulation_thickness 0.08;
+     diameter 0.368;
+}
+
+object triplex_meter {
+     name triplex_meter_1;
+     phases AS;
+     bustype SWING;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+     object complex_assert{
+          target voltage_1;
+          value +120+0i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_2;
+          value +120+0i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_12;
+          value +240+0i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_1N;
+          value +120+0j;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_2N;
+          value +120+0i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_N;
+          value +0+0i;
+          within 1;
+     };
+     object complex_assert{
+          target measured_voltage_1;
+          value +120+0d;
+          within 1;
+     };
+     object complex_assert{
+          target measured_voltage_2;
+          value +120+0d;
+          within 1;
+     };
+     object complex_assert{
+          target measured_voltage_N;
+          value +0+0d;
+          within 1;
+     };
+
+}
+
+object triplex_line {
+     name triplex_line;
+     phases AS;
+     from triplex_meter_1;
+     to triplex_load_1;
+     length 30;
+     configuration triplex_line_configuration:1;
+}
+
+object triplex_load {
+     name triplex_load_1;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+
+}
