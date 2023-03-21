@@ -120,7 +120,7 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp
 		sudo touch $HOME/temp/gridlabd-$VERSION.conf
-		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VAR/$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
 		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
 		sudo ldconfig
 	fi
