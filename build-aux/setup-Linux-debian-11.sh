@@ -106,7 +106,8 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 
 #	make -j $(nproc)
 #	make install
-#	/sbin/ldconfig $VERSION_DIR/lib
+	/sbin/ldconfig $VAR/$VERSION/lib
+	/sbin/ldconfig $VAR/$VERSION/include
 #	ln -sf $VERSION_DIR/bin/python${PY_EXE} $VERSION_DIR/bin/python3
 #	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VERSION_DIR/bin/python3-config
 #	ln -sf $VERSION_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/bin/pydoc
@@ -116,13 +117,12 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/$PYTHON_DIR/python3-config
 	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/python3-config
 	ln -sf $VERSION_DIR/include/python$PY_EXE/* $VAR/$VERSION/include
-	ln -sf $VERSION_DIR/lib/libpython${PY_EXE}* $VAR/$VERSION/lib
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp
 		sudo touch $HOME/temp/gridlabd-$VERSION.conf
-		echo "$VAR/$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
-		echo "$VAR/$VERSION_DIR/include" >> $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VAR/$VERSION/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VAR/$VERSION/include" >> $HOME/temp/gridlabd-$VERSION.conf
 		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
 		sudo ldconfig
 	fi
