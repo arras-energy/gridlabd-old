@@ -3,7 +3,8 @@
 # VAR is defined in install.sh and exported, to be available here
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
-    VERSION_DIR=$VAR/$VERSION
+    VERSION_DIR=/usr/local
+    PYTHON_DIR=pkgenv/bin
     PYTHON_VER=3.9.6
     PY_EXE=3.9
 	REQ_DIR=$(pwd)
@@ -100,11 +101,11 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	make -j $(nproc)
 	make install
 	/sbin/ldconfig $VERSION_DIR/lib
-	ln -sf $VERSION_DIR/bin/python3.9 $VERSION_DIR/bin/python3
-	ln -sf $VERSION_DIR/bin/python3.9-config $VERSION_DIR/bin/python3-config
-	ln -sf $VERSION_DIR/bin/pydoc3.9 $VERSION_DIR/bin/pydoc
-	ln -sf $VERSION_DIR/bin/idle3.9 $VERSION_DIR/bin/idle
-	ln -sf $VERSION_DIR/bin/pip3.9 $VERSION_DIR/bin/pip3
+	ln -sf $VERSION_DIR/bin/python${PY_EXE} $VERSION_DIR/bin/python3
+	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VERSION_DIR/bin/python3-config
+	ln -sf $VERSION_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/bin/pydoc
+	ln -sf $VERSION_DIR/bin/idle${PY_EXE} $VERSION_DIR/bin/idle
+	ln -sf $VERSION_DIR/bin/pip${PY_EXE} $VERSION_DIR/bin/pip3
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp
@@ -114,9 +115,11 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 		sudo ldconfig
 	fi
 
-	$VERSION_DIR/bin/python3 -m pip install --upgrade pip
-	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	$VERSION_DIR/bin/python3 -m pip install IPython censusdata
+	cd $VAR/$VERSION/bin
+    $VERSION_DIR/bin/python3.9 -m venv pkgenv
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install --upgrade pip
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install IPython censusdata
 	
 	if ! gdal-config --version &> /dev/null ; then
 		cd $HOME/temp
@@ -130,18 +133,18 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	$VERSION_DIR/bin/python3 -m pip install GDAL==3.0.4
-	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install GDAL==3.0.4
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install rasterio==1.2.10
 
 	cd $REQ_DIR
-	$VERSION_DIR/bin/python3 -m pip install -r requirements.txt
+	$VAR/$VERSION/bin/$PYTHON_DIR/python3 -m pip install -r requirements.txt
 
 fi
 
 # check for successful python build
-if [ ! -x $VERSION_DIR/bin/python${PY_EXE} ]; then
+if [ ! -x $VAR/$VERSION/bin/$PYTHON_DIR/python${PY_EXE} ]; then
     echo "Could not locate python executable in"
-    echo "PYTHON LOCATION: $VERSION_DIR/bin/python${PY_EXE}"
+    echo "PYTHON LOCATION: $VAR/$VERSION/bin/$PYTHON_DIR/python${PY_EXE}"
     echo "Exiting build."
     exit 1
 fi
