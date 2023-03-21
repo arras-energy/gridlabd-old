@@ -113,14 +113,16 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 #	ln -sf $VERSION_DIR/bin/idle${PY_EXE} $VERSION_DIR/bin/idle
 #	ln -sf $VERSION_DIR/bin/pip${PY_EXE} $VERSION_DIR/bin/pip3
 
-#	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/$PYTHON_DIR/python3-config
-#	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/python3-config
-#	ln -sf $VERSION_DIR/include/python$PY_EXE/* $VAR/$VERSION/lib
+	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/$PYTHON_DIR/python3-config
+	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VAR/$VERSION/bin/python3-config
+	ln -sf $VERSION_DIR/include/python$PY_EXE/* $VAR/$VERSION/include
+	ln -sf $VERSION_DIR/lib/libpython${PY_EXE}* $VAR/$VERSION/lib
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp
 		sudo touch $HOME/temp/gridlabd-$VERSION.conf
 		echo "$VAR/$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+		echo "$VAR/$VERSION_DIR/include" >> $HOME/temp/gridlabd-$VERSION.conf
 		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
 		sudo ldconfig
 	fi
