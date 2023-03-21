@@ -94,25 +94,25 @@ sudo apt-get install curl -y
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
 if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
-#	echo "installing python $PYTHON_VER and ssl module dependencies"
-#	cd $VERSION_DIR/src
+	echo "installing python $PYTHON_VER and ssl module dependencies"
+	cd $VERSION_DIR/src
 
-#	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
+	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
-#	# tar xzf Python-$PYTHON_VER.tgz
-#	cd $VERSION_DIR/src/Python-$PYTHON_VER
+	# tar xzf Python-$PYTHON_VER.tgz
+	cd $VERSION_DIR/src/Python-$PYTHON_VER
 
-#	./configure --prefix=$VERSION_DIR --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=$VERSION_DIR --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
-#	make -j $(nproc)
-#	make install
+	make -j $(nproc)
+	make install
 	/sbin/ldconfig $VAR/$VERSION/lib
 	/sbin/ldconfig $VAR/$VERSION/include
-#	ln -sf $VERSION_DIR/bin/python${PY_EXE} $VERSION_DIR/bin/python3
-#	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VERSION_DIR/bin/python3-config
-#	ln -sf $VERSION_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/bin/pydoc
-#	ln -sf $VERSION_DIR/bin/idle${PY_EXE} $VERSION_DIR/bin/idle
-#	ln -sf $VERSION_DIR/bin/pip${PY_EXE} $VERSION_DIR/bin/pip3
+	ln -sf $VERSION_DIR/bin/python${PY_EXE} $VERSION_DIR/bin/python3
+	ln -sf $VERSION_DIR/bin/python${PY_EXE}-config $VERSION_DIR/bin/python3-config
+	ln -sf $VERSION_DIR/bin/pydoc${PY_EXE} $VERSION_DIR/bin/pydoc
+	ln -sf $VERSION_DIR/bin/idle${PY_EXE} $VERSION_DIR/bin/idle
+	ln -sf $VERSION_DIR/bin/pip${PY_EXE} $VERSION_DIR/bin/pip3
 
 	ln -sf $VERSION_DIR/bin/python$PY_EXE-config $VAR/$VERSION/bin/$PYTHON_DIR/python3-config
 	ln -sf $VERSION_DIR/bin/python$PY_EXE-config $VAR/$VERSION/bin/python3-config
