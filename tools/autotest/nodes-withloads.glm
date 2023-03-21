@@ -68,9 +68,60 @@ object triplex_load
      voltage_N 0;
      constant_power_1 6005.7675+6684.0489j;
      nominal_voltage 120;
-     object assert {
-          target voltage_1;
-          value "+219.894";
+     object complex_assert {
+          target constant_power_1;
+          value +6005.77+6684.05j;
           within 1;
      };
+}
+
+//////////////// Scenario 5: Load link to node ////////////////
+
+object regulator_configuration:4384 {
+     Control OUTPUT_VOLTAGE;
+     band_center 7216.0;
+     band_width 120;
+     connect_type WYE_WYE;
+     time_delay 30;
+     raise_taps 16;
+     lower_taps 16;
+     regulation 0.10;
+     tap_pos_A 0;
+     tap_pos_B 0;
+     tap_pos_C 0;
+}
+
+object regulator {
+     name reg_1;
+     from main_bus;
+     to load2;
+     phases ABCN;
+     configuration regulator_configuration:4384;
+}
+
+object load 
+{
+     name load2;
+     phases "ABCN";
+     constant_power_A 160000+110000j;
+     constant_power_B 120000+90000j;
+     constant_power_C 120000+90000j;
+     nominal_voltage 2401.7771;
+     object complex_assert{
+          target constant_power_A;
+          value +160000+110000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_B;
+          value +120000+90000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_C;
+          value +120000+90000j;
+          within 1;
+     };
+
+
 }

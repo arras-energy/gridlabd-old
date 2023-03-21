@@ -82,7 +82,7 @@ object triplex_meter {
 }
 
 object triplex_line {
-     name triplex_line;
+     name triplex_line_to_meter;
      phases AS;
      from triplex_meter_1;
      to triplex_load_1;
@@ -97,5 +97,44 @@ object triplex_load {
      voltage_2 120;
      voltage_N 0;
      nominal_voltage 120;
+
+}
+
+
+//////////////// Scenario 5: Load link to node (triplex) ////////////////
+
+object triplex_node {
+     name triplex_node_1;
+     phases AS;
+     bustype SWING;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+}
+
+object triplex_line {
+     name triplex_line_to_node;
+     phases AS;
+     from triplex_node_1;
+     to triplex_load_2;
+     length 30;
+     configuration triplex_line_configuration:1;
+}
+
+object triplex_load {
+     name triplex_load_2;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     constant_power_1 6005.7675+6684.0489j;
+     nominal_voltage 120;
+
+     object complex_assert {
+          target constant_power_1;
+          value +6005.77+6684.05j;
+          within 1;
+     };
 
 }
