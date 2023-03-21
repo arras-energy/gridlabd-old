@@ -67,6 +67,11 @@ sudo apt-get install xz-utils -y
 sudo apt-get install wget -y
 sudo apt-get install curl -y
 
+# make my working directory for messy stuff
+	if [ ! -e $HOME/temp ] ; then
+		mkdir $HOME/temp
+	fi
+
 # autoconf fills their version with a lot of crud. This is to purify it down to the actual version, and make it comparable. 
 	ACV=$(autoconf --version | cut -d ' ' -f4)
 	ACV=$(echo $ACV | cut -d ' ' -f1)
