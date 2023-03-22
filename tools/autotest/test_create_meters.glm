@@ -1,17 +1,21 @@
 //////////////// Scenario 0: Load parent to meter ////////////////
 
+#set suppress_repeat_messages=FALSE
+
 #ifexist ../meters-withloads.glm
 #define DIR=..
 #endif
 
-#for MODEL_NAME in "meters-withloads, nodes-withloads, notnodes-withloads, links-to-meter, links-to-triplexmeter, link-to-notnode"
+#for MODEL_NAME in meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode
 
-#gridlabd -C ${DIR:-.}/${MODEL_NAME}.glm -o ${DIR:-.}/${MODEL_NAME}.json
-#python -m create_meters ${DIR:-.}/${MODEL_NAME}.json ${MODEL_NAME}-meters.json
-#input "${MODEL_NAME}-meters.json"
+#set randomseed=1
 
-#ifexist ../${MODEL_NAME}-meters.json
-#on_exit 0 diff ../${MODEL_NAME}-meters.json ${MODEL_NAME}-meters.json
+#gridlabd -D randomseed=1 -C ${DIR:-.}/${MODEL_NAME}.glm -o ${MODEL_NAME}.json
+#python ${DIR:-.}/../create_meters.py ${MODEL_NAME}.json ${MODEL_NAME}-meters.json
+#gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
+
+#ifexist ../${MODEL_NAME}-meters.glm
+#on_exit 0 diff -I'^//.*' ../${MODEL_NAME}-meters.glm ${MODEL_NAME}-meters.glm > gridlabd.diff
 #endif
 
 #done
