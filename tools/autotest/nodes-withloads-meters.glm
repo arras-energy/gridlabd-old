@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'nodes-withloads-meters.json'
-// CreateDate '2023-03-22 08:08:14 '
+// CreateDate '2023-03-22 08:40:39 '
 
 
 // CLOCK
@@ -790,7 +790,7 @@ object node
 {
 	name "main_bus";
 	rng_state "8935";
-	guid "509774870C6AA97357BFCD1F6ACD90D5";
+	guid "2EA8381609FD5BD5E96B30F9FA01B15";
 	bustype "SWING";
 	busflags "HASSOURCE";
 	maximum_voltage_error "0.00240178 V";
@@ -843,7 +843,7 @@ object load
 	name "load1";
 	parent "main_bus";
 	rng_state "20520";
-	guid "AC222B1A8FF29CF5C326C2131748389";
+	guid "6FB10C3B3DB3FC93FD61F729C4EADF";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";
@@ -1007,7 +1007,7 @@ object complex_assert
 	name "complex_assert_2";
 	parent "load1";
 	rng_state "5006";
-	guid "4029D51AC9485954B0FCFC90FA6C22A";
+	guid "2158C7CC62751D7339721AAEE5AC0F88";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1020,7 +1020,7 @@ object complex_assert
 	name "complex_assert_3";
 	parent "load1";
 	rng_state "29890";
-	guid "3759DFF12D55307739948E2003CAAF52";
+	guid "4C7E497992065F0834BF44A1047FA6FA";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1033,7 +1033,7 @@ object complex_assert
 	name "complex_assert_4";
 	parent "load1";
 	rng_state "28474";
-	guid "478BE3A9E58CD8853E0C7AE6595A93E9";
+	guid "6E89CADD2CB2FFA841C978CED8AE3DED";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1045,7 +1045,7 @@ object triplex_node
 {
 	name "triplex_node_1";
 	rng_state "9317";
-	guid "167A7BE6190225910991CE47872ACA2";
+	guid "432BAABB484A7B0749C0EAF3A77175B3";
 	bustype "PQ";
 	maximum_voltage_error "0.00012 V";
 	voltage_1 "120+0j V";
@@ -1089,7 +1089,7 @@ object triplex_load
 	name "triplex_load_1";
 	parent "triplex_node_1";
 	rng_state "29278";
-	guid "2EA715692D4E3AF667FBE413364D2E74";
+	guid "1BA4E8B54F5776927870104DF730C40D";
 	load_class "U";
 	constant_power_1 "6005.77+6684.05j VA";
 	constant_power_2 "0+0j VA";
@@ -1186,7 +1186,7 @@ object complex_assert
 	name "complex_assert_7";
 	parent "triplex_load_1";
 	rng_state "25104";
-	guid "41A9C8D899EB5E10538944C80388766D";
+	guid "17B1D969D4E29AD21B4A043315595B00";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1198,7 +1198,7 @@ object regulator_configuration
 {
 	name "regulator_configuration_8";
 	rng_state "25146";
-	guid "1840264BCCF7B2C021AC28B8CD65A28A";
+	guid "7DB630D6A7925B7C4CB20C36A2BE897";
 	connect_type "WYE_WYE";
 	band_center "7216 V";
 	band_width "120 V";
@@ -1229,7 +1229,7 @@ object regulator
 {
 	name "reg_1";
 	rng_state "30715";
-	guid "59DF1D7A21EEF87B7920E1EDBC09E";
+	guid "632B8A2F84401DC415DEC7ECACEDC22C";
 	configuration "regulator_configuration_8";
 	tap_A "0";
 	tap_B "0";
@@ -1283,7 +1283,7 @@ object load
 {
 	name "load2";
 	rng_state "12500";
-	guid "4B579A1C7F28D65A709ED948067C0BD8";
+	guid "297B7262B50393024DDCEF1A272006E1";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";
@@ -1447,7 +1447,7 @@ object complex_assert
 	name "complex_assert_11";
 	parent "load2";
 	rng_state "12280";
-	guid "5872DBA1170E0EB76D359A2B7E6729C5";
+	guid "2E6D28A8F483FD2028C52599F11BF1B4";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1460,7 +1460,7 @@ object complex_assert
 	name "complex_assert_12";
 	parent "load2";
 	rng_state "590";
-	guid "9A3CB0F26B7D771201F30808ADD8A61";
+	guid "323546381AF0F363625704396E7F858F";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1473,7 +1473,7 @@ object complex_assert
 	name "complex_assert_13";
 	parent "load2";
 	rng_state "6957";
-	guid "220FE1399B06F84177D390F6FCEE5C28";
+	guid "2057CC81646FC3472B9FBA2C4D4AB8C2";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";

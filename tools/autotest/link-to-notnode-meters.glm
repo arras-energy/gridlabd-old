@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'link-to-notnode-meters.json'
-// CreateDate '2023-03-22 08:08:16 '
+// CreateDate '2023-03-22 08:40:41 '
 
 
 // CLOCK
@@ -790,7 +790,7 @@ object substation
 {
 	name "main_bus";
 	rng_state "8935";
-	guid "737F14D95AA2E63D7C25B1DCF30D56E9";
+	guid "48B9C425FD134FA227617C8AB022E8E5";
 	zero_sequence_voltage "0+0j V";
 	positive_sequence_voltage "0+0j V";
 	negative_sequence_voltage "0+0j V";
@@ -865,7 +865,7 @@ object regulator_configuration
 {
 	name "regulator_configuration_1";
 	rng_state "20520";
-	guid "3B9682A3B2347570184D1062AC848551";
+	guid "68A3D0A5C648CF437C33AA7A1FE4F7EE";
 	connect_type "WYE_WYE";
 	band_center "7216 V";
 	band_width "120 V";
@@ -896,7 +896,7 @@ object regulator
 {
 	name "reg_1";
 	rng_state "5006";
-	guid "4495F6D40E1167575D2510D749CC48F6";
+	guid "227E7AD92572DED05DA09CCD59FBB170";
 	configuration "regulator_configuration_1";
 	tap_A "0";
 	tap_B "0";
@@ -950,7 +950,7 @@ object meter
 {
 	name "meter_1";
 	rng_state "29890";
-	guid "1916C95D5633EB3351DCD1DF0D40162A";
+	guid "FF81C4DE3BB8DD06550CC1F177211B2";
 	measured_real_energy "0 Wh";
 	measured_real_energy_delta "0 Wh";
 	measured_reactive_energy "0 VAh";
@@ -1073,7 +1073,7 @@ object assert
 	name "assert_4";
 	parent "meter_1";
 	rng_state "28474";
-	guid "7D01FAAC56EA0F9B4F5BDB3F8FC47880";
+	guid "5973F8E60F6AC2E46468397F4585A313";
 	status "TRUE";
 	target "measured_real_power";
 	relation "==";
@@ -1090,7 +1090,7 @@ object assert
 	name "assert_5";
 	parent "meter_1";
 	rng_state "9317";
-	guid "59F457FD0C0294FE341A05927923DAA4";
+	guid "74440B369D2BAAC810C1BC4DA8CE69A8";
 	status "TRUE";
 	target "measured_reactive_power";
 	relation "==";
@@ -1107,7 +1107,7 @@ object load
 	name "load1";
 	parent "meter_1";
 	rng_state "29278";
-	guid "30C0D45F469AC816DA2F7F9DFEF2914";
+	guid "1FD6669F81E9763C43BE38194A71764D";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";

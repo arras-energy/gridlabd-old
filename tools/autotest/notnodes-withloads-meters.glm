@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'notnodes-withloads-meters.json'
-// CreateDate '2023-03-22 08:08:14 '
+// CreateDate '2023-03-22 08:40:40 '
 
 
 // CLOCK
@@ -790,7 +790,7 @@ object substation
 {
 	name "main_bus";
 	rng_state "8935";
-	guid "509774870C6AA97357BFCD1F6ACD90D5";
+	guid "25D223D3AEDB34F72FC97CD27E302C9";
 	zero_sequence_voltage "0+0j V";
 	positive_sequence_voltage "0+0j V";
 	negative_sequence_voltage "0+0j V";
@@ -866,7 +866,7 @@ object load
 	name "load1";
 	parent "main_bus";
 	rng_state "20520";
-	guid "AC222B1A8FF29CF5C326C2131748389";
+	guid "37CF70B3BD10743A40180638A4D4B007";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";
@@ -1030,7 +1030,7 @@ object complex_assert
 	name "complex_assert_2";
 	parent "load1";
 	rng_state "5006";
-	guid "4029D51AC9485954B0FCFC90FA6C22A";
+	guid "61EB2152C3F5BCD54B895BBF1FD5FAB4";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1043,7 +1043,7 @@ object complex_assert
 	name "complex_assert_3";
 	parent "load1";
 	rng_state "29890";
-	guid "3759DFF12D55307739948E2003CAAF52";
+	guid "2E3B32E3BADD14944D0888600DF55C9A";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1056,7 +1056,7 @@ object complex_assert
 	name "complex_assert_4";
 	parent "load1";
 	rng_state "28474";
-	guid "478BE3A9E58CD8853E0C7AE6595A93E9";
+	guid "23FEE1E19E0CA84E5319D9260F182A8C";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";

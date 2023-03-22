@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'meters-withloads-meters.json'
-// CreateDate '2023-03-22 08:08:13 '
+// CreateDate '2023-03-22 08:40:39 '
 
 
 // CLOCK
@@ -790,7 +790,7 @@ object meter
 {
 	name "main_bus";
 	rng_state "8935";
-	guid "2DAFD434BE3330C8335AE861E28E890A";
+	guid "2EA8381609FD5BD5E96B30F9FA01B15";
 	measured_real_energy "0 Wh";
 	measured_real_energy_delta "0 Wh";
 	measured_reactive_energy "0 VAh";
@@ -913,7 +913,7 @@ object load
 	name "load1";
 	parent "main_bus";
 	rng_state "20520";
-	guid "59EEC2C19FC6E1D62017C7DFB6648E62";
+	guid "6FB10C3B3DB3FC93FD61F729C4EADF";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";
@@ -1077,7 +1077,7 @@ object complex_assert
 	name "complex_assert_2";
 	parent "load1";
 	rng_state "5006";
-	guid "436F43CB4B17923238F88EB8D57CC59E";
+	guid "2158C7CC62751D7339721AAEE5AC0F88";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1090,7 +1090,7 @@ object complex_assert
 	name "complex_assert_3";
 	parent "load1";
 	rng_state "29890";
-	guid "559CF687047E780B214C4A60FA4DA082";
+	guid "4C7E497992065F0834BF44A1047FA6FA";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1103,7 +1103,7 @@ object complex_assert
 	name "complex_assert_4";
 	parent "load1";
 	rng_state "28474";
-	guid "1216CCA3742EC1AF2CBD1A8D22ECD2AA";
+	guid "6E89CADD2CB2FFA841C978CED8AE3DED";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1115,7 +1115,7 @@ object triplex_meter
 {
 	name "triplex_meter_1";
 	rng_state "9317";
-	guid "28DBF781B72150356D19343877C632DF";
+	guid "432BAABB484A7B0749C0EAF3A77175B3";
 	measured_real_energy "0 Wh";
 	measured_real_energy_delta "0 Wh";
 	measured_reactive_energy "0 VAh";
@@ -1212,7 +1212,7 @@ object assert
 	name "assert_6";
 	parent "triplex_meter_1";
 	rng_state "29278";
-	guid "2C8F5675140544B54254D02C8CAF4754";
+	guid "1BA4E8B54F5776927870104DF730C40D";
 	status "TRUE";
 	target "measured_real_power";
 	relation "==";
@@ -1229,7 +1229,7 @@ object triplex_load
 	name "triplex_load_1";
 	parent "triplex_meter_1";
 	rng_state "25104";
-	guid "2D48218C71BE154549897DE9FC2E843";
+	guid "17B1D969D4E29AD21B4A043315595B00";
 	load_class "U";
 	constant_power_1 "6005.77+6684.05j VA";
 	constant_power_2 "0+0j VA";

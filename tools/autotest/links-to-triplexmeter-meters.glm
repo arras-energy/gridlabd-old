@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'links-to-triplexmeter-meters.json'
-// CreateDate '2023-03-22 08:08:15 '
+// CreateDate '2023-03-22 08:40:41 '
 
 
 // CLOCK
@@ -790,7 +790,7 @@ object triplex_line_conductor
 {
 	name "triplex_1/0 AA";
 	rng_state "8935";
-	guid "737F14D95AA2E63D7C25B1DCF30D56E9";
+	guid "48B9C425FD134FA227617C8AB022E8E5";
 	resistance "0.97 Ohm/mile";
 	geometric_mean_radius "0.0111 ft";
 	rating.summer.continuous "202 A";
@@ -802,7 +802,7 @@ object triplex_line_configuration
 {
 	name "triplex_line_configuration_1";
 	rng_state "20520";
-	guid "3B9682A3B2347570184D1062AC848551";
+	guid "68A3D0A5C648CF437C33AA7A1FE4F7EE";
 	conductor_1 "triplex_1/0 AA";
 	conductor_2 "triplex_1/0 AA";
 	conductor_N "triplex_1/0 AA";
@@ -821,7 +821,7 @@ object triplex_meter
 {
 	name "triplex_meter_1";
 	rng_state "5006";
-	guid "4495F6D40E1167575D2510D749CC48F6";
+	guid "227E7AD92572DED05DA09CCD59FBB170";
 	measured_real_energy "0 Wh";
 	measured_real_energy_delta "0 Wh";
 	measured_reactive_energy "0 VAh";
@@ -919,7 +919,7 @@ object complex_assert
 	name "complex_assert_3";
 	parent "triplex_meter_1";
 	rng_state "29890";
-	guid "1916C95D5633EB3351DCD1DF0D40162A";
+	guid "FF81C4DE3BB8DD06550CC1F177211B2";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -932,7 +932,7 @@ object complex_assert
 	name "complex_assert_4";
 	parent "triplex_meter_1";
 	rng_state "28474";
-	guid "7D01FAAC56EA0F9B4F5BDB3F8FC47880";
+	guid "5973F8E60F6AC2E46468397F4585A313";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -945,7 +945,7 @@ object complex_assert
 	name "complex_assert_5";
 	parent "triplex_meter_1";
 	rng_state "9317";
-	guid "59F457FD0C0294FE341A05927923DAA4";
+	guid "74440B369D2BAAC810C1BC4DA8CE69A8";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -958,7 +958,7 @@ object complex_assert
 	name "complex_assert_6";
 	parent "triplex_meter_1";
 	rng_state "29278";
-	guid "30C0D45F469AC816DA2F7F9DFEF2914";
+	guid "1FD6669F81E9763C43BE38194A71764D";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -971,7 +971,7 @@ object complex_assert
 	name "complex_assert_7";
 	parent "triplex_meter_1";
 	rng_state "25104";
-	guid "560A7024C217C72C227AF1B36751946F";
+	guid "40742800253829A9392C5E07DCE47D6B";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -984,7 +984,7 @@ object complex_assert
 	name "complex_assert_8";
 	parent "triplex_meter_1";
 	rng_state "25146";
-	guid "4B3D15B588E3B1141E091C37AD3E807F";
+	guid "63B00FAE1F6E75D37D8607BD29D5EF99";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -997,7 +997,7 @@ object complex_assert
 	name "complex_assert_9";
 	parent "triplex_meter_1";
 	rng_state "30715";
-	guid "57E7B114754E9C385F1137CCB79BB038";
+	guid "5F3AB1622AFFED1E53F31367DE6E6300";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1010,7 +1010,7 @@ object complex_assert
 	name "complex_assert_10";
 	parent "triplex_meter_1";
 	rng_state "12500";
-	guid "629FF56FA71245C6506B9B08CAE14264";
+	guid "580A290904D26B3AD76729DAFEA7B71";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1023,7 +1023,7 @@ object complex_assert
 	name "complex_assert_11";
 	parent "triplex_meter_1";
 	rng_state "12280";
-	guid "2B9B41CCF22DFC142A0B36070A59436";
+	guid "54C0F502AAC29229539C5805D5916C2D";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
@@ -1035,7 +1035,7 @@ object triplex_line
 {
 	name "triplex_line_to_meter";
 	rng_state "590";
-	guid "36146453973E43CE33F7FB0B7089DB4E";
+	guid "B1778C2FBFDB8CEA07994D39CFA34A";
 	configuration "triplex_line_configuration:1";
 	length "30 ft";
 	status "CLOSED";
@@ -1083,7 +1083,7 @@ object triplex_load
 {
 	name "triplex_load_1";
 	rng_state "6957";
-	guid "208B1926022D8BE153A82E881A33895B";
+	guid "1D503C5A32BDA2006349F55087D19DD0";
 	load_class "U";
 	constant_power_1 "0+0j VA";
 	constant_power_2 "0+0j VA";
@@ -1179,7 +1179,7 @@ object triplex_node
 {
 	name "triplex_node_1";
 	rng_state "24297";
-	guid "27289058D7884E6513C3F1FD7A9B7A0F";
+	guid "3969BFEF02B5C9A9565E782E5F46C789";
 	bustype "SWING";
 	busflags "HASSOURCE";
 	maximum_voltage_error "0.00012 V";
@@ -1223,7 +1223,7 @@ object triplex_line
 {
 	name "triplex_line_to_node";
 	rng_state "15386";
-	guid "4E3C83FD44F3C2C6C798C94F35CB834";
+	guid "410E2B945BE57BF4B2530F47BA2FDB8";
 	configuration "triplex_line_configuration:1";
 	length "30 ft";
 	status "CLOSED";
@@ -1271,7 +1271,7 @@ object triplex_load
 {
 	name "triplex_load_2";
 	rng_state "21024";
-	guid "7E12F5C45561E6D1A5D66632675F568";
+	guid "E1DC688E547D60A554656CC8072EB7B";
 	load_class "U";
 	constant_power_1 "6005.77+6684.05j VA";
 	constant_power_2 "0+0j VA";
@@ -1368,7 +1368,7 @@ object complex_assert
 	name "complex_assert_17";
 	parent "triplex_load_2";
 	rng_state "24259";
-	guid "6C2A0948F5841CE320420AA844E69201";
+	guid "4C9F726D369E1A2D2DD3553760444826";
 	status "ASSERT_TRUE";
 	once "ONCE_FALSE";
 	operation "FULL";
