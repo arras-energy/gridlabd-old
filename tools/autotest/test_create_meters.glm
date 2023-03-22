@@ -6,14 +6,23 @@
 #define DIR=..
 #endif
 
+// for each test model
 #for MODEL_NAME in meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode
 
+// reset the rngstate
 #set randomseed=1
 
+// generate the JSON version of the model
 #gridlabd -D randomseed=1 -C ${DIR:-.}/${MODEL_NAME}.glm -o ${MODEL_NAME}.json
+
+// add the meters to the json model
+// TODO: don't use ${DIR:-.}/.. when testing installed version, this is only for developers to use the development version without install
 #python ${DIR:-.}/../create_meters.py ${MODEL_NAME}.json ${MODEL_NAME}-meters.json
+
+// run the version with meters added
 #gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
 
+// check to see if the model is different from what is expected
 #ifexist ../${MODEL_NAME}-meters.glm
 #on_exit 0 diff -I'^//.*' ../${MODEL_NAME}-meters.glm ${MODEL_NAME}-meters.glm > gridlabd.diff
 #endif
