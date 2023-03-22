@@ -16,7 +16,7 @@
 #gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
 
 #ifexist ../${MODEL_NAME}-meters.glm
-#on_exit 0 diff -I'^//.*|^// .*' ../${MODEL_NAME}-meters.glm ${MODEL_NAME}-meters.glm 1>gridlabd.diff 2>&1
+#on_exit 0 diff -I'^//.*' ../${MODEL_NAME}-meters.glm ${MODEL_NAME}-meters.glm 1>gridlabd.diff 2>&1
 #endif
 
 #done
