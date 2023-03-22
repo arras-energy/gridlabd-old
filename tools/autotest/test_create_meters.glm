@@ -6,8 +6,8 @@
 #define DIR=..
 #endif
 
-#system rm -f gridlabd.diff
-#for MODEL_NAME in meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode
+#define CHECKFILES=meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode
+#for MODEL_NAME in ${CHECKFILES}
 
 #set randomseed=1
 
@@ -16,11 +16,8 @@
 #python ${DIR:-.}/../create_meters.py ${MODEL_NAME}.json ${MODEL_NAME}-meters.json
 #gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
 
-#ifexist ../${MODEL_NAME}-meters.glm
-#on_exit 0 diff --unified=0 -I'^//.*' ../${MODEL_NAME}-meters.glm ${MODEL_NAME}-meters.glm >>gridlabd.diff
-#endif
-
 #done
 
-
-
+#ifexist ../check-meters.sh
+#on_exit 0 sh ../check-meters.sh ${CHECKFILES} > gridlabd.diff
+#endif
