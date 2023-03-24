@@ -238,17 +238,20 @@ def main(args):
 
         error("output format not supported")
 
+INPUTFILE = None
+OUTPUTFILE = None
+WITHAMI = False
+
 if __name__ == "__main__":
 
     for arg in sys.argv[1:]:
-        if arg.startswith('-'):
-            if arg == '--with-ami':
-                WITHAMI = True
-            if arg in ['-h','--help','help']:
-                print(__doc__)
-                exit(0)
-            else:
-                raise Exception(f"argument {arg} is invalid")
+        if arg == '--with-ami':
+            WITHAMI = True
+        elif arg in ['-h','--help','help']:
+            print(__doc__)
+            exit(0)
+        elif arg.startswith('-'):
+            raise Exception(f"argument {arg} is invalid")
         elif INPUTFILE is None:
             INPUTFILE = arg
         elif OUTPUTFILE is None:
@@ -288,4 +291,4 @@ if __name__ == "__main__":
                 },
             }
 
-    main()
+    main(arg)
