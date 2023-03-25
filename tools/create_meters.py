@@ -178,7 +178,7 @@ def write_delobj(fh,item):
 
 def main(args):
     if MODEL['globals']['powerflow::solver_method']['value']=='FBS' :
-        warning(f"FBS solver is not currently supported by the create_meters subcommand.")
+        error(f"FBS solver is not currently supported by the create_meters subcommand.")
     for name in list(OBJECTS):
         obj = OBJECTS[name]
         oclass = obj['class']
