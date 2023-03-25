@@ -177,6 +177,8 @@ def write_delobj(fh,item):
     print(f"modify {item[0]}.in_svc NEVER;",file=fh)
 
 def main(args):
+    if MODEL['globals']['powerflow::solver_method']['value']=='FBS' :
+        warning(f"FBS solver is not currently supported by the create_meters subcommand.")
     for name in list(OBJECTS):
         obj = OBJECTS[name]
         oclass = obj['class']
