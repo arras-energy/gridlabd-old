@@ -1,0 +1,93 @@
+
+clock{
+     timezone PST+8PDT;
+     timestamp '2023-01-01 0:00:00';
+     stoptime '2023-01-02 0:00:00';
+}
+module powerflow
+{
+     solver_method NR;
+}
+module assert;
+module tape;
+
+//////////////// Scenario 6: Child to Load link to meter ////////////////
+object triplex_line_conductor {
+     name triplex_1/0 AA;
+     resistance 0.97;
+     geometric_mean_radius 0.0111;
+}
+
+object triplex_line_configuration:1 {
+     conductor_1 triplex_1/0 AA;
+     conductor_2 triplex_1/0 AA;
+     conductor_N triplex_1/0 AA;
+     insulation_thickness 0.08;
+     diameter 0.368;
+}
+
+
+object triplex_node 
+{
+     name main_bus;
+     phases "AS";
+     bustype SWING;
+     nominal_voltage 120;
+}
+
+object triplex_line {
+     name line_1;
+     phases AS;
+     from main_bus;
+     to load_1;
+     length 30;
+     configuration triplex_line_configuration:1;
+}
+
+object triplex_load 
+{
+     name load_1;
+     phases "AS";
+     constant_power_1 2560.7414+2849.9472j;
+     nominal_voltage 120;
+     object assert{
+          target nominal_voltage;
+          value 120;
+          within 1;
+     };
+}
+
+
+object triplex_line {
+     name line_2;
+     phases AS;
+     from load_1;
+     to meter_1;
+     length 30;
+     configuration triplex_line_configuration:1;
+}
+object triplex_meter {
+     name meter_1;
+     phases AS;
+     nominal_voltage 120; 
+     object assert{
+          target measured_real_power;
+          value +2560.74;
+          within 1;
+     };
+
+}
+
+object triplex_load 
+{
+     name load_2;
+     parent meter_1;
+     phases "AS";
+     constant_power_1 2560.7414+2849.9472j;
+     nominal_voltage 120;
+     object assert{
+          target nominal_voltage;
+          value +120;
+          within 1;
+     };
+}

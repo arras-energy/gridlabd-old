@@ -11,7 +11,7 @@ module powerflow
 module assert;
 module tape;
 
-//////////////// Scenario 4: Load link to meter ////////////////
+//////////////// Scenario 6: Child to Load link to meter ////////////////
 
 object substation 
 {
@@ -38,9 +38,33 @@ object regulator_configuration:4384 {
 object regulator {
      name reg_1;
      from main_bus;
-     to meter_1;
+     to load_1;
      phases ABCN;
      configuration regulator_configuration:4384;
+}
+
+object load 
+{
+     name load_1;
+     phases "ABCN";
+     constant_power_A 160000+110000j;
+     constant_power_B 120000+90000j;
+     constant_power_C 120000+90000j;
+     nominal_voltage 2401.7771;
+     object assert{
+          target nominal_voltage;
+          value 2401.78;
+          within 1;
+     };
+}
+
+
+object switch {
+     name switch_1;
+     phases ABCN;
+     from load_1;
+     to meter_1;
+     status CLOSED;
 }
 
 object meter {
@@ -55,26 +79,21 @@ object meter {
           value +400000;
           within 1;
      };
-     object assert{
-          target measured_reactive_power;
-          value +290000;
-          within 1;
-     };
 
 }
 
 object load 
 {
-     name load1;
+     name load_2;
      parent meter_1;
      phases "ABCN";
      constant_power_A 160000+110000j;
      constant_power_B 120000+90000j;
      constant_power_C 120000+90000j;
      nominal_voltage 2401.7771;
+     object assert{
+          target nominal_voltage;
+          value +7216.88;
+          within 1;
+     };
 }
-
-
-
-
-
