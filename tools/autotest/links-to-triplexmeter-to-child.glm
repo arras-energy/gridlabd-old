@@ -12,11 +12,50 @@ module assert;
 module tape;
 
 //////////////// Scenario 6: Child to Load link to meter ////////////////
-object triplex_line_conductor {
+
+
+object node:148 {
+     name R1-12-47-1_node_114;
+     phases AN;
+     voltage_A 7216.88+0.0j;
+     nominal_voltage 7216.88;
+     bustype SWING;
+}
+
+object transformer_configuration:3091 {
+     connect_type SINGLE_PHASE_CENTER_TAPPED;
+     install_type POLETOP;
+     primary_voltage 7216.88 V;
+     secondary_voltage 120 V;
+     power_rating 15.0;
+     powerA_rating 15.0;
+     resistance 0.01000;
+     reactance 0.00667;
+}
+
+object transformer:3729 {
+     name R1-12-47-1_xfmr_598;
+     phases AS;
+     from R1-12-47-1_node_114;
+     to R1-12-47-1_tn_598;
+     configuration transformer_configuration:3091;
+}
+
+object triplex_load:1268 {
+     name R1-12-47-1_tn_598;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+}
+
+object triplex_line_conductor: {
      name triplex_1/0 AA;
      resistance 0.97;
      geometric_mean_radius 0.0111;
 }
+
 
 object triplex_line_configuration:1 {
      conductor_1 triplex_1/0 AA;
@@ -26,68 +65,69 @@ object triplex_line_configuration:1 {
      diameter 0.368;
 }
 
-
-object triplex_node 
-{
-     name main_bus;
-     phases "AS";
-     bustype SWING;
-     nominal_voltage 120;
-}
-
-object triplex_line {
-     name line_1;
+object triplex_line:3082 {
+     name R1-12-47-1_tl_598;
      phases AS;
-     from main_bus;
-     to load_1;
+     from R1-12-47-1_tn_598;
+     to R1-12-47-1_tm_598;
      length 30;
      configuration triplex_line_configuration:1;
 }
 
-object triplex_load 
-{
-     name load_1;
-     phases "AS";
-     constant_power_1 2560.7414+2849.9472j;
+
+object triplex_meter:2464 {
+     name R1-12-47-1_tm_598;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
      nominal_voltage 120;
-     object assert{
-          target nominal_voltage;
-          value 120;
+     object complex_assert{
+          target voltage_1;
+          value +119.903+0.606846i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_2;
+          value +119.903+0.278526i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_12;
+          value +239.14+0.885372i;
           within 1;
      };
 }
 
 
-object triplex_line {
-     name line_2;
+object triplex_load:1866 {
+     name R1-12-47-1_tn_1196;
      phases AS;
-     from load_1;
-     to meter_1;
-     length 30;
-     configuration triplex_line_configuration:1;
-}
-object triplex_meter {
-     name meter_1;
-     phases AS;
-     nominal_voltage 120; 
-     object assert{
-          target measured_real_power;
-          value +2560.74;
+     parent R1-12-47-1_tm_598;
+     constant_power_1 2560.7414+2849.9472j;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+     // object recorder {
+          // property voltage_1,voltage_2,voltage_12,voltage_N,voltage_1N,voltage_2N;
+          // interval 60;
+          // limit 1440;
+          // file "triplex_load_1866.csv";
+     // };
+     object complex_assert{
+          target voltage_1;
+          value +119.903+0.606846i;
           within 1;
      };
-
-}
-
-object triplex_load 
-{
-     name load_2;
-     parent meter_1;
-     phases "AS";
-     constant_power_1 2560.7414+2849.9472j;
-     nominal_voltage 120;
-     object assert{
-          target nominal_voltage;
-          value +120;
+     object complex_assert{
+          target voltage_2;
+          value +119.903+0.278526i;
+          within 1;
+     };
+     object complex_assert{
+          target voltage_12;
+          value +239.14+0.885372i;
           within 1;
      };
 }
