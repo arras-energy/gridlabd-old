@@ -14,7 +14,7 @@ module tape;
 //////////////// Scenario 6: Child to Load link to meter ////////////////
 
 
-object node:148 {
+object node{
      name R1-12-47-1_node_114;
      phases AN;
      voltage_A 7216.88+0.0j;
@@ -22,7 +22,7 @@ object node:148 {
      bustype SWING;
 }
 
-object transformer_configuration:3091 {
+object transformer_configuration {
      connect_type SINGLE_PHASE_CENTER_TAPPED;
      install_type POLETOP;
      primary_voltage 7216.88 V;
@@ -31,17 +31,18 @@ object transformer_configuration:3091 {
      powerA_rating 15.0;
      resistance 0.01000;
      reactance 0.00667;
+     name tx_config;
 }
 
-object transformer:3729 {
+object transformer {
      name R1-12-47-1_xfmr_598;
      phases AS;
      from R1-12-47-1_node_114;
      to R1-12-47-1_tn_598;
-     configuration transformer_configuration:3091;
+     configuration tx_config;
 }
 
-object triplex_load:1268 {
+object triplex_load {
      name R1-12-47-1_tn_598;
      phases AS;
      voltage_1 120;
@@ -50,32 +51,33 @@ object triplex_load:1268 {
      nominal_voltage 120;
 }
 
-object triplex_line_conductor: {
+object triplex_line_conductor {
      name triplex_1/0 AA;
      resistance 0.97;
      geometric_mean_radius 0.0111;
 }
 
 
-object triplex_line_configuration:1 {
+object triplex_line_configuration {
      conductor_1 triplex_1/0 AA;
      conductor_2 triplex_1/0 AA;
      conductor_N triplex_1/0 AA;
      insulation_thickness 0.08;
      diameter 0.368;
+     name line_config;
 }
 
-object triplex_line:3082 {
+object triplex_line{
      name R1-12-47-1_tl_598;
      phases AS;
      from R1-12-47-1_tn_598;
      to R1-12-47-1_tm_598;
      length 30;
-     configuration triplex_line_configuration:1;
+     configuration line_config;
 }
 
 
-object triplex_meter:2464 {
+object triplex_meter {
      name R1-12-47-1_tm_598;
      phases AS;
      voltage_1 120;
@@ -100,7 +102,7 @@ object triplex_meter:2464 {
 }
 
 
-object triplex_load:1866 {
+object triplex_load {
      name R1-12-47-1_tn_1196;
      phases AS;
      parent R1-12-47-1_tm_598;

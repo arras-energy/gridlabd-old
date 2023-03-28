@@ -12,7 +12,6 @@ module assert;
 module tape;
 
 //////////////// Scenario 6: Child to Load link to meter ////////////////
-
 object substation 
 {
      name main_bus;
