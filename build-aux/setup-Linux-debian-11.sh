@@ -86,8 +86,8 @@ sudo apt-get install curl -y
 		rm -rf autoconf-2.71.tar.gz
 	fi
 
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
@@ -105,11 +105,15 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	make -j $(nproc)
 	make install
 	/sbin/ldconfig $VERSION_DIR/lib
-	ln -sf $PKG_PYTHON_DIR/bin/python3.9 $PKG_PYTHON_DIR/bin/python3
-	ln -sf $PKG_PYTHON_DIR/bin/python3.9-config $PKG_PYTHON_DIR/bin/python3-config
-	ln -sf $PKG_PYTHON_DIR/bin/pydoc3.9 $PKG_PYTHON_DIR/bin/pydoc
-	ln -sf $PKG_PYTHON_DIR/bin/idle3.9 $PKG_PYTHON_DIR/bin/idle
-	ln -sf $PKG_PYTHON_DIR/bin/pip3.9 $PKG_PYTHON_DIR/bin/pip3
+	ln -sf $PKG_PYTHON_DIR/python3.9 $PKG_PYTHON_DIR/python3
+	ln -sf $PKG_PYTHON_DIR/python3.9-config $PKG_PYTHON_DIR/python3-config
+	ln -sf $PKG_PYTHON_DIR/pydoc3.9 $PKG_PYTHON_DIR/pydoc
+	ln -sf $PKG_PYTHON_DIR/idle3.9 $PKG_PYTHON_DIR/idle
+	ln -sf $PKG_PYTHON_DIR/pip3.9 $PKG_PYTHON_DIR/pip3
+
+    sudo ln -sf $PKG_PYTHON_DIR/python3.9-config $VENV_PYTHON_DIR/python3-config
+    sudo ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/lib
+    sudo ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/include
 
 	cd $VERSION_DIR/bin
 	$PKG_PYTHON_DIR/python3 -m venv pkgenv
