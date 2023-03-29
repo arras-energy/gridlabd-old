@@ -86,8 +86,8 @@ sudo apt-get install curl -y
 		rm -rf autoconf-2.71.tar.gz
 	fi
 
-export LD_LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LD_LIBRARY_PATH
-export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:/usr/local/lib:/usr/local/include:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:/usr/local/lib:/usr/local/include:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
