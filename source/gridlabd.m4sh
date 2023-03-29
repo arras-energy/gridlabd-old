@@ -80,9 +80,7 @@ fi
 # Python Configuration Data and Flags
 ###############################################################################
 PY_OS="$(uname -s)"
-AS_IF([test $PY_OS = "Linux"],
-  [PYTHON_VER_DIR="@exec_prefix@/bin"],
-  [PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"])
+PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
