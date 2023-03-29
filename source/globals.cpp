@@ -286,7 +286,7 @@ void configpath_init(const char *value)
 
 void pythonexec_init(const char *value)
 {
-	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/python3",global_bindir);
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
 }
 /* Add more derivative directories here */
 
