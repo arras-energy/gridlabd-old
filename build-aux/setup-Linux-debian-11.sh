@@ -91,16 +91,16 @@ export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
 	echo "installing python $PYTHON_VER and ssl module dependencies"
-	cd $PKG_PYTHON_DIR/src
+	cd /usr/local/src
 
 	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
 	# tar xzf Python-$PYTHON_VER.tgz
-	cd $PKG_PYTHON_DIR/src/Python-$PYTHON_VER
+	cd /usr/local/src/Python-$PYTHON_VER
 
-	./configure --prefix=$PKG_PYTHON_DIR --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
