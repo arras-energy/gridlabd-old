@@ -115,8 +115,8 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	$PKG_PYTHON_DIR/python3 -m venv pkgenv
 
 	ln -sf $PKG_PYTHON_DIR/python3.9-config $VENV_PYTHON_DIR/python3-config
-	ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/lib
-	ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/include
+	ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/bin/pkgenv/lib
+	ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/bin/pkgenv/include
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp

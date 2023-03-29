@@ -648,10 +648,10 @@ AC_MSG_RESULT([
 
         $DSTDIR/bin/$PACKAGE version set
 
-    What'r me flags:
-    1 ...... "$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    2 ...... "$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    3 ...... "$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+    Developer flags:
+    CFLAGS ........ "$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+    CXXFLAGS ...... "$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+    LDFLAGS ....... "$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 -----------------------------------------------------------------------
 ])
