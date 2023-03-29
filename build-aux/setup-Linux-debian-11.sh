@@ -111,12 +111,12 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	ln -sf $PKG_PYTHON_DIR/idle3.9 $PKG_PYTHON_DIR/idle
 	ln -sf $PKG_PYTHON_DIR/pip3.9 $PKG_PYTHON_DIR/pip3
 
-    sudo ln -sf $PKG_PYTHON_DIR/python3.9-config $VENV_PYTHON_DIR/python3-config
-    sudo ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/lib
-    sudo ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/include
-
 	cd $VERSION_DIR/bin
 	$PKG_PYTHON_DIR/python3 -m venv pkgenv
+
+	ln -sf $PKG_PYTHON_DIR/python3.9-config $VENV_PYTHON_DIR/python3-config
+	ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/lib
+	ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/include
 
 	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
 		cd $HOME/temp
