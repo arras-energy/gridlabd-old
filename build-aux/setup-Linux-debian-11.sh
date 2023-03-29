@@ -118,13 +118,13 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	ln -sf /usr/local/lib/*$PY_EXE $VERSION_DIR/bin/pkgenv/lib
 	ln -sf /usr/local/include/python$PY_EXE $VERSION_DIR/bin/pkgenv/include
 
-	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
-		cd $HOME/temp
-		sudo touch $HOME/temp/gridlabd-$VERSION.conf
-		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
-		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
-		sudo ldconfig
-	fi
+#	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
+#		cd $HOME/temp
+#		sudo touch $HOME/temp/gridlabd-$VERSION.conf
+#		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
+#		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
+#		sudo ldconfig
+#	fi
 
 	$VENV_PYTHON_DIR/python3 -m pip install --upgrade pip
 	$VENV_PYTHON_DIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
