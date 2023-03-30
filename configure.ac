@@ -564,8 +564,15 @@ AS_CASE([$BRANCHNAME],
 AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
 VERSION_NAME=$(build-aux/version.sh --name)
-PREFIX=${prefix:-/usr/local/opt}
-DSTDIR=${prefix:-PREFIX/gridlabd/$VERSION_NAME}
+
+AC_ARG_WITH([prefix], [AS_HELP_STRING([--with-prefix=PREFIX], [install architecture-independent files in PREFIX])], [prefix="$withval"], [prefix="/usr/local"])
+if test "x$prefix" = "xNONE"; then
+  prefix="/usr/local/opt"
+fi
+
+PREFIX=${prefix}
+DSTDIR=${prefix}/gridlabd/$VERSION_NAME
+
 BINDIR=$DSTDIR/bin
 LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
