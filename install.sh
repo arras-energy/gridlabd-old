@@ -194,7 +194,7 @@ VERSION_DIR=$VAR/$VERSION
 
 if [ ! -d "$VAR" ]; then
 	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
-	mkdir -p $VAR/var
+	mkdir -p $VERSION_DIR/var
 fi
 
 if [ -e "$VAR" ] ; then
