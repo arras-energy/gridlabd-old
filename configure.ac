@@ -572,9 +572,11 @@ ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
 AC_CONFIG_COMMANDS([venv-create], [
-    mkdir -p $BINDIR
-    cd $BINDIR
-    /usr/local/bin/python3 -m venv pkgenv
+    if test ! -d "$BINDIR/pkgenv"; then
+        mkdir -p "$BINDIR"
+        cd "$BINDIR"
+        /usr/local/bin/python3 -m venv pkgenv
+    fi
 ], [echo "Creating virtual environment..."])
 
 AC_CONFIG_COMMANDS_POST([venv-create], [
@@ -591,7 +593,7 @@ AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
     [PYTHON_LIB="-lpython${PYTHON_VER}"])
 
 AC_CONFIG_COMMANDS([venv-setup], [
-    PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2))
+    PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2)
     ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
     ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
     ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
@@ -603,9 +605,6 @@ AC_CONFIG_COMMANDS([venv-setup], [
     $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
 ], [echo "Setting up virtual environment..."])
 
-AC_CONFIG_COMMANDS_POST([venv-setup], [
-    echo "Virtual environment setup complete."
-])
 ###############################################################################
 # The End
 ###############################################################################
