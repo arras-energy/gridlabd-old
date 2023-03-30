@@ -571,39 +571,33 @@ LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
-AC_CONFIG_COMMANDS([venv-create], [
-    if test ! -d "$BINDIR/pkgenv"; then
-        mkdir -p "$BINDIR"
-        cd "$BINDIR"
-        /usr/local/bin/python3 -m venv pkgenv
-    fi
-], [echo "Creating virtual environment..."])
-
-AC_CONFIG_COMMANDS_POST([venv-create], [
-    echo "Virtual environment creation complete."
-])
-
 # Verify python version
+if test ! -d "$BINDIR/pkgenv"; then
+  mkdir -p "$BINDIR"
+  cd "$BINDIR"
+  /usr/local/bin/python3 -m venv pkgenv
+fi
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-    [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
-    [PYTHON_LIB="-lpython${PYTHON_VER}"])
+  [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
+  [PYTHON_LIB="-lpython${PYTHON_VER}"])
 
-AC_CONFIG_COMMANDS([venv-setup], [
-    PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2)
-    ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
-    ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
-    ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
+if test ! -d "$BINDIR/pkgenv/include/python*"; then
+  PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2)
+  ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
+  ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
+  ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
 
-    $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
-    $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-    $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
-    $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
-    $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
-], [echo "Setting up virtual environment..."])
+  $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
+  $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+  $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
+  $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
+  $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
+fi
+
 
 ###############################################################################
 # The End
