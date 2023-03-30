@@ -8,7 +8,6 @@
 	VENV_PYTHON_DIR=$VERSION_DIR/bin/pkgenv/bin
     PYTHON_VER=3.9.6
     PY_EXE=3.9
-	REQ_DIR=$(pwd)
 
 # Install needed system tools
 # update first and install libgdal-dev second, as sometimes other package installs break libgdal, but tzdata needs to be first
@@ -91,7 +90,7 @@ export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:/usr/local/lib:/usr/lo
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)" != "$PY_EXE" ]; then
 	echo "installing python $PYTHON_VER and ssl module dependencies"
 	cd /usr/local/src
 
@@ -104,32 +103,9 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 
 	make -j $(nproc)
 	make install
-	/sbin/ldconfig $VERSION_DIR/lib
-	ln -sf $PKG_PYTHON_DIR/python3.9 $PKG_PYTHON_DIR/python3
-	ln -sf $PKG_PYTHON_DIR/python3.9-config $PKG_PYTHON_DIR/python3-config
-	ln -sf $PKG_PYTHON_DIR/pydoc3.9 $PKG_PYTHON_DIR/pydoc
-	ln -sf $PKG_PYTHON_DIR/idle3.9 $PKG_PYTHON_DIR/idle
-	ln -sf $PKG_PYTHON_DIR/pip3.9 $PKG_PYTHON_DIR/pip3
 
-	cd $VERSION_DIR/bin
-	$PKG_PYTHON_DIR/python3 -m venv pkgenv
+	ln -sf $PKG_PYTHON_DIR/python${PY_EXE} $PKG_PYTHON_DIR/python3
 
-	ln -s $PKG_PYTHON_DIR/python3.9-config $VENV_PYTHON_DIR/python3-config
-	ln -s /usr/local/lib/*${PY_EXE}* $VERSION_DIR/bin/pkgenv/lib
-	ln -s /usr/local/include/python$PY_EXE $VERSION_DIR/bin/pkgenv/include
-
-#	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
-#		cd $HOME/temp
-#		sudo touch $HOME/temp/gridlabd-$VERSION.conf
-#		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
-#		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
-#		sudo ldconfig
-#	fi
-
-	$VENV_PYTHON_DIR/python3 -m pip install --upgrade pip
-	$VENV_PYTHON_DIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	$VENV_PYTHON_DIR/python3 -m pip install IPython censusdata
-	
 	if ! gdal-config --version &> /dev/null ; then
 		cd $HOME/temp
 		sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
@@ -142,18 +118,13 @@ if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	$VENV_PYTHON_DIR/python3 -m pip install GDAL==3.0.4
-	$VENV_PYTHON_DIR/python3 -m pip install rasterio==1.2.10
-
-	cd $REQ_DIR
-	$VENV_PYTHON_DIR/python3 -m pip install -r requirements.txt
 
 fi
 
 # check for successful python build
-if [ ! -x $VENV_PYTHON_DIR/python3 ]; then
+if [ ! -x $PKG_PYTHON_DIR/python3 ]; then
     echo "Could not locate python executable in"
-    echo "PYTHON LOCATION: $VENV_PYTHON_DIR"
+    echo "PYTHON LOCATION: $PKG_PYTHON_DIR"
     echo "Exiting build."
     exit 1
 fi
@@ -164,16 +135,7 @@ apt-get install texlive -y
 # doxgygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	if [ ! -d $VERSION_DIR/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git $VERSION_DIR/src/doxygen
-	fi
-	if [ ! -d $VERSION_DIR/src/doxygen/build ]; then
-		mkdir $VERSION_DIR/src/doxygen/build
-	fi
-	cd $VERSION_DIR/src/doxygen/build
-	cmake -G "Unix Makefiles" ..
-	make
-	make install
+	apt-get -q install doxygen -y
 fi
 
 # # mono
@@ -195,6 +157,6 @@ if [ ! -x /usr/local/bin/natural_docs ]; then
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono $VERSION_DIR/natural_docs/NaturalDocs.exe \$*' > $VERSION_DIR/bin/natural_docs
+mono /usr/local/bin/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi

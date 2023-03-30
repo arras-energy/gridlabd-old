@@ -571,6 +571,27 @@ LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
+AC_CONFIG_COMMANDS([venv-setup], [
+    mkdir -p $BINDIR
+    cd $BINDIR
+    /usr/local/bin/python3 -m venv pkgenv
+
+    ln -s /usr/local/bin/python${PY_EXE}-config $BINDIR/pkgenv/bin/python3-config
+    ln -s /usr/local/lib/*${PY_EXE}* $BINDIR/pkgenv/lib
+    ln -s /usr/local/include/python$PY_EXE $BINDIR/pkgenv/include
+
+    $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
+    $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+    $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
+    $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
+    $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
+], [echo "Setting up virtual environment..."])
+
+AC_CONFIG_COMMANDS_POST([venv-setup], [
+    echo "Virtual environment setup complete."
+])
+
+
 # Verify python version
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"

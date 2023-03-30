@@ -205,18 +205,6 @@ if [ ! -d "$HOME/temp" ]; then
 	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
 fi
 
-if [ ! -d "$VERSION_DIR" ]; then
-    mkdir -p $VERSION_DIR/bin
-	mkdir -p $VERSION_DIR/include
-	mkdir -p $VERSION_DIR/lib
-	mkdir -p $VERSION_DIR/man
-	mkdir -p $VERSION_DIR/share
-	mkdir -p $VERSION_DIR/src
-	mkdir -p $VERSION_DIR/var
-	mkdir -p $VERSION_DIR/opt
-	mkdir -p $VERSION_DIR/etc
-fi
-
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 # setup logging
