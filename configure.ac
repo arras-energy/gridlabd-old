@@ -571,14 +571,30 @@ LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
-AC_CONFIG_COMMANDS([venv-setup], [
+AC_CONFIG_COMMANDS([venv-create], [
     mkdir -p $BINDIR
     cd $BINDIR
     /usr/local/bin/python3 -m venv pkgenv
+], [echo "Creating virtual environment..."])
 
-    ln -s /usr/local/bin/python${PY_EXE}-config $BINDIR/pkgenv/bin/python3-config
-    ln -s /usr/local/lib/*${PY_EXE}* $BINDIR/pkgenv/lib
-    ln -s /usr/local/include/python$PY_EXE $BINDIR/pkgenv/include
+AC_CONFIG_COMMANDS_POST([venv-create], [
+    echo "Virtual environment creation complete."
+])
+
+# Verify python version
+HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
+AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
+    [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
+    [PYTHON_LIB="-lpython${PYTHON_VER}"])
+
+AC_CONFIG_COMMANDS([venv-setup], [
+    PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2))
+    ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
+    ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
+    ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
 
     $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
     $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
@@ -590,17 +606,6 @@ AC_CONFIG_COMMANDS([venv-setup], [
 AC_CONFIG_COMMANDS_POST([venv-setup], [
     echo "Virtual environment setup complete."
 ])
-
-
-# Verify python version
-HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
-AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
-AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-    [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
-    [PYTHON_LIB="-lpython${PYTHON_VER}"])
-
 ###############################################################################
 # The End
 ###############################################################################
