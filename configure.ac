@@ -576,6 +576,13 @@ if test ! -d "$BINDIR/pkgenv"; then
   mkdir -p "$BINDIR"
   cd "$BINDIR"
   /usr/local/bin/python3 -m venv pkgenv
+
+  $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
+  $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+  $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
+  $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
+  $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
+
 fi
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
@@ -586,16 +593,12 @@ AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
   [PYTHON_LIB="-lpython${PYTHON_VER}"])
 
 if test ! -d "$BINDIR/pkgenv/include/python*"; then
-  PYTHON_VER_MM=$(echo $PYTHON_VER | cut -d. -f1-2)
+
+  PYTHON_VER_MM="$($BINDIR/pkgenv/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)"
   ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
   ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
   ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
 
-  $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
-  $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-  $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
-  $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
-  $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
 fi
 
 
