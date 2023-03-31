@@ -588,13 +588,13 @@ if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
     echo "here"
 
-    if test "$host_os" == "linux"* ; then
+    if [[ "$host_os" == linux* ]] ; then
         echo "next"
         # Check for Debian or Ubuntu
-        if test "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ; then
-            echo "not here?"
+        if [[ "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ]]; then
+            echo "close"
             # Check for Debian 10
-            if test "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ; then
+            if [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ]]; then
                 echo "Detected Debian 10 operating system"
                 # Add Debian 10-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
@@ -603,7 +603,7 @@ if test ! -d "$BINDIR/pkgenv"; then
                 $PYDIR/python3 -m pip install IPython censusdata
                 $PYDIR/python3 -m pip install GDAL==2.4.0
                 $PYDIR/python3 -m pip install rasterio==1.2.10
-            elif test "$(cat /etc/*-release | grep -E '^VERSION_ID="9"')" ; then
+            elif [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="9"')" ]]; then
                 echo "Detected Debian 9 operating system"
                 # Add Debian 9-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
@@ -624,11 +624,11 @@ if test ! -d "$BINDIR/pkgenv"; then
             echo "Unsupported Linux distribution"
             AC_MSG_ERROR([Unsupported Linux distribution])
         fi
-    elif test "$host_os" == darwin* ; then
-        if test "$host_cpu" == i386* || "$host_cpu" == x86_64* ; then
+    elif [[ "$host_os" == *darwin* ]]; then
+        if [[ "$host_cpu" == i386* || "$host_cpu" == x86_64* ]]; then
             echo "Detected Intel Mac operating system"
             # Add Intel Mac-specific configuration here
-        elif test "$host_cpu" == arm64* ; then
+        elif [[ "$host_cpu" == arm64* ]]; then
             echo "Detected arm64 Mac operating system"
             # Add arm64 Mac-specific configuration here
         else
