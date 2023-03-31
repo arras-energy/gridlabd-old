@@ -585,7 +585,7 @@ PYDIR=$ENVDIR/bin
 if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
 
-    if [[ "$host_os" == linux* ]]; then
+    if [[ "$host_os" == *linux* ]]; then
         # Check for Debian or Ubuntu
         if [[ "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ]]; then
             # Check for Debian 10
@@ -619,7 +619,7 @@ if test ! -d "$BINDIR/pkgenv"; then
             echo "Unsupported Linux distribution"
             AC_MSG_ERROR([Unsupported Linux distribution])
         fi
-    elif [[ "$host_os" == darwin* ]]; then
+    elif [[ "$host_os" == *darwin* ]]; then
         if [[ "$host_cpu" == i386* || "$host_cpu" == x86_64* ]]; then
             echo "Detected Intel Mac operating system"
             # Add Intel Mac-specific configuration here
