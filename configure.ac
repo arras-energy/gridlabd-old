@@ -589,58 +589,59 @@ if test ! -d "$BINDIR/pkgenv"; then
     echo "here"
 fi
 
-if [[ $host_os == linux* ]] ; then
+if [ "$(echo "$host_os" | grep -E '^linux')" ]; then
     echo "next"
     # Check for Debian or Ubuntu
-    if [[ "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ]]; then
+    if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
         echo there
         # Check for Debian 10
-        if [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ]]; then
+        if grep -E '^VERSION_ID="10"' /etc/*-release; then
             echo "Detected Debian 10 operating system"
             # Add Debian 10-specific configuration here
-            /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-            $PYDIR/python3 -m pip install --upgrade pip
-            $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            $PYDIR/python3 -m pip install IPython censusdata
-            $PYDIR/python3 -m pip install GDAL==2.4.0
-            $PYDIR/python3 -m pip install rasterio==1.2.10
-        elif [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="9"')" ]]; then
+            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            "$PYDIR/python3" -m pip install --upgrade pip
+            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+            "$PYDIR/python3" -m pip install IPython censusdata
+            "$PYDIR/python3" -m pip install GDAL==2.4.0
+            "$PYDIR/python3" -m pip install rasterio==1.2.10
+        elif grep -E '^VERSION_ID="9"' /etc/*-release; then
             echo "Detected Debian 9 operating system"
             # Add Debian 9-specific configuration here
-            /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-            $PYDIR/python3 -m pip install --upgrade pip
-            $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            $PYDIR/python3 -m pip install IPython censusdata
+            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            "$PYDIR/python3" -m pip install --upgrade pip
+            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+            "$PYDIR/python3" -m pip install IPython censusdata
         else
             echo "Detected Debian or Ubuntu operating system"
             # Add Debian/Ubuntu-specific configuration here
-            /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-            $PYDIR/python3 -m pip install --upgrade pip
-            $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            $PYDIR/python3 -m pip install IPython censusdata
-            $PYDIR/python3 -m pip install GDAL==3.0.4
-            $PYDIR/python3 -m pip install rasterio==1.2.10
+            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            "$PYDIR/python3" -m pip install --upgrade pip
+            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+            "$PYDIR/python3" -m pip install IPython censusdata
+            "$PYDIR/python3" -m pip install GDAL==3.0.4
+            "$PYDIR/python3" -m pip install rasterio==1.2.10
         fi
     else
         echo "Unsupported Linux distribution"
-        AC_MSG_ERROR([Unsupported Linux distribution])
+        exit 1
     fi
-elif [[ $host_os == *darwin* ]]; then
-    if [[ $host_cpu == i386* || $host_cpu == x86_64* ]]; then
+elif [ "$(echo "$host_os" | grep -E 'darwin')" ]; then
+    if [ "$(echo "$host_cpu" | grep -E 'i386|x86_64')" ]; then
         echo "Detected Intel Mac operating system"
         # Add Intel Mac-specific configuration here
-    elif [[ $host_cpu == arm64* ]]; then
+    elif [ "$(echo "$host_cpu" | grep -E 'arm64')" ]; then
         echo "Detected arm64 Mac operating system"
         # Add arm64 Mac-specific configuration here
     else
         echo "Unknown CPU architecture on Mac operating system"
-        AC_MSG_ERROR([Unsupported architecture])
+        exit 1
     fi
 else
     echo "Unsupported operating system"
     echo "$host_os"
-    AC_MSG_ERROR([Unsupported OS])
+    exit 1
 fi
+
 
 
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
