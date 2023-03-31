@@ -587,9 +587,9 @@ if test ! -d "$BINDIR/pkgenv"; then
 
     if [[ "$host_os" == linux* ]]; then
         # Check for Debian or Ubuntu
-        if grep -q -E '^ID=(debian|ubuntu)$' /etc/*-release; then
+        if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
             # Check for Debian 10
-            if grep -q -E '^VERSION_ID="10"' /etc/*-release; then
+            if grep -E '^VERSION_ID="10"' /etc/*-release; then
                 echo "Detected Debian 10 operating system"
                 # Add Debian 10-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
@@ -598,7 +598,7 @@ if test ! -d "$BINDIR/pkgenv"; then
                 $PYDIR/python3 -m pip install IPython censusdata
                 $PYDIR/python3 -m pip install GDAL==2.4.0
                 $PYDIR/python3 -m pip install rasterio==1.2.10
-            elif grep -q -E '^VERSION_ID="9"' /etc/*-release; then
+            elif grep -E '^VERSION_ID="9"' /etc/*-release; then
                 echo "Detected Debian 9 operating system"
                 # Add Debian 9-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
