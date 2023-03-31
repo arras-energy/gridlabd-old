@@ -4,9 +4,10 @@
 # Set version and paths, using these vars will make future maintenance much better. #Automation
     VERSION=${VERSION:-`build-aux/version.sh --name`}
     VERSION_DIR=$VAR/$VERSION
+	PKG_PYTHON_DIR=/usr/local/bin
+	VENV_PYTHON_DIR=$VERSION_DIR/bin/pkgenv/bin
     PYTHON_VER=3.9.6
     PY_EXE=3.9
-	REQ_DIR=$(pwd)
 
 # Install needed system tools
 # update first and install libgdal-dev second, as sometimes other package installs break libgdal, but tzdata needs to be first
@@ -66,11 +67,6 @@ sudo apt-get install xz-utils -y
 sudo apt-get install wget -y
 sudo apt-get install curl -y
 
-# Update Autoconf to 2.71 manually as apt-get does not track the latest version
-	if [ ! -e $HOME/temp ]; then
-		mkdir $HOME/temp
-	fi
-
 # autoconf fills their version with a lot of crud. This is to purify it down to the actual version, and make it comparable. 
 	ACV=$(autoconf --version | cut -d ' ' -f4)
 	ACV=$(echo $ACV | cut -d ' ' -f1)
@@ -89,40 +85,27 @@ sudo apt-get install curl -y
 		rm -rf autoconf-2.71.tar.gz
 	fi
 
+export LD_LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:/usr/local/lib:/usr/local/include:$LD_LIBRARY_PATH
+export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:/usr/local/lib:/usr/local/include:$LIBRARY_PATH
+
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cut -f3 -d.)" != "Python $PY_EXE" ]; then
+if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)" != "$PY_EXE" ]; then
 	echo "installing python $PYTHON_VER and ssl module dependencies"
-	cd $VERSION_DIR/src
+	cd /usr/local/src
 
 	curl https://www.python.org/ftp/python/$PYTHON_VER/Python-$PYTHON_VER.tgz | tar xz
 
 	# tar xzf Python-$PYTHON_VER.tgz
-	cd $VERSION_DIR/src/Python-$PYTHON_VER
+	cd /usr/local/src/Python-$PYTHON_VER
 
-	./configure --prefix=$VERSION_DIR --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+	./configure --prefix=/usr/local --enable-shared --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 
 	make -j $(nproc)
 	make install
-	/sbin/ldconfig $VERSION_DIR/lib
-	ln -sf $VERSION_DIR/bin/python3.9 $VERSION_DIR/bin/python3
-	ln -sf $VERSION_DIR/bin/python3.9-config $VERSION_DIR/bin/python3-config
-	ln -sf $VERSION_DIR/bin/pydoc3.9 $VERSION_DIR/bin/pydoc
-	ln -sf $VERSION_DIR/bin/idle3.9 $VERSION_DIR/bin/idle
-	ln -sf $VERSION_DIR/bin/pip3.9 $VERSION_DIR/bin/pip3
 
-	if [ ! -e /etc/ld.so.conf.d/gridlabd-$VERSION.conf ]; then
-		cd $HOME/temp
-		sudo touch $HOME/temp/gridlabd-$VERSION.conf
-		echo "$VERSION_DIR/lib" >> $HOME/temp/gridlabd-$VERSION.conf
-		sudo mv $HOME/temp/gridlabd-$VERSION.conf /etc/ld.so.conf.d/gridlabd-$VERSION.conf
-		sudo ldconfig
-	fi
+	ln -sf $PKG_PYTHON_DIR/python${PY_EXE} $PKG_PYTHON_DIR/python3
 
-	$VERSION_DIR/bin/python3 -m pip install --upgrade pip
-	$VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	$VERSION_DIR/bin/python3 -m pip install IPython censusdata
-	
 	if ! gdal-config --version &> /dev/null ; then
 		cd $HOME/temp
 		sudo wget download.osgeo.org/gdal/3.0.4/gdal304.zip
@@ -135,18 +118,13 @@ if [ ! -x $VERSION_DIR/bin/python3 -o "$($VERSION_DIR/bin/python3 --version | cu
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
-	$VERSION_DIR/bin/python3 -m pip install GDAL==3.0.4
-	$VERSION_DIR/bin/python3 -m pip install rasterio==1.2.10
-
-	cd $REQ_DIR
-	$VERSION_DIR/bin/python3 -m pip install -r requirements.txt
 
 fi
 
 # check for successful python build
-if [ ! -x $VERSION_DIR/bin/python${PY_EXE} ]; then
+if [ ! -x $PKG_PYTHON_DIR/python3 ]; then
     echo "Could not locate python executable in"
-    echo "PYTHON LOCATION: $VERSION_DIR/bin/python${PY_EXE}"
+    echo "PYTHON LOCATION: $PKG_PYTHON_DIR"
     echo "Exiting build."
     exit 1
 fi
@@ -156,22 +134,13 @@ apt-get install texlive -y
 
 # doxgygen
 apt-get -q install gawk -y
-if [ ! -e /usr/local/bin/doxygen ]; then
-	if [ ! -d $VERSION_DIR/src/doxygen ]; then
-		git clone https://github.com/doxygen/doxygen.git $VERSION_DIR/src/doxygen
-	fi
-	if [ ! -d $VERSION_DIR/src/doxygen/build ]; then
-		mkdir $VERSION_DIR/src/doxygen/build
-	fi
-	cd $VERSION_DIR/src/doxygen/build
-	cmake -G "Unix Makefiles" ..
-	make
-	make install
+if [ ! -x /usr/bin/doxygen ]; then
+	apt-get -q install doxygen -y
 fi
 
 # # mono
 
-if [ ! -e /usr/bin/mono ]; then
+if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
 	apt install apt-transport-https dirmngr gnupg ca-certificates -y
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
@@ -181,13 +150,13 @@ if [ ! -e /usr/bin/mono ]; then
 fi
 
 # natural_docs
-if [ ! -e /usr/local/bin/natural_docs ]; then
+if [ ! -x /usr/local/bin/natural_docs ]; then
 	cd /usr/local/bin
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
 	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo '#!/bin/bash
-mono $VERSION_DIR/natural_docs/NaturalDocs.exe \$*' > $VERSION_DIR/bin/natural_docs
+mono /usr/local/bin/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi

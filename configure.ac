@@ -565,25 +565,87 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
 VERSION_NAME=$(build-aux/version.sh --name)
 
-PREFIX=/usr/local/opt/gridlabd
+AC_ARG_WITH([prefix], [AS_HELP_STRING([--with-prefix=PREFIX], [install architecture-independent files in PREFIX])], [prefix="$withval"], [prefix="/usr/local/opt/gridlabd"])
+if test "x$prefix" = "xNONE"; then
+  prefix="/usr/local/opt/gridlabd"
+fi
+
+PREFIX=$prefix
 DSTDIR=$PREFIX/$VERSION_NAME
+prefix=$DSTDIR
 
 BINDIR=$DSTDIR/bin
 LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
+ENVDIR=$BINDIR/pkgenv
+PYDIR=$ENVDIR/bin
 
 # Verify python version
 if test ! -d "$BINDIR/pkgenv"; then
   mkdir -p "$BINDIR"
-  cd "$BINDIR"
-  /usr/local/bin/python3 -m venv pkgenv
 
-  $BINDIR/pkgenv/bin/python3 -m pip install --upgrade pip
-  $BINDIR/pkgenv/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-  $BINDIR/pkgenv/bin/python3 -m pip install IPython censusdata
-  $BINDIR/pkgenv/bin/python3 -m pip install GDAL==3.0.4
-  $BINDIR/pkgenv/bin/python3 -m pip install rasterio==1.2.10
+  case "$host_os" in
+    linux*)
+        # Check for Debian or Ubuntu
+        if grep -q -E '^ID=(debian|ubuntu)$' /etc/*-release; then
+            
+            # Check for Debian 10
+            if grep -q -E '^VERSION_ID="10"' /etc/*-release; then
+                echo "Detected Debian 10 operating system"
+                # Add Debian 10-specific configuration here
+
+                /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+
+                $PYDIR/python3 -m pip install --upgrade pip
+                $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                $PYDIR/python3 -m pip install IPython censusdata
+                $PYDIR/python3 -m pip install GDAL==2.4.0
+                $PYDIR/python3 -m pip install rasterio==1.2.10
+            elif grep -q -E '^VERSION_ID="9"' /etc/*-release; then
+                echo "Detected Debian 9 operating system"
+                # Add Debian 9-specific configuration here
+                /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+                $PYDIR/python3 -m pip install --upgrade pip
+                $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                $PYDIR/python3 -m pip install IPython censusdata
+            else
+                echo "Detected Debian or Ubuntu operating system"
+                # Add Debian/Ubuntu-specific configuration here
+
+                /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+
+                $PYDIR/python3 -m pip install --upgrade pip
+                $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                $PYDIR/python3 -m pip install IPython censusdata
+                $PYDIR/python3 -m pip install GDAL==3.0.4
+                $PYDIR/python3 -m pip install rasterio==1.2.10
+            fi
+        else
+            echo "Unsupported Linux distribution"
+            AC_MSG_ERROR([Unsupported Linux distribution])
+        fi
+        ;;
+      darwin*)
+        case "$host_cpu" in
+            i386* | x86_64*)
+                echo "Detected Intel Mac operating system"
+                # Add Intel Mac-specific configuration here
+                ;;
+            arm64*)
+                echo "Detected arm64 Mac operating system"
+                # Add arm64 Mac-specific configuration here
+                ;;
+            *)
+                echo "Unknown CPU architecture on Mac operating system"
+                AC_MSG_ERROR([Unsupported architecture])
+                ;;
+        esac
+    *)
+        echo "Unsupported operating system"
+        AC_MSG_ERROR([Unsupported OS])
+        ;;
+  esac
 
 fi
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
