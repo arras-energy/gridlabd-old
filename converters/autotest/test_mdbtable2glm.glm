@@ -1,0 +1,17 @@
+#ifmissing /usr/local/bin/mdb-schema
+
+#warning mdbtools is not available
+
+#else // found /usr/local/bin/mdb-schema
+
+#ifexist ../IEEE-13-cyme.mdb
+#define DIR=..
+#endif // exist ../IEEE-13-cyme.mdb
+
+#input "${DIR:-.}/IEEE-13-cyme.mdb" -o IEEE-13-cyme-network.glm -t cyme
+
+#ifexist ../IEEE-13-cyme-network.glm
+#on_exit 0 diff -I '^[#/]' ../IEEE-13-cyme-network.glm IEEE-13-cyme-network.glm > gridlabd.diff
+#endif // exist ../IEEE-13-cyme-network.glm
+
+#endif // missing /usr/local/bin/mdb-schema
