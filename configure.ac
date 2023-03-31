@@ -586,14 +586,11 @@ echo "$host_os"
 # Verify python version
 if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
-    echo "here"
 fi
 
 if echo "$host_os" | grep '^linux' >/dev/null; then
-    echo "next"
     # Check for Debian or Ubuntu
     if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
-        echo there
         # Check for Debian 10
         if grep -E '^VERSION_ID="10"' /etc/*-release; then
             echo "Detected Debian 10 operating system"
@@ -625,7 +622,7 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
         echo "Unsupported Linux distribution"
         exit 1
     fi
-elif [ "$(echo "$host_os" | grep -E 'darwin')" ]; then
+elif echo "$host_os" | grep '^darwin' >/dev/null; then
     if [ "$(echo "$host_cpu" | grep -E 'i386|x86_64')" ]; then
         echo "Detected Intel Mac operating system"
         # Add Intel Mac-specific configuration here
@@ -637,8 +634,7 @@ elif [ "$(echo "$host_os" | grep -E 'darwin')" ]; then
         exit 1
     fi
 else
-    echo "Unsupported operating system"
-    echo "$host_os"
+    echo "Unsupported operating system: $host_os"
     exit 1
 fi
 
