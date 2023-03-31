@@ -581,15 +581,17 @@ DOCDIR=$DSTDIR/share/doc/gridlabd
 ENVDIR=$BINDIR/pkgenv
 PYDIR=$ENVDIR/bin
 
+echo "$host_os"
+
 # Verify python version
 if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
 
-    if [[ "$host_os" == *linux* ]]; then
+    if test "$host_os" == *linux* ; then
         # Check for Debian or Ubuntu
-        if [[ "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ]]; then
+        if test "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ; then
             # Check for Debian 10
-            if [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ]]; then
+            if test "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ; then
                 echo "Detected Debian 10 operating system"
                 # Add Debian 10-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
@@ -598,7 +600,7 @@ if test ! -d "$BINDIR/pkgenv"; then
                 $PYDIR/python3 -m pip install IPython censusdata
                 $PYDIR/python3 -m pip install GDAL==2.4.0
                 $PYDIR/python3 -m pip install rasterio==1.2.10
-            elif [[ "$(cat /etc/*-release | grep -E '^VERSION_ID="9"')" ]]; then
+            elif test "$(cat /etc/*-release | grep -E '^VERSION_ID="9"')" ; then
                 echo "Detected Debian 9 operating system"
                 # Add Debian 9-specific configuration here
                 /usr/local/bin/python3 -m venv $BINDIR/pkgenv
@@ -619,11 +621,11 @@ if test ! -d "$BINDIR/pkgenv"; then
             echo "Unsupported Linux distribution"
             AC_MSG_ERROR([Unsupported Linux distribution])
         fi
-    elif [[ "$host_os" == *darwin* ]]; then
-        if [[ "$host_cpu" == i386* || "$host_cpu" == x86_64* ]]; then
+    elif test "$host_os" == *darwin* ; then
+        if test "$host_cpu" == i386* || "$host_cpu" == x86_64* ; then
             echo "Detected Intel Mac operating system"
             # Add Intel Mac-specific configuration here
-        elif [[ "$host_cpu" == arm64* ]]; then
+        elif test "$host_cpu" == arm64* ; then
             echo "Detected arm64 Mac operating system"
             # Add arm64 Mac-specific configuration here
         else
