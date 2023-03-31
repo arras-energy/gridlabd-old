@@ -589,7 +589,7 @@ if test ! -d "$BINDIR/pkgenv"; then
     echo "here"
 fi
 
-if [ "$(echo "$host_os" | grep -E '^linux')" ]; then
+if echo "$host_os" | grep '^linux' >/dev/null; then
     echo "next"
     # Check for Debian or Ubuntu
     if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
