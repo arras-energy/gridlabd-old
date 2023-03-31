@@ -586,10 +586,13 @@ echo "$host_os"
 # Verify python version
 if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
+    echo "here"
 
-    if test "$host_os" == *linux* ; then
+    if test "$host_os" == "linux"* ; then
+        echo "next"
         # Check for Debian or Ubuntu
         if test "$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')" ; then
+            echo "not here?"
             # Check for Debian 10
             if test "$(cat /etc/*-release | grep -E '^VERSION_ID="10"')" ; then
                 echo "Detected Debian 10 operating system"
@@ -621,7 +624,7 @@ if test ! -d "$BINDIR/pkgenv"; then
             echo "Unsupported Linux distribution"
             AC_MSG_ERROR([Unsupported Linux distribution])
         fi
-    elif test "$host_os" == *darwin* ; then
+    elif test "$host_os" == darwin* ; then
         if test "$host_cpu" == i386* || "$host_cpu" == x86_64* ; then
             echo "Detected Intel Mac operating system"
             # Add Intel Mac-specific configuration here
