@@ -95,13 +95,13 @@ You can create an image locally with a specific branch (e.g., `develop`) instead
 Firsrt, clone the `https://github.com/slacgismo/gridlabd` and checkout the desired branch (e.g., `develop`). 
 
 ~~~
-bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/src/gridlabd
+bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/opt/gridlabd/src/gridlabd
 ~~~
 
 Then build the image locally: 
 
 ~~~
-bash$ cd /usr/local/src/gridlabd/docker
+bash$ cd /usr/local/opt/gridlabd/src/gridlabd/docker
 bash$ docker build --build-arg "BRANCH=develop" .
 ~~~
 

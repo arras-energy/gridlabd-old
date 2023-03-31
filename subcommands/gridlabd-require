@@ -1,25 +1,32 @@
 #!/bin/bash
-
+# Syntax: require [--requirements] [--verbose] [REQUIREMENT]
 QUIET="-q"
 STDOUT="/dev/null"
 STDERR="/dev/null"
 
 if [ $# -eq 0 ]; then
-    /usr/local/bin/python3 -m pip freeze
+    $GLD_BIN/python3 -m pip freeze
+    exit 0
+elif [ "$1" == "help" ]; then
+    echo "Syntax: gridlabd require [--requirements] [--verbose] [REQUIREMENT]"
     exit 0
 fi
 
 while [ $# -gt 0 ]; do
     if [ "$1" == "--requirements" -o "$1" == "-r" ]; then
         shift 1
-        /usr/local/bin/python3 -m pip $QUIET install -r $1 
+        $GLD_BIN/python3 -m pip $QUIET install -r $1 
+        echo "Did this run?"
+        echo "$GLD_BIN"
     elif [ "$1" == "--verbose" -o "$1" == "-v" ]; then
         QUIET=""
         STDERR="/dev/stderr"
         STDOUT="/dev/stdout"
     else
-        /usr/local/bin/python3 -m pip freeze | grep $1 1>$STDOUT 2>$STDERR || /usr/local/bin/python3 -m pip $QUIET install $1 
-        test "$(/usr/local/bin/python3 -m pip freeze | grep ^$1)" != "" || exit 1 
+        $GLD_BIN/python3 -m pip freeze | grep $1 1>$STDOUT 2>$STDERR || $GLD_BIN/python3 -m pip $QUIET install $1 
+        test "$($GLD_BIN/python3 -m pip freeze | grep ^$1)" != "" || exit 1
+        echo "Did this one run?"
+        echo "$GLD_BIN"
     fi
     shift 1
 done

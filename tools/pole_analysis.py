@@ -1,3 +1,4 @@
+# pole_analysis INPUTFILE [OPTIONS ...]
 """poles loading analysis for a GridLAB-D model
 
 SYNTAX

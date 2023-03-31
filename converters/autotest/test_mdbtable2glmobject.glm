@@ -1,8 +1,8 @@
-#ifmissing /usr/local/bin/mdb-schema
+#ifmissing ${GLD_BIN}/mdb-schema
 
 #warning mdbtools is not available
 
-#else // found /usr/local/bin/mdb-schema
+#else // found ${GLD_BIN}/mdb-schema
 
 #ifexist ../IEEE-13-cyme.mdb
 #define DIR=..
@@ -14,4 +14,4 @@
 #on_exit 0 diff -I '^[#/]' ../IEEE-13-cyme-object.glm IEEE-13-cyme-object.glm > gridlabd.diff
 #endif // exist ../IEEE-13-cyme-object.glm
 
-#endif // missing /usr/local/bin/mdb-schema
+#endif // missing ${GLD_BIN}/mdb-schema

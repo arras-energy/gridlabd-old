@@ -6,6 +6,11 @@
 #input "filename.csv" -t <type> [options]
 ~~~
 
+To use in terminal: 
+~~~~
+gridlabd -D csv_load_options="-f <from> -t <type>" <file_name>.csv
+~~~~
+
 # Description
 
 There are many different types of CSV files that can be imported. Each is documented separately according to the type of data it delivers to the GLM loader.

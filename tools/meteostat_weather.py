@@ -1,14 +1,15 @@
+# meteostat.py [OPTIONS ...]
 """Meteostat weather access
 
 SYNOPSIS
 
 Shell:
 
-    $ python3 meteostat.py [OPTIONS] ...
+    $ python3 meteostat.py [OPTIONS ...]
 
 GLM:
 
-    #python3 meteostat.py [OPTIONS] ...
+    #python3 meteostat.py [OPTIONS ...]
 
 Options:
 

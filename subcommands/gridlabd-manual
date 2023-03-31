@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Syntax: manual [OPTIONS ...]
 if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
     cat <<-END
 Syntax: gridlabd manual [options ...]

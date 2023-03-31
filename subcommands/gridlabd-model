@@ -1,0 +1,76 @@
+#!/bin/bash
+# Syntax: model [OPTIONS ...] COMMAND [ARGUMENTS ...]
+#
+# Get models from the gridlabd-models repo
+#
+
+if [ $# -eq 0 ]; then
+    echo "Syntax: gridlabd model [OPTIONS ...] COMMAND [ARGUMENTS ...]"
+    exit 1
+fi
+
+GITBRANCH=master
+GITUSER=slacgismo
+GITREPO=gridlabd-models
+VERSION=4
+
+function error()
+{
+    RC=$1
+    shift 1
+    echo "ERROR [$EXECNAME]: $*" >/dev/stderr
+    exit $RC
+}
+
+while [ "${1:0:1}" == "-" ]; do
+    case "$1" in
+    (-b|--branch)
+        GITBRANCH="$2"
+        shift 1
+        ;;
+    (-r|--repository)
+        GITREPO="$2"
+        shift 1
+        ;;
+    (-u|--user)
+        GITUSER="$2"
+        shift 1
+        ;;
+    (-v|--version)
+        VERSION="$2"
+        shift 1
+        ;;
+    (-d|--debug)
+        set -x
+        ;;
+    (*)
+        error 1 "option '$1' is not valid"
+        ;;
+    esac
+    shift 1
+done
+
+if [ $1 == 'get' ]; then
+    if [ $# -lt 2 ]; then
+        error 2 "get missing GROUP/NAME"
+        exit 1
+    else
+        curl -sL https://raw.githubusercontent.com/$GITUSER/$GITREPO/$GITBRANCH/gridlabd-$VERSION/$2.glm -o $(basename $2).glm
+        exit 0
+    fi
+elif [ $1 == 'index' ]; then
+    if [ $# -eq 2 ]; then
+        PATTERN=$2
+    fi
+    curl -sL https://api.github.com/repos/slacgismo/gridlabd-models/git/trees/master\?recursive=1 | gridlabd json-get tree path -c | grep '\.glm$' | grep ^gridlabd-$VERSION/$PATTERN | sed -e 's/\.glm$//;s/gridlabd-[0-9]\///'
+    exit 0
+elif [ $1 == 'help' ]; then
+    echo "Syntax: gridlabd model SUBCOMMAND [ARGS...]"
+    echo "Subcommands"
+    echo "  get GROUP/NAME"
+    echo "  help"
+    echo "  index [PATTERN]"
+    exit 0
+else
+    error 3 "'$1' is not a valid subcommand"
+fi

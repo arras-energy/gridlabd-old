@@ -2,11 +2,18 @@
 
 # Synopis
 
-TODO
+~~~
+#input "filename.csv" -t config -f config
+~~~
+
+To use in terminal: 
+~~~~
+gridlabd -D csv_load_options="-f config -t config" <file_name>.csv
+~~~~
 
 # Description
 
-TODO
+Allows the conversion of csv table into GLM contained global definitions based on csv data.
 
 # See also
 
