@@ -585,45 +585,39 @@ echo "$host_os"
 
 # Verify python version
 AS_IF([test ! -d "$BINDIR/pkgenv"],
-  [mkdir -p "$BINDIR"
-   echo "here"
-   AS_CASE([$host_os],
-     [linux*],
-     [echo "next"
-      AS_CASE([$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')],
-        [""], [echo "Unsupported Linux distribution"
-               AC_MSG_ERROR([Unsupported Linux distribution])],
-        [*10*], [echo "Detected Debian 10 operating system"
-                /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-                $PYDIR/python3 -m pip install --upgrade pip
-                $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-                $PYDIR/python3 -m pip install IPython censusdata
-                $PYDIR/python3 -m pip install GDAL==2.4.0
-                $PYDIR/python3 -m pip install rasterio==1.2.10],
-        [*9*], [echo "Detected Debian 9 operating system"
-                /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-                $PYDIR/python3 -m pip install --upgrade pip
-                $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-                $PYDIR/python3 -m pip install IPython censusdata],
-        [echo "Detected Debian or Ubuntu operating system"
-         /usr/local/bin/python3 -m venv $BINDIR/pkgenv
-         $PYDIR/python3 -m pip install --upgrade pip
-         $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-         $PYDIR/python3 -m pip install IPython censusdata
-         $PYDIR/python3 -m pip install GDAL==3.0.4
-         $PYDIR/python3 -m pip install rasterio==1.2.10])],
-     [*darwin*],
-     [AS_CASE([$host_cpu],
-        [i386*|x86_64*],
-        [echo "Detected Intel Mac operating system"
-         # Add Intel Mac-specific configuration here],
-        [arm64*],
-        [echo "Detected arm64 Mac operating system"
-         # Add arm64 Mac-specific configuration here],
-        [echo "Unknown CPU architecture on Mac operating system"
-         AC_MSG_ERROR([Unsupported architecture])])],
-     [echo "Unsupported operating system"
-      AC_MSG_ERROR([Unsupported OS])])]) # <-- Add closing parenthesis here
+    [mkdir -p "$BINDIR"
+     echo "here"
+     AS_CASE([$host_os],
+        [*linux*],
+        [AS_IF([$(cat /etc/*-release | grep -E '^ID=(debian|ubuntu)$')],
+            [AS_CASE([$((cat /etc/*-release | grep -E '^VERSION_ID="[9|10]"') | cut -d'"' -f2)],
+                [10], [echo "Detected Debian 10 operating system"
+                       /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+                       $PYDIR/python3 -m pip install --upgrade pip
+                       $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                       $PYDIR/python3 -m pip install IPython censusdata
+                       $PYDIR/python3 -m pip install GDAL==2.4.0
+                       $PYDIR/python3 -m pip install rasterio==1.2.10],
+                [9],  [echo "Detected Debian 9 operating system"
+                       /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+                       $PYDIR/python3 -m pip install --upgrade pip
+                       $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                       $PYDIR/python3 -m pip install IPython censusdata],
+                [*],  [echo "Detected Debian or Ubuntu operating system"
+                       /usr/local/bin/python3 -m venv $BINDIR/pkgenv
+                       $PYDIR/python3 -m pip install --upgrade pip
+                       $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+                       $PYDIR/python3 -m pip install IPython censusdata
+                       $PYDIR/python3 -m pip install GDAL==3.0.4
+                       $PYDIR/python3 -m pip install rasterio==1.2.10])],
+        [*darwin*],
+        [AS_CASE([$host_cpu],
+            [i386*|x86_64*], [echo "Detected Intel Mac operating system"],
+            [arm64*],       [echo "Detected arm64 Mac operating system"],
+            [*],            [echo "Unknown CPU architecture on Mac operating system"
+                             AC_MSG_ERROR([Unsupported architecture])])],
+        [*],            [echo "Unsupported operating system"
+                         AC_MSG_ERROR([Unsupported OS])])])
 
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
