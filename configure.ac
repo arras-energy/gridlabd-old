@@ -623,9 +623,7 @@ AS_IF([test ! -d "$BINDIR/pkgenv"],
         [echo "Unknown CPU architecture on Mac operating system"
          AC_MSG_ERROR([Unsupported architecture])])],
      [echo "Unsupported operating system"
-      AC_MSG_ERROR([Unsupported OS])])]
-
-
+      AC_MSG_ERROR([Unsupported OS])])])
 
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
