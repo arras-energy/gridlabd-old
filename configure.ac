@@ -580,6 +580,7 @@ ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 ENVDIR=$BINDIR/pkgenv
 PYDIR=$ENVDIR/bin
+PYEXE=3.9
 
 echo "$host_os"
 
@@ -595,7 +596,7 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
         if grep -E '^VERSION_ID="10"' /etc/*-release; then
             echo "Detected Debian 10 operating system"
             # Add Debian 10-specific configuration here
-            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            /usr/local/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
             "$PYDIR/python3" -m pip install --upgrade pip
             "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
             "$PYDIR/python3" -m pip install IPython censusdata
@@ -604,20 +605,27 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
         elif grep -E '^VERSION_ID="9"' /etc/*-release; then
             echo "Detected Debian 9 operating system"
             # Add Debian 9-specific configuration here
-            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            /usr/local/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
             "$PYDIR/python3" -m pip install --upgrade pip
             "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
             "$PYDIR/python3" -m pip install IPython censusdata
         else
             echo "Detected Debian or Ubuntu operating system"
             # Add Debian/Ubuntu-specific configuration here
-            /usr/local/bin/python3 -m venv "$BINDIR/pkgenv"
+            /usr/local/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
             "$PYDIR/python3" -m pip install --upgrade pip
             "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
             "$PYDIR/python3" -m pip install IPython censusdata
             "$PYDIR/python3" -m pip install GDAL==3.0.4
             "$PYDIR/python3" -m pip install rasterio==1.2.10
         fi
+
+        if test ! -d "$BINDIR/pkgenv/include/python*"; then
+            ln -s /usr/local/bin/python${PYEXE}-config $BINDIR/pkgenv/bin/python3-config
+            ln -s /usr/local/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+            ln -s /usr/local/include/python${PYEXE} $BINDIR/pkgenv/include
+        fi
+
     else
         echo "Unsupported Linux distribution"
         exit 1
@@ -629,6 +637,16 @@ elif echo "$host_os" | grep '^darwin' >/dev/null; then
     elif [ "$(echo "$host_cpu" | grep -E 'arm64')" ]; then
         echo "Detected arm64 Mac operating system"
         # Add arm64 Mac-specific configuration here
+        /opt/homebrew/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
+
+        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
+        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
+        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+
+        $PYDIR/python3 -m ensurepip --upgrade
+        $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+        $PYDIR/python3 -m pip install build
+        $PYDIR/python3 -m pip install pyproj wheel
     else
         echo "Unknown CPU architecture on Mac operating system"
         exit 1
@@ -647,16 +665,6 @@ AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
   [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
   [PYTHON_LIB="-lpython${PYTHON_VER}"])
-
-if test ! -d "$BINDIR/pkgenv/include/python*"; then
-
-  PYTHON_VER_MM="$($BINDIR/pkgenv/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)"
-  ln -s /usr/local/bin/python${PYTHON_VER_MM}-config $BINDIR/pkgenv/bin/python3-config
-  ln -s /usr/local/lib/*${PYTHON_VER_MM}* $BINDIR/pkgenv/lib
-  ln -s /usr/local/include/python${PYTHON_VER_MM} $BINDIR/pkgenv/include
-
-fi
-
 
 ###############################################################################
 # The End
