@@ -16,7 +16,7 @@
     VERSION_DIR=$VAR/$VERSION
 	PKG_PYTHON_DIR=/usr/local/bin
 	VENV_PYTHON_DIR=$VERSION_DIR/bin/pkgenv/bin
-    PYTHON_VER=3.9
+    PYTHON_VER=3.10
 
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -26,8 +26,8 @@ export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
     fi
 
 # Check if python version currently in Applications and update owner
-    if [ -e /Applications/"Python $PY_EXE" ] ; then
-        sudo chown -R ${USER:-root} /Applications/"Python $PY_EXE"
+    if [ -e /Applications/"Python $PYTHON_VER" ] ; then
+        sudo chown -R ${USER:-root} /Applications/"Python $PYTHON_VER"
     fi
 
 /opt/homebrew/bin/brew update || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -77,7 +77,7 @@ export LIBRARY_PATH=$VERSION_DIR/lib:$VERSION_DIR/include:$LIBRARY_PATH
 
 # Install python $PYTHON_VER
 # python3 support needed as of 4.2
-if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)" != "$PY_EXE" ]; then
+if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cut -d' ' -f2 | cut -d. -f1-2)" != "$PYTHON_VER" ]; then
 	echo "installing python $PYTHON_VER"
     /opt/homebrew/bin/brew install python@$PYTHON_VER
 
@@ -120,8 +120,6 @@ fi
         cd /usr/local
         sudo mkdir lib
     fi
-
-    ln -sf $VERSION_DIR/gridlabd/lib/libgeos* /usr/local/lib 
 
 sudo ln -sf /opt/homebrew/bin/* /usr/local/bin
 sudo ln -sf /opt/homebrew/lib/* /usr/local/lib

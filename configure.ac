@@ -580,7 +580,7 @@ ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 ENVDIR=$BINDIR/pkgenv
 PYDIR=$ENVDIR/bin
-PYEXE=3.9
+PYEXE=3.10
 
 echo "os: $host_os"
 echo "cpu: $host_cpu"
