@@ -7,7 +7,7 @@ exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 SYNOPSIS
 
 Shell:
-    $ gridlabd plot OPTIONS
+    $ gridlabd plot [OPTIONS ...]
 
 GLM:
 

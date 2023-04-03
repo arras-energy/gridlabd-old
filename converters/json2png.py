@@ -27,9 +27,10 @@ with_nodes = False
 resolution = "300"
 size = "300x200"
 limit = None
+xlim = None
 
 try : 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:d:l:s:",["help","ifile=","ofile=","type=","with-nodes","dpi=","limit=","size="])
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:d:l:s:x:",["help","ifile=","ofile=","type=","with-nodes","dpi=","limit=","size=","xlim"])
 except getopt.GetoptError:
 	sys.exit(2)
 if not opts : 
@@ -59,6 +60,8 @@ for opt, arg in opts:
 		size = arg
 	elif opt in ("-l","--limit"):
 		limit = int(arg)/100
+	elif opt in ("-x","--xlim"):
+		xlim = arg.split(',')
 	else:
 		raise Exception("'%s' is an invalid command line option" % opt)
 
@@ -189,10 +192,12 @@ elif output_type == 'profile':
 	plt.ylabel('Voltage (pu)')
 	plt.title(data["globals"]["modelname"]["value"])
 	plt.grid()
-	#plt.legend(["A","B","C"])
-	#plt.tight_layout()
+	plt.legend(["A","B","C"])
+	plt.tight_layout()
 	if limit:
 		plt.ylim([1-limit,1+limit])
+	if xlim:
+		plt.xlim([float(xlim[0]),float(xlim[1])])
 	plt.savefig(filename_png, dpi=int(resolution))
 
 else:

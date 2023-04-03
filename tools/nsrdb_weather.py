@@ -1,3 +1,4 @@
+# nsrdb_weather [OPTIONS ...]
 """NSRDB weather data tool
 
 SYNOPSIS
