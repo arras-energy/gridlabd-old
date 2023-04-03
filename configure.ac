@@ -582,7 +582,8 @@ ENVDIR=$BINDIR/pkgenv
 PYDIR=$ENVDIR/bin
 PYEXE=3.9
 
-echo "$host_os"
+echo "os: $host_os"
+echo "cpu: $host_cpu"
 
 # Verify python version
 if test ! -d "$BINDIR/pkgenv"; then
@@ -631,17 +632,17 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
         exit 1
     fi
 elif echo "$host_os" | grep '^darwin' >/dev/null; then
-    if [ "$(echo "$host_cpu" | grep -E 'i386|x86_64')" ]; then
+    if echo "$host_cpu" | grep -E 'i386|x86_64'; then
         echo "Detected Intel Mac operating system"
         # Add Intel Mac-specific configuration here
-    elif [ "$(echo "$host_cpu" | grep -E 'arm64')" ]; then
+    elif echo "$host_cpu" | grep 'aarch64'; then
         echo "Detected arm64 Mac operating system"
         # Add arm64 Mac-specific configuration here
         /opt/homebrew/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
 
-        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
-        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
-        sudo ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
+        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
+        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
 
         $PYDIR/python3 -m ensurepip --upgrade
         $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3

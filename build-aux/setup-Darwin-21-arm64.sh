@@ -16,8 +16,7 @@
     VERSION_DIR=$VAR/$VERSION
 	PKG_PYTHON_DIR=/usr/local/bin
 	VENV_PYTHON_DIR=$VERSION_DIR/bin/pkgenv/bin
-    PYTHON_VER=3.9.6
-    PY_EXE=3.9
+    PYTHON_VER=3.9
 
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -116,7 +115,6 @@ fi
 
 # libgeos
     /opt/homebrew/bin/brew install geos
-    cp /opt/homebrew/lib/libgeos* $VERSION_DIR/lib
 
     if test ! -e /usr/local/lib; then
         cd /usr/local
