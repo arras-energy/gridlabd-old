@@ -83,6 +83,17 @@ if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cu
 
 fi
 
+# setup openssl and certs
+    brew reinstall openssl@1.1
+    brew install ca-certificates
+    CERT_DIR="$(echo /opt/homebrew/Cellar/ca-certificates)"
+    unset -v latest
+    for file in "$CERT_DIR"/*; do
+        [[ $file -nt $latest ]] && latest=$file
+    done
+    CERT_DIR=$latest
+    cp $CERT_DIR/share/ca-certificates/* /opt/homebrew/etc/openssl@1.1/certs/cert.pem
+
 # check for successful python build
 if [ ! -x /usr/local/bin/python3 ]; then
     echo "Could not locate python executable in"

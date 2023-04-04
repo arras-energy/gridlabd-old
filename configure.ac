@@ -635,10 +635,21 @@ elif echo "$host_os" | grep '^darwin' >/dev/null; then
     if echo "$host_cpu" | grep -E 'i386|x86_64'; then
         echo "Detected Intel Mac operating system"
         # Add Intel Mac-specific configuration here
+        /usr/local/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
+
+        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
+        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
+        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+
+        $PYDIR/python3 -m ensurepip --upgrade
+        $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+        $PYDIR/python3 -m pip install build
+        $PYDIR/python3 -m pip install pyproj wheel
+
     elif echo "$host_cpu" | grep 'aarch64'; then
         echo "Detected arm64 Mac operating system"
         # Add arm64 Mac-specific configuration here
-        /opt/homebrew/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
+        /opt/homebrew/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
 
         ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
         ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
