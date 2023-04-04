@@ -668,8 +668,6 @@ else
     exit 1
 fi
 
-
-
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
