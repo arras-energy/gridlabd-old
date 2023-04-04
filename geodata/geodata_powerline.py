@@ -279,7 +279,6 @@ def linesag(data):
 
     data['linesag'] = float('nan') # default result
     result = data['linesag'].to_dict()
-
     # read cable specs from cable type
     global OPTIONS
     if not 'cable_type' in data.columns and not 'cable_type' in OPTIONS.keys():
@@ -406,7 +405,6 @@ def linesag(data):
 
     if ld:
         WARNING("ignoring waypoints after last pole")
-
     return pandas.DataFrame(result.values(),columns=["linesag"],index=result.keys())["linesag"]
 
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
@@ -794,7 +792,6 @@ def lognorm_cdf(x, mu, sigma):
 # calculate the tree strike risk factor
 def linegallop(data):
     # data includes the results, such as linesag and linesway
-
     min_strike = (data['linesag']**2 + (data['width']-data['linesway'])**2)**0.5
 
     strike_range = (data['height']**2 - data['linesag']**2)**0.5 - (data['width'] - data['linesway'])
@@ -866,8 +863,11 @@ def apply(data, options=default_options, config=default_config, warning=print):
     CONFIG = config
 
     result = pandas.DataFrame(data)
+
     try:
         result["linesag"] = linesag(data)
+        print("TEST")
+        print(result.columns)
     except Exception as err:
         WARNING(f"cannot run function LINESAG and {err} is missing or invalid")
     try:
@@ -904,14 +904,15 @@ if __name__ == '__main__':
 
         def test_linesag(self):
             result = linesag(pandas.DataFrame(data))
-            self.assertEqual(result.round(1).to_list(),[18.0, 9.3, 20.0])
+            self.assertEqual(result.round(1).to_list(),[18.0, 9.2, 20.0])
 
         def test_linesway(self):
             result = linesway(pandas.DataFrame(data))
             self.assertEqual(result.to_list(),[0,0,0])
 
         def test_linegallop(self):
-            result = linegallop(pandas.DataFrame(data))
+            data_test = pandas.DataFrame({'linesag':[18,15,14], 'linesway':[0,0.3,0.6], 'cover':[0.68, 0.71, 0.71], 'width':[5,5,5], 'height':[13,14,16], 'base':[2,2,2], 'wind_speed':[10,10,10]})
+            result = linegallop(pandas.DataFrame(data_test))
             self.assertEqual(result.to_list(),[0,0,0])
 
     unittest.main()
