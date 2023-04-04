@@ -74,9 +74,9 @@ if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cu
 fi
 
 # check for successful python build
-if [ ! -x /usr/local/bin/python${PYTHON_VER}d ]; then
+if [ ! -x /usr/local/bin/python$PYTHON_VER ]; then
     echo "Could not locate python executable in"
-    echo "PYTHON LOCATION: /usr/local/bin/python${PYTHON_VER}d"
+    echo "PYTHON LOCATION: /usr/local/bin/python$PYTHON_VER"
     echo "Exiting build."
     exit 1
 fi
