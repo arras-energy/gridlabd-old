@@ -118,6 +118,8 @@ if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cu
 	# manually set install due to pip not adjusting automatically for debian's limitations
 	sudo apt-get update -y
 	sudo apt-get install python-numpy gdal-bin libgdal-dev -y
+	
+	sudo ldconfig
 
 fi
 
