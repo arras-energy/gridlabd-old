@@ -10,7 +10,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd-venv:venv
+    container: hipas/gridlabd-venv:develop
 
     steps:
     - uses: actions/checkout@v2
