@@ -6,8 +6,8 @@
     VERSION_DIR=$VAR/$VERSION
 	PKG_PYTHON_DIR=/usr/local/bin
 	VENV_PYTHON_DIR=$VERSION_DIR/bin/pkgenv/bin
-    PYTHON_VER=3.9.6
-    PY_EXE=3.9
+    PYTHON_VER=3.10.11
+    PY_EXE=3.10
 
 # Install needed system tools
 # update first and install libgdal-dev second, as sometimes other package installs break libgdal, but tzdata needs to be first
