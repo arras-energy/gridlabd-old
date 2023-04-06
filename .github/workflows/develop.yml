@@ -22,6 +22,7 @@ jobs:
     - name: install gridlabd
       run: |
         autoreconf -isf
+        ./configure
         make system
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
