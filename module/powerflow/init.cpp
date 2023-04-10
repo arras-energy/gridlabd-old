@@ -141,6 +141,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
     new industrial(module);
     new agricultural(module);
     new public_service(module);
+    new ductbank(module);
 
 	/* always return the first class registered */
 	return node::oclass;

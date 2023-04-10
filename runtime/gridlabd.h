@@ -542,14 +542,12 @@ typedef enum e_passconfig
 
 typedef enum {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 
-typedef struct s_globalvar 
-{
+typedef struct s_globalvar {
 	PROPERTY *prop;
-	uint32 flags;
-	void (*callback)(const char *);
-	LOCKVAR lock;
-	const char *initial;
 	struct s_globalvar *next;
+	uint32 flags;
+	void (*callback)(char*);
+	LOCKVAR lock;
 } GLOBALVAR;
 
 typedef enum {

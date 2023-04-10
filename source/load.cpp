@@ -151,7 +151,7 @@ char *GldLoader::strip_right_white(char *b)
 
 std::string GldLoader::forward_slashes(const char *a)
 {
-	char buffer[MAXPATHNAMELEN];
+	char buffer[MAXPATHNAMELEN] = "";
 	char *b=buffer;
 	while ( *a != '\0' && b < buffer+sizeof(buffer)-1 )
 	{
@@ -173,7 +173,7 @@ std::string GldLoader::forward_slashes(const char *a)
 void GldLoader::filename_parts(const char *fullname, char *path, char *name, char *ext)
 {
 	/* fix delimiters (result is a static copy) */
-	char file[MAXPATHNAMELEN];
+	char file[MAXPATHNAMELEN] = "";
 	strcpy(file,forward_slashes(fullname).c_str());
 
 	/* find the last delimiter */
@@ -290,7 +290,7 @@ int GldLoader::append_global(const char* format,...)
 
 void GldLoader::mark_linex(const char *filename, int linenum)
 {
-	char buffer[64];
+	char buffer[64] = "";
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
 		char fname[MAXPATHNAMELEN];
@@ -306,7 +306,7 @@ void GldLoader::mark_line(void)
 
 STATUS GldLoader::exec(const char *format,...)
 {
-	char cmd[1024];
+	char cmd[1024] = "";
 	va_list ptr;
 	va_start(ptr,format);
 	vsnprintf(cmd,sizeof(cmd)-1,format,ptr);
@@ -361,8 +361,8 @@ std::string GldLoader::setup_class(CLASS *oclass)
 
 int GldLoader::write_file(FILE *fp, const char *data, ...)
 {
-	char buffer[65536];
-	char var_buf[64];
+	char buffer[65536] = "";
+	char var_buf[64] = "";
 	char *c, *d=buffer;
 	int len=0;
 	int diff = 0;
@@ -466,8 +466,8 @@ int GldLoader::mkdirs(const char *path)
 
 STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 {
-	char include_file_str[1024];
-	char buffer[256];
+	char include_file_str[1024] = "";
+	char buffer[256] = "";
 	bool use_msvc = (global_getvar("use_msvc",buffer,255)!=NULL);
 
 	include_file_str[0] = '\0';
@@ -2981,7 +2981,7 @@ int GldLoader::property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 
 int GldLoader::class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
 {
-	char buffer[1024];
+	char buffer[1024] = "";
 	START;
 	if WHITE ACCEPT;
 	if LITERAL("create")
@@ -3109,7 +3109,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 {
 	int _n = 0;
 	int nest = 0;
-	char buffer[64];
+	char buffer[64] = "";
 	enum {CODE,COMMENTBLOCK,COMMENTLINE,STRING,CHAR} state=CODE;
 	while (*_p!='\0')
 	{
@@ -3244,7 +3244,7 @@ int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions,
 int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
 {
 	int startline;
-	char buffer[64];
+	char buffer[64] = "";
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("export")
@@ -3500,10 +3500,10 @@ int GldLoader::class_parent_definition(PARSER, CLASS *oclass)
 
 int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
-	static char code[65536];
-	char arglist[1024];
-	char fname[64];
-	char buffer[64];
+	static char code[65536] = "";
+	char arglist[1024] = "";
+	char fname[64] = "";
+	char buffer[64] = "";
 	CLASS *eclass;
 	PROPERTYTYPE type;
 	char propname[64];
@@ -5304,7 +5304,7 @@ int GldLoader::schedule(PARSER)
 	if WHITE ACCEPT;
 	if (LITERAL("schedule") && WHITE && TERM(dashed_name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
 	{
-		char buffer[65536], *p=buffer;
+		char buffer[65536] = "", *p=buffer;
 		int nest=0;
 		for (nest=0; nest>=0; _m++)
 		{
@@ -5449,11 +5449,11 @@ int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 
 int GldLoader::gui_entity_parameter(PARSER, GUIENTITY *entity)
 {
-	char buffer[1024];
-	char varname[64];
-	char modname[64];
-	char objname[64];
-	char propname[64];
+	char buffer[1024] = "";
+	char varname[64] = "";
+	char modname[64] = "";
+	char objname[64] = "";
+	char propname[64] = "";
 	START;
 	if WHITE ACCEPT;
 	if LITERAL("global")
@@ -5719,7 +5719,6 @@ int GldLoader::gui_entity_type(PARSER, GUIENTITYTYPE *type)
 
 int GldLoader::gui_entity(PARSER, GUIENTITY *parent)
 {
-	//char buffer[1024];
 	GUIENTITYTYPE type;
 	START;
 	if WHITE ACCEPT;
@@ -7254,6 +7253,10 @@ bool found_in_list(const char *tag, const char* taglist, char delim=',')
 
 int writefile(char *fname, char *specs)
 {
+	if ( strcmp(specs,"") == 0 )
+	{
+		return saveall(fname);
+	}
 	// identify filetype based on extension
 	enum e_filetype {NONE, CSV, JSON, GLM} filetype = NONE;
 	char *ext = strrchr(fname,'.');
@@ -7453,7 +7456,7 @@ int readfile(char *fname, char *specs, char* line, int size)
 int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
 	char *var, *val, *save;
-	char buffer[1024];
+	char buffer[1024] = "";
 	if ( get_language() )
 	{
 		const char *m = line;
@@ -8267,8 +8270,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#write", 6) == 0 )
 	{
-		char fname[1024], specs[1024];
-		if ( sscanf(line+6,"%s %s",fname,specs) == 2)
+		char fname[1024], specs[1024] = "";
+		if ( sscanf(line+6,"%s %s",fname,specs) >= 1)
 		{
 			if ( writefile(fname,specs) < 0 )
 			{
@@ -8333,6 +8336,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			output_error("unable to resolve all object references");
 		}
+		for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = obj->next )
+		{
+			object_set_parent(obj,obj->parent);
+		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
@@ -8372,7 +8379,7 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
 	char *p = NULL;
-	char buffer[20480];
+	char buffer[20480] = "";
 	int fsize = 0;
 	STATUS status=FAILED;
 	struct stat stat;
@@ -8493,7 +8500,7 @@ Done:
 
 TECHNOLOGYREADINESSLEVEL GldLoader::calculate_trl(void)
 {
-	char buffer[1024];
+	char buffer[1024] = "";
 	CLASS *oclass;
 
 	// start optimistically

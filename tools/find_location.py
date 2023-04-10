@@ -1,3 +1,4 @@
+# gridlabd find_location [OPTIONS] KEY
 """Find_location -- find the latitude and longitude of a location
 
 SYNOPSIS

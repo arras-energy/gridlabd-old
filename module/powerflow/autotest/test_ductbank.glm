@@ -1,0 +1,101 @@
+// module/powerflow/autotest/test_ductbank.glm
+
+#set suppress_repeat_messages=FALSE
+
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2023-01-01 00:00:00 PST";
+	stoptime "2024-01-01 00:00:00 PST";
+}
+
+#set savefile=${modelname/.glm/.json}
+
+#weather get "CA-Bakersfield_Meadows_Field.tmy3"
+#input "CA-Bakersfield_Meadows_Field.tmy3" -p name=weather
+
+module powerflow;
+module assert;
+
+object node
+{
+	name "source";
+	bustype SWING;
+	nominal_voltage 12.47 kV;
+	phases ABCN;
+	voltage_A 12.47 kV;
+	voltage_B 12.47 kV;
+	voltage_C 12.47 kV;
+}
+
+object load
+{
+	name "sink";
+	nominal_voltage 12.47 kV;
+	phases ABCN;
+	constant_power_A 2 MVA;
+	constant_power_B 2 MVA;
+	constant_power_C 2 MVA;
+}
+
+object underground_line 
+{ 
+	phases "ABCN";
+	name "line";
+	from "source";
+	to "sink";
+	length 1 mile;
+	configuration "line_configuration";
+	ductbank "duct";
+}
+
+object ductbank
+{
+	name "duct";
+	configuration "default";
+	temperature_source "weather.temperature";
+	object assert
+	{
+		target "cable_temperature";
+		relation "<";
+		value 80;
+	};
+}
+
+// Phase Conductor for 607: 1/0 AA,TS N: 1/0 Cu
+object underground_line_conductor 
+{ 
+	name "conductor_type";
+	outer_diameter 1.060000 in;
+	conductor_gmr 0.011100 ft;
+	neutral_gmr 0.01113 ft;
+	conductor_diameter 0.368000 in;
+	conductor_resistance 0.970000 Ohm/mile;
+	neutral_resistance 0.607 Ohm/mile;
+	insulation_relative_permitivitty 2.3;
+	shield_gmr 0.0365 ft;
+	shield_resistance 4.2786 Ohm/mile;
+	shield_diameter 0.88 in;
+	shield_thickness 0.005 in;
+}
+
+object line_configuration 
+{
+	name "line_configuration";
+	conductor_A "conductor_type";
+	conductor_B "conductor_type";
+	conductor_C "conductor_type";
+	conductor_N "conductor_type";
+	spacing "line_spacing";
+}
+
+object line_spacing 
+{
+	name "line_spacing";
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 0.25;//5.656854;
+	distance_AN 0.25;//4.272002;
+	distance_CN 0.25;//5.0;
+}

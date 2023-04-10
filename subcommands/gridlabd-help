@@ -1,18 +1,27 @@
 #!/bin/bash
+# Syntax: help [COMMAND]
 
-if [ "$1" == "help" ]; then
-	echo "Syntax: gridlabd help [command]"
-	exit 0
-elif [ -f "$GLD_BIN/gridlabd-$1" ]; then
-	"$GLD_BIN/gridlabd-$1" help
-fi
-
-L="$( cd $GLD_BIN ; ls -1d gridlabd-* )"
-
-echo "Syntax: gridlabd command [options] ..."
-echo "Commands:"
-for F in $L ; do
-	if [ ! "$F" == "help" ]; then
-		$GLD_BIN/$F help | grep 'Syntax: ' | sed -e 's/Syntax: gridlabd/ /'
+if [ $# -gt 0 ]; then
+	if [ "$1" == "help" ]; then
+		echo "Syntax: gridlabd help [ SUBCOMMAND | TOOL ]"
+		exit 0
+	elif [ -f "$GLD_BIN/gridlabd-$1" ]; then
+		"$GLD_BIN/gridlabd-$1" --help
+	elif [ -f "$GLD_ETC/$1.py" ]; then
+		python3 $GLD_ETC/$1.py --help
+	else
+		echo "ERROR: subcommand or tool '$1' not found"
 	fi
-done
+else
+	echo "Syntax: gridlabd command [options] ..."
+
+	echo "Subcommands:"
+	for F in $( cd $GLD_BIN ; ls -1d gridlabd-* ) ; do
+		head -n 2 $GLD_BIN/$F | grep '^# Syntax: ' | sed -e 's/^# Syntax: /  /'
+	done
+
+	echo "Tools:"
+	for F in $( cd $GLD_ETC ; ls -1d *.py | grep -v '^gridlabd-' ) ; do
+		head -n 1 $GLD_ETC/$F | grep '^# ' | sed -e 's/^# /  /'
+	done
+fi

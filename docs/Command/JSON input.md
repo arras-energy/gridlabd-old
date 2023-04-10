@@ -3,15 +3,20 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd filename.json
+bash$ gridlabd filename.json [options]
 ~~~
+Usage within GLM 
+~~~
+#python -i filename.json -o filename.glm [options]
+~~~
+
 
 # Description
 
 The loader does not directly support JSON input at this time. Instead an runtime converter is used, which executes the following command automatically when needed:
 
 ~~~
-bash$ python3 gridlabd_src/python/jsonglm/json2glm.py -i input.json -o output.glm
+bash$ python3 gridlabd_src/python/jsonglm/json2glm.py -i input.json -o output.glm [options]
 ~~~
 
 The converter is automatically called when a `.json` file is specified on the input, e.g.,
@@ -27,6 +32,18 @@ results in internal execution of command
 ~~~
 
 before `filename.glm` is loaded.
+
+Additional options are available for conversion control: 
+
+No clock - produces a GLM file without a clock statement
+~~~
+  #python ${GLD_ETC}/json2glm.py -i filename.json -o filename.glm -n 
+~~~
+No globals - produces a GLM file without user-specified globals
+~~~
+  #python ${GLD_ETC}/json2glm.py -i filename.json -o filename.glm -g relax_naming_rules,ignore_errors
+~~~
+
 
 # Caveat
 

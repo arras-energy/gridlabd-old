@@ -23,6 +23,7 @@ GLM:
     rating.summer.emergency "<decimal> A";
     rating.winter.continuous "<decimal> A";
     rating.winter.emergency "<decimal> A";
+    insulator_R "<R-value> K/W";
   }
 ~~~
 
