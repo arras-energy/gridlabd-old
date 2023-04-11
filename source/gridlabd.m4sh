@@ -80,9 +80,10 @@ fi
 # Python Configuration Data and Flags
 ###############################################################################
 PY_OS="$(uname -s)"
-AS_IF([test $PY_OS = "Linux"],
-  [PYTHON_VER_DIR="@exec_prefix@/bin"],
-  [PYTHON_VER_DIR="@exec_prefix@/Python.framework/Versions/current/bin"])
+PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
+
+HAVE_PYTHON="$($PYTHON_VER_DIR/python3 --version | cut -f2 -d' ')"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
@@ -101,7 +102,7 @@ export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
 export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
-export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
+export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
 
 AS_IF([test "x$GLPATH" = x],
   [export GLPATH="$pkglibdir:$pkgdatadir"],

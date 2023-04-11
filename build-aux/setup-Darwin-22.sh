@@ -69,7 +69,7 @@ if [ ! -x /usr/local/bin/python3 ] || [ "$(/usr/local/bin/python3 --version | cu
     cp $CERT_DIR/share/ca-certificates/* /usr/local/etc/openssl@1.1/certs/cert.pem
 
     echo "installing python $PYTHON_VER"
-    brew install python@$PYTHON_VER
+    /opt/homebrew/bin/brew install python@$PYTHON_VER
 
 fi
 
