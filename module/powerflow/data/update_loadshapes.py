@@ -2,28 +2,30 @@ import pandas
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-# load CEUS data
-data = pandas.read_csv("ceus_loadshapes.csv",parse_dates=['datetime'])
-data.drop('month',axis=1,inplace=True)
-data.drop('day',axis=1,inplace=True)
-data.drop('hour',axis=1,inplace=True)
-data.set_index(['segment','enduse','fuel','datetime'],inplace=True)
+result = []
+for file in ['ceus_loadshapes.csv','resstock_loadshapes.csv']:
 
-# cleanup CEUS data
-load = pandas.DataFrame(data.groupby(['segment','fuel','datetime']).sum())
-load['season'] = load.index.get_level_values(2).quarter
-load['weekday'] = (load.index.get_level_values(2).dayofweek < 5)
-load['hour'] = load.index.get_level_values(2).hour
-load.reset_index(inplace=True)
-load.set_index(['segment','season','fuel','weekday','hour'],inplace=True)
-load.drop('datetime',axis=1,inplace=True)
-load.sort_index(inplace=True)
+    # load CEUS data
+    data = pandas.read_csv(file,parse_dates=['datetime'])
+    data.drop('month',axis=1,inplace=True)
+    data.drop('day',axis=1,inplace=True)
+    data.drop('hour',axis=1,inplace=True)
+    data.set_index(['segment','enduse','fuel','datetime'],inplace=True)
 
-# fix gas units
-for segment in load.index.get_level_values(0).unique():
-    for season in load.loc[segment].index.get_level_values(0).unique():
-        load.loc[segment,season,'GAS']['load'] = load.loc[segment,season,'GAS']['load'] / 3.412
-load['load'] = load['load'].round(4)
+    # cleanup CEUS data
+    load = pandas.DataFrame(data.groupby(['segment','fuel','datetime']).sum())
+    load['season'] = load.index.get_level_values(2).quarter
+    load['weekday'] = (load.index.get_level_values(2).dayofweek < 5)
+    load['hour'] = load.index.get_level_values(2).hour
+    load.reset_index(inplace=True)
+    load.set_index(['segment','season','fuel','weekday','hour'],inplace=True)
+    load.drop('datetime',axis=1,inplace=True)
+    load.sort_index(inplace=True)
+
+    load['load'] = load['load'].round(4)
+    result.append(load)
+
+load = pandas.concat(result).sort_index()
 
 # plot loads
 for segment in load.index.get_level_values(0).unique():
