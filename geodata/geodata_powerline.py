@@ -866,8 +866,6 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     try:
         result["linesag"] = linesag(data)
-        print("TEST")
-        print(result.columns)
     except Exception as err:
         WARNING(f"cannot run function LINESAG and {err} is missing or invalid")
     try:
