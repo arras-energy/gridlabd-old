@@ -17,6 +17,12 @@ load['hour'] = load.index.get_level_values(2).hour
 load.reset_index(inplace=True)
 load.set_index(['segment','season','fuel','weekday','hour'],inplace=True)
 load.drop('datetime',axis=1,inplace=True)
+load.sort_index(inplace=True)
+
+# fix gas units
+for segment in load.index.get_level_values(0).unique():
+    for season in load.loc[segment].index.get_level_values(0).unique():
+        load.loc[segment,season,'GAS']['load'] = load.loc[segment,season,'GAS']['load'] / 3.412
 load['load'] = load['load'].round(4)
 
 # plot loads
@@ -47,4 +53,4 @@ loadshapes['weekday'] = ["WEEKDAY" if x else "WEEKEND" for x in loadshapes['week
 loadshapes['season'] = [["WINTER","SPRING","SUMMER","FALL"][x-1] for x in loadshapes['season']]
 loadshapes.columns = ["building_type","season","fuel","daytype","hour","load"]
 loadshapes.set_index(["building_type","season","fuel","daytype","hour"],inplace=True)
-loadshapes.to_csv("../building_loadshapes.csv",index=True,header=True)
+loadshapes.to_csv("building_loadshapes.csv",index=True,header=True)
