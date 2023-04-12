@@ -1,19 +1,27 @@
 ''':'
 exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
-"""
-Syntax: gridlabd loaddata [OPTIONS]
-	-y|--year=YEAR
-	-u|--upgrade=LEVEL
-	-s|--state=STATE
+
+__doc__ = """Syntax: gridlabd loaddata [OPTIONS]
 	-b|--building_type=TYPE
-	-e|--enduse=ENDUSE
+	-d|--dataset=DATASET
+	-e|--enduse={ENDUSE,?}
+	-g|--glmname=GLMFILE
+	-n|--name=OBJNAME
+	-o|--output=FILENAME
+	-s|--state=STATE
+	-t|--timestep=TIMESTEP
+	-u|--upgrade=LEVEL
+	-y|--year=YEAR
+
+See https://data.openei.org/oedi_si for details on available datasets, years, building types, upgrades.
 """
 import os, sys
 import requests
 import pandas
 from datetime import datetime
 
+DEBUG = False
 DATADIR = os.path.join(os.environ["GLD_ETC"] 
 	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current",
 	"share","gridlabd","loaddata")
@@ -21,10 +29,9 @@ DATADIR = os.path.join(os.environ["GLD_ETC"]
 URL = "https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock"
 TZ = -5 # NREL data is always EST
 
-def get_loaddata(dataset,year,upgrade,state,building_type,enduse='total',group=None):
+def get_loaddata(dataset,year,state,building_type,upgrade=0,enduse=None,group=None):
 	path = os.path.join(DATADIR,dataset,str(year),state)
 	file = os.path.join(path,f"{building_type}-{upgrade:02d}.csv")
-	print(file)
 	if not os.path.exists(file):
 		url = os.path.join(URL,str(year),dataset,f"timeseries_aggregates/by_state/upgrade={upgrade}",f"state={state.upper()}",f"up{upgrade:02d}-{state.lower()}-{building_type}.csv")
 		reply = requests.get(url)
@@ -34,6 +41,11 @@ def get_loaddata(dataset,year,upgrade,state,building_type,enduse='total',group=N
 				fh.write(reply.text)
 		else:
 			print(f"ERROR: requests.get('{url}') failed with code {reply.status_code}",file=sys.stderr)
+	if enduse is None:
+		return pandas.read_csv(file,
+				index_col = ['timestamp'],
+				parse_dates = ['timestamp'],
+				)
 	data = pandas.read_csv(file,
 		index_col = ['timestamp'],
 		parse_dates = ['timestamp'],
@@ -52,10 +64,126 @@ def get_loaddata(dataset,year,upgrade,state,building_type,enduse='total',group=N
 	else:
 		return data
 
+def error(msg,code):
+	print("ERROR:",msg,file=sys.stderr)
+	if type(code) is int:
+		exit(code)
+
+def warning(msg):
+	print("WARNING:",msg,file=sys.stderr)
+
+E_OK = 0
+E_INVALID = 1
+E_MISSING = 2
+E_SYNTAX = 3
+E_EXCEPTION = 9
+
 if __name__ == "__main__":
-	data = get_loaddata(dataset = "resstock_amy2018_release_1",
-		year = 2022,
-		upgrade = 0,
-		state = "CA",
-		building_type = "single-family_detached")
-	data.to_csv("/dev/stdout",float_format="%.4f")
+
+	if len(sys.argv) == 1:
+		print(__doc__.split("\n")[0],file=sys.stderr)
+		exit(E_SYNTAX)
+
+	year = None
+	upgrade = 0
+	state = None
+	building_type = None
+	enduse = None
+	output = None
+	objname = None
+	dataset = None
+	timestep = None
+
+	for arg in sys.argv[1:]:
+		specs = arg.split('=')
+		if len(specs) > 1:
+			tag = specs[0]
+			value = '='.join(specs[1:])
+		else:
+			tag = arg
+			value = True
+		if tag in ['-b','-building_type']:
+			building_type = value
+		elif tag in ['-d','--dataset']:
+			dataset = value
+		elif tag in ['-e','--enduse']:
+			enduse = value
+		elif tag in ['-g','--glmname']:
+			glmname = value
+		elif tag in ['-n','--name']:
+			objname = value
+		elif tag in ['-o','--output']:
+			output = value
+		elif tag in ['-s','--state']:
+			state = value
+		elif tag in ['-t','--timestep']:
+			timestep = value
+		elif tag in ['-u','--upgrade']:
+			upgrade = int(value)
+		elif tag in ['-y','--year']:
+			year = int(value)
+		else:
+			error(f"option '{arg}' is invalid",E_INVALID)
+
+	if year == None:
+		error("missing year",E_MISSING)
+	if dataset == None:
+		error("missing dataset",E_MISSING)
+	if upgrade == None:
+		error("missing upgrade",E_MISSING)
+	if state == None:
+		error("missing state",E_MISSING)
+	if building_type == None:
+		error("missing building_type",E_MISSING)
+
+	try:
+		if enduse == '?':
+			data = get_loaddata(
+				dataset = dataset,
+				year = year,
+				state = state,
+				building_type = building_type,
+				upgrade = upgrade,
+				group = timestep
+				)
+			result = []
+			for item in data.columns:
+				if item.startswith('out'):
+					spec = item.split('.')
+					if spec[2] not in result:
+						result.append(spec[2])
+			print('\n'.join(sorted(result)))
+		else:
+			data = get_loaddata(
+				dataset = dataset,
+				year = year,
+				state = state,
+				building_type = building_type,
+				upgrade = upgrade,
+				enduse = enduse,
+				group = timestep
+				# dataset = "resstock_amy2018_release_1",
+				# year = 2022,
+				# upgrade = 0,
+				# state = "CA",
+				# building_type = "single-family_detached"
+				)
+			if output is None:
+				pandas.options.display.max_rows = None
+				pandas.options.display.max_columns = None
+				pandas.options.display.max_colwidth = None
+				pandas.options.display.expand_frame_repr = False
+				print(data)
+			elif output.endswith(".csv"):
+				data.to_csv(output,float_format="%.4f")
+			elif output.endswith(".json"):
+				data.to_json(output,float_format="%.4f")
+			elif output.endswith(".html"):
+				data.to_html(output,float_format="%.4f")
+			else:
+				error(f"output format is unknown",E_INVALID)
+	except:
+		if DEBUG:
+			raise
+		e_type,e_value,e_trace = sys.exc_info()
+		error(f"EXCEPTION [@{e_trace.tb_lineno}]: {e_type.__name__} {e_value}",E_EXCEPTION)
