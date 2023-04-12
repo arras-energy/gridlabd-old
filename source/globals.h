@@ -45,7 +45,6 @@ typedef struct s_globalvar
 	uint32 flags;
 	void (*callback)(const char *);
 	LOCKVAR lock;
-	const char *initial;
 	struct s_globalvar *next;
 } GLOBALVAR;
 
@@ -849,7 +848,7 @@ GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gr
 GLOBAL char1024 global_pythonpath INIT(".");
 
 /* Variable: global_pythonexec */
-GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/python3");
+GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/pkgenv/bin/python3");
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);

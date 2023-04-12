@@ -1,5 +1,5 @@
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
@@ -1315,6 +1315,9 @@ def main(argc,argv):
             verbose(f"output format is set to '{CONFIG['output_format']}'")
         elif argv[n] in ["-h","--help"]:
             help()
+            exit(E_OK)
+        elif argv[n] in ["help"]:
+            print(__doc__)
             exit(E_OK)
         elif argv[n] in ["-j","--join"]:
             n += 1

@@ -1,3 +1,4 @@
+# fire_report [OPTIONS ...]
 """Fire Incident Report Tool
 
 SYNOPSIS

@@ -1,5 +1,5 @@
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 """GridLAB-D plot subcommand
@@ -7,7 +7,7 @@ exec "$GLD_BIN/python3" "$0" "$@"
 SYNOPSIS
 
 Shell:
-    $ gridlabd plot OPTIONS
+    $ gridlabd plot [OPTIONS ...]
 
 GLM:
 

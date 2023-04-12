@@ -1113,7 +1113,7 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value,boo
 			output_error("object %s:%d parent %s not found", obj->oclass->name, obj->id, value);
 			return FAILED;
 		}
-		else if(object_set_parent(obj,parent)==FAILED && strcmp(value,"")!=0)
+		else if ( object_set_parent(obj,parent) < 0 && strcmp(value,"") !=0 )
 		{
 			output_error("object %s:%d cannot use parent %s", obj->oclass->name, obj->id, value);
 			return FAILED;

@@ -297,12 +297,12 @@ install-exec-hook: index python-requirements docs
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
 	@echo ""
 	@echo "To make this version the default for all users on this system:"
-	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
 	@echo ""
 
 python-requirements: $(python_requirements)
 	@echo "Updating python requirements..."
-	@$(bindir)/python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
+	@$(bindir)/pkgenv/bin/python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
@@ -325,7 +325,7 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 #   @$(DESTDIR)$(bindir)/gridlabd docker disable > /dev/null
-	@$(DESTDIR)$(bindir)/gridlabd version set
+	@$(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))
 	@if [ ! "$$(gridlabd --version=install)" == "$$($(top_srcdir)/build-aux/version.sh --install)" ]; then \
 		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
 	fi

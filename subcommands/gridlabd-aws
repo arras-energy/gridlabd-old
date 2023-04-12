@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: aws [OPTIONS ...] COMMAND SUBCOMMAND [PARAMETERS ...]
 
 function output()
 {

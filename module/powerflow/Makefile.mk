@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += module/powerflow/powerflow.la
 
-module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell $(bindir)/python3 -c 'import numpy; print(numpy.get_include())')
+module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell $(bindir)/pkgenv/bin/python3 -c 'import numpy; print(numpy.get_include())')
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/module/powerflow
 module_powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)
@@ -20,6 +20,7 @@ module_powerflow_powerflow_la_SOURCES = module/powerflow/init.cpp module/powerfl
 module_powerflow_powerflow_la_SOURCES += module/powerflow/billdump.cpp module/powerflow/billdump.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/capacitor.cpp module/powerflow/capacitor.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/currdump.cpp module/powerflow/currdump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/ductbank.cpp module/powerflow/ductbank.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/emissions.cpp module/powerflow/emissions.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/fault_check.cpp module/powerflow/fault_check.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/frequency_gen.cpp module/powerflow/frequency_gen.h
@@ -78,5 +79,6 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/transformer_test.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/triplexline_test.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/undergroundline_test.h
 
+dist_pkgdata_DATA += module/powerflow/data/ductbank_configurations.csv
 dist_pkgdata_DATA += module/powerflow/solver_py.conf
 bin_SCRIPTS += module/powerflow/check_powerflow.py

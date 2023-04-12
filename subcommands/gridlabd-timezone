@@ -1,5 +1,5 @@
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 """Syntax: gridlabd timezone [OPTIONS...] LOCATION
@@ -38,7 +38,7 @@ The following GLM directive sets the model timezone to the local timezone:
 
   clock
   {
-	timezone ${SHELL gridlabd timezone local};
+	  timezone ${SHELL gridlabd timezone local};
   }
 """
 

@@ -286,7 +286,7 @@ void configpath_init(const char *value)
 
 void pythonexec_init(const char *value)
 {
-	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/python3",global_bindir);
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
 }
 /* Add more derivative directories here */
 
@@ -536,9 +536,6 @@ STATUS GldGlobals::init(void)
 				that message and try again.
 			*/
 		} else {
-			char buffer[1024];
-			getvar(p->name,buffer,sizeof(buffer)-1);
-			var->initial = strdup(buffer);
 			var->prop->keywords = p->keys;
 			var->callback = p->callback;
 		}
@@ -746,10 +743,6 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 			}
-			else if ( proptype == PT_DEFAULT )
-			{
-				var->initial = strdup(va_arg(arg,char*));
-			}
 			else if ( proptype == PT_DESCRIPTION )
 			{
 				prop->description = va_arg(arg,char*);
@@ -804,14 +797,6 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 			{
 				prop = NULL;
 			}
-		}
-	}
-
-	if ( var->initial != NULL )
-	{
-		if ( class_string_to_property(var->prop,(void*)var->prop->addr,var->initial) <= 0 )
-		{
-				throw_exception("global_create(char *name='%s',...): cannot set initial value '%s'", name, var->initial);
 		}
 	}
 
@@ -1525,6 +1510,10 @@ DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
 {
     int len = 0;
+    if ( size > 0 && buffer != NULL )
+    {
+    	buffer[0] = '\0';
+    }
     FINDLIST *finder = findlist_create(FL_NEW, spec);
     for ( OBJECT *obj = find_first(finder) ; obj != NULL ; obj = find_next(finder,obj) )
     {
