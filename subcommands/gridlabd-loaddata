@@ -1,0 +1,61 @@
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+"""
+Syntax: gridlabd loaddata [OPTIONS]
+	-y|--year=YEAR
+	-u|--upgrade=LEVEL
+	-s|--state=STATE
+	-b|--building_type=TYPE
+	-e|--enduse=ENDUSE
+"""
+import os, sys
+import requests
+import pandas
+from datetime import datetime
+
+DATADIR = os.path.join(os.environ["GLD_ETC"] 
+	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current",
+	"share","gridlabd","loaddata")
+
+URL = "https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock"
+TZ = -5 # NREL data is always EST
+
+def get_loaddata(dataset,year,upgrade,state,building_type,enduse='total',group=None):
+	path = os.path.join(DATADIR,dataset,str(year),state)
+	file = os.path.join(path,f"{building_type}-{upgrade:02d}.csv")
+	print(file)
+	if not os.path.exists(file):
+		url = os.path.join(URL,str(year),dataset,f"timeseries_aggregates/by_state/upgrade={upgrade}",f"state={state.upper()}",f"up{upgrade:02d}-{state.lower()}-{building_type}.csv")
+		reply = requests.get(url)
+		if reply.status_code == 200:
+			os.makedirs(path,exist_ok=True)
+			with open(file,"w") as fh:
+				fh.write(reply.text)
+		else:
+			print(f"ERROR: requests.get('{url}') failed with code {reply.status_code}",file=sys.stderr)
+	data = pandas.read_csv(file,
+		index_col = ['timestamp'],
+		parse_dates = ['timestamp'],
+		usecols = ['timestamp',
+			'units_represented',
+			f'out.electricity.{enduse}.energy_consumption.kwh',
+			f'out.natural_gas.{enduse}.energy_consumption.kwh'],
+		)
+	data.columns = ['houses','electric','gas']
+	data['electric'] = data['electric'] / data['houses']
+	data['gas'] = data['gas'] / data['houses']
+	data.drop('houses',axis=1,inplace=True)
+	data.index = data.index + pandas.Timedelta(hours=TZ)
+	if group:
+		return data.groupby(pandas.Grouper(freq=group)).sum()
+	else:
+		return data
+
+if __name__ == "__main__":
+	data = get_loaddata(dataset = "resstock_amy2018_release_1",
+		year = 2022,
+		upgrade = 0,
+		state = "CA",
+		building_type = "single-family_detached")
+	data.to_csv("/dev/stdout",float_format="%.4f")
