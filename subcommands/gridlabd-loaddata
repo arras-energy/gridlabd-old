@@ -1,18 +1,19 @@
 ''':'
-exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+exec "${GLD_BIN:-/usr/local/opt/gridlabd/current}/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 __doc__ = """Syntax: gridlabd loaddata [OPTIONS]
-	-b|--building_type=TYPE
-	-d|--dataset=DATASET
-	-e|--enduse={ENDUSE,?}
-	-g|--glmname=GLMFILE
-	-n|--name=OBJNAME
-	-o|--output=FILENAME
-	-s|--state=STATE
-	-t|--timestep=TIMESTEP
-	-u|--upgrade=LEVEL
-	-y|--year=YEAR
+	-b|--building_type=TYPE e.g., "APARTMENT", "CONDO", "HOUSE", "TOWNHOUSE"
+	-d|--dataset=DATASET    e.g., "resstock_amy2018_release_1.1"
+	-e|--enduse[=ENDUSE]    e.g., "total", none prints list
+	-g|--glmname=GLMFILE    e.g., "loadmodel.glm"
+	-n|--name=OBJNAME       e.g., "my_load"
+	-o|--output=FILENAME    e.g., "loaddata.csv", "loaddata.json"
+	-s|--state=STATE        e.g., "CA"
+	-t|--timestep=TIMESTEP  e.g., "1H", "1D", "1W", etc.
+	-u|--upgrade=LEVEL      e.g.. 0 through 10
+	-y|--year=YEAR 			e.g., 2021, 2022, 2023
+
 
 See https://data.openei.org/oedi_si for details on available datasets, years, building types, upgrades.
 """
@@ -25,7 +26,12 @@ DEBUG = False
 DATADIR = os.path.join(os.environ["GLD_ETC"] 
 	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current",
 	"share","gridlabd","loaddata")
-
+BUILDINGTYPES = {
+	"APARTMENT" : "multi-family_with_5plus_units", 
+	"CONDO" : "multi-family_with_2_-_4_units", 
+	"HOUSE" : "single-family_detached", 
+	"TOWNHOUSE" : "single-family_attached"
+}
 URL = "https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock"
 TZ = -5 # NREL data is always EST
 
@@ -103,7 +109,7 @@ if __name__ == "__main__":
 			tag = arg
 			value = True
 		if tag in ['-b','-building_type']:
-			building_type = value
+			building_type = BUILDINGTYPE[value]
 		elif tag in ['-d','--dataset']:
 			dataset = value
 		elif tag in ['-e','--enduse']:
@@ -127,6 +133,8 @@ if __name__ == "__main__":
 
 	if year == None:
 		error("missing year",E_MISSING)
+	elif year == True:
+
 	if dataset == None:
 		error("missing dataset",E_MISSING)
 	if upgrade == None:
@@ -137,7 +145,7 @@ if __name__ == "__main__":
 		error("missing building_type",E_MISSING)
 
 	try:
-		if enduse == '?':
+		if enduse is None:
 			data = get_loaddata(
 				dataset = dataset,
 				year = year,
