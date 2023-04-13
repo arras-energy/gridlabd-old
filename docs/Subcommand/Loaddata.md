@@ -61,10 +61,22 @@ timestamp
 2017-12-31 20:30:00       0.2707
 2017-12-31 20:45:00       0.2641
 2017-12-31 21:00:00       0.2614
+...
 ~~~
 
 The following command outputs the hourly heating demand for electric and natural gas for a 100,000 sf hotel in California:
 
 ~~~
 $ gridlabd loaddata -s=CA -r=1 -v=2023 -w=ACTUAL -y=2018 -b=HOTEL -e=heating -f=electricity,natural_gas -t=1H -a=100000
+                     electricity  natural_gas
+timestamp                                    
+2017-12-31 19:00:00       3.4422      14.3716
+2017-12-31 20:00:00       5.7445      20.7651
+2017-12-31 21:00:00       6.2682      21.5445
+2017-12-31 22:00:00       3.5732      18.0518
+2017-12-31 23:00:00       2.9333      18.0711
+2018-01-01 00:00:00       3.5650      19.2336
+2018-01-01 01:00:00       4.8231      21.4534
+2018-01-01 02:00:00       5.2353      22.0543
+....
 ~~~
