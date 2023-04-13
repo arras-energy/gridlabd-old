@@ -54,8 +54,8 @@ from datetime import datetime
 
 DEBUG = False
 DATADIR = os.path.join(os.environ["GLD_ETC"] 
-	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current",
-	"share","gridlabd","loaddata")
+	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current/share/gridlabd",
+	"loaddata")
 BUILDINGTYPE = {
 	"APARTMENT" : "multi-family_with_5plus_units", 
 	"CONDO" : "multi-family_with_2_-_4_units", 
