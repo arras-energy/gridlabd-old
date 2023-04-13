@@ -39,6 +39,13 @@ residential buildings. All fossil enduse units are in kBtu/sf or kBtu. If
 floor area is specified for commercial buildings, then all values are in kWh
 or kBtu.
 
+If a GLM file is generated, then the object name specified is used as the player's
+parent object. If the object name is omitted, then the the player is given a random
+object name, which is appended to the global `LOADDATA`.
+
+The player's start and stop time are stored in the global variables `{objname}_starttime`
+and `{objname}_stoptime`.
+
 If fuels, enduse, or building_type are omitted, then a list of the available
 values is output to /dev/stdout.
 
