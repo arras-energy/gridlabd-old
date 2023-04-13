@@ -590,6 +590,10 @@ if test ! -d "$BINDIR/pkgenv"; then
     mkdir -p "$BINDIR"
 fi
 
+if test ! -d "$DSTDIR/share"; then
+    mkdir -p "$DSTDIR/share"
+fi
+
 if echo "$host_os" | grep '^linux' >/dev/null; then
     # Check for Debian or Ubuntu
     if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
