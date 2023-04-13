@@ -1,0 +1,17 @@
+name: develop-images
+
+needs: develop
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  buildUbuntuDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: docker-i
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
