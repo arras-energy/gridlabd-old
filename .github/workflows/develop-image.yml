@@ -13,12 +13,16 @@ jobs:
     environment: docker-i
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
-      run: |
-        chown -R $(id -u):$(id -g) $PWD
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.ul
+        push: true
+        tags: your-dockerhub-username/ubuntu:latest
 
   buildDebianDockerhub:
 
@@ -26,12 +30,16 @@ jobs:
     environment: docker-i
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
-      run: |
-        chown -R $(id -u):$(id -g) $PWD
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.dl
+        push: true
+        tags: your-dockerhub-username/debian:latest
 
   buildAWSUbuntu:
 
