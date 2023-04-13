@@ -10,7 +10,6 @@ jobs:
   buildUbuntuDockerhub:
 
     runs-on: ubuntu-latest
-    container: ubuntu:latest
     environment: docker-i
 
     steps:
@@ -24,7 +23,6 @@ jobs:
   buildDebianDockerhub:
 
     runs-on: ubuntu-latest
-    container: debian:latest
     environment: docker-i
 
     steps:
