@@ -351,7 +351,7 @@ troubleshooting-html:
 
 documents/gridlabd.pdf: documents/gridlabd.glm
 	(cd documents ; $(DESTDIR)$(bindir)/gridlabd gridlabd.glm)
-	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf | true
+	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
 
 docs: $(docs_targets) documents/gridlabd.pdf
 
