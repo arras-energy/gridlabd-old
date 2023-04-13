@@ -1,0 +1,159 @@
+name: develop-images
+
+needs: develop
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  buildUbuntuDockerhub:
+
+    runs-on: ubuntu-latest
+    container: ubuntu:latest
+    environment: docker-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildDebianDockerhub:
+
+    runs-on: ubuntu-latest
+    container: debian:latest
+    environment: docker-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildAWSUbuntu:
+
+    runs-on: ubuntu-latest
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildMacos12Fast:
+
+    runs-on: macos-12
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildMacos11Fast:
+
+    runs-on: macos-11
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildUbuntu22Fast:
+
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildUbuntu20Fast:
+
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildUbuntu18Fast:
+
+    runs-on: ubuntu-latest
+    container: ubuntu:18.04
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildDebian11Fast:
+
+    runs-on: ubuntu-latest
+    container: debian:11
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildDebian10Fast:
+
+    runs-on: ubuntu-latest
+    container: debian:10
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildDebian9Fast:
+
+    runs-on: ubuntu-latest
+    container: debian:9
+    environment: AWS-i
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
