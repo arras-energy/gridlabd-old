@@ -591,9 +591,7 @@ if test ! -d "$BINDIR/pkgenv"; then
 fi
 
 if test ! -d "$DSTDIR/share"; then
-
     mkdir -p "$DSTDIR/share"
-    
 fi
 
 if echo "$host_os" | grep '^linux' >/dev/null; then
@@ -623,8 +621,8 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
             "$PYDIR/python3" -m pip install --upgrade pip
             "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
             "$PYDIR/python3" -m pip install IPython censusdata
-            "$PYDIR/python3" -m pip install GDAL==3.0.4
-            "$PYDIR/python3" -m pip install rasterio==1.2.10
+            "$PYDIR/python3" -m pip install GDAL
+            "$PYDIR/python3" -m pip install rasterio
         fi
 
         if test ! -d "$BINDIR/pkgenv/include/python*"; then
