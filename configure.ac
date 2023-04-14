@@ -591,7 +591,9 @@ if test ! -d "$BINDIR/pkgenv"; then
 fi
 
 if test ! -d "$DSTDIR/share"; then
+
     mkdir -p "$DSTDIR/share"
+    
 fi
 
 if echo "$host_os" | grep '^linux' >/dev/null; then
