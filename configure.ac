@@ -620,7 +620,7 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
             /usr/local/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
             "$PYDIR/python3" -m pip install --upgrade pip
             "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            "$PYDIR/python3" -m pip install IPython censusdata
+            "$PYDIR/python3" -m pip install IPython censusdata wheel
             "$PYDIR/python3" -m pip install --upgrade --no-cache-dir setuptools==58.0.2
             "$PYDIR/python3" -m pip install GDAL==3.0.4
             "$PYDIR/python3" -m pip install rasterio==1.2.10
