@@ -10,20 +10,22 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd_base:220921
+    container: hipas/gridlabd-venv:develop
 
     steps:
     - uses: actions/checkout@v2
-    - name: Update python3 modules
-      run: pip3 install -r requirements.txt
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+    - name: install gridlabd
+      run: |
+        autoreconf -isf
+        ./configure
+        make system
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
-    - name: Run autoconf
-      run: autoreconf -isf
-    - name: Configure build
-      run: ./configure
-    - name: Build gridlabd
-      run: make -j10 system
     - name: Validate build
       run: |
         gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( utilities/save_validation_errors ; false )

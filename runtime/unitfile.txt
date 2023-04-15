@@ -130,6 +130,7 @@ mile=5280 ft
 ; Area
 sf=ft^2
 sy=yd^2
+ha=10000 m^2
 
 ; Volume
 cf=ft^3

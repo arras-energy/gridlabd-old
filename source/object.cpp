@@ -1059,7 +1059,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 
 	/* dispatch notifiers */
 	if(obj->oclass->notify){
-		if(obj->oclass->notify(obj,NM_PREUPDATE,prop,value) == 0){
+		if(obj->oclass->notify(obj,NM_PREUPDATE,prop) == 0){
 			output_error("preupdate notify failure on %s in %s", prop->name, obj->name ? obj->name : "an unnamed object");
 		}
 	}
@@ -1075,7 +1075,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 		result = class_string_to_property(prop,addr,value);
 	}
 	if(obj->oclass->notify){
-		if(obj->oclass->notify(obj,NM_POSTUPDATE,prop,value) == 0){
+		if(obj->oclass->notify(obj,NM_POSTUPDATE,prop) == 0){
 			output_error("postupdate notify failure on %s in %s", prop->name, obj->name ? obj->name : "an unnamed object");
 		}
 	}
@@ -1113,7 +1113,7 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value,boo
 			output_error("object %s:%d parent %s not found", obj->oclass->name, obj->id, value);
 			return FAILED;
 		}
-		else if(object_set_parent(obj,parent)==FAILED && strcmp(value,"")!=0)
+		else if ( object_set_parent(obj,parent) < 0 && strcmp(value,"") !=0 )
 		{
 			output_error("object %s:%d cannot use parent %s", obj->oclass->name, obj->id, value);
 			return FAILED;

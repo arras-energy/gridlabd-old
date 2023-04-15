@@ -55,8 +55,8 @@ AC_DEFUN([AX_LIB_XERCES],
         ),
         [
         if test "$withval" = "yes"; then
-            if test -d /usr/local/include/xercesc ; then
-                xerces_prefix=/usr/local
+            if test -d @exec_prefix@/include/xercesc ; then
+                xerces_prefix=@exec_prefix@
             elif test -d /usr/include/xercesc ; then
                 xerces_prefix=/usr
             else
@@ -73,8 +73,8 @@ AC_DEFUN([AX_LIB_XERCES],
         ],
         [
         dnl Default behavior is implicit yes
-        if test -d /usr/local/include/xercesc ; then
-            xerces_prefix=/usr/local
+        if test -d @exec_prefix@/include/xercesc ; then
+            xerces_prefix=@exec_prefix@
         elif test -d /usr/include/xercesc ; then
             xerces_prefix=/usr
         else

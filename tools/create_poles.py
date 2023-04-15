@@ -1,3 +1,4 @@
+# create_poles INPUTFILE OPTIONS ...
 """Create poles for a GridLAB-D model
 
 SYNTAX

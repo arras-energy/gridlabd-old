@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Set Variable defaults (Prefix can be changed by flag)
+VERSION=${VERSION:-`build-aux/version.sh --name`}
+PREFIX="/usr/local/opt"
+
 # set the path to use during installation
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -12,28 +16,6 @@ if [ "$(whoami)" == "root" ]; then
 else
 	sudo --version >/dev/null 2>&1 || (echo "$0: sudo is required"; exit 1)
 fi
-
-# local folder
-VAR="/usr/local/var/gridlabd"
-if [ ! -d "$VAR" ]; then
-	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
-fi
-
-# setup logging
-LOG="$VAR/install.log"
-function log()
-{
-	case "$*" in 
-	("clear")
-		rm -f $LOG
-		shift 1
-		;;
-	(*)
-		echo "$*" >> $LOG
-		return
-		;;
-	esac
-}
 
 # setup exit handling
 function on_exit()
@@ -164,7 +146,7 @@ while [ $# -gt 0 ]; do
 		if [ ! -d "$PREFIX" ]; then
 			error "$PREFIX does not exist"
 		fi
-		INSTALL="$PREFIX/$VERSION"
+		INSTALL="$PREFIX/gridlabd/$VERSION"
 		shift 1
 		;;
     (--no-setup)
@@ -205,6 +187,43 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 
+# local folder
+export VAR="$PREFIX/gridlabd"
+
+VERSION_DIR=$VAR/$VERSION
+
+if [ ! -d "$VAR" ]; then
+	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
+fi
+
+if [ -e "$VAR" ] ; then
+	sudo chown -R "${USER:-root}" "$VAR"
+	mkdir -p $VERSION_DIR/var
+fi
+
+# create a temp working directory if it does not already exist
+if [ ! -d "$HOME/temp" ]; then
+	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
+fi
+
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# setup logging
+LOG="$VERSION_DIR/var/install.log"
+function log()
+{
+	case "$*" in 
+	("clear")
+		rm -f $LOG
+		shift 1
+		;;
+	(*)
+		echo "$*" >> $LOG
+		return
+		;;
+	esac
+}
+
 # start logging
 log clear
 log "START: $(date)"
@@ -242,10 +261,18 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
-	SOK="$VAR/setup.ok"
+	SOK="$VERSION_DIR/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
 		run build-aux/setup.sh
 		date > "$SOK"
+		# update permissions for site-packages (and all other gridlabd dirs) to be writable by user post-setup, unless root
+		# do the same for share dirs
+		if [ ! -z $USER ] ; then
+			sudo chown -R "${USER:-root}" $VAR/$VERSION
+			echo "Setting Gridlabd package permissions to ${USER:-root}"
+		else
+			echo "Running as root, not updating site package ownership."
+		fi
 	elif [ -f "$SOK" ]; then
 		log "SETUP: already completed at $(cat $SOK)"
 	else
@@ -253,34 +280,34 @@ if [ "$SETUP" == "yes" ]; then
 	fi
 fi
 
-# dynamic variables
 require git
-VERSION=${VERSION:-`build-aux/version.sh --name`}
-INSTALL=${INSTALL:-$PREFIX/opt/gridlabd/$VERSION}
+# dynamic variables
+INSTALL=${INSTALL:-$VERSION_DIR}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
 	OLDVER="$(gridlabd --version | cut -f2 -d' ')-saved_$(date '+%y%m%d')"
 	VDIR=$OLDVER
-	while [ -e $PREFIX/opt/gridlabd/$VDIR ]; do
+	while [ -e $PREFIX/gridlabd/$VDIR ]; do
 		VDIR=${OLDVER}_${VNUM:-0}
 		VNUM=$((${VNUM:-0}+1))
 	done
-	log "BACKUP: saving $OLDVER to $PREFIX/opt/gridlabd/$VDIR and linking it back to current version"
-	run mkdir -p $PREFIX/opt/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
-	run ln -sf $PREFIX/opt/gridlabd/$VDIR $PREFIX/opt/gridlabd/current 
+	log "BACKUP: saving $OLDVER to $PREFIX/gridlabd/$VDIR and linking it back to current version"
+	run mkdir -p $PREFIX/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
+	run ln -sf $PREFIX/gridlabd/$VDIR $PREFIX/gridlabd/current 
 	for item in bin include lib share; do
-		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/opt/gridlabd/$VDIR/$item
-		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/opt/gridlabd/$VDIR/$item/
-		run ln -sf $PREFIX/opt/gridlabd/$VDIR/$item/gridlabd $PREFIX/opt/gridlabd/current/$item/gridlabd
-		run ln -sf $PREFIX/opt/gridlabd/current/$item /$PREFIX/$item/gridlabd
+		[ ! -d $PREFIX/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/gridlabd/$VDIR/$item
+		[ ! -d $PREFIX/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/gridlabd/$VDIR/$item/
+		run ln -sf $PREFIX/gridlabd/$VDIR/$item/gridlabd $PREFIX/gridlabd/current/$item/gridlabd
+		run ln -sf $PREFIX/gridlabd/current/$item /$PREFIX/$item/gridlabd
 	done
-	run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run ln -s $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
+	run ln -s $PREFIX/gridlabd/current/bin/gridlabd /usr/local/bin
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
-	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
-	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
+	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd/current" -a ! -L "$PREFIX/gridlabd/current" ]; then
+	    error "$PREFIX/gridlabd/current exists but it is not a symbolic link"
 	fi
 	if [ "$DOCS" == "yes" ]; then
 		require doxygen
@@ -306,8 +333,8 @@ fi
 # prep install dir
 log "VERSION: $VERSION"
 log "INSTALL: $INSTALL"
-if [ -e "$INSTALL" -a "$FORCE" == "no" ]; then
-	error "$INSTALL already exists, please delete it first"
+if [ -e "$INSTALL/bin/gridlabd" -a "$FORCE" == "no" ]; then
+	error "$INSTALL has already been installed, please delete it first"
 fi
 mkdir -p "$INSTALL" || ( run sudo mkdir -p "$INSTALL" && run sudo chown -R "${USER:-root}" "$INSTALL" )
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
@@ -325,7 +352,7 @@ if [ "$PARALLEL" == "yes" ]; then
 fi
 
 # build everything
-export PATH=/usr/local/bin:/usr/bin:/bin
+export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC)) system
 
 if [ "$DOCS" == "yes" ]; then
@@ -349,12 +376,12 @@ if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
 	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
 	log "ACTIVATE: manual"
-	[ ! -L "$PREFIX/opt/gridlabd/current" ] && run sudo rm -f "$PREFIX/opt/gridlabd/current"
-	run sudo ln -sf "$INSTALL" "$PREFIX/opt/gridlabd/current"
-	for dir in bin lib include share; do
-		run sudo ln -sf $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+	[ ! -L "$PREFIX/gridlabd/current" ] && run sudo rm -f "$PREFIX/gridlabd/current"
+	run sudo ln -sf "$INSTALL" "$PREFIX/gridlabd/current"
+	for dir in bin; do
+		run sudo ln -sf $PREFIX/gridlabd/current/$dir/gridlabd /usr/local/$dir/gridlabd
 	done
-	run sudo ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 fi
 
 # all done :-)
