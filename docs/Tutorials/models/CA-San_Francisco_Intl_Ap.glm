@@ -1,0 +1,6 @@
+#weather get CA-San_Francisco_Intl_Ap.tmy3
+module climate;
+object climate
+{
+	tmyfile "CA-San_Francisco_Intl_Ap.tmy3";
+}
