@@ -249,6 +249,10 @@ Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (20
 ~~~
 This will allow anyone to identify the exact version you are using to obtain it from GitHub.
 
+## US Government Rights
+
+This version of GridLAB-D is derived from the original US Department of Energy version of GridLAB-D developed at Pacific Northwest National Laboratory. The US Government retains certain rights as described in [the original GridLAB-D license](https://raw.githubusercontent.com/gridlab-d/gridlab-d/master/LICENSE).
+
 ## Contributions
 
 Please see https://source.gridlabd.us/blob/master/CONTRIBUTING.md for information on making contributions to this repository.

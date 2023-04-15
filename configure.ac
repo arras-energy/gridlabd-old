@@ -627,9 +627,9 @@ if echo "$host_os" | grep '^linux' >/dev/null; then
         fi
 
         if test ! -d "$BINDIR/pkgenv/include/python*"; then
-            ln -s /usr/local/bin/python${PYEXE}-config $BINDIR/pkgenv/bin/python3-config
-            ln -s /usr/local/lib/*${PYEXE}* $BINDIR/pkgenv/lib
-            ln -s /usr/local/include/python${PYEXE} $BINDIR/pkgenv/include
+            ln -sF /usr/local/bin/python${PYEXE}-config $BINDIR/pkgenv/bin/python3-config
+            ln -sF /usr/local/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+            ln -sF /usr/local/include/python${PYEXE} $BINDIR/pkgenv/include
         fi
 
     else
@@ -642,9 +642,9 @@ elif echo "$host_os" | grep '^darwin' >/dev/null; then
         # Add Intel Mac-specific configuration here
         /usr/local/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
 
-        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
-        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
-        ln -s /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
+        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
+        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
 
         $PYDIR/python3 -m ensurepip --upgrade
         $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
@@ -656,9 +656,9 @@ elif echo "$host_os" | grep '^darwin' >/dev/null; then
         # Add arm64 Mac-specific configuration here
         /opt/homebrew/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
 
-        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
-        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
-        ln -s /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
+        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
+        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
+        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
 
         $PYDIR/python3 -m ensurepip --upgrade
         $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
