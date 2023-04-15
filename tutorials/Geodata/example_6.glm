@@ -3,6 +3,8 @@
 // This example shows how to merge elevation data and display the result
 //
 class vegetation { double elevation[ft]; double base[m]; double cover; double height[m]; double linesag[m]; double contact[%]; bool hidden; }
+#geodata config set vegetation.username anonymous
+#geodata config set vegetation.password None
 #geodata merge -D elevation poles.csv -o /tmp/elevation.csv -r 50 --resolution_id
 #geodata merge -D vegetation /tmp/elevation.csv -o /tmp/vegetation.csv
 #geodata merge -D powerline /tmp/vegetation.csv -o /tmp/position.csv --cable_type="TACSR/AC 610mm^2" --margin.vertical=0

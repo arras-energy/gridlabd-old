@@ -2,6 +2,38 @@
 
 The address package resolves addresses and locations.
 
+INPUT:
+
+    address     the address to resolve (forward)
+
+    latitude    the latitude to resolve (reverse)
+
+    longitude   the longitude to resolve (reverse)
+
+OUTPUT:
+
+    address     the address resolution (reverse)
+
+    latitude    the latitude resolution (forward)
+
+    longitude   the longitude resolution (forward)
+
+OPTIONS:
+
+    reverse     perform reverse address resolution, i.e., location to address
+
+CONFIGURATION:
+
+    provider    specify the data provider (default "nominatim")
+
+    user_agent  specify the user agent (default "csv_user_ht")
+
+    timeout     specify the query timeout (default 5 seconds)
+
+    retries     specify the query retries (default 5 retries)
+
+    sleep       specify the query sleep time (default 1 second)
+
 EXAMPLES:
 
 The following example converts an address to a latitude,longitude:
@@ -18,7 +50,7 @@ The following example converts a latitude,longitude to an address:
        latitude  longitude                                            address
     0   37.4205  -122.2046  Stanford Linear Accelerator Center National Ac...
 
-SCRIPT
+SCRIPT:
 
 The package may be run as a script using the following command options
 
