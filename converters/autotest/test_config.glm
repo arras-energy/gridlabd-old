@@ -1,0 +1,10 @@
+#ifexist ../test_config.csv
+#define DIR=..
+#endif
+
+#convert -i ${DIR:-.}/test_config.csv -o test_config_opt.glm -f csv-config -t glm-config
+#include "test_config_opt.glm"
+
+#ifexist ../test_config_opt.glm
+#on_exit 0 diff ../test_config_opt.glm test_config_opt.glm >gridlabd.diff
+#endif

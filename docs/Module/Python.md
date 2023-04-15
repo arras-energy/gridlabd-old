@@ -43,39 +43,17 @@ Gets:
   >>> gridlabd.get_global(name)
   >>> gridlabd.get_value(name,property)
   >>> gridlabd.get_schedule(name)
-  >>> gridlabd.get_property(object,property)
-  >>> gridlabd.get_double(address)
-  >>> gridlabd.get_complex(address)
-  >>> gridlabd.get_int64(address)
-  >>> gridlabd.get_int32(address)
-  >>> gridlabd.get_int16(address)
-  >>> gridlabd.get_bool(address)
 ~~~
 Sets:
 ~~~
   >>> gridlabd.set_global(name,value)
   >>> gridlabd.set_value(name,property,value)
-  >>> gridlabd.set_double(address,double)
-  >>> gridlabd.set_complex(address,complex)
-  >>> gridlabd.set_int64(address,int)
-  >>> gridlabd.set_int32(address,int)
-  >>> gridlabd.set_int16(address,int)
-  >>> gridlabd.set_bool(address,bool)
 ~~~
 Units:
 ~~~
   >>> gridlabd.convert_unit(string,to)
   >>> gridlabd.convert_unit(real,from,to)
-~~~
-Converters:
-~~~
-  >>> gridlabd.bool(string)
-  >>> gridlabd.int16(string)
-  >>> gridlabd.int32(string)
-  >>> gridlabd.int64(string)
-  >>> gridlabd.timestamp(string)
-  >>> gridlabd.double(string)
-  >>> gridlabd.complex(string)
+
 ~~~
 
 # Description
@@ -272,25 +250,6 @@ Note: the `set_value` command only works after the initialization has started.
 ## `save(file)` 
 
 Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[/glm_save_options]] global variable. Other formats are supported if there is a converter from JSON to that format installed in the `/usr/local/share/gridlabd` folder.
-
-## `get_property(object,property)`
-
-Gets the property address for use with the `get_<type>` accessors. Value accessors are the following.
-
-- `get_double(address)`
-- `get_complex(address)`
-- `get_int64(address)`
-- `get_int32(address)`
-- `get_int16(address)`
-- `get_bool(address)`
-- `set_double(address,double)`
-- `set_complex(address,complex)`
-- `set_int64(address,int)`
-- `set_int32(address,int)`
-- `set_int16(address,int)`
-- `set_bool(address,bool)`
-
-**Warning**: Value accessors are very fast but are not checked for validity. If the address or the type is incorrect for the property, the behavior is undefined.
 
 # Example
 
