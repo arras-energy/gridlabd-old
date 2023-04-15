@@ -1,5 +1,6 @@
 #input "CA-San_Francisco_Intl_Ap.tmy3"
 module residential;
+#set pythonpath=.
 module thermostat;
 object house
 {
