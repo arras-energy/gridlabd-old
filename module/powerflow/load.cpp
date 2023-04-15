@@ -610,7 +610,7 @@ TIMESTAMP load::sync(TIMESTAMP t0)
  		else if (NR_node_reference == -99)	//Child check us, since that can break things too
  		{
  			//See if our parent was initialized
- 			if (*NR_subnode_reference == -1)
+ 			if ( NR_subnode_reference && *NR_subnode_reference == -1)
  			{
  				//Try to initialize it, for giggles
  				node *Temp_Node = OBJECTDATA(SubNodeParent,node);
