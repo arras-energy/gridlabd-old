@@ -1,0 +1,15 @@
+#ifexist ../test_library.csv
+#define DIR=..
+#endif
+
+class test {
+    double value1;
+    double value2;
+}
+
+#convert -i ${DIR:-.}/test_library.csv -o test_library_opt.glm -f csv-table -t glm-library
+#include "test_library_opt.glm"
+
+#ifexist ../test_library_opt.glm
+#on_exit 0 diff -I '^//' ../test_library_opt.glm test_library_opt.glm >gridlabd.diff
+#endif

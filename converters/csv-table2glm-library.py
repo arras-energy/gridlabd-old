@@ -89,6 +89,7 @@ def convert(input_file, output_file, options={}):
         for id, data in table.iterrows():
             if 'class' in data.keys():
                 oclass = data['class']
+                del data['class']
             elif 'class' in options.keys():
                 oclass = options['class']
             else:

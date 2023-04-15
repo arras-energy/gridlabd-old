@@ -1,0 +1,11 @@
+// /usr/local/opt/gridlabd/4.3.1-220814-develop_user_manual/share/gridlabd/csv-table2glm-object.py ./test_object.csv test_object_opt.glm {} 
+object test { 
+	name "item1";
+	value1 1.2;
+	value2 3.4;
+}
+object test { 
+	name "item2";
+	value1 5.6;
+	value2 7.8;
+}
