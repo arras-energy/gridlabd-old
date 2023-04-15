@@ -55,6 +55,8 @@ fuse::fuse(MODULE *mod) : link_object(mod)
 			PT_double, "current_limit[A]", PADDR(current_limit),
 				PT_DEFAULT, "9999 A",
 			PT_double, "mean_replacement_time[s]",PADDR(mean_replacement_time),	//Retains compatibility with older files
+				PT_DEFAULT, "3600 s",
+				PT_DESCRIPTION, "mean time for replacing fuse when blown",
 			PT_double, "fuse_resistance[Ohm]",PADDR(fuse_resistance),
 				PT_DEFAULT, "-1 Ohm",
 				PT_DESCRIPTION,"The resistance value of the fuse when it is not blown.",
@@ -1176,7 +1178,7 @@ EXPORT TIMESTAMP commit_fuse(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 			link_object *plink = OBJECTDATA(obj,link_object);
 			plink->calculate_power();
 			
-			return (fsr->fuse_state(obj->parent) ? TS_NEVER : 0);
+			return (fsr->fuse_state(obj->parent) ? plink->commit(t1,t2) : 0);
 		}
 		else
 			return TS_NEVER;

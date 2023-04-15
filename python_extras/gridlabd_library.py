@@ -1,4 +1,7 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+
 """Syntax: gridlabd_library <subcommand> <options>...
 Subcommands:
   help

@@ -1,0 +1,33 @@
+#!/bin/bash
+# Syntax: manual [OPTIONS ...]
+if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
+    cat <<-END
+Syntax: gridlabd manual [options ...]
+Options:
+  -b|--branch name   open branch documentation
+  -h|--help          get this help
+  -l|--local         open local documentation
+END
+    exit 0
+elif [ "$1" == "-l" -o "$1" == "--local" ]; then
+  if [ -z "$2" ]; then
+      PAGE=$GLD_DOC/index.html
+    else
+      PAGE="$2/index.html"
+    fi
+  if [ -f $PAGE ]; then
+  	open $PAGE &
+      exit 0
+  else
+      echo "local docs '$PAGE' not found" 2>/dev/stderr
+      exit 1
+  fi
+elif [ "$1" == "-b" -o "$1" == "--branch" ]; then
+  if [ -z "$2" ]; then
+    BRANCH=$(gridlabd --version=branch)
+  else
+    BRANCH="$2"
+  fi
+fi
+open "http://docs.gridlabd.us/index.html?branch=${BRANCH=master}" &
+

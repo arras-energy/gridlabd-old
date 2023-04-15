@@ -1,0 +1,102 @@
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+
+"""GridLAB-D pandas subcommand
+
+SYNTAX
+
+GLM:
+    #pandas [-i INPUTFILE] [-o OUTPUTFILE]
+
+Shell:
+
+    $ gridlabd pandas [-i INPUTFILE] [-o OUTPUTFILE]
+
+DESCRIPTION
+
+The `pandas` subcommand processes input data file using the pandas package
+and outputs them to the specified output data file.  If no input is specified
+/dev/stdin is read in CSV format. If no output is specified the output is
+written to /dev/stdout using the data frame table format.
+
+EXAMPLE
+
+The following creates a CSV file and prints it in human readable table format:
+
+    $ cat >/tmp/example.csv
+    my,data
+    0,zero
+    1,one
+    2,two
+    <CTRL-D>
+    $ gridlabd pandas -i my_data.csv
+       my  data
+    0   0  zero
+    1   1   one
+    2   2   two
+"""
+
+import sys, os
+import pandas
+
+sys.path.append(f".")
+sys.path.append(f"{os.getenv('HOME')}/.gridlabd")
+sys.path.append(f"{os.getenv('GLD_ETC')}/gridlabd")
+try:
+    import gridlabd_pandas_config
+    for option, value in gridlabd_pandas_config.pandas_options.items():
+        pandas.set_option(option,value)
+except ModuleNotFoundError:
+    pass
+
+read_opts = {}
+read_function = pandas.read_csv
+write_opts = {}
+write_function = None
+
+n = 1
+while n < len(sys.argv):
+    arg = sys.argv[n]
+    if n < len(sys.argv):
+        opts = sys.argv[n+1:]
+    else:
+        opts = []
+    if arg in ["-h","--help","help"]:
+        print(__doc__)
+        exit(0)
+    if arg in ["-i","--input"]:
+        if not opts:
+            raise Exception(f"{arg} missing require option")
+        specs = opts[0].split(":")
+        sys.stdin = open(specs[0],"r")
+        read_function = getattr(pandas,f"read_{os.path.splitext(specs[0])[1][1:]}")
+        if len(specs) > 1:
+            read_opts = specs[1].split(",")
+        n += 1
+    elif arg in ["-o","--output"]:
+        if not opts:
+            raise Exception(f"{arg} missing require option")
+        specs = opts[0].split(":")
+        sys.stdout = open(specs[0],"w+")
+        write_function = f"to_{os.path.splitext(specs[0])[1][1:]}"
+        if len(specs) > 1:
+            write_opts = specs[1].split(",")
+        n += 1
+    elif arg in ["-e","--error"]:
+        if not opts:
+            raise Exception(f"{arg} missing require option")
+        sys.stderr = open(opts[0],"w+")
+        n += 1
+    else:
+        raise Exception(f"{arg} is invalid")
+    n += 1
+
+if not read_function:
+    raise Exception("not reader specified or implied by input file name")
+data = read_function(sys.stdin,**read_opts)
+
+if not write_function:
+    print(data)
+else:
+    getattr(data,write_function)(sys.stdout,**write_opts)

@@ -1,0 +1,123 @@
+// CLOCK
+clock {
+	timezone "PST8PDT";
+	starttime "2021-02-01 11:50:00 PST";
+	stoptime "2021-02-05 00:00:00 PST";
+}
+
+//Small system to test dynamics with houses
+//Mostly makes sure a house value continues to work inside deltamode
+#set randomseed=250
+
+module tape;
+module residential {
+     implicit_enduses NONE;
+	 enable_subsecond_models true;
+	 all_house_delta true;
+	 deltamode_timestep 100.0 ms;
+}
+module powerflow {
+    solver_method NR;
+    NR_iteration_limit 50;
+    enable_subsecond_models true;
+    all_powerflow_delta true;
+    enable_frequency_dependence true;
+    deltamode_timestep 0.2000 ms;
+    default_maximum_voltage_error 1e-9;
+};
+
+
+object triplex_line_conductor {
+     name "four_ought_triplex";
+     resistance 1.535;
+     geometric_mean_radius 0.0111;
+     rating.summer.emergency 315 A;
+     rating.summer.continuous 315 A;
+     rating.winter.emergency 315 A;
+     rating.winter.continuous 315 A;
+     object recorder {
+     	property rating.summer.emergency;
+     	file "out.csv";
+     	interval -1;
+     };
+}
+
+object triplex_line_configuration {
+     name "four_ought_Triplex";
+     conductor_1 "four_ought_triplex";
+     conductor_2 "four_ought_triplex";
+     conductor_N "four_ought_triplex";
+     insulation_thickness 0.08;
+     diameter 0.368;
+}
+
+object transformer_configuration {
+	name "SPCTB";
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	primary_voltage 7200.0V;
+	secondary_voltage 120.0V;
+	power_rating 20.0kVA;
+	powerB_rating 20.0kVA;
+	impedance 0.006000+0.013600j;
+	impedance1 0.012000+0.006800j;
+	impedance2 0.012000+0.006800j;
+	shunt_impedance 1728000+691200j;
+}
+
+object meter {
+	name REAL_SWING;
+	nominal_voltage 7200.0;
+	phases ABCN;
+	bustype SWING;
+}
+
+
+object transformer {
+	phases BS;
+	name swing_to_triplex;
+	from REAL_SWING;
+	to SWING_TRIP;
+	configuration SPCTB;
+}
+
+object triplex_meter {
+	name SWING_TRIP;
+	nominal_voltage 120.0;
+	phases BS;
+}
+
+object triplex_meter {
+	name house_node;
+	nominal_voltage 120;
+	phases BS;
+}
+
+//Lines
+object triplex_line {
+	phases BS;
+	name swing_trip_to_middle;
+	from SWING_TRIP;
+	to house_node;
+	configuration "four_ought_Triplex";
+	length 50.0 ft;
+}
+
+object house {
+	parent house_node;
+	schedule_skew 6343;
+	name "SX3086079B_1_house";
+	floor_area 1925.4;
+	thermal_integrity_level 4;
+	hvac_power_factor 0.887;
+	cooling_setpoint 74.81;
+	heating_setpoint 68.97;
+	air_temperature 71.0;
+	auxiliary_system_type NONE;
+	heating_system_type RESISTANCE;
+	cooling_system_type ELECTRIC;
+}
+modify four_ought_triplex.rating.summer.emergency "500 A";
+//modify SX3086079B_1_house.panel.breaker_amps "100";
+#on_exit 0 $GLD_BIN/pkgenv/bin/python3 ../check_dotted_name.py
+

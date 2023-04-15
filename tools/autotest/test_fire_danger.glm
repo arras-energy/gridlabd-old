@@ -1,0 +1,6 @@
+#python -m fire_danger -f=5 -d=2021-08-20 -t=fpi
+#system cp $GLD_ETC/usgs/firedanger/fpi_20210820_5.tif test_fire_danger.tif
+
+#ifexist ../test_fire_danger.tif
+#on_exit 0 diff -q ../test_fire_danger.tif test_fire_danger.tif
+#endif

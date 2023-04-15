@@ -44,7 +44,6 @@ GLM:
     inrush_convergence_value "<decimal> V";
     phases "[ABCDNSG]";
     nominal_voltage "<decimal> V";
-    supernode_name "<string>";
   }
 ~~~
 

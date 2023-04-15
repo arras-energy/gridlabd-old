@@ -27,7 +27,9 @@ object pole
     equipment_moment "0 ft*lb"; 
     equipment_moment_nowind "0 ft*lb"; 
     critical_wind_speed "0 m/s";
-    guy_height "0 ft"; 
+    wire_moment "0 ft*lb";
+    wire_tension "0 ft*lb";
+    guy_height "0 ft";
 }
 ~~~
 
@@ -218,6 +220,22 @@ The resisting moment on the pole.
 
 Wind speed at pole failure.
 
+### `wire_moment`
+
+~~~
+    double wire_moment[ft*lb];
+~~~
+
+Wire moment due to conductor weight.
+
+### `wire_tension`
+
+~~~
+    double wire_tension[ft*lb];
+~~~
+
+Wire moment due to conductor tension.
+
 ### `guy_height`
 
 ~~~
@@ -228,12 +246,12 @@ Guy wire attachment height.
 
 # Model
 
-The pole failure model is described in [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/module/powerflow/docs/pole_loading.pdf).
+The pole failure model is described in [Pole Loading Model](https://source.gridlabd.us/raw/master/module/powerflow/docs/pole_loading.pdf).
 
 The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
 
 # See also
 
 * [[/Module/Powerflow/Pole_configuration]]
-* [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/module/powerflow/docs/pole_loading.pdf)
+* [Pole Loading Model](https://source.gridlabd.us/raw/master/module/powerflow/docs/pole_loading.pdf)
 * [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457)

@@ -77,13 +77,19 @@ GLM:
     topological_parent "<string>";
     phases "[ABCDNSG]";
     nominal_voltage "<decimal> V";
-    supernode_name "<string>";
+    voltage_violation_threshold "<decimal> pu";
+    voltage_fluctuation_threshold "<decimal> pu";
+    undervoltage_violation_threshold "<decimal> pu";
+    overvoltage_violation_threshold "<decimal> pu";
+    DER_value "<decimal> kVA";
   }
 ~~~
 
 # Description
 
-TODO
+The node object implement the bus behavior of electric networks, with primary emphasis on voltage.
+
+If the 
 
 ## Properties
 
@@ -655,13 +661,23 @@ TODO
 
 TODO
 
-### `supernode_name`
+### `voltage_violation_threshold`
+### `undervoltage_violation_threshold`
+### `overvoltage_violation_threshold`
 
 ~~~
-  char1024 supernode_name;
+  double voltage_violation_threshold[pu];
 ~~~
 
-TODO
+Specifies the voltage violation fractional deviation threshold before a voltage violation occurs. Deviation are measured relative to `nominal_voltage`.
+
+### `DER_value`
+
+~~~
+  complex DER_value[kVA];
+~~~
+
+Specifies the DER power fluctuation to consider when solve power flow to detected voltage fluctuation violations.  This value is added to the solver bus power inputs per phase, and if the voltage change exceeds the module global `voltage_fluctuation_threshold` value, a voltage violation is flagged.
 
 # Example
 
@@ -736,7 +752,8 @@ TODO
     GFA_trip_method "0";
     phases "0";
     nominal_voltage "0.0";
-    supernode_name "";
+    voltage_violation_threshold "0.05 pu";
+    voltage_fluctuation_threshold "0.03 pu";
   }
 ~~~
 

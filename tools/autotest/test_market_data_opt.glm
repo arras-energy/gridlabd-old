@@ -1,0 +1,24 @@
+class market_data
+{
+	char32 market;
+	char256 node;
+	double LMP;
+	double MW;
+}
+module tape;
+#ifdef MARKET_DATA
+#set MARKET_DATA=$MARKET_DATA market_data@caiso_0096WD_7_N001_20220222-20220223
+#else
+#define MARKET_DATA=market_data@caiso_0096WD_7_N001_20220222-20220223
+#endif
+object market_data
+{
+	name "market_data@caiso_0096WD_7_N001_20220222-20220223";
+	market caiso;
+	node 0096WD_7_N001;
+	object player
+	{
+		file "test_market_data.csv";
+		property "LMP,MW";
+	};
+}

@@ -1,0 +1,2099 @@
+
+module powerflow;
+
+object pole_configuration { 
+	pole_length 40.0 ft;
+	pole_depth 5.5 ft;
+	ground_diameter 9.87 in;
+	fiber_strength 8000 psi;
+	name "pole_configuration_267462S";
+}
+object pole_configuration { 
+	pole_length 50.0 ft;
+	pole_depth 7.5 ft;
+	ground_diameter 12.17535 in;
+	top_diameter 6.68451 in;
+	fiber_strength 8000 psi;
+	name "pole_configuration_280565E";
+}
+object pole_configuration { 
+	pole_length 45.0 ft;
+	pole_depth 6.5 ft;
+	ground_diameter 12.41 in;
+	fiber_strength 8000 psi;
+	name "pole_configuration_306771E";
+}
+object pole_configuration { 
+	pole_length 50.0 ft;
+	pole_depth 8.5 ft;
+	ground_diameter 13.13 in;
+	fiber_strength 8000 psi;
+	name "pole_configuration_311032S";
+}
+object pole_configuration { 
+	pole_length 45.0 ft;
+	pole_depth 7.67 ft;
+	ground_diameter 12.41 in;
+	fiber_strength 8000 psi;
+	name "pole_configuration_312148E";
+}
+object pole { 
+	name "pole_267462S";
+	tilt_angle 1.1 deg;
+	tilt_direction 10 deg;
+	// latitude 34.4002833340685;
+	// longitude "-116.962349732192";
+	configuration "pole_configuration_267462S";
+	flags "NONE";
+}
+object pole { 
+	name "pole_280565E";
+	tilt_angle 5.0 deg;
+	tilt_direction 30.0 deg;
+	latitude 33.9459351039498;
+	longitude "-117.896961270715";
+	configuration "pole_configuration_280565E";
+	configuration "pole_configuration_306771E";
+	flags "VERBOSE";
+}
+object pole { 
+	name "pole_306771E";
+	tilt_angle 0 deg;
+	tilt_direction 0 deg;
+	latitude 33.5318268108841;
+	longitude "-117.767614658085";
+	configuration "pole_configuration_306771E";
+	flags "NONE";
+}
+object pole { 
+	name "pole_311032S";
+	tilt_angle 0 deg;
+	tilt_direction 0 deg;
+	latitude 33.84445388;
+	longitude "-117.28241728";
+	configuration "pole_configuration_311032S";
+	flags "NONE";
+}
+object pole { 
+	name "pole_312148E";
+	tilt_angle 0 deg;
+	tilt_direction 0 deg;
+	latitude 36.1926329370634;
+	longitude "-119.158966357457";
+	configuration "pole_configuration_312148E";
+	flags "NONE";
+}
+object pole_mount { 
+	name pole_mount_11;
+	flags "NONE";
+	equipment "OL_Wire#6_pole_267462S";
+	parent "pole_267462S";
+	height 34.67 ft;
+	direction 257 deg;
+	pole_spacing 297.0 ft;
+	// cable_type 4 ACSR;
+}
+object pole_mount { 
+	name pole_mount_12;
+	flags "NONE";
+	equipment "OL_Wire#5_pole_267462S";
+	parent "pole_267462S";
+	height 34.67 ft;
+	direction 257 deg;
+	pole_spacing 297.0 ft;
+	// cable_type 4 ACSR;
+}
+object pole_mount { 
+	name pole_mount_13;
+	flags "NONE";
+	equipment "OL_Wire#2_pole_267462S";
+	parent "pole_267462S";
+	height 34.67 ft;
+	direction 77 deg;
+	pole_spacing 301.0 ft;
+	// cable_type 4 ACSR;
+}
+object pole_mount { 
+	name pole_mount_14;
+	flags "NONE";
+	equipment "OL_Wire#1_pole_267462S";
+	parent "pole_267462S";
+	height 34.67 ft;
+	direction 77 deg;
+	pole_spacing 301.0 ft;
+	// cable_type 4 ACSR;
+}
+object pole_mount { 
+	name pole_mount_15;
+	flags "NONE";
+	equipment "OL_Wire#9_pole_267462S";
+	parent "pole_267462S";
+	height 28.83 ft;
+	direction 344 deg;
+	pole_spacing 113.0 ft;
+	// cable_type 4 Al. Triplex;
+}
+object pole_mount { 
+	name pole_mount_16;
+	flags "NONE";
+	equipment "OL_Wire#11_pole_267462S";
+	parent "pole_267462S";
+	height 22.5 ft;
+	direction 198 deg;
+	pole_spacing 78.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_17;
+	flags "NONE";
+	equipment "OL_Wire#7_pole_267462S";
+	parent "pole_267462S";
+	height 22.5 ft;
+	direction 257 deg;
+	pole_spacing 297.0 ft;
+	// cable_type ".5" CATV 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_18;
+	flags "NONE";
+	equipment "OL_Wire#3_pole_267462S";
+	parent "pole_267462S";
+	height 22.5 ft;
+	direction 77 deg;
+	pole_spacing 301.0 ft;
+	// cable_type ".5" CATV 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_19;
+	flags "NONE";
+	equipment "OL_Wire#10_pole_267462S";
+	parent "pole_267462S";
+	height 20.42 ft;
+	direction 344 deg;
+	pole_spacing 113.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_20;
+	flags "NONE";
+	equipment "OL_Wire#8_pole_267462S";
+	parent "pole_267462S";
+	height 20.42 ft;
+	direction 257 deg;
+	pole_spacing 297.0 ft;
+	// cable_type 1.5" TELCO 5/16" Messenger;
+}
+object pole_mount { 
+	name pole_mount_21;
+	flags "NONE";
+	equipment "OL_Wire#4_pole_267462S";
+	parent "pole_267462S";
+	height 20.42 ft;
+	direction 77 deg;
+	pole_spacing 301.0 ft;
+	// cable_type 1.5" TELCO 5/16" Messenger;
+}
+object pole_mount { 
+	name pole_mount_22;
+	flags "NONE";
+	equipment "OL_Wire#7_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 254 deg;
+	pole_spacing 192.0 ft;
+	flags "VERBOSE";
+	// cable_type 336.4 ACSR Merlin;
+}
+object pole_mount { 
+	name pole_mount_23;
+	flags "NONE";
+	equipment "OL_Wire#6_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 254 deg;
+	pole_spacing 192.0 ft;
+	flags "VERBOSE";
+	// cable_type 336.4 ACSR Merlin;
+}
+object pole_mount { 
+	name pole_mount_24;
+	flags "NONE";
+	equipment "OL_Wire#5_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 254 deg;
+	pole_spacing 192.0 ft;
+	flags "VERBOSE";
+	// cable_type 336.4 ACSR Merlin;
+}
+object pole_mount { 
+	name pole_mount_25;
+	flags "NONE";
+	equipment "OL_Wire#3_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 77 deg;
+	pole_spacing 80.0 ft;
+	flags "VERBOSE";
+	// cable_type 1/0 ACSR;
+}
+object pole_mount { 
+	name pole_mount_26;
+	flags "NONE";
+	equipment "OL_Wire#2_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 77 deg;
+	pole_spacing 80.0 ft;
+	flags "VERBOSE";
+	// cable_type 1/0 ACSR;
+}
+object pole_mount { 
+	name pole_mount_27;
+	flags "NONE";
+	equipment "OL_Wire#1_pole_280565E";
+	parent "pole_280565E";
+	height 42.0 ft;
+	direction 77 deg;
+	pole_spacing 80.0 ft;
+	flags "VERBOSE";
+	// cable_type 1/0 ACSR;
+}
+object pole_mount { 
+	name pole_mount_28;
+	flags "NONE";
+	equipment "OL_Wire#9_pole_280565E";
+	parent "pole_280565E";
+	height 25.5 ft;
+	direction 291 deg;
+	pole_spacing 74.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_29;
+	flags "NONE";
+	equipment "OL_Wire#8_pole_280565E";
+	parent "pole_280565E";
+	height 25.5 ft;
+	direction 224 deg;
+	pole_spacing 72.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_30;
+	flags "NONE";
+	equipment "OL_Wire#4_pole_280565E";
+	parent "pole_280565E";
+	height 25.5 ft;
+	direction 77 deg;
+	pole_spacing 80.0 ft;
+	// cable_type ".5" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_31;
+	flags "NONE";
+	equipment "OL_Wire#6_pole_306771E";
+	parent "pole_306771E";
+	height 38.17 ft;
+	direction 212 deg;
+	pole_spacing 126.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_32;
+	flags "NONE";
+	equipment "OL_Wire#5_pole_306771E";
+	parent "pole_306771E";
+	height 38.17 ft;
+	direction 212 deg;
+	pole_spacing 126.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_33;
+	flags "NONE";
+	equipment "OL_Wire#2_pole_306771E";
+	parent "pole_306771E";
+	height 38.17 ft;
+	direction 32 deg;
+	pole_spacing 185.0 ft;
+	// cable_type 4 Copper 7 Strand;
+}
+object pole_mount { 
+	name pole_mount_34;
+	flags "NONE";
+	equipment "OL_Wire#1_pole_306771E";
+	parent "pole_306771E";
+	height 38.17 ft;
+	direction 32 deg;
+	pole_spacing 185.0 ft;
+	// cable_type 4 Copper 7 Strand;
+}
+object pole_mount { 
+	name pole_mount_35;
+	flags "NONE";
+	equipment "OL_Wire#11_pole_306771E";
+	parent "pole_306771E";
+	height 26.0 ft;
+	direction 332 deg;
+	pole_spacing 71.0 ft;
+	// cable_type 4 Al. Triplex Service;
+}
+object pole_mount { 
+	name pole_mount_36;
+	flags "NONE";
+	equipment "OL_Wire#10_pole_306771E";
+	parent "pole_306771E";
+	height 26.0 ft;
+	direction 249 deg;
+	pole_spacing 70.0 ft;
+	// cable_type 4 Al. Triplex Service;
+}
+object pole_mount { 
+	name pole_mount_37;
+	flags "NONE";
+	equipment "OL_Wire#9_pole_306771E";
+	parent "pole_306771E";
+	height 26.0 ft;
+	direction 137 deg;
+	pole_spacing 37.0 ft;
+	// cable_type 4 Al. Triplex Service;
+}
+object pole_mount { 
+	name pole_mount_38;
+	flags "NONE";
+	equipment "OL_Wire#14_pole_306771E";
+	parent "pole_306771E";
+	height 18.42 ft;
+	direction 280 deg;
+	pole_spacing 52.0 ft;
+	// cable_type ".375" CATV Service";
+}
+object pole_mount { 
+	name pole_mount_39;
+	flags "NONE";
+	equipment "OL_Wire#12_pole_306771E";
+	parent "pole_306771E";
+	height 18.42 ft;
+	direction 129 deg;
+	pole_spacing 39.0 ft;
+	// cable_type ".375" CATV Service";
+}
+object pole_mount { 
+	name pole_mount_40;
+	flags "NONE";
+	equipment "OL_Wire#7_pole_306771E";
+	parent "pole_306771E";
+	height 18.42 ft;
+	direction 212 deg;
+	pole_spacing 126.0 ft;
+	// cable_type ".5" CATV 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_41;
+	flags "NONE";
+	equipment "OL_Wire#3_pole_306771E";
+	parent "pole_306771E";
+	height 18.42 ft;
+	direction 32 deg;
+	pole_spacing 185.0 ft;
+	// cable_type ".5" CATV 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_42;
+	flags "NONE";
+	equipment "OL_Wire#15_pole_306771E";
+	parent "pole_306771E";
+	height 17.08 ft;
+	direction 330 deg;
+	pole_spacing 56.0 ft;
+	// cable_type ".625" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_43;
+	flags "NONE";
+	equipment "OL_Wire#13_pole_306771E";
+	parent "pole_306771E";
+	height 17.08 ft;
+	direction 129 deg;
+	pole_spacing 39.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_44;
+	flags "NONE";
+	equipment "OL_Wire#8_pole_306771E";
+	parent "pole_306771E";
+	height 17.08 ft;
+	direction 212 deg;
+	pole_spacing 126.0 ft;
+	// cable_type ".5" TELCO 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_45;
+	flags "NONE";
+	equipment "OL_Wire#4_pole_306771E";
+	parent "pole_306771E";
+	height 17.08 ft;
+	direction 32 deg;
+	pole_spacing 185.0 ft;
+	// cable_type ".5" TELCO 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_46;
+	flags "NONE";
+	equipment "OL_Wire#6_pole_311032S";
+	parent "pole_311032S";
+	height 41.08 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type 2 ACSR;
+}
+object pole_mount { 
+	name pole_mount_47;
+	flags "NONE";
+	equipment "OL_Wire#3_pole_311032S";
+	parent "pole_311032S";
+	height 41.08 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type 2 ACSR;
+}
+object pole_mount { 
+	name pole_mount_48;
+	flags "NONE";
+	equipment "OL_Wire#11_pole_311032S";
+	parent "pole_311032S";
+	height 31.92 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type 1/0 Al. Triplex;
+}
+object pole_mount { 
+	name pole_mount_49;
+	flags "NONE";
+	equipment "OL_Wire#4_pole_311032S";
+	parent "pole_311032S";
+	height 31.92 ft;
+	direction 256 deg;
+	pole_spacing 300.0 ft;
+	// cable_type 1/0 Al. Triplex;
+}
+object pole_mount { 
+	name pole_mount_50;
+	flags "NONE";
+	equipment "OL_Wire#2_pole_311032S";
+	parent "pole_311032S";
+	height 31.92 ft;
+	direction 350 deg;
+	pole_spacing 114.0 ft;
+	// cable_type 2 Al. Triplex Service;
+}
+object pole_mount { 
+	name pole_mount_51;
+	flags "NONE";
+	equipment "OL_Wire#10_pole_311032S";
+	parent "pole_311032S";
+	height 24.83 ft;
+	direction 256 deg;
+	pole_spacing 300.0 ft;
+	// cable_type ".25" CATV Service";
+}
+object pole_mount { 
+	name pole_mount_52;
+	flags "NONE";
+	equipment "OL_Wire#5_pole_311032S";
+	parent "pole_311032S";
+	height 24.83 ft;
+	direction 350 deg;
+	pole_spacing 114.0 ft;
+	// cable_type ".25" CATV Service";
+}
+object pole_mount { 
+	name pole_mount_53;
+	flags "NONE";
+	equipment "OL_Wire#9_pole_311032S";
+	parent "pole_311032S";
+	height 23.0 ft;
+	direction 256 deg;
+	pole_spacing 300.0 ft;
+	// cable_type 1.25" CATV 1/4" Messenger;
+}
+object pole_mount { 
+	name pole_mount_54;
+	flags "NONE";
+	equipment "OL_Wire#8_pole_311032S";
+	parent "pole_311032S";
+	height 23.0 ft;
+	direction 350 deg;
+	pole_spacing 114.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_55;
+	flags "NONE";
+	equipment "OL_Wire#7_pole_311032S";
+	parent "pole_311032S";
+	height 23.0 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type ".25" TELCO Service";
+}
+object pole_mount { 
+	name pole_mount_56;
+	flags "NONE";
+	equipment "OL_Wire#1_pole_311032S";
+	parent "pole_311032S";
+	height 23.0 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type ".75" CATV 1/4" Messenger";
+}
+object pole_mount { 
+	name pole_mount_57;
+	flags "NONE";
+	equipment "OL_Wire#13_pole_311032S";
+	parent "pole_311032S";
+	height 22.0 ft;
+	direction 78 deg;
+	pole_spacing 200.0 ft;
+	// cable_type ".75" TELCO 5/16" Messenger";
+}
+object pole_mount { 
+	name pole_mount_58;
+	flags "NONE";
+	equipment "OL_Wire#12_pole_311032S";
+	parent "pole_311032S";
+	height 22.0 ft;
+	direction 256 deg;
+	pole_spacing 300.0 ft;
+	// cable_type 5/16" EHS;
+}
+object pole_mount { 
+	name pole_mount_59;
+	flags "NONE";
+	equipment "OL_Wire#6_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 75 deg;
+	pole_spacing 260.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_60;
+	flags "NONE";
+	equipment "OL_Wire#5_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 75 deg;
+	pole_spacing 260.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_61;
+	flags "NONE";
+	equipment "OL_Wire#4_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 75 deg;
+	pole_spacing 260.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_62;
+	flags "NONE";
+	equipment "OL_Wire#3_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 255 deg;
+	pole_spacing 290.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_63;
+	flags "NONE";
+	equipment "OL_Wire#2_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 255 deg;
+	pole_spacing 290.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_64;
+	flags "NONE";
+	equipment "OL_Wire#1_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 255 deg;
+	pole_spacing 290.0 ft;
+	// cable_type 6 Copper;
+}
+object pole_mount { 
+	name pole_mount_65;
+	flags "NONE";
+	equipment "TF_Equip#1_pole_267462S";
+	parent "pole_267462S";
+	height 33.92 ft;
+	direction 170 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type "Fuse Arm with 2 Cutouts";
+}
+object pole_mount { 
+	name pole_mount_66;
+	flags "NONE";
+	equipment "TF_Equip#2_pole_267462S";
+	parent "pole_267462S";
+	height 31.92 ft;
+	direction 77 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type 25 kVA Transformer;
+}
+object pole_mount { 
+	name pole_mount_67;
+	flags "NONE";
+	equipment "TF_Equip#1_pole_306771E";
+	parent "pole_306771E";
+	height 38.17 ft;
+	direction 300 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type 5' Fuse Arm with 1 Cutout;
+}
+object pole_mount { 
+	name pole_mount_68;
+	flags "NONE";
+	equipment "TF_Equip#2_pole_306771E";
+	parent "pole_306771E";
+	height 31.17 ft;
+	direction 212 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type 37.5 kVA Transformer;
+}
+object pole_mount { 
+	name pole_mount_69;
+	flags "NONE";
+	equipment "TF_Equip#3_pole_306771E";
+	parent "pole_306771E";
+	height 22.42 ft;
+	direction 314 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type "Roadway - 6 ft";
+}
+object pole_mount { 
+	name pole_mount_70;
+	flags "NONE";
+	equipment "TF_Equip#1_pole_311032S";
+	parent "pole_311032S";
+	height 37.92 ft;
+	direction 175 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type "Fuse Arm with 2 Cutouts";
+}
+object pole_mount { 
+	name pole_mount_71;
+	flags "NONE";
+	equipment "TF_Equip#2_pole_311032S";
+	parent "pole_311032S";
+	height 34.92 ft;
+	direction 85 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type 25 kVA Transformer;
+}
+object pole_mount { 
+	name pole_mount_72;
+	flags "NONE";
+	equipment "TF_Equip#1_pole_312148E";
+	parent "pole_312148E";
+	height 37.0 ft;
+	direction 75 deg;
+	offset 1 ft;
+	area 1 sf;
+	weight 10 lb;
+	// equipment_type "Raptor Protection Cover";
+}
+object node { 
+	name "ND_SampleReport";
+	phases "A";
+	bustype "SWING";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#6_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#5_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#2_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#1_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#9_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#11_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#7_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#3_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#10_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#8_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#4_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#7_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#6_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#5_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#3_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#2_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#1_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#9_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#8_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#4_pole_280565E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#6_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#5_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#2_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#1_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#11_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#10_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#9_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#14_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#12_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#7_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#3_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#15_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#13_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#8_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#4_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#6_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#3_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#11_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#4_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#2_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#10_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#5_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#9_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#8_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#7_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#1_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#13_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#12_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#6_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#5_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#4_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#3_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#2_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_OL_Wire#1_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#1_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#2_pole_267462S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#1_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#2_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#3_pole_306771E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#1_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#2_pole_311032S";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object node { 
+	name "ND_TF_Equip#1_pole_312148E";
+	phases "A";
+	nominal_voltage 2401 V;
+}
+object overhead_line_conductor { 
+	name "OC_4_ACSR";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_4_Al__Triplex";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__25_TELCO_Service";
+	weight 0.121 lb/ft;
+	diameter 0.25 in;
+	resistance 0.1 Ohm/mile;
+	strength 831.25 lb;
+}
+object overhead_line_conductor { 
+	name "OC__5_CATV_1/4_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_1_5_TELCO_5/16_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_336_4_ACSR_Merlin";
+	weight 0.291 lb/ft;
+	diameter 0.563 in;
+	resistance 0.1 Ohm/mile;
+	strength 1043.75 lb;
+}
+object overhead_line_conductor { 
+	name "OC_1/0_ACSR";
+	weight 0.145 lb/ft;
+	diameter 0.398 in;
+	resistance 0.1 Ohm/mile;
+	strength 547.5 lb;
+}
+object overhead_line_conductor { 
+	name "OC__5_TELCO_Service";
+	weight 0.517 lb/ft;
+	diameter 0.5 in;
+	resistance 0.1 Ohm/mile;
+	strength 3362.5 lb;
+}
+object overhead_line_conductor { 
+	name "OC_6_Copper";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_4_Copper_7_Strand";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_4_Al__Triplex_Service";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__375_CATV_Service";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__625_TELCO_Service";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__5_TELCO_1/4_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_2_ACSR";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_1/0_Al__Triplex";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_2_Al__Triplex_Service";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__25_CATV_Service";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_1_25_CATV_1/4_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__75_CATV_1/4_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC__75_TELCO_5/16_Messenger";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object overhead_line_conductor { 
+	name "OC_5/16_EHS";
+	weight 0.1 lb/ft;
+	diameter 0.1 in;
+	resistance 0.1 Ohm/mile;
+	strength 500 lb;
+}
+object line_spacing { 
+	name "LS_34_67_ft";
+	distance_AE 34.67 ft;
+}
+object line_spacing { 
+	name "LS_28_83_ft";
+	distance_AE 28.83 ft;
+}
+object line_spacing { 
+	name "LS_22_5_ft";
+	distance_AE 22.5 ft;
+}
+object line_spacing { 
+	name "LS_20_42_ft";
+	distance_AE 20.42 ft;
+}
+object line_spacing { 
+	name "LS_42_0_ft";
+	distance_AE 42.0 ft;
+}
+object line_spacing { 
+	name "LS_25_5_ft";
+	distance_AE 25.5 ft;
+}
+object line_spacing { 
+	name "LS_38_17_ft";
+	distance_AE 38.17 ft;
+}
+object line_spacing { 
+	name "LS_26_0_ft";
+	distance_AE 26.0 ft;
+}
+object line_spacing { 
+	name "LS_18_42_ft";
+	distance_AE 18.42 ft;
+}
+object line_spacing { 
+	name "LS_17_08_ft";
+	distance_AE 17.08 ft;
+}
+object line_spacing { 
+	name "LS_41_08_ft";
+	distance_AE 41.08 ft;
+}
+object line_spacing { 
+	name "LS_31_92_ft";
+	distance_AE 31.92 ft;
+}
+object line_spacing { 
+	name "LS_24_83_ft";
+	distance_AE 24.83 ft;
+}
+object line_spacing { 
+	name "LS_23_0_ft";
+	distance_AE 23.0 ft;
+}
+object line_spacing { 
+	name "LS_22_0_ft";
+	distance_AE 22.0 ft;
+}
+object line_spacing { 
+	name "LS_37_75_ft";
+	distance_AE 37.75 ft;
+}
+object line_configuration { 
+	name "LC_OL_Wire#6_pole_267462S";
+	conductor_A "OC_4_ACSR";
+	spacing "LS_34_67_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#5_pole_267462S";
+	conductor_A "OC_4_ACSR";
+	spacing "LS_34_67_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#2_pole_267462S";
+	conductor_A "OC_4_ACSR";
+	spacing "LS_34_67_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#1_pole_267462S";
+	conductor_A "OC_4_ACSR";
+	spacing "LS_34_67_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#9_pole_267462S";
+	conductor_A "OC_4_Al__Triplex";
+	spacing "LS_28_83_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#11_pole_267462S";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_22_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#7_pole_267462S";
+	conductor_A "OC__5_CATV_1/4_Messenger";
+	spacing "LS_22_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#3_pole_267462S";
+	conductor_A "OC__5_CATV_1/4_Messenger";
+	spacing "LS_22_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#10_pole_267462S";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_20_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#8_pole_267462S";
+	conductor_A "OC_1_5_TELCO_5/16_Messenger";
+	spacing "LS_20_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#4_pole_267462S";
+	conductor_A "OC_1_5_TELCO_5/16_Messenger";
+	spacing "LS_20_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#7_pole_280565E";
+	conductor_A "OC_336_4_ACSR_Merlin";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#6_pole_280565E";
+	conductor_A "OC_336_4_ACSR_Merlin";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#5_pole_280565E";
+	conductor_A "OC_336_4_ACSR_Merlin";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#3_pole_280565E";
+	conductor_A "OC_1/0_ACSR";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#2_pole_280565E";
+	conductor_A "OC_1/0_ACSR";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#1_pole_280565E";
+	conductor_A "OC_1/0_ACSR";
+	spacing "LS_42_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#9_pole_280565E";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_25_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#8_pole_280565E";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_25_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#4_pole_280565E";
+	conductor_A "OC__5_TELCO_Service";
+	spacing "LS_25_5_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#6_pole_306771E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_38_17_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#5_pole_306771E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_38_17_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#2_pole_306771E";
+	conductor_A "OC_4_Copper_7_Strand";
+	spacing "LS_38_17_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#1_pole_306771E";
+	conductor_A "OC_4_Copper_7_Strand";
+	spacing "LS_38_17_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#11_pole_306771E";
+	conductor_A "OC_4_Al__Triplex_Service";
+	spacing "LS_26_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#10_pole_306771E";
+	conductor_A "OC_4_Al__Triplex_Service";
+	spacing "LS_26_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#9_pole_306771E";
+	conductor_A "OC_4_Al__Triplex_Service";
+	spacing "LS_26_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#14_pole_306771E";
+	conductor_A "OC__375_CATV_Service";
+	spacing "LS_18_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#12_pole_306771E";
+	conductor_A "OC__375_CATV_Service";
+	spacing "LS_18_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#7_pole_306771E";
+	conductor_A "OC__5_CATV_1/4_Messenger";
+	spacing "LS_18_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#3_pole_306771E";
+	conductor_A "OC__5_CATV_1/4_Messenger";
+	spacing "LS_18_42_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#15_pole_306771E";
+	conductor_A "OC__625_TELCO_Service";
+	spacing "LS_17_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#13_pole_306771E";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_17_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#8_pole_306771E";
+	conductor_A "OC__5_TELCO_1/4_Messenger";
+	spacing "LS_17_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#4_pole_306771E";
+	conductor_A "OC__5_TELCO_1/4_Messenger";
+	spacing "LS_17_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#6_pole_311032S";
+	conductor_A "OC_2_ACSR";
+	spacing "LS_41_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#3_pole_311032S";
+	conductor_A "OC_2_ACSR";
+	spacing "LS_41_08_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#11_pole_311032S";
+	conductor_A "OC_1/0_Al__Triplex";
+	spacing "LS_31_92_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#4_pole_311032S";
+	conductor_A "OC_1/0_Al__Triplex";
+	spacing "LS_31_92_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#2_pole_311032S";
+	conductor_A "OC_2_Al__Triplex_Service";
+	spacing "LS_31_92_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#10_pole_311032S";
+	conductor_A "OC__25_CATV_Service";
+	spacing "LS_24_83_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#5_pole_311032S";
+	conductor_A "OC__25_CATV_Service";
+	spacing "LS_24_83_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#9_pole_311032S";
+	conductor_A "OC_1_25_CATV_1/4_Messenger";
+	spacing "LS_23_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#8_pole_311032S";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_23_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#7_pole_311032S";
+	conductor_A "OC__25_TELCO_Service";
+	spacing "LS_23_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#1_pole_311032S";
+	conductor_A "OC__75_CATV_1/4_Messenger";
+	spacing "LS_23_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#13_pole_311032S";
+	conductor_A "OC__75_TELCO_5/16_Messenger";
+	spacing "LS_22_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#12_pole_311032S";
+	conductor_A "OC_5/16_EHS";
+	spacing "LS_22_0_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#6_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#5_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#4_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#3_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#2_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object line_configuration { 
+	name "LC_OL_Wire#1_pole_312148E";
+	conductor_A "OC_6_Copper";
+	spacing "LS_37_75_ft";
+}
+object overhead_line { 
+	name "OL_Wire#6_pole_267462S";
+	configuration "LC_OL_Wire#6_pole_267462S";
+	phases "A";
+	from "ND_SampleReport";
+	to "ND_OL_Wire#6_pole_267462S";
+	length 297.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#5_pole_267462S";
+	configuration "LC_OL_Wire#5_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#6_pole_267462S";
+	to "ND_OL_Wire#5_pole_267462S";
+	length 297.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#2_pole_267462S";
+	configuration "LC_OL_Wire#2_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#5_pole_267462S";
+	to "ND_OL_Wire#2_pole_267462S";
+	length 301.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#1_pole_267462S";
+	configuration "LC_OL_Wire#1_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#2_pole_267462S";
+	to "ND_OL_Wire#1_pole_267462S";
+	length 301.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#9_pole_267462S";
+	configuration "LC_OL_Wire#9_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#1_pole_267462S";
+	to "ND_OL_Wire#9_pole_267462S";
+	length 113.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#11_pole_267462S";
+	configuration "LC_OL_Wire#11_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#9_pole_267462S";
+	to "ND_OL_Wire#11_pole_267462S";
+	length 78.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#7_pole_267462S";
+	configuration "LC_OL_Wire#7_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#11_pole_267462S";
+	to "ND_OL_Wire#7_pole_267462S";
+	length 297.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#3_pole_267462S";
+	configuration "LC_OL_Wire#3_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#7_pole_267462S";
+	to "ND_OL_Wire#3_pole_267462S";
+	length 301.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#10_pole_267462S";
+	configuration "LC_OL_Wire#10_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#3_pole_267462S";
+	to "ND_OL_Wire#10_pole_267462S";
+	length 113.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#8_pole_267462S";
+	configuration "LC_OL_Wire#8_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#10_pole_267462S";
+	to "ND_OL_Wire#8_pole_267462S";
+	length 297.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#4_pole_267462S";
+	configuration "LC_OL_Wire#4_pole_267462S";
+	phases "A";
+	from "ND_OL_Wire#8_pole_267462S";
+	to "ND_OL_Wire#4_pole_267462S";
+	length 301.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#7_pole_280565E";
+	configuration "LC_OL_Wire#7_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#4_pole_267462S";
+	to "ND_OL_Wire#7_pole_280565E";
+	length 192.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#6_pole_280565E";
+	configuration "LC_OL_Wire#6_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#7_pole_280565E";
+	to "ND_OL_Wire#6_pole_280565E";
+	length 192.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#5_pole_280565E";
+	configuration "LC_OL_Wire#5_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#6_pole_280565E";
+	to "ND_OL_Wire#5_pole_280565E";
+	length 192.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#3_pole_280565E";
+	configuration "LC_OL_Wire#3_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#5_pole_280565E";
+	to "ND_OL_Wire#3_pole_280565E";
+	length 80.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#2_pole_280565E";
+	configuration "LC_OL_Wire#2_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#3_pole_280565E";
+	to "ND_OL_Wire#2_pole_280565E";
+	length 80.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#1_pole_280565E";
+	configuration "LC_OL_Wire#1_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#2_pole_280565E";
+	to "ND_OL_Wire#1_pole_280565E";
+	length 80.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#9_pole_280565E";
+	configuration "LC_OL_Wire#9_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#1_pole_280565E";
+	to "ND_OL_Wire#9_pole_280565E";
+	length 74.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#8_pole_280565E";
+	configuration "LC_OL_Wire#8_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#9_pole_280565E";
+	to "ND_OL_Wire#8_pole_280565E";
+	length 72.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#4_pole_280565E";
+	configuration "LC_OL_Wire#4_pole_280565E";
+	phases "A";
+	from "ND_OL_Wire#8_pole_280565E";
+	to "ND_OL_Wire#4_pole_280565E";
+	length 80.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#6_pole_306771E";
+	configuration "LC_OL_Wire#6_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#4_pole_280565E";
+	to "ND_OL_Wire#6_pole_306771E";
+	length 126.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#5_pole_306771E";
+	configuration "LC_OL_Wire#5_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#6_pole_306771E";
+	to "ND_OL_Wire#5_pole_306771E";
+	length 126.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#2_pole_306771E";
+	configuration "LC_OL_Wire#2_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#5_pole_306771E";
+	to "ND_OL_Wire#2_pole_306771E";
+	length 185.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#1_pole_306771E";
+	configuration "LC_OL_Wire#1_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#2_pole_306771E";
+	to "ND_OL_Wire#1_pole_306771E";
+	length 185.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#11_pole_306771E";
+	configuration "LC_OL_Wire#11_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#1_pole_306771E";
+	to "ND_OL_Wire#11_pole_306771E";
+	length 71.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#10_pole_306771E";
+	configuration "LC_OL_Wire#10_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#11_pole_306771E";
+	to "ND_OL_Wire#10_pole_306771E";
+	length 70.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#9_pole_306771E";
+	configuration "LC_OL_Wire#9_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#10_pole_306771E";
+	to "ND_OL_Wire#9_pole_306771E";
+	length 37.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#14_pole_306771E";
+	configuration "LC_OL_Wire#14_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#9_pole_306771E";
+	to "ND_OL_Wire#14_pole_306771E";
+	length 52.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#12_pole_306771E";
+	configuration "LC_OL_Wire#12_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#14_pole_306771E";
+	to "ND_OL_Wire#12_pole_306771E";
+	length 39.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#7_pole_306771E";
+	configuration "LC_OL_Wire#7_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#12_pole_306771E";
+	to "ND_OL_Wire#7_pole_306771E";
+	length 126.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#3_pole_306771E";
+	configuration "LC_OL_Wire#3_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#7_pole_306771E";
+	to "ND_OL_Wire#3_pole_306771E";
+	length 185.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#15_pole_306771E";
+	configuration "LC_OL_Wire#15_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#3_pole_306771E";
+	to "ND_OL_Wire#15_pole_306771E";
+	length 56.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#13_pole_306771E";
+	configuration "LC_OL_Wire#13_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#15_pole_306771E";
+	to "ND_OL_Wire#13_pole_306771E";
+	length 39.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#8_pole_306771E";
+	configuration "LC_OL_Wire#8_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#13_pole_306771E";
+	to "ND_OL_Wire#8_pole_306771E";
+	length 126.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#4_pole_306771E";
+	configuration "LC_OL_Wire#4_pole_306771E";
+	phases "A";
+	from "ND_OL_Wire#8_pole_306771E";
+	to "ND_OL_Wire#4_pole_306771E";
+	length 185.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#6_pole_311032S";
+	configuration "LC_OL_Wire#6_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#4_pole_306771E";
+	to "ND_OL_Wire#6_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#3_pole_311032S";
+	configuration "LC_OL_Wire#3_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#6_pole_311032S";
+	to "ND_OL_Wire#3_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#11_pole_311032S";
+	configuration "LC_OL_Wire#11_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#3_pole_311032S";
+	to "ND_OL_Wire#11_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#4_pole_311032S";
+	configuration "LC_OL_Wire#4_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#11_pole_311032S";
+	to "ND_OL_Wire#4_pole_311032S";
+	length 300.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#2_pole_311032S";
+	configuration "LC_OL_Wire#2_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#4_pole_311032S";
+	to "ND_OL_Wire#2_pole_311032S";
+	length 114.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#10_pole_311032S";
+	configuration "LC_OL_Wire#10_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#2_pole_311032S";
+	to "ND_OL_Wire#10_pole_311032S";
+	length 300.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#5_pole_311032S";
+	configuration "LC_OL_Wire#5_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#10_pole_311032S";
+	to "ND_OL_Wire#5_pole_311032S";
+	length 114.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#9_pole_311032S";
+	configuration "LC_OL_Wire#9_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#5_pole_311032S";
+	to "ND_OL_Wire#9_pole_311032S";
+	length 300.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#8_pole_311032S";
+	configuration "LC_OL_Wire#8_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#9_pole_311032S";
+	to "ND_OL_Wire#8_pole_311032S";
+	length 114.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#7_pole_311032S";
+	configuration "LC_OL_Wire#7_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#8_pole_311032S";
+	to "ND_OL_Wire#7_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#1_pole_311032S";
+	configuration "LC_OL_Wire#1_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#7_pole_311032S";
+	to "ND_OL_Wire#1_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#13_pole_311032S";
+	configuration "LC_OL_Wire#13_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#1_pole_311032S";
+	to "ND_OL_Wire#13_pole_311032S";
+	length 200.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#12_pole_311032S";
+	configuration "LC_OL_Wire#12_pole_311032S";
+	phases "A";
+	from "ND_OL_Wire#13_pole_311032S";
+	to "ND_OL_Wire#12_pole_311032S";
+	length 300.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#6_pole_312148E";
+	configuration "LC_OL_Wire#6_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#12_pole_311032S";
+	to "ND_OL_Wire#6_pole_312148E";
+	length 260.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#5_pole_312148E";
+	configuration "LC_OL_Wire#5_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#6_pole_312148E";
+	to "ND_OL_Wire#5_pole_312148E";
+	length 260.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#4_pole_312148E";
+	configuration "LC_OL_Wire#4_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#5_pole_312148E";
+	to "ND_OL_Wire#4_pole_312148E";
+	length 260.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#3_pole_312148E";
+	configuration "LC_OL_Wire#3_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#4_pole_312148E";
+	to "ND_OL_Wire#3_pole_312148E";
+	length 290.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#2_pole_312148E";
+	configuration "LC_OL_Wire#2_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#3_pole_312148E";
+	to "ND_OL_Wire#2_pole_312148E";
+	length 290.0 ft;
+}
+object overhead_line { 
+	name "OL_Wire#1_pole_312148E";
+	configuration "LC_OL_Wire#1_pole_312148E";
+	phases "A";
+	from "ND_OL_Wire#2_pole_312148E";
+	to "ND_OL_Wire#1_pole_312148E";
+	length 290.0 ft;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#1_pole_267462S";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#2_pole_267462S";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#1_pole_306771E";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#2_pole_306771E";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#3_pole_306771E";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#1_pole_311032S";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#2_pole_311032S";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer_configuration { 
+	name "TC_TF_Equip#1_pole_312148E";
+	resistance 0.000333;
+	connect_type "WYE_WYE";
+	install_type "PADMOUNT";
+	power_rating 100 kVA;
+	primary_voltage 2401 V;
+	secondary_voltage 2401 V;
+	reactance 0.00222;
+}
+object transformer { 
+	name "TF_Equip#1_pole_267462S";
+	configuration "TC_TF_Equip#1_pole_267462S";
+	phases "AN";
+	from "ND_OL_Wire#1_pole_312148E";
+	to "ND_TF_Equip#1_pole_267462S";
+}
+object transformer { 
+	name "TF_Equip#2_pole_267462S";
+	configuration "TC_TF_Equip#2_pole_267462S";
+	phases "AN";
+	from "ND_TF_Equip#1_pole_267462S";
+	to "ND_TF_Equip#2_pole_267462S";
+}
+object transformer { 
+	name "TF_Equip#1_pole_306771E";
+	configuration "TC_TF_Equip#1_pole_306771E";
+	phases "AN";
+	from "ND_TF_Equip#2_pole_267462S";
+	to "ND_TF_Equip#1_pole_306771E";
+}
+object transformer { 
+	name "TF_Equip#2_pole_306771E";
+	configuration "TC_TF_Equip#2_pole_306771E";
+	phases "AN";
+	from "ND_TF_Equip#1_pole_306771E";
+	to "ND_TF_Equip#2_pole_306771E";
+}
+object transformer { 
+	name "TF_Equip#3_pole_306771E";
+	configuration "TC_TF_Equip#3_pole_306771E";
+	phases "AN";
+	from "ND_TF_Equip#2_pole_306771E";
+	to "ND_TF_Equip#3_pole_306771E";
+}
+object transformer { 
+	name "TF_Equip#1_pole_311032S";
+	configuration "TC_TF_Equip#1_pole_311032S";
+	phases "AN";
+	from "ND_TF_Equip#3_pole_306771E";
+	to "ND_TF_Equip#1_pole_311032S";
+}
+object transformer { 
+	name "TF_Equip#2_pole_311032S";
+	configuration "TC_TF_Equip#2_pole_311032S";
+	phases "AN";
+	from "ND_TF_Equip#1_pole_311032S";
+	to "ND_TF_Equip#2_pole_311032S";
+}
+object transformer { 
+	name "TF_Equip#1_pole_312148E";
+	configuration "TC_TF_Equip#1_pole_312148E";
+	phases "AN";
+	from "ND_TF_Equip#2_pole_311032S";
+	to "ND_TF_Equip#1_pole_312148E";
+}

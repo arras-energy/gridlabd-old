@@ -34,7 +34,7 @@ tariff::tariff(MODULE *module)
 			// 	PT_DESCRIPTION, "Billing function for rate",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}

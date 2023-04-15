@@ -1,0 +1,161 @@
+#!/bin/bash
+# Syntax: trace [OPTIONS ...] COMMAND [ARGUMENTS ...]
+#
+# Access gridlabd core/stack/memory/debug information
+#
+# Exit codes:
+#  0 - normal condition
+#  1 - error condition
+#  2 - not implemented
+#  3 - command failed
+#
+
+EXECNAME=$(basename $0)
+STDOUT=/dev/stdout
+STDERR=/dev/stderr
+VERBOSE=/dev/null
+
+SYNTAX="Syntax: gridlabd trace [<options> ...] <command> <arguments>"
+
+# help [exitcode]
+function help()
+{
+	if [ "$(type -t trace-$1)" == "function" ]; then
+		trace-$1 help
+	elif [ $# -eq 0 ]; then
+		echo $SYNTAX
+		echo "Commands:"
+		echo "  help [command]   get this help output or help on a command"
+		echo "  save #           save a core image dump of gridlabd job to a file"
+		echo "  debug #          run debugger on gridlabd job"
+		echo "  dump #           dump a core image dump of gridlabd job to screen"
+		echo "Options:"
+		echo "  -q|--quiet       run with no standard output"
+		echo "  -v|--verbose     run with excessive standard output"
+	else
+		error 1 "'$1' is not a valid command"
+	fi
+}
+
+# error exitcode message
+function error()
+{
+	RC=$1
+	shift 1
+	echo "ERROR: $EXECNAME: $*" >>$STDERR
+	exit $RC
+}
+
+# output message
+function output()
+{
+	echo $* >>$STDOUT
+}
+
+# verbose message
+function verbose()
+{
+	echo $* >>$VERBOSE
+}
+
+function getpid ()
+{
+	echo $(gridlabd --plist | grep "^[ ]*$1" | cut -c5-11)
+}
+
+function trace-save ()
+{
+	if [ "$1" == "help" ]; then
+		echo "Syntax: gridlabd trace save [help|<job>]"
+		echo "Commands:"
+		echo "  help    get this help output"
+		echo "  <job>   perform dump core dump of gridlabd job"
+		exit 0
+	fi
+	PID=$(getpid $1)
+	rm -f "gridlabd-core.$PID"
+	if [ "$(uname -s)" == "Darwin" ]; then
+		gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
+	else
+		gcore -o "gridlabd-core" $PID || exit 3
+	fi
+	chmod 640 "gridlabd-core.$PID"
+	exit 0
+}
+
+function trace-debug ()
+{
+	if [ "$1" == "help" ]; then
+		echo "Syntax: gridlabd trace debug <command>"
+		echo "Commands:"
+		echo "  help    get this help output"
+		exit 0
+	fi
+	PID=$(getpid $1)
+	if [ "$(uname -s)" == "Darwin" ]; then
+		lldb -w -p $PID || exit 3
+	else
+		gdb --pid=$PID || exit 3
+	fi
+	exit 0
+}
+
+function trace-dump ()
+{
+	if [ "$1" == "help" ]; then
+		echo "Syntax: gridlabd trace dump <command>"
+		echo "Commands:"
+		echo "  help    get this help output"
+		exit 0
+	fi
+	PID=$(getpid $1)
+	rm -f "gridlabd-core.$PID"
+	if [ "$(uname -s)" == "Darwin" ]; then
+		gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
+		lldb $(gridlabd --version=install)/bin/gridlabd.bin -c gridlabd-core.$PID || exit 3
+	else
+		gcore -o "gridlabd-core" $PID || exit 3
+		gdb $(gridlabd --version=install)/bin/gridlabd.bin --core=gridlabd-core.$PID || exit 3
+	fi
+	chmod 640 "gridlabd-core.$PID"
+	exit 0
+}
+
+#
+# trace commands
+#
+
+#
+# process command line
+#
+if [ $# -eq 0 ]; then
+	echo $SYNTAX >>$STDERR
+	exit 1
+fi
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+
+	(help)
+		help $2 > /dev/stdout
+		exit 0
+		;;
+	(-q|--quiet)
+		STDOUT=/dev/null
+		;;
+	(-v|--verbose)
+		VERBOSE=/dev/stdout
+		;;
+	(*)
+		if [ "$(type -t trace-$1)" == "function" ]; then
+			trace-$* 1>>$STDOUT 2>>$STDERR
+			exit $STATUS
+		else
+			error 2 "'$1' is not a valid option or command"
+		fi
+		;;
+	esac
+	shift 1
+done
+
+error 1 "missing command"

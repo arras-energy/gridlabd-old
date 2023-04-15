@@ -1,0 +1,34 @@
+# gldcore/rt/gridlabd.rc
+#
+# Copyright (C) 2020 Regents of the Leland Stanford Junior University
+#
+# Author: DP Chassin
+#
+# This file can be used to execute commands that alter the environment in
+# which gridlabd.bin runs.  There are three locations where this file
+# may be deployed. They will be run this order
+#   $GLD_ETC/gridlabd/gridlabd.rc
+#   $HOME/.gridlabd/gridlabd.rc
+#   ./gridlabd.rc
+#
+
+#
+# Permit dynamic libraries to be loaded from the current folder
+#
+# WARNING: this is a security loophole, but it is necessary if user-defined
+# runtime libraries and load-time parser hooks are required.
+#
+
+export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-$GLD_LIB/gridlabd}
+
+#
+# Run the user's RC file, if found
+#
+
+[ -x $HOME/.gridlabd/gridlabd.rc ] && source $HOME/.gridlabd/gridlabd.rc
+
+#
+# Run the local RC file, if found
+#
+
+[ -x ./gridlabd.rc ] && source ./gridlabd.rc 

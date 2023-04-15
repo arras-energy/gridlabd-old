@@ -75,6 +75,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
             PT_double, "material_density[lb/cf]", PADDR(material_density),
                 PT_DEFAULT, "35 lb/cf",
                 PT_DESCRIPTION, "pole material density",
+            PT_double, "wind_overdesign[pu]", PADDR(wind_overdesign), PT_DESCRIPTION, "design margin for critical wind",
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
         GLOBALVAR *var = gl_global_create("powerflow::climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
         if ( ! var )
@@ -110,13 +111,17 @@ int pole_configuration::create(void)
     // defaults from chart 4 - type 45/5 pole dimensions
     pole_length = 45.0;
     pole_depth = 4.5;
-    top_diameter = 19/3.14;
     ground_diameter = 32.5/3.14;
+    // top_diameter = 19/3.14;
+    top_diameter = 0.58*ground_diameter;
 
     // defaults from chart 5 - southern yellow pine
     fiber_strength = 8000;
 
 	repair_time = 0;
+
+	wind_overdesign = 1.0;
+	
 	return 1;
 }
 

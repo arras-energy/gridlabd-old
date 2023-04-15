@@ -1,0 +1,140 @@
+dnl run "autom4te -l m4sh gridlabd.m4sh > gridlabd.in"
+AS_INIT
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+datarootdir="@datarootdir@"
+datadir="@datadir@"
+docdir="@datadir@/doc"
+pkgdatadir="$datadir/@PACKAGE@"
+libdir="@libdir@"
+pkglibdir="$libdir/@PACKAGE@"
+vardir="$exec_prefix/var/@PACKAGE@"
+HAS_MINGW="@HAS_MINGW@"
+
+HAS_DOCKER="no"
+which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
+if test "x$1" = "xdocker" ; then :
+  if test "x$HAS_DOCKER" = "xno"; then :
+    echo "ERROR: docker is not installed" > /dev/stderr
+    exit 1
+  elif test "x$2" = "xhelp"; then :
+    echo "Syntax: gridlabd docker <command>"
+    echo "Valid commands:"
+    echo "  help             get a list of available docker control commands"
+    echo "  enable <image>   enable a docker image as the active image"
+    echo "  disable          disable the active image"
+    echo "  status           list the gridlabd images (active image is called 'gridlabd')"
+    echo "  fix-tsc          fix the docker configuration TSC performance option"
+    exit 0
+  elif test "x$2" = "xenable"; then :
+    if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
+      TSC=`grep '^tsc=' /Applications/Docker.app/Contents/Resources/linuxkit/cmdline | cut -f2 -d=`
+      if test "x$TSC" != "xreliable"; then :
+        echo "WARNING: docker performance is poor if TSC is not 'reliable'. Use 'gridlabd docker fix-tsc' to correct this problem." > /dev/stderr
+      fi
+    fi
+    if test $# -eq 3; then :
+      docker inspect $3 > /dev/null 2>&1 || docker pull $3
+      docker tag $3 gridlabd
+      docker images | head -n 1
+      docker images | grep gridlabd
+      exit 0
+    else
+      echo "ERROR: missing docker image name" > /dev/stderr
+      exit 1
+    fi
+  elif test "x$2" = "xfix-tsc"; then :
+    if test -f "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"; then :
+      echo "tsc=reliable" >> "/Applications/Docker.app/Contents/Resources/linuxkit/cmdline"
+      exit 0
+    else
+      echo "ERROR: /Applications/Docker.app/Contents/Resources/linuxkit/cmdline does not exist" > /dev/stderr
+      exit 1
+    fi
+  elif test "x$2" = "xdisable" ; then :
+    docker rmi gridlabd > /dev/null 2>&1 
+    docker images | head -n 1
+    docker images | grep gridlabd
+    exit 0
+  elif test "x$2" = "xstatus" ; then :
+    docker images | head -n 1
+    docker images | grep gridlabd
+    exit 0
+  else
+    echo "Syntax: gridlabd --docker <command>|help" > /dev/stderr
+    exit 1
+  fi
+fi
+if test "x$HAS_DOCKER" = "xyes" ; then :
+  HAS_IMAGE="no"
+  docker inspect gridlabd > /dev/null 2>&1 && HAS_IMAGE="yes"
+  if test "x$HAS_IMAGE" = "xyes" ; then :
+    docker run -it -v ${PWD}:${PWD} gridlabd $bindir/gridlabd -W ${PWD} $@
+    exit 0
+  fi
+fi
+
+###############################################################################
+# Python Configuration Data and Flags
+###############################################################################
+PY_OS="$(uname -s)"
+PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
+
+HAVE_PYTHON="$($PYTHON_VER_DIR/python3 --version | cut -f2 -d' ')"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
+
+export GLD_ETC=$pkgdatadir
+export GLD_BIN=$bindir
+export GLD_VER=$exec_prefix
+export GLD_LIB=$libdir
+export GLD_DOC=$docdir
+export GLD_VAR=$vardir
+export GLD_INC=$exec_prefix/include
+export GLD_SRC=$exec_prefix/src
+export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"
+export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
+export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
+export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
+export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
+export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
+export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
+export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
+export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
+export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
+
+AS_IF([test "x$GLPATH" = x],
+  [export GLPATH="$pkglibdir:$pkgdatadir"],
+  [export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"])
+
+if test "x$1" = "xgdb" ; then :
+  shift
+  gdb -ex "run $@" $bindir/gridlabd.bin
+  exit 0
+elif test "x$1" = "xlldb" ; then :
+  shift
+  echo "run $@" > /tmp/gridlabd-$$
+  lldb -s /tmp/gridlabd-$$ $bindir/gridlabd.bin
+  rm /tmp/gridlabd-$$
+  exit 0
+elif test "x$1" = "xvalgrind" ; then :
+  shift
+  if test -z "${VALGRIND_OPTIONS}" ; then :
+    echo "WARNING: VALGRIND_OPTIONS is not set, using default valgrind options"
+  fi
+  valgrind ${VALGRIND_OPTIONS} $bindir/gridlabd.bin $@
+  exit 0
+fi
+
+AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
+  [. ${pkgdatadir}/gridlabd.rc],
+  [])
+
+AS_IF([test -f "${GLD_ETC}/$1.py"],
+  [export PYTHONPATH=$GLD_ETC; $PYTHON_VER_DIR/python3 -m "$@" ; exit $?],
+  [])
+
+AS_IF([test -x "${bindir}/gridlabd-$1"],
+  ["${bindir}/gridlabd"-"$@"],
+  ["${bindir}/gridlabd.bin" "$@" && "${bindir}/gridlabd-version" check -w])

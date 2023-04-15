@@ -1,0 +1,128 @@
+"""
+
+[[/Converters/Import/Mdb_files]] -- MDB file import converters
+
+# Synopsis
+
+Shell:
+~~~
+$ gridlabd [-D mdb_load_options='-t TYPE [OPTIONS ...]] FILENAME.mdb ...
+~~~
+
+GLM:
+
+~~~
+#input "filename.mdb" [-t <type> [options]]
+~~~
+
+# Description
+
+There are many different types of MDB files that can be imported. Each is documented separately according to the type of data it delivers to the GLM loader.
+
+By default the all tables contained in the MDB file are extracted into CSV files in the working folder.
+
+## Import types
+
+### `-t CYME [OPTIONS ...]`
+
+CYME databases can be converted to GLM using the `-t cyme` option.  Additional options can be provided as a python dictionary, e.g., `{'name':'value',...}` and to define GLM global variables.
+
+# Caveat
+
+The `MDB` converters require the `mdbtools` be installed on the host system.
+
+# See also
+
+* [[/Converters/Input/Csv_files]]
+
+"""
+
+import json 
+import os 
+import sys, getopt
+from datetime import datetime 
+import importlib, copy
+from importlib import util
+
+config = {
+    "input" : "mdb",
+    "output" : "glm",
+    "type" : ["cyme","table"],
+    "format" : ["player","object"],
+    "options" : {},
+}
+
+def help():
+    print('Syntax:')
+    print('mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type> -f|--format <output-type>')
+    print('  -c|--config    : [OPTIONAL] print converter configuration')
+    print('  -i|--ifile     : [REQUIRED] mdb input file name.')
+    print('  -o|--ofile     : [REQUIRED] glm output file name.')
+    print('  -t|--type      : [REQUIRED] specify input type')
+    print('  -f|--format    : [OPTIONAL] specify output format')
+    print('  -p|--property  : [OPTIONAL] specify a converter option/property')
+    print('Input types')
+    print('  cyme           : cyme input');
+
+input_name = None
+output_name = None
+input_type = None
+output_type = ""
+options = {}
+
+try : 
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:cf:p:",["help","ifile=","ofile=","type=","config","format","property"])
+except getopt.GetoptError:
+    print("ERROR    [mdb2glm.py]: command line options not valid")
+    sys.exit(2)
+
+if not opts : 
+    help()
+    sys.exit(1)
+for opt, arg in opts:
+    if opt in ("-h","--help"):
+        help()
+        sys.exit(0)
+    elif opt in ("-c","--config"):
+        print(json.dumps(config))
+        sys.exit(0)
+    elif opt in ("-i", "--ifile"):
+        input_name = arg.strip()
+    elif opt in ("-o", "--ofile"):
+        output_name = arg.strip()
+    elif opt in ("-t","--type"):
+        if arg in config["type"]:
+            input_type = arg
+        else:
+            print(f"ERROR [mdb2glm]: '{arg}'' is not a valid input data type")
+            sys.exit(1)
+    elif opt in ("-f","--format"):
+        if arg in config["format"]:
+            output_type = arg
+        else:
+            print(f"ERROR [mdb2glm]: '{arg}'' is not a valid output format")
+            sys.exit(1)
+    elif opt in ("-p","--property"):
+        spec = arg.split("=")
+        if len(spec) == 1:
+            options[spec[0]] = True
+        else:
+            options[spec[0]] = "=".join(spec[1:])
+
+if not input_type:
+    print("ERROR    [mdb2glm.py]: conversion type not specified (-t <type> option is missing)")
+    sys.exit(1)
+if output_type:
+    output_type = "-" + output_type 
+
+modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm{output_type}.py")
+if os.path.exists(modname):
+    util.spec_from_file_location(input_type, modname)
+    mod = importlib.import_module(f"mdb-{input_type}2glm{output_type}")
+    argv = copy.deepcopy(sys.argv)
+    argv[0] = modname
+    mod.convert(input_name,output_name,options)
+else:
+
+    print(f"ERROR    [mdb2glm.py]: type '{input_type}' is not valid -- {modname} not found");
+    sys.exit(2)

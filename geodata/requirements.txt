@@ -1,0 +1,9 @@
+haversine==2.3.0
+Fiona==1.8.22
+pandas==1.4.3
+Shapely==1.8.4
+geopandas>=0.9.0
+CensusData==1.13
+openpyxl==3.0.7
+cfo==1.0.1
+ipykernel==5.5.5

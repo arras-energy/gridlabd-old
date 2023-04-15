@@ -1,0 +1,106 @@
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+
+import sys, os, github
+
+E_NONE = None
+E_OK = 0
+E_INVALID = 1
+E_TOKEN = 2
+E_EXCEPTION = 9
+
+separator = "\n"
+quotes = ""
+login = False
+known = False
+token = None
+
+def error(msg,code=E_NONE):
+	if type(msg) is Exception:
+		e_type, e_value, e_trace = sys.exc_info()
+		error(e_value,E_EXCEPTION)
+	else:
+		print(f"ERROR [{sys.argv[0]}]: {msg}",file=sys.stderr)
+	if code:
+		exit(code)
+
+def output(msg):
+	if type(msg) is Exception:
+		e_type, e_value, e_trace = sys.exc_info()
+		warning(e_value,E_EXCEPTION)
+	else:
+		print(f"{quotes}{msg}{quotes}",end=separator)
+
+def warning(msg):
+	print(f"WARNING [{sys.argv[0]}]: {msg}")
+
+n = 1
+while n < len(sys.argv):
+	tag = sys.argv[n]
+	if n < len(sys.argv)-1:
+		value = sys.argv[n+1]
+	else:
+		value = None
+	if tag in ["-h","--help","help"]:
+		print(f"Syntax: gridlabd contributors [<options>]")
+		print("Options:")
+		print("  -h|--help           get this help list")
+		print("  -k|--known          print known users only")
+		print("  -l|--login          print only login ids")
+		print("  -q|--quotes <str>   quote names with <str>")
+		print("  -s|--separate <str> separate names with <str>")
+		print("  -t|--token <str>    use github access token <str>")
+		exit(0)
+	elif tag in ["-t","--token"]:
+		if value == "None":
+			token = None
+		else:
+			token = value
+		n += 1
+	elif tag in ["-s","--separate"]:
+		if value == "SPACE":
+			separator = " "
+		elif value == "NEWLINE":
+			separate = "\n"
+		else:
+			separator = value
+		n += 1
+	elif tag in ["-q","--quotes"]:
+		if value == None or value == "None":
+			quotes = ""
+		else:
+			quotes = value
+		n += 1
+	elif tag in ["-k","--known"]:
+		known = True
+		n += 1
+	elif tag in ["-l","--login"]:
+		login = True
+		n += 1
+	else:
+		error(f"'{tag}' is not valid",code=E_INVALID)
+	n += 1
+
+if not token:
+	try:
+		HOME = os.getenv("HOME")
+		with open(f"{HOME}/.github/access-token","r") as fh:
+			token = fh.read().strip()
+	except Exception as exc:
+		warning(exc)
+		pass
+
+try:
+	git = github.Github(token)
+
+	repo = git.get_repo("hipas/gridlabd")
+	for user in repo.get_contributors():
+		if login:
+			output(user.login)
+		elif user.name:
+			output(user.name)
+		elif not known:
+			output(f"<user:{user.login}>")
+except Exception as exc:
+	error(exc)

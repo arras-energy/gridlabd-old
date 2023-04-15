@@ -1,3 +1,0 @@
-#template get ica_analysis
-#system ls -l /usr/local/share/gridlabd/template/${country}
-#option template ica_analysis
