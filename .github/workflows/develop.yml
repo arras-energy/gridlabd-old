@@ -19,6 +19,8 @@ jobs:
     - name: Set ownership
       run: |
         chown -R $(id -u):$(id -g) $PWD
+    - name: Update python
+      run: python3 -m pip install --upgrade pip
     - name: install gridlabd
       run: |
         autoreconf -isf
