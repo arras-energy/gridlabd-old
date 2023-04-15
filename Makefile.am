@@ -350,8 +350,8 @@ troubleshooting-html:
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
 
 documents/gridlabd.pdf: documents/gridlabd.glm
-	(cd documents ; $(DESTDIR)$(bindir)/gridlabd gridlabd.glm)
-	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+	(cd documents ; $(DESTDIR)$(bindir)/gridlabd gridlabd.glm | echo "WARNING: unable to update documents/gridlabd.pdf")
+	test -f documents/gridlabd.md && pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
 
 docs: $(docs_targets) documents/gridlabd.pdf
 
