@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Cleaning repository to source state for clean build
-git clean -fxd
-
 # Set Variable defaults (Prefix can be changed by flag)
 VERSION=${VERSION:-`build-aux/version.sh --name`}
 PREFIX="/usr/local/opt"
@@ -201,23 +198,12 @@ fi
 
 if [ -e "$VAR" ] ; then
 	sudo chown -R "${USER:-root}" "$VAR"
+	mkdir -p $VERSION_DIR/var
 fi
 
 # create a temp working directory if it does not already exist
 if [ ! -d "$HOME/temp" ]; then
 	mkdir -p $HOME/temp || ( sudo mkdir -p $HOME/temp && sudo chown ${USER:-root} $HOME/temp )
-fi
-
-if [ ! -d "$VERSION_DIR" ]; then
-    mkdir -p $VERSION_DIR/bin
-	mkdir -p $VERSION_DIR/include
-	mkdir -p $VERSION_DIR/lib
-	mkdir -p $VERSION_DIR/man
-	mkdir -p $VERSION_DIR/share
-	mkdir -p $VERSION_DIR/src
-	mkdir -p $VERSION_DIR/var
-	mkdir -p $VERSION_DIR/opt
-	mkdir -p $VERSION_DIR/etc
 fi
 
 export PATH=$VERSION_DIR/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
@@ -398,7 +384,5 @@ elif [ "$LINK" == "yes" ]; then
 	run sudo ln -sf $PREFIX/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 fi
 
-cd $VERSION_DIR/src
-sudo rm -rf *
 # all done :-)
 exit 0

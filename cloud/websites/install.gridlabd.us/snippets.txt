@@ -6,7 +6,7 @@
 ### See gridlabd-convert as an example. 
 
 ''':'
-exec "$GLD_BIN/python3" "$0" "$@"
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
 :' '''
 
 ### Some good variables to know:

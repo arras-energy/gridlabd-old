@@ -1,0 +1,14 @@
+module powerflow;
+object load {
+    name load1;
+}
+#ifexist ../test_modify.csv
+#define DIR=..
+#endif
+
+#convert -i ${DIR:-.}/test_modify.csv -o test_modify_opt.glm -f csv-modify -t glm-modify
+#include "test_modify_opt.glm"
+
+#ifexist ../test_modify_opt.glm
+#on_exit 0 diff ../test_modify_opt.glm test_modify_opt.glm >gridlabd.diff
+#endif
