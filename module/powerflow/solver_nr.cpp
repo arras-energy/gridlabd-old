@@ -52,12 +52,13 @@ using namespace std;
 #include <stdio.h>
 #include <string.h>
 
-char1024 solver_profile_filename =  "solver_nr_profile.csv";
-char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
+char1024 solver_profile_filename =  "solver_nr_profile.txt";
 static FILE * nr_profile = NULL;
+char1024 solver_headers = "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
 bool solver_dump_enable = false;
+bool solver_profile_csv = false;
 
 //SuperLU variable structure
 //These are the working variables, but structured for island implementation
@@ -71,8 +72,8 @@ typedef struct {
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
-	if (solver_profile_enable) 
-	{
+	if ( solver_profile_enable ) 
+	{	
 		nr_profile = fopen(solver_profile_filename,"w");
 		if ( nr_profile == NULL ) 
 		{
@@ -83,7 +84,16 @@ void sparse_init(SPARSE* sm, int nels, int ncols)
 		}
 		else if ( solver_profile_headers_included )
 		{
-			fprintf(nr_profile,"%s\n",(const char*)solver_headers);
+			if ( solver_profile_csv )
+			{
+
+				fprintf(nr_profile,"%s\n",(const char*)solver_headers);
+			}
+			else
+			{
+				fprintf(nr_profile,"timestamp               duration[microsec] iteration bus_count branch_count error\n");
+				fprintf(nr_profile,"----------------------- ------------------ --------- --------- ------------ -----\n");
+			}
 		}
 	}
 	int indexval;
@@ -168,7 +178,6 @@ void sparse_reset(SPARSE* sm, int ncols)
 inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_values, int bus_values_count, NR_SOLVER_STRUCT *powerflow_information, int island_number_curr)
 {
 	int bus_index_val, bus_start_val, bus_end_val;
-	bool found_proper_bus_val;
 
 	SP_E* insertion_point = sm->cols[col];
 	SP_E* new_list_element = &(sm->llheap[sm->llptr++]);
@@ -198,9 +207,6 @@ inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_
 			{
 				if (insertion_point->next->row_ind == new_list_element->row_ind)	//Same entry (by column), so bad
 				{
-					//Reset the flag
-					found_proper_bus_val = false;
-
 					//Loop through and see if we can find the bus
 					for (bus_index_val=0; bus_index_val<bus_values_count; bus_index_val++)
 					{
@@ -244,9 +250,6 @@ inline void sparse_add(SPARSE* sm, int row, int col, double value, BUSDATA *bus_
 			{
 				if (insertion_point->row_ind == new_list_element->row_ind)	//Same entry (by column), so bad
 				{
-					//Reset the flag
-					found_proper_bus_val = false;
-
 					//Loop through and see if we can find the bus
 					for (bus_index_val=0; bus_index_val<bus_values_count; bus_index_val++)
 					{
@@ -342,10 +345,11 @@ int64 solver_nr(unsigned int bus_count,
 		if ( solver_python_init() == 0 )
 		{
 			Iteration = solver_python_solve(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
-			if ( Iteration >= 0 )
+			if ( Iteration == 0 )
 			{		
 					return Iteration;
 			}
+			// else <0 proceed with NR solver
 		}
 	}
 	catch (const char *msg)
@@ -5034,7 +5038,7 @@ int64 solver_nr(unsigned int bus_count,
 			}
 			//Default else - it was a failure, just keep going
 		}
-		Iteration = return_value_for_solver_NR;
+		Iteration = return_value_for_solver_NR+1;
 
 		//Deflag the "island locker"
 		NR_solver_working = false;
@@ -5071,7 +5075,16 @@ int64 solver_nr(unsigned int bus_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, return_value_for_solver_NR == 0 ? 1 : return_value_for_solver_NR,bus_count,branch_count,bad_computations ? "false" : "true");
+			{
+				if ( solver_profile_csv )
+				{
+					fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%d\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? 0 : 1);
+				}
+				else
+				{
+					fprintf(nr_profile, "%s %18.1f %9lld %9d %12d %s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "no" : "yes");
+				}
+			}
 		}
 				
 		//Return the maximum iteration count

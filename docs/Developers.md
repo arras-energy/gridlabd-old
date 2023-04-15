@@ -1,13 +1,13 @@
-Software developers and engineers are welcome to contribute to HiPAS GridLAB-D. The source code to HiPAS is available to the public through the [GitHub SLAC Gismo GridLAB-D project](https://github.com/slacgismo/gridlabd). 
+Software developers and engineers are welcome to contribute to HiPAS GridLAB-D. The source code to HiPAS is available to the public through the [GitHub SLAC Gismo GridLAB-D project](https://source.gridlabd.us/). 
 
 ## Developer Resources
 
-  - [Source code](https://github.com/slacgismo/gridlabd)
-  - [Issues](https://github.com/slacgismo/gridlabd/issues)
-  - [Pull requests](https://github.com/slacgismo/gridlabd/pulls)
-  - [Projects](https://github.com/slacgismo/gridlabd/projects)
-  - [Wiki](https://github.com/slacgismo/gridlabd)
-  - [Team Discussions](https://github.com/slacgismo/teams/gridlab-d/discussions)
+  - [Source code](https://source.gridlabd.us/)
+  - [Issues](https://source.gridlabd.us/issues)
+  - [Pull requests](https://source.gridlabd.us/pulls)
+  - [Projects](https://source.gridlabd.us/projects)
+  - [Wiki](https://source.gridlabd.us/wiki)
+  - [Discussions](https://source.gridlabd.us/discussions)
 
 Developers should consult the [[/Developer/README]] for information about modifying and contributing to HiPAS GridLAB-D.
 
@@ -16,7 +16,7 @@ Developers should consult the [[/Developer/README]] for information about modify
 You can set up your system to host development and build GridLAB-D from source code using the installation script. 
 
 ~~~
-bash$ git clone https://github.com/slacgismo/gridlabd
+bash$ git clone https://source.gridlabd.us/ gridlabd
 bash$ cd gridlabd
 bash$ ./install.sh
 ~~~

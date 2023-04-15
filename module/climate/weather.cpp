@@ -51,19 +51,9 @@ weather::weather(MODULE *module)
 				PT_OUTPUT,
 				PT_DEFAULT, "0%",
 				PT_DESCRIPTION, "relative humidity",
-			PT_double,"solar_dir[W/sf]",PADDR(solar_dir),
-				PT_DEPRECATED,
-				PT_OUTPUT,
-				PT_DEFAULT, "0.0 W/sf",
-				PT_DESCRIPTION, "direct solar flux",
 			PT_double,"solar_direct[W/sf]",PADDR(solar_dir),
 				PT_DESCRIPTION, "direct solar flux",
 				PT_DEFAULT, "0.0 W/sf",
-			PT_double,"solar_diff[W/sf]",PADDR(solar_diff),
-				PT_DEPRECATED,
-				PT_OUTPUT,
-				PT_DEFAULT, "0.0 W/sf",
-				PT_DESCRIPTION, "diffuse solar flux",
 			PT_double,"solar_diffuse[W/sf]",PADDR(solar_diff),
 				PT_OUTPUT,
 				PT_DEFAULT, "0.0 W/sf",
@@ -125,9 +115,18 @@ weather::weather(MODULE *module)
 
 EXPORT int create_weather(OBJECT **obj, OBJECT *parent)
 {
-	weather *my = (weather*)(obj+1);
-	my->next = NULL;
-	return 1;	// don't want it to get called, but better to have it not be fatal
+	*obj = gl_create_object(weather::oclass);
+	if ( *obj != NULL )
+	{
+		weather *my = OBJECTDATA(*obj,weather);
+		gl_set_parent(*obj,parent);
+		my->next = NULL;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 /// Synchronize the cliamte object

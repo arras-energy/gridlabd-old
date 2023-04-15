@@ -7,6 +7,7 @@ GLM:
 ~~~
 ${GEOCODE <latitude>,<longitude>[#<resolution>]}
 ${GEOCODE <objname>[#<resolution>]}
+${GEOCODE <geohash>[.lat|.lon]}
 ~~~
 
 # Description
@@ -27,6 +28,8 @@ The default resolution is 5. The resolution corresponds to the following distanc
     10  0.0006 km
     11  0.000075 km
 
+The reverse conversion transfer the geohash into a latitude/longitude pair.  If the `.lat` or `.lon` spec is include, then only the corresponding value is returned.
+
 # Example
 
 The following example prints the geohash codes for a position and an object:
@@ -44,6 +47,9 @@ object test
 }
 #print ${GEOCODE 37.5,-122.2#6}
 #print ${GEOCODE test#6}
+#print ${GEOCODE 9q9j76}
+#print ${GEOCODE 9q9j76.lat}
+#print ${GEOCODE 9q9j76.lon}
 ~~~
 
 # See also

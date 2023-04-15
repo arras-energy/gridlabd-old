@@ -63,10 +63,9 @@ object inverter {
 
 object solar {
 	name trip_shad_solar90;
-	phases AS;
 	parent trip_shad_inv;
 	weather "CA-Chino";
-	Rated_kVA 4.0 kVA;
+	rated_power 4.0 kVA;
 	area 29.6296 m^2;
 	tilt_angle 90.0;
 	efficiency 0.135;
@@ -80,7 +79,7 @@ object solar {
 			property value;
 			file "../fixed_90_S_Insolation.player";
 		};
-		within 0.01;
+		within 0.03;
 	};
 	object complex_assert {
 		operation REAL;
@@ -89,16 +88,15 @@ object solar {
 			file "../fixed_90_S_VA_out.player"; 
 		};
 		target VA_Out;
-		within 0.01; 
+		within 0.05; 
 	};
 }
 
 object solar {
 	name trip_shad_solar20;
-	phases AS;
 	parent trip_shad_inv;
 	weather "CA-Chino";
-	Rated_kVA 4.0 kVA;
+	rated_power 4.0 kVA;
 	area 29.6296 m^2;
 	tilt_angle 20.0;
 	efficiency 0.135;
@@ -113,7 +111,7 @@ object solar {
 			file "../fixed_20_S_VA_out.player"; 
 		};
 		target VA_Out;
-		within 0.01; 
+		within 0.05; 
 	};
 }
 

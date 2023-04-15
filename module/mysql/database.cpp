@@ -67,7 +67,7 @@ database::database(MODULE *module)
 			PT_bool,"uses_dst",get_uses_dst_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"timestamps in database include summer time offsets",
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 
@@ -213,7 +213,7 @@ TIMESTAMP database::commit(TIMESTAMP t0, TIMESTAMP t1)
 bool database::table_exists(const char *table)
 {
 	char query[1024];
-	sprintf(query,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name in ('id', 't')",(const char*)schema,table);
+	snprintf(query,sizeof(query)-1,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name in ('id', 't')",(const char*)schema,table);
 	if ( mysql_query(mysql,query) )
 		return false;
 	MYSQL_RES *res = mysql_store_result(mysql);
@@ -229,7 +229,7 @@ bool database::table_exists(const char *table)
 bool database::check_field(const char *table, const char *field)
 {
 	char query[1024];
-	sprintf(query,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name = '%s'",(const char*)schema,table,field);
+	snprintf(query,sizeof(query)-1,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name = '%s'",(const char*)schema,table,field);
 	if ( mysql_query(mysql,query) )
 	{
 		gl_warning("%s: query [%s] failed -- %s", mysql_get_host_info(mysql), query, mysql_error(mysql));
@@ -330,7 +330,8 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, doubl
 		if ( prop.get_unit() )
 		{
 			double *value = (double*)prop.get_addr();
-			int len = snprintf(buffer,size,"%g",*value*scale);
+			snprintf(buffer,size-1,"%g",*value*scale);
+			int len = strlen(buffer);
 			if ( len < 0 || (size_t)len > size )
 				return NULL;
 			return buffer;
@@ -362,16 +363,16 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, gld_u
 			double value = prop.get_double((UNIT*)unit);
 			if ( isnan(value) )
 			{
-				sprintf(buffer,"%s","NULL");
+				snprintf(buffer,sizeof(buffer)-1,"%s","NULL");
 			}
 			else
 			{
-				sprintf(buffer,"%g",value);
+				snprintf(buffer,sizeof(buffer)-1,"%g",value);
 			}
 		}
 		else
 		{
-			sprintf(buffer,"%g",prop.get_double());
+			snprintf(buffer,sizeof(buffer)-1,"%g",prop.get_double());
 		}
 		return buffer;
 	default:

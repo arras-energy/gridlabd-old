@@ -1,4 +1,4 @@
-FROM slacgismo/gridlabd_dockerhub_base:211105
+FROM hipas/gridlabd_base:230119
 
 
 ENV container docker
@@ -9,13 +9,11 @@ ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
 ARG RUN_VALIDATION
-ENV LD_LIBRARY_PATH /usr/local/lib
+ENV LD_LIBRARY_PATH /usr/local/opt/gridlabd/lib
 
 
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
-RUN yum update -y 
-RUN yum install git -y
 COPY gridlabd.sh /tmp/
 RUN chmod +wx *.sh
 RUN bash gridlabd.sh

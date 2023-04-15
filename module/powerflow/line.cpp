@@ -47,6 +47,8 @@ CLASS* line::oclass = NULL;
 CLASS* line::pclass = NULL;
 CLASS *line_class = NULL;
 
+EXPORT_COMMIT(line)
+
 line::line(MODULE *mod) : link_object(mod) {
 	if(oclass == NULL)
 	{
@@ -89,7 +91,7 @@ int line::create()
 
 int line::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = ((OBJECT*)this)-1; // OBJECTHDR(this)
 	gld_property *fNode_nominal, *tNode_nominal;
 	double f_nominal_voltage, t_nominal_voltage;
 	complex Zabc_mat_temp[3][3], Yabc_mat_temp[3][3];

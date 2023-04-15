@@ -55,6 +55,10 @@ module powerflow {
   wind_dir_name "<string>";
   wind_gust_name "<string>";
   wind_speed_name "<string>";
+  voltage_fluctuation_threshold "<decimal> pu";
+  default_voltage_violation_threshold "<decimal> pu";
+  default_continuous_rating "<decimal> A";
+  default_emergency_rating "<decimal> A";
 }
 ~~~
 
@@ -455,6 +459,39 @@ Specifies the name of the climate or weather object property to use for wind dir
 ~~~
 
 Specifies whether the simulation should stop when a pole fails.
+
+### `voltage_fluctuation_threshold`
+
+~~~
+  voltage_fluctuation_threshold "<decimal> pu";
+~~~
+
+Specifies the value for the voltage fluctuations in nodes when `DER_value` is non-zero.  The default value is `0.03 pu`.
+
+### `default_voltage_violation_threshold`
+
+~~~
+  default_voltage_violation_threshold "<decimal> pu";
+~~~
+
+Specifies the default value for the node `voltage_violation_threshold` property if it is not specified. The default value is `0.05 pu`.
+
+### `default_continuous_rating`
+
+~~~
+  default_continuous_rating "<decimal> A";
+~~~
+
+Specifies the default value for the continuous current rating of a link. The default value is `1000 A`.
+
+### `default_emergency_rating`
+
+~~~
+  default_emergency_rating "<decimal> A";
+~~~
+
+Specifies the default value for the emergency current rating of a link. The default value is `2000 A`.
+
 
 # See also
 

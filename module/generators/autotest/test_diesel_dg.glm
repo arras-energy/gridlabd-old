@@ -79,7 +79,7 @@ object meter:671 {
 
    }
 
-   object triplex_node {
+   object triplex_load {
           name IEEE13_671_tn;
           phases AS;
           nominal_voltage 124;

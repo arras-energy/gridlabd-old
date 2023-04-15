@@ -48,6 +48,7 @@ public:
 	double aging_step;			// maximum timestep before updating thermal and aging model in seconds.
 	TIMESTAMP return_at;
 	double last_temp;
+	double degradation_factor;	// turns ratio degradation factor
 
 	int transformer_inrush_mat_update(void);
 	int transformer_saturation_update(bool *deltaIsat);
@@ -73,6 +74,11 @@ private:
 	double phi_base_Sec;
 	double I_base_Pri;
 	double I_base_Sec;
+
+public:
+
+	inline TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2) { return link_object::commit(t1,t2); };
+
 };
 EXPORT void power_calculation(OBJECT *thisobj);
 EXPORT int recalc_transformer_mat(OBJECT *obj);

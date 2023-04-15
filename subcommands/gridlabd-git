@@ -1,0 +1,131 @@
+#!/bin/bash
+# Syntax: git COMMAND [OPTIONS ...]
+
+command=$(basename $0 | tr '-' ' ')
+origin="$(gridlabd --version=origin)"
+api="${origin/github.com*/api.github.com}"
+repos="${origin/github.com/api.github.com/repos}"
+
+if [ -z "$GITUSER" ]; then
+    GITUSER="$USER"
+fi
+
+GITAUTH="$HOME/.gridlabd-gitauth"
+if [ -f "$GITAUTH" ]; then
+    TOKEN="$(gridlabd-json-get token < $GITAUTH)"
+    AUTH="-u $GITUSER:$TOKEN"
+fi
+
+function help ()
+{
+    cat <<END
+Syntax: gridlabd git command [options] ...
+Commands:
+  blob <id> <keys>      obtain information on blob <id>
+  commit <id> <keys>    obtain information on commit <id>
+  rate <keys>           obtain information on rate limits
+END
+}
+
+function commit ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command commit <id> <key>"
+    else
+        id="$1"
+        shift 1
+        curl "$AUTH" -s "$repos/commits/$id" | gridlabd json-get $*
+    fi
+}
+
+function blob ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command blob <id> <key>"
+    else
+        id="$1"
+        shift 1
+        curl "$AUTH" -s "$repos/git/blob/$id" | gridlabd json-get $*
+    fi
+}
+
+function tag ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command tag <id> <key>"
+    else
+        id="$1"
+        shift 1
+        curl "$AUTH" -s "$repos/git/tags/$id" | gridlabd json-get $*
+    fi
+}
+
+function rate ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command rate <key>"
+    else
+        curl "$AUTH" -s "$api/rate_limit" | gridlabd json-get $1
+    fi
+}
+
+function repo ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command repo <key>"
+    else
+        curl "$AUTH" -s "$api/user/repos" | gridlabd json-get $*
+    fi
+}
+
+function org ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command org <org> <key>"
+    else
+        org="$1"
+        shift 1
+        curl "$AUTH" -s "$api/orgs/$org/repos" | gridlabd json-get $*
+    fi
+}
+
+function auth ()
+{
+    if [ "$1" == "help" ]; then
+        echo "Syntax: $command auth [delete|get <id>|list]"
+    elif [ $# -eq 0 ]; then
+        if [ ! -f "$GITAUTH" ]; then
+            AUTH=$(curl -u "$GITUSER" -d '{"scopes":["repo","user"], "note":"'$USER'@'${HOSTNAME:-unknown}':gridlabd-git"}' -s $api/authorizations)
+            (echo "$AUTH" > "$GITAUTH") || echo $AUTH
+            [ -f "$GITAUTH" ] && chmod 400 "$GITAUTH"
+        else
+            echo "$command: $GITAUTH already exists" > /dev/stderr
+        fi
+    elif [ "$1" == "delete" ]; then
+        if [ -f "$GITAUTH" ]; then
+            ID="$(gridlabd-json-get id < $GITAUTH)"
+            REPLY=$(curl -s -u "$GITUSER" -X DELETE "$api/authorizations/$ID") && rm -f "$GITAUTH" || echo $REPLY
+        else
+            echo "$command: $GITAUTH not found" > /dev/stderr
+        fi
+    elif [ "$1" == "list" ]; then
+        curl -s -u "$GITUSER" "$api/authorizations"
+    elif [ "$1" == "get" -a $# ]; then
+        if [ $# -eq 1 ]; then
+            ID="$(gridlabd-json-get id < $GITAUTH)"
+            curl -s -u "$GITUSER" "$api/authorizations/$ID"
+        else
+            curl -s -u "$GITUSER" "$api/authorizations/$2"
+        fi
+    else
+        echo "$command: auth syntax error" > /dev/stderr
+    fi
+} 
+
+if [ "$(type -t $1)" == "function" ]; then
+    cmd="$1"
+    shift 1
+    $cmd $*
+else
+    echo "$command: $1 is not recognized" > /dev/stderr
+fi

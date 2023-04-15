@@ -1,97 +1,18 @@
-/** $Id: link.cpp 1211 2009-01-17 00:45:28Z d3x593 $
+/** module/powerflow/link.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file link.cpp
-	@addtogroup powerflow_link Link
-	@ingroup powerflow_object
-
-	@par Fault support
-
-	The following conditions are used to describe a fault impedance \e X (e.g., 1e-6), 
-	between phase \e x and neutral or group, or between phases \e x and \e y, and leaving
-	phase \e z unaffected at iteration \e t:
-
-	- \e phase-to-phase contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = V_y(t) = 0, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A and \e y = phase B;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & \frac{1}{X} & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A and \e y = phase B;
-    - \e phase-to-ground contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = 0, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 1 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & p & p \\
-				0 & p & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & p & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A;
-	- \e phase-to-neutral contact on the link
-		- \e Forward-sweep: \f$ 
-			V_x(t) = -V_N, 
-			A = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 1 & 0 \\
-				0 & 0 & 1 \end{array} \right) , 
-			B = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & p & p \\
-				0 & p & p \end{array} \right)  
-			\f$
-		  where \e p is the previous value
-		  when \e x = phase A;
-		- \e Back-sweep: \f$ 
-			  c = \left( \begin{array}{ccc}
-				0 & 0 & 0 \\
-				0 & 0 & 0 \\
-				0 & 0 & 0 \end{array} \right) ,
-			  d = \left( \begin{array}{ccc}
-				\frac{1}{X} & 0 & 0 \\
-				0 & p & 0 \\
-				0 & 0 & p \end{array} \right) 
-		  \f$ when \e x = phase A;
-
-
-	@{
-*/
+ **/
 
 #include "powerflow.h"
 using namespace std;
 
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;
+
+double link_object::default_continuous_rating = 1000;
+double link_object::default_emergency_rating = 2000;
+double link_object::default_violation_rating = 0.0;
+
+EXPORT_COMMIT_C(link,link_object)
 
 /**
 * constructor.  Class registration is only called once to register the class with the core.
@@ -229,7 +150,15 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 				PT_DESCRIPTION, "Emergency rating for this link object (set individual line segments",
 			PT_double, "inrush_convergence_value[V]", PADDR(inrush_tol_value),
 				PT_DESCRIPTION, "Tolerance, as change in line voltage drop between iterations, for deltamode in-rush completion",
+
+			PT_double, "violation_rating[A]", PADDR(violation_rating),
+				PT_DESCRIPTION, "current violation rating for this link object",
+
 			NULL) < 1 && errno) GL_THROW("unable to publish link properties in %s",__FILE__);
+
+			gl_global_create("powerflow::default_continuous_rating[A]",PT_double,&default_continuous_rating,NULL);
+			gl_global_create("powerflow::default_emergency_rating[A]",PT_double,&default_emergency_rating,NULL);
+			gl_global_create("powerflow::default_violation_rating[A]",PT_double,&default_violation_rating,NULL);
 
 			//Publish deltamode functions
 			if (gl_publish_function(oclass,	"interupdate_pwr_object", (FUNCTIONADDR)interupdate_link)==NULL)
@@ -279,8 +208,8 @@ int link_object::create(void)
 
 	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][1] = link_limits[1][2] = NULL;
 	
-	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = 1000;	//Replicates current defaults of line objects
-	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = 2000;
+	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = default_continuous_rating;	//Replicates current defaults of line objects
+	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = default_emergency_rating;
 
 	check_link_limits = false;
 
@@ -945,6 +874,17 @@ int link_object::init(OBJECT *parent)
 	// KML support
 	set_latitude((from->latitude+to->latitude)/2);
 	set_longitude((from->longitude+to->longitude)/2);
+
+	// check violation_rating
+	if ( violation_rating < 0.0 )
+	{
+		error("negative violation_rating is not valid");
+		return 0;
+	}
+	else if ( violation_rating == 0 )
+	{
+		violation_rating = default_violation_rating;
+	}
 
 	return 1;
 }
@@ -2975,6 +2915,8 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 	//Set it to zero
 	temp_power_check = 0.0;
 
+	clear_violation();
+	
 	//Check to see if limits need to be checked
 	if ((use_link_limits==true) && (check_link_limits==true))
 	{
@@ -4997,7 +4939,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 	FUNCTIONADDR funadd = NULL;
 	double *Recloser_Counts;
 	double type_fault = 0.0;
-	bool switch_val;
 	complex C_mat[7][7];
 	int64 pf_resultval;
 	bool pf_badcompute;
@@ -5018,9 +4959,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 		}
 		C_mat[0][0]=C_mat[1][1]=C_mat[2][2]=complex(1,0);
 		
-		//Default switch_val - special case
-		switch_val = false;
-
 		//Protective device set to NULL (should already be this way, but just in case)
 		*protect_obj = NULL;
 
@@ -6689,9 +6627,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//End three-phase occurance
 			}//end of normal reliability mode
 
-			//Flag as special case
-			switch_val = true;
-
 		}//End switches
 		else if ((fault_type[0] == 'F') && (fault_type[1] == 'U') && (fault_type[2] == 'S') && (fault_type[3] == '-') && (fault_type[5] == '\0'))	//Single phase fuse fault
 		{
@@ -7955,9 +7890,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 
 		C_mat[0][0]=C_mat[1][1]=C_mat[2][2]=complex(1,0);
 		
-		//Default switch_val - special case
-		switch_val = false;
-
 		//Protective device set to NULL (should already be this way, but just in case)
 		*protect_obj = NULL;
 
@@ -9359,9 +9291,6 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 
 				phase_remove = temp_phases;	//Flag phase removing
 			}//End three-phase occurance
-
-			//Flag as special case
-			switch_val = true;
 
 		}//End switches
 		else if ((fault_type[0] == 'F') && (fault_type[1] == 'U') && (fault_type[2] == 'S') && (fault_type[3] == '-') && (fault_type[5] == '\0'))	//Single phase fuse fault
@@ -10834,14 +10763,10 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 	OBJECT *objhdr = THISOBJECTHDR;
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
-	bool switch_val;
 
 	//Check our operations mode
 	if (meshed_fault_checking_enabled == false)	//Normal mode
 	{
-		//Set up default switch variable - used to indicate special cases
-		switch_val = false;
-
 		//Link up recloser counts for manipulation
 		// Recloser_Counts = (double *)Extra_Data;
 
@@ -11014,7 +10939,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'A';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x04;	//Put A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 19:	//SW-B
 				imp_fault_name[0] = 'S';
@@ -11023,7 +10947,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'B';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x02;	//Put B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 20:	//SW-C
 				imp_fault_name[0] = 'S';
@@ -11032,7 +10955,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'C';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x01;	//Put C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 21:	//SW-AB
 				imp_fault_name[0] = 'S';
@@ -11042,7 +10964,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'B';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x06;	//Put A and B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 22:	//SW-BC
 				imp_fault_name[0] = 'S';
@@ -11052,7 +10973,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'C';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x03;	//Put B and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 23:	//SW-CA
 				imp_fault_name[0] = 'S';
@@ -11062,7 +10982,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'A';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x05;	//Put C and A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 24:	//SW-ABC
 				imp_fault_name[0] = 'S';
@@ -11073,7 +10992,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[5] = 'C';
 				imp_fault_name[6] = '\0';
 				phase_restore = 0x07;	//Put A, B, and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 25:	//FUS-A
 				imp_fault_name[0] = 'F';
@@ -11850,9 +11768,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 	}//End "normal" operations mode
 	else	//Must be crazy mesh checking mode
 	{
-		//Set up default switch variable - used to indicate special cases
-		switch_val = false;
-
 		//Link up recloser counts for manipulation
 		// Recloser_Counts = (double *)Extra_Data;
 
@@ -12025,7 +11940,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'A';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x04;	//Put A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 19:	//SW-B
 				imp_fault_name[0] = 'S';
@@ -12034,7 +11948,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'B';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x02;	//Put B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 20:	//SW-C
 				imp_fault_name[0] = 'S';
@@ -12043,7 +11956,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[3] = 'C';
 				imp_fault_name[4] = '\0';
 				phase_restore = 0x01;	//Put C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 21:	//SW-AB
 				imp_fault_name[0] = 'S';
@@ -12053,7 +11965,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'B';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x06;	//Put A and B back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 22:	//SW-BC
 				imp_fault_name[0] = 'S';
@@ -12063,7 +11974,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'C';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x03;	//Put B and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 23:	//SW-CA
 				imp_fault_name[0] = 'S';
@@ -12073,7 +11983,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[4] = 'A';
 				imp_fault_name[5] = '\0';
 				phase_restore = 0x05;	//Put C and A back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 24:	//SW-ABC
 				imp_fault_name[0] = 'S';
@@ -12084,7 +11993,6 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 				imp_fault_name[5] = 'C';
 				imp_fault_name[6] = '\0';
 				phase_restore = 0x07;	//Put A, B, and C back in service
-				switch_val = true;		//Flag as a switch action
 				break;
 			case 25:	//FUS-A
 				imp_fault_name[0] = 'F';
@@ -13997,5 +13905,25 @@ void lu_matrix_inverse(complex *input_mat, complex *output_mat, int size_val)
 	gl_free(x_vec);
 }
 
+TIMESTAMP link_object::commit(TIMESTAMP t1, TIMESTAMP t2)
+{
+	gl_debug("checking for %.1f A violation_rating",violation_rating);
+	
+	if ( violation_rating <= 0 )
+		return TS_NEVER;
 
-/**@}*/
+	if ( has_phase(PHASE_A) && read_I_in[0] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase A",read_I_out[0].Mag(), violation_rating);
+	} 
+	if ( has_phase(PHASE_B) && read_I_in[1] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase B",read_I_out[1].Mag(), violation_rating);
+	} 
+	if ( has_phase(PHASE_C) && read_I_in[2] > violation_rating )
+	{
+		add_violation(VF_CURRENT,"line current is %.1f A and exceeds violation rating on phase C",read_I_out[2].Mag(), violation_rating);
+	} 
+
+	return TS_NEVER;
+}

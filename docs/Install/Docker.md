@@ -95,19 +95,25 @@ You can create an image locally with a specific branch (e.g., `develop`) instead
 Firsrt, clone the `https://github.com/slacgismo/gridlabd` and checkout the desired branch (e.g., `develop`). 
 
 ~~~
-bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/src/gridlabd
+bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/opt/gridlabd/src/gridlabd
 ~~~
 
 Then build the image locally: 
 
 ~~~
-bash$ cd /usr/local/src/gridlabd/docker
+bash$ cd /usr/local/opt/gridlabd/src/gridlabd/docker
 bash$ docker build --build-arg "BRANCH=develop" .
 ~~~
 
 # Caveat 
 
-Docker has a known issue on some versions of Linux that if your system goes to sleep while the daemon is running. After your system wakes up, containers may run a lot slower.  The only known solution at this time is to restart the docker daemon. See [SourceForge Forum](https://sourceforge.net/p/gridlab-d/discussion/842561/thread/ef4a34cb98) for details.
+Docker has a known issue on some versions of Linux running on Macs if your system goes to sleep while the daemon is running. After your system wakes up, containers may run a lot slower.  You can fix this problem by adding the following line to the file `/Applications/Docker.app/Contents/Resources/linuxkit/cmdline`:
+
+~~~
+tsc=reliable
+~~~
+
+See [SourceForge Forum](https://sourceforge.net/p/gridlab-d/discussion/842561/thread/ef4a34cb98) for details.
 
 # See also
 

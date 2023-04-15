@@ -1,0 +1,28 @@
+module assert;
+
+#ifexist "../table2glm_input.csv"
+#define DIR=..
+#endif
+
+clock 
+{
+	starttime "2019-01-01 00:00:00";
+	stoptime "2020-01-01 00:00:00";
+}
+
+module powerflow;
+module climate;
+
+#input "${DIR:-.}/table2glm_input.csv" -f "table" -t "object" -C "powerflow.node"
+
+object assert {
+	parent "weather";
+	target "wind_speed";
+	value "+4 m/s";
+}
+
+object assert {
+	parent "weather";
+	target "temperature";
+	value 95 degF;
+}

@@ -5,14 +5,14 @@
 GLM:
 
 ~~~
-#set tmp=/Users/slacgismo/.gridlabd/tmp
+#set tmp=${HOME}/.gridlabd/tmp
 ~~~
 
 Shell:
 
 ~~~
-bash$ gridlabd -D tmp=/Users/slacgismo/.gridlabd/tmp
-bash$ gridlabd --define tmp=/Users/slacgismo/.gridlabd/tmp
+bash$ gridlabd -D tmp=$HOME/.gridlabd/tmp
+bash$ gridlabd --define tmp=$HOME/.gridlabd/tmp
 ~~~
 
 # Description
@@ -22,5 +22,5 @@ Temporary folder name
 # Example
 
 ~~~
-#set tmp=/Users/slacgismo/.gridlabd/tmp
+#set tmp=${HOME}/.gridlabd/tmp
 ~~~

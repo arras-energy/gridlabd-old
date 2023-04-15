@@ -233,7 +233,7 @@ static int player_open(OBJECT *obj)
 	if (strcmp(fname,"")==0)
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
+		snprintf(fname,sizeof(fname)-1,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
 
 	/* if type is file or file is stdin */
 	tf = get_ftable(my->mode);
@@ -335,7 +335,7 @@ Retry:
 	}
 	if ( my->target == NULL )
 	{
-		gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
+		gl_error("sync_player(obj='%s' <%s:%d>): Unable to find property \"%s\" in object %s", obj->name?obj->name:"(anon)",obj->oclass->name,obj->id,(char*)(my->property), obj->parent?(obj->parent->name?obj->parent->name:"(unnamed)"):"(no parent)");
 		my->status = TS_ERROR;
 	}
 	result = my->ops->read(my, buffer, sizeof(buffer));

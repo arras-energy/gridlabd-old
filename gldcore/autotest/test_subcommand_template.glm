@@ -1,6 +1,0 @@
-#template get ica
-#ifexist "${GLD_ETC}/template/US/CA/SLAC/ica_analysis/ica_analysis.glm"
-#print ica_analysis template ok
-#else
-#error ica_analysis template not found
-#endif

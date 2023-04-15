@@ -1,0 +1,218 @@
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+
+"""gridlabd-compare subcommand
+"""
+
+import sys, getopt
+import json
+
+# options
+class config:
+    """Configuration options
+    """
+    verbose = False # enumerate individual differences
+    quiet = False # do not list files that differ
+    glm = False # list changes using GLM syntax
+    include = {} # list of comparison to include
+    exclude = {} # list of comparison to exclude
+
+def help():
+    """Obtain command line help information
+    """
+    print("""Syntax: gridlabd compare [OPTIONS] FILE1 FILE2
+Options:
+    -g|--glm        output differences are GLM modify commands (implies verbose)
+    -h|--help       obtain this help
+    -q|--quiet      do not write any output (only use exit code)
+    -v|--verbose    output individual differences
+
+Contraints:
+    -O|--object     object constraint
+
+    All constraints limit comparisons to those that are included in the
+    constraint, e.g., "object=name*" will only compare objects starting with
+    "name", and "object=A*,B*" will only compare objects having names starting A
+    or B.  When multiple groups are specified, the comparison must match all. If
+    the value is preceeded by a hyphen, the group is excluded from the comparison.
+    Note that inclusion starts with all objects being excluded and exclusion
+    starts with all objects being included. Therefore the two constraints cannot
+    be mixed.   """)
+
+def perror(msg,exit=None):
+    """Print an error message
+
+    Error messages are suppressed by the quiet option
+    """
+    if not config.quiet:
+        print(f'ERROR [compare]: {msg}',file=sys.stderr)
+    if exit:
+        sys.exit(exit)
+
+def pwarning(msg,exit=None):
+    """Print a warning message
+
+    Warning messages are suppressed by the quiet option
+    """
+    if not config.quiet:
+        print(f'WARNING [compare]: {msg}',file=sys.stderr)
+    if exit:
+        sys.exit(exit)
+
+def poutput(msg):
+    """Print an output message
+
+    Outputs messages are enabled by the verbose option
+    """
+    if config.verbose:
+        print(msg,file=sys.stdout)
+
+def compare(file1,file2):
+    """Compare two files
+    """
+    try:
+        with open(file1) as fh: json1 = json.load(fh)
+        with open(file2) as fh: json2 = json.load(fh)
+    except Exception as err:
+        perror(f'{err}',-2)
+
+    object_list = {}
+    if 'objects' in config.include.keys():
+        if 'objects' in config.exclude.keys():
+            raise Exception("cannot compare both include and exclude objects")
+        if 'object' in config.include:
+            for constraint in config.include['object']:
+                spec = constraint.split('/')
+                if len(spec) == 1:
+                    spec[1] = '*'
+                if len(spec) == 2:
+                    object_list[spec[0]] = spec[1]
+                else:
+                    perror(f'object constraint {constraint} is not valid',-3)
+        else:
+            for name in json1['objects'].keys():
+                object_list[name] = '*'
+    else:
+        for name in json1['objects'].keys():
+            object_list[name] = '*'
+        if 'objects' in config.exclude.keys():
+            for name in config.exclude['object'].keys():
+                if name in object_list:
+                    object_list.remove(name)
+    diffs = compare_json(json1,json2,object_list)
+
+    if config.glm:
+        poutput(f'// compare {file1} -> {file2}')
+        for diff in diffs:
+            if diff[0] == '+':
+                spec = diff[1:].split('=')
+                if len(spec) == 2:
+                    poutput(f'modify {spec[0]}={spec[1]};')
+                else:
+                    spec = diff[1:].split('@')
+                    if len(spec) == 2:
+                        poutput(f'object {spec[1]}')
+                        poutput('{')
+                        poutput(f'\tname "{spec[0]}"')
+                        poutput('}')
+            elif diff[0] == '-':
+                spec = diff[1:].split('@')
+                if len(spec) == 2:
+                    poutput(f'#warning delete {spec[0]};')
+                else:
+                    spec = diff[1:].split('=')
+                    if len(spec) == 2:
+                        poutput(f'// reset {spec[0]};')
+    elif config.verbose:
+        poutput(f'# compare {file1} -> {file2}')
+        for diff in diffs:
+            poutput(f'# {diff}')
+    return len(diffs)
+
+def compare_json(file1,file2,object_list):
+    result = []
+    objects1 = file1['objects']
+    objects2 = file2['objects']
+    for name,properties in objects1.items():
+        if name in object_list.keys():
+            for propname,value in properties.items():
+                if name in objects2.keys():
+                    objdata = objects2[name]
+                    found = ( propname in objdata.keys() )
+                    same = ( found and objdata[propname] == value )
+                    if found and not same:
+                        result.append(f'+{name}.{propname}={objdata[propname]}')
+                    elif not found or not same: 
+                        result.append(f'-{name}.{propname}={value}')
+                else:
+                    result.append(f'+{name}')
+                    for propname,value in properties.items():
+                        result.append(f'-{name}.{propname}={value}')
+    for name,properties in objects2.items():
+        if name in object_list.keys():
+            for propname,value in properties.items():
+                if name in objects1.keys():
+                    objdata = objects1[name]
+                    found = ( propname in objdata.keys() )
+                    same = ( found and objdata[propname] == value )
+                    if found and not same:
+                        result.append(f'-{name}.{propname}={objdata[propname]}')
+                    elif not found or not same: 
+                        result.append(f'+{name}.{propname}={value}')
+                else:
+                    result.append(f'+{name}@{properties["class"]}')
+    return sorted(list(set(result)), key=lambda x: x[1:])
+
+def constrain(type=None,value=None):
+    """Constrain what is compared
+    """
+    if value[0] == '-': # exclude
+        if config.include:
+            perror("ignoring exclude after including")
+        config.exclude[type] = value[1:].split(',')
+    else: # include
+        if config.exclude:
+            perror("ignoring include after excluding ")
+        config.include[type] = value.split(',')
+    return
+
+def main():
+    opts,args = getopt.getopt(sys.argv[1:],'ghqvO:',
+        ['glm','help','quiet','verbose','object='])
+
+    if ( not opts and not args ) or sys.argv[1] == 'help':
+        help()
+        sys.exit(-1)
+
+    for opt,arg in opts:
+        if opt in ('-g','--glm'):
+            config.glm = True
+            config.verbose = True
+        elif opt in ('-h','--help'):
+            help()
+            sys.exit(0)
+        elif opt in ('-q','--quiet'):
+            config.quiet = True
+        elif opt in ('-v','--verbose'):
+            config.verbose = True
+        elif opt in ('-O','--object'):
+            constrain('object',arg)
+        else:
+            perror(f'{opt} is an invalid option',exit=-1)
+
+    if len(args) > 1:
+        file1 = args[0]
+        diff = 0
+        for file2 in args[1:]:
+            diff += compare(file1,file2)
+        return diff
+    else:
+        perror('missing file')
+
+if __name__ == "__main__":
+    count = main()
+    if count > 127:
+        exit(127)
+    else:
+        exit(count)

@@ -1,0 +1,118 @@
+''':'
+exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+:' '''
+
+"""General GridLAB-D file format converter for command line and macro usage.
+"""
+import sys, os
+import importlib
+from importlib import util
+
+MODPATH = os.getenv("GLD_ETC")
+if not MODPATH:
+	MODPATH = "/usr/local/share/gridlabd"
+
+INPUTFILE = None
+OUTPUTFILE = None
+INPUTTYPE = None
+OUTPUTTYPE = None
+OPTIONS = {}
+VERBOSE = False
+DEBUG = False
+
+E_OK = 0
+E_SYNTAX = 1
+E_MISSING = 2
+E_EXCEPTION = 3
+def error(msg,exitcode=None):
+	print(f"ERROR [gridlabd-convert]: {msg}")
+	if not exitcode is None:
+		exit(exitcode)
+
+def verbose(msg):
+	if VERBOSE:
+		print(f"VERBOSE [gridlabd-convert]: {msg}")
+
+SYNTAX = "Syntax: gridlabd convert [[-i|--input] FILE1] [[-o|--output] FILE2] [-v|--verbose] [-d|--debug] [-f|--from TYPE1] [-t|--to TYPE2] [OPTIONS]"
+if len(sys.argv) == 1:
+	print(SYNTAX)
+	exit(1)
+n = 1
+while n < len(sys.argv):
+	if sys.argv[n] in ['-h','--help',"help"]:
+		if n+1 < len(sys.argv):
+			modname = f'{MODPATH}/{sys.argv[n+1]}.py'
+			if os.path.exists(modname):
+				verbose(f"loading '{modname}'")
+				# modspec = util.spec_from_file_location({modname.split('2')[1]}, modname)
+				mod = importlib.import_module(f'{sys.argv[n+1]}')
+				print(mod.__doc__)
+			else:
+				error(f"{modname} not found",E_MISSING)
+		else:
+			print(SYNTAX)
+		exit(0)
+	elif sys.argv[n] in ['-v','--verbose']:
+		VERBOSE = True
+	elif sys.argv[n] in ['-d','--debug']:
+		DEBUG = True
+	elif sys.argv[n] in ['-f','--from']:
+		n += 1
+		try:
+			INPUTTYPE = sys.argv[n]
+		except:
+			error("missing input file type",E_MISSING)
+	elif sys.argv[n] in ['-t','--to']:
+		n += 1
+		try:
+			OUTPUTTYPE = sys.argv[n]
+		except:
+			error("missing output file type",E_MISSING)
+	elif sys.argv[n] in ['-i','--input']:
+		n +=1 
+		try:
+			INPUTFILE = sys.argv[n]
+		except:
+			error("missing input file name",E_MISSING)
+	elif sys.argv[n] in ['-o','--output']:
+		n +=1 
+		try:
+			OUTPUTFILE = sys.argv[n]
+		except:
+			error("missing output file name",E_MISSING)
+	elif not INPUTFILE:
+		INPUTFILE = sys.argv[n]
+	elif not OUTPUTFILE:
+		OUTPUTFILE = sys.argv[n]
+	else:
+		specs = sys.argv[n].split('=')
+		if len(specs) == 1:
+			OPTIONS[specs[0]] = None
+		else:
+			OPTIONS[specs[0]] = '='.join(specs[1:])
+	n += 1
+
+if not INPUTFILE:
+	INPUTFILE = "/dev/stdin"
+elif not INPUTTYPE:
+	INPUTTYPE = os.path.splitext(INPUTFILE)[1][1:]
+if not OUTPUTFILE:
+	OUTPUTFILE = "/dev/stdout"
+elif not OUTPUTTYPE:
+	OUTPUTTYPE = os.path.splitext(OUTPUTFILE)[1][1:]
+
+modname = f'{MODPATH}/{INPUTTYPE}2{OUTPUTTYPE}.py'
+if os.path.exists(modname):
+	verbose(f"loading '{modname}'")
+	mod = importlib.import_module(f'{INPUTTYPE}2{OUTPUTTYPE}')
+	verbose(f"calling {modname}.convert({INPUTFILE.__repr__()},{OUTPUTFILE.__repr__()},{OPTIONS.__repr__()})")
+	try:
+		mod.convert(INPUTFILE,OUTPUTFILE,OPTIONS)
+	except Exception as err:
+		if DEBUG:
+			raise
+		else:
+			error(err,E_EXCEPTION)
+else:
+	error(f"{modname} not found")
+
