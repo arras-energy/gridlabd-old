@@ -1,0 +1,4 @@
+modify load1.phases "ABC";
+modify load1.nominal_voltage "120 V";
+modify load1.constant_power_A "10";
+modify load1.constant_power_B "8";
