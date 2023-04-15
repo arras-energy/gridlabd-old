@@ -27,7 +27,7 @@ jobs:
       run: |
         autoreconf -isf
         ./configure
-        make -j(($(nproc)*3)) system
+        make -j$(($(nproc)*3)) system
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
