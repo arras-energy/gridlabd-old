@@ -89,7 +89,9 @@ double node::default_overvoltage_violation_threshold = 0.00;
 double node::default_undervoltage_violation_threshold = 0.00;
 double node::default_voltage_fluctuation_threshold = 0.03;
 OBJECT* *node::DER_objectlist = NULL;
+unsigned int *node::DER_buslist = NULL;
 unsigned int node::DER_nodecount = 0;
+unsigned int node::DER_buscount = 0;
 enumeration node::DER_violation_test = DVT_ANY;
 
 node::node(MODULE *mod) : powerflow_object(mod)
@@ -511,6 +513,9 @@ int node::create(void)
 	//Multi-island tracking
 	reset_island_state = false;	//Reset is disabled, by default
 
+	undervoltage_violation_threshold = default_undervoltage_violation_threshold;
+	overvoltage_violation_threshold = default_overvoltage_violation_threshold;
+
 	return result;
 }
 
@@ -771,7 +776,8 @@ int node::init(OBJECT *parent)
 				{	//Essentially a replication of the no-phase section with more check
 					if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | ((obj->parent->parent!=NR_swing_bus) && (obj->parent->parent!=NULL)))	//Our parent is another child
 					{
-						GL_THROW("NR: Grandchildren are not supported at this time!");
+						obj->parent = obj->parent->parent;
+						warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
 						/*  TROUBLESHOOT
 						Parent-child connections in Newton-Raphson may not go more than one level deep.  Grandchildren
 						(a node parented to a node parented to a node) are unsupported at this time.  Please rearrange your
@@ -857,7 +863,8 @@ int node::init(OBJECT *parent)
 			{
 				if ((parNode->SubNode==CHILD) | (parNode->SubNode==DIFF_CHILD) | (obj->parent->parent!=NULL))	//Our parent is another child
 				{
-					GL_THROW("NR: Grandchildren are not supported at this time!");
+					warning("grandchildren objects are not supported, changing parent to %s:%d (%s) -- this might not be what you want",obj->parent->oclass->name,obj->parent->id,obj->parent->name ? obj->parent->name : "unnamed");
+					obj->parent = obj->parent->parent;
 					//Defined above
 				}
 				else	//Our parent is unchilded (or has the swing bus as a parent)
@@ -1439,21 +1446,9 @@ int node::init(OBJECT *parent)
 	{
 		voltage_violation_threshold = 0.0;
 	}
-	if ( undervoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
+	if ( undervoltage_violation_threshold > overvoltage_violation_threshold ) // this is not good
 	{
-		undervoltage_violation_threshold = default_undervoltage_violation_threshold;
-	}
-	else if ( undervoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		undervoltage_violation_threshold = 0.0;
-	}
-	if ( overvoltage_violation_threshold == 0.0 ) // 0.0 --> use global default threshold
-	{
-		overvoltage_violation_threshold = default_overvoltage_violation_threshold;
-	}
-	else if ( overvoltage_violation_threshold < 0.0 ) // <0.0 --> disable threshold
-	{
-		overvoltage_violation_threshold = 0.0;
+		warning("undervoltage_violation_threshold is greater than overvoltage_violation_threshold");
 	}
 	if ( voltage_fluctuation_threshold == 0.0 ) // 0.0 --> use global default threshold
 	{
@@ -2856,7 +2851,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					NR_retval=t1;
 
 				// process DER voltage fluctuations
-				if ( DER_objectlist != NULL )
+				if ( DER_objectlist != NULL && NR_retval == t1 )
 				{
 					debug("starting DER voltage fluctuation checks...");
 
@@ -2877,8 +2872,41 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 					}
 
 					// process every bus looking for DER to apply
-					for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )
+					if ( DER_buslist == NULL )
 					{
+						// first count the busses we need to check
+						DER_buscount = 0;
+						for ( unsigned int der = 0 ; der < NR_bus_count ; der++ )
+						{
+							BUSDATA *der_bus = NR_busdata + der;
+							node *der_data = OBJECTDATA(der_bus->obj,node);
+							if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
+								continue; // ignore child nodes because they're already included in parent node DER_value
+							if ( der_data->DER_value.r != 0.0 || der_data->DER_value.i != 0.0 )
+							{
+								DER_buscount++;
+							}
+						}
+
+						// then build the bus list
+						DER_buslist = new unsigned int[DER_buscount];
+						for ( unsigned int der = 0, ndx = 0 ; der < NR_bus_count ; der++ )
+						{
+							BUSDATA *der_bus = NR_busdata + der;
+							node *der_data = OBJECTDATA(der_bus->obj,node);
+							if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )
+								continue; // ignore child nodes because they're already included in parent node DER_value
+							if ( der_data->DER_value.r != 0.0 || der_data->DER_value.i != 0.0 )
+							{
+								DER_buslist[ndx++] = der;
+							}
+						}
+					}
+
+					// process every bus looking for DER to apply
+					for ( unsigned int ndx = 0 ; ndx < DER_buscount ; ndx++ )
+					{
+						unsigned int der = DER_buslist[ndx];
 						BUSDATA *der_bus = NR_busdata + der;
 						node *der_data = OBJECTDATA(der_bus->obj,node);
 						if ( der_bus->obj->parent != NULL && gl_object_isa(der_bus->obj->parent,"node") )

@@ -153,7 +153,7 @@ public:
 	inline bool is_contact_any(set ph=PHASE_INFO) const { return (condition&OC_CONTACT)!=0 && (condition&ph)!=0;};
 #endif
 	/* get_name acquires the name of an object or 'unnamed' if non set */
-	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
+	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(snprintf(tmp,sizeof(tmp)-1,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
 	
 	/* get_id acquires the object's id */
 	inline unsigned int get_id(void) const {return THISOBJECTHDR->id;};

@@ -407,7 +407,7 @@ EXPORT void *init_pf_reliability_extra(OBJECT *myhdr, OBJECT *callhdr)
 }
 
 //Exposed function for extra reliability log file information
-EXPORT int logfile_extra(OBJECT *myhdr, char *BufferArray)
+EXPORT int logfile_extra(OBJECT *myhdr, char *BufferArray, size_t len)
 {
 	double time_interval_val;
 
@@ -420,17 +420,17 @@ EXPORT int logfile_extra(OBJECT *myhdr, char *BufferArray)
 
 	//See what it is and print appropriately
 	if (time_interval_val == 1.0)	//Seconds
-		sprintf(BufferArray,"1366 metrics based around 1-second base (outage-seconds)\n\n");
+		snprintf(BufferArray,len-1,"1366 metrics based around 1-second base (outage-seconds)\n\n");
 	else if (time_interval_val == 60.0)	//Minutes
-		sprintf(BufferArray,"1366 metrics based around 1-minute base (outage-minutes)\n\n");
+		snprintf(BufferArray,len-1,"1366 metrics based around 1-minute base (outage-minutes)\n\n");
 	else if (time_interval_val == 3600.0)	//Hours
-		sprintf(BufferArray,"1366 metrics based around 1-hour base (outage-hours)\n\n");
+		snprintf(BufferArray,len-1,"1366 metrics based around 1-hour base (outage-hours)\n\n");
 	else if (time_interval_val == 86400.0)	//Days
-		sprintf(BufferArray,"1366 metrics based around 1-day base (outage-days)\n\n");
+		snprintf(BufferArray,len-1,"1366 metrics based around 1-day base (outage-days)\n\n");
 	else if (time_interval_val == 31536000.0)	//Years
-		sprintf(BufferArray,"1366 metrics based around 1-year base (outage-years)\n\n");
+		snprintf(BufferArray,len-1,"1366 metrics based around 1-year base (outage-years)\n\n");
 	else	//Some "odd" interval - represent in seconds
-		sprintf(BufferArray,"1366 metrics uses time base of %.0f seconds\n\n",time_interval_val);
+		snprintf(BufferArray,len-1,"1366 metrics uses time base of %.0f seconds\n\n",time_interval_val);
 
 	return 1;	//Always succeeds
 }

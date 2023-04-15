@@ -173,7 +173,7 @@ static PyObject *gridlabd_copyright(PyObject *self, PyObject *args)
         PACKAGE_NAME " " PACKAGE_VERSION "\n"
         "\n"
         "Copyright (C) 2008-2017, Battelle Memorial Institute.\n"
-        "Copyright (C) 2016-2019, The Board of Trustees of the Leland Stanford Junior University.\n"
+        "Copyright (C) 2016-2022, The Board of Trustees of the Leland Stanford Junior University.\n"
         "All Rights Reserved.\n"
          "For additional information, see http://www.gridlabd.us/.\n");
 }
@@ -1419,7 +1419,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
     PyDict_SetItemString(data,"rng_state",(unsigned long long)(obj->rng_state));
     PyDict_SetItemString(data,"heartbeat",(unsigned long long)(obj->heartbeat));
-    snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->guid[0]);
+    snprintf(buffer,sizeof(buffer),"%llx%llx",(unsigned long long)obj->guid[0],(unsigned long long)obj->guid[1]);
     PyDict_SetItemString(data,"guid",buffer);
 
     ReadLock rlock;
@@ -1875,7 +1875,7 @@ extern "C" bool on_init(void)
         PyObject *call = PyList_GetItem(python_init,n);
         if ( PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *arg = Py_BuildValue("(K)",global_clock);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -1912,7 +1912,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_precommit,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *arg = Py_BuildValue("(K)",t0);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -1959,7 +1959,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_presync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *arg = Py_BuildValue("(K)",t0);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -2005,7 +2005,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_sync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *arg = Py_BuildValue("(K)",t0);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -2051,7 +2051,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_postsync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *arg = Py_BuildValue("(K)",t0);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -2096,7 +2096,7 @@ extern "C" bool on_commit(TIMESTAMP t)
         PyObject *call = PyList_GetItem(python_commit,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",t);
+            PyObject *arg = Py_BuildValue("(K)",t);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -2130,7 +2130,7 @@ extern "C" void on_term(void)
         PyObject *call = PyList_GetItem(python_term,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *arg = Py_BuildValue("(K)",global_clock);
             PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
@@ -2203,7 +2203,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 sprintf(name,"%s:%d", obj->oclass->name, obj->id);
             }
-            PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
+            PyObject *args = Py_BuildValue("(sK)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyObject_Call(call,args,NULL);
             Py_DECREF(args);
             if ( p_retval != NULL )

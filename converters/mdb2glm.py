@@ -1,3 +1,42 @@
+"""
+
+[[/Converters/Import/Mdb_files]] -- MDB file import converters
+
+# Synopsis
+
+Shell:
+~~~
+$ gridlabd [-D mdb_load_options='-t TYPE [OPTIONS ...]] FILENAME.mdb ...
+~~~
+
+GLM:
+
+~~~
+#input "filename.mdb" [-t <type> [options]]
+~~~
+
+# Description
+
+There are many different types of MDB files that can be imported. Each is documented separately according to the type of data it delivers to the GLM loader.
+
+By default the all tables contained in the MDB file are extracted into CSV files in the working folder.
+
+## Import types
+
+### `-t CYME [OPTIONS ...]`
+
+CYME databases can be converted to GLM using the `-t cyme` option.  Additional options can be provided as a python dictionary, e.g., `{'name':'value',...}` and to define GLM global variables.
+
+# Caveat
+
+The `MDB` converters require the `mdbtools` be installed on the host system.
+
+# See also
+
+* [[/Converters/Input/Csv_files]]
+
+"""
+
 import json 
 import os 
 import sys, getopt
@@ -78,13 +117,11 @@ if output_type:
 
 modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm{output_type}.py")
 if os.path.exists(modname):
-
     util.spec_from_file_location(input_type, modname)
     mod = importlib.import_module(f"mdb-{input_type}2glm{output_type}")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
     mod.convert(input_name,output_name,options)
-
 else:
 
     print(f"ERROR    [mdb2glm.py]: type '{input_type}' is not valid -- {modname} not found");

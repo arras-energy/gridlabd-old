@@ -396,7 +396,7 @@ inline DEPRECATED void GL_THROW(const char *format, ...)
 	static char buffer[1024];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(buffer,format,ptr);
+	vsnprintf(buffer,sizeof(buffer)-1,format,ptr);
 	va_end(ptr);
 	throw (const char*) buffer;
 }
@@ -1393,9 +1393,9 @@ inline DEPRECATED char* gl_name(OBJECT *my, char *buffer, size_t size)
 	char temp[256];
 	if(my == NULL || buffer == NULL) return NULL;
 	if (my->name==NULL)
-		sprintf(temp,"%s:%d", my->oclass->name, my->id);
+		snprintf(temp,sizeof(temp)-1,"%s:%d", my->oclass->name, my->id);
 	else
-		sprintf(temp,"%s", my->name);
+		snprintf(temp,sizeof(temp)-1,"%s", my->name);
 	if(size < strlen(temp))
 		return NULL;
 	strcpy(buffer, temp);
@@ -2453,13 +2453,13 @@ public:
 
 	// Method: set_unit
 	// Change the unit
-	inline bool set_unit(char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
+	inline bool set_unit(const char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
 
 public: 
 
 	// Method: convert
 	// Convert a value to another named or derived unit
-	inline bool convert(char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
+	inline bool convert(const char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
 	
 	// Method: convert
 	// Convert a value to another UNIT
@@ -2662,8 +2662,8 @@ public:
 	inline char get_##X(size_t n) { gld_rlock _lock(my()); return X[n]; }; \
 	inline char get_##X(size_t n, gld_rlock&) { return X[n]; }; \
 	inline char get_##X(size_t n, gld_wlock&) { return X[n]; }; \
-	inline void set_##X(char *p) { gld_wlock _lock(my()); strncpy(X,p,sizeof(X)); }; \
-	inline void set_##X(char *p, gld_wlock&) { strncpy(X,p,sizeof(X)); }; \
+	inline void set_##X(const char *p) { gld_wlock _lock(my()); strncpy(X,p,sizeof(X)); }; \
+	inline void set_##X(const char *p, gld_wlock&) { strncpy(X,p,sizeof(X)); }; \
 	inline void set_##X(size_t n, char c) { gld_wlock _lock(my()); X[n]=c; }; \
 	inline void set_##X(size_t n, char c, gld_wlock&) { X[n]=c; };  \
 
@@ -2807,7 +2807,7 @@ public:
 	inline TIMESTAMP get_out_svc(void) { return my()->out_svc; };
 
 	// Method: get_name
-	inline const char* get_name(void) { static char _name[sizeof(CLASSNAME)+16]; return my()->name?my()->name:(sprintf(_name,"%s:%d",my()->oclass->name,my()->id),_name); };
+	inline const char* get_name(void) { static char _name[sizeof(CLASSNAME)+16]; return my()->name?my()->name:(snprintf(_name,sizeof(_name)-1,"%s:%d",my()->oclass->name,my()->id),_name); };
 
 	// Method: get_space
 	inline NAMESPACE* get_space(void) { return my()->space; };
@@ -2951,19 +2951,19 @@ public:
 public: 
 
 	// Method: exception
-	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); throw (const char*)buf;};
+	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); throw (const char*)buf;};
 
 	// Method: error
-	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);}}
+	inline void error(const char *msg, ...) { if ( !(my()->flags&OF_QUIET) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_error("%s",buf);}}
 
 	// Method: warning
-	inline void warning(const char *msg, ...) { if ( !(my()->flags&OF_WARNING) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
+	inline void warning(const char *msg, ...) { if ( !(my()->flags&OF_WARNING) ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_warning("%s",buf);}}
 
 	// Method: verbose
-	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
+	inline void verbose(const char *msg, ...) { if ( my()->flags&OF_VERBOSE ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_verbose("%s",buf);}}
 
 	// Method: debug
-	inline void debug(const char *msg, ...) { if ( my()->flags&OF_DEBUG ) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);}}
+	inline void debug(const char *msg, ...) { if ( my()->flags&OF_DEBUG ) { char buf[1024]; va_list ptr; va_start(ptr,msg); snprintf(buf,sizeof(buf)-1,"%s: ",get_name()); size_t len = strlen(buf); vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); va_end(ptr); gl_debug("%s",buf);}}
 
 	// Method: set_defaults
 //	virtual void set_defaults(bool is_template = false); /* this force proper V4 initialization of objects (legacy defaults copy is no longer permitted) */
@@ -3092,7 +3092,7 @@ public:
 			return;
 		} 
 		char1024 vn; 
-		sprintf(vn,"%s::%s",m,n); 
+		snprintf((char*)vn,sizeof(vn)-1,"%s::%s",m,n); 
 		GLOBALVAR *v=callback->global.find(vn); 
 		pstruct.prop= (v?v->prop:NULL);  
 	};
@@ -3246,7 +3246,7 @@ public:
 	inline double get_double(gld_unit&to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_double(char*to)
-	inline double get_double(char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+	inline double get_double(const char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_complex
 	inline complex get_complex(void) { errno=0; if ( pstruct.prop->ptype==PT_complex ) return *(complex*)get_addr(); else return complex(QNAN,QNAN); };
@@ -3342,7 +3342,7 @@ public:
 		va_list ptr;
 		va_start(ptr,format);
 		char buffer[1024];
-		vsprintf(buffer,format,ptr);
+		vsnprintf(buffer,sizeof(buffer)-1,format,ptr);
 		va_end(ptr);
 		return call((const char*)buffer);
 	};
@@ -3389,7 +3389,9 @@ private: // exceptions
 		static char buf[1024]; 
 		va_list ptr; 
 		va_start(ptr,msg); 
-		vsprintf(buf+sprintf(buf,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name),msg,ptr); 
+		snprintf(buf,sizeof(buf)-1,"%s.%s: ",OBJECTDATA(obj,gld_object)->get_name(),pstruct.prop->name);
+		size_t len = strlen(buf);
+		vsnprintf(buf+len,sizeof(buf)-len-1,msg,ptr); 
 		va_end(ptr); 
 		throw (const char*)buf;
 	};
@@ -3584,7 +3586,7 @@ public:
 	inline int apply(void *arg, int (*function)(OBJECT *,void*,int)) { return callback->objlist.apply(list,arg,function);};
 
 	// Method: exception
-	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf,msg,ptr); va_end(ptr); throw (const char*)buf;};
+	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsnprintf(buf,sizeof(buf)-1,msg,ptr); va_end(ptr); throw (const char*)buf;};
 };
 
 #include "http_client.h"
@@ -3877,9 +3879,10 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to implement a load method function of a class when the GridLAB-D class name differs from the C++ class name.
 	See <EXPORT_LOADMETHOD>.
  */
-#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, char *value, size_t len=0) \
+#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, ...) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-	return my->N(value,len); \
+	va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
+	return my->N(value,size); va_end(args); \
 	} else return 0; } \
 	T_CATCHALL(X,loadmethod); }
 
@@ -3895,7 +3898,7 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to declare a method function of a class.
 	See <EXPORT_METHOD_C>.
  */
-#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, char *value, size_t size)
+#define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, ...)
 
 /*	Define: EXPORT_METHOD_C(classname,class,name)
 
@@ -3904,7 +3907,8 @@ int dllkill() { return do_kill(NULL); }
  */
 #define EXPORT_METHOD_C(X,C,N) DECL_METHOD(X,N) \
 		{	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-			return my->N(value,size); \
+			va_list args; va_start(args,obj); char *value = va_arg(args,char*); size_t size = va_arg(args,size_t); \
+			return my->N(value,size); va_end(args); \
 			} else return 0; } \
 			T_CATCHALL(X,method); }
 
@@ -4005,10 +4009,10 @@ private:
 		static char buffer[1024]="";
 		va_list ptr;
 		va_start(ptr,fmt);
-		int len = vsprintf(buffer,fmt,ptr);
+		int len = vsnprintf(buffer,sizeof(buffer)-1,fmt,ptr);
 		va_end(ptr);
 		if ( errno!=0 )
-			sprintf(buffer+len," (%s)", strerror(errno));
+			snprintf(buffer+len,sizeof(buffer)-len-1," (%s)", strerror(errno));
 		throw (const char*)buffer;
 	};
 public:

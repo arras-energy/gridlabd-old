@@ -135,7 +135,7 @@ static int multi_recorder_open(OBJECT *obj)
 	if (strcmp(fname,"")==0)
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
+		snprintf(fname,sizeof(fname)-1,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
 
 	/* open multiple-run input file & temp output file */
 	if(my->type == FT_FILE && my->multifile[0] != 0){
@@ -143,7 +143,7 @@ static int multi_recorder_open(OBJECT *obj)
 			gl_error("multirecorder: transient recorders cannot use multi-run output files");
 			return 0;
 		}
-		sprintf(my->multitempfile, "temp_%s", (char*)(my->file));
+		snprintf(my->multitempfile,sizeof(my->multitempfile), "temp_%s", (char*)(my->file));
 		my->multifp = fopen(my->multitempfile, "w");
 		if(my->multifp == NULL){
 			gl_error("multirecorder: unable to open \'%s\' for multi-run output", (char*)(my->multitempfile));
@@ -197,7 +197,7 @@ static int multi_recorder_open(OBJECT *obj)
 						// verify same target
 						char256 target;
 						if(obj->parent != 0){
-							sprintf(target, "%s %d", obj->parent->oclass->name, obj->parent->id);
+							snprintf(target,sizeof(target)-1, "%s %d", obj->parent->oclass->name, obj->parent->id);
 							if(0 != strncmp(target, data, strlen(data))){
 								gl_error("multirecorder:%i: re-recording target mismatch: was %s, now %s", obj->id, data, (char*)target);
 							}
@@ -256,7 +256,7 @@ static int multi_recorder_open(OBJECT *obj)
 				}
 				// following block matches below
 				while(tprop != NULL){
-					sprintf(shortstr, ",%s(%i)", tprop->name, rep);
+					snprintf(shortstr,sizeof(shortstr)-1, ",%s(%i)", tprop->name, rep);
 					len = (int)strlen(shortstr);
 					if(len > lenmax){
 						gl_error("multirecorder: multi-run recorder output full property list is larger than the buffer, please start a new file!");
@@ -284,7 +284,7 @@ static int multi_recorder_open(OBJECT *obj)
 			i = len;
 			// following block matches above
 			while(tprop != NULL){
-				sprintf(shortstr, ",%s(0)", tprop->name);
+				snprintf(shortstr,sizeof(shortstr)-1, ",%s(0)", tprop->name);
 				len = (int)strlen(shortstr);
 				if(len > lenmax){
 					gl_error("multirecorder: multi-run recorder output full property list is larger than the buffer, please start a new file!");
@@ -405,19 +405,19 @@ static int multi_recorder_open(OBJECT *obj)
 					if(myobj != obj->parent){
 						// need to include target object name in string
 						if(unit != 0){
-							sprintf(my->out_property+offset, "%s%s:%s[%s]", (first ? "" : ","), myobj->name, propstr, (unitstr[0] ? unitstr : unit->name));
+							snprintf(my->out_property+offset,sizeof(my->out_property)-offset, "%s%s:%s[%s]", (first ? "" : ","), myobj->name, propstr, (unitstr[0] ? unitstr : unit->name));
 							offset += strlen(propstr) + (first ? 0 : 1) + 2 + strlen(unitstr[0] ? unitstr : unit->name) + strlen(myobj->name) + 1;
 						} else {
-							sprintf(my->out_property+offset, "%s%s:%s", (first ? "" : ","), myobj->name, propstr);
+							snprintf(my->out_property+offset,sizeof(my->out_property)-offset, "%s%s:%s", (first ? "" : ","), myobj->name, propstr);
 							offset += strlen(propstr) + (first ? 0 : 1 + strlen(myobj->name) + 1);
 						}
 					} else {
 						// parent object, so no explicit object name
 						if(unit != 0){
-							sprintf(my->out_property+offset, "%s%s[%s]", (first ? "" : ","), propstr, (unitstr[0] ? unitstr : unit->name));
+							snprintf(my->out_property+offset,sizeof(my->out_property)-offset, "%s%s[%s]", (first ? "" : ","), propstr, (unitstr[0] ? unitstr : unit->name));
 							offset += strlen(propstr) + (first ? 0 : 1) + 2 + strlen(unitstr[0] ? unitstr : unit->name);
 						} else {
-							sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
+							snprintf(my->out_property+offset,sizeof(my->out_property)-offset, "%s%s", (first ? "" : ","), propstr);
 							offset += strlen(propstr) + (first ? 0 : 1);
 						}
 					}
@@ -431,7 +431,7 @@ static int multi_recorder_open(OBJECT *obj)
 						; // no logic change
 					}
 					// print just the property, regardless of type or explicitly declared property
-					sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
+					snprintf(my->out_property+offset,sizeof(my->out_property)-offset, "%s%s", (first ? "" : ","), propstr);
 					offset += strlen(propstr) + (first ? 0 : 1);
 					first = 0;
 				}
@@ -492,7 +492,7 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 		/* else leave INIT in the buffer */
 	}
 	else
-		sprintf(ts,"%" FMT_INT64 "d", my->last.ts);
+		snprintf(ts,sizeof(ts)-1,"%" FMT_INT64 "d", my->last.ts);
 	if ((my->limit>0 && my->samples > my->limit) /* limit reached */
 		|| write_multi_recorder(my, ts, my->last.value)==0) /* write failed */
 	{
@@ -561,8 +561,13 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 }
 
 #define BLOCKSIZE 1024
-EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
+EXPORT int method_multi_recorder_property(OBJECT *obj, ...)
 {
+	va_list args;
+	va_start(args,obj);
+	char *value = va_arg(args,char*);
+	size_t size = va_arg(args,size_t);
+
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	if ( value == NULL ) // size query
 	{
@@ -614,6 +619,7 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 		strcpy(value,my->property ? my->property : "");
 		return len;
 	}
+	va_end(args);
 }
 
 RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
@@ -790,10 +796,12 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 			// copy value into local value, use fake PROP, feed into gl_get_vaule
 			x = *gl_get_double(r->obj, &(r->prop));
 			x *= r->scale;
-			offset += snprintf(buffer+offset,size-offset-1,"%g",x);
+			snprintf(buffer+offset,size-offset-1,"%g",x);
+			offset = strlen(buffer);
 			if ( my->line_units != LU_NONE && r->prop.unit != NULL )
 			{
-				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+				snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+				offset = strlen(buffer);
 			}
 		} 
 		else if ( r->prop.ptype == PT_complex && ( r->scale != 1.0 || my->line_units == LU_NONE ) )
@@ -801,10 +809,12 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 			// copy value into local value, use fake PROP, feed into gl_get_vaule
 			z = *gl_get_complex(r->obj, &(r->prop));
 			z *= r->scale;
-			offset += snprintf(buffer+offset,size-offset-1,"%g%+g%c",z.Re(),z.Im(),z.Notation());
+			snprintf(buffer+offset,size-offset-1,"%g%+g%c",z.Re(),z.Im(),z.Notation());
+			offset = strlen(buffer);
 			if ( my->line_units != LU_NONE && r->prop.unit != NULL )
 			{
-				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+				snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+				offset = strlen(buffer);
 			}
 		} 
 		else 
@@ -860,11 +870,11 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	{
 		if ( my->property )
 		{
-			sprintf(buffer,"property '%s' contains a reference that was not found", my->property);
+			snprintf(buffer,sizeof(buffer)-1,"property '%s' contains a reference that was not found", my->property);
 		}
 		else
 		{
-			sprintf(buffer,"property reference is missing");
+			snprintf(buffer,sizeof(buffer)-1,"property reference is missing");
 		}
 		close_multi_recorder(my);
 		my->status = TS_ERROR;
@@ -887,7 +897,7 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if(read_multi_properties(my, obj->parent,my->rmap,buffer,sizeof(buffer))==0) // vestigal use of parent
 		{
 			//sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
-			sprintf(buffer,"unable to read a property");
+			snprintf(buffer,sizeof(buffer)-1,"unable to read a property");
 			close_multi_recorder(my);
 			my->status = TS_ERROR;
 		}
@@ -897,7 +907,7 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			if(read_multi_properties(my, obj->parent,my->rmap,buffer,sizeof(buffer))==0)
 			{
 				//sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
-				sprintf(buffer,"unable to read a property");
+				snprintf(buffer,sizeof(buffer)-1,"unable to read a property");
 				close_multi_recorder(my);
 				my->status = TS_ERROR;
 			}
