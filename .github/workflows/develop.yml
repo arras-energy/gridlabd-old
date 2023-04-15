@@ -15,19 +15,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Update python
-      run: python3 -m pip install --upgrade pip
-
     # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
         chown -R $(id -u):$(id -g) $PWD
         
+    - name: Update pip
+      run: python3 -m pip install --upgrade pip
+
     - name: install gridlabd
       run: |
         autoreconf -isf
         ./configure
-        make system
+        make -j(($(nproc)*3)) system
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
