@@ -1,0 +1,47 @@
+// GridLAB-D Module
+#begin python
+import sys
+import gridlabd
+print(gridlabd.title(),file=sys.stderr)
+print(gridlabd.version(),file=sys.stderr)
+print(gridlabd.copyright(),file=sys.stderr)
+gridlabd.warning('a warning message')
+gridlabd.error('an error message')
+#end
+
+// Global access
+#define YEAR=2022
+#define MONTH=07
+clock 
+{
+    timezone "PST+8PDT";
+    starttime "${YEAR}-${MONTH}-01 00:00:00 PDT";
+    stoptime "${YEAR}-${MONTH}-28 00:00:00 PDT";
+}
+
+// Class access
+class example
+{
+    double price[$/MW];
+    double real_power[MW];
+    double power_factor;
+    complex power[MVA];
+    int32 counter;
+    char32 label;
+    enduse load;
+    bool is_ok;
+    timestamp last_change;
+}
+
+// Object Access
+object example
+{
+    name "main";
+    object example:..5
+    {
+        name `sub_{id}`;
+        price random.normal(0,1);
+        real_power random.lognormal(0,1) MW;
+        power_factor random.triangle(0.85,1.0);
+    };
+}

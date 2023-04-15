@@ -3,16 +3,47 @@
 The distance package computes the shortest distance between consecutive
 positions.
 
+INPUT
+
+    id - record id  (see column_names configuration)
+
+    latitude - latitude of record (see column_names configuration)
+
+    longitude - longitude of record  (see column_names configuration)
+
+OUTPUT
+
+    distance - distance from previous record id or first record (see relative option and
+    column_names configuration)
+
 OPTIONS
 
-    "--units=<unit>" specifies the units in which to compute the distance.
-    Valid units are "meters", "m", "kilometers", "km", "miles", "mi",
-    "yards", "yd", "ft", or "feet". The default is "meters".
+    units - units in which distance is measured (default is "meters"). Valid
+    units are "meters", "m", "kilometers", "km", "miles", "mi", "yards", "yd", 
+    "ft", or "feet". The default is "meters".
+
+    relative - boolean value to use last record as distance reference
+    (default is False)
+
+    precision - dictionary of precision options
+
+        distance - decimals with which distance values are delivered (default is 0)    
 
 CONFIGURATION
 
-    "--method=haversine" specifies the method used to calculate distances.
-    The default 'haversine' method calculates great circle distances.
+    method - specifies the method used to calculate distances (default 'haversine').
+    Haversine is the only method currently supported. This method does not account 
+    for the oblate spheroid shape of the earth.
+
+    column_names - dictionary of column names to use
+
+        LAT - latitude column name (default "latitude")
+
+        LON - longitude column name (default "longitude")
+
+        ID - record id column name (default "id")
+
+        DIST - distance column name (default "distance")
 """
 
 version = 1 # specify API version

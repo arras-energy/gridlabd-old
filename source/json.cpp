@@ -114,6 +114,7 @@ int GldJsonWriter::write(const char *fmt,...)
 
 #define FIRST(N,F,V) (len += write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
 #define TUPLE(N,F,V) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
+#define TUPLE2(N,F,V,W) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V,W))
 
 int GldJsonWriter::write_modules(FILE *fp)
 {
@@ -467,7 +468,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( obj->parent != NULL )
 		{
 			if ( obj->parent->name == NULL )
-				len += write(",\n\t\t\t\"parent\" : \"%s:%d\"",obj->parent->oclass->name,obj->parent->id);
+				TUPLE2("parent","%s:%d",obj->parent->oclass->name,obj->parent->id);
 			else
 				TUPLE("parent","%s",obj->parent->name);
 		}

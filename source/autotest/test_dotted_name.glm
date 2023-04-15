@@ -119,5 +119,5 @@ object house {
 }
 modify four_ought_triplex.rating.summer.emergency "500 A";
 //modify SX3086079B_1_house.panel.breaker_amps "100";
-#on_exit 0 python3 ../check_dotted_name.py
+#on_exit 0 $GLD_BIN/pkgenv/bin/python3 ../check_dotted_name.py
 
