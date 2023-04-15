@@ -10,7 +10,7 @@ Shell:
 
 GLM:
 
-  #define LOCATION=${shell $(bindir)/python3 -m find_location PDX}
+  #define LOCATION=${shell $(bindir)/pkgenv/bin/python3 -m find_location PDX}
 
 Python:
 
