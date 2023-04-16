@@ -246,6 +246,9 @@ def main(inputfile,outputfile,**kwargs):
     for obj, data in glm['objects'].items():
         n = 0
         if data['class'] == 'load':
+            result.append(f"""//
+// modifying {obj}
+//""")
             primary_phases = data['phases']
             nominal_voltage = float(data['nominal_voltage'].split()[0])
             load_components = {
@@ -271,6 +274,7 @@ def main(inputfile,outputfile,**kwargs):
             # add load to each phase with non-zero load components
             for secondary_phases,load in loads.items():
 
+                result.append(f"\n// {data['class']} '{obj}' phase {secondary_phases}")
                 if load.real < 0:
                     warning(f"ignore load '{obj}'' on phase '{secondary_phases}'' with negative net real power ({round(load.real,2):g}{round(load.imag):+g}j); (components={load_components[secondary_phases]})")
                     continue
@@ -280,11 +284,10 @@ def main(inputfile,outputfile,**kwargs):
                 # zero the original load object
                 n_houses = int(load.real/10000/phase_count(primary_phases))+1
                 power_factor = (+1 if load.imag<0 else +1) * round(load.real/abs(load),2)
-                for phase,components in load_components.items():
-                    for component,value in components.items():
-                        if value != 0j:
-                            result.append(f'modify {obj}.constant_{component}_{phase} "0+0i"; // {data["class"]} is {value} -> {n_houses} houses with power factor {power_factor}')
-                
+                for component,value in load_components[secondary_phases].items():
+                    if value != 0j:
+                        result.append(f'modify {obj}.constant_{component}_{secondary_phases} "0+0j"; // converting {data["class"]}: {value} -> {n_houses} houses with power factor {power_factor}')
+            
                 # fix power factor
                 if MIN_POWER_FACTOR < power_factor < MAX_POWER_FACTOR:
                     if FIX_POWER_FACTOR:
