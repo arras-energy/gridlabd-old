@@ -593,8 +593,8 @@ fi
 HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-  [PYTHON_LIB="-L$PYENV/lib -lpython${PYTHON_VERSION} -shared -Wl-undefined,dynamic_lookup"],
-  [PYTHON_LIB="-L$PYENV/lib -lpython${PYTHON_VERSION}"])
+  [PYTHON_LIB="-lpython${PYTHON_VERSION} -shared -Wl-undefined,dynamic_lookup"],
+  [PYTHON_LIB="-lpython${PYTHON_VERSION}"])
 
 if test "x$HAVE_PYTHON" != "xno" ; then
     $PYTHON -m venv "$PYENV"
@@ -620,7 +620,7 @@ AC_MSG_RESULT([
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
-    Python Location: ............ $PYTHON_EXEC
+    Python binary: .............. $PYTHON
 
   Dependencies:
 
@@ -638,6 +638,7 @@ AC_MSG_RESULT([
 
   Build flags:
 
+    CFLAGS: ..................... ${CFLAGS:-(none)}
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
@@ -674,17 +675,12 @@ AC_MSG_RESULT([
 
         $DSTDIR/bin/$PACKAGE version set
 
-    Developer flags:
-    CFLAGS ........ "$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    CXXFLAGS ...... "$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    LDFLAGS ....... "$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
-
 -----------------------------------------------------------------------
 ])
 
-CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-CXXFLAGS="$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-LDFLAGS="$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
+CFLAGS="$($PYTHON-config --cflags) $CFLAGS -D PYTHON_EXEC='\"$PYTHON\"'"
+CXXFLAGS="$($PYTHON-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON\"'"
+LDFLAGS="$($PYTHON-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
