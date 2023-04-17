@@ -82,7 +82,7 @@ int group_recorder::init(OBJECT *obj){
 			gl_error("group_recorder::init(): no filename defined in strict mode");
 			return 0;
 		} else {
-			snprintf(filename,sizeof(filename)-1, "%256s-%256i.csv", oclass->name, obj->id);
+			snprintf(filename,sizeof(filename)-1, "%256s-%16i.csv", oclass->name, obj->id);
 			gl_warning("group_recorder::init(): no filename defined, auto-generating '%s'", filename.get_string());
 			/* TROUBLESHOOT
 				group_recorder requires a filename.  If none is provided, a filename will be generated
