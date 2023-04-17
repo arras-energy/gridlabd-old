@@ -34,5 +34,9 @@ ipython==8.10.0
 ipyplot==1.1.1
 elevation==1.1.2
 ipinfo==4.2.1
+timezonefinder
+address
+geopy
+simplekml
 build
 pyproj
