@@ -3376,7 +3376,7 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	output_warning("forecast_create(): description parsing not implemented");
 
 	/* copy the description */
-	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%*s",(int)(sizeof(fc->specification)-1),specs) < (int)strlen(specs) )
+	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%.*s",(int)(sizeof(fc->specification)-2),specs) < (int)strlen(specs) )
 	{
 		output_warning("forecast_create(obj=<%s:%d>,specs='%32s...'): long output truncated",obj->oclass->name,obj->id,specs);
 	}

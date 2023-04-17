@@ -270,7 +270,7 @@ void logfile_init(const char *value)
 	{
 		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
 	}
-	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-1),buffer);
+	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-2),buffer);
 }
 
 void pidfile_init(const char *value)
@@ -282,7 +282,7 @@ void pidfile_init(const char *value)
 	{
 		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
 	}
-	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-1),buffer);
+	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-2),buffer);
 }
 
 void workdir_init(const char *value)
@@ -294,7 +294,7 @@ void workdir_init(const char *value)
 	{
 		output_warning("workdir_init(value='%s'): long value was truncated to fit in workdir global, ",value);
 	}
-	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-1),buffer);
+	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-2),buffer);
 }
 
 void configpath_init(const char *value)

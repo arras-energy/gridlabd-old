@@ -781,7 +781,7 @@ void GldGui::output_html_table(GUIENTITY *entity)
 		{
 			if ( row==0 )
 			{
-				snprintf(header,sizeof(header)-1,"%.*s",(int)(sizeof(header)-1),line+1);
+				snprintf(header,sizeof(header)-1,"%.*s",(int)(sizeof(header)-2),line+1);
 			}
 		}
 		else 
