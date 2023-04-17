@@ -675,6 +675,9 @@ AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
   [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
   [PYTHON_LIB="-lpython${PYTHON_VER}"])
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
+  [$PYTHON_EXEC -m pip install -q -r requirements.txt]
+  ]
 
 ###############################################################################
 # The End

@@ -49,8 +49,6 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
 
-python_requirements = $(shell find $(top_srcdir) -name requirements.txt -print)
-
 docs_targets =
 
 # required modules
@@ -300,9 +298,9 @@ install-exec-hook: index docs
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
 	@echo ""
 
-python-requirements: $(python_requirements)
+requirements: 
 	@echo "Updating python requirements..."
-	@$(bindir)/pkgenv/bin/python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
+	@$(bindir)/pkgenv/bin/python3 -m pip install -q -r requirements.txt
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
