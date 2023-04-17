@@ -93,7 +93,7 @@ const char * escape(const char *buffer, size_t len)
 			}
 			else
 			{
-				p += sprintf(p,"\\u%04hX", (unsigned short)*c);
+				p += snprintf(p,8,"\\u%04hX", (unsigned short)*c);
 			}
 			break;
 		}
