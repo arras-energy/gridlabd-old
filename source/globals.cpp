@@ -264,29 +264,47 @@ void incdir_init(const char *)
 void logfile_init(const char *value)
 {
 	extern char logfile[1024];
-	snprintf(logfile,sizeof(logfile)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(logfile) )
+	{
+		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
+	}
+	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-1),buffer);
 }
 
 void pidfile_init(const char *value)
 {
 	extern char pidfile[1024];
-	snprintf(pidfile,sizeof(pidfile)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(pidfile) )
+	{
+		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
+	}
+	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-1),buffer);
 }
 
 void workdir_init(const char *value)
 {
 	extern char workdir[1024];
-	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(workdir) )
+	{
+		output_warning("workdir_init(value='%s'): long value was truncated to fit in workdir global, ",value);
+	}
+	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-1),buffer);
 }
 
 void configpath_init(const char *value)
 {
-	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
+	// snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
 }
 
 void pythonexec_init(const char *value)
 {
-	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
+	// snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
 }
 /* Add more derivative directories here */
 

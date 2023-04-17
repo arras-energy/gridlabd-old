@@ -1963,7 +1963,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	}
 	else
 	{
-		char buffer[1024];
+		char buffer[1025];
 		snprintf(buffer,sizeof(buffer)-1,"%lld",global_clock);
 		setenv("CLOCK",buffer,1);
 		snprintf(buffer,sizeof(buffer)-1,"%s",global_hostname);
@@ -2355,7 +2355,10 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 	count = strlen(buffer);
 	if ( count < size && count < sizeof(buffer) )
 	{
-		strncpy(outbuffer, buffer, count+1);
+		if ( snprintf(outbuffer,size-1,"%.*s",int(size-1),buffer) < (int)count )
+		{
+			output_warning("object_dump(obj=<%s:%d>): output truncated",obj->oclass->name,obj->id);
+		}
 		return count;
 	} 
 	else 
@@ -3373,7 +3376,10 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	output_warning("forecast_create(): description parsing not implemented");
 
 	/* copy the description */
-	strncpy(fc->specification,specs,sizeof(fc->specification));
+	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%*s",(int)(sizeof(fc->specification)-1),specs) < (int)strlen(specs) )
+	{
+		output_warning("forecast_create(obj=<%s:%d>,specs='%32s...'): long output truncated",obj->oclass->name,obj->id,specs);
+	}
 
 	return fc;
 }
