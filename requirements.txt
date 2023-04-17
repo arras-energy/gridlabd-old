@@ -1,3 +1,5 @@
+GDAL
+rasterio
 matplotlib==3.3.3
 numpy==1.23.3
 pytz==2020.4
@@ -24,10 +26,9 @@ ipykernel==5.5.5
 geopy>=2.1.0
 timezonefinder==5.2.0
 geocoder>=1.38.1
-metar>=1.19.11
+metar
 boto3>=1.19.11
 control>=0.9.0
-rasterio>=1.2.10
 matplotlib_inline>=0.1.2
 ipython==8.10.0
 ipyplot==1.1.1
