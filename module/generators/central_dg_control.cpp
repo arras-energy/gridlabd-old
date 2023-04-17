@@ -391,7 +391,11 @@ TIMESTAMP central_dg_control::sync(TIMESTAMP t0, TIMESTAMP t1)
 	Q_gen[0] = Q_gen[1] = Q_gen[2] = 0.0;
 	//Calculate the real and reactive power dispatched to the controlled inverters when
 	//no central control is used.
-	
+	for(i = 0; i < inverter_count; i++)
+	{
+		P_disp_3p_no_control += inverter_set[i]->P_Out;
+	}	
+
 	P_gen_solar[0] = P_gen_solar[1] = P_gen_solar[2] = P_gen_solar_3p = 0.0;
 	Q_gen_solar[0] = Q_gen_solar[1] = Q_gen_solar[2] = Q_gen_solar_3p =0.0;
 	//Calculate solar inverter power output for this time step.
