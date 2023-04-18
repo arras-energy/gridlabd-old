@@ -109,15 +109,17 @@ PYBIN=$(PYENV)/bin
 PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
+PYREQS=requirements-$(shell $(top_srcdir)/build-aux/version.sh --sysspec).txt
 
-python-requirements: | $(PYENV)
-	
+python-requirements: | $(PYENV) 
+
 $(PYENV): requirements.txt
 	@echo "Updating python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv $(PYENV)
 	@$(ENVPYTHON) -m pip install --upgrade pip
-	@$(ENVPYTHON) -m pip install -r requirements.txt
+	@$(ENVPYTHON) -m pip install -r requirements.txt 
+	@test -f $(PYREQS) && $(ENVPYTHON) -m pip install -r $(PYREQS)
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk

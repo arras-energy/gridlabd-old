@@ -36,6 +36,15 @@ case $1 in
         echo "$PKG" ;;
     --package-name | -P)
         echo "$NAM" ;;
+    --sysspec )
+        if [ "$(uname -s)" == "Darwin" ]; then
+            echo darwin$(uname -r | cut -f1 -d.)-$(uname -m)
+        elif [ -f "/etc/os-release" ]; then
+            echo $(shell grep ^ID= /etc/os-release | cut -f2 -d= | tr -d '"')$(shell grep ^VERSION_ID= /etc/os-release | cut -f2 -d= | tr -d '"')
+        else
+            echo $(uname -s)$(uname -r)-$(uname -m)
+        fi
+        ;;
     --help | -h)
         echo "Syntax: build-aux/version.sh <option>
 Options:
@@ -47,5 +56,6 @@ Options:
   --package|-p      output package PACKAGE
   --package-name|-P output package name PACKAGE_NAME
   --name|-m         output install name REV_MAJOR.REV_MINOR.REV_PATCH-NUMBER-BRANCH
+  --sysspec         output system specification OSVER-ARCH
   --help|-h         output this help" ;;
 esac
