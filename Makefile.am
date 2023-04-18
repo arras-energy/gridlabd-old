@@ -10,6 +10,13 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
+PYVER = 3.10 # !!! must match version specified in configure.ac
+PYCFLAGS = $(shell python3.10-config --cflags)
+PYLDFLAGS = $(shell python3.10-config --ldflags)
+
+SYSPYTHON = python$(PYVER)
+PYTHONCONFIG = $(SYSPYTHON)-config
+
 AM_INIT_AUTOMAKE = subdir-objects 
 AUTOMAKE_OPTIONS = -Wno-portability
 ACLOCAL_AMFLAGS = -I m4
@@ -18,24 +25,27 @@ CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
 AM_CPPFLAGS = -Wall -fPIC
-AM_CPPFLAGS += -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
+AM_CPPFLAGS += -I$(top_srcdir)/source #-I$(top_srcdir)/build-dir/source
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
+AM_CPPFLAGS += $(PYCFLAGS)
 
 AM_CFLAGS = -Wall
-AM_CFLAGS +=  -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
+AM_CFLAGS +=  -I$(top_srcdir)/source #-I$(top_srcdir)/build-dir/source
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/source
+AM_CFLAGS += $(GLD_CFLAGS)  #-I$(top_srcdir)/build-dir/source
+AM_CFLAGS += $(PYCFLAGS)
 
 AM_CXXFLAGS = -Wall -fPIC
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/source
+AM_CXXFLAGS += $(GLD_CXXFLAGS) #-I$(top_srcdir)/build-dir/source
+AM_CXXFLAGS += $(PYCFLAGS)
 
-AM_LDFLAGS =
+AM_LDFLAGS = $(PYLDFLAGS)
 AM_LDFLAGS += -no-undefined
 AM_LDFLAGS += -module
 AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
-AM_LDFLAGS += $(GLD_LDFLAGS)
+AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
 
 # makefile fragments populate these variables
 BUILT_SOURCES = python-requirements
@@ -302,19 +312,11 @@ install-exec-hook: index docs
 # Python setup
 #
 
-PYVER=3.10 # !!! must match version specified in configure.ac
-
-SYSPYTHON=python$(PYVER)
 PYENV=$(bindir)/pkgenv
 PYBIN=$(PYENV)/bin
 PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include
-PYTHON=$(PYBIN)/python$(PYVER)
-PYTHONCONFIG=$(SYSPYTHON)-config
-AM_LDFLAGS+=-L$(PYLIB)
-AM_CFLAGS+=-I$(PYINC)
-AM_CPPFLAGS+=-I$(PYINC)
-AM_CXXFLAGS+=-I$(PYINC)
+ENVPYTHON=$(PYBIN)/python$(PYVER)
 
 .NOTPARALLEL: python-requirements
 
@@ -324,8 +326,8 @@ $(PYENV): requirements.txt
 	@echo "Updating python requirements..."
 	mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	$(SYSPYTHON) -m venv $(PYENV)
-	$(PYTHON) -m pip install --upgrade pip
-	$(PYTHON) -m pip install -r requirements.txt
+	$(ENVPYTHON) -m pip install --upgrade pip
+	$(ENVPYTHON) -m pip install -r requirements.txt
 
 #
 # Run this after changes that affect build-aux/version.sh output

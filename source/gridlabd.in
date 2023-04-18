@@ -344,11 +344,14 @@ fi
 # Python Configuration Data and Flags
 ###############################################################################
 PY_OS="$(uname -s)"
-PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
 
-HAVE_PYTHON="$($PYTHON_VER_DIR/python3 --version | cut -f2 -d' ')"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
-PYTHON_CONFIG=$(readlink $PYTHON_VER_DIR/python3)-config
+source $bindir/pkgenv/bin/activate
+
+#PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
+
+HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
+#PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
+#PYTHON_CONFIG=$(readlink $PYTHON_VER_DIR/python3)-config
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
