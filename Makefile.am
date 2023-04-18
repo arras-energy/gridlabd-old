@@ -79,6 +79,46 @@ include $(top_srcdir)/modules.mk
 # custom modules (see ./customize)
 include $(top_srcdir)/custom.mk
 
+.NOTPARALLEL: python-requirements install-exec-hook
+
+#
+# Post install report
+#
+
+install-exec-hook: index docs
+	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@echo ""
+	@echo "Install complete. Here are some useful commands now:"
+	@echo ""
+	@echo "To include this version in your command path:"
+	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
+	@echo ""
+	@echo "To run this version directly without using the command path:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd"
+	@echo ""
+	@echo "To make this version the default for all users on this system:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
+	@echo ""
+
+#
+# Python setup
+#
+
+PYENV=$(bindir)/pkgenv
+PYBIN=$(PYENV)/bin
+PYLIB=$(PYENV)/lib
+PYINC=$(PYENV)/include
+ENVPYTHON=$(PYBIN)/python$(PYVER)
+
+python-requirements: $(PYENV)
+	
+$(PYENV): requirements.txt
+	@echo "Updating python requirements..."
+	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
+	@$(SYSPYTHON) -m venv $(PYENV)
+	@$(ENVPYTHON) -m pip install --upgrade pip
+	@$(ENVPYTHON) -m pip install -r requirements.txt
+
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
 
@@ -292,42 +332,6 @@ distclean-local: python-clean
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) $(PWD)/config.status libtool > /dev/null
-
-install-exec-hook: index docs
-	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
-	@echo ""
-	@echo "Install complete. Here are some useful commands now:"
-	@echo ""
-	@echo "To include this version in your command path:"
-	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
-	@echo ""
-	@echo "To run this version directly without using the command path:"
-	@echo "  $(DESTDIR)$(bindir)/gridlabd"
-	@echo ""
-	@echo "To make this version the default for all users on this system:"
-	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
-	@echo ""
-
-#
-# Python setup
-#
-
-PYENV=$(bindir)/pkgenv
-PYBIN=$(PYENV)/bin
-PYLIB=$(PYENV)/lib
-PYINC=$(PYENV)/include
-ENVPYTHON=$(PYBIN)/python$(PYVER)
-
-.NOTPARALLEL: python-requirements
-
-python-requirements: $(PYENV)
-	
-$(PYENV): requirements.txt
-	@echo "Updating python requirements..."
-	mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
-	$(SYSPYTHON) -m venv $(PYENV)
-	$(ENVPYTHON) -m pip install --upgrade pip
-	$(ENVPYTHON) -m pip install -r requirements.txt
 
 #
 # Run this after changes that affect build-aux/version.sh output
