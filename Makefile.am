@@ -38,7 +38,7 @@ AM_LDFLAGS += -export-dynamic
 AM_LDFLAGS += $(GLD_LDFLAGS)
 
 # makefile fragments populate these variables
-BUILT_SOURCES =
+BUILT_SOURCES = python-requirements
 CLEANFILES =
 EXTRA_DIST =
 dist_pkgdata_DATA =
@@ -298,9 +298,38 @@ install-exec-hook: index docs
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
 	@echo ""
 
-requirements: 
+#
+# Python setup
+#
+
+PYVER=3.10 # !!! must match version specified in configure.ac
+
+SYSPYTHON=python$(PYVER)
+PYENV=$(bindir)/pkgenv
+PYBIN=$(PYENV)/bin
+PYLIB=$(PYENV)/lib
+PYINC=$(PYENV)/include
+PYTHON=$(PYBIN)/python$(PYVER)
+PYTHONCONFIG=$(SYSPYTHON)-config
+AM_LDFLAGS+=-L$(PYLIB)
+AM_CFLAGS+=-I$(PYINC)
+AM_CPPFLAGS+=-I$(PYINC)
+AM_CXXFLAGS+=-I$(PYINC)
+
+.NOTPARALLEL: python-requirements
+
+python-requirements: $(PYENV)
+	
+$(PYENV): requirements.txt
 	@echo "Updating python requirements..."
-	@$(bindir)/pkgenv/bin/python3 -m pip install -q -r requirements.txt
+	mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
+	$(SYSPYTHON) -m venv $(PYENV)
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements.txt
+
+#
+# Run this after changes that affect build-aux/version.sh output
+#
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet

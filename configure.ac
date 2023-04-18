@@ -52,6 +52,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 ###############################################################################
 # Init automake
 ###############################################################################
+
 AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -579,32 +580,15 @@ LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
-AM_PATH_PYTHON([3.10])
+PYTHON_REQ=3.10
 
-PYENV=$BINDIR/pkgenv
-PYBIN=$PYENV/bin
-$PYTHON -m venv $PYENV
-
-# Verify python version
-if test ! -d "$PYBIN"; then
-    mkdir -p "$PYBIN"
-fi
-
-HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
+AM_PATH_PYTHON([$PYTHON_REQ])
+PYTHON=$(which python$PYTHON_REQ)
+HAVE_PYTHON="$($PYTHON --version | cut -f2 -d' ')"
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-  [PYTHON_LIB="-lpython${PYTHON_VERSION} -shared -Wl-undefined,dynamic_lookup"],
-  [PYTHON_LIB="-lpython${PYTHON_VERSION}"])
-
-if test "x$HAVE_PYTHON" != "xno" ; then
-    $PYTHON -m venv "$PYENV"
-    $PYTHON -m pip install --upgrade pip
-    test -f requirements-$host_os-$host_cpu.txt && $PYTHON -m pip install -q -r requirements-$host_os-$host_cpu.txt
-    $PYTHON -m pip install -q -r requirements.txt
-else
-    echo "ERROR: no suitable python version found"
-    exit 1
-fi
+  [PYTHON_LIB="-lpython${PYTHON_REQ} -shared -Wl-undefined,dynamic_lookup"],
+  [PYTHON_LIB="-lpython${PYTHON_REQ}"])
 
 ###############################################################################
 # The End
@@ -677,10 +661,6 @@ AC_MSG_RESULT([
 
 -----------------------------------------------------------------------
 ])
-
-CFLAGS="$($PYTHON-config --cflags) $CFLAGS -D PYTHON_EXEC='\"$PYTHON\"'"
-CXXFLAGS="$($PYTHON-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON\"'"
-LDFLAGS="$($PYTHON-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
