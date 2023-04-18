@@ -48,7 +48,7 @@ AM_LDFLAGS += -export-dynamic
 AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
 
 # makefile fragments populate these variables
-BUILT_SOURCES = python-requirements
+BUILT_SOURCES = 
 CLEANFILES =
 EXTRA_DIST =
 dist_pkgdata_DATA =
@@ -79,13 +79,13 @@ include $(top_srcdir)/modules.mk
 # custom modules (see ./customize)
 include $(top_srcdir)/custom.mk
 
-.NOTPARALLEL: python-requirements install-exec-hook
+BUILT_SOURCES += python-requirements
 
 #
 # Post install report
 #
 
-install-exec-hook: index docs
+install-exec-hook: | index docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -110,7 +110,7 @@ PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
 
-python-requirements: $(PYENV)
+python-requirements: | $(PYENV)
 	
 $(PYENV): requirements.txt
 	@echo "Updating python requirements..."
