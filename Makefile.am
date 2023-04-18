@@ -109,7 +109,7 @@ PYBIN=$(PYENV)/bin
 PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
-PYREQS=requirements-$(shell $(top_srcdir)/build-aux/version.sh --sysspec).txt
+PYREQS=python/requirements-$(shell $(top_srcdir)/build-aux/version.sh --sysspec).txt
 
 python-requirements: | $(PYENV) 
 
