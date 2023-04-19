@@ -11,8 +11,8 @@
 #   DP Chassin (dchassin@slac.stanford.edu)
 
 PYVER = 3.10 # !!! must match version specified in configure.ac
-PYCFLAGS = $(shell python3.10-config --cflags)
-PYLDFLAGS = $(shell python3.10-config --ldflags)
+PYCFLAGS = $(shell /usr/local/bin/python3.10-config --cflags)
+PYLDFLAGS = $(shell /usr/local/bin/python3.10-config --ldflags)
 
 SYSPYTHON = python$(PYVER)
 PYTHONCONFIG = $(SYSPYTHON)-config
