@@ -15,14 +15,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set permissions
-      run: |
-        chown -R $(id -u):$(id -g) $PWD
-    
     - name: Build gridlabd
       run: |
-        python3 -m venv python/venv
-        source python/venv/bin/activate
+        chown -R $(id -u):$(id -g) $PWD
+        python3 -m venv --symlinks /tmp/$$_venv
+        source /tmp/$$_venv/bin/activate
         python3 -m pip install --upgrade pip
         python3 -m pip install pandas
         autoreconf -isf
