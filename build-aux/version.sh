@@ -40,7 +40,7 @@ case $1 in
         if [ "$(uname -s)" == "Darwin" ]; then
             echo darwin$(uname -r | cut -f1 -d.)-$(uname -m)
         elif [ -f "/etc/os-release" ]; then
-            echo $(grep ^ID= /etc/os-release | cut -f2 -d= | tr -d '"')$(grep ^VERSION_ID= /etc/os-release | cut -f2 -d= | tr -d '"')
+            echo $(grep ^ID= /etc/os-release | cut -f2 -d= | tr -d '"')$(grep ^VERSION_ID= /etc/os-release | cut -f2 -d= | tr -d '"')-$(uname -m)
         else
             echo $(uname -s)$(uname -r)-$(uname -m)
         fi
