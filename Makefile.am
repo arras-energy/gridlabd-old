@@ -119,7 +119,7 @@ $(PYENV): requirements.txt
 	@$(SYSPYTHON) -m venv $(PYENV)
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install -r requirements.txt 
-	@test -f $(PYREQS) && $(ENVPYTHON) -m pip install -r $(PYREQS)
+	@test -f $(PYREQS) && $(ENVPYTHON) -m pip install -r $(PYREQS) || $(ENVPYTHON) -m pip install -r python/requirements-default.txt
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
