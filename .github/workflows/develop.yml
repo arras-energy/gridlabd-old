@@ -18,6 +18,7 @@ jobs:
     # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
+        echo "Working folder is '$PWD'..."
         chown -R $(id -u):$(id -g) $PWD
         
     - name: Update pip
