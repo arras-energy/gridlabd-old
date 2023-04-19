@@ -1,2 +1,2 @@
-GDAL=3.0.4
-rasterio=1.2.10
+GDAL==3.0.4
+rasterio==1.2.10
