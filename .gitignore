@@ -142,6 +142,7 @@ fault_check.txt
 
 # requirements files
 requirements.txt
+python/venv
 
 # specific outputs that should be ignored
 python/example.png

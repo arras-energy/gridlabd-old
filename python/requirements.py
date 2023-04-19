@@ -8,7 +8,11 @@ import sys
 import platform
 import pandas
 
-sysinfo = "-".join([platform.system(),platform.release().split('.')[0],platform.machine()])
+if platform.system() == "Linux":
+    osrelease = pandas.read_csv("/etc/os-release",delimiter="=",header=None,index_col=0).to_dict(orient='index')
+    sysinfo = f"{osrelease['ID'][1]}-{osrelease['VERSION_ID'][1]}-{platform.machine()}"
+else:
+    sysinfo = "-".join([platform.system(),platform.release().split('.')[0],platform.machine()])
 csvfile = sys.argv[0].replace(".py",".csv")
 
 if len(sys.argv) == 2:
@@ -29,4 +33,4 @@ for module in requirements.index.get_level_values(0).unique():
         version = info.loc[sysinfo]['version']
     except:
         version = info.loc['default']['version']
-    print(f"{module}{version}")
+    print(f"{module}=={version}")
