@@ -9,7 +9,7 @@ import platform
 import pandas
 
 sysinfo = "-".join([platform.system(),platform.release().split('.')[0],platform.machine()])
-csvfile = "requirements.txt"
+csvfile = sys.argv[0].replace(".py",".csv")
 
 if len(sys.argv) == 2:
     if sys.argv[1] == "--sysinfo":
@@ -18,7 +18,7 @@ if len(sys.argv) == 2:
     else:
         csvfile = sys.argv[1]
 
-requirements = pandas.DataFrame(pandas.read_csv("requirements.csv",index_col=['module']).stack().reset_index())
+requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module']).stack().reset_index())
 requirements.columns = ["module","system","version"]
 requirements.set_index(["module","system"],inplace=True,verify_integrity=True)
 requirements.sort_index(inplace=True)
