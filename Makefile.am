@@ -114,6 +114,7 @@ PYACTIVATE=source $(PYBIN)/activate
 python-requirements: | $(PYENV) 
 
 requirements.txt: python/requirements.csv
+	# NB: it's ok to use the runner's python to generate the requirements.txt file
 	@python3 -m pip -q install pandas
 	@python3 python/requirements.py $< >$@
 
