@@ -110,16 +110,21 @@ PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
 PYREQS=python/requirements-$(shell $(top_srcdir)/build-aux/version.sh --sysspec).txt
+PYACTIVATE=source $(PYBIN)/activate
 
 python-requirements: | $(PYENV) 
+
+requirements.txt: requirements.csv
+	@python3 -m pip -q install pandas
+	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
 	@echo "Updating python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv $(PYENV)
-	@$(ENVPYTHON) -m pip install --upgrade pip
-	@$(ENVPYTHON) -m pip install -r requirements.txt 
-	@test -f $(PYREQS) && $(ENVPYTHON) -m pip install -r $(PYREQS) || $(ENVPYTHON) -m pip install -r python/requirements-default.txt
+	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
+	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
+	@test -f $(PYREQS) && ($(PYACTIVATE);$(ENVPYTHON) -m pip install -r $(PYREQS)) || ($(PYACTIVATE);$(ENVPYTHON) -m pip install -r python/requirements-default.txt)
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
