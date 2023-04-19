@@ -18,6 +18,8 @@ jobs:
     - name: Build gridlabd
       run: |
         chown -R $(id -u):$(id -g) $PWD /github/home
+        python3 -m venv /github/home/.venv
+        source /github/home/.venv/bin/activate
         autoreconf -isf
         ./configure
         make -j$(($(nproc)*3)) 
