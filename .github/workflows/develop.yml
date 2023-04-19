@@ -15,14 +15,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build gridlabd
+    - name: Setup python requirements
       run: |
         set -x
         chown -R $(id -u):$(id -g) $PWD
         python3 -m pip install --upgrade pip
-        python3 -m pip install pandas
+        python3 -m pip install pandas numpy
         python3 python/requirements.py --sysinfo
         python3 python/requirements.py 
+
+    - name: Build gridlabd
+      run: |
         autoreconf -isf
         ./configure
         make -j$(($(nproc)*3)) 
