@@ -17,6 +17,7 @@ jobs:
 
     - name: Build gridlabd
       run: |
+        set -x
         chown -R $(id -u):$(id -g) $PWD
         python3 -m venv --symlinks /tmp/$$_venv
         source /tmp/$$_venv/bin/activate
