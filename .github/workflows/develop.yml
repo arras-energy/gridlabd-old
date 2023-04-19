@@ -17,7 +17,7 @@ jobs:
 
     - name: Build gridlabd
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        chown -R $(id -u):$(id -g) $PWD /github/home
         autoreconf -isf
         ./configure
         make -j$(($(nproc)*3)) 
