@@ -22,7 +22,7 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install pandas numpy
         python3 python/requirements.py --sysinfo
-        python3 python/requirements.py python/requirments.csv > requirements.txt
+        python3 python/requirements.py python/requirements.csv > requirements.txt
         python3 -m pip install -r requirements.txt
 
     - name: Build gridlabd
