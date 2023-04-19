@@ -14,13 +14,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-        
+
     - name: Build gridlabd
       run: |
+        chown -R $(id -u):$(id -g) .
         autoreconf -isf
         ./configure
-        make -j$(($(nproc)*3))
-        make system
+        make -j$(($(nproc)*3)) 
+        make -j1 install
+        make -j1 system
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
