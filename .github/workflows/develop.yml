@@ -21,6 +21,8 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
         python3 -m pip install --upgrade pip
         python3 -m pip install pandas
+        python python/requirements.py --sysinfo
+        python python/requirements.py 
         autoreconf -isf
         ./configure
         make -j$(($(nproc)*3)) 
