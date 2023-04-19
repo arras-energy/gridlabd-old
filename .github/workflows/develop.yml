@@ -15,9 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build gridlabd
+    - name: Set permissions
       run: |
         chown -R $(id -u):$(id -g) $PWD
+    
+    - name: Build gridlabd
+      run: |
         python3 -m venv python/venv
         source python/venv/bin/activate
         python3 -m pip install --upgrade pip
