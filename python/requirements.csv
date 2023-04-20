@@ -11,7 +11,7 @@ Fiona,,,1.8.22
 folium,,,0.12.1
 GDAL,4,,3.5.2,,2.4.0,3.0.4
 geocoder,,,1.38.1
-geopandas,,,0.9.0
+geopandas,,,0.12.2
 geopy,,,2.1.0
 haversine,,,2.3.0
 ipinfo,,,4.2.1
@@ -24,7 +24,7 @@ metar,,,1.9.0
 networkx,,,2.8.8
 numpy,2,,1.23.3
 openpyxl,,,3.0.7
-pandas,2,,1.4.3
+pandas,2,,2.0.0
 pandas_access,,,0.0.1
 Pillow,2,,9.3.0
 PyGithub,2,,1.54.1
