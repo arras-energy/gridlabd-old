@@ -127,6 +127,7 @@ $(PYENV): requirements.txt
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install IPython censusdata wheel
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install GDAL==3.0.4
+	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade  --no-cache-dir setuptools
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install rasterio==1.2.10	
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
 
