@@ -46,5 +46,8 @@ else:
 
     for module in requirements.index.get_level_values(0).unique():
         info = requirements.loc[module]
-        version = info.loc[sysinfo]['version']
+        try:
+            version = info.loc[sysinfo]['version']
+        except:
+            version = info.loc['default']['version']            
         print(f"{module}=={version}")
