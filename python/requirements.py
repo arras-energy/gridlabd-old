@@ -28,11 +28,10 @@ if len(sys.argv) == 2:
 
 requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module']))
 
-if not sysinfo in requirements.columns:
-    sysinfo = 'default'
-
 if PRIORITY:
     priority = requirements[~requirements['priority'].isna()].reset_index().set_index(['priority','module']).sort_index()
+    if not sysinfo in priority.columns:
+        sysinfo = 'default'
 
     for n,row in priority.reset_index().iterrows():
         options = "" if str(row.options) == "nan" else row.options
