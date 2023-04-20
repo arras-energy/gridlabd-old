@@ -125,6 +125,7 @@ $(PYENV): requirements.txt
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
 	@$(PYACTIVATE); $(ENVPYTHON) python/requirements.py --priority | bash
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
+	@touch $(PYENV)
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
