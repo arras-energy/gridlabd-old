@@ -19,7 +19,6 @@ jobs:
       run: |
         set +x
         chown -R $(id -u):$(id -g) $PWD /github/home
-        python3 -m pip install setuptools==57.5.0
         autoreconf -isf
         ./configure
         make -j$(($(nproc)*3)) 

@@ -123,10 +123,7 @@ $(PYENV): requirements.txt
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv $(PYENV)
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade  --no-cache-dir setuptools==57.5.0
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install IPython censusdata wheel
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install GDAL==3.2.2
+	@$(PYACTIVATE); $(ENVPYTHON) python/requirements.py --priority | bash
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
 
 # for doxygen commands
