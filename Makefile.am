@@ -127,7 +127,6 @@ $(PYENV): requirements.txt
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install IPython censusdata wheel
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install GDAL==3.2.2
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install rasterio	
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
 
 # for doxygen commands
