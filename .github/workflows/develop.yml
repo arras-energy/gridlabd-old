@@ -26,8 +26,6 @@ jobs:
         /usr/local/bin/python3 -m pip install --upgrade pip
         python3 -m pip install setuptools==57.5.0
         /usr/local/bin/python3 -m pip install setuptools==57.5.0
-        which GDAL-CONFIG
-        whereis GDAL-COINFIG
         gdal-config --version
 
     - name: install gridlabd
