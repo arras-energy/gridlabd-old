@@ -121,7 +121,7 @@ requirements.txt: python/requirements.csv
 $(PYENV): requirements.txt
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
-	@$(SYSPYTHON) -m venv $(PYENV)
+	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
 	@$(PYACTIVATE); $(ENVPYTHON) python/requirements.py --priority | bash
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
