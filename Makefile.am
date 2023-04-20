@@ -123,6 +123,7 @@ $(PYENV): requirements.txt
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv $(PYENV)
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
+	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade  --no-cache-dir setuptools==57.5.0
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
 
 # for doxygen commands
