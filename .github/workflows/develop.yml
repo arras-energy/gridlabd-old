@@ -21,7 +21,17 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
         
     - name: Update pip
-      run: python3 -m pip install --upgrade pip
+      run: |
+        python3 -m pip install --upgrade pip
+        /usr/local/bin/python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools==57.5.0
+        /usr/local/bin/python3 -m pip install setuptools==57.5.0
+        which python3.10-config
+        which python3
+        which python3.10
+        whereis python3.10-config -a
+        whereis python3 -a
+        whereis python3.10 -a
 
     - name: install gridlabd
       run: |
