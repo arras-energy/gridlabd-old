@@ -123,6 +123,7 @@ $(PYENV): requirements.txt
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
+	@$(PYACTIVATE); $(ENVPYTHON) -m pip install pandas
 	@$(PYACTIVATE); $(ENVPYTHON) python/requirements.py --priority | bash
 	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
 	@touch $(PYENV)
