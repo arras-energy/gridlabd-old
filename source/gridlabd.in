@@ -345,14 +345,6 @@ fi
 ###############################################################################
 PY_OS="$(uname -s)"
 
-. $bindir/pkgenv/bin/activate
-
-#PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
-
-HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
-#PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
-#PYTHON_CONFIG=$(readlink $PYTHON_VER_DIR/python3)-config
-
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_VER=$exec_prefix
@@ -361,6 +353,11 @@ export GLD_DOC=$docdir
 export GLD_VAR=$vardir
 export GLD_INC=$exec_prefix/include
 export GLD_SRC=$exec_prefix/src
+
+. $bindir/pkgenv/bin/activate
+
+HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
+
 export PYCCFLAGS="$(python3-config --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"

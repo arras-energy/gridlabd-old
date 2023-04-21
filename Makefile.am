@@ -10,7 +10,8 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-PYVER = 3.10 # !!! must match version specified in configure.ac
+# !!! must match version specified in configure.ac
+PYVER = 3.10
 PYCFLAGS = $(shell python3.10-config --cflags)
 PYLDFLAGS = $(shell python3.10-config --ldflags)
 
