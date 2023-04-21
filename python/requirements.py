@@ -32,6 +32,9 @@ import sys, os
 import platform
 import pandas
 
+pandas.options.display.max_columns = None
+pandas.options.display.max_colwidth = None
+
 if platform.system() == "Linux":
     osrelease = pandas.read_csv("/etc/os-release",delimiter="=",header=None,index_col=0).to_dict(orient='index')
     sysinfo = f"{osrelease['ID'][1]}-{osrelease['VERSION_ID'][1]}-{platform.machine()}"
@@ -54,9 +57,10 @@ requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module'],dty
 
 if PRIORITY:
     priority = requirements[requirements['priority']!=''].reset_index().set_index(['priority','module']).sort_index()
-    print(priority,file=sys.stderr)
     if not sysinfo in priority.columns:
+        print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults")
         sysinfo = 'default'
+    print(priority[['options','default',sysinfo]],file=sys.stderr)
 
     for n,row in priority.reset_index().iterrows():
         print(f"{os.environ['_']} -m pip install {row.options} {row.module}{'==' if row[sysinfo]!='' else ''}{row[sysinfo]}")
@@ -66,6 +70,7 @@ else:
     requirements.columns = ["module","system","version"]
     requirements.set_index(["module","system"],inplace=True,verify_integrity=True)
     requirements.sort_index(inplace=True)
+    print(requirements,file=sys.stderr)
 
     for module in requirements.index.get_level_values(0).unique():
         info = requirements.loc[module]
