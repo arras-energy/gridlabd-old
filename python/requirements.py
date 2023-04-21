@@ -54,6 +54,7 @@ requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module']))
 
 if PRIORITY:
     priority = requirements[~requirements['priority'].isna()].reset_index().set_index(['priority','module']).sort_index()
+    print(priority,file=sys.stderr)
     if not sysinfo in priority.columns:
         sysinfo = 'default'
 
