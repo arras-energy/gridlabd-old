@@ -4,7 +4,7 @@ $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source
 	@echo "building $@"
 	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
 	@$(PYACTIVATE);$(ENVPYTHON) -m pip install build 1>/dev/null
-	@( export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(PYACTIVATE);$(ENVPYTHON) -m build $(top_srcdir)/python 1>/dev/null )
+	@export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(PYACTIVATE); $(ENVPYTHON) -m build $(top_srcdir)/python 1>/dev/null
 
 python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
 	@echo "installing $@"
