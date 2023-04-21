@@ -345,7 +345,7 @@ fi
 ###############################################################################
 PY_OS="$(uname -s)"
 
-source $bindir/pkgenv/bin/activate
+. $bindir/pkgenv/bin/activate
 
 #PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
 
