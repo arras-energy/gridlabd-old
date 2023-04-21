@@ -1,7 +1,31 @@
 """Generate requirements.txt for this OS/CPU combination
 
+Syntax
+------
+
+    $ python3 python/requirements.py [OPTION] 
+    
+Options
+-------
+
+The following options are available. Only one option may be used in any single command line
+
+    --sysinfo       list the name of the current platform used to lookup versions
+    
+    --priority      create python calls to install module needed to build gridlabd
+    
+    FILENAME        create requirements.txt file needed to run gridlabd
+    
+Description
+-----------
+
 This script converts requirements.csv to requirements.txt by choosing the entries
-that correspond to the current system information
+that correspond to the current system information.
+
+See Also
+--------
+
+* https://github.com/dchassin/gridlabd/blob/master/python/README.md
 """
 
 import sys, os
