@@ -55,12 +55,12 @@ int metrics_collector_writer::init(OBJECT *parent)
 	}
 
 	// Write seperate json files for meters, triplex_meters, inverters, capacitors, regulators, houses, substation_meter:
-	snprintf(filename_billing_meter,sizeof(filename_billing_meter)-1,"billing_meter_%s",(const char*)filename);
-	snprintf(filename_inverter,sizeof(filename_inverter)-1,"inverter_%s",(const char*)filename);
-	snprintf(filename_capacitor,sizeof(filename_capacitor)-1,"capacitor_%s",(const char*)filename);
-	snprintf(filename_regulator,sizeof(filename_regulator)-1,"regulator_%s",(const char*)filename);
-	snprintf(filename_house,sizeof(filename_house)-1,"house_%s",(const char*)filename);
-	snprintf(filename_substation,sizeof(filename_substation)-1,"substation_%s",(const char*)filename);
+	snprintf(filename_billing_meter,sizeof(filename_billing_meter)-1,"billing_meter_%.1000s",(const char*)filename);
+	snprintf(filename_inverter,sizeof(filename_inverter)-1,"inverter_%.1000s",(const char*)filename);
+	snprintf(filename_capacitor,sizeof(filename_capacitor)-1,"capacitor_%.1000s",(const char*)filename);
+	snprintf(filename_regulator,sizeof(filename_regulator)-1,"regulator_%.1000s",(const char*)filename);
+	snprintf(filename_house,sizeof(filename_house)-1,"house_%.1000s",(const char*)filename);
+	snprintf(filename_substation,sizeof(filename_substation)-1,"substation_%.1000s",(const char*)filename);
 
 	// Check valid metrics_collector output interval
 	interval_length = (int64)(interval_length_dbl);
