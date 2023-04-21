@@ -61,17 +61,21 @@ if PRIORITY:
     if not sysinfo in priority.columns:
         print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults",file=sys.stderr)
         sysinfo = 'default'
-    print(priority[['options','default',sysinfo]],file=sys.stderr)
+    # print(priority[['options','default',sysinfo]],file=sys.stderr)
 
     for n,row in priority.reset_index().iterrows():
         print(f"{os.environ['_']} -m pip install {row.options} {row.module}{'==' if row[sysinfo]!='' else ''}{row[sysinfo]}")
 
 else:
-    requirements = requirements[requirements['priority']==''].stack().reset_index()
-    requirements.columns = ["module","system","version"]
-    requirements.set_index(["module","system"],inplace=True,verify_integrity=True)
+    requirements = requirements[requirements['priority']=='']
+    requirements.drop('priority',axis=1,inplace=True)
+    requirements.drop('options',axis=1,inplace=True)
+    requirements = requirements.stack().reset_index()
+    requirements.columns = ["module","sysinfo","version"]
+    requirements.set_index(["module","sysinfo"],inplace=True,verify_integrity=True)
     requirements.sort_index(inplace=True)
-    print(requirements,file=sys.stderr)
+    requirements = requirements[requirements['version']!='']
+    # print(requirements,file=sys.stderr)
 
     for module in requirements.index.get_level_values(0).unique():
         info = requirements.loc[module]
