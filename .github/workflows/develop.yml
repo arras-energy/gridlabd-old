@@ -21,7 +21,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD /github/home
         autoreconf -isf
         ./configure
-        make -j$(($(nproc)*3)) system
+        make -j$(($(nproc)*3)) python-install system
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
