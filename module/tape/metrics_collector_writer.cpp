@@ -21,7 +21,7 @@ metrics_collector_writer::metrics_collector_writer(MODULE *mod){
 			throw "unable to register class metrics_collector_writer";
 
 		if(gl_publish_variable(oclass,
-			PT_char256,"filename",PADDR(filename),PT_DESCRIPTION,"the JSON formatted output file name",
+			PT_char1024,"filename",PADDR(filename),PT_DESCRIPTION,"the JSON formatted output file name",
 			PT_double, "interval[s]", PADDR(interval_length_dbl), PT_DESCRIPTION, "Interval at which the metrics_collector_writer output is stored in JSON format",
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
     }
