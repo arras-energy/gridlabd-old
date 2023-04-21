@@ -34,6 +34,7 @@ import pandas
 
 pandas.options.display.max_columns = None
 pandas.options.display.max_colwidth = None
+pandas.options.display.max_rows = None
 
 if platform.system() == "Linux":
     osrelease = pandas.read_csv("/etc/os-release",delimiter="=",header=None,index_col=0).to_dict(orient='index')
@@ -58,7 +59,7 @@ requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module'],dty
 if PRIORITY:
     priority = requirements[requirements['priority']!=''].reset_index().set_index(['priority','module']).sort_index()
     if not sysinfo in priority.columns:
-        print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults")
+        print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults",file=sys.stderr)
         sysinfo = 'default'
     print(priority[['options','default',sysinfo]],file=sys.stderr)
 
