@@ -16,5 +16,5 @@ The `priority` column indicates which modules are required to build `gridlabd` a
 
 # Documentation
 
-See [Python Module Documentation](https://docs.gridlabd.us/_index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module&doc=/Module/Python.md) for details.
+See [Python Module Documentation](https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module&doc=/Module/Python.md) for details.
 
