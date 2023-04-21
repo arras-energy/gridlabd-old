@@ -50,20 +50,19 @@ if len(sys.argv) == 2:
     else:
         csvfile = sys.argv[1]
 
-requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module']))
+requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module'],dtype='str',na_values=[],keep_default_na=False))
 
 if PRIORITY:
-    priority = requirements[~requirements['priority'].isna()].reset_index().set_index(['priority','module']).sort_index()
+    priority = requirements[requirements['priority']!=''].reset_index().set_index(['priority','module']).sort_index()
     print(priority,file=sys.stderr)
     if not sysinfo in priority.columns:
         sysinfo = 'default'
 
     for n,row in priority.reset_index().iterrows():
-        options = "" if str(row.options) == "nan" else row.options
-        print(f"{os.environ['_']} -m pip install {options} {row.module}=={row[sysinfo]}")
+        print(f"{os.environ['_']} -m pip install {row.options} {row.module}{'==' if row[sysinfo]!='' else ''}{row[sysinfo]}")
 
 else:
-    requirements = requirements[requirements['priority'].isna()].stack().reset_index()
+    requirements = requirements[requirements['priority']==''].stack().reset_index()
     requirements.columns = ["module","system","version"]
     requirements.set_index(["module","system"],inplace=True,verify_integrity=True)
     requirements.sort_index(inplace=True)
@@ -74,4 +73,4 @@ else:
             version = info.loc[sysinfo]['version']
         except:
             version = info.loc['default']['version']            
-        print(f"{module}=={version}")
+        print(f"{module}{'==' if version!='' else ''}{version}")
