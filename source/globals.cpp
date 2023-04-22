@@ -208,7 +208,7 @@ DEPRECATED static KEYWORD pof_keys[] = {
 
 /* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
 /* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(const char *)
+void datadir_init(const char *,const char*)
 {
 	const char *etcpath = getenv("GLD_ETC");
 	if ( etcpath != NULL )
@@ -217,7 +217,7 @@ void datadir_init(const char *)
 	}
 }
 
-void bindir_init(const char *)
+void bindir_init(const char *,const char*)
 {
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
@@ -226,7 +226,7 @@ void bindir_init(const char *)
 	}
 }
 
-void libdir_init(const char *)
+void libdir_init(const char *,const char*)
 {
 	const char * libpath = getenv("GLD_LIB");
 	if ( libpath != NULL )
@@ -235,7 +235,7 @@ void libdir_init(const char *)
 	}
 }
 
-void vardir_init(const char *)
+void vardir_init(const char *,const char*)
 {
 	const char * varpath = getenv("GLD_VAR");
 	if ( varpath != NULL )
@@ -244,7 +244,7 @@ void vardir_init(const char *)
 	}
 }
 
-void incdir_init(const char *)
+void incdir_init(const char *,const char*)
 {
 	const char * incpath = getenv("GLD_INC");
 	if ( incpath != NULL )
@@ -256,7 +256,7 @@ void incdir_init(const char *)
 
 /* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
 
-void logfile_init(const char *value)
+void logfile_init(const char *name,const char *value)
 {
 	extern char logfile[1024];
 	char buffer[2048];
@@ -268,7 +268,7 @@ void logfile_init(const char *value)
 	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-2),buffer);
 }
 
-void pidfile_init(const char *value)
+void pidfile_init(const char *name,const char *value)
 {
 	extern char pidfile[1024];
 	char buffer[2048];
@@ -280,7 +280,7 @@ void pidfile_init(const char *value)
 	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-2),buffer);
 }
 
-void workdir_init(const char *value)
+void workdir_init(const char *name,const char *value)
 {
 	extern char workdir[1024];
 	char buffer[2048];
@@ -292,7 +292,7 @@ void workdir_init(const char *value)
 	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-2),buffer);
 }
 
-void configpath_init(const char *value)
+void configpath_init(const char *name,const char *value)
 {
 	const char *etcpath = getenv("GLD_ETC");
 	if ( etcpath != NULL )
@@ -301,7 +301,7 @@ void configpath_init(const char *value)
 	}
 }
 
-void pythonexec_init(const char *value)
+void pythonexec_init(const char *name,const char *value)
 {
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
@@ -310,12 +310,16 @@ void pythonexec_init(const char *value)
 	}
 }
 
-void pythonpath_init(const char *value)
+void pythonpath_init(const char *name,const char *value)
 {
 	const char * pythonpath = getenv("PYTHONPATH");
 	if ( pythonpath != NULL )
 	{
-		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)(sizeof(global_pythonpath)-2),pythonpath);
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s:%.*s",(int)strlen(value),value,(int)(sizeof(global_pythonpath)-2),pythonpath);
+	}
+	else
+	{
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)strlen(value),value);
 	}
 }
 /* Add more derivative directories here */
@@ -328,7 +332,7 @@ DEPRECATED static struct s_varmap {
 	PROPERTYACCESS access;
 	const char *description;
 	KEYWORD *keys;
-	void (*callback)(const char *name);
+	void (*callback)(const char *name,const char *value);
 } map[] = {
 	/** @todo make this list the authorative list and retire the global_* list (ticket #25) */
 	{"version.major", PT_int32, &global_version_major, PA_REFERENCE, "major version"},
@@ -373,8 +377,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
+	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*,const char*))random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*,const char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -926,7 +930,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		}
 		else if ( var->callback )
 		{
-			var->callback(var->prop->name);
+			var->callback(var->prop->name,value);
 		}
 
 		return SUCCESS;

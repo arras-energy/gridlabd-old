@@ -43,7 +43,7 @@ typedef struct s_globalvar
 {
 	PROPERTY *prop;
 	uint32 flags;
-	void (*callback)(const char *);
+	void (*callback)(const char *,const char *);
 	LOCKVAR lock;
 	struct s_globalvar *next;
 } GLOBALVAR;
@@ -895,7 +895,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+	inline void set_callback(void (*callback)(const char *,const char*)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals
