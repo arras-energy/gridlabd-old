@@ -3,15 +3,15 @@ PYPKG=$(PYENV)/lib/python$(PYVER)/site-packages/gridlabd
 
 $(PYPKG)/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h | $(PYENV)
 	@echo "building $@"
-	rm -f $(PYPKG)/gridlabd-$(PYTHONVERSION)-*.{whl,tar.gz}
-	$(PYACTIVATE);$(ENVPYTHON) -m pip install build 
-	export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(PYACTIVATE); $(ENVPYTHON) -m build $(top_srcdir)/python
+	rm -f $(PYPKG)/gridlabd-$(PYTHONVERSION)*.{whl,tar.gz}
+	$(ENVPYTHON) -m pip install build 
+	export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(ENVPYTHON) -m build $(top_srcdir)/python
 	mkdir -p $(PYPKG)
 	cp $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION)*.{tar.gz,whl} $(PYPKG)
 
 python-install: $(PYPKG)/gridlabd-$(PYTHONVERSION).tar.gz
 	@echo "installing gridlabd-$(PYTHONVERSION)"
-	@$(PYACTIVATE);$(ENVPYTHON) -m pip install --ignore-installed $(PYPKG)/gridlabd-$(PYTHONVERSION)-*.whl
+	$(ENVPYTHON) -m pip install --ignore-installed $(PYPKG)/gridlabd-$(PYTHONVERSION)-*.whl
 
 python-clean:
 	@rm -f $(PYPKG)/gridlabd-*.{whl,tar.gz}
