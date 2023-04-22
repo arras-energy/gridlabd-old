@@ -8,6 +8,7 @@ $(PYPKG)/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h | $(PYEN
 	export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(ENVPYTHON) -m build $(top_srcdir)/python
 	mkdir -p $(PYPKG)
 	cp $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION)*.{tar.gz,whl} $(PYPKG)
+	ls -lR $(PYPKG)
 
 python-install: $(PYPKG)/gridlabd-$(PYTHONVERSION).tar.gz
 	@echo "installing gridlabd-$(PYTHONVERSION)"
