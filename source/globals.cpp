@@ -297,7 +297,7 @@ void configpath_init(const char *value)
 	const char *etcpath = getenv("GLD_ETC");
 	if ( etcpath != NULL )
 	{
-		snprintf(global_configpath,sizeof(global_configpath)-1,"%.*s/solver_py.conf",(int)(sizeof(global_configpath)-16),etcpath);
+		snprintf(global_configpath,sizeof(global_configpath)-1,"%.*s/solver_py.conf",(int)(sizeof(global_configpath)-17),etcpath);
 	}
 }
 
@@ -306,7 +306,7 @@ void pythonexec_init(const char *value)
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
 	{
-		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-21),binpath);
+		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-22),binpath);
 	}
 }
 /* Add more derivative directories here */
