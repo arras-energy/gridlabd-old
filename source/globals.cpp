@@ -211,51 +211,46 @@ DEPRECATED static KEYWORD pof_keys[] = {
 void datadir_init(const char *)
 {
 	const char *etcpath = getenv("GLD_ETC");
-	if ( etcpath == NULL )
+	if ( etcpath != NULL )
 	{
-		etcpath = "/usr/local/opt/gridlabd/current/share/gridlabd";
+		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 	}
-	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
 void bindir_init(const char *)
 {
 	const char * binpath = getenv("GLD_BIN");
-	if ( binpath == NULL )
+	if ( binpath != NULL )
 	{
-		binpath = "/usr/local/opt/gridlabd/current/bin";
+		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 	}
-	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
 void libdir_init(const char *)
 {
 	const char * libpath = getenv("GLD_LIB");
-	if ( libpath == NULL )
+	if ( libpath != NULL )
 	{
-		libpath = "/usr/local/opt/gridlabd/current/lib";
+		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 	}
-	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
 void vardir_init(const char *)
 {
 	const char * varpath = getenv("GLD_VAR");
-	if ( varpath == NULL )
+	if ( varpath != NULL )
 	{
-		varpath = "/usr/local/opt/gridlabd/current/var/gridlabd";
+		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 	}
-	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
 void incdir_init(const char *)
 {
 	const char * incpath = getenv("GLD_INC");
-	if ( incpath == NULL )
+	if ( incpath != NULL )
 	{
-		incpath = "/usr/local/opt/gridlabd/current/include";
+		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 	}
-	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 }
 /* Add more top-level directory variables here. */
 
@@ -299,12 +294,12 @@ void workdir_init(const char *value)
 
 void configpath_init(const char *value)
 {
-	// snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
+	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
 }
 
 void pythonexec_init(const char *value)
 {
-	// snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
 }
 /* Add more derivative directories here */
 
