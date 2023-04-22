@@ -301,7 +301,7 @@ void configpath_init(const char *value)
 	}
 }
 
-void pythonexec_path(const char *value)
+void pythonexec_init(const char *value)
 {
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
@@ -469,7 +469,7 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
-	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path",NULL,pythonexec_path},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path",NULL,pythonpath_init},
 	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd",NULL,pythonexec_init},
 	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
 	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
