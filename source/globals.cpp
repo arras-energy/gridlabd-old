@@ -294,12 +294,12 @@ void workdir_init(const char *value)
 
 void configpath_init(const char *value)
 {
-	snprintf(global_configpath,sizeof(global_configpath)-1,"%*s/solver_py.conf",sizeof(global_configpath)-16,global_vardir);
+	snprintf(global_configpath,sizeof(global_configpath)-1,"%.*s/solver_py.conf",(int)(sizeof(global_configpath)-16),global_vardir);
 }
 
 void pythonexec_init(const char *value)
 {
-	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%*s/pkgenv/bin/python3",sizeof(global_pythonexec)-21,global_bindir);
+	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-21),global_bindir);
 }
 /* Add more derivative directories here */
 
