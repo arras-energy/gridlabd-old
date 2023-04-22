@@ -315,7 +315,7 @@ void pythonpath_init(const char *value)
 	const char * pythonpath = getenv("PYTHONPATH");
 	if ( pythonpath != NULL )
 	{
-		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)(sizeof(global_pythonpath)-1),pythonpath);
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)(sizeof(global_pythonpath)-2),pythonpath);
 	}
 }
 /* Add more derivative directories here */
