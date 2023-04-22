@@ -356,8 +356,6 @@ export GLD_SRC=$exec_prefix/src
 
 . $bindir/pkgenv/bin/activate
 
-HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
-
 export PYCCFLAGS="$(python3-config --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"

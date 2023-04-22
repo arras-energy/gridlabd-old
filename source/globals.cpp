@@ -309,6 +309,15 @@ void pythonexec_init(const char *value)
 		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-22),binpath);
 	}
 }
+
+void pythonpath_init(const char *value)
+{
+	const char * pythonpath = getenv("PYTHONPATH");
+	if ( pythonpath != NULL )
+	{
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)(sizeof(global_pythonpath)-1),pythonpath);
+	}
+}
 /* Add more derivative directories here */
 
 

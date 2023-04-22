@@ -81,10 +81,6 @@ fi
 ###############################################################################
 PY_OS="$(uname -s)"
 
-. $bindir/pkgenv/bin/activate
-
-HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
-
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_VER=$exec_prefix
@@ -96,15 +92,13 @@ export GLD_SRC=$exec_prefix/src
 
 . $bindir/pkgenv/bin/activate
 
-HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
-
-export PYCCFLAGS="$($PYTHON_CONFIG --cflags)"
+export PYCCFLAGS="$(python3-config --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$($PYTHON_CONFIG --ldflags)"
+export PYLDFLAGS="$(python3-config --ldflags)"
 export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
