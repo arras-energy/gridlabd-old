@@ -13,8 +13,6 @@ $(PYPKG)-$(PYTHONVERSION).tar.gz: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVER
 python-install: $(PYPKG)-$(PYTHONVERSION).tar.gz
 	@echo "installing gridlabd-$(PYTHONVERSION)"
 	$(ENVPYTHON) -m pip install --ignore-installed $(PYPKG)-$(PYTHONVERSION)-*.whl
-	ls -lR $(PYPKG)*
-	$(ENVPYTHON) -c "import gridlabd; print(gridlabd.__file__)"
 
 python-clean:
 	@echo "removing intermediate python module build artifacts"
