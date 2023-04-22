@@ -319,7 +319,7 @@ void pythonpath_init(const char *name,const char *value)
 	}
 	else
 	{
-		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)strlen(value),value);
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-1,value);
 	}
 }
 /* Add more derivative directories here */
