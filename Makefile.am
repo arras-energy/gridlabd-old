@@ -123,10 +123,10 @@ $(PYENV): requirements.txt
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install --upgrade pip
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install pandas==2.0.0
-	@$(PYACTIVATE); $(ENVPYTHON) python/requirements.py --priority | bash
-	@$(PYACTIVATE); $(ENVPYTHON) -m pip install -r requirements.txt 
+	@$(ENVPYTHON) -m pip install --upgrade pip
+	@$(ENVPYTHON) -m pip install pandas==2.0.0
+	@$(ENVPYTHON) python/requirements.py --buildenv | bash
+	@$(ENVPYTHON) -m pip install -r requirements.txt 
 	@touch $(PYENV)
 
 # for doxygen commands
