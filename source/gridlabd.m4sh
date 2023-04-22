@@ -137,7 +137,7 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [])
 
 AS_IF([test -f "${GLD_ETC}/$1.py"],
-  [export PYTHONPATH=$GLD_ETC; $PYTHON_VER_DIR/python3 -m "$@" ; exit $?],
+  [export PYTHONPATH=$GLD_ETC; python3 -m "$@" ; exit $?],
   [])
 
 AS_IF([test -x "${bindir}/gridlabd-$1"],
