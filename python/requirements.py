@@ -12,7 +12,7 @@ The following options are available. Only one option may be used in any single c
 
     --sysinfo       list the name of the current platform used to lookup versions
     
-    --priority      create python calls to install module needed to build gridlabd
+    --buildenv      create python calls to install module needed to build gridlabd
     
     FILENAME        create requirements.txt file needed to run gridlabd
     
@@ -49,7 +49,7 @@ if len(sys.argv) == 2:
     if sys.argv[1] == "--sysinfo":
         print(sysinfo)
         exit(0)
-    elif sys.argv[1] == "--priority":
+    elif sys.argv[1] == "--buildenv":
         PRIORITY = True
     else:
         csvfile = sys.argv[1]
@@ -61,10 +61,21 @@ if PRIORITY:
     if not sysinfo in priority.columns:
         print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults",file=sys.stderr)
         sysinfo = 'default'
-    # print(priority[['options','default',sysinfo]],file=sys.stderr)
 
+    buildenv = {}
     for n,row in priority.reset_index().iterrows():
-        print(f"{os.environ['_']} -m pip install {row.options} {row.module}{'==' if row[sysinfo]!='' else ''}{row[sysinfo]}")
+        m = row['priority']
+        if not m in buildenv:
+            buildenv[m] = {}
+        if not row.options in buildenv[m]:
+            buildenv[m][row.options] = []
+        if row[sysinfo] == '':
+            buildenv[m][row.options].append(row.module)
+        else:
+            buildenv[m][row.options].append(f"{row.module}=={row[sysinfo]}")
+    for n,specs in buildenv.items():
+        for options,requirements in specs.items():
+            print(f"{os.environ['_']} -m pip install {options} {' '.join(requirements)}")
 
 else:
     requirements = requirements[requirements['priority']=='']
