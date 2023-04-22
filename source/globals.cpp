@@ -315,11 +315,12 @@ void pythonpath_init(const char *name,const char *value)
 	const char * pythonpath = getenv("PYTHONPATH");
 	if ( pythonpath != NULL )
 	{
-		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s:%.*s",(int)strlen(value),value,(int)(sizeof(global_pythonpath)-2),pythonpath);
+		int len = snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
+		snprintf(global_pythonpath+len,sizeof(global_pythonpath)-1-len,":%.*s",(int)(sizeof(global_pythonpath)-2),pythonpath);
 	}
 	else
 	{
-		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-1,value);
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
 	}
 }
 /* Add more derivative directories here */
