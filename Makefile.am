@@ -116,7 +116,7 @@ python-requirements: | $(PYENV)
 
 # NB: it's ok to use the runner's python to generate the requirements.txt file
 requirements.txt: python/requirements.csv
-	@python3 -m pip -q install pandas
+	@python3 -m pip -q install pandas==2.0.0
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
