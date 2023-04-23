@@ -2,7 +2,7 @@
 
 PYTHON_VERSION=3.10.11
 
-if ! python${PYTHON_VERSION%%.*} --version; then
+if ! python${PYTHON_VERSION%.*} --version 1>/dev/null 2>&1 ; then
 	echo "Installing python${PYTHON_VERSION%.*}..."
 	exit 1
 fi
