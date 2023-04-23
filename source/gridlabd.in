@@ -356,17 +356,17 @@ export GLD_SRC=$exec_prefix/src
 
 . $bindir/pkgenv/bin/activate
 
-
-export PYCCFLAGS="$(python3-config --cflags)"
+export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
+export PYTHON_CONFIG="python$PYTHON_VER-config"
+export PYCCFLAGS="$($PYTHON_CONFIG --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$(python3-config --ldflags)"
+export PYLDFLAGS="$($PYTHON_CONFIG --ldflags)"
 export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
-export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
 export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
 
 if test "x$GLPATH" = x
