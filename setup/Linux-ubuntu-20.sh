@@ -3,7 +3,7 @@
 PYTHON_VERSION=3.10.11
 
 if ! python${PYTHON_VERSION%%.*} --version; then
-	echo "Installing python${PYTHON_VERSION%%.*}..."
+	echo "Installing python${PYTHON_VERSION%.*}..."
 	exit 1
 fi
 
