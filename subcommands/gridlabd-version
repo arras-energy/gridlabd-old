@@ -112,7 +112,7 @@ function version-set()
 		$ACTION rm -f $OPT/current
 		$ACTION ln -s $OPT/$L $OPT/current
 	fi
-	ln -sf /usr/local/opt/current/bin/gridlabd /usr/local/bin/gridlabd
+	ln -sf /usr/local/opt/gridlabd/current/bin/gridlabd /usr/local/bin/gridlabd
 #	for F in bin lib share include; do
 #		if [ ! "$(readlink $GLD_VER/$F/gridlabd)" == "$OPT/current/$F/gridlabd" ]; then
 #			$ACTION rm -rf $GLD_VER/$F/gridlabd
