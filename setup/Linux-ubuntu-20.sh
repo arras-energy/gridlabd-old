@@ -29,7 +29,6 @@ if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
 fi
 apt install python$PYTHON_VERSION-venv python$PYTHON_VERSION-distutils -y
 
-
 # create python venv for setup if not already done
 if [ ! -x "$PYTHON_EXEC" ] ; then
 	python$PYTHON_VERSION -m venv --symlinks $PYTHON_VENV
