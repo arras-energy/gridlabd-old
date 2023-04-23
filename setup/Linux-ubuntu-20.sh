@@ -1,9 +1,15 @@
 #!/bin/bash
 
-PYTHON_VERSION=3.10.11
+PYTHON_VERSION=3.10
 
-if ! python${PYTHON_VERSION%.*} --version 1>/dev/null 2>&1 ; then
-	echo "Installing python${PYTHON_VERSION%.*}..."
+sudo apt update
+sudo apt upgrade -y
+
+if "$(which  python$PYTHON_VERSION)" == "" ; then
+	echo "Installing python${PYTHON_VERSION}..."
+	sudo apt install software-properties-common -y
+	sudo add-app-repository ppa:deadsnakes/ppa
+	sudo apt install python$PYTHON_VERSION -qqqqy
 	exit 1
 fi
 
