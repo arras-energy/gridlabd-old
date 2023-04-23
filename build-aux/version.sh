@@ -45,6 +45,9 @@ case $1 in
             echo $(uname -s)$(uname -r)-$(uname -m)
         fi
         ;;
+    --python )
+        echo 3.10
+        ;;
     --help | -h)
         echo "Syntax: build-aux/version.sh <option>
 Options:
@@ -57,5 +60,6 @@ Options:
   --package-name|-P output package name PACKAGE_NAME
   --name|-m         output install name REV_MAJOR.REV_MINOR.REV_PATCH-NUMBER-BRANCH
   --sysspec         output system specification OSVER-ARCH
+  --python          output required python version
   --help|-h         output this help" ;;
 esac
