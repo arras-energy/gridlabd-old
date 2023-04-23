@@ -120,7 +120,7 @@ requirements.txt: python/requirements.csv
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@test python3-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" ; false )
+	@python3-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
