@@ -590,6 +590,12 @@ AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
   [PYTHON_LIB="-lpython${PYTHON_REQ} -shared -Wl-undefined,dynamic_lookup"],
   [PYTHON_LIB="-lpython${PYTHON_REQ}"])
 
+PYTHONCONFIG=$(which python$PYTHON_REQ-config)
+if test "x$PYTHONCONFIG" = "x"; then
+  echo "ERROR: python$PYTHON_REQ-config not found. Did you install $PYTHON-dev?"
+  exit 1
+fi
+
 ###############################################################################
 # The End
 ###############################################################################
@@ -605,6 +611,7 @@ AC_MSG_RESULT([
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
     Python binary: .............. $PYTHON
+    Python config: .............. $PYTHONCONFIG
 
   Dependencies:
 
