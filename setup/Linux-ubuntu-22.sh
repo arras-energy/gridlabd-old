@@ -24,9 +24,10 @@ if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
 	test -f /etc/localtime || ln -s /usr/share/zoneinfo/UTC /etc/localtime
 	apt install software-properties-common -y
 	add-apt-repository ppa:deadsnakes/ppa -y
-	apt install python$PYTHON_VERSION python$PYTHON_VERSION-venv python$PYTHON_VERSION-distutils -y
+	apt install python$PYTHON_VERSION -y
 	python$PYTHON_VERSION --version || ( echo "ERROR: python$PYTHON_VERSION installation failed" > /dev/stderr ; exit 1 )
 fi
+apt install python$PYTHON_VERSION-venv python$PYTHON_VERSION-distutils -y
 
 # create python venv for setup if not already done
 if [ ! -x "$PYTHON_EXEC" ] ; then
