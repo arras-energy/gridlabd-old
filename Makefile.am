@@ -11,6 +11,7 @@
 #   DP Chassin (dchassin@slac.stanford.edu)
 
 # !!! must match version specified in configure.ac
+OPT=$(shell mkdir -p /usr/local/opt/gridlabd)
 PYVER = $(shell $(top_srcdir)/build-aux/version.sh --python)
 PYCFLAGS = $(shell python$(PYVER)-config --cflags)
 PYLDFLAGS = $(shell python$(PYVER)-config --ldflags)
