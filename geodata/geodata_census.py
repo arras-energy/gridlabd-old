@@ -90,6 +90,8 @@ from shapely.geometry import Point
 import censusdata
 
 GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share"
 
 default_options = {
     "state_fields" : "STUSPS",

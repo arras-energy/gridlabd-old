@@ -137,7 +137,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
                 pos = err
             import time
             time.sleep(config["sleep"])
-        if type(pos) is Exception:
+        if type(pos) is Exception or type(pos) is ModuleNotFoundError:
             raise pos
         data["longitude"] = list(map(lambda p: p.x,pos["geometry"]))
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
@@ -166,7 +166,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
                 addr = err
             import time
             time.sleep(config["sleep"])
-        if type(addr) is Exception:
+        if type(addr) is Exception or type(addr) is ModuleNotFoundError:
             raise addr
         data["address"] = Series(addr["address"],dtype="string").tolist()
         return data
