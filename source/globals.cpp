@@ -208,85 +208,120 @@ DEPRECATED static KEYWORD pof_keys[] = {
 
 /* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
 /* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(const char *)
+void datadir_init(const char *,const char*)
 {
 	const char *etcpath = getenv("GLD_ETC");
-	if ( etcpath == NULL )
+	if ( etcpath != NULL )
 	{
-		etcpath = "/usr/local/opt/gridlabd/current/share/gridlabd";
+		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 	}
-	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
 }
 
-void bindir_init(const char *)
+void bindir_init(const char *,const char*)
 {
 	const char * binpath = getenv("GLD_BIN");
-	if ( binpath == NULL )
+	if ( binpath != NULL )
 	{
-		binpath = "/usr/local/opt/gridlabd/current/bin";
+		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 	}
-	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
 }
 
-void libdir_init(const char *)
+void libdir_init(const char *,const char*)
 {
 	const char * libpath = getenv("GLD_LIB");
-	if ( libpath == NULL )
+	if ( libpath != NULL )
 	{
-		libpath = "/usr/local/opt/gridlabd/current/lib";
+		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 	}
-	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
 }
 
-void vardir_init(const char *)
+void vardir_init(const char *,const char*)
 {
 	const char * varpath = getenv("GLD_VAR");
-	if ( varpath == NULL )
+	if ( varpath != NULL )
 	{
-		varpath = "/usr/local/opt/gridlabd/current/var/gridlabd";
+		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 	}
-	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
 }
 
-void incdir_init(const char *)
+void incdir_init(const char *,const char*)
 {
 	const char * incpath = getenv("GLD_INC");
-	if ( incpath == NULL )
+	if ( incpath != NULL )
 	{
-		incpath = "/usr/local/opt/gridlabd/current/include";
+		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 	}
-	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
 }
 /* Add more top-level directory variables here. */
 
 /* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
 
-void logfile_init(const char *value)
+void logfile_init(const char *name,const char *value)
 {
 	extern char logfile[1024];
-	snprintf(logfile,sizeof(logfile)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(logfile) )
+	{
+		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
+	}
+	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-2),buffer);
 }
 
-void pidfile_init(const char *value)
+void pidfile_init(const char *name,const char *value)
 {
 	extern char pidfile[1024];
-	snprintf(pidfile,sizeof(pidfile)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(pidfile) )
+	{
+		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
+	}
+	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-2),buffer);
 }
 
-void workdir_init(const char *value)
+void workdir_init(const char *name,const char *value)
 {
 	extern char workdir[1024];
-	snprintf(workdir,sizeof(workdir)-1,"%s/%s",global_vardir,value);
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(workdir) )
+	{
+		output_warning("workdir_init(value='%s'): long value was truncated to fit in workdir global, ",value);
+	}
+	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-2),buffer);
 }
 
-void configpath_init(const char *value)
+void configpath_init(const char *name,const char *value)
 {
-	snprintf(global_configpath,sizeof(global_configpath)-1,"%s/solver_py.conf",global_vardir);
+	const char *etcpath = getenv("GLD_ETC");
+	if ( etcpath != NULL )
+	{
+		snprintf(global_configpath,sizeof(global_configpath)-1,"%.*s/solver_py.conf",(int)(sizeof(global_configpath)-17),etcpath);
+	}
 }
 
-void pythonexec_init(const char *value)
+void pythonexec_init(const char *name,const char *value)
 {
-	snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%s/pkgenv/bin/python3",global_bindir);
+	const char * binpath = getenv("GLD_BIN");
+	if ( binpath != NULL )
+	{
+		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-22),binpath);
+	}
+}
+
+void pythonpath_init(const char *name,const char *value)
+{
+	const char * pythonpath = getenv("PYTHONPATH");
+	if ( pythonpath != NULL )
+	{
+		int len = snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
+		snprintf(global_pythonpath+len,sizeof(global_pythonpath)-1-len,":%.*s",(int)(sizeof(global_pythonpath)-2),pythonpath);
+	}
+	else
+	{
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
+	}
 }
 /* Add more derivative directories here */
 
@@ -298,7 +333,7 @@ DEPRECATED static struct s_varmap {
 	PROPERTYACCESS access;
 	const char *description;
 	KEYWORD *keys;
-	void (*callback)(const char *name);
+	void (*callback)(const char *name,const char *value);
 } map[] = {
 	/** @todo make this list the authorative list and retire the global_* list (ticket #25) */
 	{"version.major", PT_int32, &global_version_major, PA_REFERENCE, "major version"},
@@ -343,8 +378,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
+	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*,const char*))random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*,const char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -439,7 +474,7 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
-	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path",NULL,pythonpath_init},
 	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd",NULL,pythonexec_init},
 	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
 	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
@@ -896,7 +931,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		}
 		else if ( var->callback )
 		{
-			var->callback(var->prop->name);
+			var->callback(var->prop->name,value);
 		}
 
 		return SUCCESS;

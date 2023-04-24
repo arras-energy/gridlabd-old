@@ -106,7 +106,7 @@ void throw_exception(const char *format, /**< the format string */
 	static char buffer[1024]="";
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(buffer,format,ptr);
+	vsnprintf(buffer,sizeof(buffer)-1,format,ptr);
 	va_end(ptr);
 
 	if (handlers)
