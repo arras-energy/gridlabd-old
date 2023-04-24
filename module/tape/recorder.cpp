@@ -136,7 +136,10 @@ static int recorder_open(OBJECT *obj)
 			gl_error("transient recorders cannot use multi-run output files");
 			return 0;
 		}
-		snprintf(my->multitempfile,sizeof(my->multitempfile)-1, "temp_%s", (char*)my->file);
+		if ( snprintf(my->multitempfile,sizeof(my->multitempfile)-1, "temp_%.*s", (int)(sizeof(my->multitempfile)-8),(const char*)(my->file)) < (int)strlen((const char*)my->file) )
+		{
+			gl_warning("recorder: filename '%s' truncated due to buffer overrun",(const char*)(my->file));
+		}
 		my->multifp = fopen(my->multitempfile, "w");
 		if(my->multifp == NULL){
 			gl_error("unable to open \'%s\' for multi-run output", (char*)my->multitempfile);

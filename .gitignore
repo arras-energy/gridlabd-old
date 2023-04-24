@@ -140,6 +140,10 @@ fault_check.txt
 # files that should be ignored by git
 *_ignore.*
 
+# requirements files
+requirements.txt
+python/venv
+
 # specific outputs that should be ignored
 python/example.png
 models/ieee123/config/local.glm

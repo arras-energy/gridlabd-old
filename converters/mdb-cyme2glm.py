@@ -80,7 +80,7 @@ config = pd.DataFrame({
 	"DEBUG" : ["False"],
 	"QUIET" : ["False"],
 	"VERBOSE" : ["False"],
-	}).transpose().set_axis(["value"],axis=1,inplace=0)
+	}).transpose().set_axis(["value"],axis=1)
 config.index.name = "name" 
 
 cyme_phase_name = {0:"ABCN", 1:"A", 2:"B", 3:"C", 4:"AB", 5:"AC", 6:"BC", 7:"ABC"} # CYME phase number -> phase names

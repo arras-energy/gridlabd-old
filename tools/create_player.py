@@ -72,8 +72,6 @@ details):
     
     parse_dates : [0]
 
-    infer_datetime_format : True
-    
     dayfirst : False
 
 The follow WRITEOPIONS are given by default (see Pandas to_csv for details):
@@ -202,7 +200,6 @@ READOPTIONS = {
     "header" : 0,
     "index_col" : 0,
     "parse_dates" : [0],
-    "infer_datetime_format" : True,
     "dayfirst" : False,
     }
 
@@ -347,7 +344,7 @@ def main(argv):
             DATA.set_index(DATA.columns[0],inplace=True)
             DATA.drop(DATA.columns[0],axis=1,inplace=True)
             DATA.columns = [specs[0]]
-        DATA.index = [dt.datetime.fromtimestamp(x,dt.timezone.utc) for x in DATA.index.astype('uint64')/1000000000]
+        DATA.index = [dt.datetime.fromtimestamp(x,dt.timezone.utc) for x in DATA.index.astype('int64')/1000000000]
 
         # resample
         if "resample" in OPTIONS.keys():

@@ -80,10 +80,6 @@ fi
 # Python Configuration Data and Flags
 ###############################################################################
 PY_OS="$(uname -s)"
-PYTHON_VER_DIR="@exec_prefix@/bin/pkgenv/bin"
-
-HAVE_PYTHON="$($PYTHON_VER_DIR/python3 --version | cut -f2 -d' ')"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
@@ -93,15 +89,20 @@ export GLD_DOC=$docdir
 export GLD_VAR=$vardir
 export GLD_INC=$exec_prefix/include
 export GLD_SRC=$exec_prefix/src
-export PYCCFLAGS="$($PYTHON_VER_DIR/python3-config --cflags)"
+
+. $bindir/pkgenv/bin/activate
+
+
+export PYCCFLAGS="$(python3-config --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$($PYTHON_VER_DIR/python3-config --ldflags)"
+export PYLDFLAGS="$(python3-config --ldflags)"
 export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
+export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
 export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
 
 AS_IF([test "x$GLPATH" = x],
@@ -132,7 +133,7 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [])
 
 AS_IF([test -f "${GLD_ETC}/$1.py"],
-  [export PYTHONPATH=$GLD_ETC; $PYTHON_VER_DIR/python3 -m "$@" ; exit $?],
+  [export PYTHONPATH=$GLD_ETC; python3 -m "$@" ; exit $?],
   [])
 
 AS_IF([test -x "${bindir}/gridlabd-$1"],
