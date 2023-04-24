@@ -15,24 +15,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
+    - name: Build gridlabd
       run: |
-        chown -R $(id -u):$(id -g) $PWD
-        
-    - name: Update pip
-      run: python3 -m pip install --upgrade pip
-
-    - name: install gridlabd
-      run: |
+        set +x
+        chown -R $(id -u):$(id -g) $PWD /github/home
         autoreconf -isf
         ./configure
-        make -j$(($(nproc)*3)) system
+        make -j$(($(nproc)*3)) python-install system
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
       
-    - name: Validate build
+    - name: Validate system
       run: |
         gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( utilities/save_validation_errors ; false )
         

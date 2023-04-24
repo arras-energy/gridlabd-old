@@ -122,8 +122,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     try:
         precision = int(options["precision"]["elevation"])
     except:
-        warning("elevation precision not found in options")
-        precision = 0
+        precision = default_options["precision"]["elevation"]
     global units
     if "units" not in options.keys() or options["units"] not in units.keys():
         raise Exception(f"unit '{options['units']}' or is not valid")

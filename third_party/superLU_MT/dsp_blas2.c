@@ -88,7 +88,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
     register int fsupc, luptr, istart, irow, k, iptr, jcol, nsuper;
     int          nsupr, nsupc, nrow, i;
     double *work;
-    flops_t solve_ops;
 
     /* Test the input parameters */
     *info = 0;
@@ -108,7 +107,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
     Ustore = U->Store;
     Uval = Ustore->nzval;
     nsuper = Lstore->nsuper;
-    solve_ops = 0;
 
     if ( !(work = doubleCalloc(L->nrow)) )
 	SUPERLU_ABORT("Malloc fails for work in sp_dtrsv().");
@@ -126,9 +124,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
                 nsupc = L_LAST_SUPC(k) - fsupc;
 		luptr = L_NZ_START(fsupc);
 		nrow = nsupr - nsupc;
-
-	        solve_ops += nsupc * (nsupc - 1);
-	        solve_ops += 2 * nrow * nsupc;
 
 		if ( nsupc == 1 ) {
 		    for (iptr=istart+1; iptr < L_SUB_END(fsupc); ++iptr) {
@@ -183,8 +178,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
                 nsupc = L_LAST_SUPC(k) - fsupc;
 	    	luptr = L_NZ_START(fsupc);
 		
-    	        solve_ops += nsupc * (nsupc + 1);
-
 		if ( nsupc == 1 ) {
 		    x[fsupc] /= Lval[luptr];
 		    for (i = U_NZ_START(fsupc); i < U_NZ_END(fsupc); ++i) {
@@ -208,8 +201,7 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
 		    dusolve ( nsupr, nsupc, &Lval[luptr], &x[fsupc] );
 #endif		
 
-                    for (jcol = fsupc; jcol < fsupc + nsupc; jcol++) {
-		        solve_ops += 2*(U_NZ_END(jcol) - U_NZ_START(jcol));
+            for (jcol = fsupc; jcol < fsupc + nsupc; jcol++) {
 		    	for (i = U_NZ_START(jcol); i < U_NZ_END(jcol); i++) {
 			    irow = U_SUB(i);
 			    x[irow] -= x[jcol] * Uval[i];
@@ -232,8 +224,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
                 nsupc = L_LAST_SUPC(k) - fsupc;
 	    	luptr = L_NZ_START(fsupc);
 
-		solve_ops += 2 * (nsupr - nsupc) * nsupc;
-
 		for (jcol = fsupc; jcol < L_LAST_SUPC(k); jcol++) {
 		    iptr = istart + nsupc;
 		    for (i = L_NZ_START(jcol) + nsupc; 
@@ -245,7 +235,6 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
 		}
 		
 		if ( nsupc > 1 ) {
-		    solve_ops += nsupc * (nsupc - 1);
 #ifdef _CRAY
                     ftcs1 = _cptofcd("L", strlen("L"));
                     ftcs2 = _cptofcd("T", strlen("T"));
@@ -269,14 +258,11 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
 	    	luptr = L_NZ_START(fsupc);
 
 		for (jcol = fsupc; jcol < fsupc + nsupc; jcol++) {
-		    solve_ops += 2*(U_NZ_END(jcol) - U_NZ_START(jcol));
 		    for (i = U_NZ_START(jcol); i < U_NZ_END(jcol); i++) {
 			irow = U_SUB(i);
 			x[jcol] -= x[irow] * Uval[i];
 		    }
 		}
-
-		solve_ops += nsupc * (nsupc + 1);
 
 		if ( nsupc == 1 ) {
 		    x[fsupc] /= Lval[luptr];

@@ -14,7 +14,7 @@ HTTP* hopen(const char *url, int maxlen)
 	char hostname[1024];
 	char filespec[1024];
 	HTTP *http;
-	char request[1024];
+	char request[3000];
 	int len;
 
 #ifdef WIN32

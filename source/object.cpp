@@ -1963,7 +1963,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	}
 	else
 	{
-		char buffer[1024];
+		char buffer[1025];
 		snprintf(buffer,sizeof(buffer)-1,"%lld",global_clock);
 		setenv("CLOCK",buffer,1);
 		snprintf(buffer,sizeof(buffer)-1,"%s",global_hostname);
@@ -2355,7 +2355,10 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 	count = strlen(buffer);
 	if ( count < size && count < sizeof(buffer) )
 	{
-		strncpy(outbuffer, buffer, count+1);
+		if ( snprintf(outbuffer,size-1,"%.*s",int(size-1),buffer) < (int)count )
+		{
+			output_warning("object_dump(obj=<%s:%d>): output truncated",obj->oclass->name,obj->id);
+		}
 		return count;
 	} 
 	else 
@@ -2382,11 +2385,11 @@ static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
 		if ( value!=NULL )
 		{
 			if ( prop->ptype==PT_timestamp)  // timestamps require single quotes
-				sprintf(temp+count, "\t%s '%s';\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s '%s';\n", prop->name, value);
 			else if ( strcmp(value,"")==0 || ( strpbrk(value," \t") && prop->unit==NULL ) ) // double quotes needed empty strings and when white spaces are present in non-real values
-				sprintf(temp+count, "\t%s \"%s\";\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s \"%s\";\n", prop->name, value);
 			else
-				sprintf(temp+count, "\t%s %s;\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s %s;\n", prop->name, value);
 			count = strlen(temp);
 		}
 	}
@@ -2409,12 +2412,12 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 		count = strlen(temp);
 	}
 
-	count += sprintf(temp+count, "\trank %d;\n", obj->rank);
+	count += snprintf(temp+count,size-count-1, "\trank %d;\n", obj->rank);
 	if(obj->name != NULL){
 		snprintf(temp+count,size-count-1, "\tname %s;\n", obj->name);
 		count = strlen(temp);
 	}
-	count += sprintf(temp+count,"\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
+	count += snprintf(temp+count,size-count-1, "\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
 	if( !isnan(obj->latitude) ){
 		snprintf(temp+count,size-count-1, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 		count = strlen(temp);
@@ -3373,7 +3376,10 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	output_warning("forecast_create(): description parsing not implemented");
 
 	/* copy the description */
-	strncpy(fc->specification,specs,sizeof(fc->specification));
+	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%.*s",(int)(sizeof(fc->specification)-2),specs) < (int)strlen(specs) )
+	{
+		output_warning("forecast_create(obj=<%s:%d>,specs='%32s...'): long output truncated",obj->oclass->name,obj->id,specs);
+	}
 
 	return fc;
 }
