@@ -385,7 +385,7 @@ if __name__ == '__main__':
             output_data = pd.read_csv(outputs, usecols=output_cols, converters=converters.outputs)
             output_names = output_data.columns[1:]
             ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(output_data[output_data.columns[0]])))
-            data = pd.DataFrame(output_data.groupby(ndx)[output_data.columns[1]].mean())
+            data = pd.DataFrame(output_data.groupby(ndx)[output_data.columns[1]].min())
             verbose(data)
 
             if converters.inputs:
@@ -422,7 +422,7 @@ if __name__ == '__main__':
                     input_data[f"month{month}"] = list(map(lambda x: int(x==month),months))
             input_names = input_data.columns[1:]
             ndx = list(map(lambda t:datetime(t.year,t.month,t.day,t.hour),pd.DatetimeIndex(input_data[input_data.columns[0]])))
-            data = input_data.groupby(ndx).mean().join(data).dropna()
+            data = input_data.groupby(ndx).min().join(data).dropna()
             verbose(data)
 
         except Exception as err:

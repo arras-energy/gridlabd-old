@@ -408,7 +408,7 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     }
     Py_INCREF(proptype);
     char version[1024];
-    sprintf(version,"%d.%d.%d-%d",global_version_major,global_version_minor,global_version_patch,global_version_build);
+    snprintf(version,sizeof(version)-1,"%d.%d.%d-%d",global_version_major,global_version_minor,global_version_patch,global_version_build);
     PyModule_AddObject(this_module,"__version__",Py_BuildValue("s",version));
 
     //PyModule_AddObject(this_module,"GldObject",gridlabd_class_create(&this_module));
@@ -1366,7 +1366,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     else
     {
         char buffer[1024];
-        sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+        snprintf(buffer,sizeof(buffer)-1,"%s:%d",obj->oclass->name,obj->id);
         PyDict_SetItemString(data,"name",buffer);
     }
     if ( obj->oclass->name != NULL )
@@ -2160,7 +2160,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
     if ( obj->name )
         strcpy(objname,obj->name);
     else
-        sprintf(objname,"%s:%d",obj->oclass->name, obj->id);
+        snprintf(objname,sizeof(objname)-1,"%s:%d",obj->oclass->name, obj->id);
 
     char modname[1024], method[1024];
     if ( sscanf(function,"%[^.].%[^\n]",modname,method) < 2 )
@@ -2201,7 +2201,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             char name[1024];
             if ( obj->name == NULL )
             {
-                sprintf(name,"%s:%d", obj->oclass->name, obj->id);
+                snprintf(name,sizeof(name)-1,"%s:%d", obj->oclass->name, obj->id);
             }
             PyObject *args = Py_BuildValue("(sK)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyObject_Call(call,args,NULL);

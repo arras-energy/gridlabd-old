@@ -554,18 +554,17 @@ int64 GldExec::clock(void)
 		return 0;
 	}
 	
-	static struct timeb t0;
-	struct timeb t1 = {0,0,0,0};
-	if ( t0.time == 0 )
+	static struct timeval t0 = {0,0};
+	struct timeval t1 = {0,0};
+	if ( t0.tv_sec == 0 )
 	{
-		ftime(&t0);
-		t1 = t0;
+		gettimeofday(&t0,NULL);
 	}
 	else
 	{
-		ftime(&t1);
+		gettimeofday(&t1,NULL);
 	}
-	return (t1.time-t0.time)*CLOCKS_PER_SEC + (t1.millitm-t0.millitm)*CLOCKS_PER_SEC/1000;
+	return (t1.tv_sec-t0.tv_sec)*CLOCKS_PER_SEC + (t1.tv_usec-t0.tv_usec)*CLOCKS_PER_SEC/1000000;
 }
 
 /** The main system initialization sequence

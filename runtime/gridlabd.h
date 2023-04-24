@@ -546,7 +546,7 @@ typedef struct s_globalvar {
 	PROPERTY *prop;
 	struct s_globalvar *next;
 	uint32 flags;
-	void (*callback)(char*);
+	void (*callback)(const char*,const char*);
 	LOCKVAR lock;
 } GLOBALVAR;
 

@@ -136,8 +136,11 @@ pxgstrf_resetrep_col(const int nseg, const int *segrep, int *repfnz)
 void
 countnz(const int n, int *xprune, int *nnzL, int *nnzU, GlobalLU_t *Glu)
 {
-    register int nsuper, fsupc, i, j, nnzL0, jlen, irep;
+    register int nsuper, fsupc, i, j, jlen;
+#if ( PRNTlevel==1 )
+    register int nnzL0, irep;
     register int nnzsup = 0;
+#endif
     register int *xsup, *xsup_end, *xlsub, *xlsub_end, *supno;
 	
     xsup      = Glu->xsup;
@@ -146,7 +149,9 @@ countnz(const int n, int *xprune, int *nnzL, int *nnzU, GlobalLU_t *Glu)
     xlsub_end = Glu->xlsub_end;
     supno     = Glu->supno;
     *nnzU     = Glu->nextu;
+#if ( PRNTlevel==1 )
     nnzL0     = 0;
+#endif
     *nnzL     = 0;
     nsuper    = supno[n];
 
@@ -158,18 +163,22 @@ countnz(const int n, int *xprune, int *nnzL, int *nnzU, GlobalLU_t *Glu)
     for (i = 0; i <= nsuper; i++) {
 	fsupc = xsup[i];
 	jlen = xlsub_end[fsupc] - xlsub[fsupc];
+#if ( PRNTlevel==1 )
 	nnzsup += jlen * (xsup_end[i] - fsupc);
+#endif
 			  
 	for (j = fsupc; j < xsup_end[i]; j++) {
 	    *nnzL += jlen;
 	    *nnzU += j - fsupc + 1;
 	    jlen--;
 	}
-	irep = SUPER_REP(i);
+#if ( PRNTlevel==1 )    
+    irep = SUPER_REP(i);
 	if ( SINGLETON(supno[irep]) )
 	    nnzL0 += xprune[irep] - xlsub_end[irep];
 	else 
 	    nnzL0 += xprune[irep] - xlsub[irep];
+#endif
     }
 
 #if ( PRNTlevel==1 )

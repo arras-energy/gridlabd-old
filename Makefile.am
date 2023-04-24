@@ -10,6 +10,14 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
+# !!! must match version specified in configure.ac
+PYVER = 3.10
+PYCFLAGS = $(shell python3.10-config --cflags)
+PYLDFLAGS = $(shell python3.10-config --ldflags)
+
+SYSPYTHON = python$(PYVER)
+PYTHONCONFIG = $(SYSPYTHON)-config
+
 AM_INIT_AUTOMAKE = subdir-objects 
 AUTOMAKE_OPTIONS = -Wno-portability
 ACLOCAL_AMFLAGS = -I m4
@@ -18,27 +26,30 @@ CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
 AM_CPPFLAGS = -Wall -fPIC
-AM_CPPFLAGS += -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
+AM_CPPFLAGS += -I$(top_srcdir)/source #-I$(top_srcdir)/build-dir/source
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
+AM_CPPFLAGS += $(PYCFLAGS)
 
 AM_CFLAGS = -Wall
-AM_CFLAGS +=  -I$(top_srcdir)/source -I$(top_srcdir)/build-dir/source
+AM_CFLAGS +=  -I$(top_srcdir)/source #-I$(top_srcdir)/build-dir/source
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/source
+AM_CFLAGS += $(GLD_CFLAGS)  #-I$(top_srcdir)/build-dir/source
+AM_CFLAGS += $(PYCFLAGS)
 
 AM_CXXFLAGS = -Wall -fPIC
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/source
+AM_CXXFLAGS += $(GLD_CXXFLAGS) #-I$(top_srcdir)/build-dir/source
+AM_CXXFLAGS += $(PYCFLAGS)
 
-AM_LDFLAGS =
+AM_LDFLAGS = $(PYLDFLAGS)
 AM_LDFLAGS += -no-undefined
 AM_LDFLAGS += -module
 AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
-AM_LDFLAGS += $(GLD_LDFLAGS)
+AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
 
 # makefile fragments populate these variables
-BUILT_SOURCES =
+BUILT_SOURCES = 
 CLEANFILES =
 EXTRA_DIST =
 dist_pkgdata_DATA =
@@ -48,8 +59,6 @@ pkglib_LTLIBRARIES =
 bin_PROGRAMS =
 bin_SCRIPTS =
 dist_doc_DATA =
-
-python_requirements = $(shell find $(top_srcdir) -name requirements.txt -print)
 
 docs_targets =
 
@@ -70,6 +79,55 @@ include $(top_srcdir)/module/Makefile.mk
 
 # custom modules (see ./customize)
 include $(top_srcdir)/custom.mk
+
+BUILT_SOURCES += python-requirements
+
+#
+# Post install report
+#
+
+install-exec-hook: | index docs
+	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@echo ""
+	@echo "Install complete. Here are some useful commands now:"
+	@echo ""
+	@echo "To include this version in your command path:"
+	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
+	@echo ""
+	@echo "To run this version directly without using the command path:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd"
+	@echo ""
+	@echo "To make this version the default for all users on this system:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
+	@echo ""
+
+#
+# Python setup
+#
+
+PYENV=$(bindir)/pkgenv
+PYBIN=$(PYENV)/bin
+PYLIB=$(PYENV)/lib
+PYINC=$(PYENV)/include
+ENVPYTHON=$(PYBIN)/python$(PYVER)
+PYACTIVATE=source $(PYBIN)/activate
+
+python-requirements: | $(PYENV) 
+
+# NB: it's ok to use the runner's python to generate the requirements.txt file
+requirements.txt: python/requirements.csv
+	@python3 -m pip -q install pandas==2.0.0
+	@python3 python/requirements.py $< >$@
+
+$(PYENV): requirements.txt
+	@echo "Processing python requirements..."
+	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
+	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
+	@$(ENVPYTHON) -m pip install --upgrade pip
+	@$(ENVPYTHON) -m pip install pandas==2.0.0
+	@$(ENVPYTHON) python/requirements.py --buildenv | bash
+	@$(ENVPYTHON) -m pip install -r requirements.txt 
+	@touch $(PYENV)
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
@@ -285,24 +343,9 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) $(PWD)/config.status libtool > /dev/null
 
-install-exec-hook: index python-requirements docs
-	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
-	@echo ""
-	@echo "Install complete. Here are some useful commands now:"
-	@echo ""
-	@echo "To include this version in your command path:"
-	@echo "  export PATH='$(DESTDIR)$(bindir):$$PATH'"
-	@echo ""
-	@echo "To run this version directly without using the command path:"
-	@echo "  $(DESTDIR)$(bindir)/gridlabd"
-	@echo ""
-	@echo "To make this version the default for all users on this system:"
-	@echo "  $(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))"
-	@echo ""
-
-python-requirements: $(python_requirements)
-	@echo "Updating python requirements..."
-	@$(bindir)/pkgenv/bin/python3 -m pip install -q -r $(subst $(subst ,, ), -r ,$(python_requirements))
+#
+# Run this after changes that affect build-aux/version.sh output
+#
 
 reconfigure: distclean
 	autoreconf -isf && $(PWD)/configure --quiet
