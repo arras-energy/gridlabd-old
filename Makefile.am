@@ -123,10 +123,10 @@ requirements.txt: python/requirements.csv
 $(PYENV): requirements.txt
 	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" ; false )
 	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" ; false )
-	@python3-config --prefix || ( echo "ERROR: python3-config is not linked to python$(PYVER)-config" ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
+	@$(PYENV)/bin/python3-config --prefix || ln -s $(PYENV)/bin/python$(PYVER)-config $(PYENV)/bin/python3-config
 	@$(ENVPYTHON) --version || ( echo "ERROR: $(ENVPYTHON) is not found" ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
