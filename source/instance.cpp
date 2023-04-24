@@ -416,7 +416,7 @@ void instance_master_done_socket(instance *inst)
 
 	// write data from cache to buffer
 	memset(inst->buffer, 0, inst->buffer_size);
-	sprintf(inst->buffer, MSG_DATA);
+	snprintf(inst->buffer, inst->buffer_size-1, MSG_DATA);
 	offset = (int)strlen(MSG_DATA);
 	memcpy(inst->buffer+offset, inst->cache, sizeof(MESSAGE));
 	offset += sizeof(MESSAGE);
@@ -569,13 +569,13 @@ STATUS instance_init(instance *inst)
 	// properties are written into the buffer as "obj1.prop1,obj2.prop2 obj3.prop3,obj4.prop4\0".
 	//	a space separates the writers from the readers.
 	for ( lnk=inst->write ; lnk!=NULL ; lnk=lnk->next ){
-		sprintf(inst->message->name_buffer+name_offset, "%s.%s%c", lnk->remote.obj, lnk->remote.prop, (lnk->next == 0 ? ' ' : ','));
+		snprintf(inst->message->name_buffer+name_offset, inst->cachesize, "%s.%s%c", lnk->remote.obj, lnk->remote.prop, (lnk->next == 0 ? ' ' : ','));
 		lnk->addr = (char *)(inst->message->data_buffer + prop_offset);
 		name_offset += lnk->name_size;
 		prop_offset += lnk->prop_size;
 	}
 	for ( lnk=inst->read ; lnk!=NULL ; lnk=lnk->next ){
-		sprintf(inst->message->name_buffer+name_offset, "%s.%s%c", lnk->remote.obj, lnk->remote.prop, (lnk->next == 0 ? '\0' : ','));
+		snprintf(inst->message->name_buffer+name_offset, inst->cachesize, "%s.%s%c", lnk->remote.obj, lnk->remote.prop, (lnk->next == 0 ? '\0' : ','));
 		lnk->addr = (char *)(inst->message->data_buffer + prop_offset);
 		name_offset += lnk->name_size;
 		prop_offset += lnk->prop_size;

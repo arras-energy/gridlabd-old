@@ -2,8 +2,6 @@
 # INPUT CONVERTERS
 #
 
-python_requirements += $(top_srcdir)/converters/requirements.txt
-
 # csv -> glm
 dist_pkgdata_DATA += converters/csv-ami2glm-ceus.py
 dist_pkgdata_DATA += converters/csv-ami2glm-rbsa.py

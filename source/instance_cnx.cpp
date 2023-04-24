@@ -176,7 +176,7 @@ STATUS instance_cnx_socket(instance *inst){
 	}
 
 	// send HS_SYN
-	sprintf(sendcmd, HS_SYN);
+	snprintf(sendcmd, sizeof(sendcmd)-1, HS_SYN);
 	rv = send(outsockfd, sendcmd, 1+(int)strlen(HS_SYN), 0);
 	IN_MYCONTEXT output_debug("%d = send(%d, %x, %d, 0)", rv, outsockfd, sendcmd, 1+strlen(HS_SYN));
 	if(1 > rv){
@@ -458,7 +458,7 @@ STATUS instance_cnx_socket(instance *inst){
 		IN_MYCONTEXT output_debug("i_cnx_s(): recv'ed %d from recv(%d, %x, 1024, 0)", rv, inst->sockfd, cmd);
 	}
 
-	sprintf(cmd, MSG_START);
+	snprintf(cmd, sizeof(cmd)-1, MSG_START);
 	rv = send(inst->sockfd, cmd, (int)strlen(MSG_START), 0);
 	if(0 > rv){
 		output_error("instance_cnx_socket(): error sending start message");

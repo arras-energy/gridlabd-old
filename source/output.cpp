@@ -47,7 +47,7 @@ bool output_enable_flush(bool enable)
 	return old;
 }
 
-static char prefix[16]="";
+static char prefix[17]="";
 void output_prefix_enable(void)
 {
 	unsigned short cpuid, procid;

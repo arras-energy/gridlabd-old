@@ -647,7 +647,6 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 TIMESTAMP fuse::postsync(TIMESTAMP t0)
 {
 	size_t jindex;
-	unsigned char goodphases = 0x00;
 	TIMESTAMP Ret_Val[3], t1;
 
 	//FBS legacy code
@@ -660,7 +659,6 @@ TIMESTAMP fuse::postsync(TIMESTAMP t0)
 			if (phase_A_state == GOOD)	//Only bother if we are in service
 			{
 				Ret_Val[0] = TS_NEVER;		//We're still good, so we don't care when we come back
-				goodphases |= 0x04;			//Mark as good
 			}
 			else						//We're blown
 			{
@@ -679,7 +677,6 @@ TIMESTAMP fuse::postsync(TIMESTAMP t0)
 			if (phase_B_state == GOOD)	//Only bother if we are in service
 			{
 				Ret_Val[1] = TS_NEVER;		//We're still good, so we don't care when we come back
-				goodphases |= 0x02;			//Mark as good
 			}
 			else						//We're blown
 			{
@@ -699,7 +696,6 @@ TIMESTAMP fuse::postsync(TIMESTAMP t0)
 			if (phase_C_state == GOOD)	//Only bother if we are in service
 			{
 				Ret_Val[2] = TS_NEVER;		//We're still good, so we don't care when we come back
-				goodphases |= 0x01;			//Mark as good
 			}
 			else						//We're blown
 			{
