@@ -556,7 +556,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	unsigned int count=0;
 	time_t now=time(NULL);
 
-	char extension[sizeof(char32)];
+	char extension[32];
 	char columnlist[sizeof(char1024)];
 	char **columns;
 
