@@ -32,6 +32,8 @@ from pyproj import Transformer
 from datetime import datetime
 
 GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share"
 
 today= datetime.today().strftime('%Y%m%d')
 

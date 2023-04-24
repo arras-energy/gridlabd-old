@@ -52,6 +52,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 ###############################################################################
 # Init automake
 ###############################################################################
+
 AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -578,109 +579,17 @@ BINDIR=$DSTDIR/bin
 LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
-ENVDIR=$BINDIR/pkgenv
-PYDIR=$ENVDIR/bin
-PYEXE=3.10
 
-echo "os: $host_os"
-echo "cpu: $host_cpu"
+PYTHON_REQ=3.10
 
-# Verify python version
-if test ! -d "$BINDIR/pkgenv"; then
-    mkdir -p "$BINDIR"
-fi
+AM_PATH_PYTHON([$PYTHON_REQ])
+PYTHON=$(which python$PYTHON_REQ)
+HAVE_PYTHON="$($PYTHON --version | cut -f2 -d' ')"
 
-if test ! -d "$DSTDIR/share"; then
-    mkdir -p "$DSTDIR/share"
-fi
-
-if echo "$host_os" | grep '^linux' >/dev/null; then
-    # Check for Debian or Ubuntu
-    if grep -E '^ID=(debian|ubuntu)$' /etc/*-release; then
-        # Check for Debian 10
-        if grep -E '^VERSION_ID="10"' /etc/*-release; then
-            echo "Detected Debian 10 operating system"
-            # Add Debian 10-specific configuration here
-            /usr/local/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
-            "$PYDIR/python3" -m pip install --upgrade pip
-            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            "$PYDIR/python3" -m pip install IPython censusdata
-            "$PYDIR/python3" -m pip install GDAL==2.4.0
-            "$PYDIR/python3" -m pip install rasterio==1.2.10
-        elif grep -E '^VERSION_ID="9"' /etc/*-release; then
-            echo "Detected Debian 9 operating system"
-            # Add Debian 9-specific configuration here
-            /usr/local/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
-            "$PYDIR/python3" -m pip install --upgrade pip
-            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            "$PYDIR/python3" -m pip install IPython censusdata
-        else
-            echo "Detected Debian or Ubuntu operating system"
-            # Add Debian/Ubuntu-specific configuration here
-            /usr/local/bin/python$PYEXE  -m venv "$BINDIR/pkgenv"
-            "$PYDIR/python3" -m pip install --upgrade pip
-            "$PYDIR/python3" -m pip install --upgrade --no-cache-dir setuptools==57.5.0
-            "$PYDIR/python3" -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-            "$PYDIR/python3" -m pip install IPython censusdata wheel
-            "$PYDIR/python3" -m pip install --upgrade --no-cache-dir setuptools==57.5.0
-            "$PYDIR/python3" -m pip install GDAL==3.0.4
-            "$PYDIR/python3" -m pip install rasterio==1.2.10
-        fi
-
-        if test ! -d "$BINDIR/pkgenv/include/python*"; then
-            ln -sF /usr/local/bin/python${PYEXE}-config $BINDIR/pkgenv/bin/python3-config
-            ln -sF /usr/local/lib/*${PYEXE}* $BINDIR/pkgenv/lib
-            ln -sF /usr/local/include/python${PYEXE} $BINDIR/pkgenv/include
-        fi
-
-    else
-        echo "Unsupported Linux distribution"
-        exit 1
-    fi
-elif echo "$host_os" | grep '^darwin' >/dev/null; then
-    if echo "$host_cpu" | grep -E 'i386|x86_64'; then
-        echo "Detected Intel Mac operating system"
-        # Add Intel Mac-specific configuration here
-        /usr/local/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
-
-        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
-        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
-        ln -sF /usr/local/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
-
-        $PYDIR/python3 -m ensurepip --upgrade
-        $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-        $PYDIR/python3 -m pip install build
-        $PYDIR/python3 -m pip install pyproj wheel
-
-    elif echo "$host_cpu" | grep 'aarch64'; then
-        echo "Detected arm64 Mac operating system"
-        # Add arm64 Mac-specific configuration here
-        /opt/homebrew/bin/python$PYEXE -m venv "$BINDIR/pkgenv"
-
-        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/bin/python$PYEXE-config $BINDIR/pkgenv/bin/python3-config
-        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/include/python$PYEXE $BINDIR/pkgenv/include
-        ln -sF /opt/homebrew/opt/python@$PYEXE/Frameworks/Python.framework/Versions/$PYEXE/lib/*${PYEXE}* $BINDIR/pkgenv/lib
-
-        $PYDIR/python3 -m ensurepip --upgrade
-        $PYDIR/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
-        $PYDIR/python3 -m pip install build
-        $PYDIR/python3 -m pip install pyproj wheel
-    else
-        echo "Unknown CPU architecture on Mac operating system"
-        exit 1
-    fi
-else
-    echo "Unsupported operating system: $host_os"
-    exit 1
-fi
-
-HAVE_PYTHON="$($BINDIR/pkgenv/bin/python3 --version | cut -f2 -d' ')"
-PYTHON_EXEC="$($BINDIR/pkgenv/bin/python3 -c "import os; print(os.path.realpath('$BINDIR/pkgenv/bin/python3'))")"
-PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
-  [PYTHON_LIB="-lpython${PYTHON_VER} -shared -Wl-undefined,dynamic_lookup"],
-  [PYTHON_LIB="-lpython${PYTHON_VER}"])
+  [PYTHON_LIB="-lpython${PYTHON_REQ} -shared -Wl-undefined,dynamic_lookup"],
+  [PYTHON_LIB="-lpython${PYTHON_REQ}"])
 
 ###############################################################################
 # The End
@@ -696,7 +605,7 @@ AC_MSG_RESULT([
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
-    Python Location: ............ $PYTHON_EXEC
+    Python binary: .............. $PYTHON
 
   Dependencies:
 
@@ -714,6 +623,7 @@ AC_MSG_RESULT([
 
   Build flags:
 
+    CFLAGS: ..................... ${CFLAGS:-(none)}
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
@@ -750,17 +660,8 @@ AC_MSG_RESULT([
 
         $DSTDIR/bin/$PACKAGE version set
 
-    Developer flags:
-    CFLAGS ........ "$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    CXXFLAGS ...... "$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-    LDFLAGS ....... "$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
-
 -----------------------------------------------------------------------
 ])
-
-CFLAGS="$CFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-CXXFLAGS="$($BINDIR/pkgenv/bin/python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
-LDFLAGS="$($BINDIR/pkgenv/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])

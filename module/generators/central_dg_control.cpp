@@ -371,7 +371,6 @@ TIMESTAMP central_dg_control::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double Q_avail_3p = 0.0;
 	double this_Q;
 	double P_disp_3p_no_control = 0;
-	double Q_disp_3p_no_control = 0;
 
 	//The target power factor is the midpoint of the two values specifying the allowable band. However, due to the 
 	//discontinuous/nonlinear nature of the signed power factor used in GridLAB-D, calculation of the midpoint is 
@@ -395,10 +394,8 @@ TIMESTAMP central_dg_control::sync(TIMESTAMP t0, TIMESTAMP t1)
 	for(i = 0; i < inverter_count; i++)
 	{
 		P_disp_3p_no_control += inverter_set[i]->P_Out;
-		Q_disp_3p_no_control += inverter_set[i]->Q_Out;
-	}
+	}	
 
-	
 	P_gen_solar[0] = P_gen_solar[1] = P_gen_solar[2] = P_gen_solar_3p = 0.0;
 	Q_gen_solar[0] = Q_gen_solar[1] = Q_gen_solar[2] = Q_gen_solar_3p =0.0;
 	//Calculate solar inverter power output for this time step.

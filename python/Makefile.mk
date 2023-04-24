@@ -1,18 +1,29 @@
-PYTHONVERSION=$(shell $(bindir)/pkgenv/bin/python3 $(top_srcdir)/python/setup.py --version)
+PYTHONVERSION=$(shell python3 $(top_srcdir)/python/setup.py --version)
+PYPKG=$(PYENV)/lib/python$(PYVER)/site-packages/gridlabd
 
-$(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h
+$(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h | $(PYENV)
+	@echo "building gridlabd-$(PYTHONVERSION)..."
+	@rm -f $(PYPKG)-$(PYTHONVERSION)*.{whl,tar.gz}
+	@$(ENVPYTHON) -m pip install build 
+	@export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(ENVPYTHON) -m build $(top_srcdir)/python
 
-	@echo "building $@"
-	@rm -f $(top_srcdir)/python/dist/gridlabd-*.{whl,tar.gz}
-	@$(bindir)/pkgenv/bin/python3 -m pip install build 1>/dev/null
-	@( export SRCDIR=$(realpath $(top_srcdir)) ; export BLDDIR=$(shell pwd); $(bindir)/pkgenv/bin/python3 -m build $(top_srcdir)/python 1>/dev/null )
+$(PYPKG)-$(PYTHONVERSION).tar.gz: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
+	@echo "copying $(top_srcdir)/python/dist to $(PYPKG)-$(PYTHONVERSION)..."
+	@cp $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION)*.{tar.gz,whl} $(PYENV)/lib/python$(PYVER)/site-packages
 
-python-install: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz
+python-install: $(PYPKG)-$(PYTHONVERSION).dist-info
 
-	@echo "installing $@"
-	@$(bindir)/pkgenv/bin/python3 -m pip install --ignore-installed $(top_srcdir)/python/dist/gridlabd-*.whl
+$(PYPKG)-$(PYTHONVERSION).dist-info: $(PYPKG)-$(PYTHONVERSION).tar.gz
+	@echo "installing gridlabd-$(PYTHONVERSION)..."
+	$(ENVPYTHON) -m pip install --ignore-installed $(PYPKG)-$(PYTHONVERSION)-*.whl
+	touch $@
 
 python-clean:
-	@rm -f $(top_srcdir)/python/dist/*.{whl,tar.gz}
-	@echo "uninstalling $(top_srcdir)/python"
-	@$(bindir)/pkgenv/bin/python3 -m pip uninstall gridlabd -y || (echo "Use '. utilities/cleanwc' instead to clean this build."; exit 1)
+	@echo "removing $(top_srcdir)/python/dist..."
+	@rm -rf $(top_srcdir)/python/dist
+
+python-uninstall:
+	@echo "removing $(PYPKG)..."
+	@rm -rf $(PYPKG)*
+
+BUILT_SOURCES += python-install

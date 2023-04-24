@@ -39,7 +39,7 @@ public:
 	double dFlush_interval;
 	char256 property_name;
 	int32 limit;
-	char256 filename;
+	char1024 filename;
 	bool strict;
 	bool print_units;
     bool format;

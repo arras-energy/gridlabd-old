@@ -1344,44 +1344,40 @@ int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
-	char buffer[1024];
+	char buffer[2048];
 	char tmp[1024];
 	if ( _random_specs(var->type,var->a,var->b,tmp,sizeof(tmp)-1) )
 	{
-		snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
-		int len = strlen(buffer);
+		int len = snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
 		if ( var->low != 0.0 && var->low < var->high )
 		{
-			snprintf(buffer+len,sizeof(buffer)-1-len,"; min:%g",var->low);
-			len = strlen(buffer);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; min:%g",var->low);
 		}
 		if ( var->high != 0.0 && var->low < var->high )
 		{
-			snprintf(buffer+len,sizeof(buffer)-1-len,"; max:%g",var->high);
-			len = strlen(buffer);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; max:%g",var->high);
 		}
 		if ( var->update_rate != 0 )
 		{
-			snprintf(buffer+len,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
-			len = strlen(buffer);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
 		}
 		if ( (var->flags&RNF_INTEGRATE) == RNF_INTEGRATE )
 		{
-			snprintf(buffer+len,sizeof(buffer)-1-len,"; integrate");
-			len = strlen(buffer);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; integrate");
 		}
 		if ( var->correlation != NULL )
 		{
 			object_name(var->correlation->object,tmp,sizeof(tmp)-1);
-			snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
 				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);
-			len = strlen(buffer);
 		}
-		snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
-		len = strlen(buffer);
+		len += snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
 		if ( string )
 		{
-			strncpy(string,buffer,size-1);
+			if ( snprintf(string,size,"%.*s",len,buffer) < len )
+			{
+				output_warning("convert_from_randomvar(...): long output truncated to fit in return buffer");
+			}
 		}
 		return len;
 	}
@@ -1465,7 +1461,7 @@ randomvar *randomvar_getnext(randomvar*var)
 
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 {
-	char buffer[1024];
+	char buffer[2048];
 	char specs[1024];
 	size_t len;
 	if ( _random_specs(var->type,var->a,var->b,specs,sizeof(specs))<=0 )
@@ -1473,13 +1469,15 @@ size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 	snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
 		var->state, specs, var->low, var->high, var->update_rate, var->flags&RNF_INTEGRATE ? "; integrate" : "");
 	len = strlen(buffer);
-	if ( len > 0 && len<size )
+	if ( len > 0 && snprintf(str,size,"%.*s",(int)(len),buffer) < (int)len )
 	{
-		strcpy(str,buffer);
-		return len;
+		output_warning("randomvar_getspec(...): long output truncated to fit in return buffer");
+		return size-1;
 	}
 	else
-		return 0;
+	{
+		return len;
+	}
 }
 
 TIMESTAMP randomvar_syncall(TIMESTAMP t1)

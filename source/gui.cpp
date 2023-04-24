@@ -780,7 +780,9 @@ void GldGui::output_html_table(GUIENTITY *entity)
 		if ( line[0]=='#' )
 		{
 			if ( row==0 )
-				strncpy(header,line+1,sizeof(header)-1);
+			{
+				snprintf(header,sizeof(header)-1,"%.*s",(int)(sizeof(header)-2),line+1);
+			}
 		}
 		else 
 		{
