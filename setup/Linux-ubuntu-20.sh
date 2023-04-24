@@ -62,10 +62,10 @@ fi
 "$PYTHON_EXEC" -m pip install --upgrade pip || ( echo "ERROR: pip update failed" > /dev/stderr ; exit 1 )
 
 # install required libraries
-apt install build-essential zlib1g-dev libncurses5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+apt install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 
 # install required tools
-apt install git unzip libtool g++ cmake flex bison libcurl4-gnutls-dev subversion util-linux xz-utils wget -y
+apt install git unzip libtool g++ cmake flex bison subversion util-linux xz-utils wget -y
 
 # update library paths
 ldconfig
