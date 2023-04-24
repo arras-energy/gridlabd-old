@@ -28,7 +28,7 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
 
 # User quick start
 
-The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
@@ -52,6 +52,7 @@ docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
 Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
 
 ## Docker
+
 To install on a linux docker container or in a linux system, use the following commands:
 
 ~~~
