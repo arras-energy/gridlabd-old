@@ -592,7 +592,7 @@ AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
 
 PYTHONCONFIG=$(which python$PYTHON_REQ-config)
 if test "x$PYTHONCONFIG" = "x"; then
-  echo "ERROR: python$PYTHON_REQ-config not found. Did you install $PYTHON-dev?"
+  echo "ERROR: python$PYTHON_REQ-config not found. Did you install $PYTHON-dev\?"
   exit 1
 fi
 
