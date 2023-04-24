@@ -335,7 +335,7 @@ EXPORT void write_default_plot_commands_rec(struct recorder *my, char32 extensio
 
 EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 {
-	char extension[33];
+	char extension[32];
 	char columnlist[1025];
 	char **columns;
 	time_t now=time(NULL);
