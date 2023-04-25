@@ -2,7 +2,7 @@ set +x
 DEFAULT_ORIGIN=slacgismo/gridlabd/master
 if curl --version 1>/dev/null 2>&1 ; then
 	export SYSTEMNAME=$(uname -s)
-	if -z "$GRIDLABD_ORIGIN"; then 
+	if [ -z "$GRIDLABD_ORIGIN" ] ; then 
 		echo "WARNING: GRIDLABD_ORIGIN set to default $DEFAULT_ORIGIN"
 		export GRIDLABD_ORIGIN=$DEFAULT_ORIGIN
 	fi
