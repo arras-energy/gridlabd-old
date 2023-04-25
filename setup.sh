@@ -6,7 +6,7 @@ if curl --version 1>/dev/null 2>&1 ; then
 		echo "WARNING: GRIDLABD_ORIGIN set to default $DEFAULT_ORIGIN"
 		export GRIDLABD_ORIGIN=$DEFAULT_ORIGIN
 	fi
-	if ! curl -sL $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh > /tmp/setup_$$.sh ; then
+	if ! curl -H 'Cache-Control: no-cache' -sL $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh > /tmp/setup_$$.sh ; then
 		sh /tmp/setup_$$.sh
 		rm /tmp/setup_$$.sh
 	else
