@@ -19,10 +19,8 @@ curl -sL https://code.gridlabd.us/master/setup.sh | sh
 To setup for a development build, run the command:
 
 ~~~
-export GRIDLABD_ORG=slacgismo
-export GRIDLABD_REPO=gridlabd
-export GRIDLABD_BRANCH=develop
-curl -sL https://raw.githubusercontent.com/${GRIDLABD_ORG}/${GRIDLABD_REPO}/${GRIDLABD_BRANCH}/setup.sh | sh
+export GRIDLABD_ORIGIN=slacgismo/gridlabd/develop
+curl -sL https://raw.githubusercontent.com/${GRIDLABD_ORIGIN}/setup.sh | sh
 ~~~
 
 where you can substitute your own values for `GRIDLABD_ORG`, `GRIDLABD_REPO`, and `GRIDLABD_BRANCH` as needed.

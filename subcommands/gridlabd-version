@@ -109,16 +109,9 @@ function version-set()
 		error 2 "ambiguous version"
 	fi
 	if [ ! "$(readlink $OPT/current)" == "$OPT/$L" ]; then
-		$ACTION rm -f $OPT/current
-		$ACTION ln -s $OPT/$L $OPT/current
+		$ACTION ln -sf $OPT/$L $OPT/current
 	fi
-	ln -sf /usr/local/opt/gridlabd/current/bin/gridlabd /usr/local/bin/gridlabd
-#	for F in bin lib share include; do
-#		if [ ! "$(readlink $GLD_VER/$F/gridlabd)" == "$OPT/current/$F/gridlabd" ]; then
-#			$ACTION rm -rf $GLD_VER/$F/gridlabd
-#			$ACTION ln -s $GLD_VER/current/$F/gridlabd $GLD_VER/$F/gridlabd
-#		fi
-#	done
+	ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
 	echo "$L"
 }
 

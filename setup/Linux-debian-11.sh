@@ -1,6 +1,6 @@
-set -x
 set -e
 set -p
+set -x
 
 PYTHON_VERSION=3.10
 PYTHON_VENV=${HOME:-/tmp}/.venv/gridlabd
@@ -14,26 +14,24 @@ if [ "$(whoami)" != "root" ]; then
 fi
 
 # prepare apt for installations
-apt update
-apt upgrade -y
 DEBIAN_FRONTEND=noninteractive
 
 # check timezone info
 if [ ! -f /etc/localtime ]; then
  	ln -s /usr/share/zoneinfo/UTC /etc/localtime
- 	apt install tzdata -y
+ 	apt-get install tzdata -y
  	dpkg-reconfigure --frontend noninteractive tzdata
 fi
 
 # setup required python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
 	echo "Installing python${PYTHON_VERSION}..."
-	apt install software-properties-common -y
+	apt-get install software-properties-common -y
 	add-apt-repository ppa:deadsnakes/ppa -y
-	apt install python$PYTHON_VERSION -y
+	apt-get install python$PYTHON_VERSION -y
 	python$PYTHON_VERSION --version || ( echo "ERROR: python$PYTHON_VERSION installation failed" > /dev/stderr ; exit 1 )
 fi
-apt install python$PYTHON_VERSION-venv python$PYTHON_VERSION-distutils -y
+apt-get install python$PYTHON_VERSION-venv python$PYTHON_VERSION-distutils -y
 
 # create python venv for setup if not already done
 if [ ! -x "$PYTHON_EXEC" ] ; then
@@ -52,13 +50,13 @@ fi
 
 # check gdal
 if ! gdal-config --version 1>/dev/null 2>&1 ; then
-	apt install libgdal-dev -y
+	apt-get install libgdal-dev -y
 	gdal-config --version || ( echo "ERROR: libgdal-dev installation failed" > /dev/stderr ; exit 1 )
 fi
 
 # install python-config
 if ! "python$PYTHON_VERSION-config" --prefix 1>/dev/null 2>&1 ; then
-	apt install python$PYTHON_VERSION-dev -y
+	apt-get install python$PYTHON_VERSION-dev -y
 	python$PYTHON_VERSION-config --prefix || ( echo "ERROR: python$PYTHON_VERSION-config installation failed" > /dev/stderr ; exit 1 )
 fi
 if [ ! -f "$PYTHON_CONFIG" ] ; then 
@@ -68,10 +66,10 @@ fi
 "$PYTHON_EXEC" -m pip install --upgrade pip || ( echo "ERROR: pip update failed" > /dev/stderr ; exit 1 )
 
 # install required libraries
-apt install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev libncursesw5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+apt-get install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev libncursesw5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
 
 # install required tools
-apt install git unzip libtool g++ cmake flex bison  subversion util-linux xz-utils wget -y
+apt-get install git unzip libtool g++ cmake flex bison  subversion util-linux xz-utils wget -y
 
 # update library paths
 ldconfig

@@ -6,7 +6,7 @@ LATEST=$(curl -sL http://install.gridlabd.us/master.txt)
 
 curl -sL https://install.gridlabd.us/
 
-apt install git -y
+apt-get install git -y
 git clone https://github.com/$GRIDLABD_ORG/$GRIDLABD_REPO -b $GRIDLABD_BRANCH --depth 1 gridlabd
 
 cd /gridlabd

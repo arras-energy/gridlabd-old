@@ -1,21 +1,18 @@
-apt update 
-apt install curl -y
-
-export GRIDLABD_ORG=dchassin
-export GRIDLABD_REPO=gridlabd
-export GRIDLABD_BRANCH=develop-fix-install
-
-curl -sL https://raw.githubusercontent.com/${GRIDLABD_ORG}/${GRIDLABD_REPO}/${GRIDLABD_BRANCH}/setup.sh | sh
-
-apt install git -y
-git clone https://github.com/$GRIDLABD_ORG/$GRIDLABD_REPO -b $GRIDLABD_BRANCH --depth 1 gridlabd
-
-cd /gridlabd
-. $HOME/.venv/gridlabd/bin/activate
-autoreconf -isf
-./configure
-make -j$(($(nproc)*3)) system
-gridlabd -T 0 --validate
-
-echo "Starting interactive shell. Use Ctrl-D to exit."
-bash
+set -x
+if ! autoconf --version 1>/dev/null 2>&1 ; then
+	echo "ERROR: autoconf not installed. Did you run setup.sh?" > /dev/stderr
+elif "$(autoconf --version 2>/dev/null | head -n 1 | grep -o '[^ ]*$')" != "2.71" ; then
+	echo "ERROR: autoconf version 2.71 required. Did you run setup.sh?" > /dev/stderr
+elif ! git --version 1>/dev/null 2>&1 ; then
+	echo "ERROR: you must install git to build GridLAB-D" > /dev/stderr
+elif [ ! -f configure.ac ] ; then
+	echo "ERROR: you must build from the source directory where configure.ac is located" > /dev/stderr
+elif [ ! -f $HOME/.venv/gridlabd/bin/activate ]; then
+	echo "ERROR: $HOME/.venv/gridlabd is not found. Have you run setup.sh yet?" > /dev/stderr
+else
+	. $HOME/.venv/gridlabd/bin/activate
+	autoreconf -isf
+	./configure
+	make -j$(($(nproc)*3)) system
+	gridlabd -T 0 --validate
+fi
