@@ -11,6 +11,7 @@ bin_SCRIPTS += subcommands/gridlabd-help
 bin_SCRIPTS += subcommands/gridlabd-json-get
 bin_SCRIPTS += subcommands/gridlabd-job
 bin_SCRIPTS += subcommands/gridlabd-library
+bin_SCRIPTS += subcommands/gridlabd-loaddata
 bin_SCRIPTS += subcommands/gridlabd-lock
 bin_SCRIPTS += subcommands/gridlabd-manual
 bin_SCRIPTS += subcommands/gridlabd-matrix

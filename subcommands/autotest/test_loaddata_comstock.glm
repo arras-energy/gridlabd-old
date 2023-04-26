@@ -1,0 +1,5 @@
+#loaddata -s=CA -r=1 -v=2023 -w=ACTUAL -y=2018 -b=HOTEL -e=cooling -f=electricity,natural_gas -t=1H -a=100000 -o=test_loaddata_comstock.csv
+
+#ifexist ../test_loaddata_comstock.csv
+#on_exit 0 diff ../test_loaddata_comstock.csv test_loaddata_comstock.csv >gridlabd.diff
+#endif
