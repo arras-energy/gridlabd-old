@@ -137,6 +137,10 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new pole(module);
 	new pole_configuration(module);
     new pole_mount(module);
+    new building(module);
+    new industrial(module);
+    new agricultural(module);
+    new public_service(module);
     new ductbank(module);
 
 	/* always return the first class registered */

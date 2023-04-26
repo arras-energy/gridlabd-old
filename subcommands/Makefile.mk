@@ -1,5 +1,6 @@
 bin_SCRIPTS += subcommands/gridlabd-assert
 bin_SCRIPTS += subcommands/gridlabd-aws
+bin_SCRIPTS += subcommands/gridlabd-building
 bin_SCRIPTS += subcommands/gridlabd-check
 bin_SCRIPTS += subcommands/gridlabd-compare
 bin_SCRIPTS += subcommands/gridlabd-contributors

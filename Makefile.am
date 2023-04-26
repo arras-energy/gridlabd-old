@@ -75,7 +75,7 @@ include $(top_srcdir)/geodata/Makefile.mk
 include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
-include $(top_srcdir)/modules.mk
+include $(top_srcdir)/module/Makefile.mk
 
 # custom modules (see ./customize)
 include $(top_srcdir)/custom.mk
