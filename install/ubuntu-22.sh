@@ -1,11 +1,10 @@
 apt update 
 apt install curl -y
+. /etc/os-release
 
-export GRIDLABD_ORG=dchassin
-export GRIDLABD_REPO=gridlabd
-export GRIDLABD_BRANCH=develop-fix-install
+LATEST=$(curl -sL http://install.gridlabd.us/master.txt)
 
-curl -sL https://raw.githubusercontent.com/${GRIDLABD_ORG}/${GRIDLABD_REPO}/${GRIDLABD_BRANCH}/setup.sh | sh
+curl -sL https://install.gridlabd.us/
 
 apt install git -y
 git clone https://github.com/$GRIDLABD_ORG/$GRIDLABD_REPO -b $GRIDLABD_BRANCH --depth 1 gridlabd
