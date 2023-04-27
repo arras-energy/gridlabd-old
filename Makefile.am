@@ -55,7 +55,7 @@ AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
 BUILT_SOURCES = 
 CLEANFILES =
 EXTRA_DIST =
-dist_pkgdata_DATA = requirements.txt $(prefix)/share/gridlabd/setup.sh
+dist_pkgdata_DATA = requirements.txt
 pkgdata_DATA =
 noinst_LTLIBRARIES =
 pkglib_LTLIBRARIES =
@@ -91,6 +91,7 @@ BUILT_SOURCES += python-requirements
 
 install-exec-hook: | index docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@grep INSTALL setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
@@ -135,10 +136,6 @@ $(PYENV): requirements.txt
 	@$(ENVPYTHON) python/requirements.py --buildenv | bash
 	@$(ENVPYTHON) -m pip install -r requirements.txt 
 	@touch $(PYENV)
-
-# setup script
-$(prefix)/share/gridlabd/setup.sh:
-	grep INSTALL setup/$(build-aux/version.sh --sysspec).sh > $(prefix)/share/gridlabd/gridlabd/setup.sh
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk
