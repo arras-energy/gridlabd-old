@@ -190,7 +190,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apt-get install -y git curl sudo zip
+        apt-get update && apt-get install -y git curl sudo zip
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         ./aws/install
@@ -225,11 +225,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apt-get install -y git curl sudo zip
+        apt-get update && apt-get install -y git curl sudo zip
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         ./aws/install
-        
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
