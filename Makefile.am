@@ -11,6 +11,9 @@
 #   DP Chassin (dchassin@slac.stanford.edu)
 
 $(info Make target is $(shell $(top_srcdir)/build-aux/version.sh --name))
+ifeq ($(shell echo $$VIRTUAL_ENV),)
+$(error You must gridlabd in a python virtual environment)
+endif
 
 # !!! must match version specified in configure.ac
 OPT=$(shell mkdir -p /usr/local/opt/gridlabd)

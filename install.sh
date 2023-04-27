@@ -20,7 +20,7 @@ if $# -eq 1; then
 else
 	mkdir -p $OPT/gridlabd
 	cd $OPT/gridlabd
-	curl -sL https://install.gridlabd.us/$1.tarz | tarz 
+	curl -sL https://install.gridlabd.us/$1.tarz | tar xz
 	sh $1/share/gridlabd/setup.sh
 	ln -sf $1 current
 	ln -sF $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
