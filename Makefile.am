@@ -10,6 +10,8 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
+$(info Make target is $(shell $(top_srcdir)/build-aux/version.sh --name))
+
 # !!! must match version specified in configure.ac
 OPT=$(shell mkdir -p /usr/local/opt/gridlabd)
 PYVER = $(shell $(top_srcdir)/build-aux/version.sh --python)
@@ -53,7 +55,7 @@ AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
 BUILT_SOURCES = 
 CLEANFILES =
 EXTRA_DIST =
-dist_pkgdata_DATA = requirements.txt
+dist_pkgdata_DATA = requirements.txt $(prefix)/share/gridlabd/setup.sh
 pkgdata_DATA =
 noinst_LTLIBRARIES =
 pkglib_LTLIBRARIES =
@@ -133,6 +135,10 @@ $(PYENV): requirements.txt
 	@$(ENVPYTHON) python/requirements.py --buildenv | bash
 	@$(ENVPYTHON) -m pip install -r requirements.txt 
 	@touch $(PYENV)
+
+# setup script
+$(prefix)/share/gridlabd/setup.sh:
+	grep INSTALL setup/$(build-aux/version.sh --sysspec).sh > $(prefix)/share/gridlabd/gridlabd/setup.sh
 
 # for doxygen commands
 include $(top_srcdir)/aminclude.mk

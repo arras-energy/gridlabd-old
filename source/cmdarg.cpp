@@ -703,7 +703,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"name") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		output_message("%s-%d-%s-%s-%s", PACKAGE_VERSION, BUILDNUM, BRANCH, HOST_OS, HOST_CPU);
 		return 0;
 	}
 	else if ( strcmp(opt,"json") == 0 )
@@ -746,7 +746,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 			*p = '\0';
 		}
 		OUTPUT("install","%s",tmp);
-		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		output_message("\t\"name\" : \"%s-%d-%s-%s-%s\",", PACKAGE_VERSION, BUILDNUM, BRANCH, HOST_OS, HOST_CPU);
 		OUTPUT("release","%s",BUILD_RELEASE);
 		OUTPUT("commit","%s",BUILD_ID);
 		OUTPUT("email","%s",PACKAGE_BUGREPORT);

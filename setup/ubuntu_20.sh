@@ -1,5 +1,3 @@
-set -e
-set -p
 set -x
 
 PYTHON_VERSION=3.10
