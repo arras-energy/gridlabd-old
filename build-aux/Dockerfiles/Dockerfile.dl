@@ -1,14 +1,26 @@
-# Set the base image to latest Debian image
-FROM debian:latest
+# Set the base image to latest Ubuntu image
+FROM ubuntu:latest
 
 # Update the package lists and install sudo and curl
-RUN apt-get update && apt-get install -y sudo curl
+RUN apt-get update && apt-get install -y sudo curl git
 
 # Create the app directory in the container
 WORKDIR /app
 
+RUN mkdir gridlabd
+
+WORKDIR /app/gridlabd
+
 # Copy the contents of the local directory to the app directory in the container
-COPY . /app
+COPY . /app/gridlabd
 
 # Run the install.sh script with the desired arguments
 RUN /bin/bash /app/install.sh -v -t -p
+
+RUN gridlabd --version=all
+
+RUN gridlabd --validate
+
+WORKDIR /app
+
+RUN rm -rf gridlabd

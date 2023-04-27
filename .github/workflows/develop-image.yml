@@ -10,11 +10,17 @@ jobs:
   buildUbuntuDockerhub:
 
     runs-on: ubuntu-latest
-    environment: docker-i
+    environment: Integration
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build Docker image
       uses: docker/build-push-action@v2
@@ -22,16 +28,22 @@ jobs:
         context: .
         file: ./build-aux/Dockerfiles/Dockerfile.ul
         push: true
-        tags: your-dockerhub-username/ubuntu:latest
+        tags: hipas/gridlabd-develop-ubuntu:latest
 
   buildDebianDockerhub:
 
     runs-on: ubuntu-latest
-    environment: docker-i
+    environment: Integration
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build Docker image
       uses: docker/build-push-action@v2
@@ -39,12 +51,12 @@ jobs:
         context: .
         file: ./build-aux/Dockerfiles/Dockerfile.dl
         push: true
-        tags: your-dockerhub-username/debian:latest
+        tags: hipas/gridlabd-develop-debian:latest
 
   buildAWSUbuntu:
 
     runs-on: ubuntu-latest
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -54,10 +66,10 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildMacos12Fast:
+  buildMacos12FastS3:
 
     runs-on: macos-12
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -67,10 +79,24 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildMacos11Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctext.itworks
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
+
+  buildMacos11FastS3:
 
     runs-on: macos-11
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -80,11 +106,25 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildUbuntu22Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctext.itwork
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
+
+  buildUbuntu22FastS3:
 
     runs-on: ubuntu-latest
     container: ubuntu:22.04
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -94,11 +134,25 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildUbuntu20Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctext.itwor
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
+
+  buildUbuntu20FastS3:
 
     runs-on: ubuntu-latest
     container: ubuntu:20.04
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -108,25 +162,25 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildUbuntu18Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    runs-on: ubuntu-latest
-    container: ubuntu:18.04
-    environment: AWS-i
-
-    steps:
-    - uses: actions/checkout@v2
-
-      # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
+    - name: Deploy to S3
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        touch synctext.itwo
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
-  buildDebian11Fast:
+  buildDebian11FastS3:
 
     runs-on: ubuntu-latest
     container: debian:11
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -136,11 +190,25 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildDebian10Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctext.itw
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
+
+  buildDebian10FastS3:
 
     runs-on: ubuntu-latest
     container: debian:10
-    environment: AWS-i
+    environment: Integration
 
     steps:
     - uses: actions/checkout@v2
@@ -150,16 +218,16 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
-  buildDebian9Fast:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    runs-on: ubuntu-latest
-    container: debian:9
-    environment: AWS-i
-
-    steps:
-    - uses: actions/checkout@v2
-
-      # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
+    - name: Deploy to S3
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        touch synctext.itworkss
+        mkdir -p /tmp/workspace/build
+        mv -v ./synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
