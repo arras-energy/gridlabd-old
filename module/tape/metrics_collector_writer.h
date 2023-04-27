@@ -36,7 +36,7 @@ public:
 	int commit(TIMESTAMP);
 
 public:
-	char256 filename;
+	char1024 filename;
 	double interval_length_dbl;			//Metrics output interval length
 
 private:

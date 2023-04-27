@@ -10,7 +10,10 @@ clock
 	stoptime "2021-01-01 00:00:00 PST";
 }
 
-module tape;
+module tape
+{
+	csv_header_type NAME;
+}
 module powerflow;
 
 object load
@@ -31,9 +34,13 @@ module industrial
 	naics_data_file "naics_data_file.csv";
 }
 
-object industrial
+object industrial.industrial
 {
 	parent "test";
 	naics_code 325; // petro-chemical plant
 	total_power 1.0 MW;
 }
+
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#endif

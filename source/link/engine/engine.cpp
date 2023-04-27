@@ -198,7 +198,7 @@ bool recv_init(ENGINELINK *engine)
 bool send_init(ENGINELINK *engine)
 {
 	char buffer[1500];
-	int len=sprintf(buffer,"GRIDLABD %d.%d.%d (%s)",REV_MAJOR,REV_MINOR,REV_PATCH,BRANCH);
+	int len=snprintf(buffer,sizeof(buffer)-1,"GRIDLABD %d.%d.%d (%s)",REV_MAJOR,REV_MINOR,REV_PATCH,BRANCH);
 	
 	return engine_send(engine,buffer,len+1) > 0;
 }
@@ -206,7 +206,7 @@ bool send_init(ENGINELINK *engine)
 bool send_protocol(ENGINELINK *engine)
 {
         char buffer[1500];
-	int len=sprintf(buffer,"PROTOCOL %s", engine->protocol);
+	int len=snprintf(buffer,sizeof(buffer)-1,"PROTOCOL %s", engine->protocol);
 	return engine_send(engine,buffer,len+1) > 0;
 }
 
@@ -219,7 +219,7 @@ bool send_cachesize(ENGINELINK *engine)
 {
 	if ( engine->cachesize==0 ) recalc_cachesize(engine);
 	char buffer[1500];
-	int len=sprintf(buffer,"CACHESIZE %d", engine->cachesize);
+	int len=snprintf(buffer,sizeof(buffer)-1,"CACHESIZE %d", engine->cachesize);
 	
 	return engine_send(engine,buffer,len+1) > 0;
 }
@@ -227,7 +227,7 @@ bool send_cachesize(ENGINELINK *engine)
 bool send_timeout(ENGINELINK *engine)
 {
 	char buffer[1500];
-	int len=sprintf(buffer,"TIMEOUT %d", engine->recv_timeout);
+	int len=snprintf(buffer,sizeof(buffer)-1,"TIMEOUT %d", engine->recv_timeout);
 	return engine_send(engine,buffer,len) > 0;
 }
 
@@ -237,11 +237,11 @@ bool send_status(ENGINELINK *engine, ENGINELINKSTATUS status,char *msg=NULL)
 	int len;
 	
 	if ( msg==NULL ){
-		len = sprintf(buffer,"%s", enginelinkstatus[status]);
+		len = snprintf(buffer,sizeof(buffer)-1,"%s", enginelinkstatus[status]);
 		return engine_send(engine,buffer,len+1) > 0;
 	}
 	else{
-		len = sprintf(buffer,"%s\n%s", enginelinkstatus[status],msg);
+		len = snprintf(buffer,sizeof(buffer)-1,"%s\n%s", enginelinkstatus[status],msg);
 		return engine_send(engine,buffer,len+1) > 0;
 	}
 }
@@ -273,7 +273,7 @@ bool recv_sync(ENGINELINK *engine,TIMESTAMP *t)
 bool send_time(ENGINELINK *engine,TIMESTAMP t0){
 
   char buffer[1500];
-  int len=sprintf(buffer,"SYNC %lld", t0);
+  int len=snprintf(buffer,sizeof(buffer)-1,"SYNC %lld", t0);
   if(engine_send(engine,buffer,len+1) <=0)
     return false;
   return true;
@@ -286,7 +286,7 @@ bool send_exports(ENGINELINK *engine)
 	SYNCDATA *item;
 	for ( item=engine->send ; item!=NULL ; item=item->next )
 	{
-		len=sprintf(buffer,"%d %s", item->index, item->prop->get_string().get_buffer());
+		len=snprintf(buffer,sizeof(buffer)-1,"%d %s", item->index, item->prop->get_string().get_buffer());
 		if ( engine_send(engine,buffer,len+1)<=0 )
 			return false;
 	}
@@ -343,7 +343,7 @@ bool add_global(ENGINELINK *engine, unsigned int index, GLOBALVAR *var)
 	if(gl_name(prop->get_object(),buffname,255)==NULL){
 		strcpy(buffname,"NULL");
 	}
-	int len = sprintf(buffer,"GLOBAL %d %d %zu %s %s %s", index,
+	int len = snprintf(buffer,sizeof(buffer)-1,"GLOBAL %d %d %zu %s %s %s", index,
 		(PROPERTYTYPE)prop->get_type(), // TODO convert this to text
 		prop->get_size(),buffname, prop->get_name(), prop->get_string().get_buffer());
 	return engine_send(engine,buffer,len+1) > 0;
@@ -357,7 +357,7 @@ bool add_import(ENGINELINK *engine, unsigned int index, OBJECTPROPERTY *objprop)
 	if(gl_name(prop->get_object(),buffname,255)==NULL){
 		strcpy(buffname,"NULL");
 	}
-	int len = sprintf(buffer,"IMPORT %d %d %zu %s %s %s", index,
+	int len = snprintf(buffer,sizeof(buffer)-1,"IMPORT %d %d %zu %s %s %s", index,
 		(PROPERTYTYPE)prop->get_type(), // TODO convert this to text
 		prop->get_size(),buffname, prop->get_name(), prop->get_string().get_buffer());
 	return engine_send(engine,buffer,len+1) > 0;
@@ -371,7 +371,7 @@ bool add_export(ENGINELINK *engine, unsigned int index, OBJECTPROPERTY *objprop)
 	if(gl_name(prop->get_object(),buffname,255)==NULL){
 		strcpy(buffname,"NULL");
 	}
-	int len = sprintf(buffer,"%d %d %zu %s %s %s", index,
+	int len = snprintf(buffer,sizeof(buffer)-1,"%d %d %zu %s %s %s", index,
 		(PROPERTYTYPE)prop->get_type(), // TODO convert this to text
 		prop->get_size(),buffname, prop->get_name(), prop->get_string().get_buffer());
 	return engine_send(engine,buffer,len+1) > 0;

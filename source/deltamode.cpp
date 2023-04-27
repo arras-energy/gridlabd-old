@@ -16,7 +16,7 @@ static int delta_objectcount = 0; /* qualified object count */
 static MODULE **delta_modulelist = NULL; /* qualified module list */
 static int delta_modulecount = 0; /* qualified module count */
 
-void delta_modecheck(const char*)
+void delta_modecheck(const char*,const char*)
 {
 	if ( global_deltamode_allowed == TRUE )
 	{

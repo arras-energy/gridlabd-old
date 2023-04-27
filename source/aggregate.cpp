@@ -49,7 +49,14 @@ DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< agg
 }
 DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 {
-	return GldAggregator(aggr).get_value();
+	try
+	{
+		return GldAggregator(aggr).get_value();
+	}
+	catch (...)
+	{
+		return QNAN;
+	}
 }
 
 /** This constructor creates an instance of an existing aggregator.
@@ -102,7 +109,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 			Check the aggregation's syntax and make sure it conforms to the required syntax.
 		 */
 		errno = EINVAL;
-		throw NULL;
+		throw "invalid aggregation";
 	}
 
 	//Change made for collector to handle propeties of objects
@@ -140,7 +147,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 				Check your aggregations and make sure all the units are defined.
 			 */
 			errno = EINVAL;
-			throw NULL;
+			throw "invalid aggregation";
 		}
 		strcpy(aggrval, aggrprop); // write property back into value, sans unit
 	}
@@ -166,7 +173,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 			Check that all your aggregators used allowed functions (e.g., min, max, avg, std, sum, count, etc.).
 		 */
 		errno = EINVAL;
-		throw NULL;
+		throw "invalid aggregation";
 	}
 	if (op!=AGGR_NOP)
 	{		
@@ -180,7 +187,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 				Check that all your groups are correctly defined.
 			 */
 			errno = EINVAL;
-			throw NULL;
+			throw "invalid aggregation";
 		}
 		else
 		{
@@ -198,7 +205,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 				errno = EINVAL;
 				find_pgm_delete(pgm);
 				pgm = NULL;
-				throw NULL;
+				throw "invalid aggregation";
 			}
 			else
 			{				
@@ -212,7 +219,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					find_pgm_delete(pgm);
 					pgm = NULL;
 					errno=EINVAL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 				
 				if (obj==NULL)
@@ -227,7 +234,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					free(list);
 					list = NULL;
 					errno=EINVAL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 				pinfo = class_find_property(obj->oclass,aggrval);
 				if (pinfo==NULL)
@@ -242,7 +249,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 				else if (pinfo->ptype==PT_double || pinfo->ptype==PT_random || pinfo->ptype==PT_loadshape )
 				{
@@ -258,7 +265,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						throw NULL;
+						throw "invalid aggregation";
 					}
 					part = AP_NONE;
 				}
@@ -286,7 +293,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						throw NULL;
+						throw "invalid aggregation";
 					}
 				}
 				else
@@ -301,7 +308,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 				from_unit = pinfo->unit;
 				if(to_unit != NULL && from_unit == NULL){
@@ -315,7 +322,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 				if (from_unit != NULL && to_unit != NULL && unit_convert_ex(from_unit, to_unit, &scale) == 0){
 					output_error("aggregate group property '%s' cannot use units '%s'", aggrval, aggrunit);
@@ -329,7 +336,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					throw NULL;
+					throw "invalid aggregation";
 				}
 			}
 		}
@@ -355,7 +362,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 			pgm = NULL;
 			free(list);
 			list = NULL;
-			throw NULL;
+			throw "invalid aggregation";
 		}
 	}
 
