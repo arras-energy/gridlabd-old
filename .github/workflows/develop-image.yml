@@ -90,7 +90,7 @@ jobs:
       run: |
         touch synctext.itworks
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
   buildMacos11FastS3:
@@ -117,7 +117,7 @@ jobs:
       run: |
         touch synctext.itwork
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
   buildUbuntu22FastS3:
@@ -145,7 +145,7 @@ jobs:
       run: |
         touch synctext.itwor
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
   buildUbuntu20FastS3:
@@ -173,7 +173,7 @@ jobs:
       run: |
         touch synctext.itwo
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
   buildDebian11FastS3:
@@ -201,7 +201,7 @@ jobs:
       run: |
         touch synctext.itw
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
 
   buildDebian10FastS3:
@@ -229,5 +229,5 @@ jobs:
       run: |
         touch synctext.itworkss
         mkdir -p /tmp/workspace/build
-        mv -v ./synctest.itworks /tmp/workspace/build/
+        mv -v synctest.itworks /tmp/workspace/build/
         aws s3 sync /tmp/workspace/build/ s3://${{ secrets.DEV_S3_URL }}
