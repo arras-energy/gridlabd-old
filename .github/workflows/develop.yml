@@ -15,6 +15,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+        
+    - name: Update pip
+      run: |
+        python3 -m pip install --upgrade pip
+        /usr/local/bin/python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools==57.5.0
+        /usr/local/bin/python3 -m pip install setuptools==57.5.0
+        gdal-config --version
+
     - name: Build gridlabd
       run: |
         set +x
