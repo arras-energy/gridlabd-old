@@ -122,8 +122,7 @@ jobs:
 
   buildUbuntu22FastS3:
 
-    runs-on: ubuntu-latest
-    container: ubuntu:22.04
+    runs-on: ubuntu-22.04
     environment: Integration
 
     steps:
@@ -150,8 +149,7 @@ jobs:
 
   buildUbuntu20FastS3:
 
-    runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    runs-on: ubuntu-20.04
     environment: Integration
 
     steps:
@@ -190,6 +188,13 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
+    - name: Install dependencies
+      run: |
+        apt-get install -y git curl sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        ./aws/install
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -218,6 +223,13 @@ jobs:
       run: |
         chown -R $(id -u):$(id -g) $PWD
 
+    - name: Install dependencies
+      run: |
+        apt-get install -y git curl sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        ./aws/install
+        
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
