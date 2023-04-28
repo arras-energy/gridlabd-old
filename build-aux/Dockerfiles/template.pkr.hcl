@@ -23,6 +23,11 @@ variable "aws_region" {
   description = "AWS region"
 }
 
+variable "dev_s3_url" {
+  type        = string
+  description = "S3 bucket URL"
+}
+
 source "amazon-ebs" "ubuntu-22-04" {
   source_ami_filter {
     filters = {
@@ -61,5 +66,6 @@ build {
     ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
     keep_input_artifact = true
     ami_groups = ["all"] # Make the AMI publicly available
+    s3_bucket_name = var.dev_s3_url
   }
 }
