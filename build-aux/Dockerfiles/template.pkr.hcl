@@ -24,12 +24,16 @@ variable "aws_region" {
 }
 
 source "amazon-ebs" "ubuntu-22-04" {
-  ami_name_filter = "ubuntu/images/*ubuntu-focal-22.04-amd64-server-*"
-  ami_virtualization_type = "hvm"
-  most_recent = true
-  owners = ["099720109477"]
+  source_ami_filter {
+    filters = {
+      name                = "ubuntu/images/*ubuntu-focal-22.04-amd64-server-*"
+      root-device-type    = "ebs"
+      virtualization-type = "hvm"
+    }
+    most_recent = true
+    owners      = ["099720109477"]
+  }
   region = var.aws_region
-  root_device_type = "ebs"
 }
 
 build {
