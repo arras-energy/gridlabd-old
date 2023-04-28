@@ -1,6 +1,8 @@
 set -x
 if [ ! -f source/gridlabd.in ]; then
 	echo "ERROR: you must be in the root folder of local git repository to create this image" >/dev/stderr
+elif ! aws --version ; then
+	echo "ERROR: you must have aws CLI installed to upload images" >/dev/stderr
 else
 	IMAGEPATH=$(gridlabd --version=install)
 	if [ ! -d $IMAGEPATH ]; then
