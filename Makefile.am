@@ -124,7 +124,7 @@ requirements.txt: python/requirements.csv
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@test ! -z $(VIRTUAL_ENV) || ( echo "ERROR: no python venv found" > /dev/stderr ; false )
+	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no python venv found" > /dev/stderr ; false )
 	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
 	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
