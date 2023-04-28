@@ -205,10 +205,10 @@ over: clean all
 LONGNAME=$(shell $(top_srcdir)/build-aux/version.sh --name)
 SHORTNAME=$(shell $(top_srcdir)/build-aux/version.sh --sysspec)
 
-image: $(LONGNAME).tarz
+image: $(prefix).tarz
 
-$(LONGNAME).tarz: $(prefix)
-	@echo "Creating $(LONGNAME).tarz..."
+$(prefix).tarz: $(prefix)
+	@echo "Creating $(prefix).tarz..."
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: $(prefix).tarz
