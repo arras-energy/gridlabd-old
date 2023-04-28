@@ -67,7 +67,7 @@ INSTALL apt-get install build-essential zlib1g-dev libcurl4-gnutls-dev libncurse
 INSTALL apt-get install git unzip libtool g++ cmake flex bison subversion util-linux xz-utils wget -y
 
 # update library paths
-ldconfig
+INSTALL ldconfig
 
 # install autoconf 2.71 as required
 if [ "$(autoconf --version | head -n 1 | cut -f4 -d' ')" != "2.71" ] ; then
