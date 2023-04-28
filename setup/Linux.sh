@@ -1,2 +1,3 @@
 . /etc/os-release
-(curl -H 'Cache-Control: no-cache' -fsL $GRIDLABD_ORIGIN/setup/$ID-${VERSION_ID%%.*}.sh || (echo "ERROR: unable to find $GRIDLABD_ORIGIN/setup/Linux-$ID-${VERSION_ID%%.*}.sh. Manual install required." >/dev/stderr; exit 1)) | /bin/sh
+SOURCE=$GRIDLABD_ORIGIN/setup/$ID-${VERSION_ID%%.*}.sh
+(curl -H 'Cache-Control: no-cache' -fsL $SOURCE || (echo "ERROR: unable to find $SOURCE. Manual install required." >/dev/stderr; exit 1)) | /bin/sh

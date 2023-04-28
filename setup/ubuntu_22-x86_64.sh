@@ -14,6 +14,7 @@ fi
 
 # prepare apt for installations
 INSTALL DEBIAN_FRONTEND=noninteractive
+INSTALL apt update
 
 # setup required python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then

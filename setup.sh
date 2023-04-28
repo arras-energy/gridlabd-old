@@ -2,7 +2,7 @@ DEFAULT_ORIGIN=slacgismo/gridlabd/master
 if curl --version 1>/dev/null 2>&1 ; then
 	export SYSTEMNAME=$(uname -s)
 	if [ -z "$GRIDLABD_ORIGIN" ] ; then 
-		echo "Using default GRIDLABD_ORIGIN=$DEFAULT_ORIGIN"
+		echo "WARNING: using default GRIDLABD_ORIGIN=$DEFAULT_ORIGIN" > /dev/stderr
 		export GRIDLABD_ORIGIN=$DEFAULT_ORIGIN
 	fi
 	test $(echo $GRIDLABD_ORIGIN | cut -c-8) != "https://" && GRIDLABD_ORIGIN=https://raw.githubusercontent.com/$GRIDLABD_ORIGIN
