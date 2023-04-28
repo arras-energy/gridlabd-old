@@ -33,7 +33,10 @@ source "amazon-ebs" "ubuntu-22-04" {
     most_recent = true
     owners      = ["099720109477"]
   }
-  region = var.aws_region
+  region          = var.aws_region
+  instance_type   = "t2.micro"
+  ssh_username    = "ubuntu"
+  ami_name        = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
 }
 
 build {
