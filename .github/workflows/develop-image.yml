@@ -78,6 +78,10 @@ jobs:
         unzip packer_1.7.6_linux_amd64.zip
         sudo mv packer /usr/local/bin
 
+    - name: Initialize Packer
+      run: |
+        packer init ./build-aux/Dockerfiles/template.pkr.hcl
+        
     - name: Build AMI Image
       run: |
         packer build \
