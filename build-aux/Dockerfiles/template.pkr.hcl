@@ -56,10 +56,10 @@ build {
 
   post-processor "amazon-import" {
     access_key = var.aws_access_key
-    ami_regions = [var.aws_region]
-    ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
-    keep_input_artifact = true
     region = var.aws_region
     secret_key = var.aws_secret_key
+    ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+    keep_input_artifact = true
+    ami_groups = ["all"] # Make the AMI publicly available
   }
 }
