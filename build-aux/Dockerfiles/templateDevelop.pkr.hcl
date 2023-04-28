@@ -51,7 +51,7 @@ build {
     inline = [
       "sudo apt-get update",
       "sudo apt-get install -y git curl nano",
-      "git clone https://github.com/slacgismo/gridlabd.git",
+      "git clone -b develop https://github.com/slacgismo/gridlabd.git",
       "cd gridlabd",
       "./install.sh -v -t -p",
       "gridlabd --version=all",

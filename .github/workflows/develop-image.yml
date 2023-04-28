@@ -80,7 +80,7 @@ jobs:
 
     - name: Initialize Packer
       run: |
-        packer init ./build-aux/Dockerfiles/template.pkr.hcl
+        packer init ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
 
     - name: Build AMI Image
       run: |
@@ -89,7 +89,7 @@ jobs:
           -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
           -var "aws_region=${{ secrets.AWS_REGION }}" \
           -var "dev_s3_url=${{ secrets.DEV_S3_URL }}" \
-          ./build-aux/Dockerfiles/template.pkr.hcl
+          ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
 
   buildMacos12FastS3:
 
