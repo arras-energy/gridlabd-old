@@ -1,6 +1,4 @@
-name: develop-images
-
-needs: develop
+name: master-images
 
 on:
   push:
@@ -10,8 +8,236 @@ jobs:
   buildUbuntuDockerhub:
 
     runs-on: ubuntu-latest
-    environment: docker-i
-    
+    environment: Integration
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.ul
+        push: true
+        tags: hipas/gridlabd-master-ubuntu:latest
+
+  buildDebianDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.dl
+        push: true
+        tags: hipas/gridlabd-master-debian:latest
+
+  buildAWSUbuntu:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+  buildMacos12FastS3:
+
+    runs-on: macos-12
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itworks
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itworks /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
+
+  buildMacos11FastS3:
+
+    runs-on: macos-11
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itwork
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itwork /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
+
+  buildUbuntu22FastS3:
+
+    runs-on: ubuntu-22.04
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itwor
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itwor /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
+
+  buildUbuntu20FastS3:
+
+    runs-on: ubuntu-20.04
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itwo
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itwo /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
+
+  buildDebian11FastS3:
+
+    runs-on: ubuntu-latest
+    container: debian:11
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Install dependencies
+      run: |
+        apt-get update && apt-get install -y git curl sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        ./aws/install
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itw
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itw /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
+
+  buildDebian10FastS3:
+
+    runs-on: ubuntu-latest
+    container: debian:10
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Install dependencies
+      run: |
+        apt-get update && apt-get install -y git curl sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        ./aws/install
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        touch synctest.itworkss
+        mkdir -p /tmp/workspace/build
+        mv -v synctest.itworkss /tmp/workspace/build/
+        aws s3 sync /tmp/workspace/build/ s3://${{ secrets.PROD_S3_URL }}
