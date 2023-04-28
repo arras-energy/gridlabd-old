@@ -11,7 +11,8 @@
 #   DP Chassin (dchassin@slac.stanford.edu)
 
 $(info Make target is $(shell $(top_srcdir)/build-aux/version.sh --name))
-ifeq ($(shell echo $$VIRTUAL_ENV),)
+
+ifndef VIRTUAL_ENV
 $(error You must gridlabd in a python virtual environment)
 endif
 
