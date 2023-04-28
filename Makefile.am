@@ -122,11 +122,11 @@ python-venv:
 	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.venv/gridlabd/bin/activate'" > /dev/stderr ; false )
 
 # NB: it's ok to use the runner's python to generate the requirements.txt file
-requirements.txt: python/requirements.csv python-venv
+requirements.txt: python/requirements.csv
 	@python3 -m pip -q install pandas==2.0.0
 	@python3 python/requirements.py $< >$@
 
-$(PYENV): requirements.txt
+$(PYENV): requirements.txt python-venv
 	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
 	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
@@ -173,22 +173,8 @@ help:
 	@echo "Testing targets:"
 	@echo "  validate  - Run the test/validation suite (requires Python)"
 	@echo ""
-	@echo "Packaging targets:"
-	@echo "  dist          - same as 'make dist-gzip'"
-	@echo "  dist-bzip2    - Generate a bzip2 tar archive of the distribution"
-	@echo "  dist-deb      - Create Debian binary and source deb packages"
-	@echo "  dist-deb-bin  - Create Debian binary-only deb package"
-	@echo "  dist-deb-src  - Create Debian source-only deb package"
-	@echo "  dist-gzip     - Generate a gzip tar archive of the distribution"
-	@echo "  dist-lzma     - Generate an lzma tar archive of the distribution"
-	@echo "  dist-osx      - Create Mac OS X package installer (OS X w/ XCode only)"
-	@echo "  dist-rpm      - Create binary-only RPM package"
-	@echo "  dist-shar     - Generate a shar archive of the distribution"
-	@echo "  dist-tarZ     - Generate a compressed tar archive of the distribution"
-	@echo "  dist-xz       - Generate an xz tar archive of the distribution"
-	@echo "  dist-zip      - Generate a zip archive of the distribution"
-	@echo "  rpm-prep      - Create \$$HOME/.rpmmacros suitable for building RPMs in"
-	@echo "                  \$$HOME/rpmbuild as non-root user"
+	@echo "Install images:"
+	@echo "  image         - Create and upload AWS install image"
 	@echo ""
 	@echo "Documentation targets:"
 	@echo "  html                 - Generate all html documentation"
@@ -213,6 +199,11 @@ help:
 	@echo "  maintainer-clean"
 
 over: clean all
+
+LONGNAME=$(shell $(top_srcdir)/build_aux/version.sh --name)
+SHORTNAME=$(shell $(top_srcdir)/build_aux/version.sh --sysspec)
+image: $(prefix)/$(LONGNAME)
+
 
 # Recursively remove all files and directories not under revision control
 clean-wc:
