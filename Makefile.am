@@ -116,7 +116,7 @@ PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
 PYACTIVATE=source $(PYBIN)/activate
 
-python-requirements: | $(PYENV) 
+python-requirements: | $(PYENV) python-venv
 
 python-venv:
 	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.venv/gridlabd/bin/activate'" > /dev/stderr ; false )
@@ -126,7 +126,7 @@ requirements.txt: python/requirements.csv
 	@python3 -m pip -q install pandas==2.0.0
 	@python3 python/requirements.py $< >$@
 
-$(PYENV): requirements.txt python-venv
+$(PYENV): requirements.txt
 	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
 	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
