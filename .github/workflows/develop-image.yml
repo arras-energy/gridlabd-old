@@ -53,8 +53,7 @@ jobs:
         push: true
         tags: hipas/gridlabd-develop-debian:latest
 
-  buildAWSUbuntu:
-
+  buildAWSUbuntuAMI:
     runs-on: ubuntu-latest
     environment: Integration
 
@@ -65,6 +64,27 @@ jobs:
     - name: Set ownership
       run: |
         chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Install Packer
+      run: |
+        wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
+        unzip packer_1.7.6_linux_amd64.zip
+        sudo mv packer /usr/local/bin
+
+    - name: Build AMI Image
+      run: |
+        packer build \
+          -var "aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+          -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var "aws_region=${{ secrets.AWS_REGION }}" \
+          ./build-aux/Dockerfiles/template.hcl
 
   buildMacos12FastS3:
 
