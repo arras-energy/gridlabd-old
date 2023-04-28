@@ -35,7 +35,7 @@ if [ "$(uname -s)" == "Darwin" ]; then
     SYS="darwin_$(uname -r | cut -f1 -d.)"
 elif [ -f "/etc/os-release" ]; then
     . /etc/os-release
-    SYS="$(grep ^ID= /etc/os-release | cut -f2 -d= | tr -d '"')_${VERSION_ID%.*}"
+    SYS="${ID}_${VERSION_ID%.*}"
 else
     SYS="$(uname -s)_$(uname -r)"
 fi
