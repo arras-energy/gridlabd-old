@@ -1,3 +1,4 @@
+# template.pkr.hcl
 packer {
   required_plugins {
     amazon = {
@@ -12,7 +13,7 @@ source "amazon-ebs" "ubuntu-22-04" {
   ami_virtualization_type = "hvm"
   most_recent = true
   owners = ["099720109477"]
-  region = "{{user `aws_region`}}"
+  region = var.aws_region
   root_device_type = "ebs"
 }
 
@@ -33,13 +34,12 @@ build {
 
   post-processors {
     amazon-import {
-      access_key = "{{user `aws_access_key`}}"
-      ami_regions = ["{{user `aws_region`}}"]
+      access_key = var.aws_access_key
+      ami_regions = [var.aws_region]
       ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
       keep_input_artifact = true
-      region = "{{user `aws_region`}}"
-      secret_key = "{{user `aws_secret_key`}}"
+      region = var.aws_region
+      secret_key = var.aws_secret_key
     }
   }
 }
-
