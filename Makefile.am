@@ -174,7 +174,9 @@ help:
 	@echo "  validate  - Run the test/validation suite (requires Python)"
 	@echo ""
 	@echo "Install images:"
-	@echo "  image         - Create and upload AWS install image"
+	@echo "  image             - Create install image"
+	@echo "  aws-image         - Upload AWS install image"
+	@echo "  aws-image-default - Upload AWS install image as default for this platform"
 	@echo ""
 	@echo "Documentation targets:"
 	@echo "  html                 - Generate all html documentation"
@@ -200,10 +202,24 @@ help:
 
 over: clean all
 
-LONGNAME=$(shell $(top_srcdir)/build_aux/version.sh --name)
-SHORTNAME=$(shell $(top_srcdir)/build_aux/version.sh --sysspec)
-image: $(prefix)/$(LONGNAME)
+LONGNAME=$(shell $(top_srcdir)/build-aux/version.sh --name)
+SHORTNAME=$(shell $(top_srcdir)/build-aux/version.sh --sysspec)
 
+image: $(LONGNAME).tarz
+
+$(LONGNAME).tarz: $(prefix)
+	@echo "Creating $(LONGNAME).tarz..."
+	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
+
+aws-image: $(prefix).tarz
+	@echo "Uploading s3://install.gridlabd.us/$(LONGNAME).tarz..."
+	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
+	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(LONGNAME).tarz --acl public-read
+
+aws-image-default: $(prefix).tarz
+	@echo "Uploading s3://install.gridlabd.us/$(SHORTNAME).tarz..."
+	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
+	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(SHORTNAME).tarz --acl public-read
 
 # Recursively remove all files and directories not under revision control
 clean-wc:
