@@ -118,13 +118,15 @@ PYACTIVATE=source $(PYBIN)/activate
 
 python-requirements: | $(PYENV) 
 
+$HOME/.venv/gridlabd/bin/activate:
+	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: $@ not called" > /dev/stderr ; false )
+
 # NB: it's ok to use the runner's python to generate the requirements.txt file
-requirements.txt: python/requirements.csv
+requirements.txt: python/requirements.csv $HOME/.venv/gridlabd/bin/activate
 	@python3 -m pip -q install pandas==2.0.0
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no python venv found" > /dev/stderr ; false )
 	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
 	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
