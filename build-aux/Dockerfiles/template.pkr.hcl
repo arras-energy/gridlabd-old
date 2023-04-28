@@ -31,7 +31,7 @@ variable "dev_s3_url" {
 source "amazon-ebs" "ubuntu-22-04" {
   source_ami_filter {
     filters = {
-      name                = "ubuntu/images/*ubuntu-focal-22.04-amd64-server-*"
+      name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
