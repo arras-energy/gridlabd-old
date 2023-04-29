@@ -38,7 +38,7 @@ else
 			if [ ! "$(/usr/local/bin/gridlabd --version=name)" = "$GRIDLABD_FOLDER" ]; then
 				echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_FOLDER" >$INSTALL_STDERR
 			fi
-			if [ "$(gridlabd --version=install)" = "$INSTALL_TARGET/gridlabd/$GRIDLABD_FOLDER" ]; then
+			if [ ! "$(gridlabd --version=install)" = "$INSTALL_TARGET/gridlabd/$GRIDLABD_FOLDER" ]; then
 				echo "WARNING: gridlabd is not in the current shell PATH" >$INSTALL_STDERR
 			fi
 		fi
