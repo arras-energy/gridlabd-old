@@ -21,15 +21,16 @@ if [ -z "${GRIDLABD_IMAGE}" ]; then
 else
 	mkdir -p "$OPT/gridlabd"
 	cd "$OPT/gridlabd"
-	if ! (curl -sL -H 'Cache-Control: no-cache' "$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz" | tar xz) ; then
-		echo "ERROR: unable to find install image for $TARGET" > /dev/stderr
-	elif ! sh "$GRIDLABD_IMAGE/share/gridlabd/setup.sh" ; then
+	GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz" | tar xvz | tail -n 1 | cut -f1 -d/ )
+	if [ -z "$GRIDLABD_FOLDER" -o ! -d "$GRIDLABD_FOLDER" ]  ; then
+		echo "ERROR: unable to download install image for $GRIDLABD_IMAGE" > /dev/stderr
+	elif ! sh "$GRIDLABD_FOLDER/share/gridlabd/setup.sh" ; then
 		echo "ERROR: setup script not found for $GRIDLABD_IMAGE" > /dev/stderr
 	else
 		ln -sf "$GRIDLABD_IMAGE" "current"
 		ln -sF "$OPT/current/bin/gridlabd" "/usr/local/bin/gridlabd"
-		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_IMAGE" ] ; then
-			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_IMAGE" > /dev/stderr
+		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_FOLDER" ] ; then
+			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_FOLDER" > /dev/stderr
 		fi
 	fi
 fi
