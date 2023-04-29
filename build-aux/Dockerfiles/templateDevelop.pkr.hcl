@@ -28,8 +28,8 @@ variable "dev_s3_url" {
   description = "S3 bucket URL"
 }
 
-source "amazon-ebs" "ubuntu-22-04" {
-  source_ami           = "ami-014d05e6b24240371"
+source "amazon-ebs" "ubuntu-20-04" {
+  source_ami           = "ami-081a3b9eded47f0f3"
   region               = var.aws_region
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
@@ -57,7 +57,7 @@ build {
     access_key = var.aws_access_key
     region = var.aws_region
     secret_key = var.aws_secret_key
-    ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+    ami_name = "HiPAS Gridlabd Ubuntu 20.04 {{timestamp}}"
     keep_input_artifact = true
     ami_groups = ["all"] # Make the AMI publicly available
     s3_bucket_name = var.dev_s3_url
