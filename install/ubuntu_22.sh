@@ -15,6 +15,3 @@ autoreconf -isf
 ./configure
 make -j$(($(nproc)*3)) system
 gridlabd -T 0 --validate
-
-echo "Starting interactive shell. Use Ctrl-D to exit."
-bash
