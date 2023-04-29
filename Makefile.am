@@ -115,7 +115,7 @@ PYACTIVATE=source $(PYBIN)/activate
 python-requirements: | $(PYENV) python-venv
 
 python-venv:
-	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.venv/gridlabd/bin/activate'" > /dev/stderr ; false )
+	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.gridlabd/bin/activate'" > /dev/stderr ; false )
 
 # NB: it's ok to use the runner's python to generate the requirements.txt file
 requirements.txt: python/requirements.csv

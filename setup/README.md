@@ -28,7 +28,7 @@ where you can substitute your own values for `GRIDLABD_ORG`, `GRIDLABD_REPO`, an
 After the setup is complete, you can active the gridlabd build environment for python using the command
 
 ~~~
-. $HOME/.venv/gridlabd/bin/activate
+. $HOME/.gridlabd/bin/activate
 ~~~
 
 Once you have completed this procedure you may download and build GridLAB-D using the usual procedure, e.g.,

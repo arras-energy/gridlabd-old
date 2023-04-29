@@ -96,7 +96,7 @@ $ docker run -it ubuntu:22.04
 # git clone https://github.com/<USER>/gridlabd -b develop /gridlabd
 # cd /gridlabd
 # sh setup.sh
-# python3.10 -m venv 
+# python3.10 -m venv ~/.gridlabd
 # sh build.sh
 # gridlabd -T 0 --validate
 ~~~

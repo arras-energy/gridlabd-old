@@ -3,7 +3,7 @@ set -p
 set -x
 
 PYTHON_VERSION=3.10
-PYTHON_VENV=${HOME:-/tmp}/.venv/gridlabd
+PYTHON_VENV=${HOME:-/tmp}/.gridlabd
 PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
 PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION%.*}-config
 
