@@ -32,20 +32,13 @@ The preferred method for running HiPAS GridLAB-D is to download the master image
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
-  host% docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+$ docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~ 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 ~~~
-  host% alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
+$ alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
-
-Windows users can accomplish something similar using a small batch file named `gridlabd.bat` containing the following 3 lines:
-~~~
-@echo off
-for /f "delims=" %%i in ('cd') do set PWD=%%i
-docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
-~~~
 
 # Installing from AWS
 
@@ -54,9 +47,9 @@ Installation from AWS is designed to be as simple as possible for a user. Instal
 Here is an example of running the install script on Ubuntu 22.04 to install the latest version of GridLAB-D:
 
 ~~~
-apt update
-apt install curl -y
-curl -sL http://install.gridlabd.us/install.sh | sh
+# apt update
+# apt install curl -y
+# curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
 
 ## Docker
@@ -64,18 +57,20 @@ curl -sL http://install.gridlabd.us/install.sh | sh
 To install on a linux docker container or in a linux system, use the following commands:
 
 ~~~
-apt-get update
-apt-get install sudo wget -y
-wget https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+$ docker run -it ubuntu:22.04
+# apt-get update
+# apt-get install curl -y
+# curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
 
 You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
 
 ## MACOS/Debian
+
 To install on Mac, use the following commands:
 
 ~~~
-curl -OJ https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+$ curl -OJ https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
 ~~~
 
 The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it.
