@@ -1,4 +1,3 @@
-set -x
 INSTALL_SOURCE="http://install.gridlabd.us"
 INSTALL_TARGET="/usr/local/opt"
 INSTALL_STDERR="/dev/stderr"
