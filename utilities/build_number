@@ -27,7 +27,7 @@ if [ -d $TOP/.git ]; then
 		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $FIL
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $FIL
 		echo "#define BUILD_ID \"$(git log -n 1 | sed -n '1s/^commit //p')\"" >> $FIL
-		echo "#define BUILD_OPTIONS \"$($TOP/customize status | grep Enabled: | cut -f2- -d' ')\"" >> $FIL
+		echo "#define BUILD_OPTIONS \"\"" >> $FIL
 		echo "#define BUILD_STATUS $(git status -b --porcelain | sed s'/"//g' | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $FIL
 		if [ "$(uname -s)" == "Linux" ]; then
 			. /etc/os-release
@@ -57,7 +57,7 @@ else
 		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $FIL
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $FIL
 		echo "#define BUILD_ID \"<unknown>\"" >> $FIL
-		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2- -d' ')\"" >> $FIL
+		echo "#define BUILD_OPTIONS \"\"" >> $FIL
 		echo "#define BUILD_STATUS \"\"" >> $FIL
 		if [ "$(uname -s)" == "Linux" ]; then
 			. /etc/os-release
