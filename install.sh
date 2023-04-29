@@ -1,7 +1,7 @@
 DEFAULT_SOURCE="http://install.gridlabd.us"
 DEFAULT_TARGET="/usr/local/opt"
 DEFAULT_STDERR="/dev/stderr"
-DEFAULT_STDOUT="/dev/null"
+DEFAULT_STDOUT="/dev/stdout"
 
 if [ $# -eq 0 ]; then
 	case $(uname -s) in
