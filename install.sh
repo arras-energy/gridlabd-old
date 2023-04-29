@@ -25,9 +25,9 @@ else
 	if [ -z "$GRIDLABD_FOLDER" -o ! -d "$GRIDLABD_FOLDER" ]  ; then
 		echo "ERROR: unable to download install image for $GRIDLABD_IMAGE" > /dev/stderr
 	elif ! sh "$GRIDLABD_FOLDER/share/gridlabd/setup.sh" ; then
-		echo "ERROR: setup script not found for $GRIDLABD_IMAGE" > /dev/stderr
+		echo "ERROR: setup script not found for $GRIDLABD_FOLDER" > /dev/stderr
 	else
-		ln -sf "$GRIDLABD_IMAGE" "current"
+		ln -sf "$GRIDLABD_FOLDER" "current"
 		ln -sF "$OPT/current/bin/gridlabd" "/usr/local/bin/gridlabd"
 		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_FOLDER" ] ; then
 			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_FOLDER" > /dev/stderr
