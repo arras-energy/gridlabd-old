@@ -1,4 +1,3 @@
-set -x
 if ! autoconf --version 1>/dev/null 2>&1 ; then
 	echo "ERROR: autoconf not installed. Did you run setup.sh?" > /dev/stderr
 elif "$(autoconf --version 2>/dev/null | head -n 1 | grep -o '[^ ]*$')" != "2.71" ; then
