@@ -24,9 +24,8 @@ else
 	mkdir -p "$INSTALL_TARGET/gridlabd" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 	cd "$INSTALL_TARGET/gridlabd" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 	GRIDLABD_SOURCE="$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz"
-	echo "Downloading $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz..." 1>$INSTALL_STDERR
-	echo "Image size:" $(curl -sL -I $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz | grep '^Content-Length: ' | cut -f2 -d' ' ; echo '1000000 / p') | dc 1>$INSTALL_STDERR
-	echo "Image date:" $(curl -sL -I $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz | grep '^Last-Modified: ' | cut -f2 -d' ' ; echo '1000000 / p') | dc 1>$INSTALL_STDERR
+	echo "Downloading $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz..." 1>$INSTALL_STDOUT
+	curl -sL -I $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz 1>$INSTALL_STDOUT
 	GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz | tail -n 1 | cut -f1 -d/ ) 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 	if [ -z "$GRIDLABD_FOLDER" -o ! -d "$GRIDLABD_FOLDER" ]  ; then
 		echo "ERROR: unable to download install image for $GRIDLABD_IMAGE" >$INSTALL_STDERR
