@@ -80,9 +80,6 @@ include $(top_srcdir)/subcommands/Makefile.mk
 # approved modules
 include $(top_srcdir)/modules.mk
 
-# custom modules (see ./customize)
-include $(top_srcdir)/custom.mk
-
 BUILT_SOURCES += python-requirements
 
 #
