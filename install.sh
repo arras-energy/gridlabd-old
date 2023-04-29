@@ -3,7 +3,6 @@ INSTALL_SOURCE="http://install.gridlabd.us"
 INSTALL_TARGET="/usr/local/opt"
 INSTALL_STDERR="/dev/stderr"
 INSTALL_STDOUT="/dev/stderr"
-INSTALL_OUTPUT="1>$INSTALL_STDOUT 2>$INSTALL_STDERR"
 
 if [ $# -eq 0 ]; then
 	case $(uname -s) in
@@ -20,18 +19,22 @@ if [ $# -eq 0 ]; then
 	esac
 fi
 if [ -z "${GRIDLABD_IMAGE}" ]; then
-	echo "ERROR: GRIDLABD_IMAGE name not specified" $INSTALL_OUTPUT
+	echo "ERROR: GRIDLABD_IMAGE name not specified" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 else
-	mkdir -p "$INSTALL_TARGET/gridlabd" $INSTALL_OUTPUT
-	cd "$INSTALL_TARGET/gridlabd" $INSTALL_OUTPUT
-	GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz" | tar xvz | tail -n 1 | cut -f1 -d/ ) $INSTALL_OUTPUT
+	mkdir -p "$INSTALL_TARGET/gridlabd" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
+	cd "$INSTALL_TARGET/gridlabd" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
+	GRIDLABD_SOURCE="$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz"
+	echo "Downloading $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz..." 1>$INSTALL_STDERR
+	echo "Image size:" $(curl -sL -I $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz | grep '^Content-Length: ' | cut -f2 -d' ' ; echo '1000000 / p') | dc 1>$INSTALL_STDERR
+	echo "Image date:" $(curl -sL -I $INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz | grep '^Last-Modified: ' | cut -f2 -d' ' ; echo '1000000 / p') | dc 1>$INSTALL_STDERR
+	GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz | tail -n 1 | cut -f1 -d/ ) 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 	if [ -z "$GRIDLABD_FOLDER" -o ! -d "$GRIDLABD_FOLDER" ]  ; then
 		echo "ERROR: unable to download install image for $GRIDLABD_IMAGE" >$INSTALL_STDERR
 	elif ! sh "$GRIDLABD_FOLDER/share/gridlabd/setup.sh" ; then
 		echo "ERROR: setup script not found for $GRIDLABD_FOLDER" >$INSTALL_STDERR
 	else
-		ln -sf "$GRIDLABD_FOLDER" "current" $INSTALL_OUTPUT
-		ln -sf "$INSTALL_TARGET/gridlabd/current/bin/gridlabd" "/usr/local/bin/gridlabd" $INSTALL_OUTPUT
+		ln -sf "$GRIDLABD_FOLDER" "current" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
+		ln -sf "$INSTALL_TARGET/gridlabd/current/bin/gridlabd" "/usr/local/bin/gridlabd" 1>$INSTALL_STDOUT 2>$INSTALL_STDERR
 		if [ ! "$(/usr/local/bin/gridlabd --version=name)" = "$GRIDLABD_FOLDER" ]; then
 			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_FOLDER" >$INSTALL_STDERR
 		fi
