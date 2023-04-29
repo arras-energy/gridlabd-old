@@ -9,7 +9,7 @@ if [ $# -eq 0 ]; then
 			;;
 		Linux)
 			. /etc/os-release
-			GRIDLABD_IMAGE=${ID}_${VERSION_ID%.*}-$(uname -m)
+			GRIDLABD_IMAGE="${ID}_${VERSION_ID%.*}-$(uname -m)"
 			;;
 		*)
 			echo "ERROR: $(uname -s) is not available for fast install. Use build.sh instead." > /dev/stderr
@@ -21,7 +21,7 @@ if [ -z "${GRIDLABD_IMAGE}" ]; then
 else
 	mkdir -p "$OPT/gridlabd"
 	cd "$OPT/gridlabd"
-	if ! (curl -sL "$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz" | tar xz) ; then
+	if ! (curl -sL -H 'Cache-Control: no-cache' "$INSTALL_SOURCE/$GRIDLABD_IMAGE.tarz" | tar xz) ; then
 		echo "ERROR: unable to find install image for $TARGET" > /dev/stderr
 	elif ! sh "$GRIDLABD_IMAGE/share/gridlabd/setup.sh" ; then
 		echo "ERROR: setup script not found for $GRIDLABD_IMAGE" > /dev/stderr
