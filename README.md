@@ -44,7 +44,7 @@ Note that this alias will interfere with any host-based installation. You should
 
 Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
 
-Here is an example of running the install script on Ubuntu 22.04 to install the latest version of GridLAB-D:
+Here is an example of running the install script on Ubuntu 22.04 to obtain the latest version of GridLAB-D:
 
 ~~~
 # apt update
@@ -70,10 +70,8 @@ You can also use curl, if preferred. For official images, use install.sh from in
 To install on Mac, use the following commands:
 
 ~~~
-$ curl -OJ https://s3.us-west-1.amazonaws.com/install.gridlabd.us/install.sh | bash
+$ curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
-
-The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it.
 
 # Developer quick start
 
@@ -92,11 +90,15 @@ $ ./build.sh
 Developers should use a slightly modified install script to work on the develop branch, or to test fast-install images they have created on their own branches:
 
 ~~~
-apt-get update
-apt-get install sudo wget -y
-wget https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
-chmod 755 install-dev.sh
-./install-dev.sh -b image-branch-name
+$ docker run -it ubuntu:22.04
+# apt-get update
+# apt-get install git curl -y
+# git clone https://github.com/<USER>/gridlabd -b develop /gridlabd
+# cd /gridlabd
+# sh setup.sh
+# python3.10 -m venv 
+# sh build.sh
+# gridlabd -T 0 --validate
 ~~~
 
 You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
