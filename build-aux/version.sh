@@ -37,7 +37,7 @@ elif [ -f "/etc/os-release" ]; then
     . /etc/os-release
     SYS="${ID}_${VERSION_ID%.*}"
 else
-    SYS="$(uname -s)_$(uname -r)"
+    SYS="$(uname -s)_$(uname -r | cut -f1 -d.)"
 fi
 HDW=`uname -m`
 case $1 in
