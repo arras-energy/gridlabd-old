@@ -88,7 +88,6 @@ BUILT_SOURCES += python-requirements
 
 install-exec-hook: | index docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
-	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
@@ -206,6 +205,7 @@ image: $(prefix).tarz
 
 $(prefix).tarz: $(prefix)
 	@echo "Creating $(prefix).tarz..."
+	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: $(prefix).tarz
