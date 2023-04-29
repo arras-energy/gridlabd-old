@@ -30,12 +30,11 @@ variable "dev_s3_url" {
 
 source "amazon-ebs" "ubuntu-22-04" {
   source_ami           = "ami-014d05e6b24240371"
-  region               = "{{user `aws_region`}}"
+  region               = var.aws_region
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
   ami_name             = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
 }
-
 
 
 build {
