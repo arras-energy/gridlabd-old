@@ -29,20 +29,14 @@ variable "dev_s3_url" {
 }
 
 source "amazon-ebs" "ubuntu-22-04" {
-  source_ami_filter {
-    filters = {
-      name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    most_recent = true
-    owners      = ["099720109477"]
-  }
-  region          = var.aws_region
-  instance_type   = "t2.micro"
-  ssh_username    = "ubuntu"
-  ami_name        = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+  source_ami           = "ami-014d05e6b24240371"
+  region               = "{{user `aws_region`}}"
+  instance_type        = "t2.micro"
+  ssh_username         = "ubuntu"
+  ami_name             = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+  root_device_type     = "ebs"
 }
+
 
 build {
   sources = ["source.amazon-ebs.ubuntu-22-04"]
