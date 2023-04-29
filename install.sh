@@ -2,34 +2,34 @@ set -x
 
 OPT=/usr/local/opt
 
-if $# -eq 1; then
+if [ $# -eq 0 ]; then
 	case $(uname -s) in
 		Darwin)
-			TARGET="darwin_$(uname -r)-$(uname -m)"
+			GRIDLABD_IMAGE="darwin_$(uname -r)-$(uname -m)"
 			;;
 		Linux)
 			. /etc/os-release
-			TARGET=${ID}_${VERSION_ID%.*}-$(uname -m)
+			GRIDLABD_IMAGE=${ID}_${VERSION_ID%.*}-$(uname -m)
 			;;
 		*)
 			echo "ERROR: $(uname -s) is not available for fast install. Use build.sh instead." > /dev/stderr
 			;;
 	esac
-else
-	TARGET=$1
 fi
-if [ ! -z "${TARGET}" ]; then
+if [ -z "${GRIDLABD_IMAGE}" ]; then
+	echo "ERROR: GRIDLABD_IMAGE name not specified" > /dev/stderr
+else
 	mkdir -p $OPT/gridlabd
 	cd $OPT/gridlabd
-	if ! (curl -sL https://install.gridlabd.us/$TARGET.tarz | tar xz) ; then
+	if ! (curl -sL https://install.gridlabd.us/$GRIDLABD_IMAGE.tarz | tar xz) ; then
 		echo "ERROR: unable to find install image for $TARGET" > /dev/stderr
-	elif ! sh $TARGET/share/gridlabd/setup.sh ; then
-		echo "ERROR: setup script not found for $TARGET" > /dev/stderr
+	elif ! sh $GRIDLABD_IMAGE/share/gridlabd/setup.sh ; then
+		echo "ERROR: setup script not found for $GRIDLABD_IMAGE" > /dev/stderr
 	else
-		ln -sf $TARGET current
+		ln -sf $GRIDLABD_IMAGE current
 		ln -sF $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
-		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$TARGET" ] ; then
-			echo "ERROR: /usr/local/bin/gridlabd not linked to $TARGET > /dev/stderr
+		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_IMAGE" ] ; then
+			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_IMAGE" > /dev/stderr
 		fi
 	fi
 fi
