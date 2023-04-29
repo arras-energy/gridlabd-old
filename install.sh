@@ -28,9 +28,12 @@ else
 		echo "ERROR: setup script not found for $GRIDLABD_FOLDER" > /dev/stderr
 	else
 		ln -sf "$GRIDLABD_FOLDER" "current"
-		ln -sF "$OPT/current/bin/gridlabd" "/usr/local/bin/gridlabd"
-		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_FOLDER" ] ; then
+		ln -sf "$OPT/gridlabd/current/bin/gridlabd" "/usr/local/bin/gridlabd"
+		if [ ! "$(/usr/local/bin/gridlabd --version=name)" == "$GRIDLABD_FOLDER" ]; then
 			echo "ERROR: /usr/local/bin/gridlabd not linked to $GRIDLABD_FOLDER" > /dev/stderr
+		fi
+		if [ "$(gridlabd --version=install)" == "$OPT/gridlabd/$GRIDLABD_FOLDER" ]; then
+			echo "WARNING: gridlabd is not in the current shell PATH" >/dev/stderr
 		fi
 	fi
 fi
