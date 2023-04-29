@@ -1,6 +1,6 @@
 if ! autoconf --version 1>/dev/null 2>&1 ; then
 	echo "ERROR: autoconf not installed. Did you run setup.sh?" > /dev/stderr
-elif "$(autoconf --version 2>/dev/null | head -n 1 | grep -o '[^ ]*$')" != "2.71" ; then
+elif [ "$(autoconf --version 2>/dev/null | head -n 1 | grep -o '[^ ]*$')" != "2.71" ]; then
 	echo "ERROR: autoconf version 2.71 required. Did you run setup.sh?" > /dev/stderr
 elif ! git --version 1>/dev/null 2>&1 ; then
 	echo "ERROR: you must install git to build GridLAB-D" > /dev/stderr
