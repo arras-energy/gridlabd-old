@@ -382,11 +382,8 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 
 system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
-#   @$(DESTDIR)$(bindir)/gridlabd docker disable > /dev/null
-	@$(DESTDIR)$(bindir)/gridlabd version set $(shell basename $(exec_prefix))
-	@if [ ! "$$(gridlabd --version=install)" == "$$($(top_srcdir)/build-aux/version.sh --install)" ]; then \
-		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
-	fi
+	@$(prefix)/bin/gridlabd version set
+	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'
 
 index: weather library template
 
