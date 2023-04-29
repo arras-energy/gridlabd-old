@@ -84,13 +84,16 @@ The O and J flags for curl tells it to utilize the provided filename, otherwise 
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
-Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. *Do not* run the install.sh script with sudo, as that will create a broken install. The script itself selectively uses sudo only where necessary.
+Normally on Linux and Mac OS X developers should use the `setup.sh` script to setup the system for GridLAB-D. *Do not* run the `build.sh` scripts with sudo, as that will create a broken install. 
+
 ~~~
-host% git clone https://source.gridlabd.us/ gridlabd
-host% gridlabd/install.sh
+$ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
+$ ./setup.sh
+$ ./build.sh
 ~~~
 
 ### Docker
+
 Developers should use a slightly modified install script to work on the develop branch, or to test fast-install images they have created on their own branches:
 
 ~~~
