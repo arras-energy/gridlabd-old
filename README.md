@@ -51,6 +51,14 @@ docker run -it -v "%PWD%:/tmp" hipas/gridlabd:latest gridlabd %*
 
 Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
 
+Here is an example of running the install script on Ubuntu 22.04 to install the latest version of GridLAB-D:
+
+~~~
+apt update
+apt install curl -y
+curl -sL http://install.gridlabd.us/install.sh | sh
+~~~
+
 ## Docker
 
 To install on a linux docker container or in a linux system, use the following commands:
