@@ -10,6 +10,7 @@ if curl --version 1>/dev/null 2>&1 ; then
 	if curl -H 'Cache-Control: no-cache' -fsL $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh > /tmp/setup_$$.sh ; then
 		sh /tmp/setup_$$.sh
 		rm /tmp/setup_$$.sh
+		echo "Setup complete"
 	else
 		echo "ERROR: unable to find $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh. Manual setup required." >/dev/stderr
 	fi		

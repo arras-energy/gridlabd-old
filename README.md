@@ -58,14 +58,14 @@ To install on a linux docker container or in a linux system, use the following c
 
 ~~~
 $ docker run -it ubuntu:22.04
-# apt-get update
-# apt-get install curl -y
+# apt update
+# apt install curl -y
 # curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
 
 You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
 
-## MACOS/Debian
+## MACOS
 
 To install on Mac, use the following commands:
 
@@ -87,23 +87,23 @@ $ ./build.sh
 
 ### Docker
 
-Developers should use a slightly modified install script to work on the develop branch, or to test fast-install images they have created on their own branches:
+Developers should use the following commands to build a container, where `<USER>` and `<BRANCH>` are your github username and the gridlabd branch:
 
 ~~~
 $ docker run -it ubuntu:22.04
-# apt-get update
-# apt-get install git curl -y
-# git clone https://github.com/<USER>/gridlabd -b develop /gridlabd
+# apt update
+# apt install git curl -y
+# git clone https://github.com/<USER>/gridlabd -b <BRANCH> /gridlabd
 # cd /gridlabd
+# export GRIDLABD_SOURCE=<USER>/gridlabd/<BRANCH>
 # sh setup.sh
 # python3.10 -m venv ~/.gridlabd
 # sh build.sh
 # gridlabd -T 0 --validate
 ~~~
 
-You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
-
 ### MACOS/Debian
+
 To install on Mac, use the following commands:
 
 ~~~
@@ -113,16 +113,6 @@ chmod 755 install-dev.sh
 ~~~
 
 The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it, and adjust the commands accordingly.
-
-## Flags
-The fast-install script offers a few select flags for selecting your install.
-
-
-`-b your-branch here` is used to select a branch, otherwise the install will default to the master branch.
-
-`-v #.#.#` is used to specify a specific version, and is used for when you want to use a past fast-install version. Otherwise, the script will default to the latest version of the branch being used.
-
-`-h` is your standard help, and will display these options when called.
 
 ### AWS EC2 Installation 
 Use the AWS Ubuntu AMI to build gridlabd on AWS EC2.

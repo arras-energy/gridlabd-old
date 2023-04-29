@@ -10,7 +10,7 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-$(info Make target is $(shell $(top_srcdir)/build-aux/version.sh --name))
+$(info Making $(shell $(top_srcdir)/build-aux/version.sh --name))
 
 # !!! must match version specified in configure.ac
 OPT=$(shell mkdir -p /usr/local/opt/gridlabd)
@@ -123,13 +123,13 @@ requirements.txt: python/requirements.csv
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@$(SYSPYTHON) --version || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
-	@python$(PYVER)-config --prefix || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
+	@$(SYSPYTHON) --version 1>/dev/null || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
+	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
-	@$(PYENV)/bin/python3-config --prefix || ln -sf $(PYENV)/bin/python$(PYVER)-config $(PYENV)/bin/python3-config
-	@$(ENVPYTHON) --version || ( echo "ERROR: $(ENVPYTHON) is not found" > /dev/stderr ; false )
+	@$(PYENV)/bin/python3-config --prefix 1>/dev/null || ln -sf $(PYENV)/bin/python$(PYVER)-config $(PYENV)/bin/python3-config
+	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
 	@$(ENVPYTHON) python/requirements.py --buildenv | bash
