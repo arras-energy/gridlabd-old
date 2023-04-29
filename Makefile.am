@@ -88,7 +88,7 @@ BUILT_SOURCES += python-requirements
 
 install-exec-hook: | index docs
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
-	@grep INSTALL setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
+	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
