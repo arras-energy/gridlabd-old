@@ -26,7 +26,7 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
   * Advanced Load Modeling (DOE funding, SLAC National Accelerator Laboratory lead)
   * LoadInsight (DOE funding, SLAC National Accelerator Laboratory lead)
 
-# User quick start
+# Quick start using Docker
 
 The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
@@ -40,52 +40,68 @@ $ alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
 ~~~
 Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
 
-# Installing from AWS
+# Download pre-built images
 
-Installation from AWS is designed to be as simple as possible for a user. Installation requires a user to have sudo priviledges and either wget or curl installed. The '''-b branch-name''' flag is required if you want an image from a specific branch, otherwise it will default to using the master branch for install.sh and the develop branch for install-dev.sh. If no image is found for download for your specified branch and operating system, the fast install will fail. Important Note: This install script is very different from the install.sh script used to build gridlabd from source! If you don't want to download it remotely, it is also located in cloud/websites/install.gridlabd.us. 
-
-Here is an example of running the install script on Ubuntu 22.04 to obtain the latest version of GridLAB-D:
+Installation from downloads requires sudo priviledges and curl installed. The install script will automatically download and install the correct image for your system if you use the following command
 
 ~~~
-# apt update
-# apt install curl -y
 # curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
 
-## Docker
-
-To install on a linux docker container or in a linux system, use the following commands:
+You can download the latest development image using the command:
 
 ~~~
-$ docker run -it ubuntu:22.04
-# apt update
-# apt install curl -y
-# curl -sL http://install.gridlabd.us/install.sh | sh
+# curl -sL http://install-dev.gridlabd.us/install.sh | sh
 ~~~
 
-You can also use curl, if preferred. For official images, use install.sh from install.gridlabd.us.
+The installed recognizes the following environment variables:
 
-## MACOS
+| Variable | Default | Description
+| -------- | ------- | -----------
+| `DEFAULT_SOURCE` | `http://install.gridlabd.us` | URL from which image is downloaded
+| `DEFAULT_TARGET` | `/usr/local/opt` | Folder in which image is installed
+| `DEFAULT_STDERR` | `/dev/stderr` | File to which error messages are sent
+| `DEFAULT_STDOUT` | `/dev/stdout` | File to which output messages are sent
 
-To install on Mac, use the following commands:
+This procedures applies to AWS and Docker images as well.
+
+# Build from source
+
+GridLAB-D can be built from the source on supported platforms using the following procedures.
+
+If you have installed the AWS CLI, then you can obtain a list of available images using the following command:
 
 ~~~
-$ curl -sL http://install.gridlabd.us/install.sh | sh
+$ aws s3 ls s3://install.gridlabd.us --profile=YOUR_AWS_PROFILE
+~~~
+
+where `YOUR_AWS_PROFILE` is the name of your profile in the AWS credentials file.  
+
+The image naming convention is as follows:
+
+  * `<os>_<release>-<hardware>.tarz`: default image for the specific platform.
+  * `<major>.<minor>.<patch>-<build>-<branch>-<os>_<release>-<hardware>.tarz`: legacy/custom images
+
+To manually install an image, do the following:
+
+~~~
+$ export GRIDLABD_IMAGE=YOUR_IMAGE_NAME
+$ sudo curl -sL http://install.gridlabd.us/install.sh | sh
+~~~
+
+## Linux/MACos Builds
+
+Normally on Linux and Mac OS X developers should use the `setup.sh` script only once to setup and/or upgrade the system for GridLAB-D. Then you can run the `build.sh` script to compile and install it. *Do not* run the `build.sh` scripts with sudo, as that will create a broken install. 
+
+~~~
+$ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
+$ sudo ./setup.sh
+$ ./build.sh
 ~~~
 
 # Developer quick start
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
-
-## Linux
-
-Normally on Linux and Mac OS X developers should use the `setup.sh` script to setup the system for GridLAB-D. *Do not* run the `build.sh` scripts with sudo, as that will create a broken install. 
-
-~~~
-$ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
-$ ./setup.sh
-$ ./build.sh
-~~~
 
 ### Docker
 
@@ -97,9 +113,10 @@ $ docker run -it ubuntu:22.04
 # apt install git curl -y
 # git clone https://github.com/<USER>/gridlabd -b <BRANCH> /gridlabd
 # cd /gridlabd
-# export GRIDLABD_SOURCE=<USER>/gridlabd/<BRANCH>
+# export GRIDLABD_ORIGIN=<USER>/gridlabd/<BRANCH> # only needed for setups from forks
 # sh setup.sh
 # python3.10 -m venv ~/.gridlabd
+# . ~/.gridlabd/bin/activate
 # sh build.sh
 # gridlabd -T 0 --validate
 ~~~
