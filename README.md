@@ -42,7 +42,7 @@ Note that this alias will interfere with any host-based installation. You should
 
 # Download pre-built images
 
-Installation from downloads requires sudo priviledges and curl installed. The install script will automatically download and install the correct image for your system if you use the following command
+Installation from downloads requires `sudo` priviledges and `curl`. The `install` script will automatically download and install the latest production image for your system if you use the following command:
 
 ~~~
 # curl -sL http://install.gridlabd.us/install.sh | sh
@@ -63,7 +63,7 @@ The installed recognizes the following environment variables:
 | `DEFAULT_STDERR` | `/dev/stderr` | File to which error messages are sent
 | `DEFAULT_STDOUT` | `/dev/stdout` | File to which output messages are sent
 
-This procedures applies to AWS and Docker images as well.
+This procedure may also be used in AWS EC2 instances and Docker containers.
 
 # Build from source
 
@@ -89,13 +89,15 @@ $ export GRIDLABD_IMAGE=YOUR_IMAGE_NAME
 $ sudo curl -sL http://install.gridlabd.us/install.sh | sh
 ~~~
 
-## Linux/MACos Builds
+## Linux/MacOS Builds
 
-Normally on Linux and Mac OS X developers should use the `setup.sh` script only once to setup and/or upgrade the system for GridLAB-D. Then you can run the `build.sh` script to compile and install it. *Do not* run the `build.sh` scripts with sudo, as that will create a broken install. 
+On Linux and MacOS, developers should use the `setup.sh` script only once to setup and/or upgrade the system for GridLAB-D. Then you can run the `build.sh` script to compile and install GridLAB-D. On Linux you must be root or use sudo.  On MacOS you should *not* be root use sudo when you run `setup.sh`. 
+
+*Do not* run the `build.sh` scripts with sudo, as that will create a broken install. If necessary, you should give yourself permission to write `/usr/local`.
 
 ~~~
 $ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
-$ sudo ./setup.sh
+$ ./setup.sh
 $ ./build.sh
 ~~~
 
@@ -105,15 +107,15 @@ $ ./build.sh
 
 ### Docker
 
-Developers should use the following commands to build a container, where `<USER>` and `<BRANCH>` are your github username and the gridlabd branch:
+Developers should use the following commands to build GridLAB-D in a Docker container, where `USER` and `BRANCH` are your github username and the gridlabd branch:
 
 ~~~
 $ docker run -it ubuntu:22.04
 # apt update
 # apt install git curl -y
-# git clone https://github.com/<USER>/gridlabd -b <BRANCH> /gridlabd
+# git clone https://github.com/$USER/gridlabd -b $BRANCH /gridlabd
 # cd /gridlabd
-# export GRIDLABD_ORIGIN=<USER>/gridlabd/<BRANCH> # only needed for setups from forks
+# export GRIDLABD_ORIGIN=$USER/gridlabd/$BRANCH # only needed for setups from forks
 # sh setup.sh
 # python3.10 -m venv ~/.gridlabd
 # . ~/.gridlabd/bin/activate
