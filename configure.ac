@@ -613,6 +613,13 @@ if test ! -f "$PYTHONCONFIG"; then
   fi
 fi
 
+if test ! -d "$VIRTUAL_ENV/include"; then
+  echo "WARNING: fixing missing include link in $VIRTUAL_ENV"
+  PYPREFIX=$(dirname $(readlink $PYTHONCONFIG))
+  ln -s ${PYPREFIX/bin/include}/python$PYTHON_REQ $VIRTUAL_ENV/include
+fi
+
+
 ###############################################################################
 # The End
 ###############################################################################
