@@ -10,7 +10,7 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
-$(info Making $(shell $(top_srcdir)/build-aux/version.sh --name))
+$(info Current target is $(shell $(top_srcdir)/build-aux/version.sh --name))
 
 # !!! must match version specified in configure.ac
 OPT=$(shell mkdir -p /usr/local/opt/gridlabd)
