@@ -5,7 +5,7 @@ set -x
 PYTHON_VERSION=3.10
 PYTHON_VENV=${HOME:-/tmp}/.gridlabd
 PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
-PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION%.*}-config
+PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION}-config
 
 # check for root access
 if [ "$(whoami)" != "root" ]; then

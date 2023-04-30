@@ -8,7 +8,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* underground_line_conductor::oclass = NULL;
 CLASS* underground_line_conductor::pclass = NULL;

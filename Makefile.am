@@ -128,7 +128,6 @@ $(PYENV): requirements.txt
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
-	@$(PYENV)/bin/python3-config --prefix 1>/dev/null || ln -sf $(PYENV)/bin/python$(PYVER)-config $(PYENV)/bin/python3-config
 	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0

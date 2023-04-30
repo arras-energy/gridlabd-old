@@ -78,12 +78,10 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
-PY_OS="$(uname -s)"
-
 . $GLD_BIN/pkgenv/bin/activate
 
 export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
-export PYTHON_CONFIG="python$PYTHON_VER-config"
+export PYTHON_CONFIG="$GLD_BIN/pkgenv/bin/activate/python$PYTHON_VER-config"
 export PYCCFLAGS="$($PYTHON_CONFIG --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"

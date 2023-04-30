@@ -16,8 +16,6 @@
 #include <iostream>
 #include <map>
 
-using namespace std;
-
 SET_MYCONTEXT(DMC_CMDARG)
 
 /* TODO: remove when reentrant code is completed */
@@ -1841,7 +1839,7 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 
-	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1023[A-Za-z_0-9]",modname,classname);
 	if ( n!=2 )
 	{
 		output_error("--example: %s name is not valid",n==0?"module":"class");
@@ -1934,7 +1932,7 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
 		output_error("--mclassdef requires a module:class argument");
 		return CMDERR;
 	}
-	n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	n = sscanf(argv[1],"%1023[A-Za-z_]:%1023[A-Za-z_0-9]",modname,classname);
         if ( n!=2 )
         {
                 output_error("--mclassdef: %s name is not valid",n==0?"module":"class");
@@ -2091,30 +2089,30 @@ DEPRECATED static int formats(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::formats(int argc, const char *argv[])
 {
-	cout << "{" << endl;
+	std::cout << "{" << std::endl;
 
-	cout << "\t\"glm\" : {" << endl;
-	cout << "\t\t\"json\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t}" << endl;
-	cout << "\t}," << endl;
+	std::cout << "\t\"glm\" : {" << std::endl;
+	std::cout << "\t\t\"json\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t}" << std::endl;
+	std::cout << "\t}," << std::endl;
 
 	// TODO: use a directory listing to get all available converters
-	cout << "\t\"json\" : {" << endl;
-	cout << "\t\t\"glm\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t}," << endl;
+	std::cout << "\t\"json\" : {" << std::endl;
+	std::cout << "\t\t\"glm\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t}," << std::endl;
 
-	cout << "\t\t\"png\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t\t\"type\" : [" << endl;
-	cout << "\t\t\t\t\"summary\"," << endl;
-	cout << "\t\t\t\t\"profile\"" << endl;
-	cout << "\t\t\t]" << endl;
-	cout << "\t\t}" << endl;
-	cout << "\t}" << endl;
+	std::cout << "\t\t\"png\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t\t\"type\" : [" << std::endl;
+	std::cout << "\t\t\t\t\"summary\"," << std::endl;
+	std::cout << "\t\t\t\t\"profile\"" << std::endl;
+	std::cout << "\t\t\t]" << std::endl;
+	std::cout << "\t\t}" << std::endl;
+	std::cout << "\t}" << std::endl;
 
-	cout << "}" << endl;
+	std::cout << "}" << std::endl;
 	return 0;
 }
 

@@ -28,7 +28,7 @@
 #include "math.h"
 #include <typeinfo>
 #include <iostream>
-using namespace std;
+
 
 EXPORT_CREATE(pole)
 EXPORT_INIT(pole)

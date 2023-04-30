@@ -365,7 +365,6 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 	char var_buf[64] = "";
 	char *c, *d=buffer;
 	int len=0;
-	int diff = 0;
 	char *b;
 	va_list ptr;
 	va_start(ptr,data);
@@ -380,7 +379,6 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 				outlinenum++;
 			}
 			fputc(*b,fp);
-			diff++;
 			len++;
 		}
 		d =  c + strlen("/*RESETLINE*/\n");
@@ -6537,7 +6535,7 @@ int GldLoader::replace_variables(char *to,char *from,int len,int warn)
 	while ((p=strstr(e,"${"))!=NULL)
 	{
 		char varname[1024];
-		if (sscanf(p+2,"%1024[^}]",varname)==1)
+		if (sscanf(p+2,"%1023[^}]",varname)==1)
 		{
 			char *env = getenv(varname);
 			const char *var;

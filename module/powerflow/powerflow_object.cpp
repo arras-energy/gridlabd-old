@@ -26,7 +26,7 @@
 		computed.  The current solution method does not change the frequency
 		nor does it consider the frequency in the powerflow calculated.  The
 		parameter is only to be used to adjust frequency-sensitive loads, such
-		as Grid-Friendly<sup>TM</sup> devices.
+		as Grid-Fristd::endly<sup>TM</sup> devices.
 
 	In addition, each powerflow_object defined must specify what it's parent object
 	is for the purposes of establishing the evaluation order through the ranks.
@@ -84,7 +84,6 @@
 
 #include "powerflow.h"
 #include <time.h>
-using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_object CLASS FUNCTIONS

@@ -10,7 +10,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* load::oclass = NULL;
 CLASS* load::pclass = NULL;

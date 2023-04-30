@@ -182,7 +182,7 @@
 # define ODBCXX_SIGNED_CHAR_TYPE signed char
 # define ODBCXX_SQLCHAR SQLCHAR
 # define ODBCXX_STRING_CONST(s) s
-# define ODBCXX_COUT std::cout
+# define ODBCXX_COUT std::std::cout
 # define ODBCXX_CERR std::cerr
 # define ODBCXX_STRTOL strtol
 #endif

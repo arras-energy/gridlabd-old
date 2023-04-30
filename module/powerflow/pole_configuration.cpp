@@ -2,7 +2,7 @@
 // Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #include "powerflow.h"
-using namespace std;
+
 
 EXPORT_CREATE(pole_configuration);
 EXPORT_INIT(pole_configuration);

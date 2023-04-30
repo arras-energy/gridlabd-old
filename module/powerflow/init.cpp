@@ -2,7 +2,7 @@
 //	Copyright (C) 2008 Battelle Memorial Institute
 
 #include "powerflow.h"
-using namespace std;
+
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {

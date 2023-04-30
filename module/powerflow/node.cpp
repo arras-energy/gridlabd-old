@@ -48,7 +48,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //Library imports items - for external LU solver - stolen from somewhere else in GridLAB-D (tape, I believe)
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -323,23 +323,23 @@ node::node(MODULE *mod) : powerflow_object(mod)
 
 			//GFA - stuff
 			PT_bool, "GFA_enable", PADDR(GFA_enable),
-				PT_DESCRIPTION, "Disable/Enable Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Disable/Enable Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_freq_low_trip[Hz]", PADDR(GFA_freq_low_trip),
-				PT_DESCRIPTION, "Low frequency trip point for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Low frequency trip point for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_freq_high_trip[Hz]", PADDR(GFA_freq_high_trip),
-				PT_DESCRIPTION, "High frequency trip point for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "High frequency trip point for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_volt_low_trip[pu]", PADDR(GFA_voltage_low_trip),
-				PT_DESCRIPTION, "Low voltage trip point for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Low voltage trip point for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_volt_high_trip[pu]", PADDR(GFA_voltage_high_trip),
-				PT_DESCRIPTION, "High voltage trip point for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "High voltage trip point for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_reconnect_time[s]", PADDR(GFA_reconnect_time),
-				PT_DESCRIPTION, "Reconnect time for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Reconnect time for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_freq_disconnect_time[s]", PADDR(GFA_freq_disconnect_time),
-				PT_DESCRIPTION, "Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Frequency violation disconnect time for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_double, "GFA_volt_disconnect_time[s]", PADDR(GFA_volt_disconnect_time),
-				PT_DESCRIPTION, "Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Voltage violation disconnect time for Grid Fristd::endly Appliance(TM)-type functionality",
 			PT_bool, "GFA_status", PADDR(GFA_status),
-				PT_DESCRIPTION, "Low frequency trip point for Grid Friendly Appliance(TM)-type functionality",
+				PT_DESCRIPTION, "Low frequency trip point for Grid Fristd::endly Appliance(TM)-type functionality",
 
 			PT_enumeration, "GFA_trip_method", PADDR(GFA_trip_method),
 				PT_DESCRIPTION, "Reason for GFA trip - what caused the GFA to activate",
@@ -732,7 +732,7 @@ int node::init(OBJECT *parent)
 
 
 
-			if (!(gl_object_isa(obj->parent,"load","powerflow") | gl_object_isa(obj->parent,"node","powerflow") | gl_object_isa(obj->parent,"meter","powerflow") | gl_object_isa(obj->parent,"substation","powerflow")))
+			if (!(gl_object_isa(obj->parent,"load","powerflow") || gl_object_isa(obj->parent,"node","powerflow") || gl_object_isa(obj->parent,"meter","powerflow") || gl_object_isa(obj->parent,"substation","powerflow")))
 				GL_THROW("NR: Parent is not a node, load or meter!");
 				/*  TROUBLESHOOT
 				A Newton-Raphson parent-child connection was attempted on a non-node.  The parent object must be a node, load, or meter object in the 
@@ -1126,7 +1126,7 @@ int node::init(OBJECT *parent)
 
 		if (obj->parent != NULL)
 		{
-			if((gl_object_isa(obj->parent,"load","powerflow") | gl_object_isa(obj->parent,"node","powerflow") | gl_object_isa(obj->parent,"meter","powerflow") | gl_object_isa(obj->parent,"substation","powerflow")))	//Parent is another node
+			if ((gl_object_isa(obj->parent,"load","powerflow") || gl_object_isa(obj->parent,"node","powerflow") || gl_object_isa(obj->parent,"meter","powerflow") || gl_object_isa(obj->parent,"substation","powerflow")))	//Parent is another node
 			{
 				node *parNode = OBJECTDATA(obj->parent,node);
 

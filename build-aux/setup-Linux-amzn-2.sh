@@ -29,16 +29,16 @@ yum -q install openssl-devel bzip2-devel libffi-devel zlib-devel xz-devel
 if [ ! -x /usr/local/bin/python3 -o "$(/usr/local/bin/python3 --version | cut -f2 -d.)" != "Python 3.9" ]; then
 	yum install openssl-devel bzip2-devel libffi-devel zlib-devel xz-devel -q -y
 	cd /usr/local/src
-	curl https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz | tar xz
-	cd Python-3.9.6
+	curl https://www.python.org/ftp/python/3.10.11/Python-3.10.11.tgz | tar xz
+	cd Python-3.10.11
 	./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
 	make -j $(nproc)
 	make altinstall
-	ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
-	ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
-	ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
-	ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
-	ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
+	ln -sf /usr/local/bin/python3.10 /usr/local/bin/python3
+	ln -sf /usr/local/bin/python3.10-config /usr/local/bin/python3-config
+	ln -sf /usr/local/bin/pydoc3.10 /usr/local/bin/pydoc
+	ln -sf /usr/local/bin/idle3.10 /usr/local/bin/idle
+	ln -sf /usr/local/bin/pip3.10 /usr/local/bin/pip3
 	curl -sSL https://bootstrap.pypa.io/get-pip.py | /usr/local/bin/python3
 	#/usr/local/bin/python3 pip -m install mysql-connector mysql-client matplotlib numpy pandas Pillow networkx
 	/usr/local/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3

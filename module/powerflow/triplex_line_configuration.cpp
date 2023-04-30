@@ -8,7 +8,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* triplex_line_configuration::oclass = NULL;
 CLASS* triplex_line_configuration::pclass = NULL;

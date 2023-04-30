@@ -77,6 +77,8 @@ $ curl -sL http://install.gridlabd.us/install.sh | sh
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
+## Linux
+
 Normally on Linux and Mac OS X developers should use the `setup.sh` script to setup the system for GridLAB-D. *Do not* run the `build.sh` scripts with sudo, as that will create a broken install. 
 
 ~~~
@@ -102,19 +104,12 @@ $ docker run -it ubuntu:22.04
 # gridlabd -T 0 --validate
 ~~~
 
-### MACOS/Debian
+### MACOS
 
-To install on Mac, use the following commands:
+TODO
 
-~~~
-curl -OJ https://s3.us-west-1.amazonaws.com/install-dev.gridlabd.us/install-dev.sh
-chmod 755 install-dev.sh
-./install-dev.sh -b image-branch-name
-~~~
+### AWS EC2
 
-The O and J flags for curl tells it to utilize the provided filename, otherwise you will have to manually name the file when you download it, and adjust the commands accordingly.
-
-### AWS EC2 Installation 
 Use the AWS Ubuntu AMI to build gridlabd on AWS EC2.
 
 1) Set the path variable
@@ -144,7 +139,7 @@ You use `make install` to build only. To use an inactive build run the `gridlabd
 
 Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
 
-## Windows WSL
+### Windows WSL
 
 Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. Building, running and installing Gridlabd in WSL is not that different from a normal linux installation. You can follow Microsoft's instructions on setting up WSL and adding/changing distro's [here](https://learn.microsoft.com/en-us/windows/wsl/install). These instructions work for both cases on supported operating systems, which you can find in the build-aux directory.
 

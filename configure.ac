@@ -580,7 +580,21 @@ LIBDIR=$DSTDIR/lib/gridlabd
 ETCDIR=$DSTDIR/share/gridlabd
 DOCDIR=$DSTDIR/share/doc/gridlabd
 
+#
+# Python virtual environment check
+#
+
 PYTHON_REQ=3.10
+
+if test "x$VIRTUAL_ENV" = "x"; then
+  if test -f $HOME/.gridlabd/bin/activate; then
+    echo "ERROR: gridlabd virtual environment not active. You must run '. ~/.gridlabd/bin/activate' first"
+    exit 1
+  else
+    echo "ERROR: gridlabd virtual environment not found. You must run 'python$PYTHON_REQ -m venv ~/.gridlabd' first"
+    exit 1
+  fi
+fi
 
 AM_PATH_PYTHON([$PYTHON_REQ])
 PYTHON=$(which python$PYTHON_REQ)
@@ -590,10 +604,13 @@ AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
   [PYTHON_LIB="-lpython${PYTHON_REQ} -shared -Wl-undefined,dynamic_lookup"],
   [PYTHON_LIB="-lpython${PYTHON_REQ}"])
 
-PYTHONCONFIG=$(which python$PYTHON_REQ-config)
-if test "x$PYTHONCONFIG" = "x"; then
-  echo "ERROR: python$PYTHON_REQ-config not found. Did you install $PYTHON-dev\?"
-  exit 1
+PYTHONCONFIG=$PYTHON-config
+if test ! -f "$PYTHONCONFIG"; then
+  PYTHONCONFIG=$(which python$PYTHON_REQ-config)
+  if test ! -f "$PYTHONCONFIG"; then
+      echo "ERROR: python$PYTHON_REQ-config not found. Did you install python$PYTHON_REQ-dev?"
+    exit 1
+  fi
 fi
 
 ###############################################################################

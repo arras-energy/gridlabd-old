@@ -6,7 +6,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //initialize pointers
 CLASS* vfd::oclass = NULL;

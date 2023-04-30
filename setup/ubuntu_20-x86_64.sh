@@ -4,7 +4,7 @@ alias INSTALL=''
 INSTALL PYTHON_VERSION=3.10
 INSTALL PYTHON_VENV=${HOME:-/tmp}/.gridlabd
 INSTALL PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
-INSTALL PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION%.*}-config
+INSTALL PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION}-config
 
 # check for root access
 if [ "$(whoami)" != "root" ]; then
