@@ -54,10 +54,6 @@ if ! "python$PYTHON_VERSION-config" --prefix 1>/dev/null 2>&1 ; then
 	INSTALL apt-get install python$PYTHON_VERSION-dev -y
 	python$PYTHON_VERSION-config --prefix || ( echo "ERROR: python$PYTHON_VERSION-config installation failed" > /dev/stderr ; exit 1 )
 fi
-if [ ! -f "$PYTHON_CONFIG" ] ; then 
-	INSTALL ln -sf "$(python$PYTHON_VERSION-config --prefix)/bin/python$PYTHON_VERSION-config" "$PYTHON_CONFIG"
-	$PYTHON_CONFIG --prefix || ( echo "ERROR: $PYTHON_CONFIG link to $(python$PYTHON_VERSION-config --prefix)/bin/python$PYTHON_VERSION-config failed" > /dev/stderr ; exit 1 )
-fi
 INSTALL "$PYTHON_EXEC" -m pip install --upgrade pip || ( echo "ERROR: pip update failed" > /dev/stderr ; exit 1 )
 
 # install required libraries
