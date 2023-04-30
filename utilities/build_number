@@ -34,7 +34,7 @@ if [ -d $TOP/.git ]; then
 			echo "#define HOST_OS \"${ID}_${VERSION_ID%.*}\"" >> $FIL
 			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
 		else
-			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r)\"" >> $FIL
+			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r | cut -f1 -d.)\"" >> $FIL
 			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
 		fi	
 	fi
@@ -64,7 +64,7 @@ else
 			echo "#define HOST_OS \"${ID}_${VERSION_ID%.*}\"" >> $FIL
 			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
 		else
-			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r)\"" >> $FIL
+			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r | cut -f1 -d.)\"" >> $FIL
 			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
 		fi	
 	fi

@@ -104,14 +104,12 @@ function version-set()
 		L=$(cd $OPT ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
-		L="$(${BIN} --version=name | sed -e 's/^gridlabd-//')"
+		L="$(${BIN} --version=name)"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink $OPT/current)" == "$OPT/$L" ]; then
-		$ACTION ln -sf $OPT/$L $OPT/current
-	fi
-	ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
+	(cd $OPT; $ACTION ln -sf $L current)
+	$ACTION ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
 	echo "$L"
 }
 
