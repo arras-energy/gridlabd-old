@@ -588,10 +588,10 @@ PYTHON_REQ=3.10
 
 if test "x$VIRTUAL_ENV" = "x"; then
   if test -f $HOME/.gridlabd/bin/activate; then
-    echo "ERROR: gridlabd virtual environment not active. You must run '. ~/.gridlabd/bin/activate' first"
+    echo "ERROR: python$PYTHON_REQ virtual environment not active. You must run '. ~/.gridlabd/bin/activate' first"
     exit 1
   else
-    echo "ERROR: gridlabd virtual environment not found. You must run 'python$PYTHON_REQ -m venv ~/.gridlabd' first"
+    echo "ERROR: python$PYTHON_REQ virtual environment not found. You must run 'python$PYTHON_REQ -m venv ~/.gridlabd' first"
     exit 1
   fi
 fi
