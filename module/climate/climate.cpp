@@ -1157,7 +1157,7 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 			//f = cloud ? 1.-cloud_opacity : 1.;
 			sol_z = get_solar_zenith();
 			ETRN = get_direct_normal_extra();
-			//std::cout << dt.month <<"," << dt.day <<"," << dt.hour <<"," << dt.minute <<"," << sol_z << std::std::endl;
+			//std::cout << dt.month <<"," << dt.day <<"," << dt.hour <<"," << dt.minute <<"," << sol_z << std::endl;
 			if (sol_z > RAD(90) ) { //When sun is below the horizon, DNI must be zero.
         *direct = 0;
       }else{

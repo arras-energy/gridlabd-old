@@ -362,10 +362,10 @@ libtool: $(LIBTOOL_DEPS)
 #
 
 reconfigure: distclean
-	autoreconf -isf && $(PWD)/configure --quiet
+	autoreconf -isf && $(PWD)/configure -C --quiet
 
 reconfigure-debug: distclean
-	autoreconf -isf && $(PWD)/configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
+	autoreconf -isf && $(PWD)/configure -C --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
