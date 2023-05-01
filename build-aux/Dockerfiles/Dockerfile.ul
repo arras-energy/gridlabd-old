@@ -19,7 +19,7 @@ RUN /bin/bash ./install.sh -v -t -p
 
 RUN gridlabd --version=all
 
-RUN gridlabd --validate
+RUN gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes
 
 WORKDIR /app
 
