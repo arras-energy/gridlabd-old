@@ -42,8 +42,10 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo apt-get update && sudo apt-get install -y apt-transport-https",
       "sudo apt-get remove unattended-upgrades -y",
+      "sudo mkdir -p /usr/local/var",
+      "sudo chown -R $USER /usr/local",
+      "sudo apt-get update && sudo apt-get install -y apt-transport-https",
       "sudo apt-get install -y git curl nano",
       "git clone -b develop https://github.com/slacgismo/gridlabd.git",
       "cd gridlabd",
