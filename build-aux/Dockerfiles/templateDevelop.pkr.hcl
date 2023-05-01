@@ -34,9 +34,14 @@ source "amazon-ebs" "ubuntu-22-04" {
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
   ami_name             = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
-  ebs_volume_size      = 25
-}
 
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 25
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+}
 
 build {
   sources = ["source.amazon-ebs.ubuntu-22-04"]
