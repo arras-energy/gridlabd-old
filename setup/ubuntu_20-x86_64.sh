@@ -16,7 +16,7 @@ fi
 INSTALL DEBIAN_FRONTEND=noninteractive
 INSTALL apt-get update -y
 
-# setup required python version if not already installed
+# setup requires python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
 	echo "Installing python${PYTHON_VERSION}..."
 	INSTALL test -f /etc/localtime || ln -s /usr/share/zoneinfo/UTC /etc/localtime

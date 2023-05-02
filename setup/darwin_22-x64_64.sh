@@ -13,21 +13,22 @@ if [ "$(whoami)" = "root" ]; then
 fi
 
 # prepare brew for installations
-INSTALL brew update
+INSTALL brew -h 1>/dev/null 2>&1 || ( echo "ERROR: you must install brew first. See https://brew.sh for details." > /dev/stderr ; exit 1 )
 
-# setup required python version if not already installed
+# setup requires python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
-    echo "Installing python${PYTHON_VERSION}..."
     INSTALL brew install python@$PYTHON_VERSION
     python$PYTHON_VERSION --version || ( echo "ERROR: python$PYTHON_VERSION installation failed" > /dev/stderr ; exit 1 )
 fi
-if ! python$PYTHON_VERSION -m venv -h >/dev/null ; then
-    INSTALL brew install python$PYTHON_VERSION-venv -y
+if ! python$PYTHON_VERSION -m venv -h 1>/dev/null 2>&1 ; then
+    printf "installing... "
+    INSTALL brew install python$PYTHON_VERSION-venv
     python$PYTHON_VERSION -m venv -h >/dev/null || ( echo "ERROR: unable to install python$PYTHON_VERSION-venv" ; exit 1 )
 fi
-if ! python$PYTHON_VERSION -m distutils.core >/dev/null ; then
-
-    brew install python$PYTHON_VERSION-distutils -y
+if ! python$PYTHON_VERSION -m distutils.core 1>/dev/null 2>&1 ; then
+    INSTALL brew install python$PYTHON_VERSION-distutils
+    python$PYTHON_VERSION -m distutils.core >/dev/null || ( echo "ERROR: unable to install python$PYTHON_VERSION-distutils" ; exit 1 )
+fi
 
 # create python venv for setup if not already done
 if [ ! -x "$PYTHON_EXEC" ] ; then
@@ -44,27 +45,21 @@ if ! "$PYTHON_EXEC" -m pip --version 1>/dev/null 2>&1 ; then
     INSTALL "$PYTHON_EXEC" -m pip --version || (  echo "ERROR: pip installation failed" > /dev/stderr ; exit 1 )
 fi
 
-# check gdal
-if ! gdal-config --version 1>/dev/null 2>&1 ; then
-    brew install libgdal-dev -y
-    gdal-config --version || ( echo "ERROR: libgdal-dev installation failed" > /dev/stderr ; exit 1 )
-fi
-
 # install python-config
 if ! "python$PYTHON_VERSION-config" --prefix 1>/dev/null 2>&1 ; then
-    INSTALL brew install python$PYTHON_VERSION-dev -y
+    INSTALL brew install python$PYTHON_VERSION-dev
     python$PYTHON_VERSION-config --prefix || ( echo "ERROR: python$PYTHON_VERSION-config installation failed" > /dev/stderr ; exit 1 )
 fi
 INSTALL "$PYTHON_EXEC" -m pip install --upgrade pip || ( echo "ERROR: pip update failed" > /dev/stderr ; exit 1 )
 
 # install required libraries
-INSTALL brew install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev -y
+INSTALL brew install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
 
 # install required tools
-INSTALL brew install git unzip libtool g++ cmake flex bison subversion util-linux xz-utils wget -y
+INSTALL brew install git unzip libtool g++ cmake flex bison subversion util-linux xz-utils wget
 
-# update library paths
-INSTALL ldconfig
+# # update library paths
+# INSTALL ldconfig
 
 # install autoconf 2.71 as required
 if [ "$(autoconf --version | head -n 1 | cut -f4 -d' ')" != "2.71" ] ; then
