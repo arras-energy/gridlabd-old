@@ -57,7 +57,7 @@ build {
       "cd gridlabd",
       "./install.sh -v -t -p",
       "gridlabd --version=all",
-      "gridlabd --validate"
+      "gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes"
     ]
   }
 
