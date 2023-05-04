@@ -52,10 +52,12 @@ fi
 INSTALL "$PYTHON_EXEC" -m pip install --upgrade pip || error "pip update failed"
 
 # install required libraries
-INSTALL brew install build-essential zlib1g-dev libcurl4-gnutls-dev libncurses5-dev liblzma-dev libbz2-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+INSTALL brew autoconf libffi zlib pkg-config xz gdbm tcl-tk
 
 # install required tools
-INSTALL brew install git unzip libtool g++ cmake flex bison subversion util-linux xz-utils wget
+INSTALL brew install automake libtool gnu-sed gawk
+
+test clang -v >/dev/null || error "you have not install clang. Use 'xcode-select --install' to install command line build tools."
 
 # # update library paths
 # INSTALL ldconfig
