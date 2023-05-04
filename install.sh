@@ -29,7 +29,7 @@ else
 	else
 		GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz 2>&1 | tail -n 1 | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 		if [ -z "$GRIDLABD_FOLDER" -o ! -d "$GRIDLABD_FOLDER" ]  ; then
-			echo "ERROR: unable to download install image $GRIDLABD_SOURCE" >${INSTALL_STDERR:-$DEFAULT_STDERR}
+			echo "ERROR: unable to download install image $GRIDLABD_SOURCE to $GRIDLABD_FOLDER" >${INSTALL_STDERR:-$DEFAULT_STDERR}
 		elif ! sh "$GRIDLABD_FOLDER/share/gridlabd/setup.sh" ; then
 			echo "ERROR: setup script not found for $GRIDLABD_FOLDER" >${INSTALL_STDERR:-$DEFAULT_STDERR}
 		else
