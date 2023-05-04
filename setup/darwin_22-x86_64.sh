@@ -36,6 +36,7 @@ fi
 
 # activate the build environment for python
 INSTALL . $PYTHON_VENV/bin/activate
+test ! -z "$VIRTUAL_ENV" || error "python venv activation failed"
 
 # upgrade pip if needed
 if ! "$PYTHON_EXEC" -m pip --version 1>/dev/null 2>&1 ; then
