@@ -7,13 +7,10 @@ INSTALL PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
 INSTALL PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION}-config
 
 # check for root access
-if [ "$(whoami)" = "root" ]; then
-    echo "ERROR: you should not run setup.sh as root or use sudo" > /dev/stderr
-    exit 1
-fi
+INSTALL test "$(whoami)" = "root" ] && echo "ERROR: you should not run setup.sh as root or use sudo" > /dev/stderr && exit 1
 
 # prepare brew for installations
-INSTALL brew -h 1>/dev/null 2>&1 || ( echo "ERROR: you must install brew first. See https://brew.sh for details." > /dev/stderr ; exit 1 )
+INSTALL brew -h 1>/dev/null 2>&1 || echo "ERROR: you must install brew first. See https://brew.sh for details." > /dev/stderr && exit 1
 
 # setup requires python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
