@@ -1,16 +1,17 @@
 set -x
 alias INSTALL=''
 
+INSTALL function error() { echo "ERROR: $*" > /dev/stderr ; exit 1 }
 INSTALL PYTHON_VERSION=3.10
 INSTALL PYTHON_VENV=${HOME:-/tmp}/.gridlabd
 INSTALL PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
 INSTALL PYTHON_CONFIG=$PYTHON_VENV/bin/python${PYTHON_VERSION}-config
 
 # check for root access
-INSTALL test "$(whoami)" != "root" || { echo "ERROR: you should not run setup.sh as root or use sudo" > /dev/stderr && exit 1 }
+INSTALL test "$(whoami)" != "root" || error "you should not run setup.sh as root or use sudo"
 
 # prepare brew for installations
-INSTALL brew -h 1>/dev/null 2>&1 || { echo "ERROR: you must install brew first. See https://brew.sh for details." > /dev/stderr && exit 1 }
+INSTALL brew -h 1>/dev/null 2>&1 || error "you must install brew first. See https://brew.sh for details."
 
 # setup requires python version if not already installed
 if ! python$PYTHON_VERSION --version 1>/dev/null 2>&1 ; then
