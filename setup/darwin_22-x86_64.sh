@@ -1,7 +1,7 @@
 set -x
 alias INSTALL=''
 
-function error () { echo "ERROR: $*" > /dev/stderr ; exit 1 ; }
+INSTALL function error () { echo "ERROR: $*" > /dev/stderr ; exit 1 ; }
 INSTALL PYTHON_VERSION=3.10
 INSTALL PYTHON_VENV=${HOME:-/tmp}/.gridlabd
 INSTALL PYTHON_EXEC=$PYTHON_VENV/bin/python$PYTHON_VERSION
