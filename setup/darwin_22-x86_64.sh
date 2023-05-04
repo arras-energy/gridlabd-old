@@ -57,7 +57,7 @@ INSTALL brew install autoconf libffi zlib pkg-config xz gdbm tcl-tk
 # install required tools
 INSTALL brew install automake libtool gnu-sed gawk
 
-test clang -v >/dev/null || error "you have not install clang. Use 'xcode-select --install' to install command line build tools."
+clang -v >/dev/null || error "you have not installed clang. Use 'xcode-select --install' to install command line build tools."
 
 # # update library paths
 # INSTALL ldconfig
