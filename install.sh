@@ -1,4 +1,4 @@
-DEFAULT_SOURCE="http://install.gridlabd.us"
+DEFAULT_SOURCE="https://install.gridlabd.us"
 DEFAULT_TARGET="/usr/local/opt"
 DEFAULT_STDERR="/dev/stderr"
 DEFAULT_STDOUT="/dev/stdout"
