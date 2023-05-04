@@ -6,7 +6,7 @@ DEFAULT_STDOUT="/dev/stdout"
 if [ $# -eq 0 ]; then
 	case $(uname -s) in
 		Darwin)
-			GRIDLABD_IMAGE="darwin_$(uname -r)-$(uname -m)"
+			GRIDLABD_IMAGE="darwin_$(uname -r | cut -f1 -d.)-$(uname -m)"
 			;;
 		Linux)
 			. /etc/os-release
