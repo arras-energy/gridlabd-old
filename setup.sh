@@ -8,9 +8,8 @@ if curl --version 1>/dev/null 2>&1 ; then
 	test $(echo $GRIDLABD_ORIGIN | cut -c-8) != "https://" && GRIDLABD_ORIGIN=https://raw.githubusercontent.com/$GRIDLABD_ORIGIN
 	echo GRIDLABD_ORIGIN=$GRIDLABD_ORIGIN
 	if curl -H 'Cache-Control: no-cache' -fsL $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh > /tmp/setup_$$.sh ; then
-		sh /tmp/setup_$$.sh
+		sh /tmp/setup_$$.sh && echo "Setup complete" || echo "Setup failed"
 		rm /tmp/setup_$$.sh
-		echo "Setup complete"
 	else
 		echo "ERROR: unable to find $GRIDLABD_ORIGIN/setup/$SYSTEMNAME.sh. Manual setup required." >/dev/stderr
 	fi		
