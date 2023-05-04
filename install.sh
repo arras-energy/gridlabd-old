@@ -27,7 +27,7 @@ else
 	if ! curl -sL -I $GRIDLABD_SOURCE 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} ; then
 		echo "ERROR: image $GRIDLABD_SOURCE not found. Use build.sh instead." 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 	else
-		case $(name -s) in
+		case $(uname -s) in
 			Darwin)
 				GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz 2>&1 | tail -n 1  | cut -c2- | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 				;;
