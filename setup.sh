@@ -1,5 +1,5 @@
 #/bin/sh
-function error () { echo "ERROR [setup.sh]: $*" > /dev/stderr ; exit 1; }
+error () { echo "ERROR [setup.sh]: $*" > /dev/stderr ; exit 1; }
 DEFAULT_ORIGIN=slacgismo/gridlabd/master
 while [ $# -gt 0 ]; do
 	case "$1" in
