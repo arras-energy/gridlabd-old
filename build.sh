@@ -1,6 +1,6 @@
 #/bin/sh
 error () { echo "ERROR [build.sh]: $*" > /dev/stderr ; exit 1; }
-VERIFY="--version=install"
+VERIFY="--version=all"
 TARGET=
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -32,4 +32,4 @@ test ! -z "$VIRTUAL_ENV" || . $HOME/.gridlabd/bin/activate
 test ! -z "$VIRTUAL_ENV" || error "unable to activate gridlabd venv"
 test -f ./configure || autoreconf -isf || error "autoconf failed"
 test -f Makefile || ./configure || error "./configure failed"
-make $TARGET && gridlabd $VERIFY 
+make $TARGET && $(build-aux/version.sh --install)/bin/gridlabd $VERIFY 
