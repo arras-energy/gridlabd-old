@@ -35,13 +35,13 @@ Note that this alias will interfere with any host-based installation. You may us
 Installation from downloads may require `sudo` priviledges and always requires `curl`. The `install` script will automatically download and install the latest production image for your system if you use the following command:
 
 ~~~
-# curl -sL http://install.gridlabd.us/install.sh | sh
+# curl -sL http://install.gridlabd.us/install.sh | [sudo] sh
 ~~~
 
 You can download the latest development image using the command:
 
 ~~~
-# curl -sL http://install-dev.gridlabd.us/install.sh | sh
+# curl -sL http://install-dev.gridlabd.us/install.sh | [sudo] sh
 ~~~
 
 The installer recognizes the following environment variables:
