@@ -13,6 +13,7 @@
 ##   --machine       the machine type, e.g., x86_64
 ##   --system        the system name, e.g., ubuntu_22
 ##   --sysspec       the system specification, e.g., ubuntu_22-x86_64
+##   --bucket        the s3 bucket for the install file uploads
 ##   --python        the python version, e.g., 3.10
 ##   --parse INSTALL parses an install name into its constituents
 ##
@@ -78,6 +79,13 @@ case $1 in
         echo "BRANCH=${VER[2]}"
         echo "SYSTEM=${VER[3]}"
         echo "MACHINE=${VER[4]}"
+        ;;
+    --bucket )
+        if [ "$BRA" = "master" ]; then
+            echo "install.gridlabd.us"
+        else
+            echo "install-dev.gridlabd.us"
+        fi
         ;;
     --help | -h)
         grep ^## $0 | cut -c4-

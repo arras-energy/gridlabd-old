@@ -197,6 +197,7 @@ help:
 
 over: clean all
 
+S3BUCKET=$(shell $(top_srcdir)/build-aux/version.sh --bucket)
 LONGNAME=$(shell $(top_srcdir)/build-aux/version.sh --name)
 SHORTNAME=$(shell $(top_srcdir)/build-aux/version.sh --sysspec)
 
@@ -208,14 +209,14 @@ $(prefix).tarz: $(prefix)
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: $(prefix).tarz
-	@echo "Uploading s3://install.gridlabd.us/$(LONGNAME).tarz..."
+	@echo "Uploading s3://$(S3BUCKET)/$(LONGNAME).tarz..."
 	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
-	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(LONGNAME).tarz --acl public-read
+	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
 
-aws-image-default: $(prefix).tarz
-	@echo "Uploading s3://install.gridlabd.us/$(SHORTNAME).tarz..."
+aws-image-default: aws-image
+	@echo "Copying s3://$(S3BUCKET)/$(LONGNAME).tarz to $(SHORTNAME)..."
 	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
-	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(SHORTNAME).tarz --acl public-read
+	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read
 
 # Recursively remove all files and directories not under revision control
 clean-wc:
