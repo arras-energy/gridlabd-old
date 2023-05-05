@@ -5,12 +5,12 @@ curl --version 1>/dev/null 2>&1 || error "you must install curl first"
 DEFAULT_ORIGIN=slacgismo/gridlabd/master
 while [ $# -gt 0 ]; do
 	case "$1" in
+		-h|--help|help)
+			echo "Syntax: setup.sh [-v|--verbose] [ORG/REPO/BRANCH]" ; exit 0
+			;;
 		-v|--verbose)
 			set -x
 			shift 1
-			;;
-		-h|--help)
-			echo "Syntax: setup.sh [-v|--verbose] [ORG/REPO/BRANCH]" ; exit 0
 			;;
 		*)
 			export GRIDLABD_ORIGIN=$1
