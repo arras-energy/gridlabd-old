@@ -2,10 +2,12 @@
 error () { echo "ERROR [build.sh]: $*" > /dev/stderr ; exit 1; }
 VERIFY="--version=all"
 TARGET=
+CONFIGURE=
+UPLOAD=
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help|help)
-			echo "Syntax: build.sh [--install|--system] [--validate]"
+			echo "Syntax: build.sh [--clean] [--cache-config] [--prefix PREFIX] [--install|--system] [--validate] [--upload|--release]"
 			exit 0
 			;;
 		--validate)
@@ -16,6 +18,22 @@ while [ $# -gt 0 ]; do
 			;;
 		--system)
 			TARGET="$TARGET system"
+			;;
+		--cache-config)
+			CONFIGURE="$CONFIGURE -C"
+			;;
+		--prefix)
+			CONFIGURE="$CONFIGURE --prefix=$2"
+			shift 1
+			;;
+		--clean)
+			utilities/cleanwc
+			;;
+		--upload)
+			UPLOAD=aws-image
+			;;
+		--release)
+			UPLOAD=aws-image-default
 			;;
 		*)
 			error "option '$1' is not valid"
@@ -31,5 +49,6 @@ test -f $HOME/.gridlabd/bin/activate || error "$HOME/.gridlabd is not found. Run
 test ! -z "$VIRTUAL_ENV" || . $HOME/.gridlabd/bin/activate
 test ! -z "$VIRTUAL_ENV" || error "unable to activate gridlabd venv"
 test -f ./configure || autoreconf -isf || error "autoconf failed"
-test -f Makefile || ./configure || error "./configure failed"
-make $TARGET && $(build-aux/version.sh --install)/bin/gridlabd $VERIFY 
+test -f Makefile || ./configure $CONFIGURE || error "./configure failed"
+make $TARGET && $(build-aux/version.sh --install)/bin/gridlabd $VERIFY || error "unable to make and verify build"
+test -z "$UPLOAD" || make $UPLOAD

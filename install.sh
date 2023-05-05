@@ -7,7 +7,7 @@ DEFAULT_TARGET="/usr/local/opt"
 DEFAULT_STDOUT="/dev/stdout"
 DEFAULT_STDERR="/dev/stderr"
 
-if [ $# -eq 0 ]; then
+if [ -z "GRIDLABD_SOURCE" -a $# -eq 0 ]; then
 	case $(uname -s) in
 		Darwin)
 			GRIDLABD_IMAGE="darwin_$(uname -r | cut -f1 -d.)-$(uname -m)"
@@ -21,7 +21,7 @@ if [ $# -eq 0 ]; then
 			;;
 	esac
 fi
-if [ -z "${GRIDLABD_IMAGE}" ]; then
+if [ -z "$GRIDLABD_IMAGE" ]; then
 	echo "ERROR: GRIDLABD_IMAGE name not specified" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 else
 	mkdir -p "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
