@@ -108,8 +108,8 @@ function version-set()
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	(cd $OPT; $ACTION ln -sf $L current)
-	$ACTION ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
+	$ACTION rm -f $OPT/current ; ln -sf $L $OPT/current
+	$ACTION rm -f /usr/local/bin/gridlabd ; ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
 	echo "$L"
 }
 
