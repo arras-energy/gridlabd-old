@@ -172,6 +172,7 @@ help:
 	@echo "  image             - Create install image"
 	@echo "  aws-image         - Upload AWS install image"
 	@echo "  aws-image-default - Upload AWS install image as default for this platform"
+	@wcho "  aws-install       - Upload AWS install script"
 	@echo ""
 	@echo "Documentation targets:"
 	@echo "  html                 - Generate all html documentation"
@@ -209,14 +210,16 @@ $(prefix).tarz: $(prefix)
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: $(prefix).tarz
-	@echo "Uploading s3://$(S3BUCKET)/$(LONGNAME).tarz..."
 	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
 	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
 
 aws-image-default: aws-image
-	@echo "Copying s3://$(S3BUCKET)/$(LONGNAME).tarz to $(SHORTNAME)..."
 	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
 	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read
+
+aws-install: 
+	@aws s3 cp $(top_srcdir)/install.sh s3://$(S3BUCKET)/install.sh --acl public-read
+
 
 # Recursively remove all files and directories not under revision control
 clean-wc:
