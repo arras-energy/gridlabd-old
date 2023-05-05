@@ -12,20 +12,6 @@ The documentation for this project is located at http://docs.gridlabd.us/.
 
 This respository contains the source code to HiPAS GridLAB-D, which is being developed by SLAC National Accelerator Laboratory for the California Energy Commission under grant [EPC-17-046](https://www.energy.ca.gov/filebrowser/download/1147).  This version of GridLAB-D is intended to be a commercial-grade version of the [US Department of Energy's research version of GridLAB-D developed by Pacific Northwest National Laboratory](https://github.com/gridlab-d/gridlab-d).
 
-The source code in this repository is being developed in coordination with several other CEC and DOE projects conducted by or coordinated with SLAC and Stanford University.  Only participating SLAC and Stanford projects may contribute to this repository.  Changes made in this repository will be migrated back to the research version of GridLAB-D at PNNL's discretion.
-
-The following projects are actively contributing to HiPAS GridLAB-D at this time:
-
-  * GLOW (CEC funding, Hitachi America Laboratories lead)
-  * OpenFIDO (CEC funding, SLAC National Accelerator Laboratory lead)
-  * PowerNET (DOE funding, Stanford University lead)
-  * PowerNET with Market (CEC funding, SLAC National Accelerator Laboratory lead)
-  * VADER (DOE funding, SLAC National Accelerator Laboratory lead)
-  * GRIP (DOE funding, SLAC National Accelerator Laboratory lead)
-  * TESS (DOE funding, SLAC National Accelerator Laboratory lead)
-  * Advanced Load Modeling (DOE funding, SLAC National Accelerator Laboratory lead)
-  * LoadInsight (DOE funding, SLAC National Accelerator Laboratory lead)
-
 # Quick start using Docker
 
 The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
@@ -33,7 +19,7 @@ The preferred method for running HiPAS GridLAB-D is to download the master image
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 
 ~~~
-$ docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
+$ docker run -it -v $PWD:/model hipas/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
 ~~~ 
 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
@@ -42,7 +28,7 @@ On many systems, an alias can be used to make this a simple command that resembl
 $ alias gridlabd='docker run -it -v $PWD:/tmp hipas/gridlabd:latest gridlabd'
 ~~~
 
-Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
+Note that this alias will interfere with any host-based installation. You may use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
 
 # Downloading pre-built images
 
@@ -180,7 +166,7 @@ host% git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git bra
 
 2. You can manage multiple installs using the `gridlabd version` command.  See `gridlabd version help` for details
 
-3. You can speed up the `./configure` setup using `--cache-config` option with `./build.sh`
+3. You can prevent `./configure` using the configure cache by deleting the `config.cache` folder.
 
 4. You can start a clean build using `--clean` option with `./build.sh`. Note that this will delete any new files not added with `git add`.
 
