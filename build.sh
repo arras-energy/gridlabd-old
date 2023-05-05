@@ -2,13 +2,20 @@
 error () { echo "ERROR [build.sh]: $*" > /dev/stderr ; exit 1; }
 VERIFY="--version=all"
 TARGET=
-CONFIGURE=
+if [ -f "config.cache" ]; then
+	CONFIGURE="-C"
+else
+	CONFIGURE=
+fi
 UPLOAD=
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help|help)
-			echo "Syntax: build.sh [--clean] [--cache-config] [--prefix PREFIX] [--install|--system] [--validate] [--upload|--release]"
+			echo "Syntax: build.sh [--verbose] [--clean] [--prefix PREFIX] [--install|--system] [--validate] [--upload|--release]"
 			exit 0
+			;;
+		--verbose)
+			set -x
 			;;
 		--validate)
 			VERIFY="-T 0 --validate"
@@ -18,9 +25,6 @@ while [ $# -gt 0 ]; do
 			;;
 		--system)
 			TARGET="$TARGET system"
-			;;
-		--cache-config)
-			CONFIGURE="$CONFIGURE -C"
 			;;
 		--prefix)
 			CONFIGURE="$CONFIGURE --prefix=$2"
