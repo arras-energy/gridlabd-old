@@ -81,6 +81,7 @@ source/stamp-h1
 .settings/
 Makefile
 config.log
+config.cache
 config.status
 configure
 configure~
