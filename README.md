@@ -48,10 +48,10 @@ The installer recognizes the following environment variables:
 
 | Variable | Default | Description
 | -------- | ------- | -----------
-| `DEFAULT_SOURCE` | `http://install.gridlabd.us` | URL from which image is downloaded
-| `DEFAULT_TARGET` | `/usr/local/opt` | Folder in which image is installed
-| `DEFAULT_STDERR` | `/dev/stderr` | File to which error messages are sent
-| `DEFAULT_STDOUT` | `/dev/stdout` | File to which output messages are sent
+| `INSTALL_SOURCE` | `http://install.gridlabd.us` | URL from which image is downloaded
+| `INSTALL_TARGET` | `/usr/local/opt` | Folder in which image is installed
+| `INSTALL_STDERR` | `/dev/stderr` | File to which error messages are sent
+| `INSTALL_STDOUT` | `/dev/stdout` | File to which output messages are sent
 
 This procedure may also be used in AWS EC2 instances and Docker containers.
 
