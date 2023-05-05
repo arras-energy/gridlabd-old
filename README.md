@@ -12,6 +12,8 @@ The documentation for this project is located at http://docs.gridlabd.us/.
 
 This respository contains the source code to HiPAS GridLAB-D, which is being developed by SLAC National Accelerator Laboratory for the California Energy Commission under grant [EPC-17-046](https://www.energy.ca.gov/filebrowser/download/1147).  This version of GridLAB-D is intended to be a commercial-grade version of the [US Department of Energy's research version of GridLAB-D developed by Pacific Northwest National Laboratory](https://github.com/gridlab-d/gridlab-d).
 
+*Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
+
 # Quick start using Docker
 
 The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/hipas/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
@@ -72,7 +74,7 @@ On most systems, the process is as follows:
 ~~~
 $ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
 $ cd gridlabd
-$ ./setup.sh
+$ ./setup.sh --local
 $ ./build.sh --system --validate
 ~~~
 
@@ -82,9 +84,9 @@ If you want to clone an alternate repository, use the following `git` command in
 $ git clone https://github.com/ORG/REPO [-b BRANCH] gridlabd
 ~~~
 
-*Do not* run the `setup.sh` and `build.sh` scripts with `sudo`, as that will usually create a broken install. If necessary, you should give yourself permission to write `/usr/local`.
+If you do not specify the `--local` then by default the `setup.sh` source will match the `git` repository origin and branch if any. Otherwise the default source will be `slacgismo/gridlabd/master`. If you want to setup from a different origin, use the command `export GRIDLABD_ORIGIN=ORG/REPO/BRANCH` to specify an alternate source for `setup.sh`.  The `build.sh` will also match the current `git` repository.
 
-*Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
+*Do not* run the `setup.sh` and `build.sh` scripts with `sudo`, as that will usually create a broken install. If necessary, you should give yourself permission to write `/usr/local`.
 
 To upload the image to the AWS installer you must install the AWS CLI, and obtain credentials to access the installer's S3 buckets before using the command:
 
