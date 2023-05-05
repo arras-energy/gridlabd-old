@@ -1,7 +1,11 @@
+# export INSTALL_SOURCE=ORG/REPO/BRANCH
+# export INSTALL_TARGET=FOLDERNAME
+# export INSTALL_STDOUT=FILENAME
+# export INSTALL_STDERR=FILENAME
 DEFAULT_SOURCE="https://install.gridlabd.us"
 DEFAULT_TARGET="/usr/local/opt"
-DEFAULT_STDERR="/dev/stderr"
 DEFAULT_STDOUT="/dev/stdout"
+DEFAULT_STDERR="/dev/stderr"
 
 if [ $# -eq 0 ]; then
 	case $(uname -s) in
