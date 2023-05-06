@@ -1,6 +1,6 @@
 error () { echo "ERROR [Linux.sh]: $*" > /dev/stderr ; exit 1; }
 . /etc/os-release
-SOURCE=$GRIDLABD_ORIGIN/setup/darwin_${VERSION_ID%%.*}-$(uname -m).sh
+SOURCE=$GRIDLABD_ORIGIN/setup/${ID}_${VERSION_ID%%.*}-$(uname -m).sh
 if [ "$GRIDLABD_ORIGIN" = "." ]; then
 	sh $SOURCE || error "unable to run $GRIDLABD_ORIGIN"
 else
