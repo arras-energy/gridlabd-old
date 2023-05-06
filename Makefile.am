@@ -208,7 +208,7 @@ $(prefix).tarz: $(prefix)
 	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
-aws-image: $(prefix).tarz
+aws-image: | $(prefix).tarz
 	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload image" >/dev/stderr ; false )
 	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
 
