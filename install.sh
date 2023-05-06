@@ -27,7 +27,7 @@ fi
 if [ -z "$GRIDLABD_IMAGE" ]; then
 	echo "ERROR: GRIDLABD_IMAGE name not specified" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 elif ! mkdir -p "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR} ; then
-	echo "ERROR: access to ${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd denied" > $DEFAULT_STDERR
+	echo "ERROR: unable to create ${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" > $DEFAULT_STDERR
 else
 	cd "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 	GRIDLABD_SOURCE="${INSTALL_SOURCE:-$DEFAULT_SOURCE}/$GRIDLABD_IMAGE.tarz"
@@ -40,6 +40,7 @@ else
 				GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz 2>&1 | tail -n 1  | cut -c3- | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 				;;
 			*)
+				export DEBIAN_FRONTEND=noninteractive
 				GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz | tail -n 1  | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 				;;
 		esac
