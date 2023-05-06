@@ -53,7 +53,7 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 export SYSTEMNAME=$(uname -s)
-if [ "$GRIDLABD_ORIGIN" == "." ]; then
+if [ "$GRIDLABD_ORIGIN" = "." ]; then
 	sh setup/$SYSTEMNAME.sh 1>$STDOUT 2>$STDERR || error "setup failed"
 else
 	curl --version 1>/dev/null 2>&1 || error "you must install curl first"
