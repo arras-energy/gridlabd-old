@@ -107,6 +107,7 @@ while [ $# -gt 0 ]; do
 	esac
 	shift 1
 done
+mkdir -p /usr/local/opt/gridlabd || error "you do not have permission to create /usr/local/opt/gridlabd"
 autoconf --version 1>/dev/null 2>&1 || error "autoconf not installed. Did you run setup.sh?"
 test "$(autoconf --version 2>/dev/null | head -n 1 | grep -o '[^ ]*$')" = "2.71" || error "autoconf version 2.71 required. Did you run setup.sh?"
 git --version 1>/dev/null 2>&1 || error "you must install git to build GridLAB-D"
