@@ -65,6 +65,9 @@ dist_doc_DATA =
 
 docs_targets =
 
+check-target:
+	@test $(prefix) = $(shell build-aux/version.sh --install) || ( echo "ERROR [Makefile]: prefix and target mismatch; ./configure is outdated. Build using '--clean' option to fix this." > /dev/stderr ; false )
+
 # required modules
 include $(top_srcdir)/third_party/Makefile.mk
 include $(top_srcdir)/source/Makefile.mk
@@ -112,10 +115,10 @@ PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
 PYACTIVATE=source $(PYBIN)/activate
 
-python-requirements: | $(PYENV) python-venv
+python-requirements: | $(PYENV) python-venv check-target
 
 python-venv:
-	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.gridlabd/bin/activate'" > /dev/stderr ; false )
+	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR [Makefile]: no active python venv; did you forget to run '. $(HOME)/.gridlabd/bin/activate'" > /dev/stderr ; false )
 
 # NB: it's ok to use the runner's python to generate the requirements.txt file
 requirements.txt: python/requirements.csv
@@ -123,12 +126,12 @@ requirements.txt: python/requirements.csv
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@$(SYSPYTHON) --version 1>/dev/null || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
-	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
+	@$(SYSPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(SYSPYTHON) is not found" > /dev/stderr ; false )
+	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR [Makefile]: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
-	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR: $(ENVPYTHON) is not found" > /dev/stderr ; false )
+	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
 	@$(ENVPYTHON) python/requirements.py --buildenv | bash
@@ -142,10 +145,6 @@ dist_doc_DATA += COPYRIGHT
 dist_doc_DATA += LICENSE
 
 help:
-	@echo "Configuration targets:"
-	@echo "  reconfigure       - Reconfigures a release build from a clean start"
-	@echo "  reconfigure-debug - Reconfigures a debugging build from a clean start"
-	@echo ""
 	@echo "Cleaning targets:"
 	@echo "  clean          - Erase from the build tree the files built by 'make all'"
 	@echo "  distclean      - Same as 'make clean' plus erase anything ./configure created"
@@ -210,15 +209,15 @@ $(prefix).tarz: $(prefix)
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: $(prefix).tarz
-	@aws --version || ( echo "ERROR: aws CLI is required to upload image" >/dev/stderr ; false )
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload image" >/dev/stderr ; false )
 	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
 
 aws-image-default: aws-image
-	@aws --version || ( echo "ERROR: aws CLI is required to create default image" >/dev/stderr ; false )
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to create default image" >/dev/stderr ; false )
 	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read
 
 aws-install: 
-	@aws --version || ( echo "ERROR: aws CLI is required to upload installer" >/dev/stderr ; false )
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload installer" >/dev/stderr ; false )
 	@aws s3 cp $(top_srcdir)/install.sh s3://$(S3BUCKET)/install.sh --acl public-read
 
 
@@ -280,12 +279,6 @@ libtool: $(LIBTOOL_DEPS)
 # Run this after changes that affect build-aux/version.sh output
 #
 
-reconfigure: distclean
-	autoreconf -isf && $(PWD)/configure -C --quiet
-
-reconfigure-debug: distclean
-	autoreconf -isf && $(PWD)/configure -C --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
-
 docker: $(PREFIX)/docker.img
 
 docker-debug: docker/Dockerfile Makefile
@@ -301,7 +294,7 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 	@$(prefix)/bin/gridlabd version set
-	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'
+	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; use build `--clean` option to fix this problem'
 
 index: weather library template
 
