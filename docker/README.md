@@ -3,8 +3,8 @@
 To build and post the `master` docker image, run the following command:
 
 ~~~
-    sh$ docker build docker -t hipas/gridlabd:latest
-    sh$ docker push hipas/gridlabd:latest
+    sh$ docker build docker -t slacgismo/gridlabd:latest
+    sh$ docker push slacgismo/gridlabd:latest
 ~~~
 
 # Updating `develop` docker image
@@ -12,8 +12,8 @@ To build and post the `master` docker image, run the following command:
 To build and post the `develop` docker image, run the following command:
 
 ~~~
-    sh$ docker build docker --build-arg BRANCH=develop -t hipas/gridlabd:develop
-    sh$ docker push hipas/gridlabd:develop
+    sh$ docker build docker --build-arg BRANCH=develop -t slacgismo/gridlabd:develop
+    sh$ docker push slacgismo/gridlabd:develop
 ~~~
 
 # Updating a personal branch docker image
