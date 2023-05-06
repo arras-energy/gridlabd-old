@@ -8,7 +8,7 @@ DEFAULT_STDOUT="/dev/stdout"
 DEFAULT_STDERR="/dev/stderr"
 
 if [ $# -gt 1 ]; then
-	echo "ERROR [install.sh]: install.sh can only be run as a script" > #DEFAULT_STDERR
+	echo "ERROR [install.sh]: install.sh can only be run as a script" > $DEFAULT_STDERR
 elif [ -z "$GRIDLABD_IMAGE" ]; then
 	case $(uname -s) in
 		Darwin)
