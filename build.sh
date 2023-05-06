@@ -17,7 +17,7 @@
 # 
 #   --system)       Make target folder the system default installation
 # 
-#   --target)       Specify the target folder (default is output of /usr/local/opt)
+#   --target PATH)  Specify the target folder (default is output of /usr/local/opt)
 # 
 #   --clean)        Delete all new uncommitted source files before starting build
 # 
@@ -48,7 +48,7 @@ STDERR=/dev/stderr
 error () { echo "ERROR [build.sh]: $*" > $STDERR ; exit 1; }
 VERIFY="--version=all"
 TARGET=
-if [ -f "config.cache" ]; then
+if [ -d "config.cache" ]; then
 	CONFIGURE="-C"
 else
 	CONFIGURE=
