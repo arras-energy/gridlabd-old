@@ -7,7 +7,9 @@ DEFAULT_TARGET="/usr/local/opt"
 DEFAULT_STDOUT="/dev/stdout"
 DEFAULT_STDERR="/dev/stderr"
 
-if [ -z "GRIDLABD_SOURCE" -a $# -eq 0 ]; then
+if [ $# -gt 1 ]; then
+	echo "ERROR [install.sh]: install.sh can only be run as a script" > #DEFAULT_STDERR
+elif [ -z "GRIDLABD_IMAGE" ]; then
 	case $(uname -s) in
 		Darwin)
 			GRIDLABD_IMAGE="darwin_$(uname -r | cut -f1 -d.)-$(uname -m)"
