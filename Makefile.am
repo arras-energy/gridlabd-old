@@ -81,7 +81,7 @@ include $(top_srcdir)/geodata/Makefile.mk
 include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
-include $(top_srcdir)/modules.mk
+include $(top_srcdir)/module/Makefile.mk
 
 BUILT_SOURCES += python-requirements
 
