@@ -1,0 +1,63 @@
+// module/powerflow/autotest/test_building.glm
+
+#define N=10 // number of buildings
+#define CITY=Minneapolis MN
+#define WEATHER=MN-Minneapolis_Crystal.tmy3
+
+#option profile
+
+#set randomseed=1
+
+module powerflow
+{
+	message_flags DEBUG;
+#ifexist ../data/building_defaults.csv
+	building_defaults "../data/building_defaults.csv";
+#endif
+#ifexist ../data/building_loadshapes.csv
+	building_loadshapes "../data/building_loadshapes.csv";
+#endif
+}
+module tape
+{
+	csv_header_type NAME;
+}
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+#weather get ${WEATHER}
+#input "${WEATHER}" --property=name=weather
+
+module residential;
+object triplex_meter 
+{
+	name meter;
+	phases AS;
+	nominal_voltage 240;
+	bustype SWING;
+	object house:..${N}
+	{
+		cooling_system_type HEAT_PUMP;
+		heating_system_type HEAT_PUMP;
+	};
+}
+object multi_recorder 
+{
+	property "meter:measured_real_power[MW],weather:temperature";
+	file ${modelname/.glm/.csv};
+	interval 1h;
+	line_units NONE;
+};
+
+#set filesave_options=ALLINITIAL
+#set dumpfile=gridlabd.json
+#set savefile=${modelname/.glm/.json}
+
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='meter:measured_real_power[MW]' --plot:x=weather:temperature --plot:marker=. --plot:linewidth=0 --plot:xlabel='Temperature (degF)' --plot:ylabel='Load (MW)' --plot:title='${N} Houses in ${CITY}' --plot:grid=True --show
+#endif
