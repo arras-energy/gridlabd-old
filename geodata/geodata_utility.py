@@ -112,8 +112,10 @@ from shapely.geometry import Point
 from haversine import haversine_vector
 
 GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share"
 
-CACHEDIR = os.getenv("GLD_ETC")
+CACHEDIR = GLD_ETC
 if not CACHEDIR:
     CACHEDIR = f"{GLD_ETC}/gridlabd"
 

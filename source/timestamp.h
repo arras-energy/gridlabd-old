@@ -37,6 +37,8 @@
 #define TS_RESOLUTION (1) /* must be 10^TS_SCALE */
 #endif
 
+#define TS_DAY0 3*86400 // day of week for day 0 of epoch (1/1/1970 is Thursday)
+
 typedef int64 TIMESTAMP;
 typedef unsigned int64 DELTAT; /**< stores cumulative delta time values in ns */
 typedef unsigned long DT; /**< stores incremental delta time values in ns */

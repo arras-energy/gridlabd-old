@@ -1,0 +1,88 @@
+// module/powerflow/autotest/test_building_1.glm
+
+#set randomseed=1
+
+module powerflow
+{
+	message_flags DEBUG;
+#ifexist ../data/building_defaults.csv
+	building_defaults "../data/building_defaults.csv";
+#endif
+#ifexist ../data/building_loadshapes.csv
+	building_loadshapes "../data/building_loadshapes.csv";
+#endif
+#ifexist ../data/building_occupancy.csv
+	building_occupancy "../data/building_occupancy.csv";
+#endif
+#ifexist ../data/inverter_settings.csv
+	inverter_settings "../data/inverter_settings.csv";
+#endif
+}
+module tape
+{
+	csv_header_type NAME;
+}
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-07-01 00:00:00 PST";
+	stoptime "2020-08-01 00:00:00 PST";
+}
+#weather get CA-San_Francisco_Intl_Ap.tmy3
+#input "CA-San_Francisco_Intl_Ap.tmy3" --property=name=weather
+
+schedule setpoint
+{
+	* 7-17 * * 1-5 22.0;
+	* 18-6 * 10-4 1-5 18.0;
+	* 18-6 * 5-9 1-5 24.0;
+	* * * 10-4 6-0 18.0;
+	* * * 5-9 6-0 24.0; 
+}
+
+object building
+{
+	phases AN;
+	nominal_voltage 240;
+	building_type RETAIL;
+	bustype SWING;
+	voltage_A 216 V; // undervoltage will require added reactive power by DG
+
+	// inputs
+	NH 4;
+	floor_area 150 m^2;
+	TS setpoint;
+
+	temperature_source "weather.temperature";
+	solar_source "weather.solar_global";
+	heating_design "weather.record.low";
+	cooling_design "weather.record.high";
+	electric_heat TRUE;
+	electrification_fraction 0.5;
+	electrification_efficiency 2.0;
+	occupancy 4;
+	PV 200 sf;
+	PX 10 kW;
+	BS 10 kWh;
+	PG 10 kW;
+	IC UNITY;
+
+	measured_demand_timestep 30day;
+	object recorder 
+	{
+		property "voltage_A,measured_real_power[kW],measured_reactive_power[kVA],TO[degC],TA[degC],QH[kW],measured_resource_power[kW]";
+		file ${modelname/.glm/.csv};
+		interval 1h;
+		line_units NONE;
+	};
+}
+
+#set filesave_options=ALLINITIAL
+#set dumpfile=gridlabd.json
+#set savefile=${modelname/.glm/.json}
+
+#ifexist "../${modelname/.glm/.csv}"
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='TO[degC],TA[degC],measured_real_power[kW],measured_reactive_power[kVA]' --plot:grid=True --plot:legend=True --show
+#endif

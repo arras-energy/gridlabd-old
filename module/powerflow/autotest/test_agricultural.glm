@@ -1,0 +1,47 @@
+// module/powerflow/autotest/test_agricultural.glm
+
+#define CITY=Minneapolis MN
+#define WEATHER=MN-Minneapolis_Crystal.tmy3
+#weather get ${WEATHER}
+#input "${WEATHER}" --property=name=weather
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+
+module powerflow;
+module tape
+{
+    csv_header_type NAME;
+}
+
+object agricultural
+{
+    phases ABC;
+    nominal_voltage 480 kV;
+    P0 1 MW;
+    Mc 1 pu;
+    schedule "1-12,0-6,0-11,0.5,0.95";
+    schedule "6-10,0-6,12-23,1.0,0.99";
+    sensitivity_source "weather.rainfall";
+    sensitivity_base 0;
+    sensitivity_value -1e5;
+    object recorder
+    {
+        file ${modelname/.glm/.csv};
+        interval 1h;
+        property "measured_real_power[MW],measured_reactive_power[MVAr]";
+        line_units NONE;
+    };
+}
+
+#set savefile=${modelname/.glm/.json}
+
+#ifexist ../${modelname/.glm/.csv}
+#on_exit 0 diff ../${modelname/.glm/.csv} ${modelname/.glm/.csv} > gridlabd.diff
+#else
+#on_exit 0 gridlabd plot -i=${modelname/.glm/.csv} --plot:y='measured_real_power[MW],measured_reactive_power[MVAr]' --plot:grid=True --plot:legend=True --show
+#endif
