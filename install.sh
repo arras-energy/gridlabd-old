@@ -1,4 +1,4 @@
-# export INSTALL_SOURCE=https://install-dev.gridlabd.us/
+# export INSTALL_SOURCE=https://install-dev.gridlabd.us
 # export INSTALL_TARGET=FOLDERNAME
 # export INSTALL_STDOUT=FILENAME
 # export INSTALL_STDERR=FILENAME
