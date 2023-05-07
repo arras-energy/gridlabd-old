@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup system
-      run: ./setup.sh --local
+      run: sudo ./setup.sh --local
 
     - name: Build gridlabd
       run: ./build.sh --system --parallel
