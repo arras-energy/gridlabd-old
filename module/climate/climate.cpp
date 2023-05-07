@@ -2187,8 +2187,6 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		csv_rv = cr->get_data(t0, &temperature, &humidity, &solar_direct, &solar_diffuse, &solar_global, &global_horizontal_extra, &wind_speed,&wind_dir, &opq_sky_cov, &tot_sky_cov, &rainfall, &snowdepth, &pressure);
 		// calculate the solar radiation
 		double sol_time = sa->solar_time((double)now.get_hour()+now.get_minute()/60.0+now.get_second()/3600.0 + (now.get_is_dst() ? -1:0),now.get_yearday(),RAD(tz_meridian),RAD(reader->longitude));
-		//std::cout << now.get_hour() << "," << now.get_minute() << "," << now.get_second() <<"," << now.get_is_dst() << "," << now.get_yearday() << "," << tz_meridian << "," << reader->longitude << std::std::endl;
-		//std::cout << sol_time << std::std::endl;
 		gl_localtime(t0, &dt);
 		short day_of_yr = sa->day_of_yr(dt.month,dt.day);
 		solar_zenith = sa->zenith(day_of_yr, RAD(reader->latitude), sol_time);
