@@ -1,5 +1,6 @@
 bin_SCRIPTS += subcommands/gridlabd-assert
 bin_SCRIPTS += subcommands/gridlabd-aws
+bin_SCRIPTS += subcommands/gridlabd-building
 bin_SCRIPTS += subcommands/gridlabd-check
 bin_SCRIPTS += subcommands/gridlabd-compare
 bin_SCRIPTS += subcommands/gridlabd-contributors
@@ -10,6 +11,7 @@ bin_SCRIPTS += subcommands/gridlabd-help
 bin_SCRIPTS += subcommands/gridlabd-json-get
 bin_SCRIPTS += subcommands/gridlabd-job
 bin_SCRIPTS += subcommands/gridlabd-library
+bin_SCRIPTS += subcommands/gridlabd-loaddata
 bin_SCRIPTS += subcommands/gridlabd-lock
 bin_SCRIPTS += subcommands/gridlabd-manual
 bin_SCRIPTS += subcommands/gridlabd-matrix
