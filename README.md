@@ -46,6 +46,15 @@ You can download the latest development image using the command:
 # curl -sL http://install-dev.gridlabd.us/install.sh | [sudo] sh
 ~~~
 
+If you must use `sudo`, then don't forget to grant user permission to access the build and runtime virtual environments created by the installer, e.g.,
+
+~~~
+sudo chmod -R g+rwx ~root /usr/local
+sudo adduser $USER root
+~~~
+
+If you want to use a more secure approach to sharing the install among multiple users, see [install/README.md](install/README.md).
+
 The installer recognizes the following environment variables:
 
 | Variable | Default | Description
@@ -54,6 +63,7 @@ The installer recognizes the following environment variables:
 | `INSTALL_TARGET` | `/usr/local/opt` | Folder in which image is installed
 | `INSTALL_STDERR` | `/dev/stderr` | File to which error messages are sent
 | `INSTALL_STDOUT` | `/dev/stdout` | File to which output messages are sent
+| `GRIDLABD_IMAGE` | *varies* | Install image name, e.g., `$OSNAME_$VERMAJOR-$MACHINE`
 
 This procedure may also be used in AWS EC2 instances and Docker containers.
 
