@@ -319,6 +319,10 @@ public:
 	friend class frequency_gen;	// needs access to current_inj
 	friend class motor;	// needs access to curr_state
 
+	inline complex* get_current_injection(void) { return current_inj; };
+	inline complex* get_voltage(void) { return voltage; };
+	inline complex* get_power_injection(void) { return power; };
+
 	static int kmlinit(int (*stream)(const char*,...));
 	int kmldump(int (*stream)(const char*,...));
 };

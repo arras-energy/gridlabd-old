@@ -755,19 +755,22 @@ void load::load_update_fxn(void)
 			//Set the flag
 			base_load_val_was_nonzero[index] = true;
 
-			if (power_fraction[index] + current_fraction[index] + impedance_fraction[index] != 1.0)
+			double diff = power_fraction[index] + current_fraction[index] + impedance_fraction[index] - 1.0;
+			if ( diff != 0.0 )
 			{	
-				power_fraction[index] = 1 - current_fraction[index] - impedance_fraction[index];
-				
-				char temp[3] = {'A','B','C'};
+				if ( fabs(diff) > 1e-3 )
+				{
+					char temp[3] = {'A','B','C'};
 
-				OBJECT *obj = THISOBJECTHDR;
+					OBJECT *obj = THISOBJECTHDR;
 
-				warning("load:%s - ZIP components on phase %c did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", temp[index], power_fraction[index]);
-				/*  TROUBLESHOOT
-				ZIP load fractions must sum to 1.  The values (power_fraction_X, impedance_fraction_X, and current_fraction_X) on the given phase did not sum to 1. To 
-				ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.
-				*/
+					warning("load:%s - ZIP components on phase %c did not sum to 1 (diff is %g). Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", temp[index], diff, power_fraction[index]);
+					/*  TROUBLESHOOT
+					ZIP load fractions must sum to 1.  The values (power_fraction_X, impedance_fraction_X, and current_fraction_X) on the given phase did not sum to 1. To 
+					ensure that constraint (Z+I+P=1), power_fraction is being calculated and overwritten.
+					*/
+				}
+				power_fraction[index] -= diff;
 			}
 
 			// Put in the constant power portion

@@ -65,6 +65,9 @@ dist_doc_DATA =
 
 docs_targets =
 
+check-target:
+	@test $(prefix) = $(shell build-aux/version.sh --install) || ( echo "ERROR [Makefile]: prefix and target mismatch; ./configure is outdated. Build using '--clean' option to fix this." > /dev/stderr ; false )
+
 # required modules
 include $(top_srcdir)/third_party/Makefile.mk
 include $(top_srcdir)/source/Makefile.mk
@@ -78,7 +81,7 @@ include $(top_srcdir)/geodata/Makefile.mk
 include $(top_srcdir)/subcommands/Makefile.mk
 
 # approved modules
-include $(top_srcdir)/modules.mk
+include $(top_srcdir)/module/Makefile.mk
 
 BUILT_SOURCES += python-requirements
 
@@ -112,10 +115,10 @@ PYINC=$(PYENV)/include
 ENVPYTHON=$(PYBIN)/python$(PYVER)
 PYACTIVATE=source $(PYBIN)/activate
 
-python-requirements: | $(PYENV) python-venv
+python-requirements: | $(PYENV) python-venv check-target
 
 python-venv:
-	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR: no active python venv; did you forget to run '. $(HOME)/.gridlabd/bin/activate'" > /dev/stderr ; false )
+	@test ! -z "$(VIRTUAL_ENV)" || ( echo "ERROR [Makefile]: no active python venv; did you forget to run '. $(HOME)/.gridlabd/bin/activate'" > /dev/stderr ; false )
 
 # NB: it's ok to use the runner's python to generate the requirements.txt file
 requirements.txt: python/requirements.csv
@@ -123,12 +126,12 @@ requirements.txt: python/requirements.csv
 	@python3 python/requirements.py $< >$@
 
 $(PYENV): requirements.txt
-	@$(SYSPYTHON) --version 1>/dev/null || ( echo "ERROR: $(SYSPYTHON) is not found" > /dev/stderr ; false )
-	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
+	@$(SYSPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(SYSPYTHON) is not found" > /dev/stderr ; false )
+	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR [Makefile]: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
 	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
-	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR: $(ENVPYTHON) is not found" > /dev/stderr ; false )
+	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
 	@$(ENVPYTHON) python/requirements.py --buildenv | bash
@@ -142,10 +145,6 @@ dist_doc_DATA += COPYRIGHT
 dist_doc_DATA += LICENSE
 
 help:
-	@echo "Configuration targets:"
-	@echo "  reconfigure       - Reconfigures a release build from a clean start"
-	@echo "  reconfigure-debug - Reconfigures a debugging build from a clean start"
-	@echo ""
 	@echo "Cleaning targets:"
 	@echo "  clean          - Erase from the build tree the files built by 'make all'"
 	@echo "  distclean      - Same as 'make clean' plus erase anything ./configure created"
@@ -172,6 +171,7 @@ help:
 	@echo "  image             - Create install image"
 	@echo "  aws-image         - Upload AWS install image"
 	@echo "  aws-image-default - Upload AWS install image as default for this platform"
+	@wcho "  aws-install       - Upload AWS install script"
 	@echo ""
 	@echo "Documentation targets:"
 	@echo "  html                 - Generate all html documentation"
@@ -197,6 +197,7 @@ help:
 
 over: clean all
 
+S3BUCKET=$(shell $(top_srcdir)/build-aux/version.sh --bucket)
 LONGNAME=$(shell $(top_srcdir)/build-aux/version.sh --name)
 SHORTNAME=$(shell $(top_srcdir)/build-aux/version.sh --sysspec)
 
@@ -207,15 +208,18 @@ $(prefix).tarz: $(prefix)
 	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
-aws-image: $(prefix).tarz
-	@echo "Uploading s3://install.gridlabd.us/$(LONGNAME).tarz..."
-	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
-	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(LONGNAME).tarz --acl public-read
+aws-image: | $(prefix).tarz
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload image" >/dev/stderr ; false )
+	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
 
-aws-image-default: $(prefix).tarz
-	@echo "Uploading s3://install.gridlabd.us/$(SHORTNAME).tarz..."
-	@aws --version || ( echo "ERROR: aws CLI is required to build aws-image" >/dev/stderr ; false )
-	@aws s3 cp $(realpath $(prefix).tarz) s3://install.gridlabd.us/$(SHORTNAME).tarz --acl public-read
+aws-image-default: aws-image
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to create default image" >/dev/stderr ; false )
+	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read
+
+aws-install: 
+	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload installer" >/dev/stderr ; false )
+	@aws s3 cp $(top_srcdir)/install.sh s3://$(S3BUCKET)/install.sh --acl public-read
+
 
 # Recursively remove all files and directories not under revision control
 clean-wc:
@@ -227,92 +231,6 @@ install-validate: install validate
 
 check-local validate:
 	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilities/save_validation_output;exit 1))
-
-scratchdir = scratch
-# XERCES_TARNAME = xerces-c-3.1.1
-# XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
-
-$(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
-	-rm -f $@
-	test ! -e $(@D)/$(XERCES_TARNAME) || rm -rf $(@D)/$(XERCES_TARNAME)
-	test -d $(@D) || mkdir -p $(@D)
-	tar -xzf $< -C $(@D)
-	export XERCESCROOT=$(CURDIR)/$(@D)/$(XERCES_TARNAME) && \
-		cd $(@D)/$(XERCES_TARNAME) && \
-		(cd $(top_srcdir); autoreconf -isf) && $(top_srcdir)/configure && make
-	touch $@
-
-$(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp
-	test ! -e $@ || rm -rf $@
-	test -d $@/source || mkdir -p $@/source
-	cd $(distdir) && $(PWD)/configure && make install DESTDIR=$(CURDIR)/$@/source
-	cd $@ && mkdir -p climate-data/$(exec_prefix)/lib/gridlabd devel/$(exec_prefix)/lib/gridlabd # libxerces-c/usr/lib
-	mv $@/source/$(exec_prefix)/include $@/devel/$(exec_prefix)/include
-	mv $@/source/$(exec_prefix)/lib/gridlabd/*.la $@/devel/$(exec_prefix)/lib/gridlabd/
-	$(am__remove_distdir)
-
-$(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
-	env PATH=$$PATH:/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS \
-	PackageMaker --doc Resources/GridLAB-D.pmdoc --version "$(PACKAGE_VERSION)" --title "$(PACKAGE_NAME)" --out $@
-
-$(scratchdir)/$(PACKAGE_TARNAME).dmg: $(scratchdir)/$(PACKAGE_TARNAME).mpkg
-	test ! -e $@ || rm -f $@
-	hdiutil create -size $$((`du -sm $< | cut -f 1` + 3))m -fs HFS+ -volname "$(PACKAGE_STRING)" $@
-	hdiutil attach -mountpoint $(@D)/mnt $@
-	mv $< $(@D)/mnt/
-	hdiutil detach $(@D)/mnt
-
-$(distdir).dmg: $(scratchdir)/$(PACKAGE_TARNAME).dmg
-	test ! -e $@ || rm -rf $@
-	hdiutil convert -format UDZO -o $@ $<
-	rm -f $<
-	-rmdir $(scratchdir)
-
-clean-dist-osx:
-	-test ! -d $(scratchdir)/mnt || hdiutil detach $(scratchdir)/mnt
-#	-rm -rf $(scratchdir)
-
-# Build a .mpkg installer package for Mac OS X
-dist-osx:
-	trap '$(MAKE) clean-dist-osx' EXIT && \
-	$(MAKE) $(distdir).dmg
-
-# Build deb (binary and source) packages
-dist-deb: distdir
-	echo -e "gridlabd ($(VERSION)-1) unstable; urgency=low\n\n  * Version $(VERSION) release.\n  * View recent changes at: https://sourceforge.net/apps/mediawiki/gridlab-d/index.php?title=Special:RecentChanges\n\n -- GridLAB-D Team <gridlabd@pnl.gov> `date -R`\n" > $(distdir)/debian/changelog
-	ln -sf $(distdir) $(distdir)-1
-	(cd $(distdir)-1 && dpkg-buildpackage -tc -us -uc $(DEBFLAGS))
-	rm -f $(distdir)-1
-	$(am__remove_distdir)
-
-# Build Debian deb binary package
-dist-deb-bin:
-	$(MAKE) dist-deb DEBFLAGS=-b
-
-# Build Debian deb source package
-dist-deb-src:
-	$(MAKE) dist-deb DEBFLAGS=-S
-
-# Build RPM binary package
-dist-rpm: dist-gzip
-	rpmbuild -tb $(distdir).tar.gz
-
-RPMBUILDDIR = $(HOME)/rpmbuild
-
-# Create $(HOME)/.rpmmacros file suitable for building RPMs in $(RPMBUILDDIR) as non-root user
-rpm-prep:
-	@DIR="$(RPMBUILDDIR)" && if [ "$${DIR:0:1}" != "/" ]; then \
-		echo >&2 "ERROR: RPMBUILDDIR must be an absolute path"; exit 1; \
-	fi
-	@if [ -f "$$HOME/.rpmmacros" ]; then \
-		sed -i 's/^\(%_topdir\)/#\1/' $$HOME/.rpmmacros; \
-		echo >&2 "WARNING: $$HOME/.rpmmacros already exists; commenting out _topdir macros"; \
-	fi
-	@echo "%_topdir $(RPMBUILDDIR)" >> $$HOME/.rpmmacros
-	@echo "RPMs will be built in $(RPMBUILDDIR)"
-	@for DIR in $(RPMBUILDDIR)/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}; do \
-		test -d "$$DIR" || mkdir -p "$$DIR"; \
-	done
 
 clean-local: python-clean
 	@rm -rf $(top_srcdir)/documents/html
@@ -361,12 +279,6 @@ libtool: $(LIBTOOL_DEPS)
 # Run this after changes that affect build-aux/version.sh output
 #
 
-reconfigure: distclean
-	autoreconf -isf && $(PWD)/configure -C --quiet
-
-reconfigure-debug: distclean
-	autoreconf -isf && $(PWD)/configure -C --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
-
 docker: $(PREFIX)/docker.img
 
 docker-debug: docker/Dockerfile Makefile
@@ -382,7 +294,7 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 system: python-install install
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 	@$(prefix)/bin/gridlabd version set
-	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'
+	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; use build `--clean` option to fix this problem'
 
 index: weather library template
 

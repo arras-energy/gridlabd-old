@@ -2224,31 +2224,38 @@ int object_isa(OBJECT *obj, /**< the object to test */
 			   const char *type,
 			   const char *module) /**< the type of test */
 {
+	// fprintf(stderr,"object_isa(obj=<%s>,type='%s',module='%s') --> ",obj->name,type,module);
 	if ( obj == NULL )
 	{
+		// fprintf(stderr,"0\n");
+		return 0;
+	}
+	if ( module != NULL && obj->oclass->module != NULL && strcmp(module,obj->oclass->module->name) != 0 )
+	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 	if ( strcmp(obj->oclass->name,type) == 0 )
 	{
+		// fprintf(stderr,"1\n");
 		return 1;
 	} 
-	else if ( obj->oclass->isa ) 
+	for ( CLASS *oclass = obj->oclass->parent ; oclass != NULL ; oclass = oclass->parent )
 	{
-		if ( obj->oclass->isa(obj, type) == 0 )
-		{
-			return 0;
-		}
-		else if ( module == NULL || strcmp(obj->oclass->module->name,module) == 0 )
+		if ( strcmp(oclass->name,type) ==  0 )
 		{
 			return 1;
 		}
-		else
-		{
-			return 0;
-		}
+	}
+	if ( obj->oclass->isa ) 
+	{
+		int result = obj->oclass->isa(obj, type);
+		// fprintf(stderr,"%d\n",result);
+		return result;
 	} 
 	else 
 	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 }

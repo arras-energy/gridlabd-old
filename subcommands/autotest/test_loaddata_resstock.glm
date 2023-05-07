@@ -1,0 +1,5 @@
+#loaddata -b=HOUSE -r=1.1 -s=CA -v=2022 -w=ACTUAL -y=2018 -e=total -f=electricity -o=test_loaddata_resstock.csv
+
+#ifexist ../test_loaddata_resstock.csv
+#on_exit 0 diff ../test_loaddata_resstock.csv test_loaddata_resstock.csv >gridlabd.diff
+#endif

@@ -1,9 +1,16 @@
+# export INSTALL_SOURCE=https://install-dev.gridlabd.us
+# export INSTALL_TARGET=FOLDERNAME
+# export INSTALL_STDOUT=FILENAME
+# export INSTALL_STDERR=FILENAME
+# export GRIDLABD_IMAGE=OS_VERSION-MACHINE
 DEFAULT_SOURCE="https://install.gridlabd.us"
 DEFAULT_TARGET="/usr/local/opt"
-DEFAULT_STDERR="/dev/stderr"
 DEFAULT_STDOUT="/dev/stdout"
+DEFAULT_STDERR="/dev/stderr"
 
-if [ $# -eq 0 ]; then
+if [ $# -gt 1 ]; then
+	echo "ERROR [install.sh]: install.sh can only be run as a script" > $DEFAULT_STDERR
+elif [ -z "$GRIDLABD_IMAGE" ]; then
 	case $(uname -s) in
 		Darwin)
 			GRIDLABD_IMAGE="darwin_$(uname -r | cut -f1 -d.)-$(uname -m)"
@@ -17,13 +24,14 @@ if [ $# -eq 0 ]; then
 			;;
 	esac
 fi
-if [ -z "${GRIDLABD_IMAGE}" ]; then
+if [ -z "$GRIDLABD_IMAGE" ]; then
 	echo "ERROR: GRIDLABD_IMAGE name not specified" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
+elif ! mkdir -p "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR} ; then
+	echo "ERROR: unable to create ${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" > $DEFAULT_STDERR
 else
-	mkdir -p "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 	cd "${INSTALL_TARGET:-$DEFAULT_TARGET}/gridlabd" 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 	GRIDLABD_SOURCE="${INSTALL_SOURCE:-$DEFAULT_SOURCE}/$GRIDLABD_IMAGE.tarz"
-	echo "Downloading $GRIDLABD_SOURCEz..." 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT}
+	echo "Downloading $GRIDLABD_SOURCE..." 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT}
 	if ! curl -sL -I $GRIDLABD_SOURCE 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} ; then
 		echo "ERROR: image $GRIDLABD_SOURCE not found. Use build.sh instead." 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 	else
@@ -32,6 +40,7 @@ else
 				GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz 2>&1 | tail -n 1  | cut -c3- | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 				;;
 			*)
+				export DEBIAN_FRONTEND=noninteractive
 				GRIDLABD_FOLDER=$(curl -sL -H 'Cache-Control: no-cache' "$GRIDLABD_SOURCE" | tar xvz | tail -n 1  | cut -f1 -d/ ) 1>${INSTALL_STDOUT:-$DEFAULT_STDOUT} 2>${INSTALL_STDERR:-$DEFAULT_STDERR}
 				;;
 		esac
