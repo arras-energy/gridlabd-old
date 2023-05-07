@@ -17,8 +17,9 @@ jobs:
     - name: Setup system
       run: |
         sudo ./setup.sh --local
-        chmod -R g+rwx /usr/local ~root
+        sudo mkdir -p /usr/local/opt
         sudo adduser $USER root
+        sudo chmod -R g+rwx /usr/local ~root
 
     - name: Build gridlabd
       run: ./build.sh --system --parallel
