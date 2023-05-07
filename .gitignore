@@ -200,3 +200,4 @@ module/powerflow/autotest/switch_4.csv
 tools/autotest/test_meteostat_opt.csv
 tools/autotest/test_meteostat_opt.glm
 cloud/websites/install.gridlabd.us/validate*.tarz
+tools/autotest/test_create_schedule_opt.glm
