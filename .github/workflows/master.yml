@@ -15,16 +15,16 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup system
-      run: ./setup.sh --local
+      run: sudo ./setup.sh --local
 
     - name: Build gridlabd
-      run: ./build.sh --system --parallel
+      run: sudo ./build.sh --system --parallel
 
     - name: Install openfido
-      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
+      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | sudo sh
       
     - name: Validate system
-      run: gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( utilities/save_validation_errors ; false )
+      run: sudo gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( sudo utilities/save_validation_errors ; false )
         
     - name: Upload artifacts on failure
       uses: actions/upload-artifact@v2
