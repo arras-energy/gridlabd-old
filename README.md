@@ -53,7 +53,7 @@ sudo chmod -R g+rwx ~root /usr/local
 sudo adduser $USER root
 ~~~
 
-If you want to use a more secure approach to sharing the install among multiple users, see [install/README.md](install/README.md).
+If you want to use a more secure approach to sharing the install among multiple users, see [install/README.md](install/README.md#Security).
 
 The installer recognizes the following environment variables:
 
