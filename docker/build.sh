@@ -44,8 +44,12 @@ if [ "$DOPUSH" = "yes" ]; then
 	docker push "$NAME:$TAG" || error "push image failed"
 fi
 if [ "$DOTAG" = "yes" ]; then
-	docker tag "$NAME:$TAG" "$NAME:latest" || error "tag latest failed"
+	TAG=$(build-aux/version.sh --branch)
+	if [ "$TAG" == "master" ]; then
+		TAG="latest"
+	fi
+	docker tag "$NAME:$TAG" "$NAME:$TAG" || error "tag latest failed"
 	if [ "$DOPUSH" = "yes" ]; then
-		docker push "$NAME:latest" || error "push latest failed"
+		docker push "$NAME:$TAG" || error "push latest failed"
 	fi
 fi
