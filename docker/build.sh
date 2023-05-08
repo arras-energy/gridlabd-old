@@ -3,16 +3,19 @@
 ##
 ## Build a docker image of the current repository. The default image name is
 ## the output of `build-aux/version.sh --docker`. The source image repo is
-## the output of `build-aux/version.sh --origin`.
+## the output of `build-aux/version.sh --origin`. If the branch is `master`
+## then the release is tags `latest` otherwise, the tag is the branch name.
 ##
 ## Options:
 ##
-##   --push     Pushes the resulting image to user's Dockerhub. The
-##				
+##   --push     Pushes the resulting image to user's Dockerhub. If the user
+##     			does not have a Dockerhub account, then the push will fail.
+##     			If `--release` is also specified then the push will be
+##     			performed first
 ##
 ##   --release  Release the resulting image as the latest version of
-##    			slacgismo/gridlabd. The master branch is released as 'latest'.
-##    			Otherwise the branch name is used as the tag name.
+##    			slacgismo/gridlabd. The master branch is released
+##    			as 'latest'. Otherwise the branch name is used as the tag name.
 ## 
 error () { echo "ERROR [docker/build.sh]: $*" ; exit 1; }
 
@@ -21,7 +24,7 @@ DOLATEST=no
 while [ $# -gt 0 ]; do
 	case $1 in 
 		-h|--help|help )
-			grep '^##' $0 | cut -c3-
+			grep '^##' $0 | cut -c4-
 			exit 0
 			;;
 		--push )
