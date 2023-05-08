@@ -59,11 +59,12 @@ std::istream& operator>>(std::istream &s, Fortran_Array2D<T> &A)
 	Fortran_Array2D<T> B(M,N);
 
     for (int i=1; i<=M; i++)
+    {
         for (int j=1; j<=N; j++)
         {
             s >>  B(i,j);
         }
-
+    }
 	A = B;
     return s;
 }
@@ -78,8 +79,9 @@ Fortran_Array2D<T> operator+(const Fortran_Array2D<T> &A, const Fortran_Array2D<
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Fortran_Array2D<T>();
-
+	}
 	else
 	{
 		Fortran_Array2D<T> C(m,n);
@@ -100,8 +102,9 @@ Fortran_Array2D<T> operator-(const Fortran_Array2D<T> &A, const Fortran_Array2D<
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Fortran_Array2D<T>();
-
+	}
 	else
 	{
 		Fortran_Array2D<T> C(m,n);
@@ -123,8 +126,9 @@ Fortran_Array2D<T> operator*(const Fortran_Array2D<T> &A, const Fortran_Array2D<
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Fortran_Array2D<T>();
-
+	}
 	else
 	{
 		Fortran_Array2D<T> C(m,n);
@@ -146,8 +150,9 @@ Fortran_Array2D<T> operator/(const Fortran_Array2D<T> &A, const Fortran_Array2D<
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Fortran_Array2D<T>();
-
+	}
 	else
 	{
 		Fortran_Array2D<T> C(m,n);
