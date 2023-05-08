@@ -7,9 +7,12 @@
 ##
 ## Options:
 ##
-##   --push   Pushes the resulting image to user's Dockerhub
+##   --push     Pushes the resulting image to user's Dockerhub. The
+##				
 ##
-##   --latest Tags the resulting image as the latest version in slacgismo
+##   --release  Release the resulting image as the latest version of
+##    			slacgismo/gridlabd. The master branch is released as 'latest'.
+##    			Otherwise the branch name is used as the tag name.
 ## 
 error () { echo "ERROR [docker/build.sh]: $*" ; exit 1; }
 
@@ -24,7 +27,7 @@ while [ $# -gt 0 ]; do
 		--push )
 			DOPUSH=yes
 			;;
-		--latest )
+		--release )
 			DOLATEST=yes
 			;;
 		* )
@@ -48,8 +51,9 @@ if [ "$DOLATEST" = "yes" ]; then
 	if [ "$BRANCH" = "master" ]; then
 		BRANCH="latest"
 	fi
-	docker tag "$NAME:$TAG" "slacgismo/gridlabd:$BRANCH" || error "tag latest failed"
+	IMAGE="slacgismo/gridlabd-$(build-aux/version.sh --machine)"
+	docker tag "$NAME:$TAG" "$IMAGE:$BRANCH" || error "tag latest failed"
 	if [ "$DOPUSH" = "yes" ]; then
-		docker push "slacgismo/gridlabd:$BRANCH" || error "push latest failed"
+		docker push "$IMAGE:$BRANCH" || error "push latest failed"
 	fi
 fi
