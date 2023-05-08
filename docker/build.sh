@@ -7,7 +7,7 @@
 ##
 ## Options:
 ##
-##   --push   Pushes the resulting image to Docker hub
+##   --push   Pushes the resulting image to user's Dockerhub
 ##
 ##   --latest Tags the resulting image as the latest version in slacgismo
 ## 
