@@ -1,5 +1,5 @@
 #!/bin/sh
-## Syntax: docker/build.sh [--push] [--latest]
+## Syntax: docker/build.sh [--push] [--release]
 ##
 ## Build a docker image of the current repository. The default image name is
 ## the output of `build-aux/version.sh --docker`. The source image repo is
