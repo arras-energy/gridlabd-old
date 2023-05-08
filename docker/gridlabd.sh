@@ -23,14 +23,16 @@ cd $HOME/gridlabd
 
 # build and validate gridlabd
 . $HOME/.gridlabd/bin/activate
-if [ "$BRANCH" = "master" ]; then
-	./build.sh --parallel --system --validate || error "master build failed"
+if ./build.sh --parallel --system 
+	if [ gridlabd --validate ]; then
+		cd -
+		rm -rf $HOME/gridlabd
+	else
+		echo "WARNING [docker/gridlabd.sh]: validate failed, source has been preserved"
+	fi
+	exit 0
 else
-	./build.sh --parallel --system --validate || echo "WARNING [docker/gridlabd.sh]: development build/validate failed, image saved for follow-up"
+	error "build failed"
+	exit 1
 fi
 
-# cleanup source
-cd -
-test "$BRANCH" = "master" && rm -rf $HOME/gridlabd
-
-exit 0

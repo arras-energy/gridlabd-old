@@ -9,12 +9,12 @@
 ##
 ##   --push   Pushes the resulting image to Docker hub
 ##
-##   --latest Tags the resulting image as the latest
+##   --latest Tags the resulting image as the latest version in slacgismo
 ## 
 error () { echo "ERROR [docker/build.sh]: $*" ; exit 1; }
 
 DOPUSH=no
-DOTAG=no
+DOLATEST=no
 while [ $# -gt 0 ]; do
 	case $1 in 
 		-h|--help|help )
@@ -25,7 +25,7 @@ while [ $# -gt 0 ]; do
 			DOPUSH=yes
 			;;
 		--latest )
-			DOTAG=yes
+			DOLATEST=yes
 			;;
 		* )
 			error "option '$1' is invalid"
@@ -43,13 +43,13 @@ docker build docker --build-arg GRIDLABD_ORIGIN="$ORIGIN" -t "$NAME:$TAG" || err
 if [ "$DOPUSH" = "yes" ]; then
 	docker push "$NAME:$TAG" || error "push image failed"
 fi
-if [ "$DOTAG" = "yes" ]; then
+if [ "$DOLATEST" = "yes" ]; then
 	TAG=$(build-aux/version.sh --branch)
-	if [ "$TAG" == "master" ]; then
+	if [ "$TAG" = "master" ]; then
 		TAG="latest"
 	fi
 	docker tag "$NAME:$TAG" "$NAME:$TAG" || error "tag latest failed"
 	if [ "$DOPUSH" = "yes" ]; then
-		docker push "$NAME:$TAG" || error "push latest failed"
+		docker push "slacgismo/gridlabd:$TAG" || error "push latest failed"
 	fi
 fi
