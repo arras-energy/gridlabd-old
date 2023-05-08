@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# IMPORTANT: only run this script from the Dockerfile !!!
+#
 
 # setup
 error () { echo "ERROR [docker/gridlabd.sh]: $*" >/dev/stderr ; exit 1 ; }
