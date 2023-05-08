@@ -4,6 +4,7 @@
 ## Options:
 ##
 ##   --version       the version, e.g., 4.3.1
+##   --number        the build number, e.g., 230701
 ##   --branch        the branch, e.g., master
 ##   --gitversion    the version of github, e.g., 2.34.1
 ##   --install       the install folder path name, e.g., /usr/local/opt/gridlabd/4.3.1-230426-master-ubuntu_22-x86_64
@@ -16,6 +17,8 @@
 ##   --bucket        the s3 bucket for the install file uploads
 ##   --python        the python version, e.g., 3.10
 ##   --parse INSTALL parses an install name into its constituents
+##   --docker        the docker tag name, e.g., 4.3.1-230701-master
+##   --origin        the origin of the source code, e.g., slacgismo/gridlabd/master
 ##
 ## This file is used by autoconf to generate the version string.
 ## It is assumed that this script is run from the top-level srcdir.
@@ -32,6 +35,7 @@ NAM=`sed -En 's/#define PACKAGE_NAME "([-A-Za-z ]+)".*/\1/p' $FIL | tr -d '\n'`
 NUM=`git log --max-count=1 --pretty=format:"%ai" | cut -c 3,4,6,7,9,10`
 BRA=`git rev-parse --abbrev-ref HEAD | git rev-parse --abbrev-ref HEAD | tr -c A-Za-z0-9 _ | sed 's/_+/_/g;s/_$//;s/^_//'`
 GIT=`git --version | cut -f3 -d' '`
+ORG=`git remote get-url origin | cut -f4- -d/`
 if [ "$(uname -s)" == "Darwin" ]; then
     SYS="darwin_$(uname -r | cut -f1 -d.)"
 elif [ -f "/etc/os-release" ]; then
@@ -86,6 +90,12 @@ case $1 in
         else
             echo "install-dev.gridlabd.us"
         fi
+        ;;
+    --origin )
+        echo "$ORG/$(git rev-parse --abbrev-ref HEAD)"
+        ;;
+    --docker )
+        echo "$ORG:$MAJ.$MIN.$PAT-$NUM-$BRA"
         ;;
     --help | -h)
         grep ^## $0 | cut -c4-
