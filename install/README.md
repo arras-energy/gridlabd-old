@@ -1,4 +1,4 @@
-# Fast Install
+# Install
 
 To install GridLAB-D without building, run the following command:
 

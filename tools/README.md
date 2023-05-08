@@ -21,3 +21,9 @@ gridlabd python -m TOOLNAME help
 ~~~
 
 to obtain help on tool usage.
+
+To add a tool to the list of installed tools, you must add it to the list of tools in the `Makefile.mk` file, e.g.,
+
+~~~
+dist_pkgdata_DATA += tools/TOOLNAME.py
+~~~

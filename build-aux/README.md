@@ -1,3 +1,5 @@
+# Build-aux
+
 The `build-aux` folder contains script needed to build `gridlabd`.
 
 # `version.sh`

@@ -1,4 +1,4 @@
-# Downloadable Image Creation
+# Image
 
 Downloadable images are created using the `make image` command. 
 

@@ -1,4 +1,4 @@
-# Create a docker image
+# Docker
 
 To build the docker image for the current branch, run the following command:
 
