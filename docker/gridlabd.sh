@@ -20,6 +20,7 @@ cd $HOME/gridlabd
 
 # build and validate gridlabd
 . $HOME/.gridlabd/bin/activate
+export github_actions=yes # same issues with filesync persist on docker build as on github
 if [ "$BRANCH" = "master" ]; then
 	./build.sh --parallel --system --validate || error "master build failed"
 else
