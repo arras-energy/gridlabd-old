@@ -17,7 +17,7 @@
 ##   --bucket        the s3 bucket for the install file uploads
 ##   --python        the python version, e.g., 3.10
 ##   --parse INSTALL parses an install name into its constituents
-##   --docker        the docker tag name, e.g., 4.3.1-230701-master
+##   --docker        the docker tag name, e.g., 4.3.1-230701-master-ubuntu_22-x86_64
 ##   --origin        the origin of the source code, e.g., slacgismo/gridlabd/master
 ##
 ## This file is used by autoconf to generate the version string.
@@ -95,7 +95,7 @@ case $1 in
         echo "$ORG/$(git rev-parse --abbrev-ref HEAD)"
         ;;
     --docker )
-        echo "$ORG:$MAJ.$MIN.$PAT-$NUM-$BRA"
+        echo "$ORG-$HDW:$MAJ.$MIN.$PAT-$NUM-$BRA"
         ;;
     --help | -h)
         grep ^## $0 | cut -c4-

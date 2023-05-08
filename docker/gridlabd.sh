@@ -1,32 +1,31 @@
-#!/bin/bash
+#!/bin/sh
 
-REPO=${REPO:-https://source.gridlabd.us/}
-BRANCH=${BRANCH:-master}
-echo "
-#####################################
-# DOCKER BUILD
-#   gridlabd <- $REPO/$BRANCH
-#####################################
-"
+# setup
+error () { echo "ERROR [docker/gridlabd.sh]: $*" >/dev/stderr ; exit 1 ; }
+set -x # enable echo of commands
+test ! -z "$GRIDLABD_ORIGIN" || error "'--build-arg GRIDLABD_ORIGIN=ORG/REPO/BRANCH' not specified"
+REPO=https://github.com/${GRIDLABD_ORIGIN%/*}
+BRANCH=${GRIDLABD_ORIGIN##*/}
+echo "Building docker image from $REPO/$BRANCH"
 
-# gridlabd source
-cd $HOME
-git clone $REPO gridlabd -b $BRANCH
-if [ ! -d $HOME/gridlabd ]; then
-	echo "ERROR: unable to download $REPO/$BRANCH"
-	exit 1
-fi
+# download source
+apt-get update
+apt-get install git curl -y
+git clone $REPO $HOME/gridlabd -b $BRANCH --depth 1 || error "git clone of $REPO/$BRANCH failed"
+test -d $HOME/gridlabd || error "download from $REPO/$BRANCH failed"
 
-cd gridlabd 
-./install.sh -t -p
+# setup system
+cd $HOME/gridlabd 
+./setup.sh --local || error "setup failed"
 
-# run validation
-if [ "${RUN_VALIDATION:-no}" == "yes" ]; then
-	gridlabd -T 0 --validate
+# build and validate gridlabd
+. $HOME/.gridlabd/bin/activate
+if [ "$BRANCH" = "master" ]; then
+	./build.sh --parallel --system --validate || error "build failed"
+else
+	./build.sh --parallel --system --validate || echo "WARNING [docker/gridlabd.sh]: build/validate failed, image held for inspection"
 fi
 
 # cleanup source
-if [ "${REMOVE_SOURCE:-yes}" == "yes" ]; then
-	cd $HOME
-	rm -rf gridlabd
-fi
+cd -
+test "$BRANCH" = "master" && rm -rf $HOME/gridlabd
