@@ -44,12 +44,12 @@ if [ "$DOPUSH" = "yes" ]; then
 	docker push "$NAME:$TAG" || error "push image failed"
 fi
 if [ "$DOLATEST" = "yes" ]; then
-	TAG=$(build-aux/version.sh --branch)
-	if [ "$TAG" = "master" ]; then
-		TAG="latest"
+	BRANCH=$(build-aux/version.sh --branch)
+	if [ "$BRANCH" = "master" ]; then
+		BRANCH="latest"
 	fi
-	docker tag "$NAME:$TAG" "$NAME:$TAG" || error "tag latest failed"
+	docker tag "$NAME:$TAG" "slacgismo/gridlabd:$BRANCH" || error "tag latest failed"
 	if [ "$DOPUSH" = "yes" ]; then
-		docker push "slacgismo/gridlabd:$TAG" || error "push latest failed"
+		docker push "slacgismo/gridlabd:$BRANCH" || error "push latest failed"
 	fi
 fi
