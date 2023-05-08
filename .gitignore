@@ -74,6 +74,10 @@ config.cache
 config.status
 configure
 configure~
+conftest.cpp
+conttest.err
+confdefs.h
+conf[0-9]*[a-z]*/
 gridlabd.spec
 libtool
 gridlabd.bin
