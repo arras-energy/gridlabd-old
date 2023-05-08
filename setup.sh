@@ -1,25 +1,28 @@
 #/bin/sh
-# Syntax: setup.sh [-v|--verbose] [--local] [ORG/REPO/BRANCH]
 # 
-# Setup the local system so you can run the `build.sh` script. When run
-# standalone (non-local) this will download the setup procedure from the
-# GridLAB-D repository.
-# 
-# Options:
-# 
-#   --local        Use the local files only (no downloads)
-# 
-#   -v|--verbose   Enable verbose command echo output
-# 
-#   -q|--quiet     Disable output to stdout
-# 
-#   -s|--silent    Disable output to stderr
-# 
-# Environment variables
-# 
-#   GRIDLABD_ORIGIN   Specifies the ORG/USER/BRANCH from which the downloads
-#                     should obtained. Default is `slacgismo/gridlabd/master`
-# 
+# Note: double hash comments indicates help documentation
+#
+## Syntax: setup.sh [-v|--verbose] [--local] [ORG/REPO/BRANCH]
+## 
+## Setup the local system so you can run the `build.sh` script. When run
+## standalone (non-local) this will download the setup procedure from the
+## GridLAB-D repository.
+## 
+## Options:
+## 
+##   --local        Use the local files only (no downloads)
+## 
+##   -v|--verbose   Enable verbose command echo output
+## 
+##   -q|--quiet     Disable output to stdout
+## 
+##   -s|--silent    Disable output to stderr
+## 
+## Environment variables
+## 
+##   GRIDLABD_ORIGIN   Specifies the ORG/USER/BRANCH from which the downloads
+##                     should obtained. Default is `slacgismo/gridlabd/master`
+## 
 STDOUT=/dev/stdout
 STDERR=/dev/stderr
 error () { echo "ERROR [setup.sh]: $*" > $STDERR ; exit 1; }
@@ -31,7 +34,7 @@ fi
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help|help)
-			cat $0 | grep '^# ' | cut -c3-
+			cat $0 | grep '^## ' | cut -c4-
 			exit 0
 			;;
 		-v|--verbose)

@@ -1,48 +1,51 @@
 #/bin/sh
-# Syntax: build.sh [OPTIONS]
 # 
-# Build gridlabd on this local system. You must have run `setup.sh` first.
-# 
-# Options:
-# 
-#   -v|--verbose)   Enable output of commands as they are executed
-# 
-#   -s|--silent)    Disable output to stderr
-# 
-#   -q|--quiet)     Disable output to stdout
-# 
-#   --validate)     Enable validation of build
-# 
-#   --install)      Install build to target folder
-# 
-#   --system)       Make target folder the system default installation
-# 
-#   --target PATH)  Specify the target folder (default is output of /usr/local/opt)
-# 
-#   --clean)        Delete all new uncommitted source files before starting build
-# 
-#   --upload)       Upload installed image to AWS when build is done
-# 
-#   --release)      Make AWS upload the default image for system/machine type
-# 
-#   --parallel)     Run the build in parallel if possible
-# 
-# Environment variables:
-# 
-#   MAKEFLAGS   Specify additional make options
-# 
-#   CFLAGS      Specify additional C compiler flags
-# 
-#   CPPFLAGS    Specify additional C++ compiler flags
-# 
-#   LDFLAGS     Specify additional linker flags
-# 
-# Example:
-# 
-#   A typical first-time build/install command is usually
+# Note: double hash comments indicates help documentation
 #
-#   $ ./build.sh --parallel --system
-#
+## Syntax: build.sh [OPTIONS]
+## 
+## Build gridlabd on this local system. You must have run `setup.sh` first.
+## 
+## Options:
+## 
+##   -v|--verbose)   Enable output of commands as they are executed
+## 
+##   -s|--silent)    Disable output to stderr
+## 
+##   -q|--quiet)     Disable output to stdout
+## 
+##   --validate)     Enable validation of build
+## 
+##   --install)      Install build to target folder
+## 
+##   --system)       Make target folder the system default installation
+## 
+##   --target PATH)  Specify the target folder (default is output of /usr/local/opt)
+## 
+##   --clean)        Delete all new uncommitted source files before starting build
+## 
+##   --upload)       Upload installed image to AWS when build is done
+## 
+##   --release)      Make AWS upload the default image for system/machine type
+## 
+##   --parallel)     Run the build in parallel if possible
+## 
+## Environment variables:
+## 
+##   MAKEFLAGS   Specify additional make options
+## 
+##   CFLAGS      Specify additional C compiler flags
+## 
+##   CPPFLAGS    Specify additional C++ compiler flags
+## 
+##   LDFLAGS     Specify additional linker flags
+## 
+## Example:
+## 
+##   A typical first-time build/install command is usually
+##
+##   $ ./build.sh --parallel --system
+##
 STDOUT=/dev/stdout
 STDERR=/dev/stderr
 error () { echo "ERROR [build.sh]: $*" > $STDERR ; exit 1; }
@@ -57,7 +60,7 @@ UPLOAD=
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help|help)
-			cat $0 | grep '^# ' | cut -c3-
+			cat $0 | grep '^## ' | cut -c4-
 			exit 0
 			;;
 		-v|--verbose)
