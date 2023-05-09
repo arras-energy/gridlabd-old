@@ -95,7 +95,7 @@ case $1 in
         echo "$ORG/$(git rev-parse --abbrev-ref HEAD)"
         ;;
     --docker )
-        echo "$ORG-$HDW:$MAJ.$MIN.$PAT-$NUM-$BRA"
+        echo "$ORG:$MAJ.$MIN.$PAT-$NUM-$BRA"
         ;;
     --help | -h)
         grep ^## $0 | cut -c4-
