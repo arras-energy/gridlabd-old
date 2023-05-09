@@ -6,7 +6,7 @@ clock {
 }
 
 // generate plots when done
-script on_term "$GLD_BIN/pkgenv/bin/python3 ../test_ceus_saveplots.py";
+script on_term "$GLD_BIN/python3 ../test_ceus_saveplots.py";
 
 // make sure csv files have no comments
 module tape {

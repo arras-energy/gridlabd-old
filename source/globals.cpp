@@ -306,7 +306,7 @@ void pythonexec_init(const char *name,const char *value)
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
 	{
-		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-22),binpath);
+		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/python3",(int)(sizeof(global_pythonexec)-22),binpath);
 	}
 }
 

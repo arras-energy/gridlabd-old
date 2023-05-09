@@ -110,7 +110,7 @@ def runtest(workdir,glmname) :
 	run_command("cp %s.glm %s" % (workdir,workdir))
 	run_command("cd %s" % workdir)
 	print("Running %s..." % glmname)
-	rc = run_command("$GLD_BIN/pkgenv/bin/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
+	rc = run_command("$GLD_BIN/python3 %s/source/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
 	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))

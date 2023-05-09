@@ -108,7 +108,7 @@ install-exec-hook: | index docs
 # Python setup
 #
 
-PYENV=$(bindir)/pkgenv
+PYENV=$(prefix)
 PYBIN=$(PYENV)/bin
 PYLIB=$(PYENV)/lib
 PYINC=$(PYENV)/include

@@ -845,10 +845,10 @@ GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid"); /**< Specifies that 
 GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
 /* Variable: global_pythonpath */
-GLOBAL char1024 global_pythonpath INIT(".:/usr/local/opt/gridlabd/current/share/gridlabd:/usr/local/opt/gridlabd/current/bin/pkgenv/lib/python3.10/site-packages");
+GLOBAL char1024 global_pythonpath INIT(".:/usr/local/opt/gridlabd/current/share/gridlabd:/usr/local/opt/gridlabd/current/lib/python3.10/site-packages");
 
 /* Variable: global_pythonexec */
-GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/pkgenv/bin/python3");
+GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/python3");
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);

@@ -28,7 +28,7 @@ object house:..${PYTHON len(data)}
 
 // save and plot the results 
 #set savefile=test_eia_recs.json
-#on_exit 0 $GLD_BIN/pkgenv/bin/python3 ${DIR:-.}/test_eia_recs.py test_eia_recs.json test_eia_recs_ignore.png
+#on_exit 0 $GLD_BIN/python3 ${DIR:-.}/test_eia_recs.py test_eia_recs.json test_eia_recs_ignore.png
 
 #ifexist ../test_eia_recs_ignore.py
 #on_exit 0 diff ${DIR:-.}/test_eia_recs.json test_eia_recs.json
