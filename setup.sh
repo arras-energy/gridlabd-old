@@ -27,7 +27,7 @@ STDOUT=/dev/stdout
 STDERR=/dev/stderr
 error () { echo "ERROR [setup.sh]: $*" > $STDERR ; exit 1; }
 if [ -d $(dirname $0)/.git ]; then
-	DEFAULT_ORIGIN=$(git remote get-url origin)/$(git rev-parse --abbrev-ref HEAD)
+	DEFAULT_ORIGIN=$(git remote get-url origin | sed -e 's|https://github.com/||' | sed -e 's|.git$||')/$(git rev-parse --abbrev-ref HEAD)
 else
 	DEFAULT_ORIGIN=slacgismo/gridlabd/master
 fi
