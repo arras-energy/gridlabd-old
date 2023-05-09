@@ -1,6 +1,6 @@
 # Tutorials
 
-Tutorial are update separately from the standard build process.  To update the tutorials, run `make` in the `tutorials` folder.  
+Tutorial are updated separately from the standard build process.  To update the tutorials, run `make` in the `tutorials` folder.  
 
 To create a tutorial:
 
