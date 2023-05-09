@@ -21,13 +21,13 @@ The preferred method for running HiPAS GridLAB-D is to download the master image
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 
 ~~~
-$ docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
+docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
 ~~~ 
 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 
 ~~~
-$ alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
+alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
 ~~~
 
 Note that this alias will interfere with any host-based installation. You may use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
@@ -37,13 +37,13 @@ Note that this alias will interfere with any host-based installation. You may us
 Installation from downloads may require `sudo` priviledges and always requires `curl`. The `install` script will automatically download and install the latest production image for your system if you use the following command:
 
 ~~~
-# curl -sL http://install.gridlabd.us/install.sh | [sudo] sh
+curl -sL http://install.gridlabd.us/install.sh | [sudo] sh
 ~~~
 
 You can download the latest development image using the command:
 
 ~~~
-# curl -sL http://install-dev.gridlabd.us/install.sh | [sudo] sh
+curl -sL http://install-dev.gridlabd.us/install.sh | [sudo] sh
 ~~~
 
 If you must use `sudo`, then don't forget to grant user permission to access the build and runtime virtual environments created by the installer, e.g.,
@@ -82,16 +82,16 @@ The prerequesites for building HiPAS GridLAB-D from source include `git` and `cu
 On most systems, the process is as follows:
 
 ~~~
-$ git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
-$ cd gridlabd
-$ ./setup.sh --local
-$ ./build.sh --system --validate
+git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
+cd gridlabd
+./setup.sh --local
+./build.sh --system --validate
 ~~~
 
 If you want to clone an alternate repository, use the following `git` command instead:
 
 ~~~
-$ git clone https://github.com/ORG/REPO [-b BRANCH] gridlabd
+git clone https://github.com/ORG/REPO [-b BRANCH] gridlabd
 ~~~
 
 If you do not specify the `--local` then by default the `setup.sh` source will match the `git` repository origin and branch if any. Otherwise the default source will be `slacgismo/gridlabd/master`. If you want to setup from a different origin, use the command `export GRIDLABD_ORIGIN=ORG/REPO/BRANCH` to specify an alternate source for `setup.sh`.  The `build.sh` will also match the current `git` repository.
@@ -101,72 +101,59 @@ If you do not specify the `--local` then by default the `setup.sh` source will m
 To upload the image to the AWS installer you must install the AWS CLI, and obtain credentials to access the installer's S3 buckets before using the command:
 
 ~~~
-$ ./build.sh --upload
+./build.sh --upload
 ~~~
 
 To make the image the latest release, use the command:
 
 ~~~
-$ ./build.sh --release
+./build.sh --release
 ~~~
 
 When you are working in a master branch, these command will update `install.gridlabd.us`, otherwise the upload will go to `install-dev.gridlabd.us`.
 
 ## Docker
 
-Developers should use the following commands to build GridLAB-D in a Docker container, where `USER` and `BRANCH` are your github username and the gridlabd branch:
+Developers should use the following command to build GridLAB-D in a Docker container:
 
 ~~~
-$ docker run -it ubuntu:22.04
-# apt update
-# apt install git curl -y
-# git clone https://github.com/$USER/gridlabd -b $BRANCH /gridlabd
-# cd /gridlabd
-# export GRIDLABD_ORIGIN=$USER/gridlabd/$BRANCH # only needed for setups from forks
-# sh setup.sh
-# python3.10 -m venv ~/.gridlabd
-# . ~/.gridlabd/bin/activate
-# sh build.sh
-# gridlabd -T 0 --validate
+docker/build.sh
+~~~
+
+Note that Docker will build the currently checked out branch *from the repository rather than from your local code*.
+
+To push the docker image to your personal Dockerhub, use the command:
+
+~~~
+docker/build.sh --push
+~~~
+
+The Dockerhub account is assumed to match the name of your GitHub account.
+
+To release the docker image, use the command:
+
+~~~
+docker/build.sh --release
 ~~~
 
 ## AWS EC2
 
-Use the AWS Ubuntu AMI to build gridlabd on AWS EC2.
+Use the AWS Ubuntu AMI to build gridlabd on AWS EC2 using the commands
 
-1) Set the path variable
 ~~~
-host% export PATH=/usr/local/bin:$PATH
+git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
+cd gridlabd
+./setup.sh --local
+./build.sh --system --validate
 ~~~
-2) Update work directory permissions, change work directory and clone GitHub repository
-~~~
-host% sudo chown -R ${USER:-root} /usr/local/src
-host% cd /usr/local/src
-host% git clone https://source.gridlabd.us/ gridlabd
-~~~
-3) Run installation 
-~~~ 
-host% cd gridlabd
-host% gridlabd/install.sh
-~~~
-To rebuild the source code and install again, use the `make system` command.  You can use parallel builds using the `make -j<nproc> system` command.
-
-If you have modified the branch name or version information, you must reconfigure your build using the `make reconfigure` command before using `make system`.
-
-Each build of HiPAS GridLAB-D will be installed in `/usr/local/opt/gridlabd`. Links to the active version are added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`. Additional links are created in `/usr/local/lib` and `/usr/local/share`, as needed. 
-
-You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
-
-You use `make install` to build only. To use an inactive build run the `gridlabd` command of that build instead of running the active version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of running `/usr/local/bin/gridlabd`.
-
-Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree. Be careful to verify that the branch of the source tree matches the branch of the version you are running. This is not checked automatically.
 
 ## Windows WSL
 
 Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually faster. Building, running and installing Gridlabd in WSL is not that different from a normal linux installation. You can follow Microsoft's instructions on setting up WSL and adding/changing distro's [here](https://learn.microsoft.com/en-us/windows/wsl/install). These instructions work for both cases on supported operating systems, which you can find in the build-aux directory.
 
-1) Open PowerShell as administrator (Or run the WSL(Ubuntu) or Debian App from the start menu to open a dedicated terminal)
-2) Run `wsl` (Using Debian or Ubuntu)
+1) Open PowerShell as administrator or run the WSL (Ubuntu) from the start menu to open a dedicated terminal
+2) Run `wsl` (Using Ubuntu)
+3) Follow the Linux build procedure above.
 
 ## Pro Tips
 
@@ -191,10 +178,12 @@ If you use this fork of GridLAB-D for a publication you are required to cite it,
 Chassin, D.P., et al., "GridLAB-D Version _major_._minor_._patch_-_build_ (_branch_) _platform_", (_year_) [online]. Available at _url_, Accessed on: _month_ _day_, _year_.
 
 You may use the `--cite` command option to obtain the correct citation for your version:
+
 ~~~
 host% gridlabd --cite
 Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://source.gridlabd.us/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
 ~~~
+
 This will allow anyone to identify the exact version you are using to obtain it from GitHub.
 
 ## US Government Rights
@@ -204,3 +193,4 @@ This version of GridLAB-D is derived from the original US Department of Energy v
 ## Contributions
 
 Please see https://source.gridlabd.us/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
+
