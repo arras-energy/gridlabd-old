@@ -1,4 +1,5 @@
 // Exercise 2.3.3;
+#set randomseed=123
 module residential 
 {
 	implicit_enduses NONE;
