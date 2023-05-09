@@ -112,15 +112,3 @@ validate.zip.gz
 validate.tar.gz
 gridlabd-core.*
 openfido.err
-test_*.html
-source/geodata/docs/geodata.conf
-geodata.conf
-python_extras/example/output.csv
-*.egg
-gridlabd.egg-info/
-python/dist/*.whl
-python/dist/*.tar.gz
-python/gridlabd.egg-info/
-gridlabd.egg-*
-module/resilience/docs/output.csv
-cloud/websites/install.gridlabd.us/validate*.tarz
