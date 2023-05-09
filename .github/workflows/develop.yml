@@ -18,7 +18,7 @@ jobs:
       run: sudo ./setup.sh --local
 
     - name: Build gridlabd
-      run: sudo ./build.sh --system --parallel=5
+      run: sudo ./build.sh --system --parallel
 
     - name: Install openfido
       run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | sudo sh
