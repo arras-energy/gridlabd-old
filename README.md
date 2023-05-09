@@ -155,6 +155,58 @@ Generally, running HiPAS GridLAB-D on Docker is preferred because it is usually 
 2) Run `wsl` (Using Ubuntu)
 3) Follow the Linux build procedure above.
 
+## Manual Build
+
+You can build HiPAS GridLAB-D manually by running following commands in the top level repository folder:
+
+1. Create the target folder:
+
+~~~
+mkdir -p /usr/local/opt/gridlabd
+~~~
+
+2. Activate the python build environment
+
+~~~
+. $HOME/.gridlabd/bin/activate
+~~~
+
+3. Create the configuration script
+
+~~~
+autoreconf -isf
+~~~
+
+4. Run the configuration script
+
+~~~
+./configure
+~~~
+
+5. Compile everything
+
+~~~
+make
+~~~
+
+6. Install everything
+
+~~~
+make install
+~~~
+
+7. Validate the install
+
+~~~
+make validate
+~~~
+
+8. Release install to all users
+
+~~~
+make system
+~~~
+
 ## Pro Tips
 
 1. If you accumulate a lot of local branches that no longer exist on the remote repo, you can use the following command to purge them:
