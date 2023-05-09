@@ -28,7 +28,8 @@
 ## 
 ##   --release)      Make AWS upload the default image for system/machine type
 ## 
-##   --parallel)     Run the build in parallel if possible
+##   --parallel[=N]) Run the build in parallel if possible. N specifies how many jobs
+##                   per CPU. The default is 3 jobs per CPU.
 ## 
 ## Environment variables:
 ## 
@@ -59,52 +60,54 @@ fi
 UPLOAD=
 while [ $# -gt 0 ]; do
 	case "$1" in
-		-h|--help|help)
+		-h | --help | help )
 			cat $0 | grep '^## ' | cut -c4-
 			exit 0
 			;;
-		-v|--verbose)
+		-v | --verbose )
 			set -x
 			MAKEFLAGS="$MAKEFLAGS --debug V=1"
 			;;
-		-s|--silent)
+		-s | --silent )
 			STDERR=/dev/null
 			;;
-		-q|--quiet)
+		-q | --quiet )
 			STDOUT=/dev/null
 			;;
-		--validate)
+		--validate )
 			VERIFY="-T 0 --validate"
 			;;
-		--install)
+		--install )
 			TARGET="$TARGET install"
 			;;
 		--system)
 			TARGET="$TARGET system"
 			;;
-		--target)
+		--target )
 			CONFIGURE="$CONFIGURE --prefix=$2"
 			shift 1
 			;;
-		--clean)
+		--clean )
 			utilities/cleanwc
 			;;
-		--upload)
+		--upload )
 			UPLOAD=aws-image
 			;;
-		--release)
+		--release )
 			UPLOAD=aws-image-default
 			;;
-		--parallel)
+		--parallel | --parallel=* )
+			PROCS=$(echo $1 | cut -f2 -d=)
+			test "$PROCS" = "--parallel" && PROCS=3
 			if nproc --help 1>/dev/null 2>&1 ; then
-				MAKEFLAGS=-j$(($(nproc)*3))
+				MAKEFLAGS=-j$(($(nproc)*$PROCS))
 			elif sysctl -a 1>/dev/null 2>&1 ; then
-				MAKEFLAGS=-j$(($(sysctl -n hw.ncpu)*3))
+				MAKEFLAGS=-j$(($(sysctl -n hw.ncpu)*$PROCS))
 			else
 				error "unable to determine the number of available CPUs"
 			fi
 			;;
-		*)
+		* )
 			error "option '$1' is not valid"
 			;;
 	esac
