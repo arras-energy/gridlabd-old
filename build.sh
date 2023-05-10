@@ -50,7 +50,6 @@
 STDOUT=/dev/stdout
 STDERR=/dev/stderr
 error () { echo "ERROR [build.sh]: $*" > $STDERR ; exit 1; }
-VERIFY="--version=all"
 TARGET=
 if [ -d "config.cache" ]; then
 	CONFIGURE="-C"
@@ -75,12 +74,17 @@ while [ $# -gt 0 ]; do
 			STDOUT=/dev/null
 			;;
 		--validate )
+			if [ -z "$VERIFY" ]; then
+				error "cannot validate unless you install"
+			fi
 			VERIFY="-T 0 --validate"
 			;;
 		--install )
+			VERIFY="--version=all"
 			TARGET="$TARGET install"
 			;;
 		--system)
+			VERIFY="--version=all"
 			TARGET="$TARGET system"
 			;;
 		--target )
@@ -123,5 +127,8 @@ test ! -z "$VIRTUAL_ENV" || . $HOME/.gridlabd/bin/activate 1>$STDOUT 2>$STDERR
 test ! -z "$VIRTUAL_ENV" || error "unable to activate gridlabd venv"
 test -f ./configure || autoreconf -isf 1>$STDOUT 2>$STDERR || error "autoconf failed"
 test -f Makefile || ./configure $CONFIGURE 1>$STDOUT 2>$STDERR || error "./configure failed"
-make $MAKEFLAGS $TARGET 1>$STDOUT 2>$STDERR && $(build-aux/version.sh --install)/bin/gridlabd $VERIFY 1>$STDOUT 2>$STDERR || error "unable to make and verify build"
+make $MAKEFLAGS $TARGET 1>$STDOUT 2>$STDERR || error "unable to make build"
+if [ ! -z "$VERIFY" ]; then
+	$(build-aux/version.sh --install)/bin/gridlabd $VERIFY 1>$STDOUT 2>$STDERR || error "unable to verify install"
+fi
 test -z "$UPLOAD" || make $UPLOAD 1>$STDOUT 2>$STDERR
