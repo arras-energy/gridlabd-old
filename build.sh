@@ -14,11 +14,11 @@
 ## 
 ##   -q|--quiet)     Disable output to stdout
 ## 
-##   --validate)     Enable validation of build
+##   --validate)     Enable validation of build (requires --install)
 ## 
 ##   --install)      Install build to target folder
 ## 
-##   --system)       Make target folder the system default installation
+##   --system)       Make the install the system default installation
 ## 
 ##   --target PATH)  Specify the target folder (default is output of /usr/local/opt)
 ## 
