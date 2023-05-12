@@ -206,61 +206,44 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"JSON",		POF_JSON,		NULL},
 };
 
-/* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
-/* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(const char *,const char*)
+/* Add global directory variable initializations here */
+void datadir_init(const char *name,const char *value)
 {
-	const char *etcpath = getenv("GLD_ETC");
-	if ( etcpath != NULL )
-	{
-		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
-	}
+	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",value?value:getenv("GLD_ETC"));
 }
 
-void bindir_init(const char *,const char*)
+void bindir_init(const char *name,const char *value)
 {
-	const char * binpath = getenv("GLD_BIN");
-	if ( binpath != NULL )
-	{
-		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
-	}
+	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",value?value:getenv("GLD_BIN"));
 }
 
-void libdir_init(const char *,const char*)
+void libdir_init(const char *name,const char *value)
 {
-	const char * libpath = getenv("GLD_LIB");
-	if ( libpath != NULL )
-	{
-		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
-	}
+	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",value?value:getenv("GLD_LIB"));
 }
 
-void vardir_init(const char *,const char*)
+void vardir_init(const char *name,const char *value)
 {
-	const char * varpath = getenv("GLD_VAR");
-	if ( varpath != NULL )
-	{
-		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
-	}
+	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",value?value:getenv("GLD_VAR"));
 }
 
-void incdir_init(const char *,const char*)
+void incdir_init(const char *name,const char *value)
 {
-	const char * incpath = getenv("GLD_INC");
-	if ( incpath != NULL )
-	{
-		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
-	}
+	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",value?value:getenv("GLD_INC"));
 }
+
 /* Add more top-level directory variables here. */
 
-/* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
+/* These directory variable initializations are derived from the top-level.
+   Make sure to define them in globals.h before adding new
+   initializations.
+ */
 
 void logfile_init(const char *name,const char *value)
 {
 	extern char logfile[1024];
 	char buffer[2048];
-	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"daemon.log");
 	if ( strlen(buffer) >= sizeof(logfile) )
 	{
 		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
@@ -272,7 +255,7 @@ void pidfile_init(const char *name,const char *value)
 {
 	extern char pidfile[1024];
 	char buffer[2048];
-	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"gridlabd.pid");
 	if ( strlen(buffer) >= sizeof(pidfile) )
 	{
 		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
@@ -570,9 +553,15 @@ STATUS GldGlobals::init(void)
 				detailed explanation of the error.  Follow the troubleshooting for
 				that message and try again.
 			*/
-		} else {
+		} 
+		else 
+		{
 			var->prop->keywords = p->keys;
 			var->callback = p->callback;
+			if ( var->callback )
+			{
+				var->callback(NULL,NULL);
+			}
 		}
 	}
 	return SUCCESS;
