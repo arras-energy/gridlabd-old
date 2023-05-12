@@ -3,8 +3,6 @@
 
 #include "glengine.h"
 
-using namespace std;
-
 int main(int argc, char *argv[])
 {
 	// prepare to catch exceptions from engine calls
@@ -19,7 +17,7 @@ int main(int argc, char *argv[])
 			engine.connect("C:\\ciraci_gld\\VS2005\\Win32\\Debug","C:\\ciraci_gld\\VS2005\\Win32\\Debug\\test_engine.glm",NULL);
 			//engine.connect(UDP,string("127.0.0.1"));
 		}catch(const char *c){
-			cout << "Launching gld failed:" << c << endl; 
+			std::cout << "Launching gld failed:" << c << std::endl; 
 			engine.shutdown();
 			exit(0);
 		}
@@ -33,14 +31,14 @@ int main(int argc, char *argv[])
 		do
 		{	
 			if(!engine.sync_start(time)){ //get the current time
-			  cout << "TERM received from GLD" << endl;
+			  std::cout << "TERM received from GLD" << std::endl;
 			  engine.shutdown();
 			}
 			//get a value from gld
-			cout << "Got time " << time << endl;
+			std::cout << "Got time " << time << std::endl;
 			string s;
 			engine.get(importNames[0],s);
-			cout << "Value of " << importNames[0] << " from gld is " << s << endl;
+			std::cout << "Value of " << importNames[0] << " from gld is " << s << std::endl;
 			count --;
 			engine.sync_finalize(time+1); //sync one second ahead;
 			//do something be quick about it
@@ -49,7 +47,7 @@ int main(int argc, char *argv[])
 		engine.sync_start(time);
 		engine.sync_finalize(TS_NEVER);
 		if(engine.sync_start(time)!=0){
-			cout << "Fail expecting term got something else " << endl;
+			std::cout << "Fail expecting term got something else " << std::endl;
 			engine.shutdown();
 		}
 		engine.shutdown();
@@ -57,6 +55,6 @@ int main(int argc, char *argv[])
 	} 
 	catch (const char *msg)
 	{
-		cerr << "Example: " << msg << endl;
+		cerr << "Example: " << msg << std::endl;
 	}
 }

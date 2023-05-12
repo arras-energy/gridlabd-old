@@ -368,7 +368,7 @@ Retry:
 		goto Retry;
 	}
 
-	if ( sscanf(result, "%32[^,],%1024[^\n\r;]", tbuf, valbuf) == 2 )
+	if ( sscanf(result, "%32[^,],%1023[^\n\r;]", tbuf, valbuf) == 2 )
 	{
 		trim(tbuf, timebuf);
 		trim(valbuf, value);

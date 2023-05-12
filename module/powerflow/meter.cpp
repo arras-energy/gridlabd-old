@@ -4,7 +4,7 @@
 // Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #include "powerflow.h"
-using namespace std;
+
 
 // useful macros
 #define TO_HOURS(t) (((double)t) / (3600 * TS_SECOND))

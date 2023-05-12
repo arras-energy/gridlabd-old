@@ -666,7 +666,7 @@ TIMESTAMP eventgen::presync(TIMESTAMP t0, TIMESTAMP t1)
 		// look for events coming from FNCS
 		if (strlen(controlled_switch) > 0)	{
 			if (switch_state != last_switch_state) {
-				cout << "Switch " << controlled_switch << " changing status to " << switch_state << " at " << t0 << " going to " << t1 << endl;
+				cout << "Switch " << controlled_switch << " changing status to " << switch_state << " at " << t0 << " going to " << t1 << std::endl;
 				OBJECT *swt = gl_get_object(controlled_switch);
 				if (switch_state == 1) { // closed
 					add_unhandled_event (swt, "SW-ABC", t0 - 50, 50, 24, true);

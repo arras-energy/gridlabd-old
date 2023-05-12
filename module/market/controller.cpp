@@ -459,7 +459,7 @@ int controller::init(OBJECT *parent){
 				return 0;
 			}
 			gld_property *marketunit2 = NULL;
-			if ( fetch_property(&pClearingType2, "unit", pMarket2) == 0) 
+			if ( fetch_property(&marketunit2, "unit", pMarket2) == 0) 
 			{
 				return 0;
 			}

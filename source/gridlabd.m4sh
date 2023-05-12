@@ -1,17 +1,16 @@
 dnl run "autom4te -l m4sh gridlabd.m4sh > gridlabd.in"
 AS_INIT
 
-prefix="@prefix@"
-exec_prefix="@exec_prefix@"
-bindir="@bindir@"
-datarootdir="@datarootdir@"
-datadir="@datadir@"
-docdir="@datadir@/doc"
-pkgdatadir="$datadir/@PACKAGE@"
-libdir="@libdir@"
-pkglibdir="$libdir/@PACKAGE@"
-vardir="$exec_prefix/var/@PACKAGE@"
-HAS_MINGW="@HAS_MINGW@"
+REALPATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' $0); 
+export GLD_BIN=$(dirname $REALPATH)
+PREFIX=$(dirname $GLD_BIN)
+export GLD_ETC=$PREFIX/share/gridlabd
+export GLD_VER=$PREFIX
+export GLD_LIB=$PREFIX/lib/gridlabd
+export GLD_DOC=$PREFIX/doc
+export GLD_VAR=$PREFIX/var/gridlabd
+export GLD_INC=$PREFIX/include
+export GLD_SRC=$PREFIX/src
 
 HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
@@ -71,7 +70,7 @@ if test "x$HAS_DOCKER" = "xyes" ; then :
   HAS_IMAGE="no"
   docker inspect gridlabd > /dev/null 2>&1 && HAS_IMAGE="yes"
   if test "x$HAS_IMAGE" = "xyes" ; then :
-    docker run -it -v ${PWD}:${PWD} gridlabd $bindir/gridlabd -W ${PWD} $@
+    docker run -it -v ${PWD}:${PWD} gridlabd $GLD_BIN/gridlabd -W ${PWD} $@
     exit 0
   fi
 fi
@@ -79,44 +78,33 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
-PY_OS="$(uname -s)"
+. $GLD_BIN/activate
 
-export GLD_ETC=$pkgdatadir
-export GLD_BIN=$bindir
-export GLD_VER=$exec_prefix
-export GLD_LIB=$libdir
-export GLD_DOC=$docdir
-export GLD_VAR=$vardir
-export GLD_INC=$exec_prefix/include
-export GLD_SRC=$exec_prefix/src
-
-. $bindir/pkgenv/bin/activate
-
-
-export PYCCFLAGS="$(python3-config --cflags)"
+export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
+export PYTHON_CONFIG="$GLD_BIN/activate/python$PYTHON_VER-config"
+export PYCCFLAGS="$($PYTHON_CONFIG --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
 export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
-export PYLDFLAGS="$(python3-config --ldflags)"
-export LIB="-L$libdir -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
+export PYLDFLAGS="$($PYTHON_CONFIG --ldflags)"
+export LIB="-L$GLD_LIB -L/usr/local/lib -L$GLD_VER/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
-export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
-export PYTHONPATH=.:${GLD_ETC}:${GLD_BIN}/pkgenv/lib/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
+export PYTHONPATH=.:${GLD_ETC}:${GLD_LIB}/python${PYTHON_VER}/site-packages${PYTHONPATH:+:}${PYTHONPATH}
 
 AS_IF([test "x$GLPATH" = x],
-  [export GLPATH="$pkglibdir:$pkgdatadir"],
-  [export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"])
+  [export GLPATH="$GLD_LIB:$GLD_ETC"],
+  [export GLPATH="$GLD_LIB:$GLD_ETC:$GLPATH"])
 
 if test "x$1" = "xgdb" ; then :
   shift
-  gdb -ex "run $@" $bindir/gridlabd.bin
+  gdb -ex "run $@" $GLD_BIN/gridlabd.bin
   exit 0
 elif test "x$1" = "xlldb" ; then :
   shift
   echo "run $@" > /tmp/gridlabd-$$
-  lldb -s /tmp/gridlabd-$$ $bindir/gridlabd.bin
+  lldb -s /tmp/gridlabd-$$ $GLD_BIN/gridlabd.bin
   rm /tmp/gridlabd-$$
   exit 0
 elif test "x$1" = "xvalgrind" ; then :
@@ -124,18 +112,18 @@ elif test "x$1" = "xvalgrind" ; then :
   if test -z "${VALGRIND_OPTIONS}" ; then :
     echo "WARNING: VALGRIND_OPTIONS is not set, using default valgrind options"
   fi
-  valgrind ${VALGRIND_OPTIONS} $bindir/gridlabd.bin $@
+  valgrind ${VALGRIND_OPTIONS} $GLD_BIN/gridlabd.bin $@
   exit 0
 fi
 
-AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
-  [. ${pkgdatadir}/gridlabd.rc],
+AS_IF([test -f "${GLD_ETC}/gridlabd.rc"],
+  [. ${GLD_ETC}/gridlabd.rc],
   [])
 
 AS_IF([test -f "${GLD_ETC}/$1.py"],
   [export PYTHONPATH=$GLD_ETC; python3 -m "$@" ; exit $?],
   [])
 
-AS_IF([test -x "${bindir}/gridlabd-$1"],
-  ["${bindir}/gridlabd"-"$@"],
-  ["${bindir}/gridlabd.bin" "$@" && "${bindir}/gridlabd-version" check -w])
+AS_IF([test -x "${GLD_BIN}/gridlabd-$1"],
+  ["${GLD_BIN}/gridlabd"-"$@"],
+  ["${GLD_BIN}/gridlabd.bin" "$@" && "${GLD_BIN}/gridlabd-version" check -w])

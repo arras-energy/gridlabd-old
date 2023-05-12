@@ -60,11 +60,12 @@ std::istream& operator>>(std::istream &s, Array2D<T> &A)
 	Array2D<T> B(M,N);
 
     for (int i=0; i<M; i++)
+	{
         for (int j=0; j<N; j++)
         {
             s >>  B[i][j];
         }
-
+	}
 	A = B;
     return s;
 }
@@ -77,7 +78,9 @@ Array2D<T> operator+(const Array2D<T> &A, const Array2D<T> &B)
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Array2D<T>();
+	}
 
 	else
 	{
@@ -99,7 +102,9 @@ Array2D<T> operator-(const Array2D<T> &A, const Array2D<T> &B)
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Array2D<T>();
+	}
 
 	else
 	{
@@ -108,7 +113,9 @@ Array2D<T> operator-(const Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				C[i][j] = A[i][j] - B[i][j];
+			}
 		}
 		return C;
 	}
@@ -122,7 +129,9 @@ Array2D<T> operator*(const Array2D<T> &A, const Array2D<T> &B)
 	int n = A.dim2();
 
 	if (B.dim1() != m ||  B.dim2() != n )
+	{
 		return Array2D<T>();
+	}
 
 	else
 	{
@@ -131,7 +140,9 @@ Array2D<T> operator*(const Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				C[i][j] = A[i][j] * B[i][j];
+			}
 		}
 		return C;
 	}
@@ -156,7 +167,9 @@ Array2D<T> operator/(const Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				C[i][j] = A[i][j] / B[i][j];
+			}
 		}
 		return C;
 	}
@@ -177,7 +190,9 @@ Array2D<T>&  operator+=(Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				A[i][j] += B[i][j];
+			}
 		}
 	}
 	return A;
@@ -196,7 +211,9 @@ Array2D<T>&  operator-=(Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				A[i][j] -= B[i][j];
+			}
 		}
 	}
 	return A;
@@ -215,7 +232,9 @@ Array2D<T>&  operator*=(Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				A[i][j] *= B[i][j];
+			}
 		}
 	}
 	return A;
@@ -236,7 +255,9 @@ Array2D<T>&  operator/=(Array2D<T> &A, const Array2D<T> &B)
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
+			{
 				A[i][j] /= B[i][j];
+			}
 		}
 	}
 	return A;
@@ -268,6 +289,7 @@ Array2D<T> matmult(const Array2D<T> &A, const Array2D<T> &B)
     Array2D<T> C(M,K);
 
     for (int i=0; i<M; i++)
+    {
         for (int j=0; j<K; j++)
         {
             T sum = 0;
@@ -277,6 +299,7 @@ Array2D<T> matmult(const Array2D<T> &A, const Array2D<T> &B)
 
             C[i][j] = sum;
         }
+    }
 
     return C;
 

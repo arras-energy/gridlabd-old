@@ -206,61 +206,79 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"JSON",		POF_JSON,		NULL},
 };
 
-/* Add global directory variable initializations here(The definitions are in globals.h). Top-level variables should be immutable, and all path dependencies should be built based on these. */
-/* NOTE: the GLD_* Values correspond to a specific package. The null handling should error if null, which I need to learn how to do.  */
-void datadir_init(const char *,const char*)
+/* Add global directory variable initializations here */
+void datadir_init(const char *name,const char *value)
 {
-	const char *etcpath = getenv("GLD_ETC");
-	if ( etcpath != NULL )
+	if ( name == NULL )
 	{
-		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",etcpath);
+		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",value?value:getenv("GLD_ETC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
 	}
 }
 
-void bindir_init(const char *,const char*)
+void bindir_init(const char *name,const char *value)
 {
-	const char * binpath = getenv("GLD_BIN");
-	if ( binpath != NULL )
+	if ( name == NULL )
 	{
-		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",binpath);
+		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",value?value:getenv("GLD_BIN"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
 	}
 }
 
-void libdir_init(const char *,const char*)
+void libdir_init(const char *name,const char *value)
 {
-	const char * libpath = getenv("GLD_LIB");
-	if ( libpath != NULL )
+	if ( name == NULL )
 	{
-		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",libpath);
+		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",value?value:getenv("GLD_LIB"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
 	}
 }
 
-void vardir_init(const char *,const char*)
+void vardir_init(const char *name,const char *value)
 {
-	const char * varpath = getenv("GLD_VAR");
-	if ( varpath != NULL )
+	if ( name == NULL )
 	{
-		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",varpath);
+		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",value?value:getenv("GLD_VAR"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
 	}
 }
 
-void incdir_init(const char *,const char*)
+void incdir_init(const char *name,const char *value)
 {
-	const char * incpath = getenv("GLD_INC");
-	if ( incpath != NULL )
+	if ( name == NULL )
 	{
-		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",incpath);
+		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",value?value:getenv("GLD_INC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
 	}
 }
+
 /* Add more top-level directory variables here. */
 
-/* These directory variable initializations are derived from the top-level. Make sure to define them in globals.h before adding new initializations. */
+/* These directory variable initializations are derived from the top-level.
+   Make sure to define them in globals.h before adding new
+   initializations.
+ */
 
 void logfile_init(const char *name,const char *value)
 {
 	extern char logfile[1024];
 	char buffer[2048];
-	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"daemon.log");
 	if ( strlen(buffer) >= sizeof(logfile) )
 	{
 		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
@@ -272,7 +290,7 @@ void pidfile_init(const char *name,const char *value)
 {
 	extern char pidfile[1024];
 	char buffer[2048];
-	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"gridlabd.pid");
 	if ( strlen(buffer) >= sizeof(pidfile) )
 	{
 		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
@@ -306,7 +324,7 @@ void pythonexec_init(const char *name,const char *value)
 	const char * binpath = getenv("GLD_BIN");
 	if ( binpath != NULL )
 	{
-		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/pkgenv/bin/python3",(int)(sizeof(global_pythonexec)-22),binpath);
+		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/python3",(int)(sizeof(global_pythonexec)-22),binpath);
 	}
 }
 
@@ -333,7 +351,8 @@ DEPRECATED static struct s_varmap {
 	PROPERTYACCESS access;
 	const char *description;
 	KEYWORD *keys;
-	void (*callback)(const char *name,const char *value);
+	void (*init)(const char *name,const char *value);
+	void (*update)(const char *name,const char *value);
 } map[] = {
 	/** @todo make this list the authorative list and retire the global_* list (ticket #25) */
 	{"version.major", PT_int32, &global_version_major, PA_REFERENCE, "major version"},
@@ -378,8 +397,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*,const char*))random_init},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*,const char*))random_init},
+	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,NULL,random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,NULL,random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -570,9 +589,15 @@ STATUS GldGlobals::init(void)
 				detailed explanation of the error.  Follow the troubleshooting for
 				that message and try again.
 			*/
-		} else {
+		} 
+		else 
+		{
 			var->prop->keywords = p->keys;
-			var->callback = p->callback;
+			var->callback = p->update;
+			if ( p->init )
+			{
+				p->init(NULL,NULL);
+			}
 		}
 	}
 	return SUCCESS;

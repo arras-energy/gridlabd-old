@@ -70,7 +70,9 @@ std::istream& operator>>(std::istream &s, Fortran_Array1D<T> &A)
 
 	Fortran_Array1D<T> B(N);
 	for (int i=1; i<=N; i++)
+	{
 		s >> B(i);
+	}
 	A = B;
 	return s;
 }
@@ -82,8 +84,9 @@ Fortran_Array1D<T> operator+(const Fortran_Array1D<T> &A, const Fortran_Array1D<
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Fortran_Array1D<T>();
-
+	}
 	else
 	{
 		Fortran_Array1D<T> C(n);
@@ -104,8 +107,9 @@ Fortran_Array1D<T> operator-(const Fortran_Array1D<T> &A, const Fortran_Array1D<
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Fortran_Array1D<T>();
-
+	}
 	else
 	{
 		Fortran_Array1D<T> C(n);
@@ -125,8 +129,9 @@ Fortran_Array1D<T> operator*(const Fortran_Array1D<T> &A, const Fortran_Array1D<
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Fortran_Array1D<T>();
-
+	}
 	else
 	{
 		Fortran_Array1D<T> C(n);
@@ -146,8 +151,9 @@ Fortran_Array1D<T> operator/(const Fortran_Array1D<T> &A, const Fortran_Array1D<
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Fortran_Array1D<T>();
-
+	}
 	else
 	{
 		Fortran_Array1D<T> C(n);
