@@ -1,5 +1,5 @@
 ''':'
-exec "${GLD_BIN:-/usr/local/opt/gridlabd/current}/pkgenv/bin/python3" "$0" "$@"
+exec "${GLD_BIN:-/usr/local/opt/gridlabd/current}/python3" "$0" "$@"
 :' '''
 
 __doc__ = """Syntax: gridlabd loaddata [OPTIONS]

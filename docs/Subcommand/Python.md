@@ -14,7 +14,7 @@ Normally GridLAB-D requires certain environment variables to be set to function 
 
 # Caveat
 
-Only `python3` is supported, and the executable must be located at `/usr/local/opt/gridlabd/<pkg>/bin/pkgenv/bin/python3`.
+Only `python3` is supported, and the executable must be located at `/usr/local/opt/gridlabd/<pkg>/bin/python3`.
 
 # Example
 

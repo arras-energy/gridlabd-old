@@ -94,7 +94,7 @@
                 set_default("token",token);
             }
 
-            r = run_query("/repos/hipas/gridlabd/issues?state=open&per_page=100&sort=updated&direction=desc");
+            r = run_query("/repos/slacgismo/gridlabd/issues?state=open&per_page=100&sort=updated&direction=desc");
             if ( r.status == 200 )
             {
                 report = "GridLAB-D Open Issues as of " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";

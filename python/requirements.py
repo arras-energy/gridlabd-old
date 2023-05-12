@@ -59,7 +59,7 @@ requirements = pandas.DataFrame(pandas.read_csv(csvfile,index_col=['module'],dty
 if PRIORITY:
     priority = requirements[requirements['priority']!=''].reset_index().set_index(['priority','module']).sort_index()
     if not sysinfo in priority.columns:
-        print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using defaults",file=sys.stderr)
+        # print(f"WARNING: sysinfo='{sysinfo}' not found in requirements specifications, using default requirements.csv",file=sys.stderr)
         sysinfo = 'default'
 
     buildenv = {}

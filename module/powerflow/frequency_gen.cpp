@@ -3,7 +3,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // frequency_gen CLASS FUNCTIONS
@@ -109,7 +109,7 @@ int frequency_gen::init(OBJECT *parent)
 	//Store nominal frequency value for calculations
 	NominalFreq = FrequencyValue;
 
-	if (!(gl_object_isa(obj->parent,"load","powerflow") | gl_object_isa(obj->parent,"node","powerflow") | gl_object_isa(obj->parent,"meter","powerflow")))
+	if (!(gl_object_isa(obj->parent,"load","powerflow") || gl_object_isa(obj->parent,"node","powerflow") || gl_object_isa(obj->parent,"meter","powerflow")))
 	{
 		GL_THROW("Parented object needs to be a node of some sort.");
 		/*  TROUBLESHOOT

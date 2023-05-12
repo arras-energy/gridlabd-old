@@ -3,7 +3,7 @@
  **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;

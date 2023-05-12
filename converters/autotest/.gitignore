@@ -1,2 +1,11 @@
 ami_data.*
 AMI_*.csv
+IEEE-13-cyme.glm
+IEEE-*-cyme/*
+*.png
+weather_recorder.csv
+IEEE-123.html
+solver_nr_profile.csv
+table2glm_input_noclass.glm
+table2glm_input_noname.glm
+table2glm_input.glm

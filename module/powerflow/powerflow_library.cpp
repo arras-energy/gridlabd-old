@@ -11,7 +11,7 @@
  **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_library CLASS FUNCTIONS

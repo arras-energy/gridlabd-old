@@ -8,7 +8,6 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
 
 CLASS* underground_line::oclass = NULL;
 CLASS* underground_line::pclass = NULL;

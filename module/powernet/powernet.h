@@ -12,7 +12,4 @@
 #include "house.h"
 #include "agent.h"
 
-using namespace arma;
-using namespace std;
-
 #endif // _POWERNET_H

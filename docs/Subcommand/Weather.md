@@ -250,7 +250,7 @@ bash$ gridlabd weather config show
   GITHUB="https://github.com"
   GITHUBUSERCONTENT="https://raw.githubusercontent.com"
   COUNTRY="US"
-  GITUSER="hipas"
+  GITUSER="slacgismo"
 
   GITREPO="gridlabd-weather"
   GITBRANCH="master"
