@@ -209,27 +209,62 @@ DEPRECATED static KEYWORD pof_keys[] = {
 /* Add global directory variable initializations here */
 void datadir_init(const char *name,const char *value)
 {
-	snprintf(global_datadir,sizeof(global_datadir)-1,"%s",value?value:getenv("GLD_ETC"));
+	if ( name == NULL )
+	{
+		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",value?value:getenv("GLD_ETC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
 }
 
 void bindir_init(const char *name,const char *value)
 {
-	snprintf(global_bindir,sizeof(global_bindir)-1,"%s",value?value:getenv("GLD_BIN"));
+	if ( name == NULL )
+	{
+		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",value?value:getenv("GLD_BIN"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
 }
 
 void libdir_init(const char *name,const char *value)
 {
-	snprintf(global_libdir,sizeof(global_libdir)-1,"%s",value?value:getenv("GLD_LIB"));
+	if ( name == NULL )
+	{
+		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",value?value:getenv("GLD_LIB"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
 }
 
 void vardir_init(const char *name,const char *value)
 {
-	snprintf(global_vardir,sizeof(global_vardir)-1,"%s",value?value:getenv("GLD_VAR"));
+	if ( name == NULL )
+	{
+		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",value?value:getenv("GLD_VAR"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
 }
 
 void incdir_init(const char *name,const char *value)
 {
-	snprintf(global_incdir,sizeof(global_incdir)-1,"%s",value?value:getenv("GLD_INC"));
+	if ( name == NULL )
+	{
+		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",value?value:getenv("GLD_INC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
 }
 
 /* Add more top-level directory variables here. */
