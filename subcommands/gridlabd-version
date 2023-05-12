@@ -104,20 +104,12 @@ function version-set()
 		L=$(cd $OPT ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
-		L="$(${BIN} --version=name | sed -e 's/^gridlabd-//')"
+		L="$(${BIN} --version=name)"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink $OPT/current)" == "$OPT/$L" ]; then
-		$ACTION rm -f $OPT/current
-		$ACTION ln -s $OPT/$L $OPT/current
-	fi
-#	for F in bin lib share include; do
-#		if [ ! "$(readlink $GLD_VER/$F/gridlabd)" == "$OPT/current/$F/gridlabd" ]; then
-#			$ACTION rm -rf $GLD_VER/$F/gridlabd
-#			$ACTION ln -s $GLD_VER/current/$F/gridlabd $GLD_VER/$F/gridlabd
-#		fi
-#	done
+	$ACTION rm -f $OPT/current ; ln -sf $L $OPT/current
+	$ACTION rm -f /usr/local/bin/gridlabd ; ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
 	echo "$L"
 }
 
@@ -200,7 +192,7 @@ fi
 if [ -z "$(which gridlabd)" ]; then
 	warning "gridlabd is not in the current PATH environment"
 fi
-if [ ! -x "$GLD_BIN/pkgenv/bin/python3" ]; then
-	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/pkgenv/bin/python3"
+if [ ! -x "$GLD_BIN/python3" ]; then
+	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/python3"
 fi
 

@@ -8,7 +8,7 @@
 
 #include "gridlabd.h"
 #include <string>
-using namespace std;
+
 
 typedef enum {
 	DXD_READ=0x01,  ///< data is incoming

@@ -9,7 +9,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* regulator::oclass = NULL;
 CLASS* regulator::pclass = NULL;

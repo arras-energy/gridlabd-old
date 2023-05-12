@@ -238,7 +238,7 @@ int setup(void *main, int argc, const char *argv[])
 		int key = group[tab].edit();
 
 		// position for next status
-		mvprintw(height,0,"");
+		mvprintw(height,0,"%s","");
 
 		switch ( key ) {
 		case 'Q': done=do_quit(); break;

@@ -1,6 +1,6 @@
 # Tutorials
 
-Tutorial are update separately from the standard build process.  To update the tutorials, run `make` in the `tutorials` folder.  
+Tutorial are updated separately from the standard build process.  To update the tutorials, run `make` in the `tutorials` folder.  
 
 To create a tutorial:
 
@@ -11,4 +11,4 @@ To create a tutorial:
 Some general guidelines to tutorials.
 
 1. Introduce the tutorial with learning objectives and skills provided by the tutorial.
-2. Make sure any modules needed by the tutorial are listed in `requirements.txt`.
+2. Make sure any modules needed by the tutorial are listed in `python/requirements.csv`.

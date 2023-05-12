@@ -43,6 +43,6 @@
 //       keep_progress is set under these circumstances so we use this to avoid this check
 #if ${github_actions:-no}==no
 #ifexist "../test_geodata.txt"
-#on_exit 0 diff ../test_geodata.txt test_geodata.txt >/dev/stderr
+#on_exit 0 diff -I '^#' ../test_geodata.txt test_geodata.txt > gridlabd.diff
 #endif
 #endif

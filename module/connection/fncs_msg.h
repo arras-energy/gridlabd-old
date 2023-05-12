@@ -21,7 +21,7 @@
 #include <iostream>
 #include <json/json.h>
 //#include "../third_party/jsonCpp/json/json.h"
-using namespace std;
+
 //using namespace Json;
 class JsonProperty {
 public:

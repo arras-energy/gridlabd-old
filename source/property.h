@@ -122,7 +122,7 @@ public:
 	inline char* copy_to(char *s) { return s?strncpy(s,buffer,size):NULL; };
 
 	// Method: copy_from
-	inline char* copy_from(const char *s) { return s?strncpy(buffer,s,size):NULL; };
+	inline char* copy_from(const char *s) { return s?strncpy(buffer,s,size-1):NULL; };
 
 	// Method: operator char*
 	inline operator char*(void) { return buffer; };
