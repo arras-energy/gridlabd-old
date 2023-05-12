@@ -70,7 +70,7 @@ unsigned entropy_source(void)
 	return (unsigned)(getpid()*t.tv_usec);
 }
 
-int random_init(void)
+void random_init(const char *name,const char *value)
 {
 	/* randomizes the random number generator start value */
 	if ( global_randomseed == 0 )
@@ -84,8 +84,6 @@ int random_init(void)
 
 	srand(1);
 	ur_state = &global_randomstate;
-
-	return 1;
 }
 
 /** Converts a distribution name to a #RANDOMTYPE

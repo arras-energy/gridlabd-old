@@ -24,7 +24,7 @@
  **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 void print_matrix(complex mat[3][3])
 {

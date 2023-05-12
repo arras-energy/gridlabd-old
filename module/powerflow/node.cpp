@@ -48,7 +48,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //Library imports items - for external LU solver - stolen from somewhere else in GridLAB-D (tape, I believe)
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -732,7 +732,7 @@ int node::init(OBJECT *parent)
 
 
 
-			if (!(gl_object_isa(obj->parent,"load","powerflow") | gl_object_isa(obj->parent,"node","powerflow") | gl_object_isa(obj->parent,"meter","powerflow") | gl_object_isa(obj->parent,"substation","powerflow")))
+			if (!(gl_object_isa(obj->parent,"load","powerflow") || gl_object_isa(obj->parent,"node","powerflow") || gl_object_isa(obj->parent,"meter","powerflow") || gl_object_isa(obj->parent,"substation","powerflow")))
 				GL_THROW("NR: Parent is not a node, load or meter!");
 				/*  TROUBLESHOOT
 				A Newton-Raphson parent-child connection was attempted on a non-node.  The parent object must be a node, load, or meter object in the 
@@ -1126,7 +1126,7 @@ int node::init(OBJECT *parent)
 
 		if (obj->parent != NULL)
 		{
-			if((gl_object_isa(obj->parent,"load","powerflow") | gl_object_isa(obj->parent,"node","powerflow") | gl_object_isa(obj->parent,"meter","powerflow") | gl_object_isa(obj->parent,"substation","powerflow")))	//Parent is another node
+			if ((gl_object_isa(obj->parent,"load","powerflow") || gl_object_isa(obj->parent,"node","powerflow") || gl_object_isa(obj->parent,"meter","powerflow") || gl_object_isa(obj->parent,"substation","powerflow")))	//Parent is another node
 			{
 				node *parNode = OBJECTDATA(obj->parent,node);
 

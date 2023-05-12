@@ -388,7 +388,7 @@ global timestamp pauseat "NEVER";
 #else
 #set pauseat=NEVER
 #endif //pauseat
-// infourl is set to http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&search=
+// infourl is set to http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search=
 #ifndef hostname
 #define hostname=localhost
 #else

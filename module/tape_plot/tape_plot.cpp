@@ -335,7 +335,7 @@ EXPORT void write_default_plot_commands_rec(struct recorder *my, char32 extensio
 
 EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 {
-	char extension[33];
+	char extension[32];
 	char columnlist[1025];
 	char **columns;
 	time_t now=time(NULL);
@@ -556,7 +556,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	unsigned int count=0;
 	time_t now=time(NULL);
 
-	char extension[sizeof(char32)];
+	char extension[32];
 	char columnlist[sizeof(char1024)];
 	char **columns;
 

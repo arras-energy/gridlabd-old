@@ -1110,7 +1110,7 @@ int building::load_occupancy(void)
 			}
 			if ( m < 6 )
 			{
-				GL_THROW("input::load_occupancy(): error parsing line %d (too few fields)",n);
+				warning("input::load_occupancy(): error parsing line %d (too few fields)",n);
 			}
 			if ( strcmp(building_type,type) == 0 )
 			{

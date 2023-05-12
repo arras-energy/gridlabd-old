@@ -27,8 +27,16 @@ if [ -d $TOP/.git ]; then
 		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $FIL
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $FIL
 		echo "#define BUILD_ID \"$(git log -n 1 | sed -n '1s/^commit //p')\"" >> $FIL
-		echo "#define BUILD_OPTIONS \"$($TOP/customize status | grep Enabled: | cut -f2- -d' ')\"" >> $FIL
+		echo "#define BUILD_OPTIONS \"\"" >> $FIL
 		echo "#define BUILD_STATUS $(git status -b --porcelain | sed s'/"//g' | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $FIL
+		if [ "$(uname -s)" == "Linux" ]; then
+			. /etc/os-release
+			echo "#define HOST_OS \"${ID}_${VERSION_ID%.*}\"" >> $FIL
+			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
+		else
+			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r | cut -f1 -d.)\"" >> $FIL
+			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
+		fi	
 	fi
 
 else
@@ -49,8 +57,16 @@ else
 		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $FIL
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $FIL
 		echo "#define BUILD_ID \"<unknown>\"" >> $FIL
-		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2- -d' ')\"" >> $FIL
+		echo "#define BUILD_OPTIONS \"\"" >> $FIL
 		echo "#define BUILD_STATUS \"\"" >> $FIL
+		if [ "$(uname -s)" == "Linux" ]; then
+			. /etc/os-release
+			echo "#define HOST_OS \"${ID}_${VERSION_ID%.*}\"" >> $FIL
+			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
+		else
+			echo "#define HOST_OS \"$(uname -s | tr A-Z a-z)_$(uname -r | cut -f1 -d.)\"" >> $FIL
+			echo "#define HOST_CPU \"$(uname -m)\"" >> $FIL
+		fi	
 	fi
-
 fi
+

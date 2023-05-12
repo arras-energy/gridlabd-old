@@ -1,31 +1,24 @@
-# Updating latest `master` docker image
+# Docker
 
-To build and post the `master` docker image, run the following command:
-
-~~~
-    sh$ docker build docker -t hipas/gridlabd:latest
-    sh$ docker push hipas/gridlabd:latest
-~~~
-
-# Updating `develop` docker image
-
-To build and post the `develop` docker image, run the following command:
+To build the docker image for the current branch, run the following command:
 
 ~~~
-    sh$ docker build docker --build-arg BRANCH=develop -t hipas/gridlabd:develop
-    sh$ docker push hipas/gridlabd:develop
+docker/build.sh
 ~~~
 
-# Updating a personal branch docker image
+# Update a docker image on Dockerhub
 
-To build and post the `develop` docker image, run the following command:
+To push the docker image to Dockerhub, use the `--push` option
 
 ~~~
-    sh$ docker build docker --build-arg BRANCH=BRANCHNAME -t USERNAME/gridlabd:BUILDID
-    sh$ docker push USERNAME/gridlabd:BUILDID
+docker/build.sh --push
 ~~~
 
-where
-- `BRANCHNAME` is the branch you wish to build
-- `USERNAME` is your Dockerhub user id
-- `BUILDID` is a unique/sequential build identifier
+# Update the latest image on Dockerhub
+
+The tag the docker image as the latest and push it, use the `--latest` option
+
+~~~
+docker/build.sh --latest --push
+~~~
+

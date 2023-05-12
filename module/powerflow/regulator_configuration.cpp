@@ -9,7 +9,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // regulator_configuration CLASS FUNCTIONS

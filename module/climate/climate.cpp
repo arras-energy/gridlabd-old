@@ -1911,11 +1911,11 @@ void climate::erase_off_screen_pattern( char edge_to_erase)
 void climate::write_out_pattern_shift(int row_shift, int col_shift ) 
 { 
 	//Used only for verification.
-	using namespace std;
-	ofstream out_file;
+	
+	std::ofstream out_file;
 
 	out_file.open ("pattern_shift.csv", std::ios_base::app);
-	out_file << prev_NTime<< "," << row_shift << "," << col_shift << endl;
+	out_file << prev_NTime<< "," << row_shift << "," << col_shift << std::endl;
 	out_file.close();
 }
 
@@ -1923,13 +1923,13 @@ void climate::write_out_pattern_shift(int row_shift, int col_shift )
 void climate::write_out_cloud_pattern( char pattern ) 
 { 
 	//Used only for verification.
-	using namespace std;
-	ofstream out_file;
+	
+	std::ofstream out_file;
 
 	char buffer [100];
 	snprintf (buffer,sizeof(buffer)-1, "cloud_pattern_%010lld.csv", prev_NTime);
 	std::string file_string = buffer;
-	out_file.open(file_string.c_str(), ios::out);
+	out_file.open(file_string.c_str(), std::ios::out);
 
 	if (pattern == 'C' ) 
 	{
@@ -1939,7 +1939,7 @@ void climate::write_out_cloud_pattern( char pattern )
 				{
 					if (j == (cloud_pattern.size()-1) ) 
 					{
-						out_file << cloud_pattern[i][j] << endl;
+						out_file << cloud_pattern[i][j] << std::endl;
 					} 
 					else 
 					{
@@ -1957,7 +1957,7 @@ void climate::write_out_cloud_pattern( char pattern )
 				{
 					if (j == (binary_cloud_pattern.size()-1))
 					{
-						out_file << binary_cloud_pattern[i][j] << endl;
+						out_file << binary_cloud_pattern[i][j] << std::endl;
 					} 
 					else 
 					{
@@ -1975,7 +1975,7 @@ void climate::write_out_cloud_pattern( char pattern )
 			{
 				if (j == (cloud_pattern_size-1))
 				{
-					out_file << fuzzy_cloud_pattern[0][i][j] << endl;
+					out_file << fuzzy_cloud_pattern[0][i][j] << std::endl;
 				} 
 				else 
 				{
@@ -2187,8 +2187,6 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		csv_rv = cr->get_data(t0, &temperature, &humidity, &solar_direct, &solar_diffuse, &solar_global, &global_horizontal_extra, &wind_speed,&wind_dir, &opq_sky_cov, &tot_sky_cov, &rainfall, &snowdepth, &pressure);
 		// calculate the solar radiation
 		double sol_time = sa->solar_time((double)now.get_hour()+now.get_minute()/60.0+now.get_second()/3600.0 + (now.get_is_dst() ? -1:0),now.get_yearday(),RAD(tz_meridian),RAD(reader->longitude));
-		//std::cout << now.get_hour() << "," << now.get_minute() << "," << now.get_second() <<"," << now.get_is_dst() << "," << now.get_yearday() << "," << tz_meridian << "," << reader->longitude << std::endl;
-		//std::cout << sol_time << std::endl;
 		gl_localtime(t0, &dt);
 		short day_of_yr = sa->day_of_yr(dt.month,dt.day);
 		solar_zenith = sa->zenith(day_of_yr, RAD(reader->latitude), sol_time);
