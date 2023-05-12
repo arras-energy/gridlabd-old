@@ -7,7 +7,7 @@
  **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 //Class management
 CLASS* sectionalizer::oclass = NULL;

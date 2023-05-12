@@ -8,7 +8,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* line_spacing::oclass = NULL;
 CLASS* line_spacing::pclass = NULL;

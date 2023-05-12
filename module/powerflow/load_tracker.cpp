@@ -1,6 +1,6 @@
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* load_tracker::oclass = NULL;
 

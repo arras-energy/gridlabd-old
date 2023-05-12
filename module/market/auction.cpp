@@ -896,8 +896,8 @@ void auction::clear_market(void)
 		if(strcmp(unit, "") != 0){
 			if(capacity_reference_property->unit != 0){
 				if(gl_convert(capacity_reference_property->unit->name,unit.get_string(),&refload) == 0){
-					char msg[256];
-					snprintf(msg,sizeof(msg)-1, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", gl_name(linkref,name,sizeof(name)), capacity_reference_property->unit->name, unit.get_string());
+					char msg[1024];
+					snprintf(msg,sizeof(msg)-1, "capacity_reference_property %.64s uses units of %.64s and is incompatible with auction units (%.64s)", gl_name(linkref,name,sizeof(name)), capacity_reference_property->unit->name, unit.get_string());
 					throw msg;
 					/* TROUBLESHOOT
 						If capacity_reference_property has units specified, the units must be convertable to the units used by its auction object.
