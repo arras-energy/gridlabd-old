@@ -75,7 +75,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sh ./setup.sh --local
+        sh sudo ./setup.sh --local
         sh ./build.sh --system --parallel --upload --release
 
   buildMacos11FastS3:
@@ -100,7 +100,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sh ./setup.sh --local
+        sh sudo ./setup.sh --local
         sh ./build.sh --system --parallel --upload --release
 
   buildUbuntu22FastS3:
@@ -125,7 +125,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sh ./setup.sh --local
+        sh sudo ./setup.sh --local
         sh ./build.sh --system --parallel --upload --release
 
   buildUbuntu20FastS3:
@@ -150,7 +150,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sh ./setup.sh --local
+        sh sudo ./setup.sh --local
         sh ./build.sh --system --parallel --upload --release
 
   buildAWSUbuntuAMI:
