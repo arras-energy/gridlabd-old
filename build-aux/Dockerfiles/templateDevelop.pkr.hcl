@@ -53,9 +53,9 @@ build {
       "sudo chown -R $USER /usr/local",
       "sudo apt-get update && sudo apt-get install -y apt-transport-https",
       "sudo apt-get install -y git curl nano",
-      "git clone -b develop https://github.com/slacgismo/gridlabd.git",
-      "cd gridlabd",
-      "./install.sh -v -t -p",
+      "cd /usr/local/src",
+      "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
+      "sudo chown -R $USER /usr/local",
       "gridlabd --version=all",
       "gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes"
     ]

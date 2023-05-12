@@ -15,7 +15,9 @@ WORKDIR /app/gridlabd
 COPY . /app/gridlabd
 
 # Run the install.sh script with the desired arguments
-RUN /bin/bash ./install.sh -v -t -p
+RUN /bin/sh ./setup.sh --local
+
+RUN /bin/sh ./build.sh --system --parallel
 
 RUN gridlabd --version=all
 
