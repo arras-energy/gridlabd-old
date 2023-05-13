@@ -205,6 +205,7 @@ image: $(prefix).tarz
 
 $(prefix).tarz: $(prefix)
 	@echo "Creating $(prefix).tarz..."
+	@echo "Also $HOME might surprise me"
 	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --system).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
