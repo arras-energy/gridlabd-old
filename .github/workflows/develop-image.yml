@@ -64,7 +64,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) ~/.aws
+        chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -89,7 +89,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) ~/.aws
+        chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -114,7 +114,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) ~/.aws
+        chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -126,6 +126,7 @@ jobs:
     - name: Deploy to S3
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-west-1
+        chown -R $(id -u):$(id -g) ~/.aws
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
@@ -140,7 +141,8 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) ~/.aws
+        chown -R $(id -u):$(id -g) $PWD
+
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -152,6 +154,7 @@ jobs:
     - name: Deploy to S3
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-west-1
+        chown -R $(id -u):$(id -g) ~/.aws
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
@@ -166,7 +169,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) ~/.aws
+        chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
