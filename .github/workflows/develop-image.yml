@@ -127,6 +127,8 @@ jobs:
 
     - name: Deploy to S3
       run: |
+        sudo apt-get install python3-setuptools
+        python3 -m pip install --user awscli
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
@@ -154,6 +156,8 @@ jobs:
 
     - name: Deploy to S3
       run: |
+        sudo apt-get install python3-setuptools
+        python3 -m pip install --user awscli
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
