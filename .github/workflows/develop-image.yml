@@ -64,7 +64,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        chown -R $(id -u):$(id -g) ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -89,7 +89,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        chown -R $(id -u):$(id -g) ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -114,7 +114,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        chown -R $(id -u):$(id -g) ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -140,9 +140,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) $PWD
-        python3 --version
-        python3.11 -m pip install awscli
+        chown -R $(id -u):$(id -g) ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -168,7 +166,7 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
-        chown -R $(id -u):$(id -g) $PWD
+        chown -R $(id -u):$(id -g) ~/.aws
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
