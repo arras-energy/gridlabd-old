@@ -107,6 +107,8 @@ jobs:
 
     runs-on: ubuntu-22.04
     environment: Integration
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
     - uses: actions/checkout@v2
@@ -132,6 +134,8 @@ jobs:
 
     runs-on: ubuntu-20.04
     environment: Integration
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
     - uses: actions/checkout@v2
