@@ -153,8 +153,8 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-west-1
-        chown -R $(id -u):$(id -g) ~/.aws
+        sudo aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && sudo aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && sudo aws configure set default.region us-west-1
+        aws configure list
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
