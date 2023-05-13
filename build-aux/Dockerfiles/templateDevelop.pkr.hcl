@@ -54,6 +54,7 @@ build {
       "sudo apt-get update && sudo apt-get install -y apt-transport-https",
       "sudo apt-get install -y git curl nano",
       "cd /usr/local/src",
+      "export GRIDLABD_IMAGE=ubuntu_22-x86_64.tarz",
       "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
       "sudo chown -R $USER /usr/local",
       "gridlabd --version=all",
