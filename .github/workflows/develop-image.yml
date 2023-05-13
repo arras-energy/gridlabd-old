@@ -107,8 +107,6 @@ jobs:
 
     runs-on: ubuntu-22.04
     environment: Integration
-    env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
     - uses: actions/checkout@v2
@@ -119,7 +117,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -127,8 +125,6 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sudo apt-get install python3-setuptools
-        python3 -m pip install --user awscli
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
@@ -136,8 +132,6 @@ jobs:
 
     runs-on: ubuntu-20.04
     environment: Integration
-    env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
     - uses: actions/checkout@v2
@@ -148,7 +142,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -156,8 +150,6 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        sudo apt-get install python3-setuptools
-        python3 -m pip install --user awscli
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel --upload --release
 
