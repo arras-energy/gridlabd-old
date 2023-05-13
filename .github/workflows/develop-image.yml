@@ -141,6 +141,8 @@ jobs:
     - name: Set ownership
       run: |
         chown -R $(id -u):$(id -g) $PWD
+        python3 --version
+        python3.11 -m pip install awscli
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
