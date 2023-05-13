@@ -210,11 +210,11 @@ $(prefix).tarz: $(prefix)
 
 aws-image: | $(prefix).tarz
 	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload image" >/dev/stderr ; false )
-	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read
+	@aws s3 cp $(realpath $(prefix).tarz) s3://$(S3BUCKET)/$(LONGNAME).tarz --acl public-read --region us-west-1
 
 aws-image-default: aws-image
 	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to create default image" >/dev/stderr ; false )
-	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read
+	@aws s3 cp s3://$(S3BUCKET)/$(LONGNAME).tarz s3://$(S3BUCKET)/$(SHORTNAME).tarz --acl public-read --region us-west-1
 
 aws-install: 
 	@aws --version || ( echo "ERROR [Makefile]: aws CLI is required to upload installer" >/dev/stderr ; false )
