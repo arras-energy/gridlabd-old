@@ -111,14 +111,14 @@ jobs:
       image: ubuntu:jammy
 
     steps:
-    - uses: actions/checkout@v2
-
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership and prep container
       run: |
         mkdir -p /usr/local/var
         apt-get update && apt-get install -y apt-transport-https
         apt-get install -y git curl nano sudo
+
+    - uses: actions/checkout@v2
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -143,8 +143,6 @@ jobs:
       image: ubuntu:focal
 
     steps:
-    - uses: actions/checkout@v2
-
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership and prep container
       run: |
@@ -152,6 +150,7 @@ jobs:
         apt-get update && apt-get install -y apt-transport-https
         apt-get install -y git curl nano sudo
 
+    - uses: actions/checkout@v2
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
