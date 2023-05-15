@@ -107,6 +107,8 @@ jobs:
 
     runs-on: ubuntu-22.04
     environment: Integration
+    container:
+      image: ubuntu:jammy
 
     steps:
     - uses: actions/checkout@v2
@@ -133,6 +135,8 @@ jobs:
 
     runs-on: ubuntu-20.04
     environment: Integration
+    container:
+      image: ubuntu:focal
 
     steps:
     - uses: actions/checkout@v2

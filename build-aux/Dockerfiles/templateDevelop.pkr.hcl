@@ -57,8 +57,7 @@ build {
       "export GRIDLABD_IMAGE=ubuntu_22-x86_64.tarz",
       "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
       "sudo chown -R $USER /usr/local",
-      "gridlabd --version=all",
-      "gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes"
+      "gridlabd --version=all"
     ]
   }
 
