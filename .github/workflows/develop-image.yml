@@ -130,10 +130,10 @@ jobs:
     - name: Deploy to S3
       run: |
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-        sh ./setup.sh --local
-        sh ./build.sh --system --parallel
+        sudo sh ./setup.sh --local
+        sudo sh ./build.sh --system --parallel
         gridlabd python -m pip install awscli
-        sh ./build.sh --upload --release
+        sudo sh ./build.sh --upload --release
 
   buildUbuntu20FastS3:
 
@@ -162,10 +162,10 @@ jobs:
     - name: Deploy to S3
       run: |
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-        sh ./setup.sh --local
-        sh ./build.sh --system --parallel
+        sudo sh ./setup.sh --local
+        sudo sh ./build.sh --system --parallel
         gridlabd python -m pip install awscli
-        sh ./build.sh --upload --release
+        sudo sh ./build.sh --upload --release
 
   buildAWSUbuntuAMI:
     runs-on: ubuntu-latest
