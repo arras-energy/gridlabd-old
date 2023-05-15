@@ -119,7 +119,6 @@ jobs:
         mkdir -p /usr/local/var
         apt-get update && apt-get install -y apt-transport-https
         apt-get install -y git curl nano sudo
-        python3 -m pip install awscli
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -132,6 +131,7 @@ jobs:
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region ${{ secrets.AWS_REGION }}
         sh ./setup.sh --local
+        python3 -m pip install awscli
         sh ./build.sh --system --parallel --upload --release
 
   buildUbuntu20FastS3:
@@ -150,7 +150,6 @@ jobs:
         mkdir -p /usr/local/var
         apt-get update && apt-get install -y apt-transport-https
         apt-get install -y git curl nano sudo
-        python3 -m pip install awscli
 
 
     - name: Configure AWS Credentials
@@ -164,6 +163,7 @@ jobs:
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region ${{ secrets.AWS_REGION }}
         sh ./setup.sh --local
+        python3 -m pip install awscli
         sh ./build.sh --system --parallel --upload --release
 
   buildAWSUbuntuAMI:
