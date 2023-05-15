@@ -116,7 +116,6 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership and prep container
       run: |
-        chown -R $(id -u):$(id -g) $PWD
         mkdir -p /usr/local/var
         chown -R $USER /usr/local
         apt-get update && apt-get install -y apt-transport-https
@@ -148,7 +147,6 @@ jobs:
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership and prep container
       run: |
-        chown -R $(id -u):$(id -g) $PWD
         mkdir -p /usr/local/var
         chown -R $USER /usr/local
         apt-get update && apt-get install -y apt-transport-https
