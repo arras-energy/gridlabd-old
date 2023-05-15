@@ -118,7 +118,7 @@ jobs:
       run: |
         mkdir -p /usr/local/var
         apt-get update && apt-get install -y apt-transport-https
-        apt-get install -y git curl nano sudo
+        apt-get install -y git curl nano sudo awscli
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -148,7 +148,7 @@ jobs:
       run: |
         mkdir -p /usr/local/var
         apt-get update && apt-get install -y apt-transport-https
-        apt-get install -y git curl nano sudo
+        apt-get install -y git curl nano sudo awscli
 
 
     - name: Configure AWS Credentials
