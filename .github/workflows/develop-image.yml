@@ -114,9 +114,14 @@ jobs:
     - uses: actions/checkout@v2
 
       # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
+    - name: Set ownership and prep container
       run: |
         chown -R $(id -u):$(id -g) $PWD
+        sudo apt-get remove unattended-upgrades -y
+        sudo mkdir -p /usr/local/var
+        sudo chown -R $USER /usr/local
+        sudo apt-get update && sudo apt-get install -y apt-transport-https
+        sudo apt-get install -y git curl nano sudo
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -142,9 +147,14 @@ jobs:
     - uses: actions/checkout@v2
 
       # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
+    - name: Set ownership and prep container
       run: |
         chown -R $(id -u):$(id -g) $PWD
+        sudo apt-get remove unattended-upgrades -y
+        sudo mkdir -p /usr/local/var
+        sudo chown -R $USER /usr/local
+        sudo apt-get update && sudo apt-get install -y apt-transport-https
+        sudo apt-get install -y git curl nano sudo
 
 
     - name: Configure AWS Credentials
