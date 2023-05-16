@@ -1,0 +1,7 @@
+
+#include "IEEE-123.glm"
+
+#set compileonly=TRUE
+
+#output "test_json2db.db"
+

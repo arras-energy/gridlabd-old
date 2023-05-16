@@ -51,6 +51,9 @@ dist_pkgdata_DATA += converters/glm2omd.py
 dist_pkgdata_DATA += converters/json2csv.py
 dist_pkgdata_DATA += converters/json2csv-profile.py
 
+# json -> db
+dist_pkgdata_DATA += converters/json2db.py
+
 # json -> html
 dist_pkgdata_DATA += converters/json2html.py
 dist_pkgdata_DATA += converters/json2html_config.py
