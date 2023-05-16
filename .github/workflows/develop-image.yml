@@ -130,6 +130,7 @@ jobs:
     - name: Deploy to S3
       run: |
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        chown -R root $PWD
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel
         gridlabd python -m pip install awscli
@@ -162,6 +163,7 @@ jobs:
     - name: Deploy to S3
       run: |
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        chown -R root $PWD
         sudo sh ./setup.sh --local
         sudo sh ./build.sh --system --parallel
         gridlabd python -m pip install awscli
