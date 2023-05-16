@@ -66,6 +66,5 @@ provisioner "shell" {
       "chown -R $USER /usr/local",
       "gridlabd --version=all"
     ]
-    environment_vars = ["USER=root"]
   }
 }
