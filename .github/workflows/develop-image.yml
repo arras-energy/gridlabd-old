@@ -3,6 +3,8 @@ name: develop-images
 on:
   push:
     branches: [ develop ]
+  pull-request:
+    branches: [ develop ]
 
 jobs:
   buildUbuntuDockerhub:
@@ -50,6 +52,31 @@ jobs:
         file: ./build-aux/Dockerfiles/Dockerfile.dl
         push: true
         tags: hipas/gridlabd-develop-debian:latest
+
+  buildMacos13FastS3:
+
+    runs-on: macos-13
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        sh ./setup.sh --local
+        sh ./build.sh --system --parallel --upload --release
 
   buildMacos12FastS3:
 
@@ -178,7 +205,7 @@ jobs:
   buildAWSUbuntuAMI:
     runs-on: ubuntu-latest
     environment: Integration
-    needs: [buildUbuntu22FastS3,buildUbuntu20FastS3,buildMacos11FastS3,buildMacos12FastS3]
+    needs: [buildUbuntu22FastS3,buildUbuntu20FastS3,buildMacos11FastS3,buildMacos12FastS3,buildMacos13FastS3]
 
     steps:
     - uses: actions/checkout@v2
@@ -196,7 +223,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Run CF invalidation
-      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
 
     - name: Install Packer
       run: |
