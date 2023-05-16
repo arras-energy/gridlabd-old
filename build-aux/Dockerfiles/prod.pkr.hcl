@@ -23,7 +23,7 @@ variable "aws_region" {
   description = "AWS region"
 }
 
-variable "dev_s3_url" {
+variable "prod_s3_url" {
   type        = string
   description = "S3 bucket URL"
 }
@@ -46,7 +46,7 @@ source "amazon-ebs" "ubuntu-22-04" {
   tags = {
     Name        = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
     CreatedBy   = "Packer"
-    Environment = "Dev"
+    Environment = "Prod"
   }
 }
 
@@ -62,7 +62,7 @@ build {
       "sudo apt-get install -y git curl nano",
       "cd /usr/local/src",
       "export GRIDLABD_IMAGE=ubuntu_22-x86_64.tarz",
-      "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
+      "curl -sL http://install.gridlabd.us/install.sh | sudo sh",
       "sudo chown -R $USER /usr/local",
       "gridlabd --version=all"
     ]
