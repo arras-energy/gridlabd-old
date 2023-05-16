@@ -1,6 +1,6 @@
 // JSON to GLM Converter Output
 // InputFile 'link-to-notnode-meters.json'
-// CreateDate '2023-03-22 08:40:41 '
+// CreateDate '2023-05-16 12:47:03 '
 
 
 // CLOCK
@@ -55,7 +55,7 @@ module powerflow
 	solver_profile_headers_included TRUE;
 	solver_headers timestamp,duration[microsec],iteration,bus_count,branch_count,error;
 	solver_profile_csv FALSE;
-	solver_py_config /usr/local/var/gridlabd/solver_py.conf;
+	solver_py_config /usr/local/opt/gridlabd/var/gridlabd/solver_py.conf;
 	solver_dump_enable FALSE;
 	violation_count 0;
 	violation_active 0;
@@ -75,6 +75,16 @@ module powerflow
 	wind_gust_name wind_gust;
 	stop_on_pole_failure FALSE;
 	climate_impact_zone NONE;
+	building_defaults building_defaults.csv;
+	building_loadshapes building_loadshapes.csv;
+	building_occupancy building_occupancy.csv;
+	inverter_settings inverter_settings.csv;
+	NAICS_datafile naics_data_file.csv;
+	ground_temperature +25 degC;
+	warning_cable_temperature +80 degC;
+	alert_cable_temperature +90 degC;
+	ductbank_configuration_file ductbank_configurations.csv;
+	air_effective_conductivity +0.2 W/K*m;
 }
 module assert
 {
@@ -93,10 +103,10 @@ module tape
 // version.major is set to 4
 // version.minor is set to 3
 // version.patch is set to 1
-// version.build is set to 221013
-// version.branch is set to develop_add_default_glm
-// version is set to 4.3.1-221013-develop_add_default_glm
-// command_line is set to /usr/local/opt/gridlabd/4.3.1-221013-develop_add_default_glm/bin/gridlabd.bin -D randomseed=1 -C ./link-to-notnode.glm -o link-to-notnode.json
+// version.build is set to 230512
+// version.branch is set to develop_fix_create_meters
+// version is set to 4.3.1-230512-develop_fix_create_meters
+// command_line is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/gridlabd.bin -D randomseed=1 -C ../link-to-notnode.glm -o link-to-notnode.json
 #ifndef environment
 #define environment=batch
 #else
@@ -142,7 +152,7 @@ global int32 iteration_limit 100;
 #else
 #set iteration_limit=100
 #endif //iteration_limit
-// workdir is set to /Users/david/GitHub/slacgismo/gridlabd/tools/autotest
+// workdir is set to /Users/aivanovalocal/gridlabd/mar2023/tools/autotest/test_create_meters
 #ifndef dumpfile
 #define dumpfile=gridlabd.json
 #else
@@ -235,12 +245,12 @@ global bool object_tree_balance FALSE;
 #endif //object_tree_balance
 // kmlfile is set to 
 #ifndef kmlhost
-#define kmlhost=https://code.gridlabd.us/develop_add_default_glm/runtime
+#define kmlhost=https://code.gridlabd.us/develop_fix_create_meters/runtime
 #else
-#set kmlhost=https://code.gridlabd.us/develop_add_default_glm/runtime
+#set kmlhost=https://code.gridlabd.us/develop_fix_create_meters/runtime
 #endif //kmlhost
-// modelname is set to ./link-to-notnode.glm
-// execdir is set to /usr/local/opt/gridlabd/4.3.1-221013-develop_add_default_glm/bin
+// modelname is set to ../link-to-notnode.glm
+// execdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin
 #ifndef strictnames
 global bool strictnames TRUE;
 #else
@@ -274,9 +284,9 @@ global bool gdb_window FALSE;
 #set gdb_window=FALSE
 #endif //gdb_window
 #ifndef tmp
-#define tmp=/Users/david/.gridlabd/tmp
+#define tmp=/Users/aivanovalocal/.gridlabd/tmp
 #else
-#set tmp=/Users/david/.gridlabd/tmp
+#set tmp=/Users/aivanovalocal/.gridlabd/tmp
 #endif //tmp
 #ifndef force_compile
 global int32 force_compile 0;
@@ -414,7 +424,7 @@ global timestamp pauseat "NEVER";
 #else
 #set pauseat=NEVER
 #endif //pauseat
-// infourl is set to http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&search=
+// infourl is set to http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search=
 #ifndef hostname
 #define hostname=localhost
 #else
@@ -556,7 +566,7 @@ global bool bigranks TRUE;
 #else
 #set bigranks=TRUE
 #endif //bigranks
-// exename is set to /usr/local/opt/gridlabd/4.3.1-221013-develop_add_default_glm/bin/gridlabd.bin
+// exename is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/gridlabd.bin
 #ifndef wget_options
 #define wget_options=maxsize:100MB;update:newer
 #else
@@ -650,16 +660,19 @@ global bool server_keepalive FALSE;
 #set server_keepalive=FALSE
 #endif //server_keepalive
 #ifndef pythonpath
-#define pythonpath=.
+#define pythonpath=(null):.:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd/python3.10/site-packages
 #else
-#set pythonpath=.
+#set pythonpath=(null):.:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd/python3.10/site-packages
 #endif //pythonpath
-// pythonexec is set to /usr/local/Cellar/python@3.10/3.10.8/Frameworks/Python.framework/Versions/3.10/bin/python3.10
-#ifndef datadir
-#define datadir=/usr/local/opt/gridlabd/4.3.1-221013-develop_add_default_glm/share/gridlabd
-#else
-#set datadir=/usr/local/opt/gridlabd/4.3.1-221013-develop_add_default_glm/share/gridlabd
-#endif //datadir
+// pythonexec is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/python3
+// datadir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd
+// bindir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin
+// vardir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/var/gridlabd
+// libdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd
+// incdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/include
+// logfile is set to /tmp/gridlabd-log
+// pidfile_dir is set to /tmp/gridlabd-pid
+// configpath is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd/solver_py.conf
 #ifndef json_complex_format
 global set json_complex_format STRING;
 #else
@@ -685,7 +698,7 @@ global bool echo FALSE;
 #else
 #set echo=FALSE
 #endif //echo
-// filename is set to 
+// filename is set to ../link-to-notnode.glm
 #ifndef country
 global char8 country "US";
 #else
@@ -752,7 +765,7 @@ global int64 maximum_runtime 0;
 // powerflow::solver_profile_headers_included is set to TRUE
 // powerflow::solver_headers is set to timestamp,duration[microsec],iteration,bus_count,branch_count,error
 // powerflow::solver_profile_csv is set to FALSE
-// powerflow::solver_py_config is set to /usr/local/var/gridlabd/solver_py.conf
+// powerflow::solver_py_config is set to /usr/local/opt/gridlabd/var/gridlabd/solver_py.conf
 // powerflow::solver_dump_enable is set to FALSE
 // powerflow::violation_record is set to 
 // powerflow::violation_count is set to 0
@@ -773,6 +786,16 @@ global int64 maximum_runtime 0;
 // powerflow::wind_gust_name is set to wind_gust
 // powerflow::stop_on_pole_failure is set to FALSE
 // powerflow::climate_impact_zone is set to NONE
+// powerflow::building_defaults is set to building_defaults.csv
+// powerflow::building_loadshapes is set to building_loadshapes.csv
+// powerflow::building_occupancy is set to building_occupancy.csv
+// powerflow::inverter_settings is set to inverter_settings.csv
+// powerflow::NAICS_datafile is set to naics_data_file.csv
+// powerflow::ground_temperature is set to +25 degC
+// powerflow::warning_cable_temperature is set to +80 degC
+// powerflow::alert_cable_temperature is set to +90 degC
+// powerflow::ductbank_configuration_file is set to ductbank_configurations.csv
+// powerflow::air_effective_conductivity is set to +0.2 W/K*m
 // assert::message_flags is set to 
 // tape::gnuplot_path is set to /usr/bin/gnuplot
 // tape::flush_interval is set to 0
@@ -790,7 +813,7 @@ object substation
 {
 	name "main_bus";
 	rng_state "8935";
-	guid "48B9C425FD134FA227617C8AB022E8E5";
+	guid "4C10834A00DEDBE26D86ECC79FA4B2FC";
 	zero_sequence_voltage "0+0j V";
 	positive_sequence_voltage "0+0j V";
 	negative_sequence_voltage "0+0j V";
@@ -863,9 +886,9 @@ object substation
 }
 object regulator_configuration
 {
-	name "regulator_configuration_1";
+	name "regulator_configuration:1";
 	rng_state "20520";
-	guid "68A3D0A5C648CF437C33AA7A1FE4F7EE";
+	guid "76455B68D9177B2E3C05EDF04A8A753";
 	connect_type "WYE_WYE";
 	band_center "7216 V";
 	band_width "120 V";
@@ -896,8 +919,8 @@ object regulator
 {
 	name "reg_1";
 	rng_state "5006";
-	guid "227E7AD92572DED05DA09CCD59FBB170";
-	configuration "regulator_configuration_1";
+	guid "505FD5854C40C67113D7C62BAAA9DB15";
+	configuration "regulator_configuration:1";
 	tap_A "0";
 	tap_B "0";
 	tap_C "0";
@@ -950,7 +973,7 @@ object meter
 {
 	name "meter_1";
 	rng_state "29890";
-	guid "FF81C4DE3BB8DD06550CC1F177211B2";
+	guid "5694E339E0DA05277BFBD1DC8CB5ACC7";
 	measured_real_energy "0 Wh";
 	measured_real_energy_delta "0 Wh";
 	measured_reactive_energy "0 VAh";
@@ -1070,10 +1093,10 @@ object meter
 }
 object assert
 {
-	name "assert_4";
+	name "assert:4";
 	parent "meter_1";
 	rng_state "28474";
-	guid "5973F8E60F6AC2E46468397F4585A313";
+	guid "660A711B64C8CB744299BFA38333B853";
 	status "TRUE";
 	target "measured_real_power";
 	relation "==";
@@ -1087,10 +1110,10 @@ object assert
 }
 object assert
 {
-	name "assert_5";
+	name "assert:5";
 	parent "meter_1";
 	rng_state "9317";
-	guid "74440B369D2BAAC810C1BC4DA8CE69A8";
+	guid "41B54CF6A3EC804B77F0209572E46510";
 	status "TRUE";
 	target "measured_reactive_power";
 	relation "==";
@@ -1107,7 +1130,7 @@ object load
 	name "load1";
 	parent "meter_1";
 	rng_state "29278";
-	guid "1FD6669F81E9763C43BE38194A71764D";
+	guid "3A254FC274A471A616BD85AA5CC14D11";
 	load_class "U";
 	constant_power_A "160000+110000j VA";
 	constant_power_B "120000+90000j VA";
