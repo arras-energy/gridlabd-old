@@ -13,7 +13,7 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd:master
+    container: slacgismo/gridlabd:master
 
     steps:
     - uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd:master
+    container: slacgismo/gridlabd:master
 
     steps:
     - uses: actions/checkout@v2

@@ -1,16 +1,17 @@
 // test_create_schedule.glm
 
-#ifexist ../${modelname/.glm/.csv}
+#ifexist ../test_create_schedule.csv
 #define DIR=..
 #endif
 
-#python -m create_schedule ${DIR:-.}/${modelname/.glm/.csv} -o=${modelname/.glm/_opt.glm} -N=test_schedule
+#python -m create_schedule ${DIR:-.}/test_create_schedule.csv -o=test_create_schedule_opt.glm -N=test_schedule
 #include "${modelname/.glm/_opt.glm}"
 
 clock
 {
-    starttime "2020-01-01 00:00:00";
-    stoptime "2021-01-01 00:00:00";
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
 }
 module tape
 {
@@ -26,11 +27,11 @@ object test
     power test_schedule;
     object recorder
     {
-        file "${modelname/.glm/_opt.csv}";
+        file "test_create_schedule_opt.csv";
         property "power";
     };
 }
 
-#ifexist ../${modelname/.glm/_opt.csv}
-#on_exit 0 diff ../${modelname/.glm/_opt.csv} ${modelname/.glm/_opt.csv}
+#ifexist ../test_create_schedule_opt.csv
+#on_exit 0 diff ../test_create_schedule_opt.csv test_create_schedule_opt.csv > gridlabd.diff
 #endif

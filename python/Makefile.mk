@@ -1,4 +1,4 @@
-PYTHONVERSION=$(shell python3 $(top_srcdir)/python/setup.py --version)
+PYTHONVERSION=$(shell python$(PYVER) $(top_srcdir)/python/setup.py --version)
 PYPKG=$(PYENV)/lib/python$(PYVER)/site-packages/gridlabd
 
 $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION).tar.gz: $(top_srcdir)/source/build.h | $(PYENV)

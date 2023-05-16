@@ -8,7 +8,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* overhead_line::oclass = NULL;
 CLASS* overhead_line::pclass = NULL;

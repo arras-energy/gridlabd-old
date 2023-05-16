@@ -346,12 +346,12 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 			ary_billing_meters[idx++] = metrics[MTR_BELOW_B_CNT];
 			ary_billing_meters[idx++] = metrics[MTR_BELOW_10_DUR];
 			ary_billing_meters[idx++] = metrics[MTR_BELOW_10_CNT];
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			billing_meter_objects[key] = ary_billing_meters;
 		} // End of recording metrics_collector data attached to one triplex_meter or primary meter
 		else if (strcmp(temp_metrics_collector->parent_string, "house") == 0) {
 			metrics = temp_metrics_collector->metrics;
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			// Update an existing house object if an earlier waterheater created it (TODO - look for speedup)
 			if (house_objects.isMember(key)) {
 				int idx = 0;
@@ -395,7 +395,7 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 		} // End of recording metrics_collector data attached to one house
 		else if (strcmp(temp_metrics_collector->parent_string, "waterheater") == 0) {
 			metrics = temp_metrics_collector->metrics;
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			if (house_objects.isMember(key)) { // already made this house
 				int idx = HSE_ARRAY_SIZE; // start of the waterheater metrics - TODO speedups
 				house_objects[key][idx++] = metrics[WH_MIN_ACTUAL_LOAD];
@@ -436,21 +436,21 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 			ary_inverters[idx++] = metrics[INV_MAX_REAC_POWER]; 
 			ary_inverters[idx++] = metrics[INV_AVG_REAC_POWER]; 
 			ary_inverters[idx++] = metrics[INV_MED_REAC_POWER]; 
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			inverter_objects[key] = ary_inverters;
 		} // End of recording metrics_collector data attached to one inverter
 		else if (strcmp(temp_metrics_collector->parent_string, "capacitor") == 0) {
 			metrics = temp_metrics_collector->metrics;
 			int idx = 0;
 			ary_capacitors[idx++] = metrics[CAP_OPERATION_CNT];
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			capacitor_objects[key] = ary_capacitors;
 		}
 		else if (strcmp(temp_metrics_collector->parent_string, "regulator") == 0) {
 			metrics = temp_metrics_collector->metrics;
 			int idx = 0;
 			ary_regulators[idx++] = metrics[REG_OPERATION_CNT];
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			regulator_objects[key] = ary_regulators;
 		}
 		else if (strcmp(temp_metrics_collector->parent_string, "swingbus") == 0) {
@@ -474,7 +474,7 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 			ary_feeders[idx++] = metrics[FDR_MAX_REAC_LOSS];
 			ary_feeders[idx++] = metrics[FDR_AVG_REAC_LOSS];
 			ary_feeders[idx++] = metrics[FDR_MED_REAC_LOSS];
-			string key = temp_metrics_collector->parent_name;
+			std::string key = temp_metrics_collector->parent_name;
 			feeder_information[key] = ary_feeders;
 		} // End of recording metrics_collector data attached to the swing-bus meter
 		index++;
@@ -494,31 +494,31 @@ int metrics_collector_writer::write_line(TIMESTAMP t1)
 		Json::StyledWriter writer;
 
 		// Open file for writing
-		ofstream out_file;
+		std::ofstream out_file;
 
 		// Write seperate JSON files for each object
 		out_file.open (filename_billing_meter);
-		out_file << writer.write(metrics_writer_billing_meters) <<  endl;
+		out_file << writer.write(metrics_writer_billing_meters) <<  std::endl;
 		out_file.close();
 
 		out_file.open (filename_house);
-		out_file << writer.write(metrics_writer_houses) <<  endl;
+		out_file << writer.write(metrics_writer_houses) <<  std::endl;
 		out_file.close();
 
 		out_file.open (filename_inverter);
-		out_file << writer.write(metrics_writer_inverters) <<  endl;
+		out_file << writer.write(metrics_writer_inverters) <<  std::endl;
 		out_file.close();
 
 		out_file.open (filename_capacitor);
-		out_file << writer.write(metrics_writer_capacitors) <<  endl;
+		out_file << writer.write(metrics_writer_capacitors) <<  std::endl;
 		out_file.close();
 
 		out_file.open (filename_regulator);
-		out_file << writer.write(metrics_writer_regulators) <<  endl;
+		out_file << writer.write(metrics_writer_regulators) <<  std::endl;
 		out_file.close();
 
 		out_file.open (filename_substation);
-		out_file << writer.write(metrics_writer_feeder_information) <<  endl;
+		out_file << writer.write(metrics_writer_feeder_information) <<  std::endl;
 		out_file.close();
 	}
 

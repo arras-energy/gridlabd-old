@@ -413,7 +413,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	}
 
 	/* locate the module */
-	snprintf(pathname, sizeof(pathname)-1, "%s" DLEXT, file);
+	snprintf(pathname, sizeof(pathname)-1, "%.*s" DLEXT, (int)(sizeof(pathname)-strlen(DLEXT)-2),file);
 
 	if(find_file(pathname, NULL, X_OK|R_OK, tpath,sizeof(tpath)) == NULL)
 	{

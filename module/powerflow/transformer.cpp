@@ -16,7 +16,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* transformer::oclass = NULL;
 CLASS* transformer::pclass = NULL;

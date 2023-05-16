@@ -150,14 +150,20 @@ def get_version(path=None):
 	except:
 		return '0.0.0'
 
-if len(sys.argv) > 1 and sys.argv[1] == "--version":
-	print(get_version())
-else:
-	setup (	
-		name = 'gridlabd',
-		version = get_version(),
-		description = 'HiPAS GridLAB-D',
-		author = 'SLAC Gismo',
-		author_email = 'gridlabd@gmail.com',
-		ext_modules = [gridlabd],
-		url = "https://www.gridlabd.us/")
+if len(sys.argv) > 1:
+	if sys.argv[1] == "--version":
+		print(get_version())
+		exit(0)
+	elif sys.argv[1] == "--info":
+		print("Source folder:",srcdir)
+		print("Build forder:",blddir)
+		print("Compile options:",compile_options)
+		exit(0)
+setup (	
+	name = 'gridlabd',
+	version = get_version(),
+	description = 'HiPAS GridLAB-D',
+	author = 'SLAC Gismo',
+	author_email = 'gridlabd@gmail.com',
+	ext_modules = [gridlabd],
+	url = "https://www.gridlabd.us/")

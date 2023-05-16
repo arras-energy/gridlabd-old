@@ -16,7 +16,6 @@
 #include <fstream>
 #include <cstring>
 #include <string.h>
-using namespace std;
 
 void new_metrics_collector_writer(MODULE *);
 

@@ -12,7 +12,6 @@
 #include <string.h>
 #include <algorithm>
 #include <cmath>
-using namespace std;
 
 CLASS *metrics_collector::oclass = NULL;
 CLASS *metrics_collector::pclass = NULL;

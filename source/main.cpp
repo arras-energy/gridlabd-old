@@ -177,7 +177,7 @@ GldMain::GldMain(int argc, const char *argv[])
 		check_version(1);
 
 	/* setup the random number generator */
-	random_init();
+	random_init(NULL,NULL);
 
 	/* pidfile */
 	create_pidfile();

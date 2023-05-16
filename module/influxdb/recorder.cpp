@@ -11,7 +11,7 @@ EXPORT_DESTROY(recorder);
 
 CLASS *recorder::oclass = NULL;
 recorder *recorder::defaults = NULL;
-using namespace std;
+
 
 recorder::recorder(MODULE *module)
 {
