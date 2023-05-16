@@ -34,6 +34,7 @@ source "amazon-ebs" "ubuntu-22-04" {
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
   ami_name             = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+  ami_users            = ["all"] // This will make the AMI publicly available
 
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
@@ -59,15 +60,5 @@ build {
       "sudo chown -R $USER /usr/local",
       "gridlabd --version=all"
     ]
-  }
-
-  post-processor "amazon-import" {
-    access_key = var.aws_access_key
-    region = var.aws_region
-    secret_key = var.aws_secret_key
-    ami_name = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
-    keep_input_artifact = true
-    ami_groups = ["all"] # Make the AMI publicly available
-    s3_bucket_name = var.dev_s3_url
   }
 }
