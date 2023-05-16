@@ -26,7 +26,7 @@ jobs:
         context: .
         file: ./build-aux/Dockerfiles/Dockerfile.ul
         push: true
-        tags: hipas/gridlabd-master-ubuntu:latest
+        tags: hipas/gridlabd:latest
 
   buildDebianDockerhub:
 
@@ -49,7 +49,7 @@ jobs:
         context: .
         file: ./build-aux/Dockerfiles/Dockerfile.dl
         push: true
-        tags: hipas/gridlabd-master-debian:latest
+        tags: hipas/gridlabd-debian:latest
 
   buildMacos12FastS3:
 

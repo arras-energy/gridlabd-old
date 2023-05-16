@@ -33,7 +33,7 @@ source "amazon-ebs" "ubuntu-22-04" {
   region               = var.aws_region
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
-  ami_name             = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+  ami_name             = "HiPAS Gridlabd Ubuntu Develop 22.04 {{timestamp}}"
   ami_groups            = ["all"] // This will make the AMI publicly available
 
   launch_block_device_mappings {
@@ -44,7 +44,7 @@ source "amazon-ebs" "ubuntu-22-04" {
   }
 
   tags = {
-    Name        = "HiPAS Gridlabd Ubuntu 22.04 {{timestamp}}"
+    Name        = "HiPAS Gridlabd Ubuntu Develop 22.04 {{timestamp}}"
     CreatedBy   = "Packer"
     Environment = "Dev"
   }
@@ -53,17 +53,17 @@ source "amazon-ebs" "ubuntu-22-04" {
 build {
   sources = ["source.amazon-ebs.ubuntu-22-04"]
 
-provisioner "shell" {
+  provisioner "shell" {
     inline = [
-      "apt-get remove unattended-upgrades -y",
-      "mkdir -p /usr/local/var",
-      "chown -R $USER /usr/local",
-      "apt-get update && apt-get install -y apt-transport-https",
-      "apt-get install -y git curl nano",
+      "sudo apt-get remove unattended-upgrades -y",
+      "sudo mkdir -p /usr/local/var",
+      "sudo chown -R $USER /usr/local",
+      "sudo apt-get update && sudo apt-get install -y apt-transport-https",
+      "sudo apt-get install -y git curl nano",
       "cd /usr/local/src",
       "export INSTALL_SOURCE=https://install-dev.gridlabd.us",
-      "curl -sL http://install-dev.gridlabd.us/install.sh | sh",
-      "chown -R $USER /usr/local",
+      "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
+      "sudo chown -R $USER /usr/local",
       "gridlabd --version=all"
     ]
   }
