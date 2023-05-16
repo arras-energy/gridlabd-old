@@ -18,5 +18,5 @@
 #done
 
 #ifexist ../check-meters.sh
-#on_exit 0 sh ../check-meters.sh ${CHECKFILES} > gridlabd.diff
+#on_exit 0 python3 ../check-meters.py ${CHECKFILES} > gridlabd.diff
 #endif
