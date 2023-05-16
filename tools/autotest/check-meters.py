@@ -25,7 +25,11 @@ input_file_2=''
 	# 			print('FILE '+ model+'-meters.glm : ' + line2)
 
 def filter_lines(lines):
-    return [line for line in lines if not line.strip().startswith('guid') and not line.startswith('//') and not line.strip().startswith('solver_py_config') and not line.startswith('#define pythonpath') and not line.startswith('#set pythonpath') and not line.startswith('#define tmp') and not line.startswith('#set tmp') and not line.startswith('#define kmlhost') and not line.startswith('#set kmlhost') and not line.startswith('#define datadir') and not line.startswith('#set datadir') and not line.strip().startswith('name')]
+    skip_prefixes = ['guid', '//', 'solver_py_config', '#define pythonpath', '#set pythonpath',
+                     '#define tmp', '#set tmp', '#define kmlhost', '#set kmlhost', '#define datadir',
+                     '#set datadir', 'name', 'global enumeration validto_context', '#set validto_context',
+                     '#define browser', '#set browser']
+    return [line for line in lines if not any(line.strip().startswith(prefix) for prefix in skip_prefixes)]
 
 for model in MODEL_NAME.split() : 
 	with open('../'+model+'-meters.glm', 'r') as file1, open(model+'-meters.glm', 'r') as file2:
