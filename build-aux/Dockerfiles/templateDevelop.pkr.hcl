@@ -53,18 +53,19 @@ source "amazon-ebs" "ubuntu-22-04" {
 build {
   sources = ["source.amazon-ebs.ubuntu-22-04"]
 
-  provisioner "shell" {
+provisioner "shell" {
     inline = [
-      "sudo apt-get remove unattended-upgrades -y",
-      "sudo mkdir -p /usr/local/var",
-      "sudo chown -R $USER /usr/local",
-      "sudo apt-get update && sudo apt-get install -y apt-transport-https",
-      "sudo apt-get install -y git curl nano",
+      "apt-get remove unattended-upgrades -y",
+      "mkdir -p /usr/local/var",
+      "chown -R $USER /usr/local",
+      "apt-get update && apt-get install -y apt-transport-https",
+      "apt-get install -y git curl nano",
       "cd /usr/local/src",
-      "export GRIDLABD_IMAGE=ubuntu_22-x86_64.tarz",
-      "curl -sL http://install-dev.gridlabd.us/install.sh | sudo sh",
-      "sudo chown -R $USER /usr/local",
+      "export INSTALL_SOURCE=https://install-dev.gridlabd.us",
+      "curl -sL http://install-dev.gridlabd.us/install.sh | sh",
+      "chown -R $USER /usr/local",
       "gridlabd --version=all"
     ]
+    environment_vars = ["USER=root"]
   }
 }
