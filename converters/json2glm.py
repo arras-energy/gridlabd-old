@@ -223,14 +223,15 @@ def convert(ifile,ofile,json_type="gridlabd",noclock=False,ignore_globals=None) 
 					# print("CLASSNAME",classname,classdata)
 					fw.write(f"\nobject {classname}")
 					fw.write("\n{")
-					fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+					# fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+					fw.write(f"\n\tname \"{obj_id_sorted}\";")
 					for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 						if v_id not in objects_ignore and v_info:
 							# print(v_id)
-							if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
-								v_str = v_info.replace(':','_')
-							else:
-								v_str = v_info.replace('"', '\\\"')
+							# if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
+							# 	v_str = v_info.replace(':','_')
+							# else:
+							v_str = v_info.replace('"', '\\\"')
 							if '\n' in v_info :
 								var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
 							else : 
