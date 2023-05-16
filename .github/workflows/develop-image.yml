@@ -180,10 +180,13 @@ jobs:
   buildAWSUbuntuAMI:
     runs-on: ubuntu-latest
     environment: Integration
-    needs: buildUbuntu22FastS3
+    needs: [buildUbuntu22FastS3,buildUbuntu20FastS3,buildMacos11FastS3,buildMacos12FastS3]
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
