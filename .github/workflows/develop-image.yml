@@ -185,9 +185,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Run CF invalidation
-      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
-
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
       run: |
@@ -199,6 +196,9 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
 
     - name: Install Packer
       run: |
