@@ -3,9 +3,7 @@ name: develop-images
 on:
   push:
     branches: [ develop ]
-  pull_request:
-    branches: [ develop ]
-    
+
 jobs:
   buildUbuntuDockerhub:
 
