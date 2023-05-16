@@ -30,7 +30,7 @@ fi
 
 # create python venv for setup if not already done
 if [ ! -x "$PYTHON_EXEC" ] ; then
-    INSTALL python$PYTHON_VERSION -m venv --symlinks $PYTHON_VENV
+    INSTALL python$PYTHON_VERSION -m venv $PYTHON_VENV
     test -x "$PYTHON_EXEC" || error "python venv creation failed"
 fi
 

@@ -138,7 +138,10 @@ docker/build.sh --release
 
 ## AWS EC2
 
-Use the AWS Ubuntu AMI to build gridlabd on AWS EC2 using the commands
+The latest development and master builds of HiPAS gridlabd are available as community AMIs.
+Simply launch an ec2, browse the community AMIs and search for HiPAS Gridlabd
+
+If you want to build gridlabd yourself, use the AWS Ubuntu AMI on AWS EC2 using the commands
 
 ~~~
 git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
