@@ -132,6 +132,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
+        cp -R ~/.aws /
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         chown -R root $PWD
         sudo sh ./setup.sh --local
@@ -168,6 +169,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
+        cp -R ~/.aws /
         export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
         chown -R root $PWD
         sudo sh ./setup.sh --local
