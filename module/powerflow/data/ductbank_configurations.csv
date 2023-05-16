@@ -1,4 +1,2 @@
-name,duct_area,fill_R,duct_R,channels
-default,0.1,1.00,0.3,1
-box3x2,0.1,1.00,0.3,6
-box4x2,0.1,1.00,0.3,8
+name,duct_diameter[cm],horizontal_spacing[cm],vertical_spacing[cm],top_spacing[cm],side_spacing[cm],bottom_spacing[cm],soil_depth[cm],ROH_ground[cm*K/W],ROH_fill[cm*K/W],R_duct[K/W]
+default,12.7,3.8,0,1.9,7.6,1.9,91.5,120.0,60.0,40.0

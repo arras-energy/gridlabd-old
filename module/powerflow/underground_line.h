@@ -13,6 +13,7 @@ class underground_line : public line
 public:
 
 	GL_ATOMIC(object,ductbank);
+	GL_ATOMIC(int32,ductid);
 
 public:
 

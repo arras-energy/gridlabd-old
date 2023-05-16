@@ -134,7 +134,11 @@ void ductbank::load_data(const char *name)
 		while ( fp != NULL && ! feof(fp) && ! ferror(fp) )
 		{
 			char item[256];
-			double A=0, RF=0, RD=0;
+			double D; // duct inner diameter
+			double H, V; // duct horizontal and vertical spacing
+			double T, S, B; // duct top, side, and bottom spacing
+			double G; // soil depth to duct
+			double ROHg, ROHf, Rd; // ground, fill, duct thermal resistance
 			unsigned int N;
 			if ( lineno == 0 )
 			{
@@ -142,7 +146,8 @@ void ductbank::load_data(const char *name)
 				{
 					break;
 				}
-				if ( strcmp(header,"name,duct_area,fill_R,duct_R,channels\n") != 0 )
+				if ( strcmp(header,"name,duct_diameter[cm],horizontal_spacing[cm],vertical_spacing[cm],top_spacing[cm],side_spacing[cm],bottom_spacing[cm],soil_depth[cm],ROH_ground,ROH_fill,R_duct
+\n") != 0 )
 				{
 					error("invalid header in ductbank configuration file '%s' (%s)", pathname, header);
 				}
@@ -152,21 +157,29 @@ void ductbank::load_data(const char *name)
 				}
 			}
 			lineno++;
-			int len = fscanf(fp,"%[^,],%lf,%lf,%lf,%u\n",item,&A,&RF,&RD,&N);
+			// name,duct_diameter[cm],horizontal_spacing[cm],vertical_spacing[cm],top_spacing[cm],side_spacing[cm],bottom_spacing[cm],soil_depth[cm],ROH_ground,ROH_fill,R_duct
+			int len = fscanf(fp,"%[^,],%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+				item,&D,&H,&V,&T,&S,&B,&G,&ROHg,&ROHf,&Rd);
 			if ( len == 0 || item[0] == '#' || item[0] == '\n' )
 			{
 				continue;
 			}
-			else if ( len != 5 )
+			else if ( len != 10 )
 			{
-				error("%s@%d: invalid data ('%s...')", pathname, lineno, item);			
+				error("%s@%d: invalid/missing data ('%s...')", pathname, lineno, item);			
 			}
 			DUCTBANK_DATA *data = new DUCTBANK_DATA;
 			data->name = strdup(item);
-			data->A = A;
-			data->RF = RF;
-			data->RD = RD;
-			data->N = N;
+			data->D = D;
+			data->H = H;
+			data->V = V;
+			data->T = T;
+			data->S = S;
+			data->B = B;
+			data->G = G;
+			data->ROHg = ROHg;
+			data->ROHf = ROHf;
+			data->Rd = Rd;
 			data->next = ductbank_data;
 			ductbank_data = data;
 		}
@@ -217,7 +230,7 @@ TIMESTAMP ductbank::precommit(TIMESTAMP t1)
 	return TS_NEVER;
 }
 
-void ductbank::add_cable(double diameter,double R_value)
+void ductbank::add_cable(int ductid, double diameter, double R_value)
 {
 	cable_area += diameter*diameter*PI/4;
 	if ( R_value > 0 )

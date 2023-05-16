@@ -9,9 +9,13 @@
 typedef struct s_ductbank_data
 {
 	char *name;
-	double A; // air sectional area
-	double RF,RD; // fill, duct, and airgap thermal resistance
-	unsigned int N; // number of channels
+	double D; // duct inner diameter (cm)
+	double H, V; // duct horizontal and vertical spacing (cm)
+	double T, S, B; // duct top, side, and bottom spacing (cm)
+	double G; // soil depth to duct
+	double Rg, Rf, Rd; // ground, fill, ductbank, and air resistivity/cm
+
+	unsigned int N, M; // number of channel rows and columns
 	struct s_ductbank_data *next;
 } DUCTBANK_DATA;
 
@@ -38,25 +42,12 @@ private:
 
 	// settings
 	GL_STRING(char1024,configuration);
-	GL_ATOMIC(double,ground_temperature);
-	GL_ATOMIC(double,fill_R);
-	GL_ATOMIC(double,duct_R);
-	GL_ATOMIC(double,airgap_R);
-	GL_ATOMIC(double,insulation_R);
-	GL_ATOMIC(double,duct_area);
-	GL_ATOMIC(int32,channels);
 
-	// outputs
-	GL_ATOMIC(double,heatgain);
-	GL_ATOMIC(double,cable_temperature);
-	GL_ATOMIC(double,peak_temperature);
-	GL_ATOMIC(enumeration,cable_status);
+private:
 
-	// internal variables
-	double cable_area;
-	double air_area;
-	double insulation_thickness;
-	gld_property *temperature;
+	double Ug, Ut, Us, Ub, Uh, Uv, Ua; // U-values
+	double *A, *B, *x, *u, *Ainv; // data matrices
+	gld_property *temperature; // 
 
 public:
 
@@ -72,7 +63,7 @@ private:
 
 public:
 
-	void add_cable(double diameter,double R_value=0.1); // 1cm of rubber at 0.1 W/K.m
+	void add_cable(int ductid,double diameter,double R_value=0.1); // 1cm of rubber at 0.1 W/K.m
 	void add_heatgain(double losses, double cable_length=0.0);
 
 public:
