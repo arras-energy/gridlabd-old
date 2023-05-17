@@ -16,11 +16,12 @@ COPY . /app/gridlabd
 
 ENV INSTALL_SOURCE=https://install-dev.gridlabd.us
 
+EXPOSE 6266-6299/tcp
 # Run the install.sh script with the desired arguments
 RUN curl -sL http://install-dev.gridlabd.us/install.sh | sh
 
 RUN gridlabd --version=all
 
-RUN gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || true
-
 WORKDIR /app
+
+RUN rm -rf gridlabd

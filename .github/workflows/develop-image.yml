@@ -219,5 +219,5 @@ jobs:
         context: .
         file: ./docker/packer/Dockerfile.dev.ul
         push: true
-        tags: hipas/gridlabd-develop-debugging:latest
+        tags: hipas/gridlabd-develop:latest
   

@@ -14,12 +14,11 @@ WORKDIR /app/gridlabd
 # Copy the contents of the local directory to the app directory in the container
 COPY . /app/gridlabd
 
+EXPOSE 6266-6299/tcp
 # Run the install.sh script with the desired arguments
 RUN curl -sL http://install.gridlabd.us/install.sh | sh
 
 RUN gridlabd --version=all
-
-RUN gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || true
 
 WORKDIR /app
 
