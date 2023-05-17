@@ -5,51 +5,6 @@ on:
     branches: [ develop ]
 
 jobs:
-  buildUbuntuDockerhub:
-
-    runs-on: ubuntu-latest
-    environment: Integration
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./build-aux/Dockerfiles/Dockerfile.ul
-        push: true
-        tags: hipas/gridlabd-develop-ubuntu:latest
-
-  buildDebianDockerhub:
-
-    runs-on: ubuntu-latest
-    environment: Integration
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./build-aux/Dockerfiles/Dockerfile.dl
-        push: true
-        tags: hipas/gridlabd-develop-debian:latest
 
   buildMacos13FastS3:
 
@@ -231,7 +186,7 @@ jobs:
 
     - name: Initialize Packer
       run: |
-        packer init ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
+        packer init ./docker/packer/templateDevelop.pkr.hcl
 
     - name: Build AMI Image
       run: |
@@ -240,4 +195,29 @@ jobs:
           -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
           -var "aws_region=${{ secrets.AWS_REGION }}" \
           -var "dev_s3_url=${{ secrets.DEV_S3_URL }}" \
-          ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
+          ./docker/packer/templateDevelop.pkr.hcl
+
+  buildUbuntuDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+    needs: buildAWSUbuntuAMI
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./docker/packer/Dockerfile.dev.ul
+        push: true
+        tags: hipas/gridlabd-develop:latest
+  

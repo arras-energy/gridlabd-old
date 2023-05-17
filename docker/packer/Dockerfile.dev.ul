@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 
 # Update the package lists and install sudo and curl
-RUN apt-get update && apt-get install -y sudo curl git
+RUN apt-get update && apt-get install -y sudo curl git nano
 
 # Create the app directory in the container
 WORKDIR /app
@@ -14,10 +14,10 @@ WORKDIR /app/gridlabd
 # Copy the contents of the local directory to the app directory in the container
 COPY . /app/gridlabd
 
-# Run the install.sh script with the desired arguments
-RUN /bin/sh ./setup.sh --local
+ENV INSTALL_SOURCE=https://install-dev.gridlabd.us
 
-RUN /bin/sh ./build.sh --system --parallel
+# Run the install.sh script with the desired arguments
+RUN curl -sL http://install-dev.gridlabd.us/install.sh | sh
 
 RUN gridlabd --version=all
 
