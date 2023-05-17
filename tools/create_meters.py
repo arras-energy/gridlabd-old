@@ -21,6 +21,24 @@ DESCRIPTION
 
     If the `--with-ami` is included, each new meter will be assigned
     a recorder with a sampling interval of 1 hour.
+
+VALIDATION
+
+    0. load parent to meter --> do nothing
+    1. load parent to node --> load parent to meter (changed node to meter)
+    2. load parent to ~node --> load parent to meter (new meter), ~node parent to meter
+        (load)(!node) --> (load)(meter) + (!node)(meter)
+    3. load link to meter --> do nothing
+    4. load link to node --> load link to meter (changed from node to meter)
+    5. load link to ~node --> load parent to meter link to ~node (add meter)
+    6. All of the above
+
+IMPLEMENTATION:
+
+    0. only do this for (triplex_)loads that don't have meters
+    1. always add parent object (triplex_)meter to (triplex_)loads
+    2. if (triplex_)load has links, change them to (triplex_)meter
+    3. else fix any grandparents s.t. (A)->(B)->(C) and change to (A)->(C) + (B)->(C)
 """
 
 import os, sys
@@ -43,57 +61,9 @@ MODIFY = False
 MODIFY_LIST = []
 NEWOBJ_LIST = []
 DELOBJ_LIST = []
-
-for arg in sys.argv[1:]:
-    if arg.startswith('-'):
-        if arg == '--with-ami':
-            WITHAMI = True
-        if arg in ['-h','--help','help']:
-            print(__doc__)
-            exit(0)
-        else:
-            raise Exception(f"argument {arg} is invalid")
-    elif INPUTFILE is None:
-        INPUTFILE = arg
-    elif OUTPUTFILE is None:
-        OUTPUTFILE = arg
-    else:
-        raise Exception(f"argument {arg} not expected")
-
-with open(INPUTFILE,"rt") as fh:
-    MODEL = json.load(fh)
-    OBJECTS = MODEL['objects']
-
-if WITHAMI and 'recorder' not in MODEL['modules']:
-    VERSION = MODEL['version'].split('.')
-    MODEL['modules']['tape'] = {
-        "major": VERSION[0],
-        "minor": VERSION[1]
-    }
-    MODEL['classes']['recorder'] = {
-            "file" : {
-                "type" : "char1024",
-                "access" : "PUBLIC",
-                "flags" : "REQUIRED",
-                "description" : "file in which to record data"
-            },
-            "interval" : {
-                "type" : "double",
-                "access" : "PUBLIC",
-                "unit" : "s",
-                "default" : "-1 s",
-                "description" : "sampling interval"
-            },
-            "property" : {
-                "type" : "method",
-                "access" : "PUBLIC",
-                "flags" : "REQUIRED",
-                "description" : "list of properties to sample"
-            },
-        }
-
 LINKLIST = {}
 LINKOBJS = {}
+
 def get_links(name):
     global LINKLIST
     if not LINKLIST:
@@ -206,63 +176,121 @@ def write_newobj(fh,item):
 def write_delobj(fh,item):
     print(f"modify {item[0]}.in_svc NEVER;",file=fh)
 
-for name in list(OBJECTS):
-    obj = OBJECTS[name]
-    oclass = obj['class']
-    parent = get_parent(name)
-    if oclass in ['load','triplex_load']:
-        links = get_links(name)
-        if parent:
+def main(args):
+    if MODEL['globals']['powerflow::solver_method']['value']=='FBS' :
+        error(f"FBS solver is not currently supported by the create_meters subcommand.")
+    for name in list(OBJECTS):
+        obj = OBJECTS[name]
+        oclass = obj['class']
+        parent = get_parent(name)
+        if oclass in ['load','triplex_load']:
+            links = get_links(name)
+            if parent:
 
-            fix_parent(parent,name,oclass)
+                fix_parent(parent,name,oclass)
 
-        elif links == None:
+            elif links == None:
 
-            warning(f"{oclass} {name} is isolated")
+                warning(f"{oclass} {name} is isolated")
 
-        else:
+            else:
 
-            meter_name = name+"_meter"
-            meter = add_object(meter_name,{
-                'class' : oclass.replace('load','meter'),
-                'phases' : obj['phases'],
-                'nominal_voltage' : obj['nominal_voltage'],
-                'measured_energy_delta_timestep' : '3600',
-                })
-            set_link(name,meter_name)
-            set_data(name,'parent',meter_name)
+                meter_name = name+"_meter"
+                meter = add_object(meter_name,{
+                    'class' : oclass.replace('load','meter'),
+                    'phases' : obj['phases'],
+                    'nominal_voltage' : obj['nominal_voltage'],
+                    'measured_energy_delta_timestep' : '3600',
+                    })
+                set_link(name,meter_name)
+                set_data(name,'parent',meter_name)
 
-    elif oclass == 'triplex_load':
-        link = get_links(name)
-        if parent and parent['class'] == 'node':
-            obj['class'] == 'triplex_meter'
+        elif oclass == 'triplex_load':
+            link = get_links(name)
+            if parent and parent['class'] == 'node':
+                obj['class'] == 'triplex_meter'
+            else:
+                pass
         else:
             pass
-    else:
-        pass
 
-if OUTPUTFILE.endswith(".json"):
+    if OUTPUTFILE.endswith(".json"):
 
-    with open(OUTPUTFILE,"wt") as fh:
-        json.dump(MODEL,fh,indent=4)
-
-elif OUTPUTFILE.endswith(".glm"):
-
-    if MODIFY:
         with open(OUTPUTFILE,"wt") as fh:
-            print(f"// generated by '{' '.join(sys.argv)}' on {datetime.datetime.now()}",file=fh)
-            print(f"// NEW OBJECTS",file=fh)
-            for item in NEWOBJ_LIST:
-                write_newobj(fh,item)
-            print(f"// MODIFIED OBJECTS",file=fh)
-            for item in MODIFY_LIST:
-                write_modify(fh,item)
-            print(f"// DELETED OBJECTS",file=fh)
-            for item in DELOBJ_LIST:
-                write_delobj(fh,item)
+            json.dump(MODEL,fh,indent=4)
+
+    elif OUTPUTFILE.endswith(".glm"):
+
+        if MODIFY:
+            with open(OUTPUTFILE,"wt") as fh:
+                print(f"// generated by '{' '.join(sys.argv)}' on {datetime.datetime.now()}",file=fh)
+                print(f"// NEW OBJECTS",file=fh)
+                for item in NEWOBJ_LIST:
+                    write_newobj(fh,item)
+                print(f"// MODIFIED OBJECTS",file=fh)
+                for item in MODIFY_LIST:
+                    write_modify(fh,item)
+                print(f"// DELETED OBJECTS",file=fh)
+                for item in DELOBJ_LIST:
+                    write_delobj(fh,item)
+        else:
+            error("unmodified GLM output not implemented")
+
     else:
-        error("unmodified GLM output not implemented")
 
-else:
+        error("output format not supported")
 
-    error("output format not supported")
+INPUTFILE = None
+OUTPUTFILE = None
+WITHAMI = False
+
+if __name__ == "__main__":
+
+    for arg in sys.argv[1:]:
+        if arg == '--with-ami':
+            WITHAMI = True
+        elif arg in ['-h','--help','help']:
+            print(__doc__)
+            exit(0)
+        elif arg.startswith('-'):
+            raise Exception(f"argument {arg} is invalid")
+        elif INPUTFILE is None:
+            INPUTFILE = arg
+        elif OUTPUTFILE is None:
+            OUTPUTFILE = arg
+        else:
+            raise Exception(f"argument {arg} not expected")
+
+    with open(INPUTFILE,"rt") as fh:
+        MODEL = json.load(fh)
+        OBJECTS = MODEL['objects']
+
+    if WITHAMI and 'recorder' not in MODEL['modules']:
+        VERSION = MODEL['version'].split('.')
+        MODEL['modules']['tape'] = {
+            "major": VERSION[0],
+            "minor": VERSION[1]
+        }
+        MODEL['classes']['recorder'] = {
+                "file" : {
+                    "type" : "char1024",
+                    "access" : "PUBLIC",
+                    "flags" : "REQUIRED",
+                    "description" : "file in which to record data"
+                },
+                "interval" : {
+                    "type" : "double",
+                    "access" : "PUBLIC",
+                    "unit" : "s",
+                    "default" : "-1 s",
+                    "description" : "sampling interval"
+                },
+                "property" : {
+                    "type" : "method",
+                    "access" : "PUBLIC",
+                    "flags" : "REQUIRED",
+                    "description" : "list of properties to sample"
+                },
+            }
+
+    main(arg)

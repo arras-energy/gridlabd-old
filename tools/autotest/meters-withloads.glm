@@ -1,0 +1,77 @@
+
+clock{
+     timezone PST+8PDT;
+     timestamp '2023-01-01 0:00:00';
+     stoptime '2023-01-02 0:00:00';
+}
+module powerflow
+{
+     solver_method NR;
+}
+module assert;
+module tape;
+
+//////////////// Scenario 0: Load parent to meter ////////////////
+
+object meter 
+{
+     name main_bus;
+     phases "ABCN";
+     bustype SWING;
+     nominal_voltage 2401.7771;
+}
+
+object load 
+{
+     name load1;
+     parent main_bus;
+     phases "ABCN";
+     constant_power_A 160000+110000j;
+     constant_power_B 120000+90000j;
+     constant_power_C 120000+90000j;
+     nominal_voltage 2401.7771;
+
+     object complex_assert{
+          target constant_power_A;
+          value +160000+110000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_B;
+          value +120000+90000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_C;
+          value +120000+90000j;
+          within 1;
+     };
+}
+
+object triplex_meter
+{
+     name triplex_meter_1;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     nominal_voltage 120;
+     object assert {
+          target measured_real_power;
+          value "+6005.77";
+          within 1;
+     };
+}
+
+object triplex_load
+{
+     name triplex_load_1;
+     parent triplex_meter_1;
+     phases AS;
+     voltage_1 120;
+     voltage_2 120;
+     voltage_N 0;
+     constant_power_1 6005.7675+6684.0489j;
+     nominal_voltage 120;
+
+}

@@ -130,7 +130,7 @@ $(PYENV): requirements.txt
 	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR [Makefile]: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
-	@$(SYSPYTHON) -m venv --symlinks $(PYENV)
+	@(deactivate || true ; $(SYSPYTHON) -m venv $(PYENV))
 	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
@@ -205,7 +205,7 @@ image: $(prefix).tarz
 
 $(prefix).tarz: $(prefix)
 	@echo "Creating $(prefix).tarz..."
-	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --sysspec).sh 1>$(prefix)/share/gridlabd/setup.sh
+	@grep INSTALL $(top_srcdir)/setup/$(shell $(top_srcdir)/build-aux/version.sh --system).sh 1>$(prefix)/share/gridlabd/setup.sh
 	@cd $(dir $(prefix)); tar cfz $(LONGNAME).tarz $(notdir $(prefix))
 
 aws-image: | $(prefix).tarz

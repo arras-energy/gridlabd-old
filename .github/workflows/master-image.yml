@@ -1,0 +1,218 @@
+name: master-images
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  buildUbuntuDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.ul
+        push: true
+        tags: hipas/gridlabd:latest
+
+  buildDebianDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./build-aux/Dockerfiles/Dockerfile.dl
+        push: true
+        tags: hipas/gridlabd-debian:latest
+
+  buildMacos12FastS3:
+
+    runs-on: macos-12
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        sh ./setup.sh --local
+        sh ./build.sh --system --parallel --upload --release
+
+  buildMacos11FastS3:
+
+    runs-on: macos-11
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        sh ./setup.sh --local
+        sh ./build.sh --system --parallel --upload --release
+
+  buildUbuntu22FastS3:
+
+    runs-on: ubuntu-22.04
+    environment: Integration
+    container:
+      image: ubuntu:jammy
+
+    steps:
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership and prep container
+      run: |
+        mkdir -p /usr/local/var
+        apt-get update && apt-get install -y apt-transport-https
+        apt-get install -y git curl nano sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        sudo aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && sudo aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && sudo aws configure set default.region ${{ secrets.AWS_REGION }}
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        chown -R root $PWD
+        sudo sh ./setup.sh --local
+        sudo sh ./build.sh --system --parallel
+        gridlabd python -m pip install awscli
+        sudo sh ./build.sh --upload --release
+
+  buildUbuntu20FastS3:
+
+    runs-on: ubuntu-20.04
+    environment: Integration
+    container:
+      image: ubuntu:focal
+
+    steps:
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership and prep container
+      run: |
+        mkdir -p /usr/local/var
+        apt-get update && apt-get install -y apt-transport-https
+        apt-get install -y git curl nano sudo zip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to S3
+      run: |
+        sudo aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }} && sudo aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && sudo aws configure set default.region ${{ secrets.AWS_REGION }}
+        export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+        chown -R root $PWD
+        sudo sh ./setup.sh --local
+        sudo sh ./build.sh --system --parallel
+        gridlabd python -m pip install awscli
+        sudo sh ./build.sh --upload --release
+
+  buildAWSUbuntuAMI:
+    runs-on: ubuntu-latest
+    environment: Integration
+    needs: [buildUbuntu22FastS3,buildUbuntu20FastS3,buildMacos11FastS3,buildMacos12FastS3]
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
+
+    - name: Install Packer
+      run: |
+        wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
+        unzip packer_1.7.6_linux_amd64.zip
+        sudo mv packer /usr/local/bin
+
+    - name: Initialize Packer
+      run: |
+        packer init ./build-aux/Dockerfiles/prod.pkr.hcl
+
+    - name: Build AMI Image
+      run: |
+        packer build \
+          -var "aws_access_key=${{ secrets.AWS_ACCESS_KEY }}" \
+          -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -var "aws_region=${{ secrets.AWS_REGION }}" \
+          -var "prod_s3_url=${{ secrets.PROD_S3_URL }}" \
+          ./build-aux/Dockerfiles/prod.pkr.hcl

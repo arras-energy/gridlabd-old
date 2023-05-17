@@ -1,0 +1,1424 @@
+// JSON to GLM Converter Output
+// InputFile 'links-to-triplexmeter-to-child-meters.json'
+// CreateDate '2023-05-16 12:47:05 '
+
+
+// CLOCK
+clock {
+	timezone PST8PDT;
+	starttime "2023-01-01 00:00:00 PST";
+	stoptime "2023-01-02 00:00:00 PST";
+}
+
+// MODULES
+module powerflow
+{
+	show_matrix_values FALSE;
+	primary_voltage_ratio +60 pu;
+	nominal_frequency +60 Hz;
+	require_voltage_control FALSE;
+	geographic_degree +0;
+	fault_impedance +1e-06+0j Ohm;
+	ground_impedance +1e-06+0j Ohm;
+	warning_underfrequency +55 Hz;
+	warning_overfrequency +65 Hz;
+	warning_undervoltage +0.8 V;
+	warning_overvoltage +1.2 V;
+	warning_voltageangle +2;
+	maximum_voltage_error +1e-06 V;
+	solver_method NR;
+	NR_matrix_output_interval NEVER;
+	NR_matrix_output_references FALSE;
+	NR_matrix_output_rhs FALSE;
+	NR_island_failure_handled FALSE;
+	line_capacitance FALSE;
+	line_limits TRUE;
+	NR_iteration_limit 500;
+	NR_deltamode_iteration_limit 10;
+	NR_superLU_procs 1;
+	default_maximum_voltage_error +1e-06 pu;
+	default_maximum_power_error +0.0001 pu;
+	NR_admit_change TRUE;
+	enable_subsecond_models FALSE;
+	all_powerflow_delta FALSE;
+	deltamode_timestep +1e+07 ns;
+	current_frequency +60 Hz;
+	master_frequency_update FALSE;
+	enable_frequency_dependence FALSE;
+	default_resistance +0.0001 Ohm;
+	enable_inrush FALSE;
+	low_voltage_impedance_level +0.7 pu;
+	enable_mesh_fault_current FALSE;
+	convergence_error_handling FATAL;
+	solver_profile_enable FALSE;
+	solver_profile_filename solver_nr_profile.txt;
+	solver_profile_headers_included TRUE;
+	solver_headers timestamp,duration[microsec],iteration,bus_count,branch_count,error;
+	solver_profile_csv FALSE;
+	solver_py_config /usr/local/opt/gridlabd/var/gridlabd/solver_py.conf;
+	solver_dump_enable FALSE;
+	violation_count 0;
+	violation_active 0;
+	violation_watchset ALL;
+	voltage_violation_threshold +0.05 pu;
+	undervoltage_violation_threshold +0 pu;
+	overvoltage_violation_threshold +0 pu;
+	voltage_fluctuation_threshold +0.03 pu;
+	DER_violation_test ANY;
+	default_continuous_rating +1000 A;
+	default_emergency_rating +2000 A;
+	default_violation_rating +0 A;
+	market_price_name current_market.clearing_price;
+	repair_time +24 h;
+	wind_speed_name wind_speed;
+	wind_dir_name wind_dir;
+	wind_gust_name wind_gust;
+	stop_on_pole_failure FALSE;
+	climate_impact_zone NONE;
+	building_defaults building_defaults.csv;
+	building_loadshapes building_loadshapes.csv;
+	building_occupancy building_occupancy.csv;
+	inverter_settings inverter_settings.csv;
+	NAICS_datafile naics_data_file.csv;
+	ground_temperature +25 degC;
+	warning_cable_temperature +80 degC;
+	alert_cable_temperature +90 degC;
+	ductbank_configuration_file ductbank_configurations.csv;
+	air_effective_conductivity +0.2 W/K*m;
+}
+module assert
+{
+}
+module tape
+{
+	gnuplot_path /usr/bin/gnuplot;
+	flush_interval 0;
+	csv_data_only 0;
+	csv_header_type FULL;
+	csv_keep_clean 0;
+	delta_mode_needed NEVER;
+}
+
+// GLOBALS
+// version.major is set to 4
+// version.minor is set to 3
+// version.patch is set to 1
+// version.build is set to 230512
+// version.branch is set to develop_fix_create_meters
+// version is set to 4.3.1-230512-develop_fix_create_meters
+// command_line is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/gridlabd.bin -D randomseed=1 -C ../links-to-triplexmeter-to-child.glm -o links-to-triplexmeter-to-child.json
+#ifndef environment
+#define environment=batch
+#else
+#set environment=batch
+#endif //environment
+#ifndef quiet
+global bool quiet FALSE;
+#else
+#set quiet=FALSE
+#endif //quiet
+#ifndef warn
+global bool warn TRUE;
+#else
+#set warn=TRUE
+#endif //warn
+#ifndef debugger
+global bool debugger FALSE;
+#else
+#set debugger=FALSE
+#endif //debugger
+#ifndef gdb
+global bool gdb FALSE;
+#else
+#set gdb=FALSE
+#endif //gdb
+#ifndef debug
+global bool debug FALSE;
+#else
+#set debug=FALSE
+#endif //debug
+#ifndef test
+global bool test FALSE;
+#else
+#set test=FALSE
+#endif //test
+#ifndef verbose
+global bool verbose FALSE;
+#else
+#set verbose=FALSE
+#endif //verbose
+#ifndef iteration_limit
+global int32 iteration_limit 100;
+#else
+#set iteration_limit=100
+#endif //iteration_limit
+// workdir is set to /Users/aivanovalocal/gridlabd/mar2023/tools/autotest/test_create_meters
+#ifndef dumpfile
+#define dumpfile=gridlabd.json
+#else
+#set dumpfile=gridlabd.json
+#endif //dumpfile
+#ifndef savefile
+#define savefile=links-to-triplexmeter-to-child.json
+#else
+#set savefile=links-to-triplexmeter-to-child.json
+#endif //savefile
+#ifndef dumpall
+global bool dumpall FALSE;
+#else
+#set dumpall=FALSE
+#endif //dumpall
+#ifndef runchecks
+global bool runchecks FALSE;
+#else
+#set runchecks=FALSE
+#endif //runchecks
+#ifndef threadcount
+global int32 threadcount 1;
+#else
+#set threadcount=1
+#endif //threadcount
+#ifndef profiler
+global bool profiler FALSE;
+#else
+#set profiler=FALSE
+#endif //profiler
+#ifndef pauseatexit
+global bool pauseatexit FALSE;
+#else
+#set pauseatexit=FALSE
+#endif //pauseatexit
+#ifndef testoutputfile
+#define testoutputfile=test.txt
+#else
+#set testoutputfile=test.txt
+#endif //testoutputfile
+#ifndef xml_encoding
+global int32 xml_encoding 8;
+#else
+#set xml_encoding=8
+#endif //xml_encoding
+#ifndef clock
+global timestamp clock "2023-01-01 00:00:00 PST";
+#else
+#set clock=2023-01-01 00:00:00 PST
+#endif //clock
+#ifndef starttime
+global timestamp starttime "2023-01-01 00:00:00 PST";
+#else
+#set starttime=2023-01-01 00:00:00 PST
+#endif //starttime
+#ifndef stoptime
+global timestamp stoptime "2023-01-02 00:00:00 PST";
+#else
+#set stoptime=2023-01-02 00:00:00 PST
+#endif //stoptime
+#ifndef double_format
+global char32 double_format "%+lg";
+#else
+#set double_format=%+lg
+#endif //double_format
+#ifndef complex_format
+global char256 complex_format "%+lg%+lg%c";
+#else
+#set complex_format=%+lg%+lg%c
+#endif //complex_format
+#ifndef complex_output_format
+global enumeration complex_output_format DEFAULT;
+#else
+#set complex_output_format=DEFAULT
+#endif //complex_output_format
+#ifndef object_format
+global char32 object_format "%s:%d";
+#else
+#set object_format=%s:%d
+#endif //object_format
+#ifndef object_scan
+global char32 object_scan "%[^:]:%d";
+#else
+#set object_scan=%[^:]:%d
+#endif //object_scan
+#ifndef object_tree_balance
+global bool object_tree_balance FALSE;
+#else
+#set object_tree_balance=FALSE
+#endif //object_tree_balance
+// kmlfile is set to 
+#ifndef kmlhost
+#define kmlhost=https://code.gridlabd.us/develop_fix_create_meters/runtime
+#else
+#set kmlhost=https://code.gridlabd.us/develop_fix_create_meters/runtime
+#endif //kmlhost
+// modelname is set to ../links-to-triplexmeter-to-child.glm
+// execdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin
+#ifndef strictnames
+global bool strictnames TRUE;
+#else
+#set strictnames=TRUE
+#endif //strictnames
+#ifndef website
+#define website=http://www.gridlabd.org/
+#else
+#set website=http://www.gridlabd.org/
+#endif //website
+#ifndef urlbase
+#define urlbase=http://www.gridlabd.org/
+#else
+#set urlbase=http://www.gridlabd.org/
+#endif //urlbase
+#ifndef randomstate
+global int32 randomstate -555137379;
+#else
+#set randomstate=-555137379
+#endif //randomstate
+#ifndef randomseed
+global int32 randomseed 1;
+#else
+#set randomseed=1
+#endif //randomseed
+// include is set to 
+// trace is set to 
+#ifndef gdb_window
+global bool gdb_window FALSE;
+#else
+#set gdb_window=FALSE
+#endif //gdb_window
+#ifndef tmp
+#define tmp=/Users/aivanovalocal/.gridlabd/tmp
+#else
+#set tmp=/Users/aivanovalocal/.gridlabd/tmp
+#endif //tmp
+#ifndef force_compile
+global int32 force_compile 0;
+#else
+#set force_compile=0
+#endif //force_compile
+#ifndef nolocks
+global bool nolocks FALSE;
+#else
+#set nolocks=FALSE
+#endif //nolocks
+#ifndef skipsafe
+global bool skipsafe FALSE;
+#else
+#set skipsafe=FALSE
+#endif //skipsafe
+#ifndef dateformat
+global enumeration dateformat ISO;
+#else
+#set dateformat=ISO
+#endif //dateformat
+#ifndef init_sequence
+global enumeration init_sequence DEFERRED;
+#else
+#set init_sequence=DEFERRED
+#endif //init_sequence
+#ifndef minimum_timestep
+global int32 minimum_timestep 1;
+#else
+#set minimum_timestep=1
+#endif //minimum_timestep
+// platform is set to MACOSX
+#ifndef suppress_repeat_messages
+global bool suppress_repeat_messages TRUE;
+#else
+#set suppress_repeat_messages=TRUE
+#endif //suppress_repeat_messages
+#ifndef maximum_synctime
+global int32 maximum_synctime 60;
+#else
+#set maximum_synctime=60
+#endif //maximum_synctime
+#ifndef run_realtime
+global bool run_realtime FALSE;
+#else
+#set run_realtime=FALSE
+#endif //run_realtime
+#ifndef enter_realtime
+global timestamp enter_realtime "NEVER";
+#else
+#set enter_realtime=NEVER
+#endif //enter_realtime
+// realtime_metric is set to +0
+#ifndef no_deprecate
+global bool no_deprecate FALSE;
+#else
+#set no_deprecate=FALSE
+#endif //no_deprecate
+// streaming_io is set to FALSE
+// compileonly is set to TRUE
+#ifndef relax_naming_rules
+global bool relax_naming_rules FALSE;
+#else
+#set relax_naming_rules=FALSE
+#endif //relax_naming_rules
+#ifndef browser
+#define browser=safari
+#else
+#set browser=safari
+#endif //browser
+#ifndef server_portnum
+global int32 server_portnum 0;
+#else
+#set server_portnum=0
+#endif //server_portnum
+#ifndef server_quit_on_close
+global bool server_quit_on_close FALSE;
+#else
+#set server_quit_on_close=FALSE
+#endif //server_quit_on_close
+// client_allowed is set to 
+#ifndef autoclean
+global bool autoclean TRUE;
+#else
+#set autoclean=TRUE
+#endif //autoclean
+#ifndef technology_readiness_level
+global enumeration technology_readiness_level UNKNOWN;
+#else
+#set technology_readiness_level=UNKNOWN
+#endif //technology_readiness_level
+#ifndef show_progress
+global bool show_progress TRUE;
+#else
+#set show_progress=TRUE
+#endif //show_progress
+#ifndef checkpoint_type
+global enumeration checkpoint_type NONE;
+#else
+#set checkpoint_type=NONE
+#endif //checkpoint_type
+// checkpoint_file is set to 
+#ifndef checkpoint_seqnum
+global int32 checkpoint_seqnum 0;
+#else
+#set checkpoint_seqnum=0
+#endif //checkpoint_seqnum
+#ifndef checkpoint_interval
+global int32 checkpoint_interval 0;
+#else
+#set checkpoint_interval=0
+#endif //checkpoint_interval
+#ifndef checkpoint_keepall
+global bool checkpoint_keepall FALSE;
+#else
+#set checkpoint_keepall=FALSE
+#endif //checkpoint_keepall
+#ifndef check_version
+global bool check_version FALSE;
+#else
+#set check_version=FALSE
+#endif //check_version
+#ifndef random_number_generator
+global enumeration random_number_generator RNG3;
+#else
+#set random_number_generator=RNG3
+#endif //random_number_generator
+#ifndef mainloop_state
+global enumeration mainloop_state INIT;
+#else
+#set mainloop_state=INIT
+#endif //mainloop_state
+#ifndef pauseat
+global timestamp pauseat "NEVER";
+#else
+#set pauseat=NEVER
+#endif //pauseat
+// infourl is set to http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search=
+#ifndef hostname
+#define hostname=localhost
+#else
+#set hostname=localhost
+#endif //hostname
+#ifndef hostaddr
+global char32 hostaddr "127.0.0.1";
+#else
+#set hostaddr=127.0.0.1
+#endif //hostaddr
+#ifndef autostart_gui
+global bool autostart_gui TRUE;
+#else
+#set autostart_gui=TRUE
+#endif //autostart_gui
+// master is set to 
+#ifndef master_port
+global int64 master_port 0;
+#else
+#set master_port=0
+#endif //master_port
+#ifndef multirun_mode
+global enumeration multirun_mode STANDALONE;
+#else
+#set multirun_mode=STANDALONE
+#endif //multirun_mode
+#ifndef multirun_conn
+global enumeration multirun_conn NONE;
+#else
+#set multirun_conn=NONE
+#endif //multirun_conn
+#ifndef signal_timeout
+global int32 signal_timeout 5000;
+#else
+#set signal_timeout=5000
+#endif //signal_timeout
+#ifndef slave_port
+global int16 slave_port 6267;
+#else
+#set slave_port=6267
+#endif //slave_port
+#ifndef slave_id
+global int64 slave_id 0;
+#else
+#set slave_id=0
+#endif //slave_id
+// return_code is set to 0
+// exit_code is set to 0
+#ifndef module_compiler_flags
+global set module_compiler_flags NONE;
+#else
+#set module_compiler_flags=NONE
+#endif //module_compiler_flags
+// init_max_defer is set to 64
+#ifndef mt_analysis
+global bool mt_analysis FALSE;
+#else
+#set mt_analysis=FALSE
+#endif //mt_analysis
+#ifndef inline_block_size
+global int32 inline_block_size 1048576;
+#else
+#set inline_block_size=1048576
+#endif //inline_block_size
+#ifndef validate
+global set validate TSTD|RALL;
+#else
+#set validate=TSTD|RALL
+#endif //validate
+#ifndef sanitize
+global set sanitize NAMES|POSITIONS;
+#else
+#set sanitize=NAMES|POSITIONS
+#endif //sanitize
+#ifndef sanitize_prefix
+global char8 sanitize_prefix "GLD_";
+#else
+#set sanitize_prefix=GLD_
+#endif //sanitize_prefix
+#ifndef sanitize_index
+#define sanitize_index=.txt
+#else
+#set sanitize_index=.txt
+#endif //sanitize_index
+// sanitize_offset is set to 
+#ifndef simulation_mode
+global enumeration simulation_mode INIT;
+#else
+#set simulation_mode=INIT
+#endif //simulation_mode
+#ifndef deltamode_allowed
+global bool deltamode_allowed FALSE;
+#else
+#set deltamode_allowed=FALSE
+#endif //deltamode_allowed
+#ifndef deltamode_timestep
+global int32 deltamode_timestep 10000000;
+#else
+#set deltamode_timestep=10000000
+#endif //deltamode_timestep
+#ifndef deltamode_maximumtime
+global int64 deltamode_maximumtime 3600000000000;
+#else
+#set deltamode_maximumtime=3600000000000
+#endif //deltamode_maximumtime
+#ifndef deltaclock
+global int64 deltaclock 0;
+#else
+#set deltaclock=0
+#endif //deltaclock
+#ifndef delta_current_clock
+global double delta_current_clock +0;
+#else
+#set delta_current_clock=+0
+#endif //delta_current_clock
+// deltamode_updateorder is set to 
+#ifndef deltamode_iteration_limit
+global int32 deltamode_iteration_limit 10;
+#else
+#set deltamode_iteration_limit=10
+#endif //deltamode_iteration_limit
+#ifndef deltamode_forced_extra_timesteps
+global int32 deltamode_forced_extra_timesteps 0;
+#else
+#set deltamode_forced_extra_timesteps=0
+#endif //deltamode_forced_extra_timesteps
+#ifndef deltamode_forced_always
+global bool deltamode_forced_always FALSE;
+#else
+#set deltamode_forced_always=FALSE
+#endif //deltamode_forced_always
+#ifndef run_powerworld
+global bool run_powerworld FALSE;
+#else
+#set run_powerworld=FALSE
+#endif //run_powerworld
+#ifndef bigranks
+global bool bigranks TRUE;
+#else
+#set bigranks=TRUE
+#endif //bigranks
+// exename is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/gridlabd.bin
+#ifndef wget_options
+#define wget_options=maxsize:100MB;update:newer
+#else
+#set wget_options=maxsize:100MB;update:newer
+#endif //wget_options
+#ifndef curl_options
+#define curl_options=maxsize:100MB;update:newer
+#else
+#set curl_options=maxsize:100MB;update:newer
+#endif //curl_options
+#ifndef svnroot
+#define svnroot=http://gridlab-d.svn.sourceforge.net/svnroot/gridlab-d
+#else
+#set svnroot=http://gridlab-d.svn.sourceforge.net/svnroot/gridlab-d
+#endif //svnroot
+#ifndef github
+#define github=https://github.com/gridlab-d
+#else
+#set github=https://github.com/gridlab-d
+#endif //github
+#ifndef gitraw
+#define gitraw=https://raw.githubusercontent.com/gridlab-d
+#else
+#set gitraw=https://raw.githubusercontent.com/gridlab-d
+#endif //gitraw
+#ifndef allow_reinclude
+global bool allow_reinclude FALSE;
+#else
+#set allow_reinclude=FALSE
+#endif //allow_reinclude
+#ifndef output_message_context
+global set output_message_context ALL;
+#else
+#set output_message_context=ALL
+#endif //output_message_context
+#ifndef permissive_access
+global int32 permissive_access 0;
+#else
+#set permissive_access=0
+#endif //permissive_access
+#ifndef relax_undefined_if
+global bool relax_undefined_if FALSE;
+#else
+#set relax_undefined_if=FALSE
+#endif //relax_undefined_if
+#ifndef literal_if
+global bool literal_if TRUE;
+#else
+#set literal_if=TRUE
+#endif //literal_if
+#ifndef validto_context
+global enumeration validto_context 1414746112;
+#else
+#set validto_context=1414746112
+#endif //validto_context
+#ifndef daemon_configfile
+#define daemon_configfile=gridlabd.cnf
+#else
+#set daemon_configfile=gridlabd.cnf
+#endif //daemon_configfile
+// timezone_locale is set to PST8PDT
+#ifndef glm_save_options
+global set glm_save_options MINIMAL;
+#else
+#set glm_save_options=MINIMAL
+#endif //glm_save_options
+#ifndef filesave_options
+global set filesave_options ALL;
+#else
+#set filesave_options=ALL
+#endif //filesave_options
+#ifndef ignore_errors
+global bool ignore_errors FALSE;
+#else
+#set ignore_errors=FALSE
+#endif //ignore_errors
+#ifndef keep_progress
+global bool keep_progress FALSE;
+#else
+#set keep_progress=FALSE
+#endif //keep_progress
+#ifndef allow_variant_aggregates
+global bool allow_variant_aggregates FALSE;
+#else
+#set allow_variant_aggregates=FALSE
+#endif //allow_variant_aggregates
+// progress is set to +0
+#ifndef server_keepalive
+global bool server_keepalive FALSE;
+#else
+#set server_keepalive=FALSE
+#endif //server_keepalive
+#ifndef pythonpath
+#define pythonpath=(null):.:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd/python3.10/site-packages
+#else
+#set pythonpath=(null):.:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd:/usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd/python3.10/site-packages
+#endif //pythonpath
+// pythonexec is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin/python3
+// datadir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd
+// bindir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/bin
+// vardir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/var/gridlabd
+// libdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/lib/gridlabd
+// incdir is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/include
+// logfile is set to /tmp/gridlabd-log
+// pidfile_dir is set to /tmp/gridlabd-pid
+// configpath is set to /usr/local/opt/gridlabd/4.3.1-230512-develop_fix_create_meters-darwin_22-x86_64/share/gridlabd/solver_py.conf
+#ifndef json_complex_format
+global set json_complex_format STRING;
+#else
+#set json_complex_format=STRING
+#endif //json_complex_format
+#ifndef rusage_file
+#define rusage_file=gridlabd-rusage.csv
+#else
+#set rusage_file=gridlabd-rusage.csv
+#endif //rusage_file
+#ifndef rusage_rate
+global int64 rusage_rate 0;
+#else
+#set rusage_rate=0
+#endif //rusage_rate
+#ifndef rusage
+#define rusage={}
+#else
+#set rusage={}
+#endif //rusage
+#ifndef echo
+global bool echo FALSE;
+#else
+#set echo=FALSE
+#endif //echo
+// filename is set to ../links-to-triplexmeter-to-child.glm
+#ifndef country
+global char8 country "US";
+#else
+#set country=US
+#endif //country
+#ifndef region
+global char32 region "CA";
+#else
+#set region=CA
+#endif //region
+#ifndef organization
+global char32 organization "SLAC";
+#else
+#set organization=SLAC
+#endif //organization
+// profile_output_format is set to 
+#ifndef maximum_runtime
+global int64 maximum_runtime 0;
+#else
+#set maximum_runtime=0
+#endif //maximum_runtime
+// powerflow::message_flags is set to 
+// powerflow::show_matrix_values is set to FALSE
+// powerflow::primary_voltage_ratio is set to +60 pu
+// powerflow::nominal_frequency is set to +60 Hz
+// powerflow::require_voltage_control is set to FALSE
+// powerflow::geographic_degree is set to +0
+// powerflow::fault_impedance is set to +1e-06+0j Ohm
+// powerflow::ground_impedance is set to +1e-06+0j Ohm
+// powerflow::warning_underfrequency is set to +55 Hz
+// powerflow::warning_overfrequency is set to +65 Hz
+// powerflow::warning_undervoltage is set to +0.8 V
+// powerflow::warning_overvoltage is set to +1.2 V
+// powerflow::warning_voltageangle is set to +2
+// powerflow::maximum_voltage_error is set to +1e-06 V
+// powerflow::solver_method is set to NR
+// powerflow::NR_matrix_file is set to 
+// powerflow::NR_matrix_output_interval is set to NEVER
+// powerflow::NR_matrix_output_references is set to FALSE
+// powerflow::NR_matrix_output_rhs is set to FALSE
+// powerflow::NR_island_failure_handled is set to FALSE
+// powerflow::line_capacitance is set to FALSE
+// powerflow::line_limits is set to TRUE
+// powerflow::lu_solver is set to 
+// powerflow::NR_iteration_limit is set to 500
+// powerflow::NR_deltamode_iteration_limit is set to 10
+// powerflow::NR_superLU_procs is set to 1
+// powerflow::default_maximum_voltage_error is set to +1e-06 pu
+// powerflow::default_maximum_power_error is set to +0.0001 pu
+// powerflow::NR_admit_change is set to TRUE
+// powerflow::enable_subsecond_models is set to FALSE
+// powerflow::all_powerflow_delta is set to FALSE
+// powerflow::deltamode_timestep is set to +1e+07 ns
+// powerflow::current_frequency is set to +60 Hz
+// powerflow::master_frequency_update is set to FALSE
+// powerflow::enable_frequency_dependence is set to FALSE
+// powerflow::default_resistance is set to +0.0001 Ohm
+// powerflow::enable_inrush is set to FALSE
+// powerflow::low_voltage_impedance_level is set to +0.7 pu
+// powerflow::enable_mesh_fault_current is set to FALSE
+// powerflow::convergence_error_handling is set to FATAL
+// powerflow::solver_profile_enable is set to FALSE
+// powerflow::solver_profile_filename is set to solver_nr_profile.txt
+// powerflow::solver_profile_headers_included is set to TRUE
+// powerflow::solver_headers is set to timestamp,duration[microsec],iteration,bus_count,branch_count,error
+// powerflow::solver_profile_csv is set to FALSE
+// powerflow::solver_py_config is set to /usr/local/opt/gridlabd/var/gridlabd/solver_py.conf
+// powerflow::solver_dump_enable is set to FALSE
+// powerflow::violation_record is set to 
+// powerflow::violation_count is set to 0
+// powerflow::violation_active is set to 0
+// powerflow::violation_watchset is set to ALL
+// powerflow::voltage_violation_threshold is set to +0.05 pu
+// powerflow::undervoltage_violation_threshold is set to +0 pu
+// powerflow::overvoltage_violation_threshold is set to +0 pu
+// powerflow::voltage_fluctuation_threshold is set to +0.03 pu
+// powerflow::DER_violation_test is set to ANY
+// powerflow::default_continuous_rating is set to +1000 A
+// powerflow::default_emergency_rating is set to +2000 A
+// powerflow::default_violation_rating is set to +0 A
+// powerflow::market_price_name is set to current_market.clearing_price
+// powerflow::repair_time is set to +24 h
+// powerflow::wind_speed_name is set to wind_speed
+// powerflow::wind_dir_name is set to wind_dir
+// powerflow::wind_gust_name is set to wind_gust
+// powerflow::stop_on_pole_failure is set to FALSE
+// powerflow::climate_impact_zone is set to NONE
+// powerflow::building_defaults is set to building_defaults.csv
+// powerflow::building_loadshapes is set to building_loadshapes.csv
+// powerflow::building_occupancy is set to building_occupancy.csv
+// powerflow::inverter_settings is set to inverter_settings.csv
+// powerflow::NAICS_datafile is set to naics_data_file.csv
+// powerflow::ground_temperature is set to +25 degC
+// powerflow::warning_cable_temperature is set to +80 degC
+// powerflow::alert_cable_temperature is set to +90 degC
+// powerflow::ductbank_configuration_file is set to ductbank_configurations.csv
+// powerflow::air_effective_conductivity is set to +0.2 W/K*m
+// assert::message_flags is set to 
+// tape::gnuplot_path is set to /usr/bin/gnuplot
+// tape::flush_interval is set to 0
+// tape::csv_data_only is set to 0
+// tape::csv_header_type is set to FULL
+// tape::csv_keep_clean is set to 0
+// tape::delta_mode_needed is set to NEVER
+
+// CLASSES// SCHEDULES
+
+
+
+// OBJECTS
+object node
+{
+	name "R1-12-47-1_node_114";
+	rng_state "8935";
+	guid "11E0C3EE9D5276773651B642B0269D63";
+	bustype "SWING";
+	busflags "HASSOURCE";
+	maximum_voltage_error "0.00721688 V";
+	voltage_A "7216.88+0j V";
+	voltage_B "0+0j V";
+	voltage_C "0+0j V";
+	voltage_AB "0+0j V";
+	voltage_BC "0+0j V";
+	voltage_CA "0+0j V";
+	mean_repair_time "0 s";
+	frequency_measure_type "NONE";
+	sfm_Tf "0.01 s";
+	pll_Kp "10 pu";
+	pll_Ki "100 pu";
+	measured_angle_A "0 rad";
+	measured_frequency_A "60 Hz";
+	measured_angle_B "0 rad";
+	measured_frequency_B "60 Hz";
+	measured_angle_C "0 rad";
+	measured_frequency_C "60 Hz";
+	measured_frequency "60 Hz";
+	service_status "IN_SERVICE";
+	service_status_double "-1";
+	previous_uptime "-1 min";
+	current_uptime "-1 min";
+	Norton_dynamic "FALSE";
+	generator_dynamic "FALSE";
+	reset_disabled_island_state "FALSE";
+	GFA_enable "FALSE";
+	GFA_freq_low_trip "59.5 Hz";
+	GFA_freq_high_trip "60.5 Hz";
+	GFA_volt_low_trip "0.8 pu";
+	GFA_volt_high_trip "1.2 pu";
+	GFA_reconnect_time "300 s";
+	GFA_freq_disconnect_time "0.2 s";
+	GFA_volt_disconnect_time "0.2 s";
+	GFA_status "TRUE";
+	GFA_trip_method "NONE";
+	voltage_violation_threshold "0.05 pu";
+	undervoltage_violation_threshold "0 pu";
+	overvoltage_violation_threshold "0 pu";
+	voltage_fluctuation_threshold "0.03 pu";
+	DER_value "0+0j VA";
+	phases "AN";
+	nominal_voltage "7216.88 V";
+	violation_detected "NONE";
+}
+object transformer_configuration
+{
+	name "tx_config";
+	rng_state "20520";
+	guid "57ED1B4AEB84C2507BF5A761FAC8917B";
+	connect_type "SINGLE_PHASE_CENTER_TAPPED";
+	install_type "POLETOP";
+	coolant_type "UNKNOWN";
+	cooling_type "UNKNOWN";
+	primary_voltage "7216.88 V";
+	secondary_voltage "120 V";
+	power_rating "15 kVA";
+	powerA_rating "15 kVA";
+	powerB_rating "0 kVA";
+	powerC_rating "0 kVA";
+	powerN_rating "0 kVA";
+	resistance "0.01 pu*Ohm";
+	reactance "0.00667 pu*Ohm";
+	impedance "0.01+0.00667j pu*Ohm";
+	resistance1 "0 pu*Ohm";
+	reactance1 "0 pu*Ohm";
+	impedance1 "0+0j pu*Ohm";
+	resistance2 "0 pu*Ohm";
+	reactance2 "0 pu*Ohm";
+	impedance2 "0+0j pu*Ohm";
+	shunt_resistance "1e+09 pu*Ohm";
+	shunt_reactance "1e+09 pu*Ohm";
+	shunt_impedance "1e+09+1e+09j pu*Ohm";
+	core_coil_weight "0 lb";
+	tank_fittings_weight "0 lb";
+	oil_volume "0 gal";
+	rated_winding_time_constant "0 h";
+	rated_winding_hot_spot_rise "0 degC";
+	rated_top_oil_rise "0 degC";
+	no_load_loss "0 pu";
+	full_load_loss "0 pu";
+	reactance_resistance_ratio "4.5";
+	installed_insulation_life "0 h";
+	magnetization_location "NONE";
+	inrush_saturation_enabled "FALSE";
+	L_A "0.2 pu";
+	phi_K "1.17 pu";
+	phi_M "1 pu";
+	I_M "0.01 pu";
+	T_D "0.5";
+}
+object transformer
+{
+	name "R1-12-47-1_xfmr_598";
+	rng_state "5006";
+	guid "518588900F3E6916380448481EF921BD";
+	configuration "tx_config";
+	ambient_temperature "0 degC";
+	top_oil_hot_spot_temperature "0 degC";
+	winding_hot_spot_temperature "0 degC";
+	percent_loss_of_life "0";
+	aging_constant "0";
+	use_thermal_model "FALSE";
+	transformer_replacement_count "0";
+	aging_granularity "0 s";
+	phase_A_primary_flux_value "0 Wb";
+	phase_B_primary_flux_value "0 Wb";
+	phase_C_primary_flux_value "0 Wb";
+	phase_A_secondary_flux_value "0 Wb";
+	phase_B_secondary_flux_value "0 Wb";
+	phase_C_secondary_flux_value "0 Wb";
+	degradation_factor "0 pu";
+	status "CLOSED";
+	from "R1-12-47-1_node_114";
+	to "R1-12-47-1_tn_598_meter";
+	power_in "0+0j VA";
+	power_out "0+0j VA";
+	power_out_real "0 W";
+	power_losses "0+0j VA";
+	power_in_A "0+0j VA";
+	power_in_B "0+0j VA";
+	power_in_C "0+0j VA";
+	power_out_A "0+0j VA";
+	power_out_B "0+0j VA";
+	power_out_C "0+0j VA";
+	power_losses_A "0+0j VA";
+	power_losses_B "0+0j VA";
+	power_losses_C "0+0j VA";
+	current_out_A "0+0j A";
+	current_out_B "0+0j A";
+	current_out_C "0+0j A";
+	current_in_A "0+0j A";
+	current_in_B "0+0j A";
+	current_in_C "0+0j A";
+	fault_current_in_A "0+0j A";
+	fault_current_in_B "0+0j A";
+	fault_current_in_C "0+0j A";
+	fault_current_out_A "0+0j A";
+	fault_current_out_B "0+0j A";
+	fault_current_out_C "0+0j A";
+	fault_voltage_A "0+0j A";
+	fault_voltage_B "0+0j A";
+	fault_voltage_C "0+0j A";
+	flow_direction "UNKNOWN";
+	mean_repair_time "0 s";
+	continuous_rating "15 A";
+	emergency_rating "15 A";
+	inrush_convergence_value "0.0001 V";
+	violation_rating "0 A";
+	phases "AS";
+	nominal_voltage "7216.88 V";
+	violation_detected "NONE";
+}
+object triplex_load
+{
+	name "R1-12-47-1_tn_598";
+	rng_state "29890";
+	guid "1A0EB60E328FB6DF2C8B595A9FABB9AE";
+	load_class "U";
+	constant_power_1 "0+0j VA";
+	constant_power_2 "0+0j VA";
+	constant_power_12 "0+0j VA";
+	constant_power_1_real "0 W";
+	constant_power_2_real "0 W";
+	constant_power_12_real "0 W";
+	constant_power_1_reac "0 VAr";
+	constant_power_2_reac "0 VAr";
+	constant_power_12_reac "0 VAr";
+	constant_current_1 "0+0j A";
+	constant_current_2 "0+0j A";
+	constant_current_12 "0+0j A";
+	constant_current_1_real "0 A";
+	constant_current_2_real "0 A";
+	constant_current_12_real "0 A";
+	constant_current_1_reac "0 A";
+	constant_current_2_reac "0 A";
+	constant_current_12_reac "0 A";
+	constant_impedance_1 "0+0j Ohm";
+	constant_impedance_2 "0+0j Ohm";
+	constant_impedance_12 "0+0j Ohm";
+	constant_impedance_1_real "0 Ohm";
+	constant_impedance_2_real "0 Ohm";
+	constant_impedance_12_real "0 Ohm";
+	constant_impedance_1_reac "0 Ohm";
+	constant_impedance_2_reac "0 Ohm";
+	constant_impedance_12_reac "0 Ohm";
+	measured_voltage_1 "0+0j V";
+	measured_voltage_2 "0+0j V";
+	measured_voltage_12 "0+0j V";
+	base_power_1 "0 VA";
+	base_power_2 "0 VA";
+	base_power_12 "0 VA";
+	power_pf_1 "1 pu";
+	current_pf_1 "1 pu";
+	impedance_pf_1 "1 pu";
+	power_pf_2 "1 pu";
+	current_pf_2 "1 pu";
+	impedance_pf_2 "1 pu";
+	power_pf_12 "1 pu";
+	current_pf_12 "1 pu";
+	impedance_pf_12 "1 pu";
+	power_fraction_1 "0 pu";
+	current_fraction_1 "0 pu";
+	impedance_fraction_1 "0 pu";
+	power_fraction_2 "0 pu";
+	current_fraction_2 "0 pu";
+	impedance_fraction_2 "0 pu";
+	power_fraction_12 "0 pu";
+	current_fraction_12 "0 pu";
+	impedance_fraction_12 "0 pu";
+	bustype "PQ";
+	maximum_voltage_error "0.00012 V";
+	voltage_1 "120+0j V";
+	voltage_2 "120+0j V";
+	voltage_N "0+0j V";
+	voltage_12 "240+0j V";
+	voltage_1N "120+0j V";
+	voltage_2N "120+0j V";
+	house_present "FALSE";
+	reset_disabled_island_state "FALSE";
+	GFA_enable "FALSE";
+	GFA_freq_low_trip "59.5 Hz";
+	GFA_freq_high_trip "60.5 Hz";
+	GFA_volt_low_trip "0.8 pu";
+	GFA_volt_high_trip "1.2 pu";
+	GFA_reconnect_time "300 s";
+	GFA_freq_disconnect_time "0.2 s";
+	GFA_volt_disconnect_time "0.2 s";
+	GFA_status "TRUE";
+	service_status "IN_SERVICE";
+	service_status_double "-1";
+	previous_uptime "-1 min";
+	current_uptime "-1 min";
+	frequency_measure_type "NONE";
+	sfm_Tf "0.01 s";
+	pll_Kp "10 pu";
+	pll_Ki "100 pu";
+	measured_angle_1 "0 rad";
+	measured_frequency_1 "60 Hz";
+	measured_angle_2 "0 rad";
+	measured_frequency_2 "60 Hz";
+	measured_angle_12 "0 rad";
+	measured_frequency_12 "60 Hz";
+	measured_frequency "60 Hz";
+	phases "AS";
+	nominal_voltage "120 V";
+	violation_detected "NONE";
+	parent "R1-12-47-1_tn_598_meter";
+}
+object triplex_line_conductor
+{
+	name "triplex_1/0 AA";
+	rng_state "28474";
+	guid "50F49F244780052065388055F00EDD90";
+	resistance "0.97 Ohm/mile";
+	geometric_mean_radius "0.0111 ft";
+	rating.summer.continuous "202 A";
+	rating.summer.emergency "212.1 A";
+	rating.winter.continuous "202 A";
+	rating.winter.emergency "212.1 A";
+}
+object triplex_line_configuration
+{
+	name "line_config";
+	rng_state "9317";
+	guid "72CDAD73F8CAA41D3EF1F1EF744138F4";
+	conductor_1 "triplex_1/0 AA";
+	conductor_2 "triplex_1/0 AA";
+	conductor_N "triplex_1/0 AA";
+	insulation_thickness "0.08 in";
+	diameter "0.368 in";
+	z11 "0+0j Ohm/mile";
+	z12 "0+0j Ohm/mile";
+	z21 "0+0j Ohm/mile";
+	z22 "0+0j Ohm/mile";
+	rating.summer.continuous "1000 A";
+	rating.summer.emergency "2000 A";
+	rating.winter.continuous "1000 A";
+	rating.winter.emergency "2000 A";
+}
+object triplex_line
+{
+	name "R1-12-47-1_tl_598";
+	rng_state "29278";
+	guid "3E56CDACA7364CD0620BAD77B001A3D1";
+	configuration "line_config";
+	length "30 ft";
+	status "CLOSED";
+	from "R1-12-47-1_tn_598_meter";
+	to "R1-12-47-1_tm_598";
+	power_in "0+0j VA";
+	power_out "0+0j VA";
+	power_out_real "0 W";
+	power_losses "0+0j VA";
+	power_in_A "0+0j VA";
+	power_in_B "0+0j VA";
+	power_in_C "0+0j VA";
+	power_out_A "0+0j VA";
+	power_out_B "0+0j VA";
+	power_out_C "0+0j VA";
+	power_losses_A "0+0j VA";
+	power_losses_B "0+0j VA";
+	power_losses_C "0+0j VA";
+	current_out_A "0+0j A";
+	current_out_B "0+0j A";
+	current_out_C "0+0j A";
+	current_in_A "0+0j A";
+	current_in_B "0+0j A";
+	current_in_C "0+0j A";
+	fault_current_in_A "0+0j A";
+	fault_current_in_B "0+0j A";
+	fault_current_in_C "0+0j A";
+	fault_current_out_A "0+0j A";
+	fault_current_out_B "0+0j A";
+	fault_current_out_C "0+0j A";
+	fault_voltage_A "0+0j A";
+	fault_voltage_B "0+0j A";
+	fault_voltage_C "0+0j A";
+	flow_direction "UNKNOWN";
+	mean_repair_time "0 s";
+	continuous_rating "1000 A";
+	emergency_rating "2000 A";
+	inrush_convergence_value "0.0001 V";
+	violation_rating "0 A";
+	phases "AS";
+	nominal_voltage "120 V";
+	violation_detected "NONE";
+}
+object triplex_meter
+{
+	name "R1-12-47-1_tm_598";
+	rng_state "25104";
+	guid "3C232511338A3282758A5DF830F2FBDC";
+	measured_real_energy "0 Wh";
+	measured_real_energy_delta "0 Wh";
+	measured_reactive_energy "0 VAh";
+	measured_reactive_energy_delta "0 VAh";
+	measured_energy_delta_timestep "-1 s";
+	measured_power "0+0j VA";
+	indiv_measured_power_1 "0+0j VA";
+	indiv_measured_power_2 "0+0j VA";
+	indiv_measured_power_N "0+0j VA";
+	measured_demand "0 W";
+	measured_real_power "0 W";
+	measured_reactive_power "0 VAr";
+	meter_power_consumption "0+0j VA";
+	measured_voltage_1 "0+0j V";
+	measured_voltage_2 "0+0j V";
+	measured_voltage_12 "0+0j V";
+	measured_voltage_N "0+0j V";
+	measured_real_max_voltage_1_in_interval "0";
+	measured_real_max_voltage_2_in_interval "0";
+	measured_real_max_voltage_12_in_interval "0";
+	measured_imag_max_voltage_1_in_interval "0";
+	measured_imag_max_voltage_2_in_interval "0";
+	measured_imag_max_voltage_12_in_interval "0";
+	measured_real_min_voltage_1_in_interval "0";
+	measured_real_min_voltage_2_in_interval "0";
+	measured_real_min_voltage_12_in_interval "0";
+	measured_imag_min_voltage_1_in_interval "0";
+	measured_imag_min_voltage_2_in_interval "0";
+	measured_imag_min_voltage_12_in_interval "0";
+	measured_avg_voltage_mag_1_in_interval "0";
+	measured_avg_voltage_mag_2_in_interval "0";
+	measured_avg_voltage_mag_12_in_interval "0";
+	measured_current_1 "0+0j A";
+	measured_current_2 "0+0j A";
+	measured_current_N "0+0j A";
+	customer_interrupted "FALSE";
+	customer_interrupted_secondary "FALSE";
+	monthly_bill "0 $";
+	previous_monthly_bill "0 $";
+	previous_monthly_energy "0 kWh";
+	monthly_fee "0 $";
+	monthly_energy "0 kWh";
+	bill_mode "NONE";
+	bill_day "15";
+	price "0 $/kWh";
+	price_base "0 $/kWh";
+	first_tier_price "0 $/kWh";
+	first_tier_energy "0 kWh";
+	second_tier_price "0 $/kWh";
+	second_tier_energy "0 kWh";
+	third_tier_price "0 $/kWh";
+	third_tier_energy "0 kWh";
+	service_level "NORMAL";
+	bustype "PQ";
+	maximum_voltage_error "0.00012 V";
+	voltage_1 "120+0j V";
+	voltage_2 "120+0j V";
+	voltage_N "0+0j V";
+	voltage_12 "240+0j V";
+	voltage_1N "120+0j V";
+	voltage_2N "120+0j V";
+	house_present "FALSE";
+	reset_disabled_island_state "FALSE";
+	GFA_enable "FALSE";
+	GFA_freq_low_trip "59.5 Hz";
+	GFA_freq_high_trip "60.5 Hz";
+	GFA_volt_low_trip "0.8 pu";
+	GFA_volt_high_trip "1.2 pu";
+	GFA_reconnect_time "300 s";
+	GFA_freq_disconnect_time "0.2 s";
+	GFA_volt_disconnect_time "0.2 s";
+	GFA_status "TRUE";
+	service_status "IN_SERVICE";
+	service_status_double "-1";
+	previous_uptime "-1 min";
+	current_uptime "-1 min";
+	frequency_measure_type "NONE";
+	sfm_Tf "0.01 s";
+	pll_Kp "10 pu";
+	pll_Ki "100 pu";
+	measured_angle_1 "0 rad";
+	measured_frequency_1 "60 Hz";
+	measured_angle_2 "0 rad";
+	measured_frequency_2 "60 Hz";
+	measured_angle_12 "0 rad";
+	measured_frequency_12 "60 Hz";
+	measured_frequency "60 Hz";
+	phases "AS";
+	nominal_voltage "120 V";
+	violation_detected "NONE";
+}
+object complex_assert
+{
+	name "complex_assert:8";
+	parent "R1-12-47-1_tm_598";
+	rng_state "25146";
+	guid "6CE2B21268127FB452BFDEEAA5E3219E";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "119.903+0.606846j";
+	within "1";
+	target "voltage_1";
+}
+object complex_assert
+{
+	name "complex_assert:9";
+	parent "R1-12-47-1_tm_598";
+	rng_state "30715";
+	guid "7107516C997880859B2BBECD8D5D2A6";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "119.903+0.278526j";
+	within "1";
+	target "voltage_2";
+}
+object complex_assert
+{
+	name "complex_assert:10";
+	parent "R1-12-47-1_tm_598";
+	rng_state "12500";
+	guid "4A093FFF6B19F99277A64D76E4D58FE6";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "239.14+0.885372j";
+	within "1";
+	target "voltage_12";
+}
+object triplex_load
+{
+	name "R1-12-47-1_tn_1196";
+	parent "R1-12-47-1_tm_598";
+	rng_state "12280";
+	guid "1467D2513E31D423A2CCE3905916C9C";
+	load_class "U";
+	constant_power_1 "2560.74+2849.95j VA";
+	constant_power_2 "0+0j VA";
+	constant_power_12 "0+0j VA";
+	constant_power_1_real "2560.74 W";
+	constant_power_2_real "0 W";
+	constant_power_12_real "0 W";
+	constant_power_1_reac "2849.95 VAr";
+	constant_power_2_reac "0 VAr";
+	constant_power_12_reac "0 VAr";
+	constant_current_1 "0+0j A";
+	constant_current_2 "0+0j A";
+	constant_current_12 "0+0j A";
+	constant_current_1_real "0 A";
+	constant_current_2_real "0 A";
+	constant_current_12_real "0 A";
+	constant_current_1_reac "0 A";
+	constant_current_2_reac "0 A";
+	constant_current_12_reac "0 A";
+	constant_impedance_1 "0+0j Ohm";
+	constant_impedance_2 "0+0j Ohm";
+	constant_impedance_12 "0+0j Ohm";
+	constant_impedance_1_real "0 Ohm";
+	constant_impedance_2_real "0 Ohm";
+	constant_impedance_12_real "0 Ohm";
+	constant_impedance_1_reac "0 Ohm";
+	constant_impedance_2_reac "0 Ohm";
+	constant_impedance_12_reac "0 Ohm";
+	measured_voltage_1 "0+0j V";
+	measured_voltage_2 "0+0j V";
+	measured_voltage_12 "0+0j V";
+	base_power_1 "0 VA";
+	base_power_2 "0 VA";
+	base_power_12 "0 VA";
+	power_pf_1 "1 pu";
+	current_pf_1 "1 pu";
+	impedance_pf_1 "1 pu";
+	power_pf_2 "1 pu";
+	current_pf_2 "1 pu";
+	impedance_pf_2 "1 pu";
+	power_pf_12 "1 pu";
+	current_pf_12 "1 pu";
+	impedance_pf_12 "1 pu";
+	power_fraction_1 "0 pu";
+	current_fraction_1 "0 pu";
+	impedance_fraction_1 "0 pu";
+	power_fraction_2 "0 pu";
+	current_fraction_2 "0 pu";
+	impedance_fraction_2 "0 pu";
+	power_fraction_12 "0 pu";
+	current_fraction_12 "0 pu";
+	impedance_fraction_12 "0 pu";
+	bustype "PQ";
+	maximum_voltage_error "0.00012 V";
+	voltage_1 "120+0j V";
+	voltage_2 "120+0j V";
+	voltage_N "0+0j V";
+	voltage_12 "240+0j V";
+	voltage_1N "120+0j V";
+	voltage_2N "120+0j V";
+	house_present "FALSE";
+	reset_disabled_island_state "FALSE";
+	GFA_enable "FALSE";
+	GFA_freq_low_trip "59.5 Hz";
+	GFA_freq_high_trip "60.5 Hz";
+	GFA_volt_low_trip "0.8 pu";
+	GFA_volt_high_trip "1.2 pu";
+	GFA_reconnect_time "300 s";
+	GFA_freq_disconnect_time "0.2 s";
+	GFA_volt_disconnect_time "0.2 s";
+	GFA_status "TRUE";
+	service_status "IN_SERVICE";
+	service_status_double "-1";
+	previous_uptime "-1 min";
+	current_uptime "-1 min";
+	topological_parent "R1-12-47-1_tm_598";
+	frequency_measure_type "NONE";
+	sfm_Tf "0.01 s";
+	pll_Kp "10 pu";
+	pll_Ki "100 pu";
+	measured_angle_1 "0 rad";
+	measured_frequency_1 "60 Hz";
+	measured_angle_2 "0 rad";
+	measured_frequency_2 "60 Hz";
+	measured_angle_12 "0 rad";
+	measured_frequency_12 "60 Hz";
+	measured_frequency "60 Hz";
+	phases "AS";
+	nominal_voltage "120 V";
+	violation_detected "NONE";
+}
+object complex_assert
+{
+	name "complex_assert:12";
+	parent "R1-12-47-1_tn_1196";
+	rng_state "590";
+	guid "1FAEA0BC9B6543612A126ECBC1E98A61";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "119.903+0.606846j";
+	within "1";
+	target "voltage_1";
+}
+object complex_assert
+{
+	name "complex_assert:13";
+	parent "R1-12-47-1_tn_1196";
+	rng_state "6957";
+	guid "1FDF092BD2626C8B629887A4F70E8210";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "119.903+0.278526j";
+	within "1";
+	target "voltage_2";
+}
+object complex_assert
+{
+	name "complex_assert:14";
+	parent "R1-12-47-1_tn_1196";
+	rng_state "24297";
+	guid "534C551CA4E48D982A4812E16DCE6A07";
+	status "ASSERT_TRUE";
+	once "ONCE_FALSE";
+	operation "FULL";
+	value "239.14+0.885372j";
+	within "1";
+	target "voltage_12";
+}
+object triplex_meter
+{
+	name "R1-12-47-1_tn_598_meter";
+	phases "AS";
+	nominal_voltage "120 V";
+	measured_energy_delta_timestep "3600";
+}
