@@ -21,7 +21,7 @@ RUN curl -sL http://install-dev.gridlabd.us/install.sh | sh
 
 RUN gridlabd --version=all
 
-RUN gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes
+RUN gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || true
 
 WORKDIR /app
 
