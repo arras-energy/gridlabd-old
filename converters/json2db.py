@@ -3,6 +3,12 @@ import os
 import sys, getopt
 import sqlite3
 
+def error(msg,code=None):
+	print(f"ERROR [json2db]: {msg}",file=sys.stderr)
+
+def warning(msg):
+	print(f"WARNING [json2db]: {msg}",file=sys.stderr)
+
 filename_json = 'gridlabd.json'
 filename_db = ''
 try : 
@@ -36,7 +42,8 @@ with open(filename_json,"r") as f :
 	assert(model['version'] >= '4.2.0')
 
 # create db
-os.remove(filename_db)
+if os.path.exists(filename_db):
+	os.remove(filename_db)
 db = sqlite3.connect(filename_db)
 
 # register converters
@@ -47,15 +54,56 @@ for datatype in model['types']:
 	else:
 		typemap[datatype] = "text"
 
+# create gridlabd tables
+db.execute("""CREATE TABLE gridlabd_modules (
+	name text,
+	major int,
+	minor int
+	);""")
+for name,info in model['modules'].items():
+	db.execute(f"""INSERT INTO gridlabd_modules (name,major,minor) VALUES ('{name}','{info['major']}','{info['minor']}');""")
 
-# create tables
+db.execute("""CREATE TABLE gridlabd_globals (
+	name text,
+	type text,
+	access text,
+	value text);""")
+for name,info in model['globals'].items():
+	db.execute(f"""INSERT INTO gridlabd_globals (name,type,access,value) VALUES ('{name}','{info['type']}','{info['access']}','{info['value']}')""")
+
+# db.execute("""CREATE TABLE gridlabd_schedule ()""")
+if "schedule" in model and model["schedule"]:
+	warning("schedules not exported")
+
+# db.execute("""CREATE TABLE gridlabd_filter ()""")
+if "filter" in model and model["filter"]:
+	warning("filters not exported")
+
+# create object tables
+def get_properties(model,classname):
+	result = get_properties(model,model["classes"][classname]["parent"]) if "parent" in model["classes"][classname] else []
+	properties = {}
+	for name,data in list(model["classes"][classname].items()):
+		if name.lower() in [x.lower() for x in properties]:
+			warning(f"'{classname}.{name}' is a case-insensitive duplicate name and cannot be converted to SQL")
+		else:
+			properties[name] = data
+	result.extend([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in properties.items() if type(y) is dict])
+	return result
+
 for classname, properties in model["classes"].items():
 	if len([x for x,y in properties.items() if type(y) is dict]) > 0:
 		query = f"create table {classname} (\n  "
-		query += ",\n  ".join([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in model['header'].items() if type(y) is dict])
-		query += ",\n  ".join([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in properties.items() if type(y) is dict])
+		query += ",\n  ".join([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in model['header'].items()]) + ",\n  "
+		query += ",\n  ".join(get_properties(model,classname))
 		query += "\n  );"
-		print(query)
+		# print(query)
 		db.execute(query)
 
-# for
+for name, properties in model["objects"].items():
+	classname = properties["class"]
+	query = f"""INSERT INTO {classname} ("{'","'.join(properties.keys()).replace('.','_')}") VALUES ("{'","'.join(properties.values())}");"""
+	# print(query)
+	db.execute(query)
+
+db.commit()

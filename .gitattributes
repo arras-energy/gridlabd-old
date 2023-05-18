@@ -47,3 +47,4 @@
 *.mdb binary
 *.tif binary
 .circleci/config.yml merge=ours
+*.db binary
