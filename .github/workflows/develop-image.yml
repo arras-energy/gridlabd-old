@@ -220,4 +220,40 @@ jobs:
         file: ./docker/packer/Dockerfile.dev.ul
         push: true
         tags: hipas/gridlabd-develop:latest
-  
+
+  updateS3websites:
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Website s3 sync
+      run: |
+        aws s3 sync ./cloud/websites/code.gridlabd.us/ s3://code-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/docs.gridlabd.us/ s3://docs-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/geodata.gridlabd.us/ s3://geodata-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/install.gridlabd.us/ s3://instal-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/status.gridlabd.us/ s3://status-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/tutorials.gridlabd.us/ s3://tutorials-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/www.gridlabd.us/ s3://www-dev.gridlabd.us
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
+
+    - name: Deploy Lambda
+      run: |
+        zip lambda.zip app.py
+        aws lambda update-function-code --function-name your_lambda_name --zip-file fileb://lambda.zip
