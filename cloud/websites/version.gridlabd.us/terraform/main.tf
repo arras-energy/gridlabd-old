@@ -60,17 +60,17 @@ data "archive_file" "lambda_zip" {
   output_path = "./lambda.zip"
 }
 
-resource "aws_s3_bucket" "bucket" {
+data "aws_s3_bucket" "bucket" {
   bucket = "version.gridlabd.us"
-  acl    = "private"
 }
 
 resource "aws_s3_bucket_object" "object" {
-  bucket = aws_s3_bucket.bucket.bucket
+  bucket = data.aws_s3_bucket.bucket.bucket
   key    = "lambda.zip"
   source = data.archive_file.lambda_zip.output_path
   etag   = filemd5(data.archive_file.lambda_zip.output_path)
 }
+
 
 resource "aws_lambda_function" "gridlabd_lambda" {
   function_name = "gridlabd_version"
