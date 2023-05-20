@@ -307,7 +307,6 @@ static int recorder_open(OBJECT *obj)
 	PROPERTY *prop = 0;
 	UNIT *unit = 0;
 	int first = 1;
-	int fmt_count = 0;
 	char *last_token;
 	switch ( my->header_units )
 	{
@@ -316,7 +315,7 @@ static int recorder_open(OBJECT *obj)
 		break;
 	case HU_ALL:
 		strcpy(unit_buffer, my->property);
-		for ( token = strtok_s(unit_buffer,",",&last_token) ; token != NULL ; fmt_count++, token = strtok_s(NULL, ",",&last_token) )
+		for ( token = strtok_s(unit_buffer,",",&last_token) ; token != NULL ; token = strtok_s(NULL, ",",&last_token) )
 		{
 			unit = 0;
 			prop = 0;

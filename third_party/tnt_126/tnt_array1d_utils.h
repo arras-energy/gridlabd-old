@@ -53,7 +53,9 @@ std::istream& operator>>(std::istream &s, Array1D<T> &A)
 
 	Array1D<T> B(N);
 	for (int i=0; i<N; i++)
+	{
 		s >> B[i];
+	}
 	A = B;
 	return s;
 }
@@ -66,8 +68,9 @@ Array1D<T> operator+(const Array1D<T> &A, const Array1D<T> &B)
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Array1D<T>();
-
+	}
 	else
 	{
 		Array1D<T> C(n);
@@ -88,8 +91,9 @@ Array1D<T> operator-(const Array1D<T> &A, const Array1D<T> &B)
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Array1D<T>();
-
+	}
 	else
 	{
 		Array1D<T> C(n);
@@ -109,8 +113,9 @@ Array1D<T> operator*(const Array1D<T> &A, const Array1D<T> &B)
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Array1D<T>();
-
+	}
 	else
 	{
 		Array1D<T> C(n);
@@ -130,8 +135,9 @@ Array1D<T> operator/(const Array1D<T> &A, const Array1D<T> &B)
 	int n = A.dim1();
 
 	if (B.dim1() != n )
+	{
 		return Array1D<T>();
-
+	}
 	else
 	{
 		Array1D<T> C(n);

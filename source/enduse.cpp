@@ -510,9 +510,10 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefi
 	prop->flags = 0;
 	class_add_property(oclass,prop);
 
+	char lastname[256] = "";
 	for (p=prop_list;p<prop_list+sizeof(prop_list)/sizeof(prop_list[0]);p++)
 	{
-		char name[256], lastname[256];
+		char name[256];
 
 		if(prefix == NULL || strcmp(prefix,"")==0)
 		{

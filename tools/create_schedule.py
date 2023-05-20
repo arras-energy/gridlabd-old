@@ -75,7 +75,6 @@ def main():
             skiprows = SKIPROWS,
             index_col = INDEXCOLS,
             parse_dates = PARSEDATES,
-            infer_datetime_format = INFERDATETIMEFORMAT,
             usecols = USECOLS)
 
         if len(data.columns) > 1:

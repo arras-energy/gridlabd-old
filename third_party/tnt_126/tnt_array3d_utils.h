@@ -29,8 +29,6 @@ std::ostream& operator<<(std::ostream &s, const Array3D<T> &A)
         }
         s << "\n";
     }
-
-
     return s;
 }
 
@@ -45,10 +43,15 @@ std::istream& operator>>(std::istream &s, Array3D<T> &A)
 	Array3D<T> B(M,N,K);
 
     for (int i=0; i<M; i++)
+    {
         for (int j=0; j<N; j++)
+        {
 			for (int k=0; k<K; k++)
+			{
             	s >>  B[i][j][k];
-
+			}
+        }
+    }
 	A = B;
     return s;
 }
@@ -63,8 +66,9 @@ Array3D<T> operator+(const Array3D<T> &A, const Array3D<T> &B)
 	int p = A.dim3();
 
 	if (B.dim1() != m ||  B.dim2() != n || B.dim3() != p )
+	{
 		return Array3D<T>();
-
+	}
 	else
 	{
 		Array3D<T> C(m,n,p);
@@ -87,8 +91,9 @@ Array3D<T> operator-(const Array3D<T> &A, const Array3D<T> &B)
 	int p = A.dim3();
 
 	if (B.dim1() != m ||  B.dim2() != n || B.dim3() != p )
+	{
 		return Array3D<T>();
-
+	}
 	else
 	{
 		Array3D<T> C(m,n,p);
@@ -113,8 +118,9 @@ Array3D<T> operator*(const Array3D<T> &A, const Array3D<T> &B)
 	int p = A.dim3();
 
 	if (B.dim1() != m ||  B.dim2() != n || B.dim3() != p )
+	{
 		return Array3D<T>();
-
+	}
 	else
 	{
 		Array3D<T> C(m,n,p);
@@ -137,8 +143,9 @@ Array3D<T> operator/(const Array3D<T> &A, const Array3D<T> &B)
 	int p = A.dim3();
 
 	if (B.dim1() != m ||  B.dim2() != n || B.dim3() != p )
+	{
 		return Array3D<T>();
-
+	}
 	else
 	{
 		Array3D<T> C(m,n,p);

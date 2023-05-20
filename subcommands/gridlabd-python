@@ -2,7 +2,7 @@
 
 if [ "$1" == "help" ]; then
 	echo "Syntax: gridlabd python"
-	${GLD_BIN:-/opt/gridlabd/bin}/pkgenv/bin/python3 --help | head -n 1 | cut -f3- -d' '
+	${GLD_BIN:-/opt/gridlabd/bin}/python3 --help | head -n 1 | cut -f3- -d' '
 else
-	$GLD_BIN/pkgenv/bin/python3 $*
+	$GLD_BIN/python3 $*
 fi

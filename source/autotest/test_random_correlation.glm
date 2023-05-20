@@ -26,4 +26,4 @@ object example {
         interval -1;
     };
 }
-#on_exit 0 $GLD_BIN/pkgenv/bin/python3 ../check_correlation.py example.csv 0.975 -0.878 0.800 0.004 && $GLD_BIN/pkgenv/bin/python3 ../plotxy.py example.csv example.png 'x=1,y=2,style=".",grid=True'
+#on_exit 0 $GLD_BIN/python3 ../check_correlation.py example.csv 0.975 -0.878 0.800 0.004 && $GLD_BIN/python3 ../plotxy.py example.csv example.png 'x=1,y=2,style=".",grid=True'

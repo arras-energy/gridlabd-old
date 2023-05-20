@@ -15,7 +15,7 @@ void glengine::debug(const int level, const char *fmt, ...)
 		va_start(ptr,fmt);
 		vsprintf_s(output,sizeof(output),fmt,ptr);
 		va_end(ptr);
-		cerr << "DEBUG(" << level << ") [glengine]: " << output << endl;
+		cerr << "DEBUG(" << level << ") [glengine]: " << output << std::endl;
 	}
 }
 
@@ -26,7 +26,7 @@ void glengine::warning(const char *fmt, ...)
 	va_start(ptr,fmt);
 	vsprintf_s(output,sizeof(output),fmt,ptr);
 	va_end(ptr);
-	cerr << "WARNING  [glengine]: " <<  output << endl; 
+	cerr << "WARNING  [glengine]: " <<  output << std::endl; 
 }
 
 //instead of error, I use exceptions. Let the client deal with the error

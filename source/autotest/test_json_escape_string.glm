@@ -1,6 +1,6 @@
 #ifdef RUNIT
 #system gridlabd -D RUNIT test_json_escape_string.glm
-#system $GLD_BIN/pkgenv/bin/python3 ../check_json.py
+#system $GLD_BIN/python3 ../check_json.py
 #else
 class test {
     char1024 dict;
@@ -12,5 +12,3 @@ object test {
     list "[\"a\",\"b\",\"c\"]";
 }
 #endif
-//script on_init "gridlabd ../json_escape_string.glm -o gridlabd.json";
-//script on_term "$GLD_BIN/pkgenv/bin/python3 ../check_json.py";

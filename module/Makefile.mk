@@ -6,6 +6,7 @@ include module/generators/Makefile.mk
 include module/industrial/Makefile.mk
 include module/influxdb/Makefile.mk
 include module/market/Makefile.mk
+include module/mysql/Makefile.mk
 include module/optimize/Makefile.mk 
 include module/powerflow/Makefile.mk
 include module/reliability/Makefile.mk
@@ -18,5 +19,7 @@ include module/tape/Makefile.mk
 include module/tape_file/Makefile.mk
 include module/tape_plot/Makefile.mk
 
-# TODO: removed until HiPAS upgrades are implemented
-#include connection/Makefile.mk 
+# TODO: working development modules
+#include module/gismo/Makefile.mk
+#include module/transactive/Makefile.mk
+#include module/powernet/Makefile.mk

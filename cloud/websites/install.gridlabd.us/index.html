@@ -20,26 +20,9 @@
 
 	<P/>
 
-	<H3>MACOS</H3>
-
 	<CODE>
-		bash$ curl -OJ http://install.gridlabd.us/install.sh
-		bash$ chmod 755 install.sh
-		bash$ ./install.sh
+		bash$ curl -sL http://install.gridlabd.us/install.sh | sh
 	</CODE>
-
-	<H3>LINUX</H3>
-
-	<CODE>
-		bash$ apt-get update
-		bash$ apt-get install curl
-		bash$ apt-get install sudo
-		bash$ curl -OJ http://install.gridlabd.us/install.sh
-		bash$ chmod 755 install.sh
-		bash$ ./install.sh
-	</CODE>
-
-	<P/>
 
 	If your system is not supported by this installer, please use the manual installation method provided with the <A HREF="https://source.gridlabd.us/">HiPAS GridLAB-D source code</A>.
 
@@ -50,7 +33,8 @@
 	<P/>
 
 	<CODE>
-		bash$ curl -sL http://install.gridlabd.us/validate.sh | /bin/bash
+		bash$ git clone https://source.gridlabd.us/ gridlabd
+		bash$ gridlabd -W gridlabd --validate
 	</CODE>
 
 	<P/>
@@ -59,7 +43,7 @@
 
 	<P/>
 
-	The result will be placed in a folder called <CODE>validate-VERSION-BUILD</CODE>.  Errors will be reported as it goes. To inspect an error, find the output files in the folder of the same name as the GLM file, i.e., <CODE>/path/file.glm</CODE> will place output files in <CODE>/path/file/</CODE>
+	The result will be placed in a folder called <CODE>validate.txt</CODE>.  Errors will be reported as it goes. To inspect an error, find the output files in the folder of the same name as the GLM file, i.e., <CODE>gridlabd/PATH/autotest/FILE.glm</CODE> will place output files in <CODE>gridlabd/PATH/autotest/FILE</CODE>
 
 </BODY>
 

@@ -8,8 +8,6 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
 enum ENGINE_SOCK_TYPE{
 	UDP=0,
 	TCP
