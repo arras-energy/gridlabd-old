@@ -7,8 +7,8 @@ from botocore.exceptions import NoCredentialsError
 from datetime import datetime
 
 def get_db_connection():
-    secret_name = "gridlabd_db_credentials"
-    region_name = "us-west-2"
+    secret_name = "gld_database_secrets"
+    region_name = "us-west-1"
 
     session = boto3.session.Session()
     client = session.client(

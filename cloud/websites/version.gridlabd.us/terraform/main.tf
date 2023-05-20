@@ -5,25 +5,26 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 resource "random_string" "username" {
-  length  = 16
+  length  = 10
   special = false
 }
 
 resource "random_password" "password" {
   length           = 16
   special          = true
-  override_special = "_%@"
+  override_special = "_%#&"
 }
-
 
 resource "aws_security_group" "lambda_sg" {
   name        = "lambda_sg"
   description = "Allow inbound traffic from Lambda function"
+  vpc_id      = aws_vpc.gridlabd.id   # Add this line
 }
 
 resource "aws_security_group" "db_sg" {
   name        = "db_sg"
   description = "Allow inbound traffic from Lambda function"
+  vpc_id      = aws_vpc.gridlabd.id   # Add this line
 
   ingress {
     from_port   = 5432
@@ -40,18 +41,41 @@ resource "aws_security_group" "db_sg" {
   }
 }
 
+resource "aws_subnet" "gridlabd_subnet_1" {
+  vpc_id     = aws_vpc.gridlabd.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "us-west-1b"
+}
+
+resource "aws_subnet" "gridlabd_subnet_2" {
+  vpc_id     = aws_vpc.gridlabd.id
+  cidr_block = "10.0.3.0/24"
+  availability_zone = "us-west-1c"
+}
+
+resource "aws_db_subnet_group" "dbsubnet_group" {
+  name       = "dbsubnet_group"
+  subnet_ids = [aws_subnet.gridlabd_subnet_1.id, aws_subnet.gridlabd_subnet_2.id]
+
+  tags = {
+    Name = "dbsubnet_group"
+  }
+}
+
+
 resource "aws_db_instance" "rds_instance" {
   identifier = "gridlabd"
   allocated_storage = 20
   storage_type = "gp2"
   engine = "postgres"
-  engine_version = "12.6"
+  engine_version = "14.4"
   instance_class = "db.t3.micro"
   name = "gridlabdVersion"
   username = random_string.username.result
   password = random_password.password.result
   skip_final_snapshot = true
   vpc_security_group_ids = [aws_security_group.db_sg.id]
+  db_subnet_group_name = aws_db_subnet_group.dbsubnet_group.name
 }
 
 data "archive_file" "lambda_zip" {
@@ -84,7 +108,53 @@ resource "aws_lambda_function" "gridlabd_lambda" {
     security_group_ids = [aws_security_group.lambda_sg.id]
     subnet_ids         = [aws_subnet.gridlabd.id]
   }
+
+  depends_on = [aws_iam_role_policy.lambda_exec_role_policy]
 }
+
+data "aws_iam_policy_document" "lambda_exec_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+
+    resources = [data.aws_secretsmanager_secret.db_credentials.arn]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda_exec_role_policy" {
+  role   = aws_iam_role.lambda_role.id
+  policy = data.aws_iam_policy_document.lambda_exec_policy.json
+
+  depends_on = [aws_iam_role.lambda_role]
+}
+
 
 resource "aws_iam_role" "lambda_role" {
   name = "gridlabd_lambda_role"
@@ -112,58 +182,17 @@ resource "aws_subnet" "gridlabd" {
   cidr_block = "10.0.1.0/24"
 }
 
-resource "aws_secretsmanager_secret" "db_credentials" {
-  name = "gridlabd_db_credentials"
+data "aws_secretsmanager_secret" "db_credentials" {
+  name = "gld_database_secrets"
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials" {
-  secret_id     = aws_secretsmanager_secret.db_credentials.id
+  secret_id     = data.aws_secretsmanager_secret.db_credentials.id
   secret_string = jsonencode({
     username = random_string.username.result
     password = random_password.password.result
     host     = aws_db_instance.rds_instance.endpoint
   })
-}
-
-data "aws_iam_policy_document" "lambda_exec_policy" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-    ]
-
-    resources = ["arn:aws:logs:*:*:*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "secretsmanager:GetSecretValue",
-    ]
-
-    resources = [aws_secretsmanager_secret.db_credentials.arn]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:CreateNetworkInterface",
-      "ec2:DescribeNetworkInterfaces",
-      "ec2:DeleteNetworkInterface",
-    ]
-
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_role_policy" "lambda_exec_role_policy" {
-  role   = aws_iam_role.lambda_role.id
-  policy = data.aws_iam_policy_document.lambda_exec_policy.json
 }
 
 resource "aws_apigatewayv2_api" "api" {
@@ -226,6 +255,8 @@ resource "aws_lambda_function" "update_latest" {
     security_group_ids = [aws_security_group.lambda_sg.id]
     subnet_ids         = [aws_subnet.gridlabd.id]
   }
+
+  depends_on = [aws_iam_role_policy.lambda_exec_role_policy]
 }
 
 resource "aws_apigatewayv2_integration" "update_lambda" {
