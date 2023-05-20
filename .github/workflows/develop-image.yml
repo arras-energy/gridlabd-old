@@ -245,7 +245,7 @@ jobs:
         aws s3 sync ./cloud/websites/code.gridlabd.us/ s3://code-dev.gridlabd.us
         aws s3 sync ./cloud/websites/docs.gridlabd.us/ s3://docs-dev.gridlabd.us
         aws s3 sync ./cloud/websites/geodata.gridlabd.us/ s3://geodata-dev.gridlabd.us
-        aws s3 sync ./cloud/websites/install.gridlabd.us/ s3://instal-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/install.gridlabd.us/ s3://install-dev.gridlabd.us
         aws s3 sync ./cloud/websites/status.gridlabd.us/ s3://status-dev.gridlabd.us
         aws s3 sync ./cloud/websites/tutorials.gridlabd.us/ s3://tutorials-dev.gridlabd.us
         aws s3 sync ./cloud/websites/www.gridlabd.us/ s3://www-dev.gridlabd.us
