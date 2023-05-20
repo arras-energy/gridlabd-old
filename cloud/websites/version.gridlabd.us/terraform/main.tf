@@ -74,7 +74,7 @@ resource "aws_s3_bucket_object" "object" {
 
 resource "aws_lambda_function" "gridlabd_lambda" {
   function_name = "gridlabd_version"
-  s3_bucket     = aws_s3_bucket.bucket.id
+  s3_bucket     = data.aws_s3_bucket.bucket.id
   s3_key        = aws_s3_bucket_object.object.key
   handler       = "app.version_handler"  # updated the handler
   role          = aws_iam_role.lambda_role.arn
@@ -216,7 +216,7 @@ resource "aws_apigatewayv2_authorizer" "authorizer" {
 
 resource "aws_lambda_function" "update_latest" {
   function_name = "update_latest"
-  s3_bucket     = aws_s3_bucket.bucket.id
+  s3_bucket     = data.aws_s3_bucket.bucket.id
   s3_key        = aws_s3_bucket_object.object.key
   handler       = "app.update_latest"  # set the handler to the update_latest function
   role          = aws_iam_role.lambda_role.arn
