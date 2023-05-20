@@ -2172,7 +2172,7 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 		IN_MYCONTEXT output_error("unable to open origin file");
 		return CMDERR;
 	}
-	char url[1024] = "";
+	char url[1024] = BUILD_URL "/tree/" BUILD_ID;
 	if ( ! feof(fp) )
 	{
 		char line[1024];
@@ -2190,10 +2190,6 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 			if ( end )
 				*end = '\0';
 			strcpy(url,line+2);
-		}
-		else
-		{
-			strcpy(url,global_urlbase);
 		}
 	}
 	fclose(fp);
@@ -2234,13 +2230,17 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 		output_message("\turl = {%s}",url);
 		output_message("}");
 	}
+	else if (strchr(argv[0],'='))
+	{
+		output_error("format '%s' is invalid",strchr(argv[0],'=')+1);
+	}
 	else
 	{
 		output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
 			" %s\" (%d) [online]."
-			" Available at %s. Accessed %s. %d, %d",
+			" Available at %s. Accessed %d %s %d.",
 			PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
-			platform, year, url, Month[month-1], day, year);
+			platform, year, url, day, Month[month-1], year);
 	}
 	global_suppress_repeat_messages = old;
 	return 0;

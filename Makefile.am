@@ -130,7 +130,7 @@ $(PYENV): requirements.txt
 	@python$(PYVER)-config --prefix 1>/dev/null || ( echo "ERROR [Makefile]: python$(PYVER)-dev is not installed" > /dev/stderr ; false )
 	@echo "Processing python requirements..."
 	@mkdir -p $(PYBIN) $(PYLIB) $(PYINC)
-	@(deactivate || true ; $(SYSPYTHON) -m venv $(PYENV))
+	@(deactivate >/dev/null || true ; $(SYSPYTHON) -m venv $(PYENV))
 	@$(ENVPYTHON) --version 1>/dev/null || ( echo "ERROR [Makefile]: $(ENVPYTHON) is not found" > /dev/stderr ; false )
 	@$(ENVPYTHON) -m pip install --upgrade pip
 	@$(ENVPYTHON) -m pip install pandas==2.0.0
