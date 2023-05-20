@@ -50,6 +50,18 @@ def version_handler(event, context):
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS latest (
+            version TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS checks (
+            version TEXT NOT NULL,
+            branch TEXT NOT NULL,
+            timestamp TIMESTAMP NOT NULL
+        );
+        """)
+        conn.commit()
+
         # Extract the version and branch from the query string parameters
         version = event['queryStringParameters']['v']
         branch = event['queryStringParameters']['b']
@@ -89,6 +101,18 @@ def update_latest(event, context):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS latest (
+            version TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS checks (
+            version TEXT NOT NULL,
+            branch TEXT NOT NULL,
+            timestamp TIMESTAMP NOT NULL
+        );
+        """)
+        conn.commit()
 
         request = json.loads(event["body"])
         version = request["version"]
