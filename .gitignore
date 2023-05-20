@@ -104,7 +104,7 @@ fault_check.txt
 *_ignore.*
 
 # requirements files
-
+requirements.txt
 
 # specific outputs that should be ignored
 gridlabd.glm
