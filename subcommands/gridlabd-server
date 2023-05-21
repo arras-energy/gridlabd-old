@@ -1,0 +1,4 @@
+#!/bin/bash
+
+gridlabd --server $* &
+disown %1
