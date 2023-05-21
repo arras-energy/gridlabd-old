@@ -8,17 +8,19 @@ Examples
 1. Start a detached server and get the version:
 
 ~~~
-from server import GridlabdServer
-sim = GridlabdServer(modelname)
-print(sim.get_global("version"))
+$ gridlabd python
+>>> from server import GridlabdServer
+>>> sim = GridlabdServer(modelname)
+>>> print(sim.get_global("version"))
 ~~~
 
 2. Start an attached server and get the version:
 
 ~~~
-from server import GridlabdServer
-with GridlabdServer(modelname) as sim:
-    print(sim.get_global("version"))
+$ gridlabd python
+>>> from server import GridlabdServer
+>>> with GridlabdServer(modelname) as sim:
+...   print(sim.get_global("version"))
 ~~~
 
 3. Read an object property as a string
