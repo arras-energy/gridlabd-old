@@ -3,6 +3,8 @@ import os
 import sys, getopt
 import sqlite3
 
+TABLE_STACK = True # True means data fields are separate records
+
 def error(msg,code=None):
 	print(f"ERROR [json2db]: {msg}",file=sys.stderr)
 
@@ -27,6 +29,10 @@ for opt, arg in opts:
 		filename_json = arg
 	elif opt in ("-o", "--ofile"):
 		filename_db = arg
+	elif opt in ("--unstack"):
+		TABLE_STACK = False
+	else:
+		error(f"option '{opt}={arg}' is not valid")
 
 # set default output filename
 if filename_db == '':
@@ -55,6 +61,9 @@ for datatype in model['types']:
 		typemap[datatype] = "text"
 
 # create gridlabd tables
+db.execute("CREATE TABLE gridlabd_version (version text,platform text);")
+db.execute(f"INSERT INTO gridlabd_version (version,platform) VALUES ('{model['globals']['version']['value']}','{model['globals']['platform']['value']}');")
+
 db.execute("""CREATE TABLE gridlabd_modules (
 	name text,
 	major int,
@@ -91,19 +100,56 @@ def get_properties(model,classname):
 	result.extend([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in properties.items() if type(y) is dict])
 	return result
 
+db.execute("""CREATE TABLE gridlabd_classes (
+	class text,
+	property text,
+	specification text
+	);""")
 for classname, properties in model["classes"].items():
-	if len([x for x,y in properties.items() if type(y) is dict]) > 0:
-		query = f"create table {classname} (\n  "
-		query += ",\n  ".join([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in model['header'].items()]) + ",\n  "
-		query += ",\n  ".join(get_properties(model,classname))
-		query += "\n  );"
+	for propertyname,specification in properties.items():
+		spec = json.dumps(specification).replace("'","''")
+		try:
+			json.loads(spec)
+		except Exception as err:
+			error(f"unable to correctly convert '{spec}' to json: {err}")
+		db.execute(f"""INSERT INTO gridlabd_classes
+			(class,property,specification)
+			VALUES 
+			('{classname}','{propertyname}','{spec}');
+			""")
+
+if TABLE_STACK:
+	db.execute("""CREATE TABLE gridlabd_objects (
+		name text,
+		property text,
+		value text
+		);""")
+	db.execute("""CREATE UNIQUE INDEX u_gridlabdobjects_name_property on gridlabd_objects (name,property);""")
+	for name, properties in model["objects"].items():
+		for propertyname, value in properties.items():
+			try:
+				db.execute(f"""INSERT INTO gridlabd_objects 
+					(name, property, value) 
+					VALUES
+					('{name}','{propertyname}','{value}')
+					""")
+			except sqlite3.IntegrityError as err:
+				error(f"{err} ['{name}.{propertyname}' exists]")
+
+else:
+	for classname, properties in model["classes"].items():
+		if len([x for x,y in properties.items() if type(y) is dict]) > 0:
+			query = f"create table {classname} (\n  "
+			query += ",\n  ".join([f"'{x.replace('.','_')}' {typemap[y['type']]}" for x,y in model['header'].items()]) + ",\n  "
+			query += ",\n  ".join(get_properties(model,classname))
+			query += "\n  );"
+			# print(query)
+			db.execute(query)
+
+	for name, properties in model["objects"].items():
+		classname = properties["class"]
+		query = f"""INSERT INTO {classname} ("{'","'.join(properties.keys()).replace('.','_')}") VALUES ("{'","'.join(properties.values())}");"""
 		# print(query)
 		db.execute(query)
-
-for name, properties in model["objects"].items():
-	classname = properties["class"]
-	query = f"""INSERT INTO {classname} ("{'","'.join(properties.keys()).replace('.','_')}") VALUES ("{'","'.join(properties.values())}");"""
-	# print(query)
-	db.execute(query)
 
 db.commit()

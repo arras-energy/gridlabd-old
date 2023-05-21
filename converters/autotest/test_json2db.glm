@@ -4,6 +4,20 @@
 #on_exit 0 test $(sqlite3 test_json2db.db "select bustype from node where id=67") == SWING
 #endif
 
+module assert;
+module climate;
+module commercial;
+module generators;
+module industrial;
+module influxdb;
+module market;
+module optimize;
+module powerflow;
+module reliability;
+module resilience;
+module revenue;
+module tape;
+
 #include "${DIR:-.}/IEEE-123.glm"
 
 #set compileonly=TRUE
