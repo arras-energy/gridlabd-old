@@ -3,7 +3,6 @@ dist_pkgdata_DATA += tools/create_player.py
 dist_pkgdata_DATA += tools/create_meters.py
 dist_pkgdata_DATA += tools/create_poles.py
 dist_pkgdata_DATA += tools/create_schedule.py
-dist_pkgdata_DATA += tools/db.py
 dist_pkgdata_DATA += tools/eia_recs.py
 dist_pkgdata_DATA += tools/find_location.py
 dist_pkgdata_DATA += tools/fire_report.py
