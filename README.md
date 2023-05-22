@@ -1,12 +1,21 @@
-| Repository | Status |
-| :---: | :---: |
-| [GridLAB-D](https://github.com/slacgismo/gridlabd) | ![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+---
+
+<div align=center><H3>IMPORTANT NOTICE</H3></div>
+
+This is the last release of HiPAS GridLAB-D before it is transferred to LF Energy's [Arras Energy project](https://github.com/arras-energy).
+
+---
+
+| Repository | Build | Deploy |
+| :---: | :---: | :---: |
+| [GridLAB-D](https://github.com/slacgismo/gridlabd) | ![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop) | [![master-images](https://github.com/slacgismo/gridlabd/actions/workflows/master-image.yml/badge.svg)](https://github.com/slacgismo/gridlabd/actions/workflows/master-image.yml) [![develop-images](https://github.com/slacgismo/gridlabd/actions/workflows/develop-image.yml/badge.svg)](https://github.com/slacgismo/gridlabd/actions/workflows/develop-image.yml) |
 | [Templates](https://github.com/slacgismo/gridlabd-template) | [![master](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml) [![develop](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml)
 | [Weather](https://github.com/slacgismo/gridlabd-weather) | [![validate](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml)
 | [Library](https://github.com/slacgismo/gridlabd-library) | [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/master.yml) [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/develop.yml)
 | [Models](https://github.com/slacgismo/gridlabd-models) | [![validate](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml)
 | [Benchmarks](https://github.com/slacgismo/gridlabd-benchmarks) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-benchmarks/blob/main/README.md))
 | [Examples](https://github.com/slacgismo/gridlabd-examples) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-examples/blob/master/README.md))
+
 
 The documentation for this project is located at http://docs.gridlabd.us/.
 
@@ -138,7 +147,10 @@ docker/build.sh --release
 
 ## AWS EC2
 
-Use the AWS Ubuntu AMI to build gridlabd on AWS EC2 using the commands
+The latest development and master builds of HiPAS gridlabd are available as community AMIs.
+Simply launch an ec2, browse the community AMIs and search for HiPAS Gridlabd
+
+If you want to build gridlabd yourself, use the AWS Ubuntu AMI on AWS EC2 using the commands
 
 ~~~
 git clone https://code.gridlabd.us/ [-b BRANCH] gridlabd
