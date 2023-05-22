@@ -18,6 +18,7 @@ dist_pkgdata_DATA += tools/market_model.py
 dist_pkgdata_DATA += tools/meteostat_weather.py
 dist_pkgdata_DATA += tools/metar2glm.py
 dist_pkgdata_DATA += tools/read_dlp.py
+dist_pkgdata_DATA += tools/server.py
 dist_pkgdata_DATA += tools/noaa_forecast.py
 dist_pkgdata_DATA += tools/nsrdb_weather.py
 dist_pkgdata_DATA += tools/ucar_weather.py
