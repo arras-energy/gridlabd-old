@@ -144,6 +144,7 @@ class GridlabdServer:
     PROTOCOL = "http" # default protocol to use when connecting
     TIMEOUT = 5.0 # default timeout to use when starting/stopping
     RETRYTIME = 0.1 # initial retry time to use when starting/stopping
+    LOGFILE = open(os.devnull) # file in which to store simulation output (or None, or subprocess.PIPE)
 
     def __init__(self,*args):
         """Start a detached server"""
@@ -157,7 +158,11 @@ class GridlabdServer:
     def __del__(self):
         """Stop a detached server"""
         if self.proc:
-            self.stop()
+            verbose(f"sending SIGTERM to process id {self.proc.pid}")
+            if self.LOGFILE and not self.LOGFILE.closed:
+                self.LOGFILE.close()
+            os.kill(self.proc.pid,15)
+            self.proc = None
 
     def __enter__(self,*args):
         """Start an attached server"""
@@ -172,7 +177,11 @@ class GridlabdServer:
     def __exit__(self,*args):
         """Stop an attached server"""
         if self.proc:
-            self.stop()
+            verbose(f"sending SIGTERM to process id {self.proc.pid}")
+            if self.LOGFILE and not self.LOGFILE.closed:
+                self.LOGFILE.close()
+            os.kill(self.proc.pid,15)
+            self.proc = None
 
     def start(self,*args,detached=False):
         """Start the server
@@ -195,7 +204,7 @@ class GridlabdServer:
             cmd = ["gridlabd","server" if detached else "--server","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
             cmd.extend(args)
             verbose(f"starting {cmd}")
-            self.proc = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            self.proc = subprocess.Popen(cmd,stdout=self.LOGFILE,stderr=self.LOGFILE)
             timer = 0
             retry = self.RETRYTIME
             while (version:=self.query("raw","version",onfail=None)) == None and timer < self.TIMEOUT:
@@ -203,22 +212,33 @@ class GridlabdServer:
                 timer += retry
                 retry *= 2 if retry < 5 else 1
             verbose(f"server up in {round(timer,1)} seconds") if version else exception(f"server start timeout after {round(timer,1)} seconds")
-        verbose(f"connected to {version}")
+        if version:
+            verbose(f"connected to {version}")
+        else:
+            raise GridlabdServerException("unable to connect to server")
 
     def stop(self):
         """Stop the server normally"""
         verbose("stopping server")
+        # if self.proc:
+            # if not sys.stdout.closed: sys.stdout.close()
+            # if not sys.stderr.closed: sys.stderr.close()
+        if self.proc:
+            self.proc.terminate()
         self.query("control","stop",onfail=None)
         timer = 0
         retry = self.RETRYTIME
-        while (version:=self.get_global("version")) != None and timer < self.TIMEOUT:
+        while (version:=self.query("raw","version",onfail=None)) != None and timer < self.TIMEOUT:
                 time.sleep(retry)
                 timer += retry
                 retry *= 2 if retry < 5 else 1
-        verbose("server stopped")
+        if version == None:
+            verbose("server stopped")
+        else:
+            verbose("server ignored stop command")
         if self.proc:
-            self.proc.kill()
             self.proc.wait()
+            self.proc = None
 
     def query(self,*args,astype=str,onfail=verbose):
         """Send a query to the server REST API"""
@@ -261,9 +281,13 @@ if __name__ == "__main__":
     import tracemalloc
     tracemalloc.start()
 
+    VERBOSE = False
+    LOGFILE = None
+
     with tempfile.NamedTemporaryFile(suffix=".glm",mode="w+t") as fh:
 
         fh.write(f"""// created by {sys.argv} unittest on {datetime.datetime.now()}
+#option warn
 #model get IEEE/123
 #include "123.glm"
 #weather get CA-San_Francisco_Intl_Ap
@@ -277,6 +301,7 @@ if __name__ == "__main__":
                 """Verify that server cannot be started outside a "with" context"""
                 fh.seek(0)
                 sim = GridlabdServer(fh.name)
+
                 self.assertEqual(len(sim.get_objects("class=load")),85)
                 sim.stop()
 
@@ -296,6 +321,6 @@ if __name__ == "__main__":
                     self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(50000,25000))
                     self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.5)
                     
-                    # sim.stop()
+                    sim.stop()
 
         unittest.main()
