@@ -5,51 +5,6 @@ on:
     branches: [ develop ]
 
 jobs:
-  buildUbuntuDockerhub:
-
-    runs-on: ubuntu-latest
-    environment: Integration
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./build-aux/Dockerfiles/Dockerfile.ul
-        push: true
-        tags: hipas/gridlabd-develop-ubuntu:latest
-
-  buildDebianDockerhub:
-
-    runs-on: ubuntu-latest
-    environment: Integration
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./build-aux/Dockerfiles/Dockerfile.dl
-        push: true
-        tags: hipas/gridlabd-develop-debian:latest
 
   buildMacos13FastS3:
 
@@ -231,7 +186,7 @@ jobs:
 
     - name: Initialize Packer
       run: |
-        packer init ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
+        packer init ./docker/packer/templateDevelop.pkr.hcl
 
     - name: Build AMI Image
       run: |
@@ -240,4 +195,80 @@ jobs:
           -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
           -var "aws_region=${{ secrets.AWS_REGION }}" \
           -var "dev_s3_url=${{ secrets.DEV_S3_URL }}" \
-          ./build-aux/Dockerfiles/templateDevelop.pkr.hcl
+          ./docker/packer/templateDevelop.pkr.hcl
+
+  buildUbuntuDockerhub:
+
+    runs-on: ubuntu-latest
+    environment: Integration
+    needs: buildAWSUbuntuAMI
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./docker/packer/Dockerfile.dev.ul
+        push: true
+        tags: hipas/gridlabd-develop:latest
+
+  updateS3websites:
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v2
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Website s3 sync
+      run: |
+        aws s3 sync ./cloud/websites/code.gridlabd.us/ s3://code-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/docs.gridlabd.us/ s3://docs-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/geodata.gridlabd.us/ s3://geodata-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/install.gridlabd.us/ s3://install-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/status.gridlabd.us/ s3://status-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/tutorials.gridlabd.us/ s3://tutorials-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/www.gridlabd.us/ s3://www-dev.gridlabd.us
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
+
+    - name: Deploy Lambda
+      run: |
+        zip lambda.zip app.py
+        aws lambda update-function-code --function-name your_lambda_name --zip-file fileb://lambda.zip
+
+    - name: Update Latest Version
+      run: |
+        echo "{JWT_TOKEN}={$(aws cognito-idp initiate-auth \
+          --region ${{ secrets.AWS_REGION }} \
+          --client-id ${{ secrets.GLD_CLIENT_ID }} \
+          --auth-flow USER_PASSWORD_AUTH \
+          --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }} \
+          --output text \
+          --query 'AuthenticationResult.IdToken')}" >> $GITHUB_ENV
+
+    - name: Make POST request to version.gridlabd.us/update
+      run: |
+        curl -X POST https://version.gridlabd.us/update \
+          -H "Authorization: Bearer ${{ env.JWT_TOKEN }}"
