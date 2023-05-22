@@ -9,7 +9,7 @@ Examples
 
 ~~~
 $ gridlabd python
->>> from server import GridlabdServer
+>>> from gldserver import GridlabdServer
 >>> sim = GridlabdServer(modelname)
 >>> print(sim.get_global("version"))
 ~~~
@@ -18,7 +18,7 @@ $ gridlabd python
 
 ~~~
 $ gridlabd python
->>> from server import GridlabdServer
+>>> from gldserver import GridlabdServer
 >>> with GridlabdServer(modelname) as sim:
 ...   print(sim.get_global("version"))
 ~~~
@@ -194,7 +194,7 @@ class GridlabdServer:
         else:
             cmd = ["gridlabd","server" if detached else "--server","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
             cmd.extend(args)
-            verbose(f"starting server with command {self.args}")
+            verbose(f"starting {cmd}")
             self.proc = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             timer = 0
             retry = self.RETRYTIME
