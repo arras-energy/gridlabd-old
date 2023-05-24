@@ -2461,27 +2461,27 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 	// dynamic size
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	int len = spec->csize;
-	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
+	// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
 	if ( len == PSZ_DYNAMIC )
 	{
 		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
 	}
 	else if ( len == PSZ_AUTO )
 	{
 		// TODO: support general calls to underlying class implementing the property
 		std::string *str = (std::string*)(char*)(obj+1)+(int64_t)(prop->addr);
 		len = str->size()+1;
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
 	}
 	if ( len < 0 )
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
 		len = 0;
 	}
 	else
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
 	}
 
 	return len;
