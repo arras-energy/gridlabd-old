@@ -1124,17 +1124,15 @@ int http_find_request(HTTPCNX *http,char *uri)
 		return 0;
 	http_format(http,"[\n");
 	obj = find_first(list);
-	while ( 1 )
+	while ( obj )
 	{
 		if ( obj->name == NULL )
 			http_format(http,"\t{\"name\" : \"%s:%d\"}",obj->oclass->name,obj->id);
 		else
 			http_format(http,"\t{\"name\" : \"%s\"}",obj->name);
 		obj = find_next(list,obj);
-		if ( obj!=NULL )
+		if ( obj != NULL )
 			http_format(http,",\n\t");
-		else
-			break;
 	}
 	http_format(http,"\n\t]\n");
 	http_type(http,"text/json");
