@@ -258,8 +258,10 @@ jobs:
     - name: Install dependencies and package Lambda function
       run: |
         pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda/package
-        cd ./cloud/websites/version.gridlabd.us/lambda
-        zip -r lambda.zip .
+        cd ./cloud/websites/version.gridlabd.us/lambda/package
+        zip -r ../lambda.zip .
+        cd ..
+        zip -r lambda.zip app.py
 
     - name: Update Lambda image version_handler
       run: |
