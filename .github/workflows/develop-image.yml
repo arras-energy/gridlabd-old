@@ -255,41 +255,19 @@ jobs:
     - name: Run CF invalidation
       run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build and push version handler
-      id: version_handler
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:version_handler_latest
-        file: ./docker/Dockerfile.lambda
-        build-args: 
-          HANDLER=app.version_handler
-
-    - name: Build and push update latest
-      id: update_latest
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:update_latest_latest
-        file: ./docker/Dockerfile.lambda
-        build-args: 
-          HANDLER=app.update_latest
+    - name: Install dependencies and package Lambda function
+      run: |
+        pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda
+        zip -r lambda.zip ./cloud/websites/version.gridlabd.us/lambda
 
     - name: Update Lambda image version_handler
       run: |
-        LATEST_IMAGE_URI="${{ steps.version_handler.outputs.digest }}"
-        aws lambda update-function-code --function-name gridlabd_version --image-uri $LATEST_IMAGE_URI
+        aws lambda update-function-code --function-name gridlabd_version --zip-file ./lambda.zip
 
     - name: Update Lambda image update_latest
       run: |
-        LATEST_IMAGE_URI="${{ steps.update_latest.outputs.digest }}"
-        aws lambda update-function-code --function-name update_latest --image-uri $LATEST_IMAGE_URI
+        aws lambda update-function-code --function-name update_latest --zip-file ./lambda.zip
+
 
     - name: Update Latest Version
       run: |
