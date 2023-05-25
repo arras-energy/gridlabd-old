@@ -258,15 +258,16 @@ jobs:
     - name: Install dependencies and package Lambda function
       run: |
         pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda
-        zip -r lambda.zip ./cloud/websites/version.gridlabd.us/lambda
+        cd ./cloud/websites/version.gridlabd.us
+        zip -r lambda.zip ./lambda
 
     - name: Update Lambda image version_handler
       run: |
-        aws lambda update-function-code --function-name gridlabd_version --zip-file fileb://$(pwd)/lambda.zip
+        aws lambda update-function-code --function-name gridlabd_version --zip-file fileb://$(pwd)/./cloud/websites/version.gridlabd.us/lambda.zip
 
     - name: Update Lambda image update_latest
       run: |
-        aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/lambda.zip
+        aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/./cloud/websites/version.gridlabd.us/lambda.zip
 
 
     - name: Update Latest Version
