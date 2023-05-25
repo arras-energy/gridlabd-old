@@ -262,11 +262,11 @@ jobs:
 
     - name: Update Lambda image version_handler
       run: |
-        aws lambda update-function-code --function-name gridlabd_version --zip-file ./lambda.zip
+        aws lambda update-function-code --function-name gridlabd_version --zip-file fileb://$(pwd)/lambda.zip
 
     - name: Update Lambda image update_latest
       run: |
-        aws lambda update-function-code --function-name update_latest --zip-file ./lambda.zip
+        aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/lambda.zip
 
 
     - name: Update Latest Version
