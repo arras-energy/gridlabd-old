@@ -284,7 +284,7 @@ jobs:
     - name: Update Lambda image version_handler
       run: |
         LATEST_IMAGE_URI="${{ steps.version_handler.outputs.digest }}"
-        aws lambda update-function-code --function-name version_handler --image-uri $LATEST_IMAGE_URI
+        aws lambda update-function-code --function-name gridlabd_version --image-uri $LATEST_IMAGE_URI
 
     - name: Update Lambda image update_latest
       run: |
