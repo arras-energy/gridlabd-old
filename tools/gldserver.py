@@ -144,7 +144,7 @@ class GridlabdServer:
     PROTOCOL = "http" # default protocol to use when connecting
     TIMEOUT = 5.0 # default timeout to use when starting/stopping
     RETRYTIME = 0.1 # initial retry time to use when starting/stopping
-    LOGFILE = open(os.devnull) # file in which to store simulation output (or None, or subprocess.PIPE)
+    LOGFILE = None # file in which to store simulation output (or None, or subprocess.PIPE)
 
     def __init__(self,*args):
         """Start a detached server"""
@@ -201,7 +201,10 @@ class GridlabdServer:
             verbose(f"server version '{version}' ok")
             self.proc = None
         else:
-            cmd = ["gridlabd","server" if detached else "--server","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
+            if detached:
+                cmd = ["gridlabd","server","start","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
+            else:
+                cmd = ["gridlabd","--server","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
             cmd.extend(args)
             verbose(f"starting {cmd}")
             self.proc = subprocess.Popen(cmd,stdout=self.LOGFILE,stderr=self.LOGFILE)
@@ -281,27 +284,31 @@ if __name__ == "__main__":
     import tracemalloc
     tracemalloc.start()
 
-    VERBOSE = False
+    VERBOSE = True
     LOGFILE = None
+    TMPFILE = None
 
-    with tempfile.NamedTemporaryFile(suffix=".glm",mode="w+t") as fh:
+    with tempfile.NamedTemporaryFile(suffix=".glm",mode="wt",delete=True) as fh:
 
         fh.write(f"""// created by {sys.argv} unittest on {datetime.datetime.now()}
 #option warn
+#ifmissing 123.glm
 #model get IEEE/123
+#endif
 #include "123.glm"
+#ifmissing "CA-San_Francisco_Intl_Ap.glm" 
 #weather get CA-San_Francisco_Intl_Ap
-#input "CA-San_Francisco_Intl_Ap.tmy3"
+#endif
+#include "CA-San_Francisco_Intl_Ap.glm"
 #set run_realtime=1
 """)
-
+        TMPFILE = fh.name
         class TestServer(unittest.TestCase):
 
             def test_detached(self):
-                """Verify that server cannot be started outside a "with" context"""
+                """Verify that server can be started outside a "with" context"""
                 fh.seek(0)
                 sim = GridlabdServer(fh.name)
-
                 self.assertEqual(len(sim.get_objects("class=load")),85)
                 sim.stop()
 
@@ -324,3 +331,5 @@ if __name__ == "__main__":
                     sim.stop()
 
         unittest.main()
+    if TMPFILE and os.path.exists(TMPFILE):
+        warning(f"temporary file {TMPFILE} was not deleted after test completed")
