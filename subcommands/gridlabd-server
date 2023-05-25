@@ -1,4 +1,183 @@
 #!/bin/bash
+## GridLAB-D server control
+## 
+## Syntax: gridlabd server [COMMAND [OPTIONS ...]]
+## 
+## COMMAND:
+## 
+##   start [-p|--port PORT] OPTIONS
+## 
+##   stop|halt|shutdown|kill PORT|all
+## 
+##   list [PORT|all]
+## 
+##   log PORT
+## 
+##   status [PORT|all]
+## 
+## The `gridlabd server` commands launches a detached server in the
+## background. This is contrast to the `gridlabd --server` command which does
+## not detach the process from the current process after it is launched.
+## 
+## All servers are identified by their port number. The default port number is
+## 6267 and incremented automatically is already in use. The maximum number
+## of server that can be started automatically is 10.
+## 
+## The `stop`, `halt`, `shutdown`, and `kill` commands correspond to the
+## GridLAB-D server control commands. See [[GLM/Server]] for details.
+## 
+## The server status can be one of the following:
+## 
+##   INIT       initialization in progress
+##   RUNNING    simulation running
+##   PAUSED     simulation paused
+##   DONE       simulation done
+##   LOCKED     simulation locked for concurrency
+##   NOREPLY    simulation server not responding to control commands
+## 
+## See also:
+## 
+##   [[GLM/Server]]
+## 
 
-gridlabd --server $* &
-disown %1
+E_OK=0
+E_FAILED=1
+E_INVALID=2
+E_MISSING=3
+E_NOTFOUND=4
+E_SYNTAX=9
+
+TIMEOUT=10
+MAXPORTS=10
+LOGFILE=/tmp/gridlabd-server
+
+function error ()
+{
+    RC=$1
+    shift 1
+    echo "ERROR [gridlabd-server]: $*"
+    exit $RC
+}
+
+function getport ()
+{
+    if [ $# -eq 0 ]; then
+        PORT=6267
+        while [ ! -z "$(curl -s http://localhost:$PORT/raw/mainloop_state 2>/dev/null)" ]; do
+            PORT=$(($PORT+1))
+        done
+        echo $PORT
+    else
+        echo $(($1+6266))
+    fi
+}
+
+function getstatus()
+{
+    for P in $(list $*); do
+        echo $P $(curl -s http://localhost:$P/raw/mainloop_state 2>/dev/null || echo "NOREPLY")
+    done
+
+}
+
+function waitport ()
+{
+    for P in $(list $*); do
+        T=0
+        while [ ! -z "$(curl -s http://localhost:$P/raw/mainloop_state 2>/dev/null)" ]; do
+            sleep 1
+            T=$(($T+1))
+            if [ $T -gt $TIMEOUT ]; then
+                error E_FAILED "wait on port $P timeout"
+            fi
+        done
+    done
+}
+
+function list ()
+{
+    if [ $# -gt 0 ]; then
+        for P in $*; do
+            curl -s http://localhost:$P/raw/mainloop_state >/dev/null && echo $P
+        done
+    else
+        P=0
+        while [ $P -lt $MAXPORTS ]; do
+            PORT=$(($P+6267))
+            curl -s http://localhost:$PORT/raw/mainloop_state >/dev/null && echo $PORT
+            P=$(($P+1))
+        done
+    fi
+}
+
+# catch no args
+if [ $# -eq 0 ]; then
+    grep '^## ' $0 | cut -c4- | grep '^Syntax: '
+    exit $E_SYNTAX
+fi
+
+# process args
+case $1 in 
+    help | --help | -h )
+        grep '^## ' $0 | cut -c4-
+        ;;
+    start )
+        shift 1
+        if [ "$1" = "-p" -o "$1" = "--port" ]; then
+            PORT=$2
+            shift 2
+        else
+            PORT=$(getport)
+        fi
+        rm -f $LOGFILE-$PORT.log
+        gridlabd --server -D server_portnum=$PORT $* 1>$LOGFILE-$PORT.log 2>&1 &
+        sleep 1
+        if [ ! -z "$!" ] ; then
+            echo $PORT
+            disown %1
+        else
+            error $E_FAILED "unable to start server for port $PORT"
+        fi
+        ;;
+    stop | halt | shutdown | kill )
+        if [ -z "$2" ]; then
+            error $E_MISSING "missing port number"
+        elif [ "$2" = "all" ]; then
+            PORTLIST=$(list)
+        else
+            PORTLIST=$*
+        fi
+        for PORT in $PORTLIST; do
+            curl -s http://localhost:$PORT/control/$1
+        done
+        waitport $PORTLIST
+        ;;
+    list )
+        shift 1
+        list $*
+        ;;
+    log )
+        shift 1
+        if [ $# -eq 0 ]; then
+            error $E_MISSING "missing port number"
+        elif [ ! -f $LOGFILE-$1.log ]; then
+            error $E_NOTFOUND "no log found for port $1"
+        fi
+        echo 'INFO [gridlabd-server]: created '$(stat -f %SB -t "%Y-%m-%d %H:%M:%S %Z" $LOGFILE-$1.log)
+        cat $LOGFILE-$1.log
+        if [ -z "$(getstatus $1)" ]; then
+            echo 'INFO [gridlabd-server]: stopped '$(stat -f %Sm -t "%Y-%m-%d %H:%M:%S %Z" $LOGFILE-$1.log)
+        else
+            echo 'INFO [gridlabd-server]: updated '$(stat -f %Sm -t "%Y-%m-%d %H:%M:%S %Z" $LOGFILE-$1.log)
+        fi
+        ;;
+    status )
+        shift 1
+        getstatus $*
+        ;;
+    * )
+        error $E_INVALID "'$1' is an invalid gridlabd-server command"
+        ;;
+esac
+exit $E_OK
+
