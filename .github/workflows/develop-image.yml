@@ -265,7 +265,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/version_handler:latest
+        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:version_handler_latest
         file: ./docker/Dockerfile.lambda
         build-args: 
           HANDLER=app.version_handler
@@ -276,7 +276,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/update_latest:latest
+        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:update_latest_latest
         file: ./docker/Dockerfile.lambda
         build-args: 
           HANDLER=app.update_latest
