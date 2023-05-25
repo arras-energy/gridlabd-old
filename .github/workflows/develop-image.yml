@@ -3,6 +3,8 @@ name: develop-images
 on:
   push:
     branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
 
 jobs:
 
@@ -12,7 +14,7 @@ jobs:
     environment: Integration
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
@@ -20,7 +22,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -37,7 +39,7 @@ jobs:
     environment: Integration
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
@@ -45,7 +47,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -62,7 +64,7 @@ jobs:
     environment: Integration
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
@@ -70,7 +72,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -99,7 +101,7 @@ jobs:
         unzip awscliv2.zip
         sudo ./aws/install
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -136,7 +138,7 @@ jobs:
         unzip awscliv2.zip
         sudo ./aws/install
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -161,7 +163,7 @@ jobs:
     needs: [buildUbuntu22FastS3,buildUbuntu20FastS3,buildMacos11FastS3,buildMacos12FastS3,buildMacos13FastS3]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
@@ -169,7 +171,7 @@ jobs:
         chown -R $(id -u):$(id -g) $PWD
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -205,7 +207,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Login to DockerHub
       uses: docker/login-action@v1
@@ -220,4 +222,88 @@ jobs:
         file: ./docker/packer/Dockerfile.dev.ul
         push: true
         tags: hipas/gridlabd-develop:latest
-  
+
+  updateS3websites:
+    runs-on: ubuntu-latest
+    environment: Integration
+
+    steps:
+    - uses: actions/checkout@v3
+
+      # this is to fix GIT not liking owner of the checkout dir
+    - name: Set ownership
+      run: |
+        chown -R $(id -u):$(id -g) $PWD
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Website s3 sync
+      run: |
+        aws s3 sync ./cloud/websites/code.gridlabd.us/ s3://code-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/docs.gridlabd.us/ s3://docs-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/geodata.gridlabd.us/ s3://geodata-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/install.gridlabd.us/ s3://install-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/status.gridlabd.us/ s3://status-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/tutorials.gridlabd.us/ s3://tutorials-dev.gridlabd.us
+        aws s3 sync ./cloud/websites/www.gridlabd.us/ s3://www-dev.gridlabd.us
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and push version handler
+      id: version_handler
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/version_handler:latest
+        file: ./docker/Dockerfile.lambda
+        build-args: 
+          HANDLER=app.version_handler
+
+    - name: Build and push update latest
+      id: update_latest
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/update_latest:latest
+        file: ./docker/Dockerfile.lambda
+        build-args: 
+          HANDLER=app.update_latest
+
+    - name: Update Lambda image version_handler
+      run: |
+        LATEST_IMAGE_URI="${{ steps.version_handler.outputs.digest }}"
+        aws lambda update-function-code --function-name version_handler --image-uri $LATEST_IMAGE_URI
+
+    - name: Update Lambda image update_latest
+      run: |
+        LATEST_IMAGE_URI="${{ steps.update_latest.outputs.digest }}"
+        aws lambda update-function-code --function-name update_latest --image-uri $LATEST_IMAGE_URI
+
+    - name: Update Latest Version
+      run: |
+        echo "{JWT_TOKEN}={$(aws cognito-idp initiate-auth \
+          --region ${{ secrets.AWS_REGION }} \
+          --client-id ${{ secrets.GLD_CLIENT_ID }} \
+          --auth-flow USER_PASSWORD_AUTH \
+          --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }} \
+          --output text \
+          --query 'AuthenticationResult.IdToken')}" >> $GITHUB_ENV
+
+    - name: Make POST request to version.gridlabd.us/update
+      run: |
+        curl -X POST https://q55hj3mvjbht64qw6hni3lqgri0phkyc.lambda-url.us-west-1.on.aws/ \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ env.JWT_TOKEN }}" \
+          -d '{"version": 431}'

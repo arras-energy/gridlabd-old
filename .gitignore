@@ -106,6 +106,10 @@ fault_check.txt
 # requirements files
 requirements.txt
 
+# terraform artifacts
+*.zip
+terraform.*
+
 # specific outputs that should be ignored
 gridlabd.glm
 validate.zip.gz
