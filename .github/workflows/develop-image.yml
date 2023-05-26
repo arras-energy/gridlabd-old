@@ -274,12 +274,12 @@ jobs:
 
     - name: Update Latest Version
       run: |
-        echo "{JWT_TOKEN}={$(aws cognito-idp initiate-auth \
+        echo "JWT_TOKEN=$(aws cognito-idp initiate-auth \
           --region ${{ secrets.AWS_REGION }} \
           --client-id ${{ secrets.GLD_CLIENT_ID }} \
           --auth-flow USER_PASSWORD_AUTH \
           --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }} \
-          )}" >> $GITHUB_ENV
+          )" >> $GITHUB_ENV
 
     - name: Make POST request to version.gridlabd.us/update
       run: |
