@@ -7,39 +7,35 @@ Examples
 
 1. Start a detached server and get the version:
 
-~~~
-$ gridlabd python
->>> from gldserver import GridlabdServer
->>> sim = GridlabdServer(modelname)
->>> print(sim.get_global("version"))
-~~~
+    $ gridlabd python
+    >>> from gldserver import GridlabdServer
+    >>> sim = GridlabdServer(modelname)
+    >>> print(sim.get_global("version"))
 
-2. Start an attached server and get the version:
+2. Start a server in a context and get the version:
 
-~~~
-$ gridlabd python
->>> from gldserver import GridlabdServer
->>> with GridlabdServer(modelname) as sim:
-...   print(sim.get_global("version"))
-~~~
+    $ gridlabd python
+    >>> from gldserver import GridlabdServer
+    >>> with GridlabdServer(modelname) as sim:
+    ...   print(sim.get_global("version"))
 
 3. Read an object property as a string
 
-~~~
-value = sim.get_property(objname,propname)
-~~~
+    value = sim.get_property(objname,propname)
 
 4. Read an object property as a double and print its unit
 
-~~~
-value = sim.get_property(objname,propname,astype=GldDouble)
-print(value.unit)
-~~~
+    value = sim.get_property(objname,propname,astype=GldDouble)
+    print(value.unit)
 
 5. Read an object property as a complex and print its real part
-value = sim.get_property(objname,propname,astype=GldComplex)
-print(value.real)
 
+    value = sim.get_property(objname,propname,astype=GldComplex)
+    print(value.real)
+
+6. Set a property
+
+    sim.set_property(objname,propname,value)
 """
 
 import sys, os
@@ -61,17 +57,17 @@ SILENT = False # no error output
 def verbose(msg):
     """Print a verbose message"""
     if VERBOSE:
-        print(f"VERBOSE [server {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
+        print(f"VERBOSE [gldserver {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
 
 def error(msg):
     """Print an error message"""
     if not SILENT:
-        print(f"ERROR [server {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
+        print(f"ERROR [gldserver {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
 
 def warning(msg):
     """Print a warning message"""
     if not QUIET:
-        print(f"WARNING [server {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
+        print(f"WARNING [gldserver {datetime.datetime.now()}]: {msg}",file=sys.stderr,flush=True)
 
 def exception(msg):
     """Raise an exception"""
@@ -81,7 +77,12 @@ def exception(msg):
 # GridLAB-D property types
 #
 class GldDouble(float):
-    """GridLAB-D double property"""
+    """GridLAB-D double property
+
+    Properties:
+
+        unit (str)      Unit in which value is represented
+    """
 
     def __new__(self,value):
         if type(value) is str:
@@ -99,7 +100,12 @@ class GldDouble(float):
             float.__init__(x)
     
 class GldComplex(complex):
-    """GridLAB-D complex property"""
+    """GridLAB-D complex property
+
+    Properties:
+
+        unit (str)      Unit in which value is represented
+    """
 
     def __new__(self,value,y=None):
         if type(value) is str:
@@ -139,113 +145,139 @@ class GridlabdServerException(Exception):
 class GridlabdServer:
     """GridLAB-D server"""
 
-    PORT = 6267 # default port to use when connecting
     HOST = "localhost" # default host to use when connecting
     PROTOCOL = "http" # default protocol to use when connecting
     TIMEOUT = 5.0 # default timeout to use when starting/stopping
     RETRYTIME = 0.1 # initial retry time to use when starting/stopping
     LOGFILE = None # file in which to store simulation output (or None, or subprocess.PIPE)
 
-    def __init__(self,*args):
-        """Start a detached server"""
+    def __init__(self,*args,detached=True):
+        """Start a server
+
+        Properties:
+
+            args        Command options for GridLAB-D
+
+            detached    Specify whether server remains attached to this
+                        process (default True)
+
+        Exceptions:
+
+            GridlabdServerException   Unable to start server
+        """
         self.status = None
         self.args = args
+        self.port = None
         if len(args) > 0:
-            self.start(*args,detached=True)
-        else:
-            self.proc = None
+            self.start(*args,detached=detached)
 
     def __del__(self):
-        """Stop a detached server"""
-        if self.proc:
-            verbose(f"sending SIGTERM to process id {self.proc.pid}")
-            if self.LOGFILE and not self.LOGFILE.closed:
-                self.LOGFILE.close()
-            os.kill(self.proc.pid,15)
-            self.proc = None
+        """Cleanup
+
+        Exceptions:
+
+            GridlabdServerException   Unable to stop server
+        """
+        self.stop()
 
     def __enter__(self,*args):
-        """Start an attached server"""
-        self.status = None
-        self.args = args
-        if len(args) > 0:
-            self.start(*args)
-        else:
-            self.proc = None
+        """Start a server in context
+
+        Properties:
+
+            args    Command options for GridLAB-D
+        """
         return self
 
     def __exit__(self,*args):
-        """Stop an attached server"""
-        if self.proc:
-            verbose(f"sending SIGTERM to process id {self.proc.pid}")
-            if self.LOGFILE and not self.LOGFILE.closed:
-                self.LOGFILE.close()
-            os.kill(self.proc.pid,15)
-            self.proc = None
+        """Stop a server in context
+
+        Exceptions:
+
+            GridlabdServerException   Unable to stop server
+        """
+        self.stop()    
 
     def start(self,*args,detached=False):
         """Start the server
 
         Arguments:
 
-            *args   GridLAB-D command line arguments (may include multiple GLM files)
+            *args       GridLAB-D command line arguments
+
+            detached    Specify whether the server should remain attached to
+                        this process (default False) 
+
+        Exceptions:
+
+            GridlabdServerException   Unable to start server
+
+            Exception   All other exceptions
+        """
+        if (status:=self.wait("RUNNING")) == "RUNNING":
+            if detached:
+                exception(f"cannot attach to process on port {self.port}")
+            version = self.getversion()
+            verbose(f"server version '{version}' ok")
+            self.proc = None
+        elif status:
+            exception(f"server up but not running (status={status})")
+        else:
+            cmd = ["gridlabd","server","start"]
+            if not self.port is None:
+                cmd.extend(["-p",str(self.port)])
+            if detached:
+                cmd.append("--detach")
+            cmd.extend(["-D","show_progress=FALSE"])
+            cmd.extend(args)
+            verbose(f"starting {cmd}")
+            self.proc = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            time.sleep(1)
+            self.port = self.proc.stdout.readline().strip().decode('utf-8')
+            verbose(f"started ok on port {self.port}")
+            if self.wait("RUNNING") != "RUNNING":
+                exception(f"server start timeout")
+            version = self.getversion()
+            verbose(f"server version {version} up")
+
+    def getstatus(self):
+        self.status = self.query("raw","mainloop_state",onfail=None)
+        return self.status
+
+    def getversion(self):
+        self.version = self.query("raw","version",onfail=None)
+        return self.version
+
+    def wait(self,status=None):
+        timer = 0
+        retry = self.RETRYTIME
+        while (actual:=self.getstatus()) != status and timer < self.TIMEOUT:
+            time.sleep(retry)
+            timer += retry
+            retry *= 2 if retry < 5 else 1
+        return actual
+
+    def stop(self):
+        """Stop the server normally
 
         Exceptions:
 
             GridlabdServerException   Unable to start server and get version
-
-            Exception   All other exceptions
         """
-        version = self.query("raw","version",onfail=None)
-        if version:
-            verbose(f"server version '{version}' ok")
-            self.proc = None
-        else:
-            if detached:
-                cmd = ["gridlabd","server","start","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
-            else:
-                cmd = ["gridlabd","--server","-D","show_progress=FALSE","-D",f"server_portnum={self.PORT}"]
-            cmd.extend(args)
-            verbose(f"starting {cmd}")
-            self.proc = subprocess.Popen(cmd,stdout=self.LOGFILE,stderr=self.LOGFILE)
-            timer = 0
-            retry = self.RETRYTIME
-            while (version:=self.query("raw","version",onfail=None)) == None and timer < self.TIMEOUT:
-                time.sleep(retry)
-                timer += retry
-                retry *= 2 if retry < 5 else 1
-            verbose(f"server up in {round(timer,1)} seconds") if version else exception(f"server start timeout after {round(timer,1)} seconds")
-        if version:
-            verbose(f"connected to {version}")
-        else:
-            raise GridlabdServerException("unable to connect to server")
-
-    def stop(self):
-        """Stop the server normally"""
         verbose("stopping server")
-        # if self.proc:
-            # if not sys.stdout.closed: sys.stdout.close()
-            # if not sys.stderr.closed: sys.stderr.close()
-        if self.proc:
-            self.proc.terminate()
         self.query("control","stop",onfail=None)
-        timer = 0
-        retry = self.RETRYTIME
-        while (version:=self.query("raw","version",onfail=None)) != None and timer < self.TIMEOUT:
-                time.sleep(retry)
-                timer += retry
-                retry *= 2 if retry < 5 else 1
-        if version == None:
-            verbose("server stopped")
-        else:
-            verbose("server ignored stop command")
-        if self.proc:
+        if not self.wait() is None:
+            exception("unable to stop server")
+        elif self.proc:
             self.proc.wait()
-            self.proc = None
+            self.proc.stdout.close()
+            self.proc.stderr.close()
 
     def query(self,*args,astype=str,onfail=verbose):
         """Send a query to the server REST API"""
-        url = f"{self.PROTOCOL}://{self.HOST}:{self.PORT}/{'/'.join(args)}"
+        if self.port is None:
+            return None
+        url = f"{self.PROTOCOL}://{self.HOST}:{self.port}/{'/'.join(args)}"
         try:
             result = requests.get(url)
             self.status = result.status_code
@@ -253,6 +285,7 @@ class GridlabdServer:
             return astype(result.text) if result.status_code == 200 else None
         except Exception as err:
             self.status = sys.exc_info()
+            verbose(f"query '{url}' --> {self.status[0].__name__}")
             if onfail:
                 onfail(err)
             return None
@@ -278,17 +311,18 @@ class GridlabdServer:
         result = self.query("find",collection)
         return [x['name'] for x in json.loads(result)] if result else None
 
+#
+# Unit testing
+#
 if __name__ == "__main__":
 
     import unittest
     import tracemalloc
     tracemalloc.start()
 
-    VERBOSE = True
-    LOGFILE = None
-    TMPFILE = None
+    # VERBOSE=True
 
-    with tempfile.NamedTemporaryFile(suffix=".glm",mode="wt",delete=True) as fh:
+    with tempfile.NamedTemporaryFile(suffix=".glm",mode="w+t",delete=True) as fh:
 
         fh.write(f"""// created by {sys.argv} unittest on {datetime.datetime.now()}
 #option warn
@@ -297,23 +331,30 @@ if __name__ == "__main__":
 #endif
 #include "123.glm"
 #ifmissing "CA-San_Francisco_Intl_Ap.glm" 
-#weather get CA-San_Francisco_Intl_Ap
+#weather get "CA-San_Francisco_Intl_Ap.tmy3"
 #endif
-#include "CA-San_Francisco_Intl_Ap.glm"
+#input "CA-San_Francisco_Intl_Ap.tmy3"
 #set run_realtime=1
 """)
         TMPFILE = fh.name
         class TestServer(unittest.TestCase):
 
             def test_detached(self):
-                """Verify that server can be started outside a "with" context"""
+                """Verify that server can be started detached"""
                 fh.seek(0)
-                sim = GridlabdServer(fh.name)
+                sim = GridlabdServer(fh.name,detached=True)
                 self.assertEqual(len(sim.get_objects("class=load")),85)
                 sim.stop()
 
             def test_attached(self):
-                """Verify that changes to loads on a model result in voltage changes"""
+                """Verify that server can be started attached"""
+                fh.seek(0)
+                sim = GridlabdServer(fh.name,detached=False)
+                self.assertEqual(len(sim.get_objects("class=load")),85)
+                del sim
+
+            def test_context(self):
+                """Verify that server can be started in a context"""
                 fh.seek(0)
                 with GridlabdServer(fh.name) as sim:
                     self.assertEqual(len(sim.get_objects("class=load")),85)
@@ -328,8 +369,6 @@ if __name__ == "__main__":
                     self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(50000,25000))
                     self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.5)
                     
-                    sim.stop()
-
         unittest.main()
     if TMPFILE and os.path.exists(TMPFILE):
         warning(f"temporary file {TMPFILE} was not deleted after test completed")
