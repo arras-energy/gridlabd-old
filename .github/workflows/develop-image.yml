@@ -273,22 +273,11 @@ jobs:
 
     - name: Initiate Auth
       run: |
-        aws cognito-idp initiate-auth \
+        echo "JWT_TOKEN=$(aws cognito-idp initiate-auth \
           --region ${{ secrets.AWS_REGION }} \
           --client-id ${{ secrets.GLD_CLIENT_ID }} \
           --auth-flow USER_PASSWORD_AUTH \
-          --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }}
-      shell: bash
-      env:
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
-    - name: Set JWT_TOKEN
-      run: |
-        echo "JWT_TOKEN=${{ steps.initiate-auth.outputs.result }}" >> $GITHUB_ENV
-      shell: bash
+          --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }})" >> $GITHUB_ENV
 
     - name: Make POST request to version.gridlabd.us/update
       run: |
