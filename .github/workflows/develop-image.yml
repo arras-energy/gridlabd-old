@@ -284,7 +284,7 @@ jobs:
 
     - name: Make POST request to version.gridlabd.us/update
       run: |
-        curl -X POST https://q55hj3mvjbht64qw6hni3lqgri0phkyc.lambda-url.us-west-1.on.aws/ \
+        curl -X POST https://1g4175mmji.execute-api.us-west-1.amazonaws.com/update_latest \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ env.JWT_TOKEN }}" \
           -d '{"version": 431}'
