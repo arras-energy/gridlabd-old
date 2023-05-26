@@ -17,9 +17,17 @@ resource "random_password" "password" {
 
 resource "aws_security_group" "lambda_sg" {
   name        = "lambda_sg"
-  description = "Allow inbound traffic from Lambda function"
-  vpc_id      = aws_vpc.gridlabd.id   # Add this line
+  description = "Allow outbound traffic for Lambda function"
+  vpc_id      = aws_vpc.gridlabd.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
+
 
 resource "aws_security_group" "db_sg" {
   name        = "db_sg"
@@ -184,7 +192,11 @@ resource "aws_iam_role" "lambda_role" {
 
 resource "aws_vpc" "gridlabd" {
   cidr_block = "10.0.0.0/16"
+
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 }
+
 
 resource "aws_subnet" "gridlabd" {
   vpc_id     = aws_vpc.gridlabd.id
@@ -263,4 +275,19 @@ resource "aws_apigatewayv2_route" "update_route" {
   api_id    = aws_apigatewayv2_api.api.id
   route_key = "POST /update"
   target    = "integrations/${aws_apigatewayv2_integration.update_lambda.id}"
+}
+
+resource "aws_vpc_endpoint" "secrets_manager" {
+  vpc_id            = aws_vpc.gridlabd.id
+  service_name      = "com.amazonaws.us-west-1.secretsmanager"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = [
+    aws_subnet.gridlabd_subnet_1.id,
+    aws_subnet.gridlabd_subnet_2.id,
+  ]
+
+  security_group_ids = [aws_security_group.lambda_sg.id]
+
+  private_dns_enabled = true
 }

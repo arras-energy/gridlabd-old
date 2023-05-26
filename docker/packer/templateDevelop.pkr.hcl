@@ -57,6 +57,7 @@ build {
     inline = [
       "sudo apt-get remove unattended-upgrades -y",
       "sudo mkdir -p /usr/local/var",
+      "sudo mkdir -p /usr/local/src",
       "sudo chown -R $USER /usr/local",
       "sudo apt-get update && sudo apt-get install -y apt-transport-https",
       "sudo apt-get install -y git curl nano",

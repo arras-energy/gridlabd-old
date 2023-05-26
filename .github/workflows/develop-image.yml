@@ -273,6 +273,6 @@ jobs:
 
     - name: Make POST request to version.gridlabd.us/update
       run: |
-        curl -X POST 	https://ioh92yo03b.execute-api.us-west-1.amazonaws.com/update \
+        curl -X POST 	${{ secrets.VER_API_URL }} \
           -H "Content-Type: application/json" \
           -d '{"version": 431}'

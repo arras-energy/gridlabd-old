@@ -17,23 +17,30 @@ def get_db_connection():
     )
 
     try:
+        print("Retrieving secret value...")
         get_secret_value_response = client.get_secret_value(
             SecretId=secret_name
         )
+        print("Secret value retrieved successfully.")
     except NoCredentialsError as e:
-        print(e)
+        print(f"Error encountered while retrieving secret value: {str(e)}")
         raise Exception('Error in getting DB credentials from AWS Secret Manager')
 
     if 'SecretString' in get_secret_value_response:
+        print("SecretString found in the response.")
         secret = get_secret_value_response['SecretString']
     else:
+        print("SecretBinary found in the response.")
         secret = base64.b64decode(get_secret_value_response['SecretBinary'])
 
+    print("Loading DB credentials...")
     db_credentials = json.loads(secret)
     username = db_credentials['username']
     password = db_credentials['password']
     host = db_credentials['host']
+    print("DB credentials loaded successfully.")
 
+    print("Starting connection to the database...")
     conn = psycopg2.connect(
         dbname='gridlabdVersion',
         user=username,
@@ -42,6 +49,7 @@ def get_db_connection():
         port='5432'
     )
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    print("Database connection successful.")
 
     return conn
 
@@ -99,9 +107,12 @@ def version_handler(event, context):
 
 def update_latest(event, context):
     try:
+        print("Starting database connection...")
         conn = get_db_connection()
         cursor = conn.cursor()
+        print("Database connection successful.")
 
+        print("Executing table creation statements...")
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS latest (
             version TEXT NOT NULL
@@ -113,25 +124,32 @@ def update_latest(event, context):
         );
         """)
         conn.commit()
+        print("Table creation statements executed successfully.")
 
+        print("Loading event body...")
         request = json.loads(event["body"])
         version = request["version"]
+        print(f"Loaded version: {version}")
 
+        print("Executing update statements...")
         cursor.execute("""
             DELETE FROM latest;
             INSERT INTO latest(version)
             VALUES (%s);
         """, (version))
         conn.commit()
+        print("Update statements executed successfully.")
 
         cursor.close()
         conn.close()
+        print("Database connection closed.")
 
         return {
             'statusCode': 200,
             'body': json.dumps('ok')
         }
     except Exception as e:
+        print(f"Error encountered: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps(f'Error: {str(e)}')
