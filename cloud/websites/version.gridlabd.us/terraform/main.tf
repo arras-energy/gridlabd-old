@@ -47,6 +47,26 @@ resource "aws_security_group_rule" "lambda_sg_egress" {
   source_security_group_id = aws_security_group.db_sg.id
 }
 
+# Ingress rule from Secrets Manager security group
+resource "aws_security_group_rule" "lambda_sg_ingress_secrets" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.lambda_sg.id
+  source_security_group_id = aws_security_group.secrets_manager_sg.id
+}
+
+# Egress rule to Secrets Manager security group
+resource "aws_security_group_rule" "lambda_sg_egress_secrets" {
+  type                     = "egress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.lambda_sg.id
+  source_security_group_id = aws_security_group.secrets_manager_sg.id
+}
+
 resource "aws_security_group_rule" "db_sg_ingress" {
   type              = "ingress"
   from_port         = 5432

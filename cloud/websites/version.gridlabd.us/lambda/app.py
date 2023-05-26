@@ -38,6 +38,10 @@ def get_db_connection():
     username = db_credentials['username']
     password = db_credentials['password']
     host = db_credentials['host']
+
+    # Split the host value into host and port.
+    host, port = host.split(':')
+
     print("DB credentials loaded successfully.")
 
     print("Starting connection to the database...")
@@ -46,8 +50,9 @@ def get_db_connection():
         user=username,
         password=password,
         host=host,
-        port='5432'
+        port=port  # Use the extracted port here.
     )
+
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     print("Database connection successful.")
 
