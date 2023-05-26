@@ -1,11 +1,11 @@
 #!/bin/bash
 ## GridLAB-D server control
 ## 
-## Syntax: gridlabd server [COMMAND [OPTIONS ...]]
+## Syntax: gridlabd server COMMAND
 ## 
-## COMMAND:
+## Commands:
 ## 
-##   start [-p|--port PORT] OPTIONS
+##   start [-p|--port PORT] [-d|--detach] OPTIONS
 ## 
 ##   stop|halt|shutdown|kill PORT|all
 ## 
@@ -13,18 +13,24 @@
 ## 
 ##   log PORT
 ## 
-##   status [PORT|all]
+##   status [-c|--continuous] [PORT|all]
 ## 
-## The `gridlabd server` commands launches a detached server in the
-## background. This is contrast to the `gridlabd --server` command which does
-## not detach the process from the current process after it is launched.
+## The `gridlabd server` commands controls a server in the background. This is
+## contrast to the `gridlabd --server` command which does not detach the
+## process from the current process after it is launched.
 ## 
 ## All servers are identified by their port number. The default port number is
 ## 6267 and incremented automatically is already in use. The maximum number
 ## of server that can be started automatically is 10.
 ## 
+## The `start` command requires the GridLAB-D command line options to be
+## provided.
+## 
 ## The `stop`, `halt`, `shutdown`, and `kill` commands correspond to the
 ## GridLAB-D server control commands. See [[GLM/Server]] for details.
+## 
+## The `list` command outputs a list of active servers. The `status` command
+## outputs the status of active servers.
 ## 
 ## The server status can be one of the following:
 ## 
@@ -55,7 +61,7 @@ function error ()
 {
     RC=$1
     shift 1
-    echo "ERROR [gridlabd-server]: $*"
+    echo "ERROR [gridlabd-server]: $*" > /dev/stderr
     exit $RC
 }
 
@@ -112,7 +118,7 @@ function list ()
 
 # catch no args
 if [ $# -eq 0 ]; then
-    grep '^## ' $0 | cut -c4- | grep '^Syntax: '
+    grep '^## ' $0 | cut -c4- | grep '^Syntax: ' > /dev/stderr
     exit $E_SYNTAX
 fi
 
@@ -123,18 +129,41 @@ case $1 in
         ;;
     start )
         shift 1
-        if [ "$1" = "-p" -o "$1" = "--port" ]; then
-            PORT=$2
-            shift 2
-        else
+        while [ -z "$OK" ]; do
+            case $1 in
+                -p | --port )
+                    PORT=$2
+                    shift 2
+                    ;;
+                -d | --detach )
+                    DETACH=yes
+                    shift 1
+                    ;;
+                -l | --logfile )
+                    LOG=$2
+                    shift 2
+                    ;;
+                * )
+                    OK=yes
+                    ;;
+            esac
+        done
+        if [ -z "$PORT" ]; then
             PORT=$(getport)
+            echo $PORT
         fi
-        rm -f $LOGFILE-$PORT.log
-        gridlabd --server -D server_portnum=$PORT $* 1>$LOGFILE-$PORT.log 2>&1 &
+        if [ -z "$LOG" ]; then
+            LOG=$LOGFILE-$PORT.log
+        elif [ "$LOG" = "-" ]; then
+            LOG=/dev/stderr
+        fi
+        rm -f $LOG
+        gridlabd --server -D server_portnum=$PORT $* 1>$LOG 2>&1 &
         sleep 1
         if [ ! -z "$!" ] ; then
-            echo $PORT
-            disown %1
+            if [ ! -z "$DETACH" ]; then
+                disown %1
+            fi
         else
             error $E_FAILED "unable to start server for port $PORT"
         fi
@@ -173,7 +202,22 @@ case $1 in
         ;;
     status )
         shift 1
-        getstatus $*
+        if [ "$1" = "-c" -o "$1" = "--continuous" ]; then
+            shift 1
+            while [ true ]; do
+                clear
+                echo "Server Last update         Status"
+                echo "------ ------------------- ----------"
+                for P in $(list $*); do
+                    printf '%6.6s %19.19s %s\n' "$P" "$(stat -f %Sm -t "%Y-%m-%d %H:%M:%S" $LOGFILE-$P.log)" "$(curl -s http://localhost:$P/raw/mainloop_state 2>/dev/null || echo "NOREPLY")"
+                done
+                echo ""
+                echo "Press Ctrl-C to quit"
+                sleep 1
+            done
+        else
+            getstatus $*
+        fi
         ;;
     * )
         error $E_INVALID "'$1' is an invalid gridlabd-server command"
