@@ -275,4 +275,4 @@ jobs:
       run: |
         curl -X POST 	${{ secrets.VER_API_URL }} \
           -H "Content-Type: application/json" \
-          -d '{"version": 431}'
+          -d '{"version": "431"}'
