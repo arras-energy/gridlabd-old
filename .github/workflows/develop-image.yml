@@ -265,24 +265,14 @@ jobs:
 
     - name: Update Lambda image version_handler
       run: |
-        aws lambda update-function-code --function-name gridlabd_version --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
+        aws lambda update-function-code --function-name version_handler --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
 
     - name: Update Lambda image update_latest
       run: |
         aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
 
-    - name: Initiate Auth
-      run: |
-        echo "JWT_TOKEN=$(aws cognito-idp initiate-auth \
-          --region ${{ secrets.AWS_REGION }} \
-          --client-id ${{ secrets.GLD_CLIENT_ID }} \
-          --auth-flow USER_PASSWORD_AUTH \
-          --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }} \
-          | jq -r '.AuthenticationResult.IdToken')" >> $GITHUB_ENV
-
     - name: Make POST request to version.gridlabd.us/update
       run: |
-        curl -X POST https://1g4175mmji.execute-api.us-west-1.amazonaws.com/update_latest \
+        curl -X POST 	https://ioh92yo03b.execute-api.us-west-1.amazonaws.com/update \
           -H "Content-Type: application/json" \
-          -H "Authorization: Bearer ${{ env.JWT_TOKEN }}" \
           -d '{"version": 431}'

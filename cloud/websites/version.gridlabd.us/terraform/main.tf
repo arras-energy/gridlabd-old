@@ -62,7 +62,6 @@ resource "aws_db_subnet_group" "dbsubnet_group" {
   }
 }
 
-
 resource "aws_db_instance" "rds_instance" {
   identifier = "gridlabd"
   allocated_storage = 20
@@ -70,7 +69,6 @@ resource "aws_db_instance" "rds_instance" {
   engine = "postgres"
   engine_version = "14.4"
   instance_class = "db.t3.micro"
-  name = "gridlabdVersion"
   username = random_string.username.result
   password = random_password.password.result
   skip_final_snapshot = true
@@ -96,8 +94,8 @@ resource "aws_s3_bucket_object" "object" {
 }
 
 
-resource "aws_lambda_function" "gridlabd_lambda" {
-  function_name = "gridlabd_version"
+resource "aws_lambda_function" "version_check" {
+  function_name = "version_handler"
   s3_bucket     = data.aws_s3_bucket.bucket.id
   s3_key        = aws_s3_bucket_object.object.key
   handler       = "app.version_handler"  # updated the handler
@@ -146,6 +144,17 @@ data "aws_iam_policy_document" "lambda_exec_policy" {
 
     resources = ["*"]
   }
+
+  # Statement for RDS access
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "rds:*",
+    ]
+
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "lambda_exec_role_policy" {
@@ -154,7 +163,6 @@ resource "aws_iam_role_policy" "lambda_exec_role_policy" {
 
   depends_on = [aws_iam_role.lambda_role]
 }
-
 
 resource "aws_iam_role" "lambda_role" {
   name = "gridlabd_lambda_role"
@@ -172,6 +180,7 @@ resource "aws_iam_role" "lambda_role" {
     ]
   })
 }
+
 
 resource "aws_vpc" "gridlabd" {
   cidr_block = "10.0.0.0/16"
@@ -203,7 +212,7 @@ resource "aws_apigatewayv2_api" "api" {
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.gridlabd_lambda.function_name
+  function_name = aws_lambda_function.version_check.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
@@ -213,7 +222,7 @@ resource "aws_apigatewayv2_integration" "lambda" {
   api_id           = aws_apigatewayv2_api.api.id
   integration_type = "AWS_PROXY"
 
-  integration_uri = aws_lambda_function.gridlabd_lambda.invoke_arn
+  integration_uri = aws_lambda_function.version_check.invoke_arn
 }
 
 resource "aws_apigatewayv2_route" "route" {
@@ -228,26 +237,11 @@ resource "aws_apigatewayv2_stage" "stage" {
   auto_deploy = true
 }
 
-resource "aws_cognito_user_pool" "pool" {
-  name = "github_user_pool"
-}
-
-resource "aws_apigatewayv2_authorizer" "authorizer" {
-  api_id           = aws_apigatewayv2_api.api.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  jwt_configuration {
-    audience = [aws_cognito_user_pool.pool.endpoint]
-    issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
-  }
-  name = "github_authorizer"
-}
-
 resource "aws_lambda_function" "update_latest" {
   function_name = "update_latest"
   s3_bucket     = data.aws_s3_bucket.bucket.id
   s3_key        = aws_s3_bucket_object.object.key
-  handler       = "app.update_latest"  # set the handler to the update_latest function
+  handler       = "app.update_latest"
   role          = aws_iam_role.lambda_role.arn
   runtime       = "python3.10"
 
@@ -269,5 +263,4 @@ resource "aws_apigatewayv2_route" "update_route" {
   api_id    = aws_apigatewayv2_api.api.id
   route_key = "POST /update"
   target    = "integrations/${aws_apigatewayv2_integration.update_lambda.id}"
-  authorizer_id = aws_apigatewayv2_authorizer.authorizer.id
 }
