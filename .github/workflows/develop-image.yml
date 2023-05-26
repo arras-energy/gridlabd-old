@@ -279,7 +279,6 @@ jobs:
           --client-id ${{ secrets.GLD_CLIENT_ID }} \
           --auth-flow USER_PASSWORD_AUTH \
           --auth-parameters USERNAME=${{ secrets.GLD_COG_UNAME }},PASSWORD=${{ secrets.GLD_COG_PWD }} \
-          --output text \
           --query 'AuthenticationResult.IdToken')}" >> $GITHUB_ENV
 
     - name: Make POST request to version.gridlabd.us/update
