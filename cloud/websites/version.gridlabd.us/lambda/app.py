@@ -42,7 +42,7 @@ def get_db_connection():
 
     print("Starting connection to the database...")
     conn = psycopg2.connect(
-        dbname='gridlabdVersion',
+        dbname='gridlabd',
         user=username,
         password=password,
         host=host,

@@ -19,35 +19,52 @@ resource "aws_security_group" "lambda_sg" {
   name        = "lambda_sg"
   description = "Allow outbound traffic for Lambda function"
   vpc_id      = aws_vpc.gridlabd.id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
-
 
 resource "aws_security_group" "db_sg" {
   name        = "db_sg"
   description = "Allow inbound traffic from Lambda function"
-  vpc_id      = aws_vpc.gridlabd.id   # Add this line
-
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    security_groups = [aws_security_group.lambda_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  vpc_id      = aws_vpc.gridlabd.id
 }
+
+# Define the rules separately
+
+resource "aws_security_group_rule" "lambda_sg_ingress" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.lambda_sg.id
+  source_security_group_id = aws_security_group.db_sg.id
+}
+
+resource "aws_security_group_rule" "lambda_sg_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.lambda_sg.id
+  source_security_group_id = aws_security_group.db_sg.id
+}
+
+resource "aws_security_group_rule" "db_sg_ingress" {
+  type              = "ingress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  security_group_id = aws_security_group.db_sg.id
+  source_security_group_id = aws_security_group.lambda_sg.id
+}
+
+resource "aws_security_group_rule" "db_sg_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.db_sg.id
+  source_security_group_id = aws_security_group.lambda_sg.id
+}
+
 
 resource "aws_subnet" "gridlabd_subnet_1" {
   vpc_id     = aws_vpc.gridlabd.id
@@ -112,7 +129,7 @@ resource "aws_lambda_function" "version_check" {
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids         = [aws_subnet.gridlabd.id]
+    subnet_ids         = [aws_subnet.gridlabd.id, aws_subnet.gridlabd_subnet_1.id, aws_subnet.gridlabd_subnet_2.id]
   }
 
   depends_on = [aws_iam_role_policy.lambda_exec_role_policy]
@@ -189,6 +206,11 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_vpc_exec_role_policy_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 
 resource "aws_vpc" "gridlabd" {
   cidr_block = "10.0.0.0/16"
@@ -259,7 +281,7 @@ resource "aws_lambda_function" "update_latest" {
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids         = [aws_subnet.gridlabd.id]
+    subnet_ids         = [aws_subnet.gridlabd.id, aws_subnet.gridlabd_subnet_1.id, aws_subnet.gridlabd_subnet_2.id]
   }
 
   depends_on = [aws_iam_role_policy.lambda_exec_role_policy]
@@ -277,6 +299,26 @@ resource "aws_apigatewayv2_route" "update_route" {
   target    = "integrations/${aws_apigatewayv2_integration.update_lambda.id}"
 }
 
+resource "aws_security_group" "secrets_manager_sg" {
+  name        = "secrets_manager_sg"
+  description = "Allow all connections within VPC for Secrets Manager"
+  vpc_id      = aws_vpc.gridlabd.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.gridlabd.cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.gridlabd.cidr_block]
+  }
+}
+
 resource "aws_vpc_endpoint" "secrets_manager" {
   vpc_id            = aws_vpc.gridlabd.id
   service_name      = "com.amazonaws.us-west-1.secretsmanager"
@@ -287,7 +329,7 @@ resource "aws_vpc_endpoint" "secrets_manager" {
     aws_subnet.gridlabd_subnet_2.id,
   ]
 
-  security_group_ids = [aws_security_group.lambda_sg.id]
+  security_group_ids = [aws_security_group.secrets_manager_sg.id]
 
   private_dns_enabled = true
 }
