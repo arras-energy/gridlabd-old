@@ -132,7 +132,10 @@ def update_latest(event, context):
         print("Table creation statements executed successfully.")
 
         print("Loading event body...")
-        request = json.loads(event["body"])
+        if isinstance(event["body"], str):
+            request = json.loads(event["body"])
+        else:
+            request = event["body"]
         version = request["version"]
         print(f"Loaded version: {version}")
 
@@ -141,7 +144,7 @@ def update_latest(event, context):
             DELETE FROM latest;
             INSERT INTO latest(version)
             VALUES (%s);
-        """, (version))
+        """, (version,))
         conn.commit()
         print("Update statements executed successfully.")
 
