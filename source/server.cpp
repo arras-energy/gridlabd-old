@@ -1205,6 +1205,37 @@ int http_read_request(HTTPCNX *http, char *uri)
 	return 1;
 }
 
+/** Process a utility operation
+ *  @returns non-zero on success, 0 on failure (errno set)
+ **/
+
+int http_util_request(HTTPCNX *http, char *uri)
+{
+	char token[64], value[1024];
+	if ( sscanf(uri,"%[^/]/%[^\n]",token,value) < 2 )
+	{
+		return 1;
+	}
+	if ( strcmp(token,"convert_to_timestamp") == 0 )
+	{
+		http_type(http,"text/html");
+		http_decode(value);
+		http_format(http,"%lld",convert_to_timestamp(value));
+		return 1;
+	}
+	else if ( strcmp(token,"convert_from_timestamp") == 0 )
+	{
+		http_type(http,"text/html");
+		char buffer[64];
+		http_format(http,"%s",convert_from_timestamp(atol(value),buffer,sizeof(buffer)-1)>0?buffer:"INVALID");
+		return 1;
+	}
+	else
+	{
+		http_format(http,"uri '%s/%s' is not valid",token,value);
+		return 9;
+	}
+}
 /** Process an incoming GUI request
 	@returns non-zero on success, 0 on failure (errno set)
  **/
@@ -2021,9 +2052,10 @@ void *http_response(void *ptr)
 					{"/octave/",	http_run_octave,		HTTP_OK, HTTP_NOTFOUND},
 					{"/kml/", 		http_kml_request,		HTTP_OK, HTTP_NOTFOUND},
 					{"/json/",		http_json_request,		HTTP_OK, HTTP_NOTFOUND},
-					{"/find/",	http_find_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/find/",		http_find_request,		HTTP_OK, HTTP_NOTFOUND},
 					{"/modify/",	http_modify_request,	HTTP_OK, HTTP_NOTFOUND},
-					{"/read/",	http_read_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/read/",		http_read_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/util/",		http_util_request, 		HTTP_OK, HTTP_NOTFOUND},
 				};
 				size_t n;
 				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
