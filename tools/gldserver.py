@@ -144,14 +144,14 @@ class GldTimestamp(datetime.datetime):
         tz ()
     """
     tz = None
+    url = None
     fmt = "%Y-%m-%d %H:%M:%S %Z"
     def __new__(self,*args):
-        # return datetime.datetime.__new__(self._parse(*args))
-        dt = __class__._parse(*args)
+        dt = self.parse(*args)
         return datetime.datetime.__new__(self,dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
 
     def __init__(self,*args):
-        dt = __class__._parse(*args)
+        dt = self.parse(*args)
         print(f"GldTimestamp.__init__({args}) --> {dt}",file=sys.stderr,flush=True)
         datetime.datetime.__init__(dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
 
@@ -159,24 +159,25 @@ class GldTimestamp(datetime.datetime):
         return self.strftime(fmt if fmt else self.fmt)
 
     @classmethod
-    def _parse(self,*args):
+    def parse(self,*args):
         if len(args) == 1:
             if type(args[0]) is str:
-                if args[0] == 'NEVER':
-                    return datetime.datetime.fromtimestamp((2**64-1)>>1)
-                elif args[0] == 'INIT':
-                    return datetime.datetime.fromtimestamp(0)
-                elif args[0] == 'INVALID':
-                    return datetime.datetime.fromtimestamp(2**64-1)
-                else:
-                    dt = datetime.datetime.strptime(args[0],self.fmt)
-                    return dt
+                url = f"{self.url}/util/convert_to_timestamp/{args[0].replace(' ','%20')}"
+                # breakpoint()
+                reply = requests.get(url)
+                if reply.status_code == 200:
+                    print(args[0],'-->',reply.status_code,reply.text,file=sys.stderr,flush=True)
+                    return datetime.datetime.fromtimestamp(int(reply.text))
+                print(args[0],'-->',reply.status_code,file=sys.stderr,flush=True)
+                return None
             elif type(args[0]) is int:
                 return datetime.datetime.fromtimestamp(args[0])
+        else:
+            return datetime.datetime(*args)
         exception("invalid date/time type")
 
 #
-# Server implementationc
+# Server implementation
 #
 class GridlabdServerException(Exception):
     """General GridLAB-D server exception"""
@@ -280,6 +281,7 @@ class GridlabdServer:
             version = self.getversion()
             verbose(f"server version {version} up")
         GldTimestamp.tz = pytz.timezone(self.get_global("timezone_locale"))
+        GldTimestamp.url = f"http://localhost:{self.port}"
 
     def getstatus(self):
         self.status = self.query("raw","mainloop_state",onfail=None)
@@ -390,7 +392,8 @@ if __name__ == "__main__":
                 fh.seek(0)
                 sim = GridlabdServer(fh.name,detached=False)
                 now = datetime.datetime.now(GldTimestamp.tz)
-                self.assertEqual(sim.get_global("clock",astype=GldTimestamp).format(),now.strftime(GldTimestamp.fmt))
+                dt = sim.get_global("clock",astype=GldTimestamp)
+                self.assertEqual(dt.format(),now.strftime(GldTimestamp.fmt))
                 del sim
 
             # def test_context(self):
