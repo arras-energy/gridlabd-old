@@ -66,10 +66,12 @@ def version_handler(event, context):
 
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS latestMaster (
-            version TEXT NOT NULL
+            version TEXT NOT NULL,
+            build TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS latestDevelop (
-            version TEXT NOT NULL
+            version TEXT NOT NULL,
+            build TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS checks (
             version TEXT NOT NULL,
