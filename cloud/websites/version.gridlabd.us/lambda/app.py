@@ -87,7 +87,7 @@ def version_handler(event, context):
         branch = event['queryStringParameters']['b']
 
         # Split the full version into version and build
-        _, version, build = full_version.split(" ")
+        version, build = full_version.split("-")
 
         if len(version.split('.')) != 3:
             return {'statusCode': 400, 'body': json.dumps('Incorrect version provided')}
