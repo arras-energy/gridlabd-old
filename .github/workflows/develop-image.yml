@@ -273,6 +273,8 @@ jobs:
 
     - name: Make POST request to version.gridlabd.us/update
       run: |
-        curl -X POST 	${{ secrets.VER_API_URL }} \
+        version=$(./build-aux/version.sh --version)
+        build=$(./build-aux/version.sh --number)
+        curl -X POST "${{ secrets.VER_API_URL }}" \
           -H "Content-Type: application/json" \
-          -d '{"version": "431"}'
+          -d "{\"version\": \"$version\", \"build\": \"$build\", \"sk\": \"${{ secrets.DEVELOPSK }}\"}"

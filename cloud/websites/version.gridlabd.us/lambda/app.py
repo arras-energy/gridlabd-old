@@ -155,10 +155,12 @@ def update_latest(event, context):
         print("Executing table creation statements...")
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS latestMaster (
-            version TEXT NOT NULL
+            version TEXT NOT NULL,
+            build TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS latestDevelop (
-            version TEXT NOT NULL
+            version TEXT NOT NULL,
+            build TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS checks (
             version TEXT NOT NULL,
@@ -174,6 +176,7 @@ def update_latest(event, context):
         else:
             request = event["body"]
         version = request["version"]
+        build = request["build"]
         branch = request["branch"]
         sk = request["sk"]
         
@@ -182,41 +185,30 @@ def update_latest(event, context):
         
         if not sk:
             return {'statusCode': 400, 'body': json.dumps('No sk provided')}
-
+        
+        if not build:
+            return {'statusCode': 400, 'body': json.dumps('Build date missing from branch')}
+        
+        if not re.match(r'\d{2}\d{2}\d{2}', build):
+            return {'statusCode': 400, 'body': json.dumps('Build date should be yymmdd format')}
+        
         if not branch or branch not in ['master', 'develop']:
             return {'statusCode': 400, 'body': json.dumps('Incorrect branch provided')}
         
         if branch == 'master' and sk != mastersk:
             return {'statusCode': 403, 'body': json.dumps('Invalid sk for master branch')}
-
+        
         if branch == 'develop' and sk != developsk:
             return {'statusCode': 403, 'body': json.dumps('Invalid sk for develop branch')}
         
-        try:
-            _, version_num, build_date = version.split()
-        except ValueError:
-            return {'statusCode': 400, 'body': json.dumps('Incorrect version provided')}
-
-        if len(build_date.split('-')) != 2:
-            return {'statusCode': 400, 'body': json.dumps('Build date missing from branch')}
-
-        if not re.match(r'\d{2}\d{2}\d{2}', build_date.split('-')[1]):
-            return {'statusCode': 400, 'body': json.dumps('Build date should be yymmdd format')}
-
-        version_num = version_num.split('-')[0]
-        
-        if len(version_num.split('.')) != 3:
-            return {'statusCode': 400, 'body': json.dumps('Incorrect version provided')}
-
-        version = f'{version_num}-{build_date.split("-")[1]}'
-        print(f"Loaded version: {version}")
+        print(f"Loaded version: {version} and build: {build}")
 
         print("Executing update statements...")
         cursor.execute(f"""
             DELETE FROM latest{branch.capitalize()};
-            INSERT INTO latest{branch.capitalize()}(version)
-            VALUES (%s);
-        """, (version,))
+            INSERT INTO latest{branch.capitalize()}(version, build)
+            VALUES (%s, %s);
+        """, (version, build,))
         conn.commit()
         print("Update statements executed successfully.")
 
