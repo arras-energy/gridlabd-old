@@ -2,4 +2,4 @@
 #define DIR=..
 #endif
 
-#system python3 ${DIR:-.}/../server.py
+#system python ${DIR:-.}/../gldserver.py
