@@ -73,8 +73,9 @@ def version_handler(event, context):
             version TEXT NOT NULL,
             build TEXT NOT NULL
         );
-        CREATE TABLE IF NOT EXISTS checks (
+        CREATE TABLE IF NOT EXISTS versionChecks (
             version TEXT NOT NULL,
+            build TEXT NOT NULL,
             branch TEXT NOT NULL,
             timestamp TIMESTAMP NOT NULL
         );
@@ -82,34 +83,48 @@ def version_handler(event, context):
         conn.commit()
 
         # Extract the version and branch from the query string parameters
-        version = event['queryStringParameters']['v']
+        full_version = event['queryStringParameters']['v']
         branch = event['queryStringParameters']['b']
 
-        cursor.execute("""
-            INSERT INTO checks(version, branch, timestamp)
-            VALUES (%s, %s, %s);
-        """, (version, branch, datetime.utcnow()))
-        conn.commit()
+        # Split the full version into version and build
+        _, version, build = full_version.split(" ")
+
+        if len(version.split('.')) != 3:
+            return {'statusCode': 400, 'body': json.dumps('Incorrect version provided')}
+
+        if not re.match(r'\d{2}\d{2}\d{2}', build):
+            return {'statusCode': 400, 'body': json.dumps('Build date should be yymmdd format')}
 
         cursor.execute("""
-            SELECT version FROM latest LIMIT 1;
-        """)
-        result = cursor.fetchone()
-        latest_version = result[0] if result else None
+            INSERT INTO versionChecks(version, build, branch, timestamp)
+            VALUES (%s, %s, %s, %s);
+        """, (version, build, branch, datetime.utcnow()))
+        conn.commit()
+
+        # Handling for different branch scenarios
+        if branch in ['master', 'develop']:
+            cursor.execute(f"""
+                SELECT version, build FROM latest{branch.capitalize()} LIMIT 1;
+            """)
+            result = cursor.fetchone()
+            latest_version, latest_build = result if result else (None, None)
+
+            if latest_version:
+                version_comparison = list(map(int, version.split('.'))) < list(map(int, latest_version.split('.')))
+                build_comparison = int(build) < int(latest_build)
+                if version_comparison or (version == latest_version and build_comparison):
+                    return {
+                        'statusCode': 200,
+                        'body': json.dumps({'latest_version': latest_version, 'latest_build': latest_build})
+                    }
 
         cursor.close()
         conn.close()
-
-        if latest_version and version < latest_version:
-            return {
-                'statusCode': 200,
-                'body': json.dumps({'latest_version': latest_version})
-            }
-        else:
-            return {
-                'statusCode': 200,
-                'body': json.dumps('ok')
-            }
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps('ok')
+        }
     except Exception as e:
         return {
             'statusCode': 500,
@@ -164,9 +179,10 @@ def update_latest(event, context):
             version TEXT NOT NULL,
             build TEXT NOT NULL
         );
-        CREATE TABLE IF NOT EXISTS checks (
+        CREATE TABLE IF NOT EXISTS versionChecks (
             version TEXT NOT NULL,
             branch TEXT NOT NULL,
+            build TEXT NOT NULL,
             timestamp TIMESTAMP NOT NULL
         );
         """)
