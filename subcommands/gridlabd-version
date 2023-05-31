@@ -66,10 +66,9 @@ function version-check()
 	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && warning "$version ($branch) is outdated" ) ; exit 0 )
 
     # Using curl command to check the version
-    version_check_response=$(curl -sL "https://50fs7d0w71.execute-api.us-west-1.amazonaws.com/?v=${submitversion}&b=develop")
-    if [[ $version_check_response != "ok" ]]; then
-        parsed_response=$(echo $version_check_response | jq -r '.latest_version, .latest_build' | tr '\n' '-')
-        warning "Your version is behind. The latest version is $version_check_response version $version branch $branch"
+    version_check_response=$(curl -sL "https://50fs7d0w71.execute-api.us-west-1.amazonaws.com/?v=${submitversion}&b=${branch}")
+    if [[ $version_check_response != '"ok"' ]]; then
+        warning "Your version is behind. The latest version information is: $version_check_response"
         exit 0
     fi
     
