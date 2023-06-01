@@ -59,6 +59,15 @@ def get_db_connection():
 
     return conn
 
+def fetch_stats(cursor, group_by):
+    cursor.execute(f"""
+        SELECT {group_by}, COUNT(*) FROM versionChecks GROUP BY {group_by};
+    """)
+    result = cursor.fetchall()
+    stats = {k: v for k, v in result}
+    return stats
+
+
 def version_handler(event, context):
     try:
         conn = get_db_connection()
@@ -82,9 +91,25 @@ def version_handler(event, context):
         """)
         conn.commit()
 
-        # Extract the version and branch from the query string parameters
-        full_version = event['queryStringParameters']['v']
-        branch = event['queryStringParameters']['b']
+        # Extract query parameters
+        query_params = event.get('queryStringParameters', {})
+        full_version = query_params.get('v')
+        branch = query_params.get('b')
+        group_by = query_params.get('by')
+
+        # Handle stats return case
+        if not full_version and not branch and (not group_by or group_by == 'version'):
+            stats = fetch_stats(cursor, group_by or 'version')
+            return {
+                'statusCode': 200,
+                'body': json.dumps({'groupBy': {group_by or 'version': stats}})
+            }
+
+        if not full_version or not branch:
+            return {
+                'statusCode': 400,
+                'body': json.dumps('Both version and branch parameters are required')
+            }
 
         # Split the full version into version and build
         version, build = full_version.split("-")
@@ -130,6 +155,7 @@ def version_handler(event, context):
             'statusCode': 500,
             'body': json.dumps(f'Error: {str(e)}')
         }
+
 
 def update_latest(event, context):
     secret_name = "gld_database_secrets"
