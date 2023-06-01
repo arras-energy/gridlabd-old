@@ -53,6 +53,7 @@ END
 function version-check()
 {
 	version=$(${BIN} --version)
+	submitversion=$(echo $version | sed -r 's/.*([0-9]+\.[0-9]+\.[0-9]+\-[0-9]+)/\1/')
 	branch=$(${BIN} --version=git-branch)
 	origin=$(${BIN} --version=git-repo |cut -f4- -d/)
 	remote=$( (curl -sL "https://raw.githubusercontent.com/$origin/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
@@ -63,9 +64,17 @@ function version-check()
 	fi
 	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
 	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && warning "$version ($branch) is outdated" ) ; exit 0 )
-	[ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
-	[ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/index.html?v=${version}&b=${branch}" >/dev/null & )
-	exit 0
+
+    # Using curl command to check the version
+    version_check_response=$(curl -sL "https://version.gridlabd.us/?v=${submitversion}&b=${branch}")
+    if [[ $version_check_response != '"ok"' ]]; then
+        warning "Your version is behind. The latest version information is: $version_check_response"
+        exit 0
+    fi
+    
+    [ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
+    [ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/?v=${submitversion}&b=${branch}" >/dev/null & )
+    exit 0
 }
 
 function version-source()
