@@ -181,6 +181,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set output
+      run: |
+        echo "VERSION=$(./build-aux/version.sh --version)" >> $GITHUB_ENV
+        
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
@@ -193,7 +197,7 @@ jobs:
         context: .
         file: ./docker/packer/Dockerfile.prod.ul
         push: true
-        tags: hipas/gridlabd:latest
+        tags: hipas/gridlabd:latest, hipas/gridlabd:${{ env.VERSION }}
 
   updateS3websites:
     runs-on: ubuntu-latest
