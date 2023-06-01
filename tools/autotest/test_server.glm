@@ -1,0 +1,5 @@
+#ifexist ../test_server.glm
+#define DIR=..
+#endif
+
+#system python ${DIR:-.}/../gldserver.py
