@@ -60,12 +60,18 @@ def get_db_connection():
     return conn
 
 def fetch_stats(cursor, group_by):
-    cursor.execute(f"""
-        SELECT {group_by}, COUNT(*) FROM versionChecks GROUP BY {group_by};
-    """)
+    if group_by == 'version':
+        cursor.execute("""
+            SELECT version || '-' || build as full_version, COUNT(*) FROM versionChecks GROUP BY full_version;
+        """)
+    else:
+        cursor.execute(f"""
+            SELECT {group_by}, COUNT(*) FROM versionChecks GROUP BY {group_by};
+        """)
     result = cursor.fetchall()
     stats = {k: v for k, v in result}
     return stats
+
 
 
 def version_handler(event, context):
@@ -92,7 +98,7 @@ def version_handler(event, context):
         conn.commit()
 
         # Extract query parameters
-        query_params = event.get('queryStringParameters', {}) if event else {}
+        query_params = event.get('queryStringParameters', {}) if event else {"by": "version"}
         full_version = query_params.get('v')
         branch = query_params.get('b')
         group_by = query_params.get('by')
