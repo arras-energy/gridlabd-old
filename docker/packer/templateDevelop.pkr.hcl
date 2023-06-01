@@ -34,7 +34,6 @@ source "amazon-ebs" "ubuntu-22-04" {
   instance_type        = "t2.micro"
   ssh_username         = "ubuntu"
   ami_name             = "HiPAS Gridlabd Ubuntu Develop 22.04 {{timestamp}}"
-  ami_groups            = ["all"] // This will make the AMI publicly available
 
   launch_block_device_mappings {
     device_name           = "/dev/sda1"
