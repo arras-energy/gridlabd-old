@@ -92,7 +92,7 @@ def version_handler(event, context):
         conn.commit()
 
         # Extract query parameters
-        query_params = event.get('queryStringParameters', {})
+        query_params = event.get('queryStringParameters', {}) if event else {}
         full_version = query_params.get('v')
         branch = query_params.get('b')
         group_by = query_params.get('by')
