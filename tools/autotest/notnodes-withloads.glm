@@ -1,0 +1,50 @@
+
+clock{
+     timezone PST+8PDT;
+     timestamp '2023-01-01 0:00:00';
+     stoptime '2023-01-02 0:00:00';
+}
+module powerflow
+{
+     solver_method NR;
+}
+module assert;
+module tape;
+
+//////////////// Scenario 3: Load parent to not node ////////////////
+
+object substation 
+{
+     name main_bus;
+     phases "ABCN";
+     bustype SWING;
+     nominal_voltage 2401.7771;
+}
+
+object load 
+{
+     name load1;
+     parent main_bus;
+     phases "ABCN";
+     constant_power_A 160000+110000j;
+     constant_power_B 120000+90000j;
+     constant_power_C 120000+90000j;
+     nominal_voltage 2401.7771;
+
+     object complex_assert{
+          target constant_power_A;
+          value +160000+110000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_B;
+          value +120000+90000j;
+          within 1;
+     };
+     object complex_assert{
+          target constant_power_C;
+          value +120000+90000j;
+          within 1;
+     };
+}
+

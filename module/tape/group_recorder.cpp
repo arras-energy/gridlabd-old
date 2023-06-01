@@ -21,7 +21,7 @@ group_recorder::group_recorder(MODULE *mod){
             GL_THROW("unable to register object class implemented by %s",__FILE__);
         
         if(gl_publish_variable(oclass,
-			PT_char256, "file", PADDR(filename), PT_DESCRIPTION, "output file name",
+			PT_char1024, "file", PADDR(filename), PT_DESCRIPTION, "output file name",
 			PT_char1024, "group", PADDR(group_def), PT_DESCRIPTION, "group definition string",
 			PT_double, "interval[s]", PADDR(dInterval), PT_DESCRIPTION, "recordering interval (0 'every iteration', -1 'on change')",
 			PT_double, "flush_interval[s]", PADDR(dFlush_interval), PT_DESCRIPTION, "file flush interval (0 never, negative on samples)",
@@ -82,7 +82,7 @@ int group_recorder::init(OBJECT *obj){
 			gl_error("group_recorder::init(): no filename defined in strict mode");
 			return 0;
 		} else {
-			sprintf(filename, "%256s-%256i.csv", oclass->name, obj->id);
+			snprintf(filename,sizeof(filename)-1, "%256s-%16i.csv", oclass->name, obj->id);
 			gl_warning("group_recorder::init(): no filename defined, auto-generating '%s'", filename.get_string());
 			/* TROUBLESHOOT
 				group_recorder requires a filename.  If none is provided, a filename will be generated
@@ -510,7 +510,7 @@ int group_recorder::read_line()
 					part_value = cptr->Arg();
 					break;
 			}
-			sprintf(buffer, "%f", part_value);
+			snprintf(buffer,sizeof(buffer)-1, "%f", part_value);
 			offset = strlen(buffer);
 		} else {
 			offset = gl_get_value(curr->obj, GETADDR(curr->obj, &(curr->prop)), buffer, 127, &(curr->prop));
@@ -533,7 +533,7 @@ int group_recorder::read_line()
 		}
 		// write to line_buffer
 		// * lead with a comma on all entries, assume leading timestamp will NOT print a comma
-		if(0 >= sprintf(line_buffer+index, ",%s", buffer)){return 0;}
+		snprintf(line_buffer+index,sizeof(line_buffer)-index-1, ",%s", buffer);
 		index += (offset + 1); // add the comma
 	}
 	// assume write_line will add newline character

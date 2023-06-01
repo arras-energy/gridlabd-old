@@ -16,8 +16,6 @@
 #include <iostream>
 #include <map>
 
-using namespace std;
-
 SET_MYCONTEXT(DMC_CMDARG)
 
 /* TODO: remove when reentrant code is completed */
@@ -249,10 +247,15 @@ STATUS GldCmdarg::no_cmdargs(void)
 {
 	char guiname[1024] = "gridlabd-editor.py";
 	char guipath[1024];
-	if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
+	char glmpath[1024];
+	if ( find_file("gridlabd.glm",".",R_OK,glmpath,sizeof(glmpath)) )
 	{
-		char command[2048];
-		snprintf(command,sizeof(command),"/usr/local/bin/python3 %s &",guipath);
+		return loadall(glmpath);
+	}
+	else if ( find_file(guiname,NULL,R_OK,guipath,sizeof(guipath)) )
+	{
+		char command[3000];
+		snprintf(command,sizeof(command)-1,"%s %s &",(const char*)global_pythonexec,guipath);
 		system(command);
 		return SUCCESS;
 	}
@@ -378,15 +381,15 @@ int GldCmdarg::profile(int argc, const char *argv[])
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ != NULL )
 	{
-		if ( strcmp(opt,"text") == 0 )
+		if ( stricmp(opt,"text") == 0 || stricmp(opt,"txt") == 0 )
 		{
 			global_profile_output_format = POF_TEXT;
 		}
-		else if ( strcmp(opt,"csv") == 0 )
+		else if ( stricmp(opt,"csv") == 0 )
 		{
 			global_profile_output_format = POF_CSV;
 		}
-		else if ( strcmp(opt,"json") == 0 )
+		else if ( stricmp(opt,"json") == 0 )
 		{
 			global_profile_output_format = POF_JSON;
 		}
@@ -395,8 +398,12 @@ int GldCmdarg::profile(int argc, const char *argv[])
 			output_error("profiler option '%s' is not valid",opt);
 			return CMDERR;
 		}
+		global_profiler = TRUE;
 	}
-	global_profiler = !global_profiler;
+	else
+	{
+		global_profiler = !global_profiler;
+	}
 	return 0;
 }
 
@@ -467,7 +474,7 @@ int GldCmdarg::library(int argc, const char *argv[])
 		{
 			etcpath = "/usr/local/share/gridlabd";
 		}
-		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		snprintf(pathname,sizeof(pathname),"%s/library/%s/%s/%s/%s",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
 	}
 	else
@@ -491,7 +498,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 		{
 			etcpath = "/usr/local/share/gridlabd";
 		}
-		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
+		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1]);
 		if ( strstr(global_pythonpath,pathname) == NULL )
 		{
 			if ( strcmp(global_pythonpath,":") != 0 )
@@ -500,7 +507,7 @@ int GldCmdarg::_template(int argc, const char *argv[])
 			}
 			strcat(global_pythonpath,pathname);
 		}
-		snprintf(pathname,sizeof(pathname),"%s/template/%s/%s/%s/%s/%s.glm",getenv("GLD_ETC"),(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1],argv[1]);
+		snprintf(pathname,sizeof(pathname)-1,"%s/template/%s/%s/%s/%s/%s.glm",etcpath,(const char*)global_country,(const char*)global_region,(const char*)global_organization,argv[1],argv[1]);
 		return get_instance()->get_loader()->loadall_glm(pathname) == SUCCESS ? 1 : CMDERR;
 	}
 	else
@@ -694,7 +701,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"name") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		output_message("%s-%d-%s-%s-%s", PACKAGE_VERSION, BUILDNUM, BRANCH, HOST_OS, HOST_CPU);
 		return 0;
 	}
 	else if ( strcmp(opt,"json") == 0 )
@@ -703,10 +710,10 @@ int GldCmdarg::version(int argc, const char *argv[])
 		global_suppress_repeat_messages = false;
 		output_message("{");
 #define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
-#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"%s\"\n}",TAG,escape(VALUE))
 #define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
-#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
-#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",escape(VALUE))
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",escape(VALUE))
 #define OUTPUT_MULTILINE(TAG,VALUE) {\
 		const char *value = VALUE;\
 		char *token=NULL, *last=NULL;\
@@ -737,7 +744,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 			*p = '\0';
 		}
 		OUTPUT("install","%s",tmp);
-		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		output_message("\t\"name\" : \"%s-%d-%s-%s-%s\",", PACKAGE_VERSION, BUILDNUM, BRANCH, HOST_OS, HOST_CPU);
 		OUTPUT("release","%s",BUILD_RELEASE);
 		OUTPUT("commit","%s",BUILD_ID);
 		OUTPUT("email","%s",PACKAGE_BUGREPORT);
@@ -1832,7 +1839,7 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 
-	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1023[A-Za-z_0-9]",modname,classname);
 	if ( n!=2 )
 	{
 		output_error("--example: %s name is not valid",n==0?"module":"class");
@@ -1925,7 +1932,7 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
 		output_error("--mclassdef requires a module:class argument");
 		return CMDERR;
 	}
-	n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	n = sscanf(argv[1],"%1023[A-Za-z_]:%1023[A-Za-z_0-9]",modname,classname);
         if ( n!=2 )
         {
                 output_error("--mclassdef: %s name is not valid",n==0?"module":"class");
@@ -1958,21 +1965,23 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         }
 
 	/* output the classdef */
-	count = snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
+	count = strlen(buffer);
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
 	{
 		char temp[1024];
-		const char *value = object_property_to_string(obj, prop->name, temp, 1023);
+		const char *value = object_property_to_string(obj, prop->name, temp, sizeof(temp)-1);
 		if ( strchr(prop->name,'.')!=NULL )
 		{
 			continue; /* do not output structures */
 		}
 		if ( value!=NULL )
 		{
-			count += snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
+			count = strlen(buffer);
 		}
 	}
-	count += snprintf(buffer+count,sizeof(buffer)-1-count,");\n");
+	snprintf(buffer+count,sizeof(buffer)-1-count,");\n");	
 	output_raw("%s",buffer);
         return CMDOK;
 }
@@ -2080,30 +2089,30 @@ DEPRECATED static int formats(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::formats(int argc, const char *argv[])
 {
-	cout << "{" << endl;
+	std::cout << "{" << std::endl;
 
-	cout << "\t\"glm\" : {" << endl;
-	cout << "\t\t\"json\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t}" << endl;
-	cout << "\t}," << endl;
+	std::cout << "\t\"glm\" : {" << std::endl;
+	std::cout << "\t\t\"json\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t}" << std::endl;
+	std::cout << "\t}," << std::endl;
 
 	// TODO: use a directory listing to get all available converters
-	cout << "\t\"json\" : {" << endl;
-	cout << "\t\t\"glm\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t}," << endl;
+	std::cout << "\t\"json\" : {" << std::endl;
+	std::cout << "\t\t\"glm\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t}," << std::endl;
 
-	cout << "\t\t\"png\" : {" << endl;
-	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << endl;
-	cout << "\t\t\t\"type\" : [" << endl;
-	cout << "\t\t\t\t\"summary\"," << endl;
-	cout << "\t\t\t\t\"profile\"" << endl;
-	cout << "\t\t\t]" << endl;
-	cout << "\t\t}" << endl;
-	cout << "\t}" << endl;
+	std::cout << "\t\t\"png\" : {" << std::endl;
+	std::cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << std::endl;
+	std::cout << "\t\t\t\"type\" : [" << std::endl;
+	std::cout << "\t\t\t\t\"summary\"," << std::endl;
+	std::cout << "\t\t\t\t\"profile\"" << std::endl;
+	std::cout << "\t\t\t]" << std::endl;
+	std::cout << "\t\t}" << std::endl;
+	std::cout << "\t}" << std::endl;
 
-	cout << "}" << endl;
+	std::cout << "}" << std::endl;
 	return 0;
 }
 
@@ -2163,7 +2172,7 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 		IN_MYCONTEXT output_error("unable to open origin file");
 		return CMDERR;
 	}
-	char url[1024] = "";
+	char url[1024] = BUILD_URL "/tree/" BUILD_ID;
 	if ( ! feof(fp) )
 	{
 		char line[1024];
@@ -2181,10 +2190,6 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 			if ( end )
 				*end = '\0';
 			strcpy(url,line+2);
-		}
-		else
-		{
-			strcpy(url,global_urlbase);
 		}
 	}
 	fclose(fp);
@@ -2225,13 +2230,17 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 		output_message("\turl = {%s}",url);
 		output_message("}");
 	}
+	else if (strchr(argv[0],'='))
+	{
+		output_error("format '%s' is invalid",strchr(argv[0],'=')+1);
+	}
 	else
 	{
 		output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
 			" %s\" (%d) [online]."
-			" Available at %s. Accessed %s. %d, %d",
+			" Available at %s. Accessed %d %s %d.",
 			PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
-			platform, year, url, Month[month-1], day, year);
+			platform, year, url, day, Month[month-1], year);
 	}
 	global_suppress_repeat_messages = old;
 	return 0;

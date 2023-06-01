@@ -1,0 +1,22 @@
+
+### Python modules should start without a hashbang, and instead use the below code without the #s. 
+### This essentially makes the file swap dynamically to the calling gridlabd version's python3, and
+### doesn't create a loop or syntax issues, allowing the file to operate like a proper python file.
+### See gridlabd-convert as an example. 
+
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
+### Some good variables to know:
+
+### This is a variable created when compiled, and is intrinsic to the specific gridlabd version calling the files.
+### It points to the version's specific bin directory, which is really handy for dynamically calling internal bin files. 
+$GLD_BIN
+
+### This is a makefile specific variable that exists for the build. It has the same directory as GLD_BIN
+$bindir
+
+### This is a magic autotools variable. It is similar to GLD_BIN and bindir, but is used in the m4 family of files.
+### It points to the top of the version directory, right above bin. 
+@exec_prefix@

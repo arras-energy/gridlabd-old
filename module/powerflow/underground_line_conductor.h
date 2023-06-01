@@ -28,6 +28,7 @@ public:
 	double shield_thickness;
 	double shield_diameter;
 	LINERATINGS winter, summer;
+	double insulation_R;
 	
 	underground_line_conductor(MODULE *mod);
 	inline underground_line_conductor(CLASS *cl=oclass):powerflow_library(cl){};

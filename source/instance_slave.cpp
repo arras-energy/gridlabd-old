@@ -665,7 +665,7 @@ STATUS instance_slave_init_socket(){
 		return FAILED;
 	}
 	// handshake?
-	sprintf(cmd, HS_CBK "%" FMT_INT64 "d", global_slave_id);
+	snprintf(cmd, sizeof(cmd)-1, HS_CBK "%" FMT_INT64 "d", global_slave_id);
 	IN_MYCONTEXT output_debug("cmd/cbk: %s", cmd);
 	rv = send(local_inst.sockfd, cmd, (int)strlen(cmd), 0);
 	if(0 == rv){

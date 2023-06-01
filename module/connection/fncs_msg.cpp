@@ -417,10 +417,10 @@ int fncs_msg::init(OBJECT *parent){
 
 	//create zpl file for registering with fncs
 	if (message_type == MT_GENERAL){
-		zplfile << "name = " << simName << endl;
-		zplfile << "time_delta = 1000000000ns" << endl; //TODO: minimum timestep needs to take into account deltamode steps eventually.
-		zplfile << "broker = tcp://" << *hostname << ":" << *port << endl;
-		zplfile << "values" << endl;
+		zplfile << "name = " << simName << std::endl;
+		zplfile << "time_delta = 1000000000ns" << std::endl; //TODO: minimum timestep needs to take into account deltamode steps eventually.
+		zplfile << "broker = tcp://" << *hostname << ":" << *port << std::endl;
+		zplfile << "values" << std::endl;
 		for(n = 1; n < 14; n++){
 			if( n >= 1 && n <= 13){
 				for(pMap = vmap[n]->getfirst(); pMap != NULL; pMap = pMap->next){
@@ -438,15 +438,15 @@ int fncs_msg::init(OBJECT *parent){
 							} else {
 								dft = string(defaultBuf);
 							}
-							zplfile << "    " << string(pMap->remote_name) << endl;
-							zplfile << "        topic = " << string(pMap->remote_name) << endl;
+							zplfile << "    " << string(pMap->remote_name) << std::endl;
+							zplfile << "        topic = " << string(pMap->remote_name) << std::endl;
 							if(dft.empty() != true){
-								zplfile << "        default = " << dft << endl;
+								zplfile << "        default = " << dft << std::endl;
 							}
 							if(type.empty() != true){
-								zplfile << "        type = " << type << endl;
+								zplfile << "        type = " << type << std::endl;
 							}
-							zplfile << "        list = false" << endl;
+							zplfile << "        list = false" << std::endl;
 						}
 					}
 				}
@@ -457,15 +457,15 @@ int fncs_msg::init(OBJECT *parent){
 
 			string default_json_str = string("{\"")+simName+string("\":{}}");
 
-			zplfile << "name = " << simName << endl;
-			zplfile << "time_delta = 1000000000ns" << endl; //TODO: minimum timestep needs to take into account deltamode steps eventually.
-			zplfile << "broker = tcp://" << *hostname << ":" << *port << endl;
-			zplfile << "values" << endl;
-			zplfile << "    " << simName <<"/fncs_input" << endl;
-			zplfile << "        topic = " << simName << "/fncs_input" << endl;
-			zplfile << "        default = " << default_json_str << endl;
-			zplfile << "        type = " << "JSON" << endl;
-			zplfile << "        list = false" << endl;
+			zplfile << "name = " << simName << std::endl;
+			zplfile << "time_delta = 1000000000ns" << std::endl; //TODO: minimum timestep needs to take into account deltamode steps eventually.
+			zplfile << "broker = tcp://" << *hostname << ":" << *port << std::endl;
+			zplfile << "values" << std::endl;
+			zplfile << "    " << simName <<"/fncs_input" << std::endl;
+			zplfile << "        topic = " << simName << "/fncs_input" << std::endl;
+			zplfile << "        default = " << default_json_str << std::endl;
+			zplfile << "        type = " << "JSON" << std::endl;
+			zplfile << "        list = false" << std::endl;
 
 	}
 
@@ -480,9 +480,9 @@ int fncs_msg::init(OBJECT *parent){
 			}
 			if(uniqueTopic == true){
 				inFunctionTopics->push_back(string(relay->remotename));
-				zplfile << "    " << string(relay->remotename) << endl;
-				zplfile << "        topic = " << string(relay->remotename) << endl;
-				zplfile << "        list = true" << endl;
+				zplfile << "    " << string(relay->remotename) << std::endl;
+				zplfile << "        topic = " << string(relay->remotename) << std::endl;
+				zplfile << "        list = true" << std::endl;
 			}
 		}
 	}
@@ -1473,7 +1473,7 @@ extern "C" void outgoing_fncs_function(char *from, char *to, char *funcName, cha
 		//TODO: deliver message to fncs
 		stringstream payload;
 		char buffer[sizeof(len)];
-		sprintf(buffer, "%d", len);
+		snprintf(buffer,sizeof(buffer)-1, "%d", len);
 		payload << "\"{\"from\":\"" << from << "\", " << "\"to\":\"" << to << "\", " << "\"function\":\"" << funcName << "\", " <<  "\"data\":\"" << message << "\", " << "\"data length\":\"" << buffer <<"\"}\"";
 		string key = string(relay->remotename);
 		if( relay->ctype == CT_PUBSUB){

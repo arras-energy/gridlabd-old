@@ -7,7 +7,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // billdump CLASS FUNCTIONS
@@ -115,7 +115,7 @@ void billdump::dump(TIMESTAMP t){
 			if(gl_object_isa(obj, "triplex_meter", "powerflow")){
 				pnode = OBJECTDATA(obj,triplex_meter);
 				if(obj->name == NULL){
-					sprintf(namestr, "%s:%i", obj->oclass->name, obj->id);
+					snprintf(namestr,sizeof(namestr)-1, "%s:%i", obj->oclass->name, obj->id);
 				}
 				fprintf(outfile,"%s,%f,%f\n",(obj->name ? obj->name : namestr),pnode->previous_monthly_bill,pnode->previous_monthly_energy);
 			}
@@ -132,7 +132,7 @@ void billdump::dump(TIMESTAMP t){
 			if(gl_object_isa(obj, "meter", "powerflow")){
 				qnode = OBJECTDATA(obj,meter);
 				if(obj->name == NULL){
-					sprintf(namestr, "%s:%i", obj->oclass->name, obj->id);
+					snprintf(namestr,sizeof(namestr)-1, "%s:%i", obj->oclass->name, obj->id);
 				}
 				fprintf(outfile,"%s,%f,%f\n",(obj->name ? obj->name : namestr),qnode->previous_monthly_bill,qnode->previous_monthly_energy);
 			}

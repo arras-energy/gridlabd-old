@@ -41,11 +41,12 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
 
 CLASS* line::oclass = NULL;
 CLASS* line::pclass = NULL;
 CLASS *line_class = NULL;
+
+EXPORT_COMMIT(line)
 
 line::line(MODULE *mod) : link_object(mod) {
 	if(oclass == NULL)

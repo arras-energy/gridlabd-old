@@ -363,7 +363,7 @@ rbsa::rbsa(MODULE *module)
 			NULL)<1)
 		{
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 		gl_global_create("default_nominal_voltage_A",PT_complex,&default_nominal_voltage_A,NULL);

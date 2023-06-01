@@ -1,3 +1,4 @@
+# mdb_info MDBFILE COMMAND [ARGS ...
 """Convert MDB table to a CSV player
 
 SYNOPSIS
@@ -14,7 +15,7 @@ COMMAND
 
 Valid commands are
 
-- `class REGEX`: create GLM classes from table data
+- `class REGEX`: create GLM classes from table data (TODO: not implemented yet)
 
 - `tables [REGEX]`: display list of tables matching pattern (all by default)
 
@@ -37,11 +38,6 @@ VERBOSE = False
 WARNING = True
 QUIET = False
 
-meter = "1252657E"
-player = f"/Users/dchassin/Downloads/{meter}.csv"
-mdbfile = "/Users/dchassin/Downloads/AMI_KWH.mdb"
-csvfile = mdbfile.replace(".mdb",".csv")
-
 reload = False
 
 def verbose(msg):
@@ -62,7 +58,10 @@ def error(msg,code=None):
 
 def main(argv):
 
-    if len(argv) < 3:
+    if len(sys.argv) == 2 and argv[1] in ['-h','--help','help']:
+        print(__doc__)
+        exit(0)
+    elif len(argv) < 3:
         print("Syntax: gridlabd mdb_info MDBFILE COMMAND [ARGS ...]",file=sys.stderr)
         exit(1)
 

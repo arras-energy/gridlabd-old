@@ -151,7 +151,7 @@ char *GldLoader::strip_right_white(char *b)
 
 std::string GldLoader::forward_slashes(const char *a)
 {
-	char buffer[MAXPATHNAMELEN];
+	char buffer[MAXPATHNAMELEN] = "";
 	char *b=buffer;
 	while ( *a != '\0' && b < buffer+sizeof(buffer)-1 )
 	{
@@ -173,7 +173,7 @@ std::string GldLoader::forward_slashes(const char *a)
 void GldLoader::filename_parts(const char *fullname, char *path, char *name, char *ext)
 {
 	/* fix delimiters (result is a static copy) */
-	char file[MAXPATHNAMELEN];
+	char file[MAXPATHNAMELEN] = "";
 	strcpy(file,forward_slashes(fullname).c_str());
 
 	/* find the last delimiter */
@@ -290,7 +290,7 @@ int GldLoader::append_global(const char* format,...)
 
 void GldLoader::mark_linex(const char *filename, int linenum)
 {
-	char buffer[64];
+	char buffer[64] = "";
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
 		char fname[MAXPATHNAMELEN];
@@ -306,10 +306,10 @@ void GldLoader::mark_line(void)
 
 STATUS GldLoader::exec(const char *format,...)
 {
-	char cmd[1024];
+	char cmd[1024] = "";
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(cmd,format,ptr);
+	vsnprintf(cmd,sizeof(cmd)-1,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
 	int rc = my_instance->subcommand(cmd);
@@ -361,11 +361,10 @@ std::string GldLoader::setup_class(CLASS *oclass)
 
 int GldLoader::write_file(FILE *fp, const char *data, ...)
 {
-	char buffer[65536];
-	char var_buf[64];
+	char buffer[65536] = "";
+	char var_buf[64] = "";
 	char *c, *d=buffer;
 	int len=0;
-	int diff = 0;
 	char *b;
 	va_list ptr;
 	va_start(ptr,data);
@@ -380,7 +379,6 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 				outlinenum++;
 			}
 			fputc(*b,fp);
-			diff++;
 			len++;
 		}
 		d =  c + strlen("/*RESETLINE*/\n");
@@ -466,8 +464,8 @@ int GldLoader::mkdirs(const char *path)
 
 STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 {
-	char include_file_str[1024];
-	char buffer[256];
+	char include_file_str[1024] = "";
+	char buffer[256] = "";
 	bool use_msvc = (global_getvar("use_msvc",buffer,255)!=NULL);
 
 	include_file_str[0] = '\0';
@@ -2515,6 +2513,64 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 					else
 						strcpy(value,"");
 				}
+				else if (strcmp(varname,"groupid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%s",(const char *)current_object->groupid);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rank")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rank);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"rng_state")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%d",current_object->rng_state);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"latitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->latitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"longitude")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%.6lf",current_object->longitude);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"guid")==0)
+				{
+					if (current_object)
+						snprintf(value,sizeof(value)-1,"%llx%llx",current_object->guid[0],current_object->guid[1]);
+					else
+						strcpy(value,"");
+				}
+				else if (strcmp(varname,"parent")==0)
+				{
+					if (current_object && current_object->parent)
+					{
+						if ( current_object->parent->name )
+						{
+							snprintf(value,sizeof(value)-1,"%s",current_object->parent->name);
+						}
+						else
+						{
+							snprintf(value,sizeof(value)-1,"%s:%d",current_object->parent->oclass->name,current_object->parent->id);							
+						}
+					}
+					else
+						strcpy(value,"");
+				}
 				else if ( object_get_value_by_name(current_object,varname,value,sizeof(value)))
 				{
 					/* value is ok */
@@ -2766,6 +2822,11 @@ int GldLoader::module_properties(PARSER, MODULE *mod)
 			REJECT;
 		}
 	}
+	OR if ( LITERAL("no_templates") && (WHITE,LITERAL(";")) )
+	{
+		mod->no_templates = true;
+		ACCEPT;
+	}
 	OR if (TERM(name(HERE,propname,sizeof(propname))) && (WHITE))
 	{
 		current_object = NULL; /* object context */
@@ -2918,7 +2979,7 @@ int GldLoader::property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 
 int GldLoader::class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
 {
-	char buffer[1024];
+	char buffer[1024] = "";
 	START;
 	if WHITE ACCEPT;
 	if LITERAL("create")
@@ -3046,7 +3107,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 {
 	int _n = 0;
 	int nest = 0;
-	char buffer[64];
+	char buffer[64] = "";
 	enum {CODE,COMMENTBLOCK,COMMENTLINE,STRING,CHAR} state=CODE;
 	while (*_p!='\0')
 	{
@@ -3181,7 +3242,7 @@ int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions,
 int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
 {
 	int startline;
-	char buffer[64];
+	char buffer[64] = "";
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("export")
@@ -3437,10 +3498,10 @@ int GldLoader::class_parent_definition(PARSER, CLASS *oclass)
 
 int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
-	static char code[65536];
-	char arglist[1024];
-	char fname[64];
-	char buffer[64];
+	static char code[65536] = "";
+	char arglist[1024] = "";
+	char fname[64] = "";
+	char buffer[64] = "";
 	CLASS *eclass;
 	PROPERTYTYPE type;
 	char propname[64];
@@ -4356,7 +4417,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if ( object_set_complex_by_name(obj,propname,cval) == 0 )
 				{
-					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
+					syntax_error(filename,linenum,"complex property %s of %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4838,7 +4899,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error_here(HERE); REJECT; }
+	// else { syntax_error_here(HERE); REJECT; }
 
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
@@ -5239,9 +5300,9 @@ int GldLoader::schedule(PARSER)
 	char schedname[64];
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
+	if (LITERAL("schedule") && WHITE && TERM(dashed_name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
 	{
-		char buffer[65536], *p=buffer;
+		char buffer[65536] = "", *p=buffer;
 		int nest=0;
 		for (nest=0; nest>=0; _m++)
 		{
@@ -5386,11 +5447,11 @@ int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 
 int GldLoader::gui_entity_parameter(PARSER, GUIENTITY *entity)
 {
-	char buffer[1024];
-	char varname[64];
-	char modname[64];
-	char objname[64];
-	char propname[64];
+	char buffer[1024] = "";
+	char varname[64] = "";
+	char modname[64] = "";
+	char objname[64] = "";
+	char propname[64] = "";
 	START;
 	if WHITE ACCEPT;
 	if LITERAL("global")
@@ -5656,7 +5717,6 @@ int GldLoader::gui_entity_type(PARSER, GUIENTITYTYPE *type)
 
 int GldLoader::gui_entity(PARSER, GUIENTITY *parent)
 {
-	//char buffer[1024];
 	GUIENTITYTYPE type;
 	START;
 	if WHITE ACCEPT;
@@ -6306,7 +6366,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(dashed_name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )
@@ -6475,7 +6535,7 @@ int GldLoader::replace_variables(char *to,char *from,int len,int warn)
 	while ((p=strstr(e,"${"))!=NULL)
 	{
 		char varname[1024];
-		if (sscanf(p+2,"%1024[^}]",varname)==1)
+		if (sscanf(p+2,"%1023[^}]",varname)==1)
 		{
 			char *env = getenv(varname);
 			const char *var;
@@ -6524,7 +6584,7 @@ Unterminated:
 	}
 }
 
-int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
+DEPRECATED int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
 	int n=0;
@@ -6758,6 +6818,7 @@ int GldLoader::set_language(const char *name)
 
 int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
+	strcpy(global_loader_filename,filename);
 	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
@@ -6767,6 +6828,7 @@ int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 	int quoteline = 0;
 	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
+		global_loader_linenum = linenum + _linenum;
 		int len;
 		char subst[65536];
 
@@ -6913,7 +6975,7 @@ int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 }
 
 
-int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
+int GldLoader::include_file(char *incname, char *buffer, int size)
 {
 	int move = 0;
 	char *p = buffer;
@@ -6924,7 +6986,10 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	char ff[1024];
 	FILE *fp = 0;
 	char buffer2[20480];
-	unsigned int old_linenum = _linenum;
+	char1024 parent_file;
+	strcpy(parent_file,filename);
+	int32 parent_line = linenum;
+
 	/* check include list */
 	INCLUDELIST *list;
 	INCLUDELIST *my = (INCLUDELIST *)malloc(sizeof(INCLUDELIST));//={incname,include_list}; /* REALLY BAD IDEA ~~ "this" is a reserved C++ keyword */
@@ -6938,31 +7003,42 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	{
 		if (strcmp(incname, list->file) == 0 && !global_reinclude )
 		{
-			syntax_error(incname,_linenum,"include file has already been included");
-			return 0;
+			syntax_error(filename,linenum,"include file has already been included");
+			count = 0;
+			goto Error;
 		}
 	}
 
 	/* if source file, add to header list and keep moving */
 	ext = strrchr(incname, '.');
 	name = strrchr(incname, '/');
-	if (ext>name) {
-		if(strcmp(ext, ".hpp") == 0 || strcmp(ext, ".h")==0 || strcmp(ext, ".c") == 0 || strcmp(ext, ".cpp") == 0){
+	if (ext>name) 
+	{
+		if ( strcmp(ext, ".hpp") == 0 || strcmp(ext, ".h")==0 || strcmp(ext, ".c") == 0 || strcmp(ext, ".cpp") == 0)
+		{
 			// append to list
-			for (list = header_list; list != NULL; list = list->next){
-				if(strcmp(incname, list->file) == 0){
+			for ( list = header_list ; list != NULL ; list = list->next)
+			{
+				if ( strcmp(incname, list->file) == 0 ) 
+				{
 					// normal behavior
-					return 0;
+					count = 0;
+					goto Error;
 				}
 			}
 			my->next = header_list;
 			header_list = my;
 		}
-	} else { /* no extension */
-		for (list = header_list; list != NULL; list = list->next){
-			if(strcmp(incname, list->file) == 0){
+	} 
+	else 
+	{ /* no extension */
+		for ( list = header_list ; list != NULL ; list = list->next )
+		{
+			if ( strcmp(incname, list->file) == 0 ) 
+			{
 				// normal behavior
-				return 0;
+				count = 0;
+				goto Error;
 			}
 		}
 		my->next = header_list;
@@ -6972,9 +7048,11 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	/* open file */
 	fp = find_file(incname,NULL,R_OK,ff,sizeof(ff)) ? fopen(ff, "rt") : NULL;
 
-	if(fp == NULL){
-		syntax_error(incname,_linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
-		return -1;
+	if ( fp == NULL )
+	{
+		syntax_error(incname,linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
+		count = -1;
+		goto Error;
 	}
 	else
 	{
@@ -6982,48 +7060,43 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
 	add_depend(incname,ff);
-	char1024 parent_file;
-	strcpy(parent_file,global_loader_filename);
-	int32 parent_line = global_loader_linenum;
-	strcpy(global_loader_filename,incname);
 
-	old_linenum = linenum;
-	global_loader_linenum = linenum = 1;
-
-	if(fstat(fileno(fp), &stat) == 0){
-		if(stat.st_mtime > modtime){
+	if ( fstat(fileno(fp), &stat) == 0 )
+	{
+		if ( stat.st_mtime > modtime )
+		{
 			modtime = stat.st_mtime;
 		}
-
-		//if(size < stat.st_size){
-			/** @todo buffer must grow (ticket #31) */
-			/* buffer = realloc(buffer,size+stat.st_size); */
-		//	output_message("%s(%d): unable to grow size of read buffer to include file", incname, linenum);
-		//	return 0;
-		//}
-	} else {
-		syntax_error(incname,_linenum,"unable to get size of included file");
-		return -1;
+	} 
+	else 
+	{
+		syntax_error(incname,linenum,"unable to get size of included file");
+		count = -1;
+		goto Error;
 	}
 
-	IN_MYCONTEXT output_verbose("%s(%d): included file is %d bytes long", incname, old_linenum, stat.st_size);
+	IN_MYCONTEXT output_verbose("%s(%d): included file is %d bytes long", (const char*)parent_file, parent_line, stat.st_size);
 
 	/* reset line counter for parser */
-	include_list = my;
-	//count = buffer_read(fp,buffer,incname,size); // fread(buffer,1,stat.st_size,fp);
+	strcpy(filename,incname);
+	linenum = 1;
 
+	include_list = my;
 	move = buffer_read_alt(fp, buffer2, incname, 20479);
-	while(move > 0){
+	while ( move > 0 )
+	{
 		count += move;
 		p = buffer2; // grab a block
-		while(*p != 0){
+		while ( *p != 0 )
+		{
 			// and process it
 			move = gridlabd_file(p);
 			if(move == 0)
 				break;
 			p += move;
 		}
-		if(*p != 0){
+		if ( *p != 0 )
+		{
 			// failed if we didn't parse the whole thing
 			count = -1;
 			break;
@@ -7032,11 +7105,10 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	}
 
 	//include_list = my.next;
-
-	linenum = old_linenum;
+Error:
+	strcpy(filename,parent_file);
+	linenum = parent_line;
 	fclose(fp);
-	strcpy(global_loader_filename,parent_file);
-	global_loader_linenum = parent_line;
 	return count;
 }
 
@@ -7179,6 +7251,10 @@ bool found_in_list(const char *tag, const char* taglist, char delim=',')
 
 int writefile(char *fname, char *specs)
 {
+	if ( strcmp(specs,"") == 0 )
+	{
+		return saveall(fname);
+	}
 	// identify filetype based on extension
 	enum e_filetype {NONE, CSV, JSON, GLM} filetype = NONE;
 	char *ext = strrchr(fname,'.');
@@ -7378,7 +7454,7 @@ int readfile(char *fname, char *specs, char* line, int size)
 int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
 	char *var, *val, *save;
-	char buffer[1024];
+	char buffer[1024] = "";
 	if ( get_language() )
 	{
 		const char *m = line;
@@ -7635,11 +7711,12 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
+			snprintf(line,size-1,"@%s;%d\n",value,0);
+			int len = strlen(line);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context
-			len=(int)include_file(value,line,size,linenum);
+			len=(int)include_file(value,line,size);
 			strcpy(filename, oldfile);	// pop include filename, use calling filename
 			add_depend(filename,value);
 			if (len<0)
@@ -7652,7 +7729,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				len = snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				snprintf(line,size-1,"@%s;%d\n",filename,linenum);
+				len = strlen(line);
 				line+=len; size-=len;
 				return size>0;
 			}
@@ -7688,7 +7766,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			/* load temp file */
 			strcpy(oldfile,filename);
 			strcpy(filename,tmpname);
-			int len = (int)include_file(tmpname,line,size,linenum);
+			int len = (int)include_file(tmpname,line,size);
 			strcpy(filename,oldfile);
 			add_depend(filename,tmpname);
 			if ( len < 0 )
@@ -7709,6 +7787,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			/* C include file */
 			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
 			my_instance->subcommand("%s",value);
+			// TODO: insert stdout here
+			strcpy(line,"\n");
 			return TRUE;
 		}
 		else
@@ -7927,7 +8007,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#debug",6)==0)
 	{
-		char *term = strchr(line+8,' ');
+		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
@@ -8171,11 +8251,11 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#for",4) == 0 )
 	{
-		char var[64], range[1024];
+		char var[64], range[1024] = "";
 		if ( line[0] == '"' ) line++;
 		char *end = line + strlen(line);
 		if ( end[-1] == '"') end[-1] = '\0';
-		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) == 2 )
+		if ( sscanf(line+4,"%s in%*[ \t\"]%[^\n\"]",var,range) >= 1 )
 		{
 			strcpy(line,"\n");
 			return for_open(var,range) ? TRUE : FALSE;
@@ -8188,8 +8268,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#write", 6) == 0 )
 	{
-		char fname[1024], specs[1024];
-		if ( sscanf(line+6,"%s %s",fname,specs) == 2)
+		char fname[1024], specs[1024] = "";
+		if ( sscanf(line+6,"%s %s",fname,specs) >= 1)
 		{
 			if ( writefile(fname,specs) < 0 )
 			{
@@ -8254,6 +8334,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			output_error("unable to resolve all object references");
 		}
+		for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = obj->next )
+		{
+			object_set_parent(obj,obj->parent);
+		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
@@ -8286,11 +8370,14 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
 
 {
+	char old_filename[1024];
+	strcpy(old_filename,filename);
+	unsigned int old_linenum = linenum;
 	char file[1024];
 	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
 	char *p = NULL;
-	char buffer[20480];
+	char buffer[20480] = "";
 	int fsize = 0;
 	STATUS status=FAILED;
 	struct stat stat;
@@ -8306,20 +8393,23 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
 	}
-	if(fsize <= 1){
+	if ( fsize <= 1 )
+	{
 		// empty file short circuit
-		return SUCCESS;
+		status = SUCCESS;
+		goto Done;
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
-	strcpy(global_loader_filename,filename);
-	global_loader_linenum = 1;
+	strcpy(filename,file);
+	linenum = 1;
 
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
 
 	move = buffer_read_alt(fp, buffer, file, 20479);
-	while(move > 0){
+	while ( move > 0 )
+	{
 		p = buffer; // grab a block
 		while(*p != 0){
 			// and process it
@@ -8328,7 +8418,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 				break;
 			p += move;
 		}
-		if(*p != 0){
+		if ( *p != 0 ) 
+		{
 			// failed if we didn't parse the whole thing
 			status = FAILED;
 			break;
@@ -8336,15 +8427,19 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 		move = buffer_read_alt(fp, buffer, file, 20479);
 	}
 
-	if(p != 0){ /* did the file contain anything? */
+	if ( p != 0 )
+	{ /* did the file contain anything? */
 		status = (*p=='\0' && !include_fail) ? SUCCESS : FAILED;
-	} else {
+	} 
+	else 
+	{
 		status = FAILED;
 	}
-	if (status==FAILED)
+	if ( status == FAILED )
 	{
 		char *eol = NULL;
-		if(p){
+		if ( p ) 
+		{
 			eol = strchr(p,'\n');
 		}
 		else
@@ -8356,25 +8451,33 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 			}
 			p = nulstr;
 		}
-		if (eol!=NULL){
+		if ( eol != NULL )
+		{
 			*eol='\0';
 		}
 		syntax_error(file,linenum,"load failed at or near '%.12s...'",*p=='\0'?"end of line":p);
-		if (p==0)
+		if ( p == 0 )
+		{
 			output_error("%s doesn't appear to be a GLM file", file);
+		}
 		goto Failed;
 	}
-	else if ((status=load_resolve_all(true))==FAILED)
+	else if ( (status=load_resolve_all(true)) == FAILED )
+	{
 		goto Failed;
+	}
 
 	/* establish ranks */
-	for (obj=first?first:object_get_first(); obj!=NULL; obj=obj->next)
+	for ( obj = first ? first : object_get_first() ; obj != NULL ; obj = obj->next )
+	{
 		object_set_parent(obj,obj->parent);
+	}
 	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
 	goto Done;
 Failed:
-	if (errno!=0){
-		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
+	if ( errno != 0 )
+	{
+		output_error("unable to load '%s': %s", file, strerror(errno));
 		/*	TROUBLESHOOT
 			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
 			favor of prior error messages.
@@ -8383,15 +8486,18 @@ Failed:
 Done:
 	//free(buffer);
 	free_index();
-	global_loader_linenum = linenum = 1; // parser starts at one
-	if (fp!=NULL) fclose(fp);
-	strcpy(global_loader_filename,"");
+	strcpy(filename,old_filename);
+	linenum = old_linenum;
+	if ( fp != NULL ) 
+	{
+		fclose(fp);
+	}
 	return status;
 }
 
 TECHNOLOGYREADINESSLEVEL GldLoader::calculate_trl(void)
 {
-	char buffer[1024];
+	char buffer[1024] = "";
 	CLASS *oclass;
 
 	// start optimistically
@@ -8427,7 +8533,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		ext++;
 	}
 	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext);
+	snprintf(converter_name,sizeof(converter_name)-1,"%s2glm.py",ext);
 	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
@@ -8446,7 +8552,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		strcpy(glmext,".glm");
 	char load_options[1024] = "";
 	char load_options_var[64];
-	sprintf(load_options_var,"%s_load_options",ext);
+	snprintf(load_options_var,sizeof(load_options_var)-1,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char *unquoted = load_options;
 	if ( load_options[0] == '"' )

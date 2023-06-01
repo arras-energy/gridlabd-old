@@ -1,0 +1,22 @@
+#set suppress_repeat_messages=FALSE
+
+#ifexist ../meters-withloads.glm
+#define DIR=..
+#endif
+
+#define CHECKFILES=meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode links-to-meter-to-child links-to-triplexmeter-to-child
+
+#for MODEL_NAME in ${CHECKFILES}
+
+#set randomseed=1
+
+#gridlabd -D randomseed=1 -C ${DIR:-.}/${MODEL_NAME}.glm -o ${MODEL_NAME}.json
+
+#python ${DIR:-.}/../create_meters.py ${MODEL_NAME}.json ${MODEL_NAME}-meters.json
+#gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
+
+#done
+
+#ifexist ../check-meters.sh
+#on_exit 0 python3 ../check-meters.py ${CHECKFILES} > gridlabd.diff
+#endif

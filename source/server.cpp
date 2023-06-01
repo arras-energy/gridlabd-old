@@ -346,16 +346,30 @@ static void http_type(HTTPCNX *http, const char *type)
 static void http_send(HTTPCNX *http)
 {
 	char header[4096];
-	int len=0;
-	len += snprintf(header+len,sizeof(header)-len-1,"HTTP/1.1 %s", http->status?http->status:HTTP_INTERNALSERVERERROR);
+	snprintf(header,sizeof(header)-1,"HTTP/1.1 %s", http->status?http->status:HTTP_INTERNALSERVERERROR);
+	int len = strlen(header);
+	
 	IN_MYCONTEXT output_verbose("%s (len=%d, mime=%s)",header,http->len,http->type?http->type:"none");
-	len += snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
+	snprintf(header+len,sizeof(header)-len-1, "\nContent-Length: %zu\n", http->len);
+	len = strlen(header);
 	if (http->type && http->type[0]!='\0')
-		len += snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
-	len += snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
-	len += snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-store\n");
-	len += snprintf(header+len,sizeof(header)-len-1, "Expires: -1\n");
-	len += snprintf(header+len,sizeof(header)-len-1,"\n");
+	{
+		snprintf(header+len,sizeof(header)-len-1, "Content-Type: %s\n", http->type);
+		len = strlen(header);
+	}
+	
+	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-cache\n");
+	len = strlen(header);
+	
+	snprintf(header+len,sizeof(header)-len-1, "Cache-Control: no-store\n");
+	len = strlen(header);
+	
+	snprintf(header+len,sizeof(header)-len-1, "Expires: -1\n");
+	len = strlen(header);
+
+	snprintf(header+len,sizeof(header)-len-1,"\n");
+	len = strlen(header);
+	
 	send_data(http->s,header,len);
 	if (http->len>0)
 		send_data(http->s,http->buffer,http->len);
@@ -1110,17 +1124,15 @@ int http_find_request(HTTPCNX *http,char *uri)
 		return 0;
 	http_format(http,"[\n");
 	obj = find_first(list);
-	while ( 1 )
+	while ( obj )
 	{
 		if ( obj->name == NULL )
 			http_format(http,"\t{\"name\" : \"%s:%d\"}",obj->oclass->name,obj->id);
 		else
 			http_format(http,"\t{\"name\" : \"%s\"}",obj->name);
 		obj = find_next(list,obj);
-		if ( obj!=NULL )
+		if ( obj != NULL )
 			http_format(http,",\n\t");
-		else
-			break;
 	}
 	http_format(http,"\n\t]\n");
 	http_type(http,"text/json");
@@ -1193,6 +1205,37 @@ int http_read_request(HTTPCNX *http, char *uri)
 	return 1;
 }
 
+/** Process a utility operation
+ *  @returns non-zero on success, 0 on failure (errno set)
+ **/
+
+int http_util_request(HTTPCNX *http, char *uri)
+{
+	char token[64], value[1024];
+	if ( sscanf(uri,"%[^/]/%[^\n]",token,value) < 2 )
+	{
+		return 1;
+	}
+	if ( strcmp(token,"convert_to_timestamp") == 0 )
+	{
+		http_type(http,"text/html");
+		http_decode(value);
+		http_format(http,"%lld",convert_to_timestamp(value));
+		return 1;
+	}
+	else if ( strcmp(token,"convert_from_timestamp") == 0 )
+	{
+		http_type(http,"text/html");
+		char buffer[64];
+		http_format(http,"%s",convert_from_timestamp(atol(value),buffer,sizeof(buffer)-1)>0?buffer:"INVALID");
+		return 1;
+	}
+	else
+	{
+		http_format(http,"uri '%s/%s' is not valid",token,value);
+		return 9;
+	}
+}
 /** Process an incoming GUI request
 	@returns non-zero on success, 0 on failure (errno set)
  **/
@@ -2009,9 +2052,10 @@ void *http_response(void *ptr)
 					{"/octave/",	http_run_octave,		HTTP_OK, HTTP_NOTFOUND},
 					{"/kml/", 		http_kml_request,		HTTP_OK, HTTP_NOTFOUND},
 					{"/json/",		http_json_request,		HTTP_OK, HTTP_NOTFOUND},
-					{"/find/",	http_find_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/find/",		http_find_request,		HTTP_OK, HTTP_NOTFOUND},
 					{"/modify/",	http_modify_request,	HTTP_OK, HTTP_NOTFOUND},
-					{"/read/",	http_read_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/read/",		http_read_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/util/",		http_util_request, 		HTTP_OK, HTTP_NOTFOUND},
 				};
 				size_t n;
 				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )

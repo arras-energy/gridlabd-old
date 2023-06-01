@@ -9,10 +9,12 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* regulator::oclass = NULL;
 CLASS* regulator::pclass = NULL;
+
+EXPORT_COMMIT(regulator)
 
 regulator::regulator(MODULE *mod) : link_object(mod)
 {

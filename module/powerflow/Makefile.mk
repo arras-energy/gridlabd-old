@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += module/powerflow/powerflow.la
 
-module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell python3 -c 'import numpy; print(numpy.get_include())')
+module_powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY -I$(shell $(bindir)/python3 -c 'import numpy; print(numpy.get_include())')
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 module_powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/module/powerflow
 module_powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)
@@ -17,14 +17,18 @@ module_powerflow_powerflow_la_LIBADD += -ldl
 
 module_powerflow_powerflow_la_SOURCES = module/powerflow/init.cpp module/powerflow/main.cpp
 
+module_powerflow_powerflow_la_SOURCES += module/powerflow/agricultural.cpp module/powerflow/agricultural.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/billdump.cpp module/powerflow/billdump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/building.cpp module/powerflow/building.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/capacitor.cpp module/powerflow/capacitor.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/currdump.cpp module/powerflow/currdump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/ductbank.cpp module/powerflow/ductbank.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/emissions.cpp module/powerflow/emissions.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/fault_check.cpp module/powerflow/fault_check.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/frequency_gen.cpp module/powerflow/frequency_gen.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/fuse.cpp module/powerflow/fuse.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/impedance_dump.cpp module/powerflow/impedance_dump.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/industrial.cpp module/powerflow/industrial.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line_configuration.cpp
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line_configuration.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/line.cpp module/powerflow/line.h
@@ -46,6 +50,7 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_library.cpp 
 module_powerflow_powerflow_la_SOURCES += module/powerflow/powerflow_object.cpp module/powerflow/powerflow_object.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/power_metrics.cpp module/powerflow/power_metrics.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/pqload.cpp module/powerflow/pqload.h
+module_powerflow_powerflow_la_SOURCES += module/powerflow/public_service.cpp module/powerflow/public_service.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/recloser.cpp module/powerflow/recloser.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/regulator_configuration.cpp module/powerflow/regulator_configuration.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/regulator.cpp module/powerflow/regulator.h
@@ -78,5 +83,11 @@ module_powerflow_powerflow_la_SOURCES += module/powerflow/transformer_test.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/triplexline_test.h
 module_powerflow_powerflow_la_SOURCES += module/powerflow/undergroundline_test.h
 
+dist_pkgdata_DATA += module/powerflow/data/ductbank_configurations.csv
 dist_pkgdata_DATA += module/powerflow/solver_py.conf
+dist_pkgdata_DATA += module/powerflow/data/building_defaults.csv
+dist_pkgdata_DATA += module/powerflow/data/building_loadshapes.csv
+dist_pkgdata_DATA += module/powerflow/data/building_occupancy.csv
+dist_pkgdata_DATA += module/powerflow/data/inverter_settings.csv
+
 bin_SCRIPTS += module/powerflow/check_powerflow.py

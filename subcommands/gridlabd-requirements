@@ -1,4 +1,9 @@
 #!/bin/bash
+# Syntax: requirements
+if [ $# -gt 0 -a "$1" == "help" ]; then
+    echo "Syntax: gridlabd requirements"
+    exit 0
+fi
 for REQ in $(find . -name requirements.txt -print); do
-    /usr/local/bin/python3 -m pip -r $REQ
+    $GLD_BIN/python3 -m pip -r $REQ
 done

@@ -233,7 +233,7 @@ static int player_open(OBJECT *obj)
 	if (strcmp(fname,"")==0)
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
+		snprintf(fname,sizeof(fname)-1,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
 
 	/* if type is file or file is stdin */
 	tf = get_ftable(my->mode);
@@ -368,7 +368,7 @@ Retry:
 		goto Retry;
 	}
 
-	if ( sscanf(result, "%32[^,],%1024[^\n\r;]", tbuf, valbuf) == 2 )
+	if ( sscanf(result, "%32[^,],%1023[^\n\r;]", tbuf, valbuf) == 2 )
 	{
 		trim(tbuf, timebuf);
 		trim(valbuf, value);

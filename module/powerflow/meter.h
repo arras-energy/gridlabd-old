@@ -12,6 +12,11 @@
 
 EXPORT SIMULATIONMODE interupdate_meter(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 
+#define MSL_LOW ((enumeration)0x00)
+#define MSL_NORMAL ((enumeration)0x01)
+#define MSL_HIGH ((enumeration)0x02)
+#define MSL_CRITICAL ((enumeration)0x03)
+
 class meter : public node
 {
 public:
@@ -42,6 +47,7 @@ public:
 	bool meter_interrupted;			///< Reliability flag - goes active if the customer is in an "interrupted" state
 	bool meter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in an "secondary interrupted" state - i.e., momentary
 	bool meter_NR_servered;			///< Flag for NR solver, server mode (not standalone), and SWING designation
+	enumeration service_level; ///< reliability service level (LOW, NORMAL, HIGH, CRITICAL)
 	TIMESTAMP next_time;
 	TIMESTAMP dt;
 	TIMESTAMP last_t;

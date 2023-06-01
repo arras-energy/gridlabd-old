@@ -43,6 +43,10 @@ typedef enum {
 
 class link_object : public powerflow_object
 {
+public:
+	static double default_continuous_rating;
+	static double default_emergency_rating;
+	
 public: /// @todo make this private and create interfaces to control values
 	complex a_mat[3][3];	// a_mat - 3x3 matrix, 'a' matrix
 	complex b_mat[3][3];	// b_mat - 3x3 matrix, 'b' matrix
@@ -92,6 +96,8 @@ public:
 	complex indiv_power_loss[3];///< power losses - individual quantities
 	int protect_locations[3];	///< Links to protection object for different phase faults - part of reliability
 	FUNCTIONADDR link_recalc_fxn;	///< Function address for link recalculation function - frequency dependence
+	double violation_rating; ///< maximum line flow before a violation occurs
+	static double default_violation_rating; /// default maximum line flow before a violation occurs
 
 	int create(void);
 	int init(OBJECT *parent);
@@ -177,6 +183,8 @@ public:
 
 	//******************** Create a function from solver_nr to calculate Isat
 
+public:
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 };
 
 //Macros

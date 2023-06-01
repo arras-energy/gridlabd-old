@@ -14,7 +14,7 @@ HTTP* hopen(const char *url, int maxlen)
 	char hostname[1024];
 	char filespec[1024];
 	HTTP *http;
-	char request[1024];
+	char request[3000];
 	int len;
 
 #ifdef WIN32
@@ -78,7 +78,9 @@ HTTP* hopen(const char *url, int maxlen)
 	}
 
 	/* format/send request */
-	len = snprintf(request,sizeof(request)-1,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
+	snprintf(request,sizeof(request)-1,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
+	len = strlen(request);
+	
 	IN_MYCONTEXT output_debug("sending HTTP message \n%s", request);
 	if ( send(http->sd,request,len,0)<len )
 	{
@@ -272,7 +274,7 @@ HTTPRESULT *http_read(const char *url, int maxlen)
 	else if ( strncmp(url,"https://",8)==0 )
 	{
 		char tmp[1024];
-		sprintf(tmp,"/tmp/gridlabd-%d%d",getpid(),(int)time(NULL));
+		snprintf(tmp,sizeof(tmp)-1,"/tmp/gridlabd-%d%d",getpid(),(int)time(NULL));
 		errno = 0;
 		try
 		{
@@ -317,7 +319,7 @@ const char * http_get_header_data(HTTPRESULT *result, const char* param)
 	char target[256];
 	char *ptr;
 	if ( param==NULL ) return result->header.data;
-	sprintf(target,"\n%s: ",param);
+	snprintf(target,sizeof(target)-1,"\n%s: ",param);
 	ptr = strstr(result->header.data,target);
 	if ( ptr==NULL ) return NULL;
 	sscanf(ptr+strlen(param)+3,"%1023[^\r\n]",buffer);

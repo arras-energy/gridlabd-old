@@ -135,7 +135,7 @@ DEPRECATED void throwf(const char *format, ...);
 	}
 	catch (GldException* exc)
 	{
-		cout << "Exception: " << exc->get_message();
+		std::cout << "Exception: " << exc->get_message();
 	}
 	---	
  */

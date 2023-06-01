@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Syntax: weather COMMAND [ARGUMENTS ...]
 # ensure only one weather call runs at a time
 . $(dirname $0)/gridlabd-lock
 
@@ -73,7 +73,7 @@ function fetch_index()
 	if [ ! -f $INDEX -o -z $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
 #		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm -f $INDEX
-		curl -s $GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$COUNTRY/.index >$INDEX
+		curl -sL $GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$COUNTRY/.index >$INDEX
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
 	fi
 	if [ ! -f $INDEX ]; then
@@ -89,21 +89,21 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-			Syntax: gridlabd weather <command> [...]
-			Commands:
-			  help               Get the list of weather subcommands
-			  index <pattern>    Index of available weather data matching <pattern> in archive
-			  list <pattern>     List of available downloaded weather data matching <pattern>
-			  get <pattern>      Download weather data matching <pattern> from archive 
-			  delete <pattern>   Delete downloaded weather data matching <pattern>
-			  info <pattern>     Get information about weather data in <pattern>
-			  clean              Clean up the local cache of the archive index
-			  config show        Show the current configuration
-			         reset       Reset the current configuration
-			         set <N>=<V> Set configuration variable name <N> to value <V>
-			         get <N>     Get configuration variable name <N>
-			  metar <station>    Get realtime weather object GLM for <station>
-			END
+Syntax: gridlabd weather COMMAND [ARGUMENTS ...]
+Commands:
+  help               Get the list of weather subcommands
+  index <pattern>    Index of available weather data matching <pattern> in archive
+  list <pattern>     List of available downloaded weather data matching <pattern>
+  get <pattern>      Download weather data matching <pattern> from archive 
+  delete <pattern>   Delete downloaded weather data matching <pattern>
+  info <pattern>     Get information about weather data in <pattern>
+  clean              Clean up the local cache of the archive index
+  config show        Show the current configuration
+         reset       Reset the current configuration
+         set <N>=<V> Set configuration variable name <N> to value <V>
+         get <N>     Get configuration variable name <N>
+  metar <station>    Get realtime weather object GLM for <station>
+END
 	fi
 }
 
@@ -143,10 +143,10 @@ function get()
 	for f in $(index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			(curl -s $GITFILE/$COUNTRY/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
+			(curl -sL $GITFILE/$COUNTRY/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
 		# else
 		# 	echo -n "Refreshing $f... "
-		# 	(curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
+		# 	(curl -sL $GITFILE/$COUNTRY/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
 		fi
 	done
 }
@@ -180,7 +180,7 @@ function delete()
 
 function metar()
 {
-	/usr/local/bin/python3 ${GLD_ETC}/metar2glm.py $*
+	$GLD_BIN/python3 ${GLD_ETC}/metar2glm.py $*
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then

@@ -32,7 +32,6 @@
 #include <string>
 
 class glengine;
-using namespace std;
 
 //copy of gl_propertyenum
 enum PROPERTYTYPE{_PT_FIRST=-1, 

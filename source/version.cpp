@@ -24,7 +24,7 @@
 const char *version_copyright(void)
 {
 	static char buffer[1024];
-	sprintf(buffer,"Copyright (C) 2016-%d, Regents of the Leland Stanford Junior University\nCopyright (C) 2004-%d, Battelle Memorial Institute\nAll Rights Reserved\n"
+	snprintf(buffer,sizeof(buffer)-1,"Copyright (C) 2016-%d, Regents of the Leland Stanford Junior University\nCopyright (C) 2004-%d, Battelle Memorial Institute\nAll Rights Reserved\n"
 		"\n"
 		"This program comes with ABSOLUTELY NO WARRANTY; for details type `gridlabd --license'.\n"
     	"This is free software, and you are welcome to redistribute it under certain conditions.\n"
@@ -120,18 +120,18 @@ bool version_check(const char *expression)
 			{
 				patch = global_version_patch;
 			}
-			sprintf(value1,"%06u.%06u.%06u",global_version_major, global_version_minor, global_version_patch);
-			sprintf(value2,"%06u.%06u.%06u",major,minor,patch);
+			snprintf(value1,sizeof(value1)-1,"%06u.%06u.%06u",global_version_major, global_version_minor, global_version_patch);
+			snprintf(value2,sizeof(value2)-1,"%06u.%06u.%06u",major,minor,patch);
 		}
 		else if ( sscanf(next,"%u",&build) == 1 )
 		{
-			sprintf(value1,"%06d",global_version_build);
-			sprintf(value2,"%06d",build);
+			snprintf(value1,sizeof(value1)-1,"%06d",global_version_build);
+			snprintf(value2,sizeof(value2)-1,"%06d",build);
 		}
 		else
 		{
-			sprintf(value1,"%s",global_version_branch);
-			sprintf(value2,"%s",next);
+			snprintf(value1,sizeof(value1)-1,"%s",global_version_branch);
+			snprintf(value2,sizeof(value2)-1,"%s",next);
 		}
 		int result = strcmp(value1,value2);
 		if ( result > 0)

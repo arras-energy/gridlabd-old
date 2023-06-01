@@ -1,10 +1,13 @@
-#!/usr/local/bin/python3
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+
 """GridLAB-D plot subcommand
 
 SYNOPSIS
 
 Shell:
-    $ gridlabd plot OPTIONS
+    $ gridlabd plot [OPTIONS ...]
 
 GLM:
 
@@ -224,7 +227,6 @@ def main(args):
         yerr = None,
         xerr = None,
         stacked = False,
-        sort_columns = False,
         secondary_y = False,
         mark_right = True,
         include_bool = False,

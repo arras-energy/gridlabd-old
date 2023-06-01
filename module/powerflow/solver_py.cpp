@@ -19,11 +19,8 @@
 // // #define Py_DECREF(X) (X->ob_refcnt--)
 // #define Py_DECREF(X) (fprintf(stderr,"Py_DECREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)--X->ob_refcnt),X->ob_refcnt)
 
-#define CONFIGNAME "solver_py.conf"
-#define CONFIGPATH "/usr/local/var/gridlabd/"
-
 static SOLVERPYTHONSTATUS solver_py_status = SPS_INIT;
-char1024 solver_py_config = CONFIGPATH CONFIGNAME;
+char1024 solver_py_config = "/usr/local/opt/gridlabd/var/gridlabd/solver_py.conf";
 static const char *model_busdump = NULL;
 static const char *model_branchdump = NULL;
 static const char *model_dump_handler = NULL;
@@ -138,8 +135,12 @@ void init_kwargs(void)
 
 SOLVERPYTHONSTATUS solver_python_config (
 	const char *localconfig = NULL,
-	const char *shareconfig = CONFIGPATH CONFIGNAME)
+	const char *shareconfig = NULL)
 {
+	if ( shareconfig == NULL)
+	{
+		shareconfig = (const char *)solver_py_config ;
+	}
 	const char *configname = localconfig ? localconfig : (const char*)solver_py_config;
 	FILE *fp = fopen(configname,"r");
 	if ( fp == NULL )
@@ -456,7 +457,8 @@ int solver_python_init(void)
 	errno = 0;
 	numpy_init();
 	if ( solver_py_status == SPS_INIT )
-	{
+	{ //solver_py_config
+		snprintf(solver_py_config,sizeof(solver_py_config)-1,"%s/solver_py.conf",getenv("GLD_ETC"));
 		solver_py_status = solver_python_config();
 		const char *status_text[] = {"INIT","READY","FAILED","DISABLED","UNKNOWN"};
 		if ( (int)solver_py_status >= 0 && (int)solver_py_status < (int)(sizeof(status_text)/sizeof(status_text[0])) )
@@ -962,11 +964,11 @@ void sync_busdata_raw(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_d
 			SET_BUS(n,17,bus[n].I[2].i);
 
 			SET_BUS(n,18,bus[n].V[0].Mag());
-			SET_BUS(n,19,bus[n].V[0].Ang());
+			SET_BUS(n,19,bus[n].V[0].Arg());
 			SET_BUS(n,20,bus[n].V[1].Mag());
-			SET_BUS(n,21,bus[n].V[1].Ang());
+			SET_BUS(n,21,bus[n].V[1].Arg());
 			SET_BUS(n,22,bus[n].V[2].Mag());
-			SET_BUS(n,23,bus[n].V[2].Ang());
+			SET_BUS(n,23,bus[n].V[2].Arg());
 		}
 	}
 	else if ( dir == ED_IN )
@@ -1165,6 +1167,13 @@ unsigned long long get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, 
     return hashcode;
 }
 
+// Run python solver
+//
+// Returns:
+//   -1 call NR and initialize with guess
+//    0 use guess and proceed without running NR
+//   <-1 error encountered, run NR and don't use the guess
+//
 int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
@@ -1192,7 +1201,7 @@ int solver_python_solve (
 		else if ( pResult && PyLong_Check(pResult) )
 		{
 			result = PyLong_AsLong(pResult);
-			if ( result >= 0 )
+			if ( result == -1 || result == 0 ) // -1 means no solution but guess is ok, 0 means solution is ok
 			{
 				sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			}

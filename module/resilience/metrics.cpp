@@ -48,7 +48,7 @@ metrics::metrics(MODULE *module)
 			
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}
@@ -131,19 +131,19 @@ int metrics::finalize(void)
 
 void metrics::report_impact(int n)
 {
-	gld_wlock(my());
+	gld_wlock lock(my());
 	impact += n;
 }
 
 void metrics::report_cost(double x)
 {
-	gld_wlock(my());
+	gld_wlock lock(my());
 	cost += x;
 }
 
 void metrics::report_outage(double t)
 {
-	gld_wlock(my());
+	gld_wlock lock(my());
 	outage += t;
 }
 

@@ -12,6 +12,8 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
+#define GITHUB_ORG "slacgismo"
+
 #include "version.h"
 #include "build.h"
 #include "validate.h"
@@ -41,7 +43,7 @@ typedef struct s_globalvar
 {
 	PROPERTY *prop;
 	uint32 flags;
-	void (*callback)(const char *);
+	void (*callback)(const char *,const char *);
 	LOCKVAR lock;
 	struct s_globalvar *next;
 } GLOBALVAR;
@@ -273,9 +275,6 @@ GLOBAL char global_testoutputfile[1024] INIT("test.txt"); /**< Specifies the tes
 /* Variable: global_xml_encoding */
 GLOBAL int global_xml_encoding INIT(8);  /**< Specifies XML encoding (default is 8) */
 
-/* Variable: global_pidfile */
-GLOBAL char global_pidfile[1024] INIT(""); /**< Specifies that a process id file should be created */
-
 /* Variable: global_no_balance */
 GLOBAL unsigned char global_no_balance INIT(FALSE);
 
@@ -283,7 +282,7 @@ GLOBAL unsigned char global_no_balance INIT(FALSE);
 GLOBAL char global_kmlfile[1024] INIT(""); /**< Specifies KML file to dump */
 
 /* Variable: global_kmlhost */
-GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
+GLOBAL char global_kmlhost[1024] INIT("https://code.gridlabd.us/" BRANCH "/runtime"); /**< Specifies the KML image library server */
 
 /* Variable: global_modelname */
 GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
@@ -506,7 +505,7 @@ GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state 
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
 /* Variable: global_infourl */
-GLOBAL char global_infourl[1024] INIT("http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search="); /**< URL for info calls */
+GLOBAL char global_infourl[1024] INIT("http://docs.gridlabd.us/index.html?owner=" GITHUB_ORG "&project=gridlabd&search="); /**< URL for info calls */
 
 /* Variable: global_hostname */
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
@@ -822,13 +821,34 @@ GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
 GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
-GLOBAL char1024 global_datadir INIT("");
+GLOBAL char global_datadir[1024] INIT("/usr/local/opt/gridlabd/current/share/gridlabd");
+
+/* Variable: global_bindir */
+GLOBAL char global_bindir[1024] INIT("/usr/local/opt/gridlabd/current/bin");
+
+/* Variable: global_libdir */
+GLOBAL char global_libdir[1024] INIT("/usr/local/opt/gridlabd/current/lib/gridlabd");
+
+/* Variable: global_vardir */
+GLOBAL char global_vardir[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
+
+/* Variable: global_incdir */
+GLOBAL char global_incdir[1024] INIT("/usr/local/opt/gridlabd/current/include");
+
+/* Variable: global_logfile */
+GLOBAL char global_logfile[1024] INIT("/tmp/gridlabd-log");
+
+/* Variable: global_pidfile */
+GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid"); /**< Specifies that a process id file should be created */
+
+/* Variable: global_configpath */
+GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
 /* Variable: global_pythonpath */
-GLOBAL char1024 global_pythonpath INIT(".");
+GLOBAL char1024 global_pythonpath INIT(".:/usr/local/opt/gridlabd/current/share/gridlabd:/usr/local/opt/gridlabd/current/lib/python3.10/site-packages");
 
 /* Variable: global_pythonexec */
-GLOBAL char1024 global_pythonexec INIT(PYTHON_EXEC);
+GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/python3");
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);
@@ -875,7 +895,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+	inline void set_callback(void (*callback)(const char *,const char*)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals
