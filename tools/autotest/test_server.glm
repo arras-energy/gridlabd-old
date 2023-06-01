@@ -2,4 +2,4 @@
 #define DIR=..
 #endif
 
-#system python ${DIR:-.}/../gldserver.py
+#system python ${DIR:-.}/../gldserver.py 1>python.out 2>python.err
