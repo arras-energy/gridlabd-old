@@ -37,7 +37,7 @@ cost::cost(MODULE *module)
 			
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 
@@ -80,7 +80,10 @@ static COSTDATA *add_cost(const char *row)
 	if ( sscanf(row,"%[^,],%d,%lf,%lf",classname,&violations,&fixedcost,&variablecost) == 4 )
 	{
 		COSTDATA *item = new COSTDATA;
-		strncpy(item->classname,classname,sizeof(item->classname));
+		if ( snprintf(item->classname,sizeof(item->classname)-1,"%.*s",(int)(sizeof(item->classname)-2),classname) < (int)strlen(classname) )
+		{
+			gl_warning("add_cost(row='%s'): class name '%s' is too long to store",row,classname);
+		}
 		item->violations = violations;
 		item->fixedcost = fixedcost;
 		item->variablecost = variablecost;

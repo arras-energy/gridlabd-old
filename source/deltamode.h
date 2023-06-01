@@ -136,7 +136,7 @@ DEPRECATED DELTAPROFILE *delta_getprofile(void);
     Throw:
     - If delta-mode is attempted when it is disallowed
  */
-DEPRECATED void delta_modecheck(const char *);
+DEPRECATED void delta_modecheck(const char *,const char *);
 
 #ifdef __cplusplus
 }

@@ -170,7 +170,7 @@ static void show_help(void)
 static bool do_quit(void)
 {
 	char fname[1024];
-	sprintf(fname,"gridlabd-%s.conf",getenv("USER"));
+	snprintf(fname,sizeof(fname)-1,"gridlabd-%s.conf",getenv("USER"));
 	mvprintw(height,0,"Save to '%s' (Y/N)? [Y]",fname); 
 	return true;
 }
@@ -191,7 +191,7 @@ int setup(void *main, int argc, const char *argv[])
 {
 #ifdef HAVE_CURSES
 	if ( !loadall(NULL) )
-		sprintf(status,"ERROR: %s","unable to load configuration files");
+		snprintf(status,sizeof(status)-1,"ERROR: %s","unable to load configuration files");
 
 	bool done = false;
 	int tab = 0;
@@ -238,7 +238,7 @@ int setup(void *main, int argc, const char *argv[])
 		int key = group[tab].edit();
 
 		// position for next status
-		mvprintw(height,0,"");
+		mvprintw(height,0,"%s","");
 
 		switch ( key ) {
 		case 'Q': done=do_quit(); break;

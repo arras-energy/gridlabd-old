@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import boto3
 
+GLD_ETC = os.getenv("GLD_ETC")
 
 default_options = {
     "year" : 2020,
@@ -179,7 +180,7 @@ def get_image(layer, pos, forest, name, cachedir):
     
     cs_vegetation = ca_search[0]
     input_file = forest.fetch(cs_vegetation, gdal=True)
-    output_file = f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"
+    output_file = f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"
 
     warp = gdal.Warp(output_file, input_file, options=options)
     warp.FlushCache()
@@ -216,15 +217,15 @@ for layer in ["base", "cover", "height"]:
             for lon in lons:
                 name = get_imagename(layer,pos=(lat,lon),scale=0.1)
                 print(name)
-                if not os.path.exists(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"):
+                if not os.path.exists(f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"):
                     print(f"Downloading " + name)
                     get_image(layer, (lat,lon), forest, name,
-                              cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
+                              cachedir = f"{GLD_ETC}/gridlabd/geodata/vegetation")
                     tile = get_imagedata(layer, (lat,lon), scale = 0.1,
                                          repourl = "http://geodata.gridlabd.us/vegetation",
-                                         cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
+                                         cachedir = f"{GLD_ETC}/gridlabd/geodata/vegetation")
                 
-                srcname = f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"
+                srcname = f"{GLD_ETC}/gridlabd/geodata/vegetation/2020/{name}.tif"
                 dstname = f"vegetation/2020/{name}.tif"
                 client.upload_file(srcname, upload_file_bucket, dstname, 
                                    ExtraArgs={'ACL':'bucket-owner-full-control'})

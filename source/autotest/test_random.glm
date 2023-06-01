@@ -34,6 +34,7 @@ script on_init ../save_randomseed;
 //script on_sync ../save_randomstate;
 
 clock {
+	timezone "PST+8PDT";
 	starttime "2010-01-01 00:00:00";
 	stoptime "2010-01-01 01:00:00";
 }

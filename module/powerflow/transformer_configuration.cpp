@@ -22,7 +22,7 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // transformer_configuration CLASS FUNCTIONS

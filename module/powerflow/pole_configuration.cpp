@@ -2,7 +2,7 @@
 // Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #include "powerflow.h"
-using namespace std;
+
 
 EXPORT_CREATE(pole_configuration);
 EXPORT_INIT(pole_configuration);
@@ -75,6 +75,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
             PT_double, "material_density[lb/cf]", PADDR(material_density),
                 PT_DEFAULT, "35 lb/cf",
                 PT_DESCRIPTION, "pole material density",
+            PT_double, "wind_overdesign[pu]", PADDR(wind_overdesign), PT_DESCRIPTION, "design margin for critical wind",
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
         GLOBALVAR *var = gl_global_create("powerflow::climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
         if ( ! var )
@@ -118,6 +119,9 @@ int pole_configuration::create(void)
     fiber_strength = 8000;
 
 	repair_time = 0;
+
+	wind_overdesign = 1.0;
+	
 	return 1;
 }
 

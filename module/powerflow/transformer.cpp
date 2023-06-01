@@ -16,13 +16,15 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* transformer::oclass = NULL;
 CLASS* transformer::pclass = NULL;
 
 //Default temperature for thermal aging calculations
 double default_outdoor_temperature = 74;
+
+EXPORT_COMMIT(transformer)
 
 transformer::transformer(MODULE *mod) : link_object(mod)
 {
@@ -117,14 +119,14 @@ void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
-		sprintf(tname, "transformer:%i", hdr->id);
+		snprintf(tname,sizeof(tname)-1, "transformer:%i", hdr->id);
 		if( name == NULL )
 		{
-			sprintf(msg, "%s: transformer unable to find property: name is NULL", namestr);
+			snprintf(msg,sizeof(msg)-1, "%s: transformer unable to find property: name is NULL", namestr);
 		}
 		else
 		{
-			sprintf(msg, "%s: transformer unable to find %s", namestr, name);
+			snprintf(msg,sizeof(msg)-1, "%s: transformer unable to find %s", namestr, name);
 		}
 		throw(msg);
 	}
@@ -135,6 +137,8 @@ int transformer::init(OBJECT *parent)
 	violation_watch = violation_watchset&VW_XFRM;
 	
 	int idex;
+	gld_property *tphases_ref;
+	set tphases;
 
 	if (!configuration)
 		GL_THROW("no transformer configuration specified.");
@@ -182,6 +186,25 @@ int transformer::init(OBJECT *parent)
 		return 2;	//Return the deferment - no sense doing everything else!
 
 	OBJECT *obj = THISOBJECTHDR;
+
+	//map and pull the phases
+	tphases_ref = new gld_property(to,"phases");
+
+	//Check it
+	if (!tphases_ref->is_set() || !tphases_ref->is_valid())
+	{
+		error("Transformer:%s failed to map the phases of the \"to\" node",obj->name?obj->name:"unnamed");
+		/*  TROUBLESHOOT
+		While attempting to map the phases property of the "to" node of the transformer, an error occurred.  Ensure that object
+		actually is a powerflow node and try again.  If the error persists, please submit an issue in issue tracker.
+		*/
+	}
+
+	//Map them back
+	tphases = tphases_ref->get_set();
+
+	//Remove it
+	delete tphases_ref;
 
 	V_base = config->V_secondary/(1-degradation_factor);
 	if ( degradation_factor < 0 || degradation_factor >= 1 )
@@ -243,6 +266,17 @@ int transformer::init(OBJECT *parent)
 				zt_c = complex(0,0);
 			}
 			
+			//General phase check - prevents issue that popped up in issue #1277
+			if (has_phase(PHASE_S) || ((tphases & PHASE_S) == PHASE_S))
+			{
+				error("Transformer:%s has a triplex phase or a triplex \"to\" node, but it is not an SPCT transformer",obj->name?obj->name:"unnamed");
+				/*  TROUBLESHOOT
+				A transformer has triplex characteristics (S phase or a triplex_node attached), but it is not
+				configured as an SPCT transformer.  Please check your transformer configuration or attached
+				node.
+				*/
+			}
+
 			if (solver_method==SM_FBS)
 			{
 				if (has_phase(PHASE_A)) 
@@ -503,6 +537,13 @@ int transformer::init(OBJECT *parent)
 			break;
 		case transformer_configuration::DELTA_DELTA:
 
+			//General phase check - prevents issue that popped up in issue #1277
+			if (has_phase(PHASE_S) || ((tphases & PHASE_S) == PHASE_S))
+			{
+				error("Transformer:%s has a triplex phase or a triplex \"to\" node, but it is not an SPCT transformer",obj->name?obj->name:"unnamed");
+				//Defined elsewhere
+			}
+
 			if (solver_method==SM_FBS)
 			{
 				a_mat[0][0] = a_mat[1][1] = a_mat[2][2] = nt * 2.0 / 3.0;
@@ -552,6 +593,13 @@ int transformer::init(OBJECT *parent)
 			break;
 		case transformer_configuration::DELTA_GWYE:
 			
+			//General phase check - prevents issue that popped up in issue #1277
+			if (has_phase(PHASE_S) || ((tphases & PHASE_S) == PHASE_S))
+			{
+				error("Transformer:%s has a triplex phase or a triplex \"to\" node, but it is not an SPCT transformer",obj->name?obj->name:"unnamed");
+				//Defined elsewhere
+			}
+
 			if (solver_method==SM_FBS)
 			{
 				if (nt>1.0)//step down transformer

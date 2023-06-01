@@ -173,8 +173,8 @@ controller::controller(MODULE *module){
 
 int controller::create(){
 	memset((void*)this, 0, sizeof(controller));
-	sprintf((char *)(&avg_target), "avg24");
-	sprintf((char *)(&std_target), "std24");
+	snprintf((char *)(&avg_target),sizeof(avg_target)-1, "avg24");
+	snprintf((char *)(&std_target),sizeof(std_target)-1, "std24");
 	slider_setting_heat = -0.001;
 	slider_setting_cool = -0.001;
 	slider_setting = -0.001;
@@ -214,12 +214,12 @@ void controller::cheat(){
 		case SM_NONE:
 			break;
 		case SM_HOUSE_HEAT:
-			sprintf(target, "air_temperature");
-			sprintf(setpoint, "heating_setpoint");
-			sprintf(demand, "heating_demand");
-			sprintf(total, "total_load");
-			sprintf(load, "hvac_load");
-			sprintf(state, "power_state");
+			snprintf(target,sizeof(target)-1, "air_temperature");
+			snprintf(setpoint,sizeof(setpoint)-1, "heating_setpoint");
+			snprintf(demand,sizeof(demand)-1, "heating_demand");
+			snprintf(total,sizeof(total)-1, "total_load");
+			snprintf(load,sizeof(load)-1, "hvac_load");
+			snprintf(state,sizeof(state)-1, "power_state");
 			ramp_low = -2;
 			ramp_high = -2;
 			range_low = -5;
@@ -227,12 +227,12 @@ void controller::cheat(){
 			dir = -1;
 			break;
 		case SM_HOUSE_COOL:
-			sprintf(target, "air_temperature");
-			sprintf(setpoint, "cooling_setpoint");
-			sprintf(demand, "cooling_demand");
-			sprintf(total, "total_load");
-			sprintf(load, "hvac_load");
-			sprintf(state, "power_state");
+			snprintf(target,sizeof(target)-1, "air_temperature");
+			snprintf(setpoint,sizeof(setpoint)-1, "cooling_setpoint");
+			snprintf(demand,sizeof(demand)-1, "cooling_demand");
+			snprintf(total,sizeof(total)-1, "total_load");
+			snprintf(load,sizeof(load)-1, "hvac_load");
+			snprintf(state,sizeof(state)-1, "power_state");
 			ramp_low = 2;
 			ramp_high = 2;
 			range_low = 0;
@@ -240,12 +240,12 @@ void controller::cheat(){
 			dir = 1;
 			break;
 		case SM_HOUSE_PREHEAT:
-			sprintf(target, "air_temperature");
-			sprintf(setpoint, "heating_setpoint");
-			sprintf(demand, "heating_demand");
-			sprintf(total, "total_load");
-			sprintf(load, "hvac_load");
-			sprintf(state, "power_state");
+			snprintf(target,sizeof(target)-1, "air_temperature");
+			snprintf(setpoint,sizeof(setpoint)-1, "heating_setpoint");
+			snprintf(demand,sizeof(demand)-1, "heating_demand");
+			snprintf(total,sizeof(total)-1, "total_load");
+			snprintf(load,sizeof(load)-1, "hvac_load");
+			snprintf(state,sizeof(state)-1, "power_state");
 			ramp_low = -2;
 			ramp_high = -2;
 			range_low = -5;
@@ -253,12 +253,12 @@ void controller::cheat(){
 			dir = -1;
 			break;
 		case SM_HOUSE_PRECOOL:
-			sprintf(target, "air_temperature");
-			sprintf(setpoint, "cooling_setpoint");
-			sprintf(demand, "cooling_demand");
-			sprintf(total, "total_load");
-			sprintf(load, "hvac_load");
-			sprintf(state, "power_state");
+			snprintf(target,sizeof(target)-1, "air_temperature");
+			snprintf(setpoint,sizeof(setpoint)-1, "cooling_setpoint");
+			snprintf(demand,sizeof(demand)-1, "cooling_demand");
+			snprintf(total,sizeof(total)-1, "total_load");
+			snprintf(load,sizeof(load)-1, "hvac_load");
+			snprintf(state,sizeof(state)-1, "power_state");
 			ramp_low = 2;
 			ramp_high = 2;
 			range_low = -3;
@@ -266,30 +266,30 @@ void controller::cheat(){
 			dir = 1;
 			break;
 		case SM_WATERHEATER:
-			sprintf(target, "temperature");
-			sprintf(setpoint, "tank_setpoint");
-			sprintf(demand, "heating_element_capacity");
-			sprintf(total, "actual_load");
-			sprintf(load, "actual_load");
-			sprintf(state, "power_state");
+			snprintf(target,sizeof(target)-1, "temperature");
+			snprintf(setpoint,sizeof(setpoint)-1, "tank_setpoint");
+			snprintf(demand,sizeof(demand)-1, "heating_element_capacity");
+			snprintf(total,sizeof(total)-1, "actual_load");
+			snprintf(load,sizeof(load)-1, "actual_load");
+			snprintf(state,sizeof(state)-1, "power_state");
 			ramp_low = -2;
 			ramp_high = -2;
 			range_low = 0;
 			range_high = 10;
 			break;
 		case SM_DOUBLE_RAMP:
-			sprintf(target, "air_temperature");
-			sprintf((char *)(&heating_setpoint), "heating_setpoint");
-			sprintf((char *)(&heating_demand), "heating_demand");
-			sprintf((char *)(&heating_total), "total_load");		// using total instead of heating_total
-			sprintf((char *)(&heating_load), "hvac_load");			// using load instead of heating_load
-			sprintf((char *)(&cooling_setpoint), "cooling_setpoint");
-			sprintf((char *)(&cooling_demand), "cooling_demand");
-			sprintf((char *)(&cooling_total), "total_load");		// using total instead of cooling_total
-			sprintf((char *)(&cooling_load), "hvac_load");			// using load instead of cooling_load
-			sprintf((char *)(&deadband), "thermostat_deadband");
-			sprintf(load, "hvac_load");
-			sprintf(total, "total_load");
+			snprintf(target,sizeof(target)-1, "air_temperature");
+			snprintf((char *)(&heating_setpoint),sizeof(heating_setpoint)-1, "heating_setpoint");
+			snprintf((char *)(&heating_demand),sizeof(heating_demand)-1, "heating_demand");
+			snprintf((char *)(&heating_total),sizeof(heating_total)-1, "total_load");		// using total instead of heating_total
+			snprintf((char *)(&heating_load),sizeof(heating_load)-1, "hvac_load");			// using load instead of heating_load
+			snprintf((char *)(&cooling_setpoint),sizeof(cooling_setpoint)-1, "cooling_setpoint");
+			snprintf((char *)(&cooling_demand),sizeof(cooling_demand)-1, "cooling_demand");
+			snprintf((char *)(&cooling_total),sizeof(cooling_total)-1, "total_load");		// using total instead of cooling_total
+			snprintf((char *)(&cooling_load),sizeof(cooling_load)-1, "hvac_load");			// using load instead of cooling_load
+			snprintf((char *)(&deadband),sizeof(deadband)-1, "thermostat_deadband");
+			snprintf(load,sizeof(load)-1, "hvac_load");
+			snprintf(total,sizeof(total)-1, "total_load");
 			heat_ramp_low = -2;
 			heat_ramp_high = -2;
 			heat_range_low = -5;
@@ -326,7 +326,7 @@ int controller::init(OBJECT *parent){
 	const char *namestr = (hdr->name ? hdr->name : tname);
 	gld_property *pInitPrice = NULL;
 
-	sprintf(tname, "controller:%i", hdr->id);
+	snprintf(tname,sizeof(tname)-1, "controller:%i", hdr->id);
 
 	cheat();
 
@@ -459,7 +459,7 @@ int controller::init(OBJECT *parent){
 				return 0;
 			}
 			gld_property *marketunit2 = NULL;
-			if ( fetch_property(&pClearingType2, "unit", pMarket2) == 0) 
+			if ( fetch_property(&marketunit2, "unit", pMarket2) == 0) 
 			{
 				return 0;
 			}
@@ -658,9 +658,9 @@ int controller::init(OBJECT *parent){
 			}
 		}
 	} else if(control_mode == CN_DOUBLE_RAMP){
-		sprintf(aux_state, "is_AUX_on");
-		sprintf(heat_state, "is_HEAT_on");
-		sprintf(cool_state, "is_COOL_on");
+		snprintf(aux_state,sizeof(aux_state)-1, "is_AUX_on");
+		snprintf(heat_state,sizeof(heat_state)-1, "is_HEAT_on");
+		snprintf(cool_state,sizeof(cool_state)-1, "is_COOL_on");
 		if(fetch_property(&pHeatingSetpoint, (char *)(&heating_setpoint), parent) == 0) {
 			return 0;
 		}

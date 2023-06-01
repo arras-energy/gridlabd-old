@@ -206,6 +206,144 @@ DEPRECATED static KEYWORD pof_keys[] = {
 	{"JSON",		POF_JSON,		NULL},
 };
 
+/* Add global directory variable initializations here */
+void datadir_init(const char *name,const char *value)
+{
+	if ( name == NULL )
+	{
+		snprintf(global_datadir,sizeof(global_datadir)-1,"%s",value?value:getenv("GLD_ETC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
+}
+
+void bindir_init(const char *name,const char *value)
+{
+	if ( name == NULL )
+	{
+		snprintf(global_bindir,sizeof(global_bindir)-1,"%s",value?value:getenv("GLD_BIN"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
+}
+
+void libdir_init(const char *name,const char *value)
+{
+	if ( name == NULL )
+	{
+		snprintf(global_libdir,sizeof(global_libdir)-1,"%s",value?value:getenv("GLD_LIB"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
+}
+
+void vardir_init(const char *name,const char *value)
+{
+	if ( name == NULL )
+	{
+		snprintf(global_vardir,sizeof(global_vardir)-1,"%s",value?value:getenv("GLD_VAR"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
+}
+
+void incdir_init(const char *name,const char *value)
+{
+	if ( name == NULL )
+	{
+		snprintf(global_incdir,sizeof(global_incdir)-1,"%s",value?value:getenv("GLD_INC"));
+	}
+	else
+	{
+		output_warning("ignore attempt to set immutable global '%s' = '%s'",name,value);
+	}
+}
+
+/* Add more top-level directory variables here. */
+
+/* These directory variable initializations are derived from the top-level.
+   Make sure to define them in globals.h before adding new
+   initializations.
+ */
+
+void logfile_init(const char *name,const char *value)
+{
+	extern char logfile[1024];
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"daemon.log");
+	if ( strlen(buffer) >= sizeof(logfile) )
+	{
+		output_warning("logfile_init(value='%s'): long value was truncated to fit in logfile global, ",value);
+	}
+	snprintf(logfile,sizeof(logfile)-1,"%.*s",(int)(sizeof(logfile)-2),buffer);
+}
+
+void pidfile_init(const char *name,const char *value)
+{
+	extern char pidfile[1024];
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value?value:"gridlabd.pid");
+	if ( strlen(buffer) >= sizeof(pidfile) )
+	{
+		output_warning("pidfile_init(value='%s'): long value was truncated to fit in pidfile global, ",value);
+	}
+	snprintf(pidfile,sizeof(pidfile)-1,"%.*s",(int)(sizeof(pidfile)-2),buffer);
+}
+
+void workdir_init(const char *name,const char *value)
+{
+	extern char workdir[1024];
+	char buffer[2048];
+	snprintf(buffer,sizeof(buffer)-1,"%s/%s",global_vardir,value);
+	if ( strlen(buffer) >= sizeof(workdir) )
+	{
+		output_warning("workdir_init(value='%s'): long value was truncated to fit in workdir global, ",value);
+	}
+	snprintf(workdir,sizeof(workdir)-1,"%.*s",(int)(sizeof(workdir)-2),buffer);
+}
+
+void configpath_init(const char *name,const char *value)
+{
+	const char *etcpath = getenv("GLD_ETC");
+	if ( etcpath != NULL )
+	{
+		snprintf(global_configpath,sizeof(global_configpath)-1,"%.*s/solver_py.conf",(int)(sizeof(global_configpath)-17),etcpath);
+	}
+}
+
+void pythonexec_init(const char *name,const char *value)
+{
+	const char * binpath = getenv("GLD_BIN");
+	if ( binpath != NULL )
+	{
+		snprintf(global_pythonexec,sizeof(global_pythonexec)-1,"%.*s/python3",(int)(sizeof(global_pythonexec)-22),binpath);
+	}
+}
+
+void pythonpath_init(const char *name,const char *value)
+{
+	const char * pythonpath = getenv("PYTHONPATH");
+	if ( pythonpath != NULL )
+	{
+		int len = snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
+		snprintf(global_pythonpath+len,sizeof(global_pythonpath)-1-len,":%.*s",(int)(sizeof(global_pythonpath)-2),pythonpath);
+	}
+	else
+	{
+		snprintf(global_pythonpath,sizeof(global_pythonpath)-1,"%.*s",(int)sizeof(global_pythonpath)-2,value);
+	}
+}
+/* Add more derivative directories here */
+
+
 DEPRECATED static struct s_varmap {
 	const char *name;
 	PROPERTYTYPE type;
@@ -213,7 +351,8 @@ DEPRECATED static struct s_varmap {
 	PROPERTYACCESS access;
 	const char *description;
 	KEYWORD *keys;
-	void (*callback)(const char *name);
+	void (*init)(const char *name,const char *value);
+	void (*update)(const char *name,const char *value);
 } map[] = {
 	/** @todo make this list the authorative list and retire the global_* list (ticket #25) */
 	{"version.major", PT_int32, &global_version_major, PA_REFERENCE, "major version"},
@@ -232,7 +371,7 @@ DEPRECATED static struct s_varmap {
 	{"test", PT_bool, &global_debug_mode, PA_PUBLIC, "test enable flag"},
 	{"verbose", PT_bool, &global_verbose_mode, PA_PUBLIC, "verbose enable flag"},
 	{"iteration_limit", PT_int32, &global_iteration_limit, PA_PUBLIC, "iteration limit"},
-	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory"},
+	{"workdir", PT_char1024, &global_workdir, PA_REFERENCE, "working directory",NULL,workdir_init},
 	{"dumpfile", PT_char1024, &global_dumpfile, PA_PUBLIC, "dump filename"},
 	{"savefile", PT_char1024, &global_savefile, PA_PUBLIC, "save filename"},
 	{"dumpall", PT_bool, &global_dumpall, PA_PUBLIC, "dumpall enable flag"},
@@ -258,8 +397,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
+	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,NULL,random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,NULL,random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -354,9 +493,16 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
-	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
-	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
-	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path",NULL,pythonpath_init},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd",NULL,pythonexec_init},
+	{"datadir",PT_char1024,&global_datadir,PA_REFERENCE,"folder in which share data is stored",NULL,datadir_init},
+	{"bindir",PT_char1024,&global_bindir,PA_REFERENCE,"folder in which share data is stored",NULL,bindir_init},
+	{"vardir",PT_char1024,&global_vardir,PA_REFERENCE,"folder in which share data is stored",NULL,vardir_init},
+	{"libdir",PT_char1024,&global_libdir,PA_REFERENCE,"folder in which share data is stored",NULL,libdir_init},
+	{"incdir",PT_char1024,&global_incdir,PA_REFERENCE,"folder in which share data is stored",NULL,incdir_init},
+	{"logfile",PT_char1024,&global_logfile,PA_REFERENCE,"daemon logfile name",NULL,logfile_init},
+	{"pidfile_dir",PT_char1024,&global_pidfile,PA_REFERENCE,"folder in which share data is stored",NULL,pidfile_init},
+	{"configpath",PT_char1024,&global_configpath,PA_REFERENCE,"folder in which share data is stored",NULL,configpath_init},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
@@ -430,7 +576,7 @@ STATUS GldGlobals::init(void)
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
 	strcat(global_datadir,"/share/gridlabd");
-	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
+	snprintf(global_version,sizeof(global_version)-1,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
 		struct s_varmap *p = &(map[i]);
@@ -443,9 +589,15 @@ STATUS GldGlobals::init(void)
 				detailed explanation of the error.  Follow the troubleshooting for
 				that message and try again.
 			*/
-		} else {
+		} 
+		else 
+		{
 			var->prop->keywords = p->keys;
-			var->callback = p->callback;
+			var->callback = p->update;
+			if ( p->init )
+			{
+				p->init(NULL,NULL);
+			}
 		}
 	}
 	return SUCCESS;
@@ -804,7 +956,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		}
 		else if ( var->callback )
 		{
-			var->callback(var->prop->name);
+			var->callback(var->prop->name,value);
 		}
 
 		return SUCCESS;
@@ -830,7 +982,7 @@ DEPRECATED const char *global_guid(char *buffer, int size)
 			srand(entropy_source());
 			guid_first = 0;
 		}
-		sprintf(buffer,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
+		snprintf(buffer,size-1,"%04x%04x-%04x-4%03x-%04x-%04x%04x%04x",
 			rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0x0fff,rand()&0xffff,rand()&0xffff,rand()&0xffff,rand()&0xffff);
 		return buffer;
 	}
@@ -887,7 +1039,7 @@ DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_uniform(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_uniform(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -901,7 +1053,7 @@ DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
-		sprintf(buffer,"%f",random_normal(NULL,0.0,1.0));
+		snprintf(buffer,size-1,"%f",random_normal(NULL,0.0,1.0));
 		return buffer;
 	}
 	else
@@ -1008,8 +1160,12 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	for ( double value = start ; value <= stop ; value += step )
 	{
 		if ( len > 0 )
-			len += sprintf(temp+len,"%c",delim);
-		len += sprintf(temp+len,"%g",value);
+		{
+			snprintf(temp+len,size-len-1,"%c",delim);
+			len = strlen(temp);
+		}
+		snprintf(temp+len,size-len-1,"%g",value);
+		len = strlen(temp);
 		if ( len > size )
 		{
 			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
@@ -1149,7 +1305,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",++(*addr));
+		snprintf(buffer,size-1,"%d",++(*addr));
 		return 1;
 	}
 
@@ -1161,7 +1317,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",--(*addr));
+		snprintf(buffer,size-1,"%d",--(*addr));
 		return 1;
 	}
 
@@ -1173,7 +1329,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
 		addr = (int32*)var->prop->addr;
-		sprintf(buffer,"%d",(*addr));
+		snprintf(buffer,size-1,"%d",(*addr));
 		if ( strcmp(op,"++")==0 ) { (*addr)++; return 1; }
 		else if ( strcmp(op,"--")==0 ) { (*addr)--; return 1; }
 	}
@@ -1245,18 +1401,18 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
 		{
 			int32 *addr = (int32*)var->prop->addr;
-			sprintf(buffer,"%d",(*addr));
-			if ( strcmp(op,"+=")==0 ) { sprintf(buffer,"%d",(*addr)+=number); return 1; }
-			if ( strcmp(op,"-=")==0 ) { sprintf(buffer,"%d",(*addr)-=number); return 1; }
-			if ( strcmp(op,"*=")==0 ) { sprintf(buffer,"%d",(*addr)*=number); return 1; }
-			if ( strcmp(op,"/=")==0 ) { sprintf(buffer,"%d",(*addr)/=number); return 1; }
-			if ( strcmp(op,"%=")==0 ) { sprintf(buffer,"%d",(*addr)%=number); return 1; }
-			if ( strcmp(op,"&=")==0 ) { sprintf(buffer,"%d",(*addr)&=number); return 1; }
-			if ( strcmp(op,"|=")==0 ) { sprintf(buffer,"%d",(*addr)|=number); return 1; }
-			if ( strcmp(op,"^=")==0 ) { sprintf(buffer,"%d",(*addr)^=number); return 1; }
-			if ( strcmp(op,"&=~")==0 ) { sprintf(buffer,"%d",(*addr)&=~number); return 1; }
-			if ( strcmp(op,"|=~")==0 ) { sprintf(buffer,"%d",(*addr)|=~number); return 1; }
-			if ( strcmp(op,"^=~")==0 ) { sprintf(buffer,"%d",(*addr)^=~number); return 1; }
+			snprintf(buffer,size-1,"%d",(*addr));
+			if ( strcmp(op,"+=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+=number); return 1; }
+			else if ( strcmp(op,"-=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-=number); return 1; }
+			else if ( strcmp(op,"*=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*=number); return 1; }
+			else if ( strcmp(op,"/=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/=number); return 1; }
+			else if ( strcmp(op,"%=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%=number); return 1; }
+			else if ( strcmp(op,"&=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=number); return 1; }
+			else if ( strcmp(op,"|=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=number); return 1; }
+			else if ( strcmp(op,"^=")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=number); return 1; }
+			else if ( strcmp(op,"&=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&=~number); return 1; }
+			else if ( strcmp(op,"|=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|=~number); return 1; }
+			else if ( strcmp(op,"^=~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^=~number); return 1; }
 		}
 	}
 
@@ -1273,7 +1429,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		else
 			addr = (int32*)var->prop->addr;
 		*addr = number;
-		sprintf(buffer,"%d",number);
+		snprintf(buffer,size-1,"%d",number);
 		return 1;
 	}
 
@@ -1414,6 +1570,10 @@ DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
 {
     int len = 0;
+    if ( size > 0 && buffer != NULL )
+    {
+    	buffer[0] = '\0';
+    }
     FINDLIST *finder = findlist_create(FL_NEW, spec);
     for ( OBJECT *obj = find_first(finder) ; obj != NULL ; obj = find_next(finder,obj) )
     {
@@ -1426,21 +1586,24 @@ DEPRECATED const char *global_findobj(char *buffer, int size, const char *spec)
         }
         else
         {
-            sz = snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+            snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+            sz = strlen(name);
         }
         if ( sz > size-len )
         {
             output_error("global buffer for FIND is too small to contain result");
             return NULL;
         }
-        len += snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
+        snprintf(buffer+len,size-len,"%s%s",len>0?" ":"",name);
+        len = strlen(buffer);
     }
     return buffer;
 }
 
+static const char geocode_decodemap[] = "0123456789bcdefghjkmnpqrstuvwxyz";
+static const unsigned char *geocode_encodemap = NULL;
 const char *geocode_encode(char *buffer, int len, double lat, double lon, int resolution=12)
 {
-	static const char *base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 	if ( len < resolution+1 )
 	{
 		output_warning("geocode_encode(buffer=%p, len=%d, lat=%g, lon=%g, resolution=%d): buffer too small for specified resolution, result truncated", 
@@ -1491,7 +1654,7 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 		}
 		else
 		{
-			*geohash++ = base32[ch];
+			*geohash++ = geocode_decodemap[ch];
 			i++;
 			bit = 0;
 			ch = 0;
@@ -1499,6 +1662,78 @@ const char *geocode_encode(char *buffer, int len, double lat, double lon, int re
 	}
 	*geohash++ = '\0';
 	return buffer;
+}
+
+DEPRECATED const char *geocode_decode(char *buffer, int size, const char *code)
+{
+	double lat_err = 90, lon_err = 180;
+	double lat_interval[] = {-lat_err,lat_err};
+	double lon_interval[] = {-lon_err,lon_err};
+	bool is_even = true;
+	size_t maxlen = strlen(geocode_decodemap);
+	if ( geocode_encodemap == NULL )
+	{
+		static unsigned char map[256];
+		for ( size_t p = 0 ; p < maxlen ; p++ )
+		{
+			int c = (int)geocode_decodemap[p];
+			map[c] = p+1; 
+			if ( c >= 'a' && c <= 'z' )
+			{
+				map[c + 'A' - 'a'] = map[c];
+			}
+		}
+		geocode_encodemap = map;
+	}
+	const char *c = NULL;
+	for ( c = code ; *c != '\0' && *c != '.' ; c++ )
+	{
+		int cd = geocode_encodemap[(size_t)*c] - 1;
+		if ( cd < 0 )
+		{
+			return NULL;
+		}
+		for ( int mask = 16 ; mask > 0 ; mask /= 2 )
+		{
+			if ( is_even )
+			{
+				lon_err /= 2;
+				lon_interval[cd&mask?0:1] = (lon_interval[0] + lon_interval[1])/2;
+			}
+			else
+			{
+				lat_err /= 2;
+				lat_interval[cd&mask?0:1] = (lat_interval[0] + lat_interval[1])/2;
+			}
+			is_even = ! is_even;
+		}
+	}
+	const char *spec = NULL;
+	if ( *c == '.' )
+	{
+		spec = c+1;
+	}
+	int res = -(int)log10(lat_err);
+	if ( spec == NULL )
+	{
+		return snprintf(buffer,size,"%.*lf,%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2,
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lat") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lat_interval[0] + lat_interval[1])/2) < size ? buffer : NULL;
+	}
+	else if ( strcmp(spec,"lon") == 0 )
+	{
+		return snprintf(buffer,size,"%.*lf",
+			res,(lon_interval[0] + lon_interval[1])/2) < size ? buffer : NULL;
+	}
+	else 
+	{
+		return NULL;
+	}
 }
 
 DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
@@ -1519,6 +1754,10 @@ DEPRECATED const char *global_geocode(char *buffer, int size, const char *spec)
 		{
 			return geocode_encode(buffer,size,lat,lon,res);
 		}
+	}
+	else if ( geocode_decode(buffer,size,spec) )
+	{
+		return buffer;
 	}
 	output_warning("${GEOCODE %s}: geocode spec is not valid",spec);
 	buffer[0] = '\0';

@@ -6,7 +6,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //initialize pointers
 CLASS* vfd::oclass = NULL;
@@ -15,6 +15,8 @@ CLASS* vfd::pclass = NULL;
 //////////////////////////////////////////////////////////////////////////
 // vfd CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
+
+EXPORT_COMMIT(vfd)
 
 vfd::vfd(MODULE *mod) : link_object(mod)
 {
@@ -248,7 +250,7 @@ int vfd::init(OBJECT *parent)
 	}
 
 	//Make sure we're three-phase, since that's all that works right now
-	if ((has_phase(PHASE_A) & has_phase(PHASE_B) & has_phase(PHASE_C)) != true)
+	if ((has_phase(PHASE_A) && has_phase(PHASE_B) && has_phase(PHASE_C)) != true)
 	{
 		GL_THROW("VFD:%d - %s - Must be three-phase!",obj->id,(obj->name ? obj->name : "Unnamed"));
 		/*  TROUBLESHOOT

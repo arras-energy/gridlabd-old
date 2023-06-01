@@ -14,7 +14,7 @@ Normally GridLAB-D requires certain environment variables to be set to function 
 
 # Caveat
 
-Only `python3` is supported, and the executable must be located at `/usr/local/bin/python3`.
+Only `python3` is supported, and the executable must be located at `/usr/local/opt/gridlabd/<pkg>/bin/python3`.
 
 # Example
 
@@ -25,7 +25,7 @@ bash$ gridlabd python
   Type "help", "copyright", "credits" or "license" for more information.
   >>> import os
   >>> os.environ["GLPATH"]
-  '/usr/local/lib/gridlabd:/usr/local/share/gridlabd'
+  '/usr/local/opt/gridlabdlib/gridlabd:/usr/local/opt/gridlabd/share/gridlabd'
 ~~~
 
 # See also

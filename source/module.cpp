@@ -413,7 +413,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	}
 
 	/* locate the module */
-	snprintf(pathname, sizeof(pathname)-1, "%s" DLEXT, file);
+	snprintf(pathname, sizeof(pathname)-1, "%.*s" DLEXT, (int)(sizeof(pathname)-strlen(DLEXT)-2),file);
 
 	if(find_file(pathname, NULL, X_OK|R_OK, tpath,sizeof(tpath)) == NULL)
 	{
@@ -516,16 +516,18 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, const char *[]))DLSYM(hLib, "subload");
 	mod->test = (void(*)(int,char*[]))DLSYM(hLib,"test");
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
-	mod->globals = NULL;
+	mod->globals = (PROPERTY*)DLSYM(hLib,"globals");;
 	mod->term = (void(*)(void))DLSYM(hLib,"term");
-	mod->on_init = NULL;
-	mod->on_precommit = NULL;
-	mod->on_presync = NULL;
-	mod->on_sync = NULL;
-	mod->on_postsync = NULL;
-	mod->on_commit = NULL;
-	mod->on_term = NULL;
+	mod->on_init = (bool(*)(void))DLSYM(hLib,"on_init");
+	mod->on_precommit = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_precommit");
+	mod->on_presync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_presync");
+	mod->on_sync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_sync");
+	mod->on_postsync = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"on_postsync");
+	mod->on_commit = (bool(*)(TIMESTAMP))DLSYM(hLib,"on_commit");
+	mod->on_term = (void(*)(void))DLSYM(hLib,"on_term");
 	strcpy(mod->name,file);
+	mod->templates_loaded = false;
+	mod->no_templates = false;
 	mod->next = NULL;
 
 	/* check the module version before trying to initialize */
@@ -552,19 +554,19 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			int optional;
 		} map[] = 
 		{
-			{&c->create,"create",FALSE},
-			{&c->destroy,"destroy",TRUE},
-			{&c->init,"init",TRUE},
-			{&c->precommit,"precommit",TRUE},
-			{&c->sync,"sync",TRUE},
-			{&c->commit,"commit",TRUE},
-			{&c->finalize,"finalize",TRUE},
-			{&c->notify,"notify",TRUE},
-			{&c->isa,"isa",TRUE},
-			{&c->plc,"plc",TRUE},
-			{&c->recalc,"recalc",TRUE},
-			{&c->update,"update",TRUE},
-			{&c->heartbeat,"heartbeat",TRUE},
+			{(FUNCTIONADDR*)&c->create,"create",FALSE},
+			{(FUNCTIONADDR*)&c->destroy,"destroy",TRUE},
+			{(FUNCTIONADDR*)&c->init,"init",TRUE},
+			{(FUNCTIONADDR*)&c->precommit,"precommit",TRUE},
+			{(FUNCTIONADDR*)&c->sync,"sync",TRUE},
+			{(FUNCTIONADDR*)&c->commit,"commit",TRUE},
+			{(FUNCTIONADDR*)&c->finalize,"finalize",TRUE},
+			{(FUNCTIONADDR*)&c->notify,"notify",TRUE},
+			{(FUNCTIONADDR*)&c->isa,"isa",TRUE},
+			{(FUNCTIONADDR*)&c->plc,"plc",TRUE},
+			{(FUNCTIONADDR*)&c->recalc,"recalc",TRUE},
+			{(FUNCTIONADDR*)&c->update,"update",TRUE},
+			{(FUNCTIONADDR*)&c->heartbeat,"heartbeat",TRUE},
 		};
 		for ( size_t i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
@@ -589,7 +591,9 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			}
 		}
 	}
-	return module_add(mod);
+	module_add(mod);
+	module_load_templates(mod);
+	return last_module;
 }
 
 MODULE *module_add(MODULE *mod)
@@ -2043,10 +2047,13 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		snprintf(buf,sz,"%4d %5d %5d %10s %-7s %-23s %s", n, process_map[n].pid, process_map[n].port, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
-		sz = snprintf(buf,sz,"%4d   -", n);
+	{
+		snprintf(buf,sz,"%4d   -", n);
+	}
+	sz = strlen(buf);
 	sched_unlock(n);
 	return (int)sz;
 }
@@ -2187,7 +2194,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 	cpu_set_t *cpuset = malloc(sizeof(cpu_set_t));
 	CPU_ZERO(cpuset);
 #elif defined MACOSX
-	int cpu;
+/*	int cpu; */
 #else
 	#error "no processor allocation method available on this platform"	
 #endif
@@ -2227,9 +2234,10 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		CPU_SET_S(n,CPU_ALLOC_SIZE(n_procs),cpuset);	
 #elif defined HAVE_CPU_SET_T && defined HAVE_CPU_SET_MACROS
 		CPU_SET(n,cpuset);
+/*
 #elif defined MACOSX
 		// TODO add this cpu to affinity
-		cpu = n;
+		cpu = n; */
 #endif
 	}
 #ifdef WIN32
@@ -2246,6 +2254,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 #elif defined HAVE_SCHED_SETAFFINITY
 	if (sched_setaffinity(pid,sizeof(cpu_set_t),cpuset) )
 		output_warning("unable to set current process affinity mask: %s", strerror(errno));
+/*
 #elif defined MACOSX
 	// TODO set mp affinity
 	//if ( global_threadcount==1 )
@@ -2253,7 +2262,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		policy.affinity_tag = cpu;
 		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
 			output_warning("unable to set thread policy: %s", strerror(errno));
-	}
+	} */
 #endif
 	return my_proc;
 Error:
@@ -2933,6 +2942,58 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		}
 	}
 	output_raw("\n");
+}
+
+static bool isglm(const char *file)
+{
+	const char *ext = file + strlen(file) - 4;
+	return strcmp(ext,".glm")==0;
+}
+
+void module_load_templates(MODULE *mod)
+{
+	if ( mod->templates_loaded || mod->no_templates )
+	{
+		return;
+	}
+	char loadpath[2060];
+	snprintf(loadpath,sizeof(loadpath)-1,"%s/module.d/%s",global_datadir,mod->name);
+	DIR *dp;
+	struct dirent *entry;
+	struct stat statbuf;
+	if ( (dp=opendir(loadpath)) != NULL )
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): reading shared module templates folder '%s'",mod->name,loadpath);
+		while ( (entry=readdir(dp)) )
+		{
+			char file[strlen(loadpath)+strlen(entry->d_name)+2];
+			snprintf(file,sizeof(file)-1,"%s/%s",loadpath,entry->d_name);
+			output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+			if ( lstat(file,&statbuf) != 0 )
+			{
+				output_warning("module_load_templates(MODULE *mod=<%s>): unable to get status of '%s'",mod->name,file);
+			}
+			else if ( S_ISDIR(statbuf.st_mode) )
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): '%s' is a directory -- ignoring",mod->name,file);
+			}
+			else if ( isglm(file) )
+			{
+				output_debug("module_load_templates(MODULE *mod=<%s>): loading '%s'",mod->name,file);
+				if ( my_instance->get_loader()->loadall_glm(file) != SUCCESS )
+				{
+					output_error("module template '%s' load failed",file);
+				}
+			}
+		}
+		closedir(dp);
+		mod->templates_loaded = true;
+	}
+	else
+	{
+		output_debug("module_load_templates(MODULE *mod=<%s>): shared module templates folder '%s' not found",mod->name,loadpath);
+	}
+	return;
 }
 
 /**@}*/

@@ -10,7 +10,7 @@
  **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* recloser::oclass = NULL;
 CLASS* recloser::pclass = NULL;

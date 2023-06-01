@@ -35,7 +35,7 @@ GldJsonWriter::~GldJsonWriter(void)
 	free((void*)filename);
 }
 
-const char * escape(const char *buffer, size_t len = 1024)
+const char * escape(const char *buffer, size_t len)
 {
 	static char *result = NULL;
 	static size_t result_len = 0;
@@ -93,7 +93,7 @@ const char * escape(const char *buffer, size_t len = 1024)
 			}
 			else
 			{
-				p += sprintf(p,"\\u%04hX", (unsigned short)*c);
+				p += snprintf(p,8,"\\u%04hX", (unsigned short)*c);
 			}
 			break;
 		}
@@ -114,6 +114,7 @@ int GldJsonWriter::write(const char *fmt,...)
 
 #define FIRST(N,F,V) (len += write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
 #define TUPLE(N,F,V) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
+#define TUPLE2(N,F,V,W) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V,W))
 
 int GldJsonWriter::write_modules(FILE *fp)
 {
@@ -467,7 +468,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( obj->parent != NULL )
 		{
 			if ( obj->parent->name == NULL )
-				len += write(",\n\t\t\t\"parent\" : \"%s:%d\"",obj->parent->oclass->name,obj->parent->id);
+				TUPLE2("parent","%s:%d",obj->parent->oclass->name,obj->parent->id);
 			else
 				TUPLE("parent","%s",obj->parent->name);
 		}

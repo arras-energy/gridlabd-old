@@ -8,11 +8,13 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* overhead_line::oclass = NULL;
 CLASS* overhead_line::pclass = NULL;
 overhead_line *overhead_line::defaults = NULL;
+
+EXPORT_COMMIT(overhead_line)
 
 overhead_line::overhead_line(MODULE *mod) : line(mod)
 {

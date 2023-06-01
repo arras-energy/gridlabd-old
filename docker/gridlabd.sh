@@ -1,41 +1,38 @@
-#!/bin/bash
+#!/bin/sh
+#
+# IMPORTANT: only run this script from the Dockerfile !!!
+#
 
-REPO=${REPO:-https://github.com/slacgismo/gridlabd}
-BRANCH=${BRANCH:-master}
-echo "
-#####################################
-# DOCKER BUILD
-#   gridlabd <- $REPO/$BRANCH
-#####################################
-"
+# setup
+error () { echo "ERROR [docker/gridlabd.sh]: $*" >/dev/stderr ; exit 1 ; }
+set -x # enable echo of commands
+test ! -z "$GRIDLABD_ORIGIN" || error "'--build-arg GRIDLABD_ORIGIN=ORG/REPO/BRANCH' not specified"
+REPO=https://github.com/${GRIDLABD_ORIGIN%/*}
+BRANCH=${GRIDLABD_ORIGIN##*/}
+echo "Building docker image from $REPO/$BRANCH"
 
-# gridlabd source
-cd /usr/local/src
-git clone $REPO gridlabd -b $BRANCH
-if [ ! -d /usr/local/src/gridlabd ]; then
-	echo "ERROR: unable to download $REPO/$BRANCH"
+# download source
+apt-get update
+apt-get install git curl -y
+git clone $REPO $HOME/gridlabd -b $BRANCH --depth 1 || error "git clone of $REPO/$BRANCH failed"
+test -d $HOME/gridlabd || error "download from $REPO/$BRANCH failed"
+
+# setup system
+cd $HOME/gridlabd 
+./setup.sh --local || error "setup failed"
+
+# build and validate gridlabd
+. $HOME/.gridlabd/bin/activate
+if ./build.sh --parallel --system; then
+	if [ gridlabd -W $HOME/gridlabd -T 0 --validate ]; then
+		cd -
+		rm -rf $HOME/gridlabd
+	else
+		echo "WARNING [docker/gridlabd.sh]: validate failed, source has been preserved"
+	fi
+	exit 0
+else
+	error "build failed"
 	exit 1
 fi
 
-cd gridlabd 
-autoreconf -isf 
-./configure 
-export MAKEFLAGS=-j$(($(nproc)*3))
-export PYTHONSETUPFLAGS="-j $(($(nproc)*3))"
-make system
-export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
-
-# get weather
-if [ "${GET_WEATHER:-yes}" == "yes" ]; then
-	make index
-fi
-
-# run validation
-if [ "${RUN_VALIDATION:-no}" == "yes" ]; then
-	gridlabd -T 0 --validate
-fi
-
-# cleanup source
-if [ "${REMOVE_SOURCE:-yes}" == "yes" ]; then
-	rm -rf /usr/local/src/gridlabd
-fi

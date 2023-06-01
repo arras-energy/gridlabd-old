@@ -10,7 +10,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 CLASS* triplex_load::oclass = NULL;
 CLASS* triplex_load::pclass = NULL;

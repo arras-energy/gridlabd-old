@@ -1,7 +1,8 @@
 #!/bin/bash
+# Syntax: validate [OPTIONS ...]
 
 if [ "$1" == "help" ]; then
-	echo "Syntax: gridlabd validate [options] ..."
+	echo "Syntax: gridlabd validate [OPTIONS ...]"
 	exit 0
 fi
 

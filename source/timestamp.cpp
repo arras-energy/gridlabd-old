@@ -535,7 +535,6 @@ TIMESTAMP mkdatetime(DATETIME *dt)
  **/
 int strdatetime(DATETIME *t, char *buffer, int size)
 {
-	int len = 0;
 	char tbuffer[1024] = "";
 
 	if ( t == NULL )
@@ -558,12 +557,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 		int tzm = ((t->tzoffset<0?-t->tzoffset:t->tzoffset)-tzh*3600)/60 % 60;
 		if ( t->nanosecond != 0 ) 
 		{
-			len = sprintf(tbuffer, "%04d-%02d-%02dT%02d:%02d:%02d.%06d%c%02d:%02d",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d.%06d%c%02d:%02d",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->nanosecond/1000, tzs, tzh, tzm);
 		} 
 		else 
 		{
-			len = sprintf(tbuffer, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, tzs, tzh, tzm);
 		}
 	} 
@@ -571,12 +570,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			len = sprintf(tbuffer, "%04d-%02d-%02d %02d:%02d:%02d.%09d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d.%09d %s",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->nanosecond, t->tz);
 		} 
 		else 
 		{
-			len = sprintf(tbuffer, "%04d-%02d-%02d %02d:%02d:%02d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%04d-%02d-%02d %02d:%02d:%02d %s",
 				t->year, t->month, t->day, t->hour, t->minute, t->second, t->tz);
 		}
 	} 
@@ -584,12 +583,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			len = sprintf(tbuffer, "%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
 				t->month, t->day, t->year, t->hour, t->minute, t->second, t->nanosecond, t->tz);
 		} 
 		else 
 		{
-			len = sprintf(tbuffer, "%02d-%02d-%04d %02d:%02d:%02d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1, "%02d-%02d-%04d %02d:%02d:%02d %s",
 				t->month, t->day, t->year, t->hour, t->minute, t->second, t->tz);
 		}
 	} 
@@ -597,12 +596,12 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	{
 		if ( t->nanosecond != 0 ) 
 		{
-			len = sprintf(tbuffer,"%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d.%09d %s",
 				t->day, t->month, t->year, t->hour, t->minute, t->second, t->nanosecond,t->tz);
 		} 
 		else 
 		{
-			len = sprintf(tbuffer,"%02d-%02d-%04d %02d:%02d:%02d %s",
+			snprintf(tbuffer,sizeof(tbuffer)-1,"%02d-%02d-%04d %02d:%02d:%02d %s",
 				t->day, t->month, t->year, t->hour, t->minute, t->second,t->tz);
 		}
 	} 
@@ -616,10 +615,10 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 		 */
 	}
 
+	int len = strlen(tbuffer);
 	if ( len < size ) 
 	{
-		strncpy(buffer, tbuffer, len+1);
-		return len;
+		return snprintf(buffer,size-1,"%.*s",len,tbuffer);
 	} 
 	else 
 	{
@@ -679,7 +678,7 @@ TIMESTAMP compute_dstevent(int year, SPEC *spec, time_t offset ) {
 
 /** Extract information from an ISO timezone specification
  **/
-int tz_info(const char *tzspec, char *tzname, char *std, char *dst, time_t *offset ) {
+int tz_info(const char *tzspec, char *tzname, size_t size, char *std, char *dst, time_t *offset ) {
 	int hours = 0, minutes = 0;
 	char buf1[32], buf2[32];
 	int rv = 0;
@@ -720,7 +719,7 @@ int tz_info(const char *tzspec, char *tzname, char *std, char *dst, time_t *offs
 
 	if ( minutes == 0) {
 		if ( tzname ) {
-			sprintf(tzname, "%s%d%s", buf1, hours, (rv == 2 ? "" : buf2));
+			snprintf(tzname, size-1, "%s%d%s", buf1, hours, (rv == 2 ? "" : buf2));
 		}
 
 		if ( offset ) {
@@ -731,7 +730,7 @@ int tz_info(const char *tzspec, char *tzname, char *std, char *dst, time_t *offs
 	} else {
 		if ( tzname!=NULL )
 		{
-			sprintf(tzname, "%s%d:%02d%s", buf1, hours, minutes, buf2);
+			snprintf(tzname, size-1, "%s%d:%02d%s", buf1, hours, minutes, buf2);
 		}
 		
 		if ( offset!=NULL )
@@ -805,7 +804,7 @@ const char *tz_name(const char *tzspec)
 		tzspec = result;
 	}
 	
-	if ( tz_info(tzspec, name, NULL, NULL, NULL) )
+	if ( tz_info(tzspec, name, sizeof(name), NULL, NULL, NULL) )
 	{
 		return name;
 	} 
@@ -825,7 +824,7 @@ const char *tz_name(const char *tzspec)
 time_t tz_offset(const char *tzspec ) {
 	time_t offset;
 
-	if ( tz_info(tzspec, NULL, NULL, NULL, &offset) ) {
+	if ( tz_info(tzspec, NULL, 0, NULL, NULL, &offset) ) {
 		return offset;
 	} else {
 		return -1;
@@ -838,7 +837,7 @@ time_t tz_offset(const char *tzspec ) {
 const char *tz_std(const char *tzspec ) {
 	static char std[32] = "GMT";
 
-	if ( tz_info(tzspec, NULL, std, NULL, NULL) ) {
+	if ( tz_info(tzspec, NULL, 0, std, NULL, NULL) ) {
 		return std;
 	} else {
 		return "GMT";
@@ -851,7 +850,7 @@ const char *tz_std(const char *tzspec ) {
 const char *tz_dst(const char *tzspec ) {
 	static char dst[32]="GMT";
 
-	if ( tz_info(tzspec,NULL,NULL,dst,NULL) ) {
+	if ( tz_info(tzspec,NULL,0, NULL,dst,NULL) ) {
 		return dst;
 	} else {
 		return "GMT";
@@ -1038,9 +1037,9 @@ const char *timestamp_set_tz(const char *tz_name)
 
 		wlock(&tzlock);
 		if (_timezone % 60 == 0 ) {
-			sprintf(guess, "%s%d%s", _tzname[0], (int)(_timezone / 3600), _daylight?_tzname[1]:"");
+			snprintf(guess,sizeof(guess)-1, "%s%d%s", _tzname[0], (int)(_timezone / 3600), _daylight?_tzname[1]:"");
 		} else {
-			sprintf(guess, "%s%d:%d%s", _tzname[0], (int)(_timezone / 3600), (int)(_timezone / 60), _daylight?_tzname[1]:"");
+			snprintf(guess,sizeof(guess)-1, "%s%d:%d%s", _tzname[0], (int)(_timezone / 3600), (int)(_timezone / 60), _daylight?_tzname[1]:"");
 		}
 		if (_timezone==0 && _daylight==0)
 			tz_name="UTC0";
@@ -1109,21 +1108,21 @@ int convert_from_timestamp_delta(TIMESTAMP ts, DELTAT delta_t, char *buffer, int
 					 */
 			}
 			else
-				len=sprintf(temp,"%s","NEVER");
+				len=snprintf(temp,sizeof(temp)-1,"%s","NEVER");
 		}
 	}
 	else if (ts>=DAY)
-		len=sprintf(temp,"%lfd",(double)ts/DAY);
+		len=snprintf(temp,sizeof(temp)-1,"%lfd",(double)ts/DAY);
 	else if (ts>=HOUR)
-		len=sprintf(temp,"%lfh",(double)ts/HOUR);
+		len=snprintf(temp,sizeof(temp)-1,"%lfh",(double)ts/HOUR);
 	else if (ts>=MINUTE)
-		len=sprintf(temp,"%lfm",(double)ts/MINUTE);
+		len=snprintf(temp,sizeof(temp)-1,"%lfm",(double)ts/MINUTE);
 	else if (ts>=SECOND)
-		len=sprintf(temp,"%lfs",(double)ts/SECOND);
+		len=snprintf(temp,sizeof(temp)-1,"%lfs",(double)ts/SECOND);
 	else if (ts==0)
-		len=sprintf(temp,"%s","INIT");
+		len=snprintf(temp,sizeof(temp)-1,"%s","INIT");
 	else
-		len=sprintf(temp,"%" FMT_INT64 "d",ts);
+		len=snprintf(temp,sizeof(temp)-1,"%" FMT_INT64 "d",ts);
 	if (len<size)
 	{
 		if ( ts == TS_NEVER ) {
@@ -1171,21 +1170,21 @@ int convert_from_deltatime_timestamp(double ts_v, char *buffer, int size)
 					 */
 			}
 			else
-				len=sprintf(temp,"%s","NEVER");
+				len=snprintf(temp,sizeof(temp)-1,"%s","NEVER");
 		}
 	}
 	else if (ts>=DAY)
-		len=sprintf(temp,"%lfd",(double)ts/DAY);
+		len=snprintf(temp,sizeof(temp)-1,"%lfd",(double)ts/DAY);
 	else if (ts>=HOUR)
-		len=sprintf(temp,"%lfh",(double)ts/HOUR);
+		len=snprintf(temp,sizeof(temp)-1,"%lfh",(double)ts/HOUR);
 	else if (ts>=MINUTE)
-		len=sprintf(temp,"%lfm",(double)ts/MINUTE);
+		len=snprintf(temp,sizeof(temp)-1,"%lfm",(double)ts/MINUTE);
 	else if (ts>=SECOND)
-		len=sprintf(temp,"%lfs",(double)ts/SECOND);
+		len=snprintf(temp,sizeof(temp)-1,"%lfs",(double)ts/SECOND);
 	else if (ts==0)
-		len=sprintf(temp,"%s","INIT");
+		len=snprintf(temp,sizeof(temp)-1,"%s","INIT");
 	else
-		len=sprintf(temp,"%" FMT_INT64 "d",ts);
+		len=snprintf(temp,sizeof(temp)-1,"%" FMT_INT64 "d",ts);
 	if (len<size)
 	{
 		if ( ts == TS_NEVER ) {

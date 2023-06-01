@@ -29,7 +29,7 @@ public:
 	switch_coordinator(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int precommit(TIMESTAMP t1);
+	TIMESTAMP precommit(TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t1);
 	inline TIMESTAMP postsync(TIMESTAMP t1) { return TS_NEVER; };
 	inline TIMESTAMP presync(TIMESTAMP t1) { return TS_NEVER; };

@@ -11,18 +11,32 @@
 class underground_line : public line
 {
 public:
-    static CLASS *oclass;
-    static CLASS *pclass;
+
+	GL_ATOMIC(object,ductbank);
 
 public:
+
 	int init(OBJECT *parent);
 	void recalc(void);
 	underground_line(MODULE *mod);
 	inline underground_line(CLASS *cl=oclass):line(cl){};
 	int isa(CLASSNAME classname);
 	int create(void);
+
 private:
+
 	void test_phases(line_configuration *config, const char ph);
+
+public:
+	
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
+
+public:
+
+    static CLASS *oclass;
+    static CLASS *pclass;
+	static class underground_line *defaults;
+
 };
 
 EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);

@@ -70,7 +70,7 @@ unsigned entropy_source(void)
 	return (unsigned)(getpid()*t.tv_usec);
 }
 
-int random_init(void)
+void random_init(const char *name,const char *value)
 {
 	/* randomizes the random number generator start value */
 	if ( global_randomseed == 0 )
@@ -84,8 +84,6 @@ int random_init(void)
 
 	srand(1);
 	ur_state = &global_randomstate;
-
-	return 1;
 }
 
 /** Converts a distribution name to a #RANDOMTYPE
@@ -704,31 +702,31 @@ int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int size)
 {
 	switch ( type ) {
 	case RT_DEGENERATE:/* ... double value */
-		return sprintf(buffer,"degenerate(%lg)",a);
+		return snprintf(buffer,size-1,"degenerate(%lg)",a);
 	case RT_UNIFORM:		/* ... double min, double max */
-		return sprintf(buffer,"uniform(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"uniform(%lg,%lg)",a,b);
 	case RT_NORMAL:		/* ... double mean, double stdev */
-		return sprintf(buffer,"normal(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"normal(%lg,%lg)",a,b);
 	case RT_BERNOULLI:	/* ... double p */
-		return sprintf(buffer,"bernoulli(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"bernoulli(%lg,%lg)",a,b);
 	case RT_SAMPLED: /* ... unsigned n_samples, double samples[n_samples] */
-		return sprintf(buffer,"sampled(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"sampled(%lg,%lg)",a,b);
 	case RT_PARETO:	/* ... double base, double gamma */
-		return sprintf(buffer,"pareto(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"pareto(%lg,%lg)",a,b);
 	case RT_LOGNORMAL:	/* ... double gmean, double gsigma */
-		return sprintf(buffer,"lognormal(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"lognormal(%lg,%lg)",a,b);
 	case RT_EXPONENTIAL: /* ... double lambda */
-		return sprintf(buffer,"exponential(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"exponential(%lg,%lg)",a,b);
 	case RT_RAYLEIGH: /* ... double sigma */
-		return sprintf(buffer,"rayleigh(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"rayleigh(%lg,%lg)",a,b);
 	case RT_WEIBULL: /* ... double lambda, double k */
-		return sprintf(buffer,"weibull(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"weibull(%lg,%lg)",a,b);
 	case RT_GAMMA: /* ... double alpha, double beta */
-		return sprintf(buffer,"gamma(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"gamma(%lg,%lg)",a,b);
 	case RT_BETA: /* ... double alpha, double beta */
-		return sprintf(buffer,"beta(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"beta(%lg,%lg)",a,b);
 	case RT_TRIANGLE: /* ... double a, double b */
-		return sprintf(buffer,"triangle(%lg,%lg)",a,b);
+		return snprintf(buffer,size-1,"triangle(%lg,%lg)",a,b);
 	default:
 		throw_exception("_random_specs(type=%d,...); type is not valid",type);
 		/* TROUBLESHOOT
@@ -1338,13 +1336,13 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
-	return sprintf(string,"%lf",var->value);
+	return snprintf(string,size-1,"%lf",var->value);
 }
 
 int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
-	char buffer[1024];
+	char buffer[2048];
 	char tmp[1024];
 	if ( _random_specs(var->type,var->a,var->b,tmp,sizeof(tmp)-1) )
 	{
@@ -1369,12 +1367,15 @@ int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 		{
 			object_name(var->correlation->object,tmp,sizeof(tmp)-1);
 			len += snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
-				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);			
+				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);
 		}
 		len += snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
 		if ( string )
 		{
-			strncpy(string,buffer,size);
+			if ( snprintf(string,size,"%.*s",len,buffer) < len )
+			{
+				output_warning("convert_from_randomvar(...): long output truncated to fit in return buffer");
+			}
 		}
 		return len;
 	}
@@ -1458,20 +1459,23 @@ randomvar *randomvar_getnext(randomvar*var)
 
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 {
-	char buffer[1024];
+	char buffer[2048];
 	char specs[1024];
 	size_t len;
 	if ( _random_specs(var->type,var->a,var->b,specs,sizeof(specs))<=0 )
 		return 0;
-	len = snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
+	snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
 		var->state, specs, var->low, var->high, var->update_rate, var->flags&RNF_INTEGRATE ? "; integrate" : "");
-	if ( len > 0 && len<size )
+	len = strlen(buffer);
+	if ( len > 0 && snprintf(str,size,"%.*s",(int)(len),buffer) < (int)len )
 	{
-		strcpy(str,buffer);
-		return len;
+		output_warning("randomvar_getspec(...): long output truncated to fit in return buffer");
+		return size-1;
 	}
 	else
-		return 0;
+	{
+		return len;
+	}
 }
 
 TIMESTAMP randomvar_syncall(TIMESTAMP t1)

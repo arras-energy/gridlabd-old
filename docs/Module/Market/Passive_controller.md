@@ -89,7 +89,7 @@ GLM:
 
 # Description
 
-TODO
+This controller is similar to the [[/Module/Market/Controller]] object, except without the capability to bid back into an auction. It is designed as a passive demand response controller, which only receives price (or other) signals, generally from an auction or stubauction object, and responds accordingly. Additionally, it is used as a test bed for future transactive controller strategies, as it is easier to implement a passive response than an active bidding market.
 
 ## Properties
 
@@ -99,7 +99,7 @@ TODO
   int32 input_state;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `input_setpoint`
 
@@ -107,7 +107,7 @@ TODO
   double input_setpoint;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `input_chained`
 
@@ -115,7 +115,7 @@ TODO
   bool input_chained;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `observation`
 
@@ -123,7 +123,7 @@ TODO
   double observation;
 ~~~
 
-The observed value
+When the previous variables are used, this is where the observed value is assigned.
 
 ### `mean_observation`
 
@@ -131,7 +131,7 @@ The observed value
   double mean_observation;
 ~~~
 
-The observed mean value
+When the previous variables are used, this is where the mean value is assigned.
 
 ### `stdev_observation`
 
@@ -139,7 +139,7 @@ The observed mean value
   double stdev_observation;
 ~~~
 
-The observed standard deviation value
+When the previous variables are used, this is where the standard deviation value is assigned.
 
 ### `expectation`
 
@@ -147,7 +147,7 @@ The observed standard deviation value
   double expectation;
 ~~~
 
-The observed expected value
+When the previous variables are used, this is where the expected value is assigned.
 
 ### `sensitivity`
 
@@ -155,7 +155,7 @@ The observed expected value
   double sensitivity;
 ~~~
 
-The sensitivity of the control actuator to observation deviations
+Not used at this time.
 
 ### `period`
 
@@ -163,103 +163,61 @@ The sensitivity of the control actuator to observation deviations
   double period[s];
 ~~~
 
-The cycle period for the controller logic
+The period of time for which the controller operates. This signals how often the controller will update the state of the set point and how often the controller will bid into the market. Ideally, this should be identical to, or a multiple of, the auction object’s time period. While this is not required, if the supply bid and demand bids do not coincide, odd behavior may occur. Must be a positive, non-zero value.
 
-### `expectation_prop`
-
-~~~
-  char32 expectation_prop;
-~~~
-
-The name of the property to observe for the expected value
-
-### `expectation_obj`
+### `expectation_obj`, `expectation_object`, `expectation_prop`
 
 ~~~
   object expectation_obj;
+  object expectation_object;
+  char32 expectation_prop;
 ~~~
+
+Observation property is the object's value to be compared against the expected value.
 
 The object to watch for the expectation property
 
-### `expectation_property`
+### `expectation_obj`, `expectation_object`, `expectation_property`, `expectation_prop`
 
 ~~~
+  object expectation_obj;
+  object expectation_object;
+  char32 expectation_prop;
   char32 expectation_property;
 ~~~
 
-The name of the property to observe for the expected value
+The observed object requires that a current value and a standard deviation from the expected value be compared. This is the object where the observed value and the mean and standard deviation of the observed value are to be found. This is the property of the defined object that the observed property is compared against. In the transactive controller, this would be the average price of the market, while for a frequency control this might be 60 Hz.
 
-### `expectation_object`
-
-~~~
-  object expectation_object;
-~~~
-
-The object to watch for the expectation property
-
-### `setpoint_prop`
+### `setpoint_prop`, `setpoint`
 
 ~~~
   char32 setpoint_prop;
-~~~
-
-The name of the setpoint property in the parent object
-
-### `setpoint`
-
-~~~
   char32 setpoint;
 ~~~
 
-The name of the setpoint property in the parent object
+Defines the property to be modified by the controller.
 
-### `state_prop`
-
-~~~
-  char32 state_prop;
-~~~
-
-The name of the actuator property in the parent object
-
-### `state_property`
+### `state_prop`, `state_property`
 
 ~~~
   char32 state_property;
+  char32 state_prop;
 ~~~
+
+The property name within the parent object that specifies the current conditional state of the controllable object. For the HVAC system, this signifies on or off, however, future implementations may include multi-state objects.
 
 The name of the actuator property in the parent object
 
-### `observation_obj`
+### `observation_obj`, `observation_prop`, `observation_object`, `observation_property`
 
 ~~~
   object observation_obj;
-~~~
-
-The object to observe
-
-### `observation_prop`
-
-~~~
-  char32 observation_prop;
-~~~
-
-The name of the observation property
-
-### `observation_object`
-
-~~~
   object observation_object;
-~~~
-
-The object to observe
-
-### `observation_property`
-
-~~~
+  char32 observation_prop;
   char32 observation_property;
 ~~~
 
-The name of the observation property
+The observed object requires that a current value and a standard deviation from the expected value be compared. This is the object where the observed value and the mean and standard deviation of the observed value are to be found.
 
 ### `mean_observation_prop`
 
@@ -267,23 +225,16 @@ The name of the observation property
   char32 mean_observation_prop;
 ~~~
 
-The name of the mean observation property
+This is the name of the variable which contains the mean of the observed value.
 
-### `stdev_observation_prop`
+### `stdev_observation_prop`, `stdev_observation_property`
 
 ~~~
   char32 stdev_observation_prop;
-~~~
-
-The name of the standard deviation observation property
-
-### `stdev_observation_property`
-
-~~~
   char32 stdev_observation_property;
 ~~~
 
-The name of the standard deviation observation property
+Standard deviation is the number of deviations away from the expectation property the observation property is currently.
 
 ### `cycle_length`
 
@@ -291,7 +242,7 @@ The name of the standard deviation observation property
   int32 cycle_length;
 ~~~
 
-Length of time between processing cycles
+Not used at this time.
 
 ### `base_setpoint`
 
@@ -299,7 +250,7 @@ Length of time between processing cycles
   double base_setpoint;
 ~~~
 
-The base setpoint to base control off of
+This is the value of the set point were the controller not to exist, or the original set point prior to the controller's input. No limit to value.
 
 ### `critical_day`
 
@@ -307,7 +258,7 @@ The base setpoint to base control off of
   double critical_day;
 ~~~
 
-Used to switch between TOU and CPP days, 1 is CPP, 0 is TOU
+Used to switch between TOU and CPP days, 1 is CPP, 0 is TOU. This is an integer flag. It needs to be set to 1 to specify a Critical (Event) Day and to 0 to specify a Non-Event day.
 
 ### `two_tier_cpp`
 
@@ -315,7 +266,7 @@ Used to switch between TOU and CPP days, 1 is CPP, 0 is TOU
   bool two_tier_cpp;
 ~~~
 
-TODO
+This is a Boolean flag. It needs to be set to true if a two tier pricing needs to be specified for both Event and Non-Event Days. If using three-tier pricing for Event Days, this flag needs to be set to false.
 
 ### `daily_elasticity`
 
@@ -323,7 +274,7 @@ TODO
   double daily_elasticity;
 ~~~
 
-TODO
+This field can be used to specify the value of the Daily Elasticity coefficient. The Daily Elasticity coefficient specifies the factor by which the daily energy consumption changes given a change in the TOU pricing scheme.
 
 ### `sub_elasticity_first_second`
 
@@ -331,7 +282,7 @@ TODO
   double sub_elasticity_first_second;
 ~~~
 
-TODO
+This field can be used to specify the value of the Substitution Elasticity coefficient between the Peak pricing and the Off Peak pricing. The Substitution Elasticity coefficient specifies the factor by which the average Peak energy consumption is substituted to average off-peak energy consumption, given a change in the TOU pricing scheme. If using Two tier pricing schemes (two_tier_cpp is true), for CPP (Event) days (critical_day is 1), this value will be ignored for substitution calculation on CPP days.
 
 ### `sub_elasticity_first_third`
 
@@ -339,23 +290,7 @@ TODO
   double sub_elasticity_first_third;
 ~~~
 
-TODO
-
-### `second_tier_hours`
-
-~~~
-  int32 second_tier_hours;
-~~~
-
-TODO
-
-### `third_tier_hours`
-
-~~~
-  int32 third_tier_hours;
-~~~
-
-TODO
+This field can be used to specify the value of the Substitution Elasticity coefficient between the Critical pricing and the Off Peak pricing. The Substitution Elasticity coefficient specifies the factor by which the average Critical energy consumption is substituted to average off-peak energy consumption, given a change in the TOU pricing scheme. If using Two tier pricing schemes (two_tier_cpp is true), for non-CPP (non-Event) days (critical_day is 0), will be ignored for Substitution calculation on non-CPP days.
 
 ### `first_tier_hours`
 
@@ -363,7 +298,23 @@ TODO
   int32 first_tier_hours;
 ~~~
 
-TODO
+This field can be used to specify the duration of the off peak price (first tier) in hours. If not specified, the system will calculate it based on the number of hours given for the peak price hours and/or CPP hours.
+
+### `second_tier_hours`
+
+~~~
+  int32 second_tier_hours;
+~~~
+
+This field can be used to specify the duration of the peak price (second tier) in hours. If using two tier pricing schemes (two_tier_cpp is true), this field should be used only to specify the duration of the peak price hours for non-CPP days (critical_day is 0). It should not be used to specify the CPP price hours for CPP (critical_day is 1) days.
+
+### `third_tier_hours`
+
+~~~
+  int32 third_tier_hours;
+~~~
+
+This field can be used to specify the duration of the critical price (third tier) in hours. If using Two tier pricing schemes (two_tier_cpp is true), only this field should be used to specify the duration of the CPP price hours for CPP (critical_day is 1) days and second_tier_hours field should be used to specify the duration of the peak price hours for non-CPP days (critical_day is 0).
 
 ### `first_tier_price`
 
@@ -371,7 +322,7 @@ TODO
   double first_tier_price;
 ~~~
 
-TODO
+This field can be used to specify the off peak price in TOU/CPP pricing scheme.
 
 ### `second_tier_price`
 
@@ -379,7 +330,7 @@ TODO
   double second_tier_price;
 ~~~
 
-TODO
+This field can be used to specify the peak price in TOU/CPP pricing scheme. If using two tier pricing schemes (two_tier_cpp is true), this field should be used only to specify the peak price for non-CPP days (critical_day is 0). It should not be used to specify the CPP price for CPP (critical_day is 1) days.
 
 ### `third_tier_price`
 
@@ -387,7 +338,7 @@ TODO
   double third_tier_price;
 ~~~
 
-TODO
+This field can be used to specify the critical price in TOU/CPP pricing scheme. If using Two tier pricing schemes (two_tier_cpp is true), only this field should be used to specify the CPP price for CPP (critical_day is 1) days and second_tier_price field should be used to specify the peak price for non-CPP days (critical_day is 0).
 
 ### `old_first_tier_price`
 
@@ -395,7 +346,7 @@ TODO
   double old_first_tier_price;
 ~~~
 
-TODO
+This field describes the first tier price for the previous billing structure to estimate customer change in behavior.
 
 ### `old_second_tier_price`
 
@@ -403,7 +354,7 @@ TODO
   double old_second_tier_price;
 ~~~
 
-TODO
+This field describes the second tier price for the previous billing structure to estimate customer change in behavior.
 
 ### `old_third_tier_price`
 
@@ -411,7 +362,7 @@ TODO
   double old_third_tier_price;
 ~~~
 
-TODO
+This field describes the third tier price for the previous billing structure to estimate customer change in behavior.
 
 ### `Percent_change_in_price`
 
@@ -419,7 +370,7 @@ TODO
   double Percent_change_in_price;
 ~~~
 
-TODO
+This variable defines the ratio of the change in the daily average price between the old and new pricing schemes or rate structures. This is an output variable only, mainly used for diagnostics.
 
 ### `Percent_change_in_peakoffpeak_ratio`
 
@@ -427,7 +378,7 @@ TODO
   double Percent_change_in_peakoffpeak_ratio;
 ~~~
 
-TODO
+This variable defines the ratio of peak to off-peak prices between the old and new pricing schemes or rate structures. This is an output variable only, mainly used for diagnostics.
 
 ### `Percent_change_in_Criticalpeakoffpeak_ratio`
 
@@ -435,7 +386,7 @@ TODO
   double Percent_change_in_Criticalpeakoffpeak_ratio;
 ~~~
 
-TODO
+This variable defines the ratio of the critical peak to off-peak prices between the old and new pricing schemes or rate structures. This is an output variable only, mainly used for diagnostics.
 
 ### `linearize_elasticity`
 
@@ -443,7 +394,7 @@ TODO
   bool linearize_elasticity;
 ~~~
 
-TODO
+This option allows the user to activate the "linearized" version of the elasticity model. If TRUE, the model becomes linear and only examines a single data point. If FALSE (default), it assumes that the elasticity values are on a continuous curve with different prices for different price to load ratios.
 
 ### `price_offset`
 
@@ -451,7 +402,7 @@ TODO
   double price_offset;
 ~~~
 
-TODO
+This value is used as a floating point precision value. When the controller is comparing current price to the preset tier prices, this is the error allowed. Default is 10E-6.
 
 ### `pool_pump_model`
 
@@ -459,7 +410,7 @@ TODO
   bool pool_pump_model;
 ~~~
 
-Boolean flag for turning on the pool pump version of the DUTYCYCLE control
+Activates the pool pump version of the DUTYCYCLE control mode, which has specific rules described in the FY2011 report to DOE on DR in SGIG.
 
 ### `base_duty_cycle`
 
@@ -467,7 +418,7 @@ Boolean flag for turning on the pool pump version of the DUTYCYCLE control
   double base_duty_cycle;
 ~~~
 
-This is the duty cycle before modification due to the price signal
+Describes natural duty cycle of the controlled object in DUTYCYCLE mode.
 
 ### `trigger_time_under_frequency`
 
@@ -579,7 +530,7 @@ The name of the observed state property in the parent object
   int32 output_observed;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `bid_delay`
 
@@ -619,7 +570,7 @@ Value to determine if water heater is in voltage lockout
   enumeration {UNIFORM, EXPONENTIAL, NORMAL} distribution_type;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `comfort_level`
 
@@ -627,39 +578,7 @@ TODO
   double comfort_level;
 ~~~
 
-TODO
-
-### `range_high`
-
-~~~
-  double range_high;
-~~~
-
-TODO
-
-### `range_low`
-
-~~~
-  double range_low;
-~~~
-
-TODO
-
-### `ramp_high`
-
-~~~
-  double ramp_high;
-~~~
-
-TODO
-
-### `ramp_low`
-
-~~~
-  double ramp_low;
-~~~
-
-TODO
+Not used at this time.
 
 ### `prob_off`
 
@@ -667,7 +586,7 @@ TODO
   double prob_off;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `output_state`
 
@@ -683,7 +602,7 @@ The target setpoint given the input observations
   double output_setpoint;
 ~~~
 
-TODO
+Not used at this time.
 
 ### `control_mode`
 
@@ -707,7 +626,7 @@ This mode is roughly designed to force cycle an AC unit
   double cycle_length_off[s];
 ~~~
 
-TODO
+Not used at this time.
 
 ### `cycle_length_on`
 
@@ -715,90 +634,178 @@ TODO
   double cycle_length_on[s];
 ~~~
 
-TODO
+Not used at this time.
 
 # Example
 
+Assume an auction setup of:
+
 ~~~
-  object passive_controller {
-    input_state "0";
-    input_setpoint "0.0";
-    input_chained "FALSE";
-    observation "0.0";
-    mean_observation "0.0";
-    stdev_observation "0.0";
-    expectation "0.0";
-    sensitivity "0.0";
-    period "0.0";
-    expectation_prop "";
-    expectation_property "";
-    setpoint_prop "";
-    setpoint "";
-    state_prop "";
-    state_property "";
-    observation_prop "";
-    observation_property "";
-    mean_observation_prop "";
-    stdev_observation_prop "";
-    stdev_observation_property "";
-    cycle_length "0";
-    base_setpoint "0.0";
-    critical_day "0.0";
-    two_tier_cpp "FALSE";
-    daily_elasticity "0.0";
-    sub_elasticity_first_second "0.0";
-    sub_elasticity_first_third "0.0";
-    second_tier_hours "0";
-    third_tier_hours "0";
-    first_tier_hours "0";
-    first_tier_price "0.0";
-    second_tier_price "0.0";
-    third_tier_price "0.0";
-    old_first_tier_price "0.0";
-    old_second_tier_price "0.0";
-    old_third_tier_price "0.0";
-    Percent_change_in_price "0.0";
-    Percent_change_in_peakoffpeak_ratio "0.0";
-    Percent_change_in_Criticalpeakoffpeak_ratio "0.0";
-    linearize_elasticity "FALSE";
-    price_offset "0.0";
-    pool_pump_model "FALSE";
-    base_duty_cycle "0.0";
-    trigger_time_under_frequency "0";
-    trigger_time_over_frequency "0";
-    release_time_under_frequency "0";
-    release_time_over_frequency "0";
-    release_point_under_frequency "0.0";
-    release_point_over_frequency "0.0";
-    trigger_point_under_frequency "0.0";
-    trigger_point_over_frequency "0.0";
-    frequency "0.0";
-    PFC_mode "0";
-    PFC_state "0";
-    state_observed "";
-    power_observed "";
-    output_observed "0";
-    bid_delay "0";
-    voltage_lockout "0.0";
-    voltage_lockout_time "0.0";
-    voltage_lockout_state "0";
-    distribution_type "0";
-    comfort_level "0.0";
-    range_high "0.0";
-    range_low "0.0";
-    ramp_high "0.0";
-    ramp_low "0.0";
-    prob_off "0.0";
-    output_state "0";
-    output_setpoint "0.0";
-    control_mode "0";
-    dlc_mode "0";
-    cycle_length_off "0.0";
-    cycle_length_on "0.0";
-  }
+class auction {
+   double current_price_mean_24h;
+   double current_price_stdev_24h;
+   double my_avg;
+   double my_std;
+}
+object auction {
+   name Market_1;
+   period 300;
+   unit kW;
+   capacity_reference_object Substation_Transformer;
+   capacity_reference_property power_out_real;
+   max_capacity_reference_bid_quantity 1200; //Defaults to 1200 kW
+   init_price 0.10;
+   init_stdev 0.03;
+   my_avg 0.15;
+   my_std 0.05;
+   warmup 0;
+    object player {
+        file price.player;
+        loop 10;
+        property capacity_reference_bid_price;
+    };    
+}
+~~~
+
+To create an HVAC passive_controller, similar to a controller in RAMP mode that does not bid:
+
+~~~
+object passive_controller {
+     period 300; 
+     parent house1;
+     control_mode RAMP;
+     observation_object Market_1;
+     observation_property current_market.clearing_price;
+     stdev_observation_property current_price_stdev_24h;
+     expectation_object Market_1;
+     expectation_property current_price_mean_24h;
+     range_low -0.005;
+     range_high 3;
+     ramp_low 2.4;
+     ramp_high 2.4;
+     base_setpoint 75;
+     setpoint_property cooling_setpoint;
+     state_property power_state;
+};
+~~~
+
+A passive_controller, modifying the behavior of an analog ZIPload by using the ELASTICITY_MODEL with a 2-tier TOU and no CPP, would look like:
+
+~~~
+object passive_controller {
+     period 300;
+     parent ZIPload1;
+     control_mode ELASTICITY_MODEL;
+     two_tier_cpp false;
+     observation_object Market_1;
+     observation_property past_market.clearing_price;
+     state_property multiplier;
+     linearize_elasticity true;
+     price_offset 0.01;
+     critical_day 0;
+     first_tier_hours 12;
+     second_tier_hours 12;
+     first_tier_price 0.076351;
+     second_tier_price 0.152702;
+     old_first_tier_price 0.124300;
+     old_second_tier_price 0.124300;
+     daily_elasticity -0.1305;
+     sub_elasticity_first_second -0.0198;
+     sub_elasticity_first_third -0.0290;
+}
+~~~
+
+The same passive_controller, again in ELASTICITY_MODEL modifying a ZIPload, in a situation with TOU and CPP (price pattern shown in the following figure) would be:
+
+Two-tier TOU and CPP, where 2nd tier TOU is replaced by CPP.
+
+~~~
+object passive_controller {
+     period 300;
+     parent ZIPload1;
+     control_mode ELASTICITY_MODEL;
+     two_tier_cpp true;
+     observation_object Market_1;
+     observation_property past_market.clearing_price;
+     state_property multiplier;
+     linearize_elasticity true;
+     price_offset 0.01;
+     critical_day critical_day_schedule.value; //schedule with a 1 on critical days, and 0 on normal days
+     first_tier_hours 12;
+     second_tier_hours 12;
+     third_tier_hours 6;
+     first_tier_price 0.076351;
+     second_tier_price 0.152702;
+     third_tier_price 0.76351;
+     old_first_tier_price 0.124300;
+     old_second_tier_price 0.124300;
+     old_third_tier_price 0.124300;
+     daily_elasticity -0.1305;
+     sub_elasticity_first_second -0.0198;
+     sub_elasticity_first_third -0.0290;
+}
+~~~
+
+A passive_controller modifying the behavior of a waterheater in a manner similar to the Olympic Peninsula Demonstration project, using PROBABILITY_OFF, would look like:
+
+~~~
+object passive_controller {
+     period 900; // Note period is a multiple of auction period.
+     parent waterheater1;
+     control_mode PROBABILITY_OFF;
+     distribution_type NORMAL;
+     observation_object Market_1;
+     observation_property past_market.clearing_price;
+     stdev_observation_property my_std;
+     expectation_object Market_1;
+     expectation_property my_avg;
+     comfort_level 0.82;
+     state_property override;
+}
+~~~
+
+A passive_controller in DUTYCYCLE mode, modifying the behavior of a ZIPload (which has a duty_cycle defined), would look like:
+
+~~~
+object ZIPload {
+     name pool_pump1;
+     parent house1;
+     // Representative of Pool Pump operation
+     base_power 1400 W;
+     duty_cycle 0.22;
+     phase 0.26;
+     period 4.96;
+     heatgain_fraction 0.0;
+     power_pf 1.0;
+     current_pf 1.0;
+     impedance_pf 1.0;
+     impedance_fraction 0.2;
+     current_fraction 0.4;
+     power_fraction 0.4;
+     is_240 TRUE;
+     recovery_duty_cycle 0.27;
+     object passive_controller {
+          period 900;
+          control_mode DUTYCYCLE;
+          pool_pump_model true;
+          observation_object Market_1;
+          observation_property past_market.clearing_price;
+          state_property override;
+          base_duty_cycle 0.22;
+          setpoint duty_cycle;
+          first_tier_hours 12;
+          second_tier_hours 12;
+          third_tier_hours 6;
+          first_tier_price 0.070489;
+          second_tier_price 0.140979;
+          third_tier_price 0.704894;
+     };
+}
 ~~~
 
 # See also
 
 * [[/Module/Market]]
+* [[/Module/Market/Auction]]
+* [[/Module/Market/Controller]]
 

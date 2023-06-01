@@ -454,10 +454,10 @@ int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 */
 	enduse *e = (enduse*)data;
 	int len = 0;
-#define OUTPUT_NZ(X) if (e->X!=0) len+=sprintf(string+len,"%s" #X ": %f", len>0?"; ":"", e->X)
-#define OUTPUT(X) len+=sprintf(string+len,"%s"#X": %g", len>0?"; ":"", e->X);
-#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s%s: %f", len>0?"; ":"", N, e->X)
-#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s%s: %g", len>0?"; ":"", N, e->X);
+#define OUTPUT_NZ(X) if (e->X!=0) len+=snprintf(string+len,size-len-1,"%s" #X ": %f", len>0?"; ":"", e->X)
+#define OUTPUT(X) len+=snprintf(string+len,size-len-1,"%s"#X": %g", len>0?"; ":"", e->X);
+#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=snprintf(string+len,size-len-1,"%s%s: %f", len>0?"; ":"", N, e->X)
+#define OUTPUT_X(X,N) len+=snprintf(string+len,size-len-1,"%s%s: %g", len>0?"; ":"", N, e->X);
 	OUTPUT_NZ(impedance_fraction);
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
@@ -510,9 +510,10 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefi
 	prop->flags = 0;
 	class_add_property(oclass,prop);
 
+	char lastname[256] = "";
 	for (p=prop_list;p<prop_list+sizeof(prop_list)/sizeof(prop_list[0]);p++)
 	{
-		char name[256], lastname[256];
+		char name[256];
 
 		if(prefix == NULL || strcmp(prefix,"")==0)
 		{
@@ -523,7 +524,7 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefi
 			//strcpy(name,prefix);
 			//strcat(name, ".");
 			//strcat(name, p->name);
-			sprintf(name,"%s.%s",prefix,p->name);
+			snprintf(name,sizeof(name)-1,"%s.%s",prefix,p->name);
 		}
 
 		if (p->type<_PT_LAST)

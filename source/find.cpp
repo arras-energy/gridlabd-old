@@ -5,6 +5,7 @@
 
 #include "gldcore.h"
 
+
 //SET_MYCONTEXT(DMC_FIND) // 
 
 int compare_int(int64 a, FINDOP op, int64 b)
@@ -1232,7 +1233,7 @@ const char *find_file(const char *name, /**< the name of the file to find */
 				int len) /**< the len of the buffer */
 {
 	char filepath[1024];
-	char tempfp[1024];
+	char tempfp[2048];
 	char envbuf[1024];
 	const char *glpath;
 	char *dir;
@@ -1325,16 +1326,19 @@ const char *find_file(const char *name, /**< the name of the file to find */
 		}
 	}
 #else
-	snprintf(tempfp, sizeof(tempfp), "/usr/local/lib/gridlabd/%s", name);
+	snprintf(tempfp, sizeof(tempfp), "%s/gridlabd/%s", global_libdir, name);
 	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;
 	}
-	snprintf(tempfp, sizeof(tempfp), "/usr/local/share/gridlabd/%s", name);
+	int size = snprintf(tempfp, sizeof(tempfp), "%s/gridlabd/%s", global_datadir, name);
 	if ( access(tempfp, mode) == 0 )
 	{
-		strncpy(buffer,tempfp,len);
+		if ( snprintf(buffer,len-1,"%.*s",len-1,tempfp) < size )
+		{
+			output_warning("find_file(name='%s',path='%s',mode=%d,...): long result was truncated to fit in return buffer",name,path,mode);
+		}
 		return buffer;
 	}
 #endif

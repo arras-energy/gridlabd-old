@@ -8,7 +8,6 @@
 */
 
 #include "powerflow.h"
-using namespace std;
 
 CLASS* triplex_node::oclass = NULL;
 CLASS* triplex_node::pclass = NULL;
@@ -59,45 +58,6 @@ triplex_node::triplex_node(MODULE *mod) : node(mod)
 			PT_double, "residential_nominal_current_12_real[A]", PADDR(nom_res_curr[2].Re()),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"posted current on phase 1 to 2, real, from a residential object, if attached",
 			PT_double, "residential_nominal_current_12_imag[A]", PADDR(nom_res_curr[2].Im()),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"posted current on phase 1 to 2, imag, from a residential object, if attached",
 
-			//************* NOTE - DELETE IN FUTURE - START BLOCK ********************//
-			//Items below are being flagged as "deprecated" for 4.3 to encourage users to move to triplex_load object
-			//current_X, power_X, and shunt_X should become hidden accumulators after these get removed
-			//When fully deprecated, delete the code between the "NOTE - DELETE IN FUTURE" comment blocks, uncomment the "NOTE - INSTATE IN FUTURE" block
-			//And update the relevant published property mappings for residential/house_e, generators/inverter, generators/battery, and generators/inverter_dyn
-			PT_complex, "current_1[A]", PADDR(pub_current[0]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1, also acts as accumulator",
-			PT_complex, "current_2[A]", PADDR(pub_current[1]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 2, also acts as accumulator",
-			PT_complex, "current_N[A]", PADDR(pub_current[2]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase N, also acts as accumulator",
-			PT_double, "current_1_real[A]", PADDR(pub_current[0].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1, real",
-			PT_double, "current_2_real[A]", PADDR(pub_current[1].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 2, real",
-			PT_double, "current_N_real[A]", PADDR(pub_current[2].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase N, real",
-			PT_double, "current_1_reac[A]", PADDR(pub_current[0].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1, imag",
-			PT_double, "current_2_reac[A]", PADDR(pub_current[1].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 2, imag",
-			PT_double, "current_N_reac[A]", PADDR(pub_current[2].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase N, imag",
-			PT_complex, "current_12[A]", PADDR(pub_current[3]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1 to 2",
-			PT_double, "current_12_real[A]", PADDR(pub_current[3].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1 to 2, real",
-			PT_double, "current_12_reac[A]", PADDR(pub_current[3].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant current load on phase 1 to 2, imag",
-			PT_complex, "power_1[VA]", PADDR(pub_power[0]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1 (120V)",
-			PT_complex, "power_2[VA]", PADDR(pub_power[1]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 2 (120V)",
-			PT_complex, "power_12[VA]", PADDR(pub_power[2]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1 to 2 (240V)",
-			PT_double, "power_1_real[W]", PADDR(pub_power[0].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1, real",
-			PT_double, "power_2_real[W]", PADDR(pub_power[1].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 2, real",
-			PT_double, "power_12_real[W]", PADDR(pub_power[2].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1 to 2, real",
-			PT_double, "power_1_reac[VAr]", PADDR(pub_power[0].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1, imag",
-			PT_double, "power_2_reac[VAr]", PADDR(pub_power[1].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 2, imag",
-			PT_double, "power_12_reac[VAr]", PADDR(pub_power[2].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant power on phase 1 to 2, imag",
-			PT_complex, "shunt_1[S]", PADDR(pub_shunt[0]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant shunt impedance on phase 1",
-			PT_complex, "shunt_2[S]", PADDR(pub_shunt[1]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant shunt impedance on phase 2",
-			PT_complex, "shunt_12[S]", PADDR(pub_shunt[2]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant shunt impedance on phase 1 to 2",
-			PT_complex, "impedance_1[Ohm]", PADDR(impedance[0]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1",
-			PT_complex, "impedance_2[Ohm]", PADDR(impedance[1]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 2",
-			PT_complex, "impedance_12[Ohm]", PADDR(impedance[2]),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1 to 2",
-			PT_double, "impedance_1_real[Ohm]", PADDR(impedance[0].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1, real",
-			PT_double, "impedance_2_real[Ohm]", PADDR(impedance[1].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 2, real",
-			PT_double, "impedance_12_real[Ohm]", PADDR(impedance[2].Re()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1 to 2, real",
-			PT_double, "impedance_1_reac[Ohm]", PADDR(impedance[0].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1, imag",
-			PT_double, "impedance_2_reac[Ohm]", PADDR(impedance[1].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 2, imag",
-			PT_double, "impedance_12_reac[Ohm]", PADDR(impedance[2].Im()),PT_DEPRECATED,PT_DESCRIPTION,"deprecated - use triplex_load - constant series impedance on phase 1 to 2, imag",
-
 			//Direct-access properties
 			PT_complex, "acc_temp_current_1[A]", PADDR(current[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 1",
 			PT_complex, "acc_temp_current_2[A]", PADDR(current[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 2",
@@ -115,16 +75,16 @@ triplex_node::triplex_node(MODULE *mod) : node(mod)
 			//************* NOTE - INSTATE IN FUTURE - START BLOCK ********************//
 			//Reminder - fix published property map for residential/house_e, generators/inverter, generators/battery
 
-			// PT_complex, "current_1[A]", PADDR(current[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 1",
-			// PT_complex, "current_2[A]", PADDR(current[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 2",
-			// PT_complex, "current_N[A]", PADDR(current[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase N",
-			// PT_complex, "current_12[A]", PADDR(current12),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 1 to 2",
-			// PT_complex, "power_1[VA]", PADDR(power[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 1 (120V)",
-			// PT_complex, "power_2[VA]", PADDR(power[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 2 (120V)",
-			// PT_complex, "power_12[VA]", PADDR(power[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 1 to 2 (240V)",
-			// PT_complex, "shunt_1[S]", PADDR(shunt[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 1",
-			// PT_complex, "shunt_2[S]", PADDR(shunt[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 2",
-			// PT_complex, "shunt_12[S]", PADDR(shunt[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 1 to 2",
+			PT_complex, "current_1[A]", PADDR(current[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 1",
+			PT_complex, "current_2[A]", PADDR(current[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 2",
+			PT_complex, "current_N[A]", PADDR(current[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase N",
+			PT_complex, "current_12[A]", PADDR(current12),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - current load on phase 1 to 2",
+			PT_complex, "power_1[VA]", PADDR(power[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 1 (120V)",
+			PT_complex, "power_2[VA]", PADDR(power[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 2 (120V)",
+			PT_complex, "power_12[VA]", PADDR(power[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - power on phase 1 to 2 (240V)",
+			PT_complex, "shunt_1[S]", PADDR(shunt[0]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 1",
+			PT_complex, "shunt_2[S]", PADDR(shunt[1]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 2",
+			PT_complex, "shunt_12[S]", PADDR(shunt[2]),PT_ACCESS,PA_HIDDEN,PT_DESCRIPTION,"accumulator - used for debugging/interfacing only - shunt impedance on phase 1 to 2",
 
 			//************* NOTE - INSTATE IN FUTURE - END BLOCK ********************//
 			
@@ -223,10 +183,12 @@ int triplex_node::init(OBJECT *parent)
 	if ( !(has_phase(PHASE_S)) )
 	{
 		OBJECT *obj = THISOBJECTHDR;
-		warning("Init() triplex_node (name:%s, id:%d): Phases specified did not include phase S. Adding phase S.", obj->name,obj->id);
+		warning("Init() triplex_node (name:%s, id:%d): Phases specified did not include phase S. Adding phase S. Check upstream devices.", obj->name,obj->id);
 		/* TROUBLESHOOT
 		Triplex nodes and meters require a single phase and a phase S component (for split-phase).
-		This particular triplex object did not include it, so it is being added.
+		This particular triplex object did not include it, so it is being added.  Check upstream devices
+		(mostly tranformers) to make sure they are appropriate.  A duplicate NR admittance entry can occur
+		if the upstream transformer is incorrect too.
 		*/
 		phases = (phases | PHASE_S);
 	}

@@ -749,7 +749,7 @@ OBJECT *object_remove_by_id(OBJECTNUM id){
 			}
 		}
 		
-		object_tree_delete(target, target->name ? target->name : (sprintf(name, "%s:%d", target->oclass->name, target->id), name));
+		object_tree_delete(target, target->name ? target->name : (snprintf(name,sizeof(name)-1, "%s:%d", target->oclass->name, target->id), name));
 		next = target->next;
 		prev->next = next;
 		target->oclass->profiler.numobjs--;
@@ -1059,7 +1059,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 
 	/* dispatch notifiers */
 	if(obj->oclass->notify){
-		if(obj->oclass->notify(obj,NM_PREUPDATE,prop,value) == 0){
+		if(obj->oclass->notify(obj,NM_PREUPDATE,prop) == 0){
 			output_error("preupdate notify failure on %s in %s", prop->name, obj->name ? obj->name : "an unnamed object");
 		}
 	}
@@ -1075,14 +1075,14 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 		result = class_string_to_property(prop,addr,value);
 	}
 	if(obj->oclass->notify){
-		if(obj->oclass->notify(obj,NM_POSTUPDATE,prop,value) == 0){
+		if(obj->oclass->notify(obj,NM_POSTUPDATE,prop) == 0){
 			output_error("postupdate notify failure on %s in %s", prop->name, obj->name ? obj->name : "an unnamed object");
 		}
 	}
 	return result;
 }
 
-static int set_header_value(OBJECT *obj, const char *name, const char *value)
+static int set_header_value(OBJECT *obj, const char *name, const char *value,bool nofail=true)
 {
 	unsigned int temp_microseconds;
 	TIMESTAMP tval;
@@ -1113,7 +1113,7 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 			output_error("object %s:%d parent %s not found", obj->oclass->name, obj->id, value);
 			return FAILED;
 		}
-		else if(object_set_parent(obj,parent)==FAILED && strcmp(value,"")!=0)
+		else if ( object_set_parent(obj,parent) < 0 && strcmp(value,"") !=0 )
 		{
 			output_error("object %s:%d cannot use parent %s", obj->oclass->name, obj->id, value);
 			return FAILED;
@@ -1268,7 +1268,8 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 	{
 		return sscanf(value,"%08llX%08llX",obj->guid,obj->guid+1) != 2 ? SUCCESS : FAILED;
 	}
-	else {
+	else if ( ! nofail ) 
+	{
 		output_error("object %s:%d called set_header_value() for invalid field '%s'", obj->oclass->name, obj->id, name);
 		/*	TROUBLESHOOT
 			The valid header fields are "name", "parent", "rank", "clock", "valid_to", "latitude",
@@ -1276,7 +1277,10 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 		*/
 		return FAILED;
 	}
-	/* should never get here */
+	else
+	{
+		return SUCCESS;
+	}
 }
 
 const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len)
@@ -1286,7 +1290,7 @@ const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer
 		if ( obj->name == NULL )
 			snprintf(buffer,len,"%s:%d", obj->oclass->name, obj->id);
 		else
-			snprintf(buffer,len,"%s", obj->oclass->name);
+			snprintf(buffer,len,"%s", obj->name);
 	}
 	else if ( strcmp(item,"class") == 0 )
 	{
@@ -1876,7 +1880,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 					  PASSCONFIG pass) /**< the pass configuration */
 {
 	CLASS *oclass = obj->oclass;
-	register TIMESTAMP plc_time=TS_NEVER, sync_time;
+	TIMESTAMP plc_time=TS_NEVER, sync_time;
 	TIMESTAMP effective_valid_to = min(obj->clock+global_skipsafe,obj->valid_to);
 	int autolock = obj->oclass->passconfig&PC_AUTOLOCK;
 
@@ -1959,17 +1963,17 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	}
 	else
 	{
-		char buffer[1024];
-		sprintf(buffer,"%lld",global_clock);
+		char buffer[1025];
+		snprintf(buffer,sizeof(buffer)-1,"%lld",global_clock);
 		setenv("CLOCK",buffer,1);
-		sprintf(buffer,"%s",global_hostname);
+		snprintf(buffer,sizeof(buffer)-1,"%s",global_hostname);
 		setenv("HOSTNAME",buffer,1);
-		sprintf(buffer,"%d",global_server_portnum);
+		snprintf(buffer,sizeof(buffer)-1,"%d",global_server_portnum);
 		setenv("PORT",buffer,1);
 		if ( obj->name )	
-			sprintf(buffer,"%s",obj->name);
+			snprintf(buffer,sizeof(buffer)-1,"%s",obj->name);
 		else
-			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+			snprintf(buffer,sizeof(buffer)-1,"%s:%d",obj->oclass->name,obj->id);
 		setenv("OBJECT",buffer,1);
 		return my_instance->subcommand("%s",event);
 	}
@@ -2015,13 +2019,13 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	switch (pass) 
 	{
 	case PC_PRETOPDOWN:
-		event = obj->events.presync;
+		event = obj->events.presync ? obj->events.presync : obj->oclass->events.presync;
 		break;
 	case PC_BOTTOMUP:
-		event = obj->events.sync;
+		event = obj->events.sync ? obj->events.sync : obj->oclass->events.sync;
 		break;
 	case PC_POSTTOPDOWN:
-		event = obj->events.postsync;
+		event = obj->events.postsync ? obj->events.postsync : obj->oclass->events.postsync;
 		break;
 	default:
 		break;
@@ -2083,11 +2087,14 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 	if ( rv == 1 && obj->events.init != NULL )
 	{
 		long long ok = 0;
-		int rc = object_event(obj,obj->events.init,&ok);
-		if ( rc != 0 || ok != 0 )
+		int rc = object_event(obj,obj->events.init?obj->events.init:obj->oclass->events.init,&ok);
+		if ( rc != 0 || ok == 1 )
 		{
 			output_error("object %s:%d init at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
-			rv = 0;
+		}
+		else if ( ok == 2 )
+		{
+			rv = 2;
 		}
 	}
 	object_profile(obj,OPI_INIT,t);
@@ -2127,7 +2134,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
 		long long t2 = TS_NEVER;
-		int rc = object_event(obj,obj->events.precommit,&t2);
+		int rc = object_event(obj,obj->events.precommit?obj->events.precommit:obj->oclass->events.precommit,&t2);
 		if ( rc != 0 || t2 < t1 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,t2);
@@ -2161,7 +2168,7 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	} 
 	if ( obj->events.commit != NULL )
 	{
-		int rc = object_event(obj,obj->events.commit,&rv);
+		int rc = object_event(obj,obj->events.commit?obj->events.commit:obj->oclass->events.commit,&rv);
 		if ( rc != 0 || rv == TS_INVALID )
 		{
 			output_error("object %s:%d commit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,rv);
@@ -2196,7 +2203,7 @@ STATUS object_finalize(OBJECT *obj)
 	if ( obj->events.finalize != NULL )
 	{
 		long long rv = 0;
-		int rc = object_event(obj,obj->events.finalize,&rv);
+		int rc = object_event(obj,obj->events.finalize?obj->events.finalize:obj->oclass->events.finalize,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
@@ -2217,31 +2224,38 @@ int object_isa(OBJECT *obj, /**< the object to test */
 			   const char *type,
 			   const char *module) /**< the type of test */
 {
+	// fprintf(stderr,"object_isa(obj=<%s>,type='%s',module='%s') --> ",obj->name,type,module);
 	if ( obj == NULL )
 	{
+		// fprintf(stderr,"0\n");
+		return 0;
+	}
+	if ( module != NULL && obj->oclass->module != NULL && strcmp(module,obj->oclass->module->name) != 0 )
+	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 	if ( strcmp(obj->oclass->name,type) == 0 )
 	{
+		// fprintf(stderr,"1\n");
 		return 1;
 	} 
-	else if ( obj->oclass->isa ) 
+	for ( CLASS *oclass = obj->oclass->parent ; oclass != NULL ; oclass = oclass->parent )
 	{
-		if ( obj->oclass->isa(obj, type) == 0 )
-		{
-			return 0;
-		}
-		else if ( module == NULL || strcmp(obj->oclass->module->name,module) == 0 )
+		if ( strcmp(oclass->name,type) ==  0 )
 		{
 			return 1;
 		}
-		else
-		{
-			return 0;
-		}
+	}
+	if ( obj->oclass->isa ) 
+	{
+		int result = obj->oclass->isa(obj, type);
+		// fprintf(stderr,"%d\n",result);
+		return result;
 	} 
 	else 
 	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 }
@@ -2251,7 +2265,8 @@ int object_isa(OBJECT *obj, /**< the object to test */
  **/
 size_t object_dump(char *outbuffer, /**< the destination buffer */
 				size_t size, /**< the size of the buffer */
-				OBJECT *obj){ /**< the object to dump */
+				OBJECT *obj) /**< the object to dump */
+{
 	char buffer[65536];
 	char tmp[256];
 	char tmp2[1024];
@@ -2263,28 +2278,43 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		size = sizeof(buffer);
 	}
 	
-	count += sprintf(buffer + count, "object %s:%d {\n", obj->oclass->name, obj->id);
+	snprintf(buffer+count,size-count-1, "object %s:%d {\n", obj->oclass->name, obj->id);
+	count = strlen(buffer);
 
 	/* dump internal properties */
-	if(obj->parent != NULL){
-		count += sprintf(buffer + count, "\tparent = %s:%d (%s)\n", obj->parent->oclass->name, obj->parent->id, obj->parent->name != NULL ? obj->parent->name : "");
-	} else {
-		count += sprintf(buffer + count, "\troot object\n");
+	if ( obj->parent != NULL )
+	{
+		snprintf(buffer+count,size-count-1, "\tparent = %s:%d (%s)\n", obj->parent->oclass->name, obj->parent->id, obj->parent->name != NULL ? obj->parent->name : "");
+		count = strlen(buffer);
+	} 
+	else 
+	{
+		snprintf(buffer+count,size-count-1, "\troot object\n");
+		count = strlen(buffer);
 	}
-	if(obj->name != NULL){
-		count += sprintf(buffer + count, "\tname %s\n", obj->name);
+	if ( obj->name != NULL )
+	{
+		snprintf(buffer+count,size-count-1, "\tname %s\n", obj->name);
+		count = strlen(buffer);
 	}
 
-	count += sprintf(buffer + count, "\trank = %d;\n", obj->rank);
-	count += sprintf(buffer + count, "\tclock = %s (%" FMT_INT64 "d);\n", convert_from_timestamp(obj->clock, tmp, sizeof(tmp)) > 0 ? tmp : "(invalid)", obj->clock);
+	snprintf(buffer+count,size-count-1, "\trank = %d;\n", obj->rank);
+	count = strlen(buffer);
+	snprintf(buffer+count,size-count-1, "\tclock = %s (%" FMT_INT64 "d);\n", convert_from_timestamp(obj->clock, tmp, sizeof(tmp)) > 0 ? tmp : "(invalid)", obj->clock);
+	count = strlen(buffer);
 
-	if(!isnan(obj->latitude)){
-		count += sprintf(buffer + count, "\tlatitude = %s;\n", convert_from_latitude(obj->latitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+	if ( ! isnan(obj->latitude) )
+	{
+		snprintf(buffer+count,size-count-1, "\tlatitude = %s;\n", convert_from_latitude(obj->latitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+		count = strlen(buffer);
 	}
-	if(!isnan(obj->longitude)){
-		count += sprintf(buffer + count, "\tlongitude = %s;\n", convert_from_longitude(obj->longitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+	if ( ! isnan(obj->longitude) )
+	{
+		snprintf(buffer+count,size-count-1, "\tlongitude = %s;\n", convert_from_longitude(obj->longitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+		count = strlen(buffer);
 	}
-	count += sprintf(buffer + count, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
+	snprintf(buffer+count,size-count-1, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
+	count = strlen(buffer);
 
 	/* dump properties */
 	for (prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next)
@@ -2292,8 +2322,10 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 		if ( value != NULL )
 		{
-			count += sprintf(buffer + count, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
-			if(count > size){
+			snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+			count = strlen(buffer);
+			if ( count > size ) 
+			{
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 				/* TROUBLESHOOT
 					The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
@@ -2307,12 +2339,15 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 	pclass = obj->oclass;
 	while ((pclass = pclass->parent) != NULL)
 	{
-		for (prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next)
+		for ( prop = pclass->pmap ; prop != NULL && prop->oclass == pclass ; prop = prop->next )
 		{
 			const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
-			if(value != NULL){
-				count += sprintf(buffer + count, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
-				if(count > size){
+			if ( value != NULL )
+			{
+				snprintf(buffer+count,size-count-1, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+				count = strlen(buffer);
+				if ( count > size )
+				{
 					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 					/* TROUBLESHOOT
 						The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
@@ -2323,11 +2358,18 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 		}
 	}
 
-	count += sprintf(buffer+count,"}\n");
-	if(count < size && count < sizeof(buffer)){
-		strncpy(outbuffer, buffer, count+1);
+	snprintf(buffer+count,size-count-1,"}\n");
+	count = strlen(buffer);
+	if ( count < size && count < sizeof(buffer) )
+	{
+		if ( snprintf(outbuffer,size-1,"%.*s",int(size-1),buffer) < (int)count )
+		{
+			output_warning("object_dump(obj=<%s:%d>): output truncated",obj->oclass->name,obj->id);
+		}
 		return count;
-	} else {
+	} 
+	else 
+	{
 		output_error("buffer too small in object_dump()!");
 		return 0;
 	}
@@ -2339,20 +2381,23 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
  **/
 static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
 {
-	char buffer[1024];
 	PROPERTY *prop;
-	int count = sprintf(temp, "\t// %s properties\n", oclass->name);
+	snprintf(temp,size-1, "\t// %s properties\n", oclass->name);
+	size_t count = strlen(temp);
+
 	for ( prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next )
 	{
+		char buffer[1024];
 		const char *value = object_property_to_string(obj, prop->name, buffer, 1023);
 		if ( value!=NULL )
 		{
 			if ( prop->ptype==PT_timestamp)  // timestamps require single quotes
-				count += sprintf(temp+count, "\t%s '%s';\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s '%s';\n", prop->name, value);
 			else if ( strcmp(value,"")==0 || ( strpbrk(value," \t") && prop->unit==NULL ) ) // double quotes needed empty strings and when white spaces are present in non-real values
-				count += sprintf(temp+count, "\t%s \"%s\";\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s \"%s\";\n", prop->name, value);
 			else
-				count += sprintf(temp+count, "\t%s %s;\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s %s;\n", prop->name, value);
+			count = strlen(temp);
 		}
 	}
 	return count;
@@ -2362,34 +2407,41 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 	char temp[65536];
 	char oname[MAXOBJECTNAMELEN] = "";
 	CLASS *pclass;
-	size_t count = sprintf(temp,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
+	snprintf(temp,size-1,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
+	size_t count = strlen(temp);
 
 	IN_MYCONTEXT output_debug("saving object %s:%d", obj->oclass->name, obj->id);
 
 	/* dump header properties */
 	if(obj->parent != NULL){
 		convert_from_object(oname, sizeof(oname), &obj->parent, NULL);
-		count += sprintf(temp+count, "\tparent %s;\n", oname);
+		snprintf(temp+count,size-count-1, "\tparent %s;\n", oname);
+		count = strlen(temp);
 	}
 
-	count += sprintf(temp+count, "\trank %d;\n", obj->rank);
+	count += snprintf(temp+count,size-count-1, "\trank %d;\n", obj->rank);
 	if(obj->name != NULL){
-		count += sprintf(temp+count, "\tname %s;\n", obj->name);
+		snprintf(temp+count,size-count-1, "\tname %s;\n", obj->name);
+		count = strlen(temp);
 	}
-	count += sprintf(temp+count,"\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
+	count += snprintf(temp+count,size-count-1, "\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
 	if( !isnan(obj->latitude) ){
-		count += sprintf(temp+count, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+		snprintf(temp+count,size-count-1, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+		count = strlen(temp);
 	}
 	if( !isnan(obj->longitude) ){
-		count += sprintf(temp+count, "\tlongitude %s;\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+		snprintf(temp+count,size-count-1, "\tlongitude %s;\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+		count = strlen(temp);
 	}
-	count += sprintf(temp+count, "\tflags %s;\n", convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) ? buffer : "(invalid)");
+	snprintf(temp+count,size-count-1, "\tflags %s;\n", convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) ? buffer : "(invalid)");
+	count = strlen(temp);
 
 	/* dump class-defined properties */
 	for ( pclass=obj->oclass->parent ; pclass!=NULL ; pclass=pclass->parent )
 		count += object_save_x(temp+count,size-count,obj,pclass);
 	count += object_save_x(temp+count,size-count,obj,obj->oclass);
-	count += sprintf(temp+count,"}\n");
+	snprintf(temp+count,size-count-1,"}\n");
+	count = strlen(temp);
 	if ( count>=sizeof(temp) )
 		output_warning("object_save(char *buffer=%p, int size=%d, OBJECT *obj={%s:%d}: buffer overflow", buffer, size, obj->oclass->name, obj->id);
 	if ( count<size )
@@ -2409,27 +2461,27 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 	// dynamic size
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	int len = spec->csize;
-	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
+	// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
 	if ( len == PSZ_DYNAMIC )
 	{
 		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
 	}
 	else if ( len == PSZ_AUTO )
 	{
 		// TODO: support general calls to underlying class implementing the property
 		std::string *str = (std::string*)(char*)(obj+1)+(int64_t)(prop->addr);
 		len = str->size()+1;
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
 	}
 	if ( len < 0 )
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
 		len = 0;
 	}
 	else
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
 	}
 
 	return len;
@@ -2772,7 +2824,7 @@ int convert_from_latitude(double v, char *buffer, size_t bufsize)
 	if ( isnan(v) )
 		return 0;
 	else
-		return sprintf(buffer, "%.0f%c%.0f:%.2f", d, ns, m, s);
+		return snprintf(buffer,bufsize-1, "%.0f%c%.0f:%.2f", d, ns, m, s);
 }
 
 int convert_from_longitude(double v, char *buffer, size_t bufsize){
@@ -2785,7 +2837,7 @@ int convert_from_longitude(double v, char *buffer, size_t bufsize){
 	if ( isnan(v) )
 		return 0;
 	else
-		return sprintf(buffer, "%.0f%c%.0f:%.2f", d, ns, m, s);
+		return snprintf(buffer,bufsize-1, "%.0f%c%.0f:%.2f", d, ns, m, s);
 }
 
 double convert_to_latitude(const char *buffer)
@@ -3061,7 +3113,7 @@ int object_build_name(OBJECT *obj, char *buffer, int len){
 		L = (int)strlen(obj->name);
 		ptr = obj->name;
 	} else {
-		sprintf(b, "%s %i", obj->oclass->name, obj->id);
+		snprintf(b,sizeof(b)-1, "%s %i", obj->oclass->name, obj->id);
 		L = (int)strlen(b);
 		ptr = b;
 	}
@@ -3070,7 +3122,7 @@ int object_build_name(OBJECT *obj, char *buffer, int len){
 		output_error("object_build_name(): unable to build name for '%s', input buffer too short", ptr);
 		return 0;
 	} else {
-		strcpy(buffer, ptr);
+		strncpy(buffer,ptr,len-1);
 		return L;
 	}
 }
@@ -3331,7 +3383,10 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	output_warning("forecast_create(): description parsing not implemented");
 
 	/* copy the description */
-	strncpy(fc->specification,specs,sizeof(fc->specification));
+	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%.*s",(int)(sizeof(fc->specification)-2),specs) < (int)strlen(specs) )
+	{
+		output_warning("forecast_create(obj=<%s:%d>,specs='%32s...'): long output truncated",obj->oclass->name,obj->id,specs);
+	}
 
 	return fc;
 }

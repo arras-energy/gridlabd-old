@@ -8,7 +8,7 @@
 */
 
 #include "powerflow.h"
-using namespace std;
+
 
 //////////////////////////////////////////////////////////////////////////
 // capacitor CLASS FUNCTIONS
@@ -355,7 +355,7 @@ int capacitor::init(OBJECT *parent)
 		remote link are compatible.
 		*/
 	}
-	else if (((control==VOLT) || (control==VARVOLT)) && (RNode != NULL) && ((RNode->phases & pt_phase) != pt_phase))	//RNode check
+	else if (((control==VOLT) || (control==VARVOLT)) && (RNode != NULL) && ((RNode->phases & pt_phase) != pt_phase))	//RNode check 
 	{
 		GL_THROW("One of the monitored remote node phases for capacitor:%d does not exist",obj->id);
 		/*  TROUBLESHOOT

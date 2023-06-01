@@ -32,7 +32,7 @@ CONFIGURATION:
 
 ENVIRONMENT:
 
-    GLD_ETC     the path to the shared files (default "/usr/local/share/gridlabd")
+    GLD_ETC     the path to the shared files (default "/usr/local/opt/gridlabd/<version>/share/gridlabd")
 
 CAVEATS:
 
@@ -53,11 +53,11 @@ import math, numpy
 import pandas
 import haversine
 
-share = os.getenv("GLD_ETC")
-if not share:
-    share = "/usr/local/share/gridlabd"
-if share not in sys.path:
-    sys.path.append("/usr/local/share/gridlabd")
+GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share/gridlabd"
+if GLD_ETC not in sys.path:
+    sys.path.append(GLD_ETC)
 import nsrdb_weather
 
 #
@@ -71,7 +71,7 @@ default_options = dict(
     )
 
 default_config = dict(
-    cachedir = f"{share}/weather/nsrdb"
+    cachedir = f"{GLD_ETC}/weather/nsrdb"
     )
 
 #
@@ -143,5 +143,5 @@ if __name__ == '__main__':
             print(result)
             # self.assertEqual(result["wind"][1],12.0)
 
-    if os.path.exists("~/.nsrdb/credentials.json"):
+    if os.path.exists(f"{os.getenv('HOME')}/.nsrdb/credentials.json"):
         unittest.main()

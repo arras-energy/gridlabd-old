@@ -1,3 +1,4 @@
+# market_model [OPTIONS ...]
 """Create market model from ISO data
 
 SYNTAX
@@ -130,7 +131,7 @@ def identify(Y, U, K=24, l=0):
     )
 
     Y, M = look_ahead(M, Y, K, l)
-    x = np.linalg.lstsq(M, Y)[0]
+    x = np.linalg.lstsq(M, Y, rcond=None)[0]
 
     if debug_enabled:
         print(np.hstack([M, Y[K + 1 :]]), file=sys.stderr)
@@ -474,7 +475,7 @@ if __name__ == "__main__":
                     end="",
                 )
                 for k in range(0, K + 1):
-                    print(f"{x[-k * n_inputs - 1, 0]:+f}z^{K - k:.0f}", end="")
+                    print(f"{x[K - k * n_inputs - 1, 0]:+f}z^{K - k:.0f}", end="")
                 print(f"{x[K + n, 0]:+f} ) / (z^{K:.0f}", end="")
                 for k in range(1, K):
                     print(f"{-x[K - k, 0]:+f}z^{K - k:.0f}", end="")

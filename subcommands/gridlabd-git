@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: git COMMAND [OPTIONS ...]
 
 command=$(basename $0 | tr '-' ' ')
 origin="$(gridlabd --version=origin)"

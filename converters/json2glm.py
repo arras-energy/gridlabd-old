@@ -12,14 +12,18 @@ def help():
     -i|--ifile <filename>    [REQUIRED] JSON input file
     -o|--ofile <filename>    [OPTIONAL] GLM output file name
     -t|--type 				 type of input file
+    -n|--noclock             omit clock data
+    -g|--ignoreglobals LIST  omit globals
 """
 
 def main():
 	filename_json = ''
 	filename_glm = ''
 	json_type = ''
+	clockflag = False
+	ignored_globals_list = ''
 	try : 
-		opts, args = getopt.getopt(sys.argv[1:],"chi:o:t:",["config","help","ifile=","ofile=","type="])
+		opts, args = getopt.getopt(sys.argv[1:],"chni:o:t:g:",["config","help","noclock","ifile=","ofile=","type=","ignoreglobals="])
 	except getopt.GetoptError:
 		sys.exit(2)
 	if not opts : 
@@ -38,18 +42,27 @@ def main():
 			filename_glm = arg
 		elif opt in ("-t", "--type"):
 			json_type = arg
+		elif opt in ("-n", "--noclock"):
+			clockflag = True
+		elif opt in ("-g", "--ignoreglobals"):
+			ignored_globals_list = arg
 		else : 
 			error(f"{opt}={arg} is not a valid option")
 
 
-	convert(ifile=filename_json,ofile=filename_glm,json_type=json_type)
+	convert(ifile=filename_json,ofile=filename_glm,json_type=json_type,noclock=clockflag,ignore_globals=ignored_globals_list)
 
-def convert(ifile,ofile,json_type) :
+def convert(ifile,ofile,json_type="gridlabd",noclock=False,ignore_globals=None) :
 	if os.path.exists(ofile):
 		os.remove(ofile)
 	data = {}
 	objects_ignore = ["id", "class", "rank", "clock", "flags"]
-	globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
+	if noclock : 
+		globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
+	else:
+		globals_ignore = []
+	if ignore_globals : 
+		globals_ignore.extend(ignore_globals.split(','))
 	classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
 	house_variables = ['heating_system_type', 'gross_wall_area', 'floor_area', 'envelope_UA']
 
@@ -81,19 +94,19 @@ def convert(ifile,ofile,json_type) :
 				fw.write("\n }")
 
 		else : 
-
-			# clock
-			header_str = '\n' + 'clock {'
-			tmzone_str = '\n' + '\t' + 'timezone ' + data['globals']['timezone_locale']['value']+';'
-			start_str = '\n' + '\t' + 'starttime'+ ' \"' + data['globals']['starttime']['value']+'\";'
-			stop_str = '\n' + '\t' + 'stoptime'+' \"'+ data['globals']['stoptime']['value']+'\";'
-			end_str = '\n' + '}'
-			fw.write('\n\n// CLOCK')	
-			fw.write(header_str)
-			fw.write(tmzone_str)
-			fw.write(start_str)
-			fw.write(stop_str)
-			fw.write(end_str)
+			if not noclock : 
+				# clock
+				header_str = '\n' + 'clock {'
+				tmzone_str = '\n' + '\t' + 'timezone ' + data['globals']['timezone_locale']['value']+';'
+				start_str = '\n' + '\t' + 'starttime'+ ' \"' + data['globals']['starttime']['value']+'\";'
+				stop_str = '\n' + '\t' + 'stoptime'+' \"'+ data['globals']['stoptime']['value']+'\";'
+				end_str = '\n' + '}'
+				fw.write('\n\n// CLOCK')	
+				fw.write(header_str)
+				fw.write(tmzone_str)
+				fw.write(start_str)
+				fw.write(stop_str)
+				fw.write(end_str)
 
 			# modules
 			fw.write('\n\n// MODULES') 
@@ -111,7 +124,7 @@ def convert(ifile,ofile,json_type) :
 			# globals
 			fw.write('\n\n// GLOBALS')
 			for p_id, p_info in data['globals'].items() : 
-				if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id and "::" not in p_id: 
+				if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id and "::" not in p_id and p_id not in globals_ignore: 
 					ifndef_str = '\n' + '#ifndef ' + p_id 
 					if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or \
 					'enumeration' in p_info['type'] or p_info['value']=='NONE' or 'set' in p_info['type'] \
@@ -210,14 +223,15 @@ def convert(ifile,ofile,json_type) :
 					# print("CLASSNAME",classname,classdata)
 					fw.write(f"\nobject {classname}")
 					fw.write("\n{")
-					fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+					# fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
+					fw.write(f"\n\tname \"{obj_id_sorted}\";")
 					for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 						if v_id not in objects_ignore and v_info:
 							# print(v_id)
-							if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
-								v_str = v_info.replace(':','_')
-							else:
-								v_str = v_info.replace('"', '\\\"')
+							# if v_id in classdata and type(classdata[v_id]) is dict and classdata[v_id]['type'] == 'object':
+							# 	v_str = v_info.replace(':','_')
+							# else:
+							v_str = v_info.replace('"', '\\\"')
 							if '\n' in v_info :
 								var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
 							else : 

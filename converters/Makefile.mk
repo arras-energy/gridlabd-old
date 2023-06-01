@@ -2,8 +2,6 @@
 # INPUT CONVERTERS
 #
 
-python_requirements += converters/requirements.txt
-
 # csv -> glm
 dist_pkgdata_DATA += converters/csv-ami2glm-ceus.py
 dist_pkgdata_DATA += converters/csv-ami2glm-rbsa.py
@@ -76,6 +74,10 @@ dist_pkgdata_DATA += converters/json2zip.py
 # xls -> csv
 dist_pkgdata_DATA += converters/xls2csv.py
 dist_pkgdata_DATA += converters/xls-spida2csv-geodata.py
+
+# xlsx -> csv
+dist_pkgdata_DATA += converters/xlsx2csv.py
+dist_pkgdata_DATA += converters/xlsx-workbook2csv-table.py
 
 #
 # SUPPORT MODULES

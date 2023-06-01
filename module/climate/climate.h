@@ -157,7 +157,7 @@ class climate : public gld_object
 {
 	
 	// get_/set_ accessors for classes in this module only (non-atomic data need locks on access)
-	GL_STRING(char32,city); ///< the city
+	GL_STRING(char256,city); ///< the city
 	GL_ATOMIC(double,temperature); ///< the temperature (degF)
 	GL_ATOMIC(double,humidity); ///< the relative humidity (%)
 	GL_ATOMIC(double,wind_speed); ///< wind speed (m/s)

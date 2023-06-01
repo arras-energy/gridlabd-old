@@ -342,7 +342,7 @@ DEPRECATED void throwf(const char *format, ...)
 	char buffer[1024];
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(buffer,format,ptr);
+	vsnprintf(buffer,sizeof(buffer)-1,format,ptr);
 	va_end(ptr);
 	throw(buffer);
 }
@@ -554,18 +554,17 @@ int64 GldExec::clock(void)
 		return 0;
 	}
 	
-	static struct timeb t0;
-	struct timeb t1 = {0,0,0,0};
-	if ( t0.time == 0 )
+	static struct timeval t0 = {0,0};
+	struct timeval t1 = {0,0};
+	if ( t0.tv_sec == 0 )
 	{
-		ftime(&t0);
-		t1 = t0;
+		gettimeofday(&t0,NULL);
 	}
 	else
 	{
-		ftime(&t1);
+		gettimeofday(&t1,NULL);
 	}
-	return (t1.time-t0.time)*CLOCKS_PER_SEC + (t1.millitm-t0.millitm)*CLOCKS_PER_SEC/1000;
+	return (t1.tv_sec-t0.tv_sec)*CLOCKS_PER_SEC + (t1.tv_usec-t0.tv_usec)*CLOCKS_PER_SEC/1000000;
 }
 
 /** The main system initialization sequence
@@ -851,8 +850,14 @@ void GldExec::ss_do_object_sync(int thread, void *item)
 					convert_from_timestamp(global_clock,lastdate,sizeof(lastdate));
 				}
 				convert_from_timestamp(this_t<0?-this_t:this_t,syncdate,sizeof(syncdate));
-				if (obj->name==NULL) sprintf(objname,"%s:%d", obj->oclass->name, obj->id);
-				else strcpy(objname,obj->name);
+				if (obj->name==NULL) 
+				{
+					snprintf(objname,sizeof(objname)-1,"%s:%d", obj->oclass->name, obj->id);
+				}
+				else
+				{ 
+					strncpy(objname,obj->name,sizeof(objname)-1);
+				}
 				fprintf(fp,"%s,%s,%d,%d,%s,%s\n",lastdate,passname,global_iteration_limit-iteration_counter,thread,objname,syncdate);
 			}
 		}
@@ -3337,7 +3342,7 @@ void *GldExec::slave_node_proc(void *args)
 		return 0;
 	}
 
-	sprintf(response, HS_ACK);
+	snprintf(response,sizeof(response)-1, HS_ACK);
 	// send response
 	//	* see above
 	rv = send(masterfd, response, (int)strlen(response), 0);
@@ -3411,7 +3416,7 @@ void *GldExec::slave_node_proc(void *args)
 	if (tok_len > 0)
 	{
 		char temp[256];
-		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
+		snprintf(temp,sizeof(temp)-1, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 		memcpy(dirname, buffer+offset, (tok_len > sizeof(dirname) ? sizeof(dirname) : tok_len));
 	} else {
@@ -3435,7 +3440,7 @@ void *GldExec::slave_node_proc(void *args)
 		char temp[256];
 		memcpy(filename, buffer+offset, (tok_len > sizeof(filename) ? sizeof(filename) : tok_len));
 		filename[tok_len]=0;
-		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
+		snprintf(temp,sizeof(temp)-1, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 	} 
 	else 
@@ -3517,11 +3522,13 @@ void *GldExec::slave_node_proc(void *args)
 
 #ifdef WIN32
 	// write, system() --slave command
-	sprintf(filepath, "%s%s%s", dirname, (dirname[0] ? "\\" : ""), filename);
+	snprintf(filepath,sizeof(filepath)-1, "%s%s%s", dirname, (dirname[0] ? "\\" : ""), filename);
 	IN_MYCONTEXT output_debug("filepath = %s", filepath);
-	sprintf(ippath, "--slave %s:%d", addrstr, mtr_port);
+	char ippath[1024];
+	snprintf(ippath,sizeof(ippath)-1, "--slave %s:%d", addrstr, mtr_port);
 	IN_MYCONTEXT output_debug("ippath = %s", ippath);
-	sprintf(cmd, "%s%sgridlabd.exe %s --id %" FMT_INT64 "d %s %s",
+	char cmd[1024];
+	snprintf(cmd,sizeof(cmd)-1, "%s%sgridlabd.exe %s --id %" FMT_INT64 "d %s %s",
 		(global_execdir[0] ? global_execdir : ""), (global_execdir[0] ? "\\" : ""), params, id, ippath, filepath);//addrstr, mtr_port, filepath);//,
 	IN_MYCONTEXT output_debug("system(\"%s\")", cmd);
 
