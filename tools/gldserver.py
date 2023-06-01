@@ -143,17 +143,16 @@ class GldTimestamp(datetime.datetime):
 
         tz ()
     """
-    tz = None
+    tz = pytz.timezone("UTC")
     url = None
     fmt = "%Y-%m-%d %H:%M:%S %Z"
     def __new__(self,*args):
         dt = self.parse(*args)
-        return datetime.datetime.__new__(self,dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
+        return datetime.datetime.__new__(self,dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=dt.tzinfo)
 
     def __init__(self,*args):
         dt = self.parse(*args)
-        print(f"GldTimestamp.__init__({args}) --> {dt}",file=sys.stderr,flush=True)
-        datetime.datetime.__init__(dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
+        datetime.datetime.__init__(dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=dt.tzinfo,fold=dt.fold)
 
     def format(self,fmt=None):
         return self.strftime(fmt if fmt else self.fmt)
@@ -166,12 +165,10 @@ class GldTimestamp(datetime.datetime):
                 # breakpoint()
                 reply = requests.get(url)
                 if reply.status_code == 200:
-                    print(args[0],'-->',reply.status_code,reply.text,file=sys.stderr,flush=True)
-                    return datetime.datetime.fromtimestamp(int(reply.text))
-                print(args[0],'-->',reply.status_code,file=sys.stderr,flush=True)
+                    return datetime.datetime.fromtimestamp(int(reply.text),tz=self.tz)
                 return None
             elif type(args[0]) is int:
-                return datetime.datetime.fromtimestamp(args[0])
+                return datetime.datetime.fromtimestamp(args[0],tz=self.tz)
         else:
             return datetime.datetime(*args)
         exception("invalid date/time type")
@@ -367,6 +364,9 @@ if __name__ == "__main__":
 
         fh.write(f"""// created by {sys.argv} unittest on {datetime.datetime.now()}
 #option warn
+clock {{
+    timezone "PST+8PDT";
+}}
 #ifmissing 123.glm
 #model get IEEE/123
 #endif
@@ -380,12 +380,12 @@ if __name__ == "__main__":
         TMPFILE = fh.name
         class TestServer(unittest.TestCase):
 
-            # def test_detached(self):
-            #     """Verify that server can be started detached"""
-            #     fh.seek(0)
-            #     sim = GridlabdServer(fh.name,detached=True)
-            #     self.assertEqual(len(sim.get_objects("class=load")),85)
-            #     sim.stop()
+            def test_detached(self):
+                """Verify that server can be started detached"""
+                fh.seek(0)
+                sim = GridlabdServer(fh.name,detached=True)
+                self.assertEqual(len(sim.get_objects("class=load")),85)
+                sim.stop()
 
             def test_attached(self):
                 """Verify that server can be started attached"""
@@ -393,24 +393,24 @@ if __name__ == "__main__":
                 sim = GridlabdServer(fh.name,detached=False)
                 now = datetime.datetime.now(GldTimestamp.tz)
                 dt = sim.get_global("clock",astype=GldTimestamp)
-                self.assertEqual(dt.format(),now.strftime(GldTimestamp.fmt))
+                self.assertLess(dt-now,datetime.timedelta(seconds=2))
                 del sim
 
-            # def test_context(self):
-            #     """Verify that server can be started in a context"""
-            #     fh.seek(0)
-            #     with GridlabdServer(fh.name) as sim:
-            #         self.assertEqual(len(sim.get_objects("class=load")),85)
-            #         self.assertEqual(sim.get_property("node_14","bustype"),"SWING")
-            #         self.assertEqual(sim.get_property("node_14","voltage_A",astype=GldComplex).real,2401.78)
-            #         sim.set_property("load_1","constant_power_A",GldComplex(40000,20000))
-            #         time.sleep(2)
-            #         self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(40000,20000))
-            #         self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.8)
-            #         sim.set_property("load_1","constant_power_A",GldComplex(50000,25000))
-            #         time.sleep(2)
-            #         self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(50000,25000))
-            #         self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.5)
+            def test_context(self):
+                """Verify that server can be started in a context"""
+                fh.seek(0)
+                with GridlabdServer(fh.name) as sim:
+                    self.assertEqual(len(sim.get_objects("class=load")),85)
+                    self.assertEqual(sim.get_property("node_14","bustype"),"SWING")
+                    self.assertEqual(sim.get_property("node_14","voltage_A",astype=GldComplex).real,2401.78)
+                    sim.set_property("load_1","constant_power_A",GldComplex(40000,20000))
+                    time.sleep(2)
+                    self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(40000,20000))
+                    self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.8)
+                    sim.set_property("load_1","constant_power_A",GldComplex(50000,25000))
+                    time.sleep(2)
+                    self.assertEqual(sim.get_property("load_1","constant_power_A",astype=GldComplex),GldComplex(50000,25000))
+                    self.assertEqual(round(sim.get_property("load_1","voltage_A",astype=GldComplex).real,1),2384.5)
                     
         unittest.main()
     if TMPFILE and os.path.exists(TMPFILE):
