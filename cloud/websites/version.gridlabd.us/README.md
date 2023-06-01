@@ -28,6 +28,8 @@ The first route supports get requests using query string parameters. The second 
 
 When you run ```gridlabd --version```, it will automatically query the first route, which will log the version and branch. Then, if you are on one of the two major branches (develop or master), it will compare your version and build number to the latest official version. If your version is older, then it will warn you that you are out of date and will include the latest information along with your current version information.
 
+The first route can also be used to query version stats from the database. When using the default route, or the "by=version" query parameter, you can get the stats for all the specific version calls made. Additional grouping methods will be supported at a later date.
+
 The second route is intended to be used in the CI/CD process to update the officially published latest version of the develop and master branches. 
 
 However, it can be queried manually using curl. It will only store one entry for the latest version. If you attempt to update the latest version for any branch other than master or develop, you will receive a 400 error. 
@@ -41,6 +43,9 @@ To manually update the latest version:
 
 To manually check a version:
 ```curl -v "https://version.gridlabd.us/?v=4.3.1-230531&b=develop"```
+
+To get stats:
+```curl -v "https://version.gridlabd.us/"``` or ```curl -v "https://version.gridlabd.us/?by=version"```
 
 # Maintaining the lambda functions
 
