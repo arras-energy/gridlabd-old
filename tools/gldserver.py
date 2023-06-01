@@ -143,17 +143,16 @@ class GldTimestamp(datetime.datetime):
 
         tz ()
     """
-    tz = None
+    tz = pytz.timezone("UTC")
     url = None
     fmt = "%Y-%m-%d %H:%M:%S %Z"
     def __new__(self,*args):
         dt = self.parse(*args)
-        return datetime.datetime.__new__(self,dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
+        return datetime.datetime.__new__(self,dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=dt.tzinfo)
 
     def __init__(self,*args):
         dt = self.parse(*args)
-        print(f"GldTimestamp.__init__({args}) --> {dt}",file=sys.stderr,flush=True)
-        datetime.datetime.__init__(dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=self.tz)
+        datetime.datetime.__init__(dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,tzinfo=dt.tzinfo,fold=dt.fold)
 
     def format(self,fmt=None):
         return self.strftime(fmt if fmt else self.fmt)
@@ -166,12 +165,10 @@ class GldTimestamp(datetime.datetime):
                 # breakpoint()
                 reply = requests.get(url)
                 if reply.status_code == 200:
-                    print(args[0],'-->',reply.status_code,reply.text,file=sys.stderr,flush=True)
-                    return datetime.datetime.fromtimestamp(int(reply.text))
-                print(args[0],'-->',reply.status_code,file=sys.stderr,flush=True)
+                    return datetime.datetime.fromtimestamp(int(reply.text),tz=self.tz)
                 return None
             elif type(args[0]) is int:
-                return datetime.datetime.fromtimestamp(args[0])
+                return datetime.datetime.fromtimestamp(args[0],tz=self.tz)
         else:
             return datetime.datetime(*args)
         exception("invalid date/time type")
@@ -393,8 +390,7 @@ if __name__ == "__main__":
                 sim = GridlabdServer(fh.name,detached=False)
                 now = datetime.datetime.now(GldTimestamp.tz)
                 dt = sim.get_global("clock",astype=GldTimestamp)
-# TODO: this fails because GldTimestamp does not handle DST correctly
-#                 self.assertEqual(dt.format(),now.strftime(GldTimestamp.fmt))
+                self.assertLess(dt-now,datetime.timedelta(seconds=2))
                 del sim
 
             def test_context(self):
