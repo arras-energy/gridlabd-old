@@ -248,6 +248,6 @@ jobs:
         version=$(./build-aux/version.sh --version)
         build=$(./build-aux/version.sh --number)
         branch=$(./build-aux/version.sh --branch)
-        curl -f -X POST "https://version.gridlabd.us/update" \
+        curl -f -X POST "https://version.gridlabd.us/update_latest" \
           -H "Content-Type: application/json" \
           -d "{\"version\": \"$version\", \"build\": \"$build\", \"branch\": \"$branch\", \"sk\": \"${{ secrets.MASTERSK }}\"}"
