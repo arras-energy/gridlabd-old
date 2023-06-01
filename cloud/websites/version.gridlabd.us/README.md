@@ -1,8 +1,16 @@
+# Basic Deployment
+
 Version information is tracked in a deployed database. This information is updated and compared utilizing two different lambda routes, version_handler and update_latest. 
 
-The initial infrastructure is built and deployed using terraform. In order for the lambda functions to work out-of-the-box, you will need to install the package dependencies in the app folder. You can do this using the command below, however lambda functions run using intel processors. If you are on an m1 machine, you will need to run the pip install and terraform deployment from an intel ec2 instance, or run the terraform deployment and then run the deploy-images github actions workflow to update the lambda function with the pip requirements installed into the lambda package.
+The initial infrastructure is built and deployed using terraform. The terraform code has been prepared for you in the terraform directory.
+
+In order for the lambda functions to work out-of-the-box, you will need to install the package dependencies in the app folder. You can do this using the command below, called from the repository root directory, however lambda functions run using intel processors. 
+
+If you are on an m1 machine, you will need to run the pip install and terraform deployment on an intel ec2 instance, or run the terraform deployment and then run the deploy-images github actions workflow to update the lambda function with the pip requirements installed into the lambda package.
 
 ```pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda/package```
+
+To deploy the lambda functions, you will need to change into the terraform directory. If you have not already done so, make sure you have terraform installed, and your aws profile properly configured. If you have multiple AWS profiles, make sure to export the correct profile in the command line. Then, run ```terraform plan``` if you want to pre-check the resources being created, and ```terraform apply``` to deploy the resources.
 
 # Post-Deployment
 
