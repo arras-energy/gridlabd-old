@@ -62,7 +62,8 @@ def get_db_connection():
 def fetch_stats(cursor, group_by):
     if group_by == 'version':
         cursor.execute("""
-            SELECT version || '-' || build as full_version, COUNT(*) FROM versionChecks GROUP BY full_version;
+            SELECT version || '-' || build || '-' || branch as full_version_branch, COUNT(*) 
+            FROM versionChecks GROUP BY full_version_branch;
         """)
     else:
         cursor.execute(f"""
@@ -71,8 +72,6 @@ def fetch_stats(cursor, group_by):
     result = cursor.fetchall()
     stats = {k: v for k, v in result}
     return stats
-
-
 
 def version_handler(event, context):
     try:
