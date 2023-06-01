@@ -364,6 +364,9 @@ if __name__ == "__main__":
 
         fh.write(f"""// created by {sys.argv} unittest on {datetime.datetime.now()}
 #option warn
+clock {{
+    timezone "PST+8PDT";
+}}
 #ifmissing 123.glm
 #model get IEEE/123
 #endif
