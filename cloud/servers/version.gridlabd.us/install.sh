@@ -1,6 +1,6 @@
 # EC2 server build script
 #
-# See github:/slacgismo/gridlabd/cloud/servers/version.gridlabd.us/README.md for details
+# See github:/arras-energy/gridlabd/cloud/servers/version.gridlabd.us/README.md for details
 
 #
 # Clone gridlabd

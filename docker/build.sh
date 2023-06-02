@@ -14,7 +14,7 @@
 ##     			performed first
 ##
 ##   --release  Release the resulting image as the latest version of
-##    			slacgismo/gridlabd. The master branch is released
+##    			arras-energy/gridlabd. The master branch is released
 ##    			as 'latest'. Otherwise the branch name is used as the tag name.
 ## 
 error () { echo "ERROR [docker/build.sh]: $*" ; exit 1; }
@@ -54,7 +54,7 @@ if [ "$DOLATEST" = "yes" ]; then
 	if [ "$BRANCH" = "master" ]; then
 		BRANCH="latest"
 	fi
-	IMAGE="slacgismo/gridlabd-$(build-aux/version.sh --machine)"
+	IMAGE="arras-energy/gridlabd-$(build-aux/version.sh --machine)"
 	docker tag "$NAME:$TAG" "$IMAGE:$BRANCH" || error "tag latest failed"
 	if [ "$DOPUSH" = "yes" ]; then
 		docker push "$IMAGE:$BRANCH" || error "push latest failed"

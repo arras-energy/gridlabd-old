@@ -8,13 +8,13 @@ This is the last release of HiPAS GridLAB-D before it is transferred to LF Energ
 
 | Repository | Build | Deploy |
 | :---: | :---: | :---: |
-| [GridLAB-D](https://github.com/slacgismo/gridlabd) | ![master](https://github.com/slacgismo/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop) | [![master-images](https://github.com/slacgismo/gridlabd/actions/workflows/master-image.yml/badge.svg)](https://github.com/slacgismo/gridlabd/actions/workflows/master-image.yml) [![develop-images](https://github.com/slacgismo/gridlabd/actions/workflows/develop-image.yml/badge.svg)](https://github.com/slacgismo/gridlabd/actions/workflows/develop-image.yml) |
-| [Templates](https://github.com/slacgismo/gridlabd-template) | [![master](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/master.yml) [![develop](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-template/actions/workflows/develop.yml)
-| [Weather](https://github.com/slacgismo/gridlabd-weather) | [![validate](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-weather/actions/workflows/validate.yml)
-| [Library](https://github.com/slacgismo/gridlabd-library) | [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/master.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/master.yml) [![validate](https://github.com/slacgismo/gridlabd-library/actions/workflows/develop.yml/badge.svg)](https://github.com/slacgismo/gridlabd-library/actions/workflows/develop.yml)
-| [Models](https://github.com/slacgismo/gridlabd-models) | [![validate](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/slacgismo/gridlabd-models/actions/workflows/validate.yml)
-| [Benchmarks](https://github.com/slacgismo/gridlabd-benchmarks) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-benchmarks/blob/main/README.md))
-| [Examples](https://github.com/slacgismo/gridlabd-examples) | Manual test (see [README.md](https://github.com/slacgismo/gridlabd-examples/blob/master/README.md))
+| [GridLAB-D](https://github.com/arras-energy/gridlabd) | ![master](https://github.com/arras-energy/gridlabd/actions/workflows/master.yml/badge.svg?branch=master) ![develop](https://github.com/arras-energy/gridlabd/workflows/develop/badge.svg?branch=develop) | [![master-images](https://github.com/arras-energy/gridlabd/actions/workflows/master-image.yml/badge.svg)](https://github.com/arras-energy/gridlabd/actions/workflows/master-image.yml) [![develop-images](https://github.com/arras-energy/gridlabd/actions/workflows/develop-image.yml/badge.svg)](https://github.com/arras-energy/gridlabd/actions/workflows/develop-image.yml) |
+| [Templates](https://github.com/arras-energy/gridlabd-template) | [![master](https://github.com/arras-energy/gridlabd-template/actions/workflows/master.yml/badge.svg)](https://github.com/arras-energy/gridlabd-template/actions/workflows/master.yml) [![develop](https://github.com/arras-energy/gridlabd-template/actions/workflows/develop.yml/badge.svg)](https://github.com/arras-energy/gridlabd-template/actions/workflows/develop.yml)
+| [Weather](https://github.com/arras-energy/gridlabd-weather) | [![validate](https://github.com/arras-energy/gridlabd-weather/actions/workflows/validate.yml/badge.svg)](https://github.com/arras-energy/gridlabd-weather/actions/workflows/validate.yml)
+| [Library](https://github.com/arras-energy/gridlabd-library) | [![validate](https://github.com/arras-energy/gridlabd-library/actions/workflows/master.yml/badge.svg)](https://github.com/arras-energy/gridlabd-library/actions/workflows/master.yml) [![validate](https://github.com/arras-energy/gridlabd-library/actions/workflows/develop.yml/badge.svg)](https://github.com/arras-energy/gridlabd-library/actions/workflows/develop.yml)
+| [Models](https://github.com/arras-energy/gridlabd-models) | [![validate](https://github.com/arras-energy/gridlabd-models/actions/workflows/validate.yml/badge.svg)](https://github.com/arras-energy/gridlabd-models/actions/workflows/validate.yml)
+| [Benchmarks](https://github.com/arras-energy/gridlabd-benchmarks) | Manual test (see [README.md](https://github.com/arras-energy/gridlabd-benchmarks/blob/main/README.md))
+| [Examples](https://github.com/arras-energy/gridlabd-examples) | Manual test (see [README.md](https://github.com/arras-energy/gridlabd-examples/blob/master/README.md))
 
 
 The documentation for this project is located at http://docs.gridlabd.us/.
@@ -25,18 +25,18 @@ This respository contains the source code to HiPAS GridLAB-D, which is being dev
 
 # Quick start using Docker
 
-The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/slacgismo/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the master image from docker hub (see https://hub.docker.com/repository/docker/arras-energy/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 
 ~~~
-docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
+docker run -it -v $PWD:/model arras-energy/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
 ~~~ 
 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 
 ~~~
-alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
+alias gridlabd='docker run -it -v $PWD:/tmp arras-energy/gridlabd:latest gridlabd'
 ~~~
 
 Note that this alias will interfere with any host-based installation. You may use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
@@ -103,7 +103,7 @@ If you want to clone an alternate repository, use the following `git` command in
 git clone https://github.com/ORG/REPO [-b BRANCH] gridlabd
 ~~~
 
-If you do not specify the `--local` then by default the `setup.sh` source will match the `git` repository origin and branch if any. Otherwise the default source will be `slacgismo/gridlabd/master`. If you want to setup from a different origin, use the command `export GRIDLABD_ORIGIN=ORG/REPO/BRANCH` to specify an alternate source for `setup.sh`.  The `build.sh` will also match the current `git` repository.
+If you do not specify the `--local` then by default the `setup.sh` source will match the `git` repository origin and branch if any. Otherwise the default source will be `arras-energy/gridlabd/master`. If you want to setup from a different origin, use the command `export GRIDLABD_ORIGIN=ORG/REPO/BRANCH` to specify an alternate source for `setup.sh`.  The `build.sh` will also match the current `git` repository.
 
 *Do not* run the `setup.sh` and `build.sh` scripts with `sudo`, as that will usually create a broken install. If necessary, you should give yourself permission to write `/usr/local` and `brew`'s install folder. If you have not already done so, add `brew` to your path.
 

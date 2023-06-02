@@ -15,7 +15,7 @@ GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 if [ "${ORGANIZATION}" == "" ]; then
     export ORGANIZATION="US/CA/SLAC"
 fi
-GITUSER=slacgismo
+GITUSER=arras-energy
 GITREPO="gridlabd-template"
 GITBRANCH="master"
 DATADIR="$GLD_ETC/template/$ORGANIZATION"
