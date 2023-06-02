@@ -10,7 +10,7 @@ if [ $# -eq 0 ]; then
 fi
 
 GITBRANCH=master
-GITUSER=slacgismo
+GITUSER=arras-energy
 GITREPO=gridlabd-models
 VERSION=4
 
@@ -62,7 +62,7 @@ elif [ $1 == 'index' ]; then
     if [ $# -eq 2 ]; then
         PATTERN=$2
     fi
-    curl -sL https://api.github.com/repos/slacgismo/gridlabd-models/git/trees/master\?recursive=1 | gridlabd json-get tree path -c | grep '\.glm$' | grep ^gridlabd-$VERSION/$PATTERN | sed -e 's/\.glm$//;s/gridlabd-[0-9]\///'
+    curl -sL https://api.github.com/repos/arras-energy/gridlabd-models/git/trees/master\?recursive=1 | gridlabd json-get tree path -c | grep '\.glm$' | grep ^gridlabd-$VERSION/$PATTERN | sed -e 's/\.glm$//;s/gridlabd-[0-9]\///'
     exit 0
 elif [ $1 == 'help' ]; then
     echo "Syntax: gridlabd model SUBCOMMAND [ARGS...]"

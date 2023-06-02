@@ -12,7 +12,7 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
-#define GITHUB_ORG "slacgismo"
+#define GITHUB_ORG "arras-energy"
 
 #include "version.h"
 #include "build.h"
