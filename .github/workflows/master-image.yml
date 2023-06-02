@@ -152,6 +152,11 @@ jobs:
     - name: Run CF invalidation
       run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PROD_CF_ID }} --paths '/*'
 
+    - name: Set output
+      run: |
+        echo "VERSION=Arras Energy HiPAS GridLAB-D $(./build-aux/version.sh --version)" >> $GITHUB_ENV
+        echo "TAGNAME=gridlabd/$(./build-aux/version.sh --version)-$(./build-aux/version.sh --number)-$(./build-aux/version.sh --branch)" >> $GITHUB_ENV
+
     - name: Install Packer
       run: |
         wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
@@ -169,6 +174,8 @@ jobs:
           -var "aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
           -var "aws_region=${{ secrets.AWS_REGION }}" \
           -var "prod_s3_url=${{ secrets.PROD_S3_URL }}" \
+          -var "version=${{ env.VERSION }}" \
+          -var "tagname=${{ env.TAGNAME }}" \
           ./docker/packer/prod.pkr.hcl
 
   buildUbuntuDockerhub:
@@ -184,7 +191,7 @@ jobs:
     - name: Set output
       run: |
         echo "VERSION=$(./build-aux/version.sh --version)" >> $GITHUB_ENV
-        
+
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:

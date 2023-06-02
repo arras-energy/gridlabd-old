@@ -13,7 +13,7 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: slacgismo/gridlabd:master
+    container: arras-energy/gridlabd:master
 
     steps:
     - uses: actions/checkout@v3
@@ -50,7 +50,7 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: slacgismo/gridlabd:master
+    container: arras-energy/gridlabd:master
 
     steps:
     - uses: actions/checkout@v3
