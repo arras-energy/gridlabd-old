@@ -10,24 +10,23 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd_base:220921
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Update python3 modules
-      run: pip3 install -r requirements.txt
-    - name: Install openfido
-      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
-    - name: Run autoconf
-      run: autoreconf -isf
-    - name: Configure build
-      run: ./configure
+    - uses: actions/checkout@v3
+
+    - name: Setup system
+      run: sudo ./setup.sh --local
+
     - name: Build gridlabd
-      run: make -j10 system
-    - name: Validate build
-      run: |
-        gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( utilities/save_validation_errors ; false )
-    - name: Upload artifacts
+      run: sudo ./build.sh --system --parallel
+
+    - name: Install openfido
+      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | sudo sh
+      
+    - name: Validate system
+      run: sudo gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( sudo utilities/save_validation_errors ; false )
+        
+    - name: Upload artifacts on failure
       uses: actions/upload-artifact@v2
       if: failure()
       with:

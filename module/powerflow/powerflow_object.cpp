@@ -84,7 +84,6 @@
 
 #include "powerflow.h"
 #include <time.h>
-using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_object CLASS FUNCTIONS

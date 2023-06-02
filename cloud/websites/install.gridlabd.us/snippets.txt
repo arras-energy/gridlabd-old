@@ -1,12 +1,11 @@
 
-
 ### Python modules should start without a hashbang, and instead use the below code without the #s. 
 ### This essentially makes the file swap dynamically to the calling gridlabd version's python3, and
 ### doesn't create a loop or syntax issues, allowing the file to operate like a proper python file.
 ### See gridlabd-convert as an example. 
 
 ''':'
-exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
 ### Some good variables to know:

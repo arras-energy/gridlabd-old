@@ -1,20 +1,15 @@
-FROM hipas/gridlabd_base:230119
+FROM ubuntu:22.04
 
+ARG GRIDLABD_ORIGIN
 
 ENV container docker
-ENV REPO=https://github.com/slacgismo/gridlabd
-ARG BRANCH
-RUN echo "Building $BRANCH"
-ENV ENABLE=gismo
-ENV GET_WEATHER=no
-ENV REMOVE_SOURCE=yes
-ARG RUN_VALIDATION
-ENV LD_LIBRARY_PATH /usr/local/opt/gridlabd/lib
+ENV github_actions yes
 
+EXPOSE 6266-6299/tcp
 
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
+
 COPY gridlabd.sh /tmp/
 RUN chmod +wx *.sh
-RUN bash gridlabd.sh
-EXPOSE 6266-6299/tcp
+RUN sh gridlabd.sh

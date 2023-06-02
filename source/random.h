@@ -49,7 +49,7 @@ struct s_correlation {
 #ifdef __cplusplus
 extern "C" {
 #endif
-	int random_init(void);
+	void random_init(const char *name,const char *value);
 	int random_test(void);
 	int randwarn(unsigned int *state);
 	void random_key(unsigned long long *ptr, size_t len);

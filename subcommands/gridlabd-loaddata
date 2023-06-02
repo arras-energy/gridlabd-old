@@ -1,0 +1,432 @@
+''':'
+exec "${GLD_BIN:-/usr/local/opt/gridlabd/current}/python3" "$0" "$@"
+:' '''
+
+__doc__ = """Syntax: gridlabd loaddata [OPTIONS]
+
+Downloads building load data from the NREL ResStock and ComStock data lakes. 
+
+Options
+-------
+
+	-a|--area=SF 			Building floor area (commercial buildings only), e.g., 10000
+	-b|--building_type=TYPE Building type, e.g., "APARTMENT", "CONDO", "HOUSE", "TOWNHOUSE"
+	-c|--customer_type=CUST Customer type, e.g., "RESIDENTIAL", "COMMERCIAL"
+	-e|--enduse[=ENDUSE]    Enduse name, e.g., "total", none prints list
+	-f|--fuels=FUELS 		List of fuels, e.g., "electric,natural_gas"
+	-g|--glmname=GLMFILE    GridLAB-D model file name, e.g., "loadmodel.glm"
+	-n|--name=OBJNAME       GridLAB-D load object name, e.g., "my_load"
+	-o|--output=FILENAME    Output data file name, e.g., "loaddata.csv", "loaddata.json"
+	-p|--precision=INT 		Output precision, e.g., 4
+	-r|--release=RELEASE 	Dataset release, e.g., "1.1"
+	-s|--state=STATE        State, e.g., "CA"
+	-t|--timestep=TIMESTEP  Timeseries resolution, e.g., "1H", "1D", "1W", etc.
+	-u|--upgrade=LEVEL      Building upgrade, e.g.. 0 through 10
+	-v|--version=YEAR 		Dataset version, e.g., 2021, 2022, 2023
+	-w|--weather=WEATHER	Weather type, e.g., "ACTUAL", "TYPICAL"
+	-y|--year=YEAR 			Actual weather year, e.g., 2012, 2018
+
+Description
+-----------
+
+Electric enduse units are in kWh/sf for commercial buildings and kWh for
+residential buildings. All fossil enduse units are in kBtu/sf or kBtu. If
+floor area is specified for commercial buildings, then all values are in kWh
+or kBtu.
+
+If a GLM file is generated, then the object name specified is used as the player's
+parent object. If the object name is omitted, then the the player is given a random
+object name, which is appended to the global `LOADDATA`.
+
+The player's start and stop time are stored in the global variables `{objname}_starttime`
+and `{objname}_stoptime`.
+
+If fuels, enduse, or building_type are omitted, then a list of the available
+values is output to /dev/stdout.
+
+See https://data.openei.org/submissions/4520 for details on available
+datasets, versions, building types, upgrades, etc.
+
+Examples
+-------
+
+Total load electric data for a house in California
+
+	$ gridlabd loaddata -b=HOUSE -r=1.1 -s=CA -v=2022 -w=ACTUAL -y=2018 -e=total -f=electricity
+
+Hourly heating demand for electric and natural gas for a 100,000 sf hotel in California:
+
+	$ gridlabd loaddata -s=CA -r=1 -v=2023 -w=ACTUAL -y=2018 -b=HOTEL -e=cooling -f=electricity,natural_gas -t=1H -a=100000
+
+"""
+import os, sys
+import requests
+import pandas
+from datetime import datetime
+import random
+
+DEBUG = False
+QUIET = False
+VERBOSE = False
+WARNING = False
+DATADIR = os.path.join(os.environ["GLD_ETC"] 
+	if "GLD_ETC" in os.environ else "/usr/local/opt/gridlabd/current/share/gridlabd",
+	"loaddata")
+BUILDINGTYPE = {
+	"APARTMENT" : "multi-family_with_5plus_units", 
+	"CONDO" : "multi-family_with_2_-_4_units", 
+	"FASTFOOD" : "quickservicerestaurant",
+	"HOUSE" : "single-family_detached", 
+	"LARGEHEALTHCARE" : "hospital",
+	"LARGEOFFICE" : "largeoffice",
+	"LARGERETAIL" : "retailstripmall",
+	"LARGESCHOOL" : "secondaryschool",
+	"HOTEL" : "largehotel",
+	"MEDIUMOFFICE" : "mediumoffice",
+	"MOTEL" : "smallhotel",
+	"RESTAURANT" : "fullservicehrestaurant",
+	"SMALLHEALTHCARE" : "outpatient",
+	"SMALLRETAIL" : "retailstandalone",
+	"SMALLOFFICE" : "smalloffice",
+	"SMALLSCHOOL" : "primaryschool",
+	"TOWNHOUSE" : "single-family_attached",
+	"WAREHOUSE" : "warehouse",
+}
+DATASET = {
+	"APARTMENT" : "resstock", 
+	"CONDO" : "resstock", 
+	"FASTFOOD" : "comstock",
+	"HOUSE" : "resstock", 
+	"LARGEHEALTHCARE" : "comstock",
+	"LARGEOFFICE" : "comstock",
+	"LARGERETAIL" : "comstock",
+	"LARGESCHOOL" : "comstock",
+	"HOTEL" : "comstock",
+	"MEDIUMOFFICE" : "comstock",
+	"MOTEL" : "comstock",
+	"RESTAURANT" : "comstock",
+	"SMALLHEALTHCARE" : "comstock",
+	"SMALLRETAIL" : "comstock",
+	"SMALLOFFICE" : "comstock",
+	"SMALLSCHOOL" : "comstock",
+	"TOWNHOUSE" : "resstock",
+	"WAREHOUSE" : "comstock",
+}
+assert(list(BUILDINGTYPE.keys())==list(DATASET.keys()))
+WEATHERTYPE = {
+	"ACTUAL" : "amy{year}",
+	"TYPICAL" : "tmy3",
+}
+URL = "https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock"
+EST = -5 # NREL data is always EST regardless of where the building is
+PRECISION = 4
+FUELS = {
+	"electricity" : "ELECTRIC",
+	"natural_gas" : "GAS",
+	"propane" : "PROPANE",
+	"fuel_oil" : "OIL",
+}
+UNITS = {
+	'kwh' : 1.0,
+	'kbtu' : 3.412,
+}
+
+def get_loaddata(version,weather,year,release,state,building_type,
+		upgrade=0,enduse=None,fuels=None,group=None,area=None):
+	"""Arguments:
+	version (str) - dataset versions are the year of the release
+	weather (str) - weather is either "ACTUAL" or "TYPICAL"
+	year (int) - year is required when using "ACTUAL", i.e., 2012, 2018
+	release (str) - release ID, i.e., "1", or "1.1"
+	state (str) - state code, e.g., "CA"
+	building_type (str) - building type, e.g., "HOUSE","CONDO", etc. 
+		None returns a list of known building types
+	upgrade (int) - building code upgrade 0=NONE, 10=ALL
+	enduse (str) - enduse load, or "total".
+		None returns a list of known enduses
+	fuels (str) - list of desired fuels, e.g., "electricity", "natural_gas".
+		None returns a list of known fuels
+	group (str) - timeseries grouping frequency. See pandas.Grouper for details.
+	"""
+	dataset = f"{DATASET[building_type]}_{WEATHERTYPE[weather].format(year=year)}_release_{release}"
+	path = os.path.join(DATADIR,dataset,version,state)
+	file = os.path.join(path,f"{BUILDINGTYPE[building_type]}-{upgrade:02d}.csv")
+	if not area is None and DATASET[building_type] == 'resstock':
+		error("floor area cannot be specified for residential buildings",E_INVALID)
+	elif DATASET[building_type] == 'comstock' and ( not type(area) is float or area <= 0.0 ):
+		error("floor area must be a positive real number",E_INVALID)
+	if not os.path.exists(file):
+		url = os.path.join(URL,version,dataset,f"timeseries_aggregates/by_state/upgrade={upgrade}",f"state={state.upper()}",f"up{upgrade:02d}-{state.lower()}-{BUILDINGTYPE[building_type]}.csv")
+		verbose(f"downloading {url}")
+		reply = requests.get(url)
+		if reply.status_code == 200:
+			verbose(f"caching {file}")
+			os.makedirs(path,exist_ok=True)
+			with open(file,"w") as fh:
+				fh.write(reply.text)
+		else:
+			error(f"requests.get('{url}') failed with code {reply.status_code}",E_FAILED)
+	verbose(f"reading {file}")
+	if enduse is None or fuels is None:
+		return pandas.read_csv(file,
+				index_col = ['timestamp'],
+				parse_dates = ['timestamp'],
+				)
+	byunits = ('units_represented' if DATASET[building_type] == "resstock" else 'floor_area_represented')
+	columns = ['timestamp',byunits]
+	columns.extend([f'out.{x}.{enduse}.energy_consumption.kwh' for x in fuels])
+	data = pandas.read_csv(file,
+		index_col = ['timestamp'],
+		parse_dates = ['timestamp'],
+		usecols = columns,
+		)
+	verbose(f"processing fields {','.join(columns[2:])}")
+	for field in columns[2:]:
+		units = field.split('.')[-1]
+		data[field] = data[field] / data[byunits] / (UNITS[units] / (area if type(area) is float else 1.0))
+	data.drop(byunits,axis=1,inplace=True)
+	data.columns = fuels
+	data.index = data.index + pandas.Timedelta(hours=EST)
+	if group:
+		verbose("grouping timeseries with freq {freq} and offset {offset}".format(freq=group,offset=f"{EST}h"))
+		return data.groupby(pandas.Grouper(freq=group,offset=f"{EST}h")).sum()
+	else:
+		return data
+
+# error handling
+E_OK = 0
+E_INVALID = 1
+E_MISSING = 2
+E_SYNTAX = 3
+E_FAILED = 4
+E_EXCEPTION = 9
+EXITCODE = E_OK
+
+class LoaddataError(Exception):
+	pass
+
+def error(msg,code):
+	assert(type(code) is int)
+	global EXITCODE
+	EXITCODE = code
+	raise LoaddataError(msg)
+
+def warning(msg):
+	if not WARNING:
+		print(f"WARNING [{os.path.basename(sys.argv[0])}]:",msg,file=sys.stderr)
+
+def verbose(msg):
+	if VERBOSE:
+		print(f"VERBOSE [{os.path.basename(sys.argv[0])}]:",msg,file=sys.stderr)
+
+if __name__ == "__main__":
+
+	if len(sys.argv) == 1:
+		print(__doc__.split("\n")[0],file=sys.stderr)
+		exit(E_SYNTAX)
+
+	area = None
+	building_type = None
+	enduse = None
+	fuels = None
+	glmname = None
+	objname = None
+	output = None
+	release = None
+	state = None
+	timestep = None
+	upgrade = 0
+	version = None
+	weather = None
+	year = None
+
+	for arg in sys.argv[1:]:
+		specs = arg.split('=')
+		if len(specs) > 1:
+			tag = specs[0]
+			value = '='.join(specs[1:])
+		else:
+			tag = arg
+			value = True
+		try:
+			if tag in ['-a','--area']:
+				area = float(value)
+			elif tag in ['-b','--building_type']:
+				building_type = value
+			elif tag in ['-d','--dataset']:
+				dataset = value
+			elif tag in ['-e','--enduse']:
+				enduse = value
+			elif tag in ['-f','--fuels']:
+				fuels = value.split(",")
+			elif tag in ['-g','--glmname']:
+				glmname = value
+			elif tag in ['-h','--help','help']:
+				print(__doc__)
+				exit(E_OK)
+			elif tag in ['-n','--name']:
+				objname = value
+			elif tag in ['-o','--output']:
+				output = value
+			elif tag in ['-p','--precision']:
+				PRECISION = int(value)
+			elif tag in ['-r','--release']:
+				release = value
+			elif tag in ['-s','--state']:
+				state = value
+			elif tag in ['-t','--timestep']:
+				timestep = value
+			elif tag in ['-u','--upgrade']:
+				upgrade = int(value)
+			elif tag in ['-v','--version']:
+				version = value
+			elif tag in ['-w','--weather']:
+				weather = value
+			elif tag in ['-y','--year']:
+				year = int(value)
+			elif tag == '--quiet':
+				QUIET = True
+			elif tag == '--verbose':
+				VERBOSE = True
+			elif tag == '--warning':
+				WARNING = True
+			elif tag == '--debug':
+				DEBUG = True
+			else:
+				error(f"option '{arg}' is invalid",E_INVALID)
+		except KeyError as err:
+			error(f"{err} is invalid",E_INVALID)
+
+	if release is None:
+		error("missing release",E_MISSING)
+	if state == None:
+		error("missing state",E_MISSING)
+	if upgrade == None:
+		error("missing upgrade",E_MISSING)
+	if version == None:
+		error("missing version",E_MISSING)
+	if weather == None:
+		error("missing weather type",E_MISSING)
+	if weather == "ACTUAL" and year == None:
+		error("missing year",E_MISSING)
+
+	try:
+		if building_type is None:
+			print("building_type")
+			for item in BUILDINGTYPE:
+				print(item)
+		elif enduse is None:
+			data = get_loaddata(
+				version = version,
+				weather = weather,
+				year = year,
+				release = release,
+				state = state,
+				building_type = building_type,
+				upgrade = upgrade,
+				group = timestep,
+				area = area
+				)
+			result = []
+			for item in data.columns:
+				if item.startswith('out'):
+					spec = item.split('.')[2]
+					if spec not in result:
+						result.append(spec)
+			print("enduse")
+			print('\n'.join(sorted(result)))
+		elif fuels is None:
+			data = get_loaddata(
+				version = version,
+				weather = weather,
+				year = year,
+				release = release,
+				state = state,
+				building_type = building_type,
+				upgrade = upgrade,
+				group = timestep,
+				area = area
+				)
+			result = []
+			for item in data.columns:
+				if item.startswith('out'):
+					spec = item.split('.')[1]
+					if spec not in result:
+						result.append(spec)
+			print("fuels")
+			print('\n'.join(sorted(result)))
+		else:
+			data = get_loaddata(
+				version = version,
+				weather = weather,
+				year = year,
+				release = release,
+				state = state,
+				building_type = building_type,
+				upgrade = upgrade,
+				fuels = fuels,
+				enduse = enduse,
+				group = timestep,
+				area = area
+				)
+			if glmname:
+				if not output.endswith(".csv"):
+					error("cannot write GLM for output other than CSV",E_INVALID)
+				verbose(f"writing {glmname}")
+				if not objname:
+					guid = 'loaddata_'+hex(random.randint(1e30,1e31))[2:]
+				with open(glmname,"w") as glm:
+					glm.write(f"""// Generated by "gridlabd loaddata {' '.join(sys.argv[1:])}" at {datetime.now()}
+#define {objname if objname else guid}_starttime={data.index.min()}
+#define {objname if objname else guid}_stoptime={data.index.max()}
+#ifdef LOADDATA
+#set ${{LOADDATA}}=${{LOADDATA}} {objname if objname else guid}
+#else
+#define ${{LOADDATA}}={objname if objname else guid}
+#endif
+module tape;
+object player
+{{
+	{"parent" if objname else "name"} "{objname if objname else guid}";
+	file "{output}";
+	property "{','.join(data.columns)}";
+}}
+""")
+			if output is None:
+				pandas.options.display.max_rows = None
+				pandas.options.display.max_columns = None
+				pandas.options.display.max_colwidth = None
+				pandas.options.display.expand_frame_repr = False
+				pandas.options.display.float_format = f"{{:,.{PRECISION}f}}".format
+				print(data)
+			elif output.endswith(".csv"):
+				verbose(f"writing {output}")
+				data.to_csv(output,float_format=f"%.{PRECISION}f")
+			elif output.endswith(".json"):
+				verbose(f"writing {output}")
+				data.to_json(output,double_precision=PRECISION,date_format='iso',indent=4)
+			elif output.endswith(".html"):
+				verbose(f"writing {output}")
+				data.to_html(output,float_format=f"%.{PRECISION}f")
+			else:
+				error(f"output format is unknown",E_INVALID)
+
+	except LoaddataError as err:
+	
+		if not QUIET:
+			print(f"ERROR [{os.path.basename(sys.argv[0])}]: {err}", file=sys.stderr)
+	
+	except BrokenPipeError:
+
+		pass
+
+	except:
+	
+		if DEBUG:
+			raise
+		e_type,e_value,e_trace = sys.exc_info()
+		if not QUIET:
+			print(f"EXCEPTION [{os.path.basename(sys.argv[0])}@{e_trace.tb_lineno}]: {e_type.__name__} {e_value}", file=sys.stderr)
+		EXITCODE = E_EXCEPTION
+	
+	exit(EXITCODE)

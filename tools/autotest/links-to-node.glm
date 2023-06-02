@@ -1,0 +1,80 @@
+
+clock{
+     timezone PST+8PDT;
+     timestamp '2023-01-01 0:00:00';
+     stoptime '2023-01-02 0:00:00';
+}
+module powerflow
+{
+     solver_method NR;
+}
+module assert;
+module tape;
+
+//////////////// Scenario 4: Load link to meter ////////////////
+
+object node 
+{
+     name main_bus;
+     phases "ABCN";
+     bustype SWING;
+     nominal_voltage 2401.7771;
+}
+
+object regulator_configuration:4384 {
+     Control OUTPUT_VOLTAGE;
+     band_center 7216.0;
+     band_width 120;
+     connect_type WYE_WYE;
+     time_delay 30;
+     raise_taps 16;
+     lower_taps 16;
+     regulation 0.10;
+     tap_pos_A 0;
+     tap_pos_B 0;
+     tap_pos_C 0;
+}
+
+object regulator {
+     name reg_1;
+     from main_bus;
+     to load1;
+     phases ABCN;
+     configuration regulator_configuration:4384;
+}
+
+object meter {
+     name meter_1;
+     phases ABCN;
+     nominal_voltage 7216.88; 
+     voltage_A 7216.88+0.0j;
+     voltage_B -3608.44-6250j;
+     voltage_C -3608.44+6250j;
+     object assert{
+          target measured_real_power;
+          value +400000;
+          within 1;
+     };
+     object assert{
+          target measured_reactive_power;
+          value +290000;
+          within 1;
+     };
+
+}
+
+object load 
+{
+     name load1;
+     parent meter_1;
+     phases "ABCN";
+     constant_power_A 160000+110000j;
+     constant_power_B 120000+90000j;
+     constant_power_C 120000+90000j;
+     nominal_voltage 2401.7771;
+}
+
+
+
+
+

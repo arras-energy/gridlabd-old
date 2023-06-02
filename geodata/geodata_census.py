@@ -1,24 +1,81 @@
 """GridLAB-D US Geodata Census Package
 
-The census geodata package delivery US census data by zipcode or census tract.  The following
-data is available:
+The census geodata package delivery US census data by zipcode or census tract.  By default only
+the state code (STUSPS) and zipcode (ZCTA5CE10) fields are returned.
 
-    index
-    REGION
-    DIVISION
-    STATEFP
-    STATENS
-    GEOID
-    STUSPS
-    NAME
-    LSAD
-    MTFCC
-    FUNCSTAT
-    ALAND
-    AWATER
-    INTPTLAT
-    INTPTLON
-    geometry
+
+INPUTS:
+
+    latitude - the latitude field (required)
+
+    longitude - the longitude field (required)
+
+OUTPUTS:
+
+    index - unique identifier for the record
+
+    geometry - geometry of the record
+
+    ALAND - land area for the record
+
+    AWATER - water aread for the record
+
+    DIVISION - census record division name
+
+    FUNCSTAT - census record functional status code
+
+    GEOID - census record geographic id
+
+    INTPTLAT - census record internal point latitude 
+
+    INTPTLON - census record internal point longitude
+
+    LSAD - census record legal/statistical area description code
+
+    MTFCC - census record MAF/TIGER feature class code
+
+    NAME - census record regional corporation name
+
+    REGION - census region code
+
+    STATEFP - census state Federal Information Processing Series (FIPS) code
+
+    STATENS - census state Geographic Names Information System (GNIS) code
+
+    STUSPS -  state code in US Postal Service format (i.e., 2 letters)
+
+    ZCTA5CE10 - zip code in US Postal Service format (i.e., 5 digits or 9 digits)
+
+    See https://www2.census.gov/geo/pdfs/maps-data/data/tiger/tgrshp2019/TGRSHP2019_TechDoc.pdf
+    for details.
+
+OPTIONS:
+
+    state_fields - specifies which fields are returned for state-level records (default is STUSPS)
+
+    zipcode_fields - specifies which fields are returned for zipcode-level record (default is ZCTA5CE10)
+
+CONFIGURATION:
+
+    urladdr - specifies the URL from which to retrieve TIGER data (default is "https://www2.census.gov/geo/tiger/TIGER2020")
+
+    cachedir - specifies the folder in which to cache the TIGER data (default is "/usr/local/share/gridlabd/geodata/census")
+
+    states_filename - specifies the TIGER state-level data filename (default is "tl_2020_us_state.zip")
+
+    zipcode_filename - specifies the TIGER zipcode-level data filename (default is "tl_2020_us_zcta510.zip")
+
+    tract_filename - specifies the TIGERT tract-level data filename (default is "TRACT/tl_2020_<state_tract_code>_tract.zip")
+
+    single_address_resolution - specifies the URL for resolving single addresses (default is "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=<address>&benchmark=2020&vintage=2010&format=json")
+
+    batch_address_resolution - specifies the URL for resolving batch addresses ("https://geocoding.geo.census.gov/geocoder/returntype/addressbatch")
+
+EXAMPLE:
+
+    % gridlabd geodata merge -D census 37.5,-122.2 37.4,-122.3
+    0,37.5,-122.2,CA,94063
+    1,37.4,-122.3,CA,94062
 
 """
 
@@ -33,6 +90,8 @@ from shapely.geometry import Point
 import censusdata
 
 GLD_ETC = os.getenv("GLD_ETC")
+if not GLD_ETC:
+    GLD_ETC = "/usr/local/share"
 
 default_options = {
     "state_fields" : "STUSPS",

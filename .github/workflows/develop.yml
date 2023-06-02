@@ -10,25 +10,22 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd-venv:develop
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-      # this is to fix GIT not liking owner of the checkout dir
-    - name: Set ownership
-      run: |
-        chown -R $(id -u):$(id -g) $PWD
-    - name: install gridlabd
-      run: |
-        autoreconf -isf
-        ./configure
-        make system
+    - name: Setup system
+      run: sudo ./setup.sh --local
+
+    - name: Build gridlabd
+      run: sudo ./build.sh --system --parallel
+
     - name: Install openfido
-      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
-    - name: Validate build
-      run: |
-        gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( utilities/save_validation_errors ; false )
+      run: curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | sudo sh
+      
+    - name: Validate system
+      run: sudo gridlabd -D keep_progress=TRUE -T 0 --validate -D github_actions=yes || ( sudo utilities/save_validation_errors ; false )
+        
     - name: Upload artifacts on failure
       uses: actions/upload-artifact@v2
       if: failure()

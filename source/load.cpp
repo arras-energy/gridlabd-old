@@ -365,7 +365,6 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 	char var_buf[64] = "";
 	char *c, *d=buffer;
 	int len=0;
-	int diff = 0;
 	char *b;
 	va_list ptr;
 	va_start(ptr,data);
@@ -380,7 +379,6 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 				outlinenum++;
 			}
 			fputc(*b,fp);
-			diff++;
 			len++;
 		}
 		d =  c + strlen("/*RESETLINE*/\n");
@@ -6537,7 +6535,7 @@ int GldLoader::replace_variables(char *to,char *from,int len,int warn)
 	while ((p=strstr(e,"${"))!=NULL)
 	{
 		char varname[1024];
-		if (sscanf(p+2,"%1024[^}]",varname)==1)
+		if (sscanf(p+2,"%1023[^}]",varname)==1)
 		{
 			char *env = getenv(varname);
 			const char *var;
@@ -6586,7 +6584,7 @@ Unterminated:
 	}
 }
 
-int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
+DEPRECATED int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
 	int n=0;
@@ -6820,6 +6818,7 @@ int GldLoader::set_language(const char *name)
 
 int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
+	strcpy(global_loader_filename,filename);
 	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
@@ -6829,6 +6828,7 @@ int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 	int quoteline = 0;
 	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
+		global_loader_linenum = linenum + _linenum;
 		int len;
 		char subst[65536];
 
@@ -6975,7 +6975,7 @@ int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 }
 
 
-int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
+int GldLoader::include_file(char *incname, char *buffer, int size)
 {
 	int move = 0;
 	char *p = buffer;
@@ -6986,7 +6986,10 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	char ff[1024];
 	FILE *fp = 0;
 	char buffer2[20480];
-	unsigned int old_linenum = _linenum;
+	char1024 parent_file;
+	strcpy(parent_file,filename);
+	int32 parent_line = linenum;
+
 	/* check include list */
 	INCLUDELIST *list;
 	INCLUDELIST *my = (INCLUDELIST *)malloc(sizeof(INCLUDELIST));//={incname,include_list}; /* REALLY BAD IDEA ~~ "this" is a reserved C++ keyword */
@@ -7000,31 +7003,42 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	{
 		if (strcmp(incname, list->file) == 0 && !global_reinclude )
 		{
-			syntax_error(incname,_linenum,"include file has already been included");
-			return 0;
+			syntax_error(filename,linenum,"include file has already been included");
+			count = 0;
+			goto Error;
 		}
 	}
 
 	/* if source file, add to header list and keep moving */
 	ext = strrchr(incname, '.');
 	name = strrchr(incname, '/');
-	if (ext>name) {
-		if(strcmp(ext, ".hpp") == 0 || strcmp(ext, ".h")==0 || strcmp(ext, ".c") == 0 || strcmp(ext, ".cpp") == 0){
+	if (ext>name) 
+	{
+		if ( strcmp(ext, ".hpp") == 0 || strcmp(ext, ".h")==0 || strcmp(ext, ".c") == 0 || strcmp(ext, ".cpp") == 0)
+		{
 			// append to list
-			for (list = header_list; list != NULL; list = list->next){
-				if(strcmp(incname, list->file) == 0){
+			for ( list = header_list ; list != NULL ; list = list->next)
+			{
+				if ( strcmp(incname, list->file) == 0 ) 
+				{
 					// normal behavior
-					return 0;
+					count = 0;
+					goto Error;
 				}
 			}
 			my->next = header_list;
 			header_list = my;
 		}
-	} else { /* no extension */
-		for (list = header_list; list != NULL; list = list->next){
-			if(strcmp(incname, list->file) == 0){
+	} 
+	else 
+	{ /* no extension */
+		for ( list = header_list ; list != NULL ; list = list->next )
+		{
+			if ( strcmp(incname, list->file) == 0 ) 
+			{
 				// normal behavior
-				return 0;
+				count = 0;
+				goto Error;
 			}
 		}
 		my->next = header_list;
@@ -7034,9 +7048,11 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	/* open file */
 	fp = find_file(incname,NULL,R_OK,ff,sizeof(ff)) ? fopen(ff, "rt") : NULL;
 
-	if(fp == NULL){
-		syntax_error(incname,_linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
-		return -1;
+	if ( fp == NULL )
+	{
+		syntax_error(incname,linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
+		count = -1;
+		goto Error;
 	}
 	else
 	{
@@ -7044,48 +7060,43 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
 	add_depend(incname,ff);
-	char1024 parent_file;
-	strcpy(parent_file,global_loader_filename);
-	int32 parent_line = global_loader_linenum;
-	strcpy(global_loader_filename,incname);
 
-	old_linenum = linenum;
-	global_loader_linenum = linenum = 1;
-
-	if(fstat(fileno(fp), &stat) == 0){
-		if(stat.st_mtime > modtime){
+	if ( fstat(fileno(fp), &stat) == 0 )
+	{
+		if ( stat.st_mtime > modtime )
+		{
 			modtime = stat.st_mtime;
 		}
-
-		//if(size < stat.st_size){
-			/** @todo buffer must grow (ticket #31) */
-			/* buffer = realloc(buffer,size+stat.st_size); */
-		//	output_message("%s(%d): unable to grow size of read buffer to include file", incname, linenum);
-		//	return 0;
-		//}
-	} else {
-		syntax_error(incname,_linenum,"unable to get size of included file");
-		return -1;
+	} 
+	else 
+	{
+		syntax_error(incname,linenum,"unable to get size of included file");
+		count = -1;
+		goto Error;
 	}
 
-	IN_MYCONTEXT output_verbose("%s(%d): included file is %d bytes long", incname, old_linenum, stat.st_size);
+	IN_MYCONTEXT output_verbose("%s(%d): included file is %d bytes long", (const char*)parent_file, parent_line, stat.st_size);
 
 	/* reset line counter for parser */
-	include_list = my;
-	//count = buffer_read(fp,buffer,incname,size); // fread(buffer,1,stat.st_size,fp);
+	strcpy(filename,incname);
+	linenum = 1;
 
+	include_list = my;
 	move = buffer_read_alt(fp, buffer2, incname, 20479);
-	while(move > 0){
+	while ( move > 0 )
+	{
 		count += move;
 		p = buffer2; // grab a block
-		while(*p != 0){
+		while ( *p != 0 )
+		{
 			// and process it
 			move = gridlabd_file(p);
 			if(move == 0)
 				break;
 			p += move;
 		}
-		if(*p != 0){
+		if ( *p != 0 )
+		{
 			// failed if we didn't parse the whole thing
 			count = -1;
 			break;
@@ -7094,11 +7105,10 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 	}
 
 	//include_list = my.next;
-
-	linenum = old_linenum;
+Error:
+	strcpy(filename,parent_file);
+	linenum = parent_line;
 	fclose(fp);
-	strcpy(global_loader_filename,parent_file);
-	global_loader_linenum = parent_line;
 	return count;
 }
 
@@ -7706,7 +7716,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context
-			len=(int)include_file(value,line,size,linenum);
+			len=(int)include_file(value,line,size);
 			strcpy(filename, oldfile);	// pop include filename, use calling filename
 			add_depend(filename,value);
 			if (len<0)
@@ -7756,7 +7766,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			/* load temp file */
 			strcpy(oldfile,filename);
 			strcpy(filename,tmpname);
-			int len = (int)include_file(tmpname,line,size,linenum);
+			int len = (int)include_file(tmpname,line,size);
 			strcpy(filename,oldfile);
 			add_depend(filename,tmpname);
 			if ( len < 0 )
@@ -8360,6 +8370,9 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
 
 {
+	char old_filename[1024];
+	strcpy(old_filename,filename);
+	unsigned int old_linenum = linenum;
 	char file[1024];
 	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
@@ -8380,22 +8393,23 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
 	}
-	if(fsize <= 1){
+	if ( fsize <= 1 )
+	{
 		// empty file short circuit
-		return SUCCESS;
+		status = SUCCESS;
+		goto Done;
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	add_depend(filename,file);
 	strcpy(filename,file);
-	linenum = 0;
-	strcpy(global_loader_filename,filename);
-	global_loader_linenum = 1;
+	linenum = 1;
 
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
 
 	move = buffer_read_alt(fp, buffer, file, 20479);
-	while(move > 0){
+	while ( move > 0 )
+	{
 		p = buffer; // grab a block
 		while(*p != 0){
 			// and process it
@@ -8404,7 +8418,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 				break;
 			p += move;
 		}
-		if(*p != 0){
+		if ( *p != 0 ) 
+		{
 			// failed if we didn't parse the whole thing
 			status = FAILED;
 			break;
@@ -8412,15 +8427,19 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 		move = buffer_read_alt(fp, buffer, file, 20479);
 	}
 
-	if(p != 0){ /* did the file contain anything? */
+	if ( p != 0 )
+	{ /* did the file contain anything? */
 		status = (*p=='\0' && !include_fail) ? SUCCESS : FAILED;
-	} else {
+	} 
+	else 
+	{
 		status = FAILED;
 	}
-	if (status==FAILED)
+	if ( status == FAILED )
 	{
 		char *eol = NULL;
-		if(p){
+		if ( p ) 
+		{
 			eol = strchr(p,'\n');
 		}
 		else
@@ -8432,25 +8451,33 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 			}
 			p = nulstr;
 		}
-		if (eol!=NULL){
+		if ( eol != NULL )
+		{
 			*eol='\0';
 		}
 		syntax_error(file,linenum,"load failed at or near '%.12s...'",*p=='\0'?"end of line":p);
-		if (p==0)
+		if ( p == 0 )
+		{
 			output_error("%s doesn't appear to be a GLM file", file);
+		}
 		goto Failed;
 	}
-	else if ((status=load_resolve_all(true))==FAILED)
+	else if ( (status=load_resolve_all(true)) == FAILED )
+	{
 		goto Failed;
+	}
 
 	/* establish ranks */
-	for (obj=first?first:object_get_first(); obj!=NULL; obj=obj->next)
+	for ( obj = first ? first : object_get_first() ; obj != NULL ; obj = obj->next )
+	{
 		object_set_parent(obj,obj->parent);
+	}
 	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
 	goto Done;
 Failed:
-	if (errno!=0){
-		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
+	if ( errno != 0 )
+	{
+		output_error("unable to load '%s': %s", file, strerror(errno));
 		/*	TROUBLESHOOT
 			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
 			favor of prior error messages.
@@ -8459,9 +8486,12 @@ Failed:
 Done:
 	//free(buffer);
 	free_index();
-	global_loader_linenum = linenum = 1; // parser starts at one
-	if (fp!=NULL) fclose(fp);
-	strcpy(global_loader_filename,"");
+	strcpy(filename,old_filename);
+	linenum = old_linenum;
+	if ( fp != NULL ) 
+	{
+		fclose(fp);
+	}
 	return status;
 }
 
