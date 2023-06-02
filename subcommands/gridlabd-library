@@ -13,7 +13,7 @@ fi
 # configurable parameters
 GITHUB="https://github.com"
 ORGANIZATION="US/CA/SLAC"
-GITUSER=slacgismo
+GITUSER=arras-energy
 GITREPO="gridlabd-library"
 GITBRANCH="master"
 DATADIR="$GLD_ETC/library/$ORGANIZATION"
