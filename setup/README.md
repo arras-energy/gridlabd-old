@@ -19,7 +19,7 @@ curl -sL https://code.gridlabd.us/master/setup.sh | sh
 To setup for a development build, run the command:
 
 ~~~
-export GRIDLABD_ORIGIN=slacgismo/gridlabd/develop
+export GRIDLABD_ORIGIN=arras-energy/gridlabd/develop
 curl -sL https://raw.githubusercontent.com/${GRIDLABD_ORIGIN}/setup.sh | sh
 ~~~
 

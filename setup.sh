@@ -21,7 +21,7 @@
 ## Environment variables
 ## 
 ##   GRIDLABD_ORIGIN   Specifies the ORG/USER/BRANCH from which the downloads
-##                     should obtained. Default is `slacgismo/gridlabd/master`
+##                     should obtained. Default is `arras-energy/gridlabd/master`
 ## 
 STDOUT=/dev/stdout
 STDERR=/dev/stderr
@@ -29,7 +29,7 @@ error () { echo "ERROR [setup.sh]: $*" > $STDERR ; exit 1; }
 if [ -d $(dirname $0)/.git ]; then
 	DEFAULT_ORIGIN=$(git remote get-url origin | sed -e 's|https://github.com/||' | sed -e 's|.git$||')/$(git rev-parse --abbrev-ref HEAD)
 else
-	DEFAULT_ORIGIN=slacgismo/gridlabd/master
+	DEFAULT_ORIGIN=arras-energy/gridlabd/master
 fi
 while [ $# -gt 0 ]; do
 	case "$1" in
