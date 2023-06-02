@@ -1880,7 +1880,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 					  PASSCONFIG pass) /**< the pass configuration */
 {
 	CLASS *oclass = obj->oclass;
-	register TIMESTAMP plc_time=TS_NEVER, sync_time;
+	TIMESTAMP plc_time=TS_NEVER, sync_time;
 	TIMESTAMP effective_valid_to = min(obj->clock+global_skipsafe,obj->valid_to);
 	int autolock = obj->oclass->passconfig&PC_AUTOLOCK;
 
@@ -1963,7 +1963,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	}
 	else
 	{
-		char buffer[1024];
+		char buffer[1025];
 		snprintf(buffer,sizeof(buffer)-1,"%lld",global_clock);
 		setenv("CLOCK",buffer,1);
 		snprintf(buffer,sizeof(buffer)-1,"%s",global_hostname);
@@ -2224,31 +2224,38 @@ int object_isa(OBJECT *obj, /**< the object to test */
 			   const char *type,
 			   const char *module) /**< the type of test */
 {
+	// fprintf(stderr,"object_isa(obj=<%s>,type='%s',module='%s') --> ",obj->name,type,module);
 	if ( obj == NULL )
 	{
+		// fprintf(stderr,"0\n");
+		return 0;
+	}
+	if ( module != NULL && obj->oclass->module != NULL && strcmp(module,obj->oclass->module->name) != 0 )
+	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 	if ( strcmp(obj->oclass->name,type) == 0 )
 	{
+		// fprintf(stderr,"1\n");
 		return 1;
 	} 
-	else if ( obj->oclass->isa ) 
+	for ( CLASS *oclass = obj->oclass->parent ; oclass != NULL ; oclass = oclass->parent )
 	{
-		if ( obj->oclass->isa(obj, type) == 0 )
-		{
-			return 0;
-		}
-		else if ( module == NULL || strcmp(obj->oclass->module->name,module) == 0 )
+		if ( strcmp(oclass->name,type) ==  0 )
 		{
 			return 1;
 		}
-		else
-		{
-			return 0;
-		}
+	}
+	if ( obj->oclass->isa ) 
+	{
+		int result = obj->oclass->isa(obj, type);
+		// fprintf(stderr,"%d\n",result);
+		return result;
 	} 
 	else 
 	{
+		// fprintf(stderr,"0\n");
 		return 0;
 	}
 }
@@ -2355,7 +2362,10 @@ size_t object_dump(char *outbuffer, /**< the destination buffer */
 	count = strlen(buffer);
 	if ( count < size && count < sizeof(buffer) )
 	{
-		strncpy(outbuffer, buffer, count+1);
+		if ( snprintf(outbuffer,size-1,"%.*s",int(size-1),buffer) < (int)count )
+		{
+			output_warning("object_dump(obj=<%s:%d>): output truncated",obj->oclass->name,obj->id);
+		}
 		return count;
 	} 
 	else 
@@ -2382,11 +2392,11 @@ static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
 		if ( value!=NULL )
 		{
 			if ( prop->ptype==PT_timestamp)  // timestamps require single quotes
-				sprintf(temp+count, "\t%s '%s';\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s '%s';\n", prop->name, value);
 			else if ( strcmp(value,"")==0 || ( strpbrk(value," \t") && prop->unit==NULL ) ) // double quotes needed empty strings and when white spaces are present in non-real values
-				sprintf(temp+count, "\t%s \"%s\";\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s \"%s\";\n", prop->name, value);
 			else
-				sprintf(temp+count, "\t%s %s;\n", prop->name, value);
+				snprintf(temp+count,size-count-1, "\t%s %s;\n", prop->name, value);
 			count = strlen(temp);
 		}
 	}
@@ -2409,12 +2419,12 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 		count = strlen(temp);
 	}
 
-	count += sprintf(temp+count, "\trank %d;\n", obj->rank);
+	count += snprintf(temp+count,size-count-1, "\trank %d;\n", obj->rank);
 	if(obj->name != NULL){
 		snprintf(temp+count,size-count-1, "\tname %s;\n", obj->name);
 		count = strlen(temp);
 	}
-	count += sprintf(temp+count,"\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
+	count += snprintf(temp+count,size-count-1, "\tclock %s;\n", convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
 	if( !isnan(obj->latitude) ){
 		snprintf(temp+count,size-count-1, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 		count = strlen(temp);
@@ -2451,27 +2461,27 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 	// dynamic size
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	int len = spec->csize;
-	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
+	// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
 	if ( len == PSZ_DYNAMIC )
 	{
 		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
 	}
 	else if ( len == PSZ_AUTO )
 	{
 		// TODO: support general calls to underlying class implementing the property
 		std::string *str = (std::string*)(char*)(obj+1)+(int64_t)(prop->addr);
 		len = str->size()+1;
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
 	}
 	if ( len < 0 )
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
 		len = 0;
 	}
 	else
 	{
-		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
+		// IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
 	}
 
 	return len;
@@ -3373,7 +3383,10 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	output_warning("forecast_create(): description parsing not implemented");
 
 	/* copy the description */
-	strncpy(fc->specification,specs,sizeof(fc->specification));
+	if ( snprintf(fc->specification,sizeof(fc->specification)-1,"%.*s",(int)(sizeof(fc->specification)-2),specs) < (int)strlen(specs) )
+	{
+		output_warning("forecast_create(obj=<%s:%d>,specs='%32s...'): long output truncated",obj->oclass->name,obj->id,specs);
+	}
 
 	return fc;
 }

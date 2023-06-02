@@ -28,7 +28,7 @@ object test
     };
 }
 
-#on_exit 0 gridlabd plot --input=${modelname/glm/csv} --plot:x=timestamp --plot:y=x,y --plot:rot=90 --plot:grid --plot:legend --figure:tight_layout=True
+#on_exit 0 gridlabd plot --input=${modelname/glm/csv} --plot:x=timestamp --plot:y=x,y --plot:rot=vertical --plot:grid --plot:legend --figure:tight_layout=True
 
 #ifexist ../${FILENAME $modelname}.png
 #on_exit 0 diff ../${FILENAME $modelname}.png ${FILENAME $modelname}.png

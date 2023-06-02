@@ -2,7 +2,7 @@
 //	Copyright (C) 2008 Battelle Memorial Institute
 
 #include "powerflow.h"
-using namespace std;
+
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
@@ -137,6 +137,10 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new pole(module);
 	new pole_configuration(module);
     new pole_mount(module);
+    new building(module);
+    new industrial(module);
+    new agricultural(module);
+    new public_service(module);
     new ductbank(module);
 
 	/* always return the first class registered */
@@ -577,7 +581,6 @@ EXPORT int check()
 	int *nodemap,	/* nodemap marks where nodes are */
 		*linkmap,	/* linkmap counts the number of links to/from a given node */
 		*tomap;		/* counts the number of references to any given node */
-	int errcount = 0;
 	int objct = 0;
 	int queuect = 0;
 
@@ -628,21 +631,17 @@ EXPORT int check()
 			/* check link connections */
 			if (from==NULL){
 				gl_error("link %s (%s:%d) from object is not specified", pLink->get_name(), pLink->oclass->name, pLink->get_id());
-				++errcount;
 			}
 			else if (!gl_object_isa(from,"node")){
 				gl_error("link %s (%s:%d) from object is not a node", pLink->get_name(), pLink->oclass->name, pLink->get_id());
-				++errcount;
 			} else { /* is a "from" and it isa(node) */
 				linkmap[from->id]++; /* mark that this node has a link from it */
 			}
 			if (to==NULL){
 				gl_error("link %s (%s:%d) to object is not specified", pLink->get_name(), pLink->oclass->name, pLink->get_id());
-				++errcount;
 			}
 			else if (!gl_object_isa(to,"node")){
 				gl_error("link %s (%s:%d) to object is not a node", pLink->get_name(), pLink->oclass->name, pLink->get_id());
-				++errcount;
 			} else { /* is a "to" and it isa(node) */
 				linkmap[to->id]++; /* mark that this node has links to it */
 			}
@@ -655,23 +654,18 @@ EXPORT int check()
 			/* this isn't cooperating with me.  -MH */
 /*			if(tNode->get_phases(PHASE_A) == fNode->get_phases(PHASE_A)){
 				gl_error("link:%i: to, from nodes have mismatched A phase (%i vs %i)", obj->id, tNode->get_phases(PHASE_A), fNode->get_phases(PHASE_A));
-				++errcount;
 			}
 			if(tNode->get_phases(PHASE_B) == fNode->get_phases(PHASE_B)){
 				gl_error("link:%i: to, from nodes have mismatched B phase (%i vs %i)", obj->id, tNode->get_phases(PHASE_B), fNode->get_phases(PHASE_B));
-				++errcount;
 			}
 			if(tNode->get_phases(PHASE_C) == fNode->get_phases(PHASE_C)){
 				gl_error("link:%i: to, from nodes have mismatched C phase (%i vs %i)", obj->id, tNode->get_phases(PHASE_C), fNode->get_phases(PHASE_C));
-				++errcount;
 			}
 			if(tNode->get_phases(PHASE_D) == fNode->get_phases(PHASE_D)){
 				gl_error("link:%i: to, from nodes have mismatched D phase (%i vs %i)", obj->id, tNode->get_phases(PHASE_D), fNode->get_phases(PHASE_D));
-				++errcount;
 			}
 			if(tNode->get_phases(PHASE_N) == fNode->get_phases(PHASE_N)){
 				gl_error("link:%i: to, from nodes have mismatched N phase (%i vs %i)", obj->id, tNode->get_phases(PHASE_N), fNode->get_phases(PHASE_N));
-				++errcount;
 			}*/
 		}
 	}
@@ -688,7 +682,6 @@ EXPORT int check()
 	//		} else { /* unattached node */
 	//			gl_error("node:%i: node with no links to or from it", i);
 	//			nodemap[i] *= -1; /* mark as unlinked */
-	//			++errcount;
 	//		}
 	//	}
 	//}

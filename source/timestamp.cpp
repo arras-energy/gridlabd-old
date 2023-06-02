@@ -618,8 +618,7 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	int len = strlen(tbuffer);
 	if ( len < size ) 
 	{
-		strncpy(buffer, tbuffer, len+1);
-		return len;
+		return snprintf(buffer,size-1,"%.*s",len,tbuffer);
 	} 
 	else 
 	{

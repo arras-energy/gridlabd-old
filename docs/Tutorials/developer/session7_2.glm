@@ -1,0 +1,35 @@
+#set pythonpath=developer
+module session7_2;
+
+class example
+{
+    randomvar real_power[MW];
+    randomvar power_factor;
+    complex power[MVA];
+    
+    on_init "python:session7_2.example_init";
+    on_commit "python:session7_2.example_commit";
+}
+
+#define YEAR=2022
+#define MONTH=07
+clock 
+{
+    timezone "PST+8PDT";
+    starttime "${YEAR}-${MONTH}-01 00:00:00 PDT";
+    stoptime "${YEAR}-${MONTH}-01 02:00:00 PDT";
+}
+
+object example
+{
+    name "main";
+    object example:..5
+    {
+        name `sub_{id}`;
+        real_power "type:lognormal(0,1); refresh:1h";
+        power_factor "type:triangle(0.85,1.0);refresh:1h";
+        on_sync "python:session7_2.sub_sync";
+    };
+    on_presync "python:session7_2.main_presync";
+    on_postsync "python:session7_2.main_postsync";
+}

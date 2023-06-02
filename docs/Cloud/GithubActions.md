@@ -13,10 +13,10 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd:master
+    container: slacgismo/gridlabd:master
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership
@@ -50,10 +50,10 @@ jobs:
   simulate:
 
     runs-on: ubuntu-latest
-    container: hipas/gridlabd:master
+    container: slacgismo/gridlabd:master
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
       # this is to fix GIT not liking owner of the checkout dir
     - name: Set ownership

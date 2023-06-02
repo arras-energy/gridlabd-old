@@ -1,0 +1,18 @@
+clock {
+    timezone "PST+8PDT";
+    starttime "2022-01-01 00:00:00 PST";
+    stoptime "2022-01-02 00:00:00 PST";
+}
+#weather get CA-Twentynine_Palms.tmy3
+#input "CA-Twentynine_Palms.tmy3"
+module tape { csv_header_type NAME; }
+object recorder {
+    parent ${FIND class=climate};
+    file test_weather.csv;
+    interval -1;
+    property temperature;
+}
+
+#ifexist ../test_weather.csv
+#on_exit 0 diff ../test_weather.csv test_weather.csv > gridlabd.diff
+#endif

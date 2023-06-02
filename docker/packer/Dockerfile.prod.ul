@@ -1,0 +1,25 @@
+# Set the base image to latest Ubuntu image
+FROM ubuntu:latest
+
+# Update the package lists and install sudo and curl
+RUN apt-get update && apt-get install -y sudo curl git nano
+
+# Create the app directory in the container
+WORKDIR /app
+
+RUN mkdir gridlabd
+
+WORKDIR /app/gridlabd
+
+# Copy the contents of the local directory to the app directory in the container
+COPY . /app/gridlabd
+
+EXPOSE 6266-6299/tcp
+# Run the install.sh script with the desired arguments
+RUN curl -sL http://install.gridlabd.us/install.sh | sh
+
+RUN gridlabd --version=all
+
+WORKDIR /app
+
+RUN rm -rf gridlabd

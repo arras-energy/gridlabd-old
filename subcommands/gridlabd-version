@@ -9,13 +9,13 @@ function error()
 {
 	RC=$1
 	shift 1
-	echo "ERROR [$EXE]: $*" > /dev/stderr
+	echo "ERROR [$EXE] $*" > /dev/stderr
 	exit $RC
 }
 
 function warning()
 {
-	echo "WARNING [$EXE]: $*" > /dev/stderr
+	echo "WARNING [$EXE] $*" > /dev/stderr
 }
 
 case "$1" in
@@ -52,27 +52,29 @@ END
 
 function version-check()
 {
-	version=$(basename $(${BIN} --version=install))
-	check=$(curl -sL "http://version.gridlabd.us/index.html?check=$version" 2>/dev/null || echo "none")
-	if [ "$check" == "none" ]; then
-		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "branch $branch not registered at version.gridlabd.us"
-		[ "$1" != "-q" ] && warning "branch $branch not registered at version.gridlabd.us"
+	version=$(${BIN} --version)
+	submitversion=$(echo $version | sed -r 's/.*([0-9]+\.[0-9]+\.[0-9]+\-[0-9]+)/\1/')
+	branch=$(${BIN} --version=git-branch)
+	origin=$(${BIN} --version=git-repo |cut -f4- -d/)
+	remote=$( (curl -sL "https://raw.githubusercontent.com/$origin/$branch/source/version.h" | grep '#define REV_' | cut -f3 -d' ' | tr '\n' . | cut -f-3 -d.) || echo "none" )
+	if [ "$remote" == "none" -o -z "$remote" ]; then
+		[ "$1" != "-q" -a "$1" != "-w" ] && error 2 "$version ($branch) branch not found on github $origin"
+		[ "$1" != "-q" ] && warning "$version ($branch) branch not found on github $origin"
 		exit 0
 	fi
-	[ "$1" == "-v" ] && echo "hipas/gridlabd:$branch $check"
-	if [ ${BIN} --version="-ge $check" 2>/dev/null ]; then
-		if [ "$1" != "-q" -a "$1" != "-w" ]; then
-			echo "$version ($branch) is ok"
-		fi
-	elif [ "$check" == "OK" ]; then
-		if [ "$1" != "-q" -a "$1" != "-w" ]; then
-			echo "$version ($branch) is ok"
-		fi
-	elif [ "$1" != "-q" -a "$1" != "-w" ]; then
-		warning "$version ($branch) is outdated"
-		exit 0
-	fi
-	exit 0
+	[ "$1" == "-v" ] && echo "REMOTE/$branch $remote"
+	${BIN} --version="-ge $remote" 2>/dev/null || ( ( [ "$1" != "-q" -a "$1" != "-w" ] && warning "$version ($branch) is outdated" ) ; exit 0 )
+
+    # Using curl command to check the version
+    version_check_response=$(curl -sL "https://version.gridlabd.us/?v=${submitversion}&b=${branch}")
+    if [[ $version_check_response != '"ok"' ]]; then
+        warning "Your version is behind. The latest version information is: $version_check_response"
+        exit 0
+    fi
+    
+    [ "$1" != "-q" -a "$1" != "-w" ] && echo "$version ($branch) is ok"
+    [ "$1" == "-w" ] && ( curl -sL "http://version.gridlabd.us/?v=${submitversion}&b=${branch}" >/dev/null & )
+    exit 0
 }
 
 function version-source()
@@ -111,20 +113,12 @@ function version-set()
 		L=$(cd $OPT ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
-		L="$(${BIN} --version=name | sed -e 's/^gridlabd-//')"
+		L="$(${BIN} --version=name)"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	fi
-	if [ ! "$(readlink $OPT/current)" == "$OPT/$L" ]; then
-		$ACTION rm -f $OPT/current
-		$ACTION ln -s $OPT/$L $OPT/current
-	fi
-#	for F in bin lib share include; do
-#		if [ ! "$(readlink $GLD_VER/$F/gridlabd)" == "$OPT/current/$F/gridlabd" ]; then
-#			$ACTION rm -rf $GLD_VER/$F/gridlabd
-#			$ACTION ln -s $GLD_VER/current/$F/gridlabd $GLD_VER/$F/gridlabd
-#		fi
-#	done
+	$ACTION rm -f $OPT/current ; ln -sf $L $OPT/current
+	$ACTION rm -f /usr/local/bin/gridlabd ; ln -sf $OPT/current/bin/gridlabd /usr/local/bin/gridlabd
 	echo "$L"
 }
 
@@ -207,7 +201,7 @@ fi
 if [ -z "$(which gridlabd)" ]; then
 	warning "gridlabd is not in the current PATH environment"
 fi
-if [ ! -x "$GLD_BIN/pkgenv/bin/python3" ]; then
-	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/pkgenv/bin/python3"
+if [ ! -x "$GLD_BIN/python3" ]; then
+	warning "python3 is not linked where gridlabd wants it in $GLD_BIN/python3"
 fi
 

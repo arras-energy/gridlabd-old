@@ -14,7 +14,6 @@ EXPORT_COMMIT(recorder);
 
 CLASS *recorder::oclass = NULL;
 recorder *recorder::defaults = NULL;
-using namespace std;
 
 vector<string> split(char* str, const char* delim)
 {

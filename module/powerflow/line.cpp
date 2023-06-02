@@ -41,7 +41,6 @@
 **/
 
 #include "powerflow.h"
-using namespace std;
 
 CLASS* line::oclass = NULL;
 CLASS* line::pclass = NULL;

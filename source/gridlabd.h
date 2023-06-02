@@ -1495,7 +1495,7 @@ inline DEPRECATED char *gl_strftime(TIMESTAMP ts, char *buffer, int size)
 }
 /** Calculate the next power of 2 greater than a number
  **/
-inline size_t nextpow2(register size_t x)
+inline size_t nextpow2(size_t x)
 {
 	if (x<0) return 0;
 	x--;
@@ -2397,7 +2397,7 @@ public:
 	
 	// Constructor: gld_unit
 	// Construct a container for a named or derived unit
-	inline gld_unit(char *name) { UNIT *unit=callback->unit_find(name); if (unit) memcpy(&core,unit,sizeof(UNIT)); else memset(&core,0,sizeof(UNIT)); };
+	inline gld_unit(const char *name) { UNIT *unit=callback->unit_find(name); if (unit) memcpy(&core,unit,sizeof(UNIT)); else memset(&core,0,sizeof(UNIT)); };
 	
 	// Operator: UNIT*
 	// Cast to a UNIT structure
@@ -3245,7 +3245,7 @@ public:
 	// Method: get_double(gld_unit&to)
 	inline double get_double(gld_unit&to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
-	// Method: get_double(char*to)
+	// Method: get_double(const char*to)
 	inline double get_double(const char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
 
 	// Method: get_complex

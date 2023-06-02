@@ -177,7 +177,7 @@ GldMain::GldMain(int argc, const char *argv[])
 		check_version(1);
 
 	/* setup the random number generator */
-	random_init();
+	random_init(NULL,NULL);
 
 	/* pidfile */
 	create_pidfile();
@@ -740,8 +740,8 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 		if ( polldata[0].revents&POLLNVAL )
 		{
 			// fprintf(stderr,"poll() pipe 0 invalid\n"); fflush(stderr);
-			output_error("GldMain::subcommand(command='%s'): input pipe invalid", pipes->child_command);
-			has_error = true;
+			output_warning("GldMain::subcommand(command='%s'): input pipe invalid", pipes->child_command);
+			// has_error = true;
 			break;
 		}
 		if ( polldata[1].revents&POLLNVAL )

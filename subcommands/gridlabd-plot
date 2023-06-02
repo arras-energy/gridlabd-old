@@ -1,5 +1,5 @@
 ''':'
-exec "$GLD_BIN/pkgenv/bin/python3" "$0" "$@"
+exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
 """GridLAB-D plot subcommand
@@ -227,7 +227,6 @@ def main(args):
         yerr = None,
         xerr = None,
         stacked = False,
-        sort_columns = False,
         secondary_y = False,
         mark_right = True,
         include_bool = False,

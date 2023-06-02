@@ -12,7 +12,7 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
-#define GITHUB_ORG "hipas"
+#define GITHUB_ORG "slacgismo"
 
 #include "version.h"
 #include "build.h"
@@ -43,7 +43,7 @@ typedef struct s_globalvar
 {
 	PROPERTY *prop;
 	uint32 flags;
-	void (*callback)(const char *);
+	void (*callback)(const char *,const char *);
 	LOCKVAR lock;
 	struct s_globalvar *next;
 } GLOBALVAR;
@@ -845,10 +845,10 @@ GLOBAL char global_pidfile[1024] INIT("/tmp/gridlabd-pid"); /**< Specifies that 
 GLOBAL char global_configpath[1024] INIT("/usr/local/opt/gridlabd/current/var/gridlabd");
 
 /* Variable: global_pythonpath */
-GLOBAL char1024 global_pythonpath INIT(".");
+GLOBAL char1024 global_pythonpath INIT(".:/usr/local/opt/gridlabd/current/share/gridlabd:/usr/local/opt/gridlabd/current/lib/python3.10/site-packages");
 
 /* Variable: global_pythonexec */
-GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/pkgenv/bin/python3");
+GLOBAL char1024 global_pythonexec INIT("/usr/local/opt/gridlabd/current/bin/python3");
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);
@@ -895,7 +895,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+	inline void set_callback(void (*callback)(const char *,const char*)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals

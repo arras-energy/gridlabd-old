@@ -1,11 +1,22 @@
-#ifexist ../ieee13.glm
+#set suppress_repeat_messages=FALSE
+
+#ifexist ../meters-withloads.glm
 #define DIR=..
 #endif
 
-#gridlabd -C ${DIR:-.}/ieee13.glm -o ${DIR:-.}/ieee13.json
-#python -m create_meters ${DIR:-.}/ieee13.json ieee13-meters.json
-#input "ieee13-meters.json"
+#define CHECKFILES=meters-withloads nodes-withloads notnodes-withloads links-to-meter links-to-triplexmeter link-to-notnode links-to-meter-to-child links-to-triplexmeter-to-child
 
-//#ifexist ../ieee13-meters.json
-//#on_exit 0 diff ../ieee13-meters.json ieee13-meters.json
-//#endif
+#for MODEL_NAME in ${CHECKFILES}
+
+#set randomseed=1
+
+#gridlabd -D randomseed=1 -C ${DIR:-.}/${MODEL_NAME}.glm -o ${MODEL_NAME}.json
+
+#python ${DIR:-.}/../create_meters.py ${MODEL_NAME}.json ${MODEL_NAME}-meters.json
+#gridlabd -D randomseed=1 "${MODEL_NAME}-meters.json"
+
+#done
+
+#ifexist ../check-meters.sh
+#on_exit 0 python3 ../check-meters.py ${CHECKFILES} > gridlabd.diff
+#endif

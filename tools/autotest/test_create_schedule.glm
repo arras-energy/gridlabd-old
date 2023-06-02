@@ -1,0 +1,37 @@
+// test_create_schedule.glm
+
+#ifexist ../test_create_schedule.csv
+#define DIR=..
+#endif
+
+#python -m create_schedule ${DIR:-.}/test_create_schedule.csv -o=test_create_schedule_opt.glm -N=test_schedule
+#include "${modelname/.glm/_opt.glm}"
+
+clock
+{
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+module tape
+{
+    csv_header_type NAME;
+}
+class test
+{
+    double power;
+}
+
+object test
+{
+    power test_schedule;
+    object recorder
+    {
+        file "test_create_schedule_opt.csv";
+        property "power";
+    };
+}
+
+#ifexist ../test_create_schedule_opt.csv
+#on_exit 0 diff ../test_create_schedule_opt.csv test_create_schedule_opt.csv > gridlabd.diff
+#endif
