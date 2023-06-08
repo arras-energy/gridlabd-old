@@ -2,7 +2,7 @@
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
-"""GridLAB-D matrix subcommand
+__doc__="""GridLAB-D matrix subcommand
 
 SYNTAX
 

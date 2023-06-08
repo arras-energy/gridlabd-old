@@ -2,7 +2,7 @@
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
-"""General GridLAB-D file format converter for command line and macro usage.
+__doc__="""General GridLAB-D file format converter for command line and macro usage.
 """
 import sys, os
 import importlib

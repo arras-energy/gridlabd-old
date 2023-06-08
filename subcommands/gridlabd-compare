@@ -2,7 +2,7 @@
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
-"""gridlabd-compare subcommand
+__doc__="""gridlabd-compare subcommand
 """
 
 import sys, getopt
