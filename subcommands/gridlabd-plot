@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: plot [OPTIONS ...]
 __doc__="""GridLAB-D plot subcommand
 
 SYNOPSIS

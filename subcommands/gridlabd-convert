@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: convert [[-i|--input] FILE1] [[-o|--output] FILE2] [-v|--verbose] [-d|--debug] [-f|--from TYPE1] [-t|--to TYPE2] [OPTIONS]
 __doc__="""General GridLAB-D file format converter for command line and macro usage.
 """
 import sys, os

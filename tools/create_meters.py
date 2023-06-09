@@ -1,4 +1,4 @@
-# create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
+# Syntax: create_meters [--with-ami] INPUTFILE [OUTPUTFILE]
 """Add meters to a MODEL
 
 SYNOPSIS

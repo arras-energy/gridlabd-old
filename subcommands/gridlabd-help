@@ -13,15 +13,18 @@ if [ $# -gt 0 ]; then
 		echo "ERROR: subcommand or tool '$1' not found"
 	fi
 else
-	echo "Syntax: gridlabd command [options] ..."
-
-	echo "Subcommands:"
+	gridlabd --help
+	echo ""
+	echo "Subcommands"
+	echo "-----------"
 	for F in $( cd $GLD_BIN ; ls -1d gridlabd-* ) ; do
-		head -n 2 $GLD_BIN/$F | grep '^# Syntax: ' | sed -e 's/^# Syntax: /  /'
+		head -n 4 $GLD_BIN/$F | grep '^# Syntax: ' | sed -e 's/^# Syntax: /  /'
+	done
+	echo ""
+	echo "Tools"
+	echo "-----"
+	for F in $( cd $GLD_ETC ; ls -1d *.py | grep -v '^gridlabd-' ) ; do
+		head -n 4 $GLD_ETC/$F | grep '^# Syntax: ' | sed -e 's/^# Syntax: /  /'
 	done
 
-	echo "Tools:"
-	for F in $( cd $GLD_ETC ; ls -1d *.py | grep -v '^gridlabd-' ) ; do
-		head -n 1 $GLD_ETC/$F | grep '^# ' | sed -e 's/^# /  /'
-	done
 fi

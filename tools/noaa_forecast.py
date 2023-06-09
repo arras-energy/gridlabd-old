@@ -1,4 +1,4 @@
-# noaa_forecast [OPTIONS ...]
+# Syntax: noaa_forecast [OPTIONS ...]
 """NOAA weather forecast tool
 
 SYNOPSIS

@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: compare [OPTIONS] FILE1 FILE2
 __doc__="""gridlabd-compare subcommand
 """
 

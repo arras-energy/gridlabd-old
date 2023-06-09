@@ -1,3 +1,4 @@
+"""UCAR weather access module"""
 import requests
 import re
 from metar import Metar

@@ -1,4 +1,4 @@
-# market_model [OPTIONS ...]
+# Syntax: market_model [OPTIONS ...]
 """Create market model from ISO data
 
 SYNTAX
