@@ -236,7 +236,7 @@ jobs:
         context: .
         file: ./docker/packer/Dockerfile.dev.ul
         push: true
-        tags: hipas/gridlabd:develop
+        tags: lfenergy/arras:develop
 
   updateS3websites:
     runs-on: ubuntu-latest

@@ -214,7 +214,7 @@ jobs:
         context: .
         file: ./docker/packer/Dockerfile.prod.ul
         push: true
-        tags: hipas/gridlabd:latest, hipas/gridlabd:${{ env.VERSION }}
+        tags: lfenergy/arras:latest, lfenergy/arras:${{ env.VERSION }}
 
   updateS3websites:
     runs-on: ubuntu-latest
