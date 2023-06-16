@@ -74,10 +74,8 @@ config = (
             "GLM_ASSUMPTIONS": ["include"],
             "GLM_VOLTAGE_FIX": ["True"],
             "GLM_PHASE_FIX": ["True"],
-            "GLM_DISTRIBUTED_LOAD_CONFIG": ["to"],
             "GLM_OUTPUT": "/dev/stdout",
             "GLM_INPUT_LINE_LENGTH_UNIT": ["m"],
-            "EXTRACT": ["non-empty"],
             "ERROR_OUTPUT": "/dev/stderr",
             "WARNING_OUTPUT": "/dev/stderr",
             "WARNING": ["True"],
@@ -2715,6 +2713,9 @@ class GLM:
                 warning(
                     f"converter was unable to reconcile voltage mismatches in {cyme_mdbname}@{network_id}."
                 )
+                self.write(
+                    f"// Converter's voltage checks were unable to reconcile voltage mismatches in {cyme_mdbname}@{network_id} with current GLM_NOMINAL_VOLTAGE."
+                )
                 break
             for name, data in self.objects.items():
                 if "class" in data.keys() and (
@@ -2945,11 +2946,6 @@ def cyme_extract_9(network_id, network, conversion_info):
         # glm.clock({"timezone":"PST+8PDT", "starttime":"2020-01-01T00:00:00+08:00", "stoptime":"2020-01-01T00:05:00+08:00"})
         pass
 
-    glm.blank()
-    glm.comment("", "Modules", "")
-    glm.module("powerflow", {"solver_method": "NR"})
-    glm.module("generators")
-
     node_dict = {}
     device_dict = {}
     node_links = {}
@@ -2978,9 +2974,6 @@ def cyme_extract_9(network_id, network, conversion_info):
             node_id = node["NodeId"]
             node_links[node_id] = []  # incident links
             node_dict[node_id] = []  # node dictionary
-
-    glm.blank()
-    glm.comment("", "Objects", "")
 
     # links
     for index, section in table_find(
@@ -3255,6 +3248,14 @@ def cyme_extract_9(network_id, network, conversion_info):
     glm.object_checks()
     glm.voltage_checks(feeder_kVLN)
     glm.name_check()
+
+    glm.blank()
+    glm.comment("", "Modules", "")
+    glm.module("powerflow", {"solver_method": "NR"})
+    glm.module("generators")
+
+    glm.blank()
+    glm.comment("", "Objects", "")
 
     # generate coordinate file
     if geodata_file:
