@@ -1,9 +1,10 @@
-#!/usr/bin/python3
-"""GridLAB-D powerflow building load model
+''':'
+exec "$GLD_BIN/python3" "$0" "$@"
+:' '''
+# Syntax: building [OPTIONS ...]
+__doc__="""GridLAB-D powerflow building load model
 
-Syntax:
-
-  $ gridlabd building [OPTIONS ...]
+Syntax: gridlabd building [OPTIONS ...]
 
 Options:
 

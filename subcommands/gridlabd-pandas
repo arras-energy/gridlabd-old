@@ -1,8 +1,8 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
-"""GridLAB-D pandas subcommand
+# Syntax: pandas [-i INPUTFILE] [-o OUTPUTFILE]
+__doc__="""GridLAB-D pandas subcommand
 
 SYNTAX
 

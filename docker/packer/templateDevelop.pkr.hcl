@@ -8,6 +8,7 @@ packer {
   }
 }
 
+// variables must be passed in the command line. Used for the github actions workflows.
 variable "aws_access_key" {
   type        = string
   description = "AWS access key"
@@ -39,6 +40,7 @@ variable "tagname" {
 }
 
 source "amazon-ebs" "ubuntu-22-04" {
+  force_deregister     = true // If AMI of same name exists and is owned, we can replace it with this option
   source_ami           = "ami-014d05e6b24240371"
   region               = var.aws_region
   instance_type        = "t2.micro"

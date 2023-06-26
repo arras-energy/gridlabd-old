@@ -1,4 +1,4 @@
-# create_player [OPTIONS ...]
+# Syntax: create_player [OPTIONS ...]
 """Player object creation tool
 
 SYNOPSIS

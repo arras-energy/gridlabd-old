@@ -208,11 +208,21 @@ jobs:
 
     runs-on: ubuntu-latest
     environment: Integration
-    needs: buildAWSUbuntuAMI
+    needs: buildUbuntu22FastS3
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Run CF invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
 
     - name: Login to DockerHub
       uses: docker/login-action@v1
@@ -226,7 +236,7 @@ jobs:
         context: .
         file: ./docker/packer/Dockerfile.dev.ul
         push: true
-        tags: hipas/gridlabd:develop
+        tags: lfenergy/arras:develop
 
   updateS3websites:
     runs-on: ubuntu-latest
@@ -260,27 +270,44 @@ jobs:
     - name: Run CF invalidation
       run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DEV_CF_ID }} --paths '/*'
 
-    - name: Install dependencies and package Lambda function
-      run: |
-        pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda/package
-        cd ./cloud/websites/version.gridlabd.us/lambda/package
-        zip -r ../lambda.zip .
-        cd ..
-        zip -r lambda.zip app.py
+  versionUpdate:
 
-    - name: Update Lambda image version_handler
-      run: |
-        aws lambda update-function-code --function-name version_handler --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
+    runs-on: ubuntu-latest
+    environment: Integration
+    needs: buildAWSUbuntuAMI
 
-    - name: Update Lambda image update_latest
-      run: |
-        aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Make POST request to version.gridlabd.us/update
-      run: |
-        version=$(./build-aux/version.sh --version)
-        build=$(./build-aux/version.sh --number)
-        branch=$(./build-aux/version.sh --branch)
-        curl -f -X POST "https://version.gridlabd.us/update_latest" \
-          -H "Content-Type: application/json" \
-          -d "{\"version\": \"$version\", \"build\": \"$build\", \"branch\": \"$branch\", \"sk\": \"${{ secrets.DEVELOPSK }}\"}"
+      - name: Install dependencies and package Lambda function
+        run: |
+          pip install -r ./cloud/websites/version.gridlabd.us/lambda/requirements.txt -t ./cloud/websites/version.gridlabd.us/lambda/package
+          cd ./cloud/websites/version.gridlabd.us/lambda/package
+          zip -r ../lambda.zip .
+          cd ..
+          zip -r lambda.zip app.py
+
+      - name: Update Lambda image version_handler
+        run: |
+          aws lambda update-function-code --function-name version_handler --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
+
+      - name: Update Lambda image update_latest
+        run: |
+          aws lambda update-function-code --function-name update_latest --zip-file fileb://$(pwd)/cloud/websites/version.gridlabd.us/lambda/lambda.zip
+
+      - name: Make POST request to version.gridlabd.us/update
+        run: |
+          version=$(./build-aux/version.sh --version)
+          build=$(./build-aux/version.sh --number)
+          branch=$(./build-aux/version.sh --branch)
+          curl -f -X POST "https://version.gridlabd.us/update_latest" \
+            -H "Content-Type: application/json" \
+            -d "{\"version\": \"$version\", \"build\": \"$build\", \"branch\": \"$branch\", \"sk\": \"${{ secrets.DEVELOPSK }}\"}"
