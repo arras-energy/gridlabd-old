@@ -46,7 +46,7 @@ def get(station):
 		"pressure" : f"{obs.press.value()} inH2O",
 		"clouds" : obs.sky_conditions(),
 	}
-	result["metar"] = data
+	result["metar"] = data.replace("\n"," ")
 	return result
 
 def stations():
