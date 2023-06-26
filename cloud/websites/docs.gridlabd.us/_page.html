@@ -1,0 +1,332 @@
+<HTML>
+
+<HEAD>
+<LINK rel="stylesheet" type="text/css" href="_theme.css" />
+<SCRIPT LANGUAGE="Javascript" SRC="_defaults.js"></SCRIPT>
+<SCRIPT LANGUAGE="Javascript" SRC="_config.js"></SCRIPT>
+<SCRIPT LANGUAGE="Javascript">
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [["$","$"],["\\(","\\)"]],
+            displayMath: [["$$","$$"],["\\[","\\]"]],
+            processEscapes: true
+        }
+    };
+</SCRIPT>
+<SCRIPT SRC="https://polyfill.io/v3/polyfill.min.js?features=es6"></SCRIPT>
+<SCRIPT ID="MathJax-script" SRC="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+    function load_markdown(url)
+    {
+        var r = new XMLHttpRequest();
+        r.open('GET',url,false);
+        r.send(null);
+        if ( r.status == 200 )
+        {
+            var rr = new XMLHttpRequest();
+            rr.open('POST','https://api.'+host+'/markdown/raw',false);
+            if ( github_authorization_token != null )
+            {
+                rr.setRequestHeader("Authorization","token " + github_authorization_token);
+            }
+            rr.send(r.responseText);
+            if ( rr.status == 200 )
+            {
+                var re = /<a href="/g;
+                var rt = re[Symbol.replace](rr.responseText,'<A TARGET="_blank" HREF="');
+
+                re = /\[image:[-A-Za-z_ 0-9\/.]+\]/g;
+                function to_image(tag)
+                {
+                    ref = "https://" + default_gethost + "/" + owner + "/" + project + "/" + branch + "/docs" + folder + "/";
+                    tag = tag.substr(7,tag.length-8).trim();
+                    return '<IMG SRC="' + ref + tag + '" WIDTH="100%" />';
+                }
+                rt = re[Symbol.replace](rt,to_image);
+
+                re = /\[video:[-A-Za-z_ 0-9\/.]+\]/g;
+                function to_video(tag)
+                {
+                    tag = tag.substr(7,tag.length-8).trim();
+                    return '<iframe width="560" height="315" src="https://www.youtube.com/embed/' + tag + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                }
+                rt = re[Symbol.replace](rt,to_video);
+
+                re = /\[code:[-A-Za-z_ 0-9\/.]+\]/g;
+                function to_code(tag)
+                {
+                    ref = "https://" + default_gethost + "/" + owner + "/" + project + "/" + branch;
+                    tag = tag.substr(6,tag.length-7).trim();
+                    if ( tag.substr(0,1) != '/' )
+                    {
+                        tag = '/' + folder + '/' + tag;
+                    }
+                    var r3 = new XMLHttpRequest();
+                    r3.open('GET',ref+tag,false);
+                    r3.send(null);
+                    if ( r3.status == 200 )
+                    {
+                        return '<PRE><CODE>' + r3.responseText + '</CODE></PRE>';
+                    }
+                    else
+                    {
+                        return '<CODE COLOR=RED>' + ref+tag + ': ' + r3.responseText + '</CODE>';
+
+                    }
+                }
+                rt = re[Symbol.replace](rt,to_code);
+
+                re = /\[\[[-A-Za-z_ 0-9\/.~]+\]\]/g;
+                function to_url(tag)
+                {
+                    tag = tag.substr(2,tag.length-4).trim();
+                    if ( tag.lastIndexOf('/') > 0 )
+                        stag = ' (' + tag.substring(0,tag.lastIndexOf('/')).replace(/\//g,' ').trim() + ')';
+                    else
+                        stag = '';
+                    ntag = tag.substring(tag.lastIndexOf('/')+1);
+                    if ( tag.charAt(0) == '/' )
+                        ref = '/' + (tag.charAt(1).toUpperCase() + tag.slice(2));
+                    else
+                        ref = '/' + (tag.charAt(0).toUpperCase() + tag.slice(1));
+                    if ( ntag.slice(-1) == '~' )
+                    {
+                        ref = ref.slice(0,-1)
+                        ntag = ntag.slice(0,-1)
+                        stag = ''
+                    }
+                    return "<A HREF=\"" + location.origin + location.pathname + "?&doc=" + ref + ".md\">" + ntag + stag + "</A>";
+                }
+                rt = re[Symbol.replace](rt,to_url);
+
+                re = /\(\([-A-Za-z_ 0-9\/]+\)\)/g;
+                function to_button(tag)
+                {
+                    tag = tag.substr(2,tag.length-4).trim();
+                    if ( tag.lastIndexOf('/') > 0 )
+                        stag = ' (' + tag.substring(0,tag.lastIndexOf('/')).replace(/\//g,' ').trim() + ')';
+                    else
+                        stag = '';
+                    ntag = tag.substring(tag.lastIndexOf('/')+1);
+                    if ( tag.charAt(0) == '/' )
+                        ref = '/' + (tag.charAt(1).toUpperCase() + tag.slice(2));
+                    else
+                        ref = '/' + (tag.charAt(0).toUpperCase() + tag.slice(1));
+                    return "<A HREF=\"" + location.origin + location.pathname + "?doc=" + ref + ".md\"><INPUT TYPE=\"submit\" CLASS=\"header\" VALUE=\"" + tag + "\" /></A>";
+                }
+                rt = re[Symbol.replace](rt,to_button);
+                if ( rt.search("TODO") >= 0 )
+                    document.writeln("<FONT COLOR=RED>WARNING: This document has known issues (TODO found).</FONT><HR>");
+                document.writeln(rt.replace("\\newpage",""));
+            }
+            else if ( rr.status == 403 )
+            {
+                throw ('Unauthenticated access rate limited.');
+            }
+            else
+            {                
+                throw ('<FONT COLOR=RED>ERROR ' + rr.status + ' ['+url+'] ' + rr.responseText + '</FONT><BR/>');
+            }
+        }
+        else if ( r.status == 403 )
+        {
+            throw ('Unauthenticated access rate limited.');
+        }
+        else if ( r.status == 404 )
+        {
+            ref = "https://" + host + "/" + owner + "/" + project + "/new/" + branch + "/docs/" + doc;
+            document.getElementById("edit").disabled = true;
+            throw ('Document "' + doc + '" not found. <A HREF="' + ref + '" TARGET="_blank"><INPUT TYPE="submit" VALUE="Create"  /></A>');
+        }
+        else
+        {
+            throw ('<FONT COLOR=RED>ERROR ' + r.status + ' ['+url+'] ' + r.responseText + '</FONT><BR/>');
+        }
+    }
+    function set_search(event)
+    {
+        if ( event == null || event.key == 'Enter' )
+        {
+            search = document.getElementById("search").value;
+            if ( search != "" )
+            {
+                function show_results(key,value)
+                {
+                    if ( key == 'total_count' )
+                    {
+                        content += value + ' items found in master branch.<BR/>The following documents were found<BR/>';
+                    }
+                    else if ( key == 'path' && value.indexOf('docs/') == 0 && value.endsWith('.md') )
+                    {
+                        docspec = href + "_page.html?branch=master&doc=/" + value.substring(5);
+                        content += '&bullet;&nbsp;<A HREF="' + docspec + '" TARGET="page" ONCLICK="get_document(\'' + value + '\')">' + value.substring(5) + '</A><BR/>';
+                    }
+                }
+                content = ""
+
+                // filename search
+                query = run_query('https://api.' + host + '/search/code?q=filename:' + search + '+path:/docs+extension:md+repo:' + owner + '/' + project);
+                if ( query.status == 200 )
+                {
+                    content += "<P/><B>Search result for file names matching '" + search + "'</B>: ";
+                    JSON.parse(query.responseText,show_results);                 
+                }
+                else
+                {
+                    content += 'Search for "' + search + '" failed: status ' + query.status + '<BR/>' + query.responseText;
+                }
+
+                // content search
+                query = run_query('https://api.' + host + '/search/code?q=' + search + '+path:/docs+extension:md+repo:' + owner + '/' + project);
+                if ( query.status == 200 )
+                {
+                    content += "<P/><B>Search result for files containing '" + search + "'</B>: ";
+                    JSON.parse(query.responseText,show_results);                 
+                }
+                else
+                {
+                    content += 'Search for "' + search + '" failed: status ' + query.status + '<BR/>' + query.responseText;
+                }
+                document.getElementById("page").innerHTML = content;
+            }
+        }
+    }
+</SCRIPT>
+</HEAD>
+
+<BODY CLASS="page">
+
+<SCRIPT LANGUAGE="JavaScript">
+    var query = new URLSearchParams(window.location.search);
+    var href = location.origin + location.pathname.substring(0,location.pathname.lastIndexOf('/')+1);
+    var base = 'https://' + default_gethost + '/' + owner + '/' + project + '/' + branch + '/docs';
+</SCRIPT>
+
+<DIV CLASS="TOPBLOCK">
+<TABLE WIDTH="100%" CLASS="page" BORDER=0 CELLSPACING=0 >
+<TR><TD ALIGN="left">
+        Host:
+    </TD>
+    <TD ALIGN="left">
+        <SCRIPT LANGUAGE="Javascript">
+            document.writeln('<A HREF="https://' + host + '/" TARGET="_blank"><B>' + host + '</B></A>');
+        </SCRIPT>
+    </TD>
+    <TD ALIGN="left">
+        User/Org:
+    </TD>
+    <TD ALIGN="left">
+        <SCRIPT LANGUAGE="Javascript">
+            document.writeln('<A HREF="https://' + host + '/' + owner + '/"  TARGET="_blank"><B>' + owner + '</B></A>');
+        </SCRIPT>
+    </TD>
+    <TD ALIGN="left">
+        Project:
+    </TD>
+    <TD ALIGN="left">
+        <SCRIPT LANGUAGE="Javascript">
+            document.writeln('<A HREF="https://' + host + '/' + owner + '/' + project + '"  TARGET="_blank"><B>' + project + '</B></A>');
+        </SCRIPT>
+    </TD>
+    <TD ALIGN="left"><SCRIPT LANGUAGE="Javascript">
+        document.writeln('<A HREF="https://' + host + '/' + owner + '/' + project + '/issues/new/choose" TARGET="_blank"><INPUT ID="issue" TYPE="submit" VALUE="Report problem" /></A>');
+        </SCRIPT>
+    </TD>
+    <TD ALIGN="left">
+        Branch:
+    </TD>
+    <TD ALIGN="left">
+        <SCRIPT LANGUAGE="Javascript">
+            document.writeln('<A HREF="https://' + host + '/' + owner + '/' + project + '/tree/' + branch + '"  TARGET="_blank"><B>' + branch + '</B></A>');
+        </SCRIPT>
+    </TD>
+</TR>
+<TR>
+    <TD ALIGN="left">
+        Section:
+    </TD>
+    <TD ALIGN="left" COLSPAN=3>
+       <B>
+        <SCRIPT LANGUAGE="JavaScript">
+            url = 'https://'+host+'/'+owner+'/'+project+'/tree/'+branch+'/docs' + doc;
+            stag = doc.substring(0,doc.lastIndexOf('/')).replace(/\//g,' ');
+            document.writeln(stag);
+        </SCRIPT>
+        </B>
+    </TD>
+    <TD ALIGN="left">
+        Document:
+    </TD>
+    <TD ALIGN="left">
+        <B><SCRIPT LANGUAGE="JavaScript">
+            url = 'https://'+host+'/'+owner+'/'+project+'/edit/'+branch+'/docs' + doc;
+            document.writeln(url.substring(url.lastIndexOf('/')+1).replace('.md',''));
+        </SCRIPT></B>
+    </TD>
+    <TD ALIGN="left"><SCRIPT LANGUAGE="Javascript">
+            document.writeln('<A HREF="' + url + '" TARGET="_blank"><INPUT ID="edit" TYPE="submit" VALUE="Edit document" /></A>');
+        </SCRIPT>
+    </TD>
+    <TD ALIGN="left">
+        Search:
+    </TD>
+    <TD ALIGN="left"><SCRIPT LANGUAGE="Javascript">
+            document.writeln('<INPUT ID="search" NAME="search" VALUE="' + search_keyword + '" ONKEYDOWN="set_search(event)" />');
+        </SCRIPT>
+        <INPUT ID="submit" TYPE="submit" VALUE="Go" ONCLICK="set_search(null)" />
+    </TD>
+</TR>
+</TABLE>
+</DIV>
+
+
+<SCRIPT LANGUAGE="JavaScript">
+    if ( github_authorization_token == null )
+    {
+        document.getElementById("search").disabled = true;
+        document.getElementById("search").value = "(login required)";
+        document.getElementById("search").style.color = "grey";
+        document.getElementById("submit").disabled = true;
+    }
+    document.writeln('<DIV ID="header" CLASS="header">')
+    try 
+    { 
+        load_markdown(base+'/_header.md') ;
+    } 
+    catch (e) 
+    {
+    }
+    document.writeln('</DIV>');
+    document.writeln('<DIV ID="page" CLASS="page">')
+    try 
+    {    
+        if ( search_keyword == null || search_keyword == '' )
+        {
+            load_markdown(base+doc);
+        }
+        else
+        {
+            set_search(null);
+        }
+
+    }
+    catch (msg)
+    {
+        document.writeln("<FONT COLOR=RED>" + msg + "</FONT>");
+    }
+    document.writeln('</DIV>');
+    document.writeln('<DIV ID="footer" CLASS="footer">')
+    try 
+    { 
+        load_markdown(base+'/_footer.md') 
+    } 
+    catch (e) 
+    {
+        load_markdown(base.replace('/docs','')+'/COPYRIGHT') 
+    }
+    document.writeln('</DIV>');
+</SCRIPT>
+
+</BODY>
+
+</HTML>

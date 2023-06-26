@@ -1,4 +1,4 @@
-# nsrdb_weather [OPTIONS ...]
+# Syntax: nsrdb_weather [OPTIONS ...]
 """NSRDB weather data tool
 
 SYNOPSIS

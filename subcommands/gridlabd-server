@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: server [OPTIONS ...] COMMAND [ARGS ...]
 ## GridLAB-D server control
 ## 
 ## Syntax: gridlabd server COMMAND

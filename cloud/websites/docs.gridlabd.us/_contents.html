@@ -1,0 +1,259 @@
+<HTML>
+<HEAD>
+<LINK rel="stylesheet" type="text/css" href="_theme.css" />
+<SCRIPT LANGUAGE="Javascript" SRC="_defaults.js"></SCRIPT>
+<SCRIPT LANGUAGE="Javascript" SRC="_config.js"></SCRIPT>
+</HEAD>
+
+<BODY ONLOAD="set_owner(null)" CLASS="contents">
+
+<DIV CLASS="topblock">
+<TABLE WIDTH="100%">
+<SCRIPT LANGUAGE="JavaScript">
+    function set_owner(event)
+    {
+        if ( event == null || event.key === 'Enter' )
+        {
+            var selector = document.querySelector('#project');
+            while ( selector.options.length > 0 )
+            {
+                selector.remove(0);
+            }
+            host = document.getElementById("host").value;
+            owner = document.getElementById("owner").value;
+            r = run_query('https://api.'+host+'/users/'+owner+'/repos?per_page=100');
+            if ( r.status == 200 )
+            {
+                JSON.parse(r.responseText, function (key,value)
+                {
+                    if ( key == 'full_name' )
+                    {
+                        value = value.substring(owner.length+1);
+                        if ( value[0] != '.' )
+                        {
+                            var opt = document.createElement("option");
+                            opt.text = value;
+                            opt.value = value;
+                            selector.add(opt,null);
+                        }
+                    }
+                })
+                selector.value = project;
+                if ( selector.value === "" )
+                {
+                    selector.value = selector.options[0].value;
+                }
+            }
+            set_project(event);
+        }
+    }
+    function set_project(event)
+    {
+        var selector = document.querySelector('#branch');
+        while ( selector.options.length > 0 )
+        {
+            selector.remove(0);
+        }
+        host = document.getElementById("host").value;
+        owner = document.getElementById("owner").value;
+        project = document.getElementById("project").value;
+        var r = run_query('https://api.'+host+'/repos/'+owner+'/'+project+'/branches?per_page=100');
+        if ( r.status == 200 )
+        {
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' )
+                {
+                    var opt = document.createElement("option");
+                    opt.text = value;
+                    opt.value = value;
+                    selector.add(opt,null);
+                }
+            })
+            selector.value = branch;
+            if ( selector.value != branch )
+            {
+                selector.value = "master";
+            }
+        }
+        set_branch(null);
+    }
+    function set_branch(event)
+    {
+        host = document.getElementById("host").value;
+        owner = document.getElementById("owner").value;
+        project = document.getElementById("project").value;
+        branch = document.getElementById("branch").value;
+        document.getElementById("contents").innerHTML = get_contents("","");
+    }
+    function set_folder(path)
+    {
+        // console.info('*** set_folder("' + path + '")');
+        folder = path;
+        document.getElementById("contents").innerHTML = get_contents("","");
+    }
+    function get_contents(path,indent)
+    {
+        // console.info('get_contents(path="' + path + '"); folder = "' + folder +'";');
+        if ( path == "" )
+        {
+            contents = "";
+        }
+        var r = run_query('https://api.'+host+'/repos/'+owner+'/'+project+'/contents/docs' + path + '?ref='+branch);
+        if ( r.status == 200 )
+        {
+            // display folders
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' )
+                {
+                    try 
+                    { 
+                        ext = value.split('.');
+                        if ( ext.length == 1 || ( ext[0] === "" && ext.length == 2 ) )
+                            ext = "";
+                        else
+                            ext = ext.pop();
+                    } 
+                    catch(e) 
+                    { 
+                        ext = ""; 
+                    }
+                    if ( ext === "" && value.substring(0,1) != '_' )
+                    {
+                        subitem = path + '/'+ value;
+                        // console.info("  subitem = '" + subitem + "'; folder = '" + folder + "'; match = " + (folder==subitem));
+
+                        // display folder name only
+                        if ( folder.indexOf(subitem) != 0 )
+                        {
+                            contents += indent + '<A REL="nofollow" ONCLICK="set_folder(\'' + subitem + '\')"><SMALL>&#x25BC;&nbsp;</SMALL>' + value  + '</A>'+ '<BR/>';
+                        }
+
+                        // display folder contents
+                        else
+                        {
+                            contents += indent + '<B><A REL="nofollow" ONCLICK="set_folder(\'' + path + '\')"><SMALL>&#x25B3;&nbsp;</SMALL>'+ value + '</A></B>'+ '<BR/>';
+                            return get_contents(subitem,indent+"&nbsp;&nbsp;&nbsp;&nbsp;");
+                        }
+                    }
+                }
+            });
+
+            // display documents
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
+                {
+                    docspec = href + "?owner=" + owner + "&project=" + project + "&branch=" + branch + "&folder=" + path + "&doc=" + path + '/' + value;
+                    if ( path + "/" + value === doc )
+                        contents += "<B>";
+                    contents += indent + '<A HREF="' + docspec + '" TARGET="page" ONCLICK="get_document(\'' + path + '/' + value + '\')">' + /[^A-Za-z0-9-]/g[Symbol.replace](value.substring(0,value.length-3),'&nbsp;') + '</A>';
+                    if ( path + "/" + value === doc )
+                        contents += "</B>";
+                    contents += '<BR/>';
+                }
+            });
+        }
+        else if ( r.status == 401 )
+        {
+            if ( github_authorization_token != null )
+            {
+                github_authorization_token = null;
+                set_default("token",github_authorization_token);
+                reload_frameset();
+            }
+        }
+        else if ( r.status == 404 )
+        {
+            contents = "No documents listed.";
+        }
+        else if ( r.status == 403 )
+        {
+            contents = "Unauthenticated access rate limited.";
+        }
+        else
+        {
+            contents = contents + ("ERROR " + r.status + ": " + r.responseText);
+        }
+        return contents;
+    }
+    function get_document(item)
+    {
+        // console.info("get_document(item='" + item + "')")
+        doc = item;
+        save_defaults();
+        document.getElementById("contents").innerHTML = get_contents("","");
+    }
+    function set_authorization(event)
+    {
+        set_default("token",document.getElementById("token").value);
+    }
+    function get_authorization()
+    {
+        if ( github_authorization_token == null )
+        {
+            key = "";
+            try {
+                auth = run_query(location.origin+"/_auth.key");
+                if ( auth.status == 200 )
+                    key = auth.responseText;
+            }
+            catch {}
+            token = prompt("You may increase your access rate by using a personal GitHub authorization token.\nSee https://github.com/settings/tokens for details.\n\nEnter github access token:",key);
+            if ( token != null )
+            {
+                github_authorization_token = token;
+            }
+        }
+        else
+        {
+            github_authorization_token = null;
+        }
+        set_default("token",github_authorization_token);
+        reload_frameset();
+    }
+    var href = location.origin + location.pathname.replace('/_contents.html','/_page.html');
+    document.writeln('<TR><TH ALIGN=LEFT>Host</TH>');
+    if ( github_authorization_token == null )
+        login = "Login";
+    else
+        login = "Logout";
+    if ( document.cookie.indexOf("BLOCKED=") >= 0 )
+        disabled = "DISABLED";
+    else
+        disabled = "";
+    document.writeln('<TD><INPUT ID="host" NAME="host" VALUE="' + host + '" /><INPUT TYPE="submit" ONCLICK="get_authorization()" VALUE="' + login + '" ' + disabled + '/></TD></TR>');
+    document.writeln('<TR><TH ALIGN=LEFT>User/Org</TH>');
+    document.writeln('<TD><INPUT ID="owner" NAME="owner" ONBLUR="set_owner(null)" ONKEYDOWN="set_owner(event)" VALUE="' + owner + '" /></TD></TR>');
+    document.writeln('<TR><TH ALIGN=LEFT>Project</TH>')
+    document.writeln('<TD><SELECT ID="project" ONCHANGE="set_project(event)"></SELECT></TD></TR>');
+    document.writeln('<TR><TH ALIGN=LEFT>Branch</TH>');
+    document.writeln('<TD><SELECT ID="branch" ONCHANGE="set_branch(event)"></SELECT></TD></TR>');
+</SCRIPT>
+</TABLE>
+</DIV>
+<BR/>
+
+<DIV CLASS="contents">
+<CENTER>Table of Contents</CENTER>
+<HR/>
+
+<DIV ID="contents">
+</SCRIPT>
+</DIV>
+
+</DIV>
+<BR/>
+
+<DIV CLASS="footer">
+<SCRIPT LANGUAGE="JavaScript">
+    document.writeln(copyright);
+</SCRIPT>
+<P/><B>Privacy Statement:</B> This <A HREF="https://github.com/slacgismo/docs-browser" TARGET="_blank">document browser</A> is a browser-based application. <A HREF="http://www.slacgismo.org/" TARGET="_blank">SLAC Gismo</A> does not collect data using this tool.  However, the host from which you obtain the source documents may collect this data without our knowledge.  Please consult the <SCRIPT LANGUAGE="Javascript">document.writeln('<A HREF="https://help.' + host + '/en/github/site-policy/github-privacy-statement" TARGET="_blank">document host\'s privacy statement</A>');</SCRIPT> for details about what information they collect.
+<P/><B>Cookie Policy:</B> This <A HREF="https://github.com/slacgismo/docs-browser" TARGET="_blank">document browser</A> places a cookie on your system to improve your document browsing experience.  This cookie includes information about the most recent document host, owner, project, branch, folder, file viewed, and the login token, if used.  This information is never shared directly with any server or data collection system. However, the information is used to perform API calls to the document host. These calls may be tracked by the document host.  Please consult the <SCRIPT LANGUAGE="Javascript">document.writeln('<A HREF="https://help.' + host + '/en/github/site-policy/github-privacy-statement" TARGET="_blank">document host\'s privacy statement</A>');</SCRIPT> for details about how they use the information they collect. 
+<P/><B>Cookie Control:</B>: You may <INPUT TYPE="submit" VALUE="View" ONCLICK="cookie_view()"  />, <INPUT TYPE="submit" VALUE="Clear" ONCLICK="cookie_clear(false)" />, or <INPUT TYPE="submit" VALUE="Block" ONCLICK="cookie_block()" /> this <A HREF="https://github.com/slacgismo/docs-browser" TARGET="_blank">document browser</A>'s use of cookies for the domain <I><SCRIPT LANGUAGE="Javascript">document.writeln('<A HREF="'+location.origin+'" TARGET="_blank">' + location.hostname + '</A>');</SCRIPT></I> at any time.
+</DIV>
+
+</BODY>
+</HTML>

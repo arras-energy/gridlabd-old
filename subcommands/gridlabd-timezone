@@ -1,8 +1,8 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
-"""Syntax: gridlabd timezone [OPTIONS...] LOCATION
+# Syntax: timezone [OPTIONS ...] LOCATION
+__doc__="""Syntax: gridlabd timezone [OPTIONS ...] LOCATION
 
 The gridlabd timezone subcommand obtains the timezone for the location given
 by LOCATION, which may be in the form `LATITUDE,LONGITUDE`, `local`, or an IP

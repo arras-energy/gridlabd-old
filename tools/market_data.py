@@ -1,4 +1,4 @@
-# market_data [OPTIONS ...]
+# Syntax: market_data [OPTIONS ...]
 """ISO Market Data tool
 
 SYNOPSIS

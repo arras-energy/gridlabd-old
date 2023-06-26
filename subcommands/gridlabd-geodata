@@ -1,8 +1,8 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
-"""Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
+# Syntax: geodata OPTIONS DIRECTIVE [ARGUMENTS]
+__doc__="""Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
 The geodata command gathers and joins geographic data. The geodata subcommand
 uses directives that are documented in the DIRECTIVES section below.

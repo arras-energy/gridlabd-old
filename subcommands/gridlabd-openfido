@@ -1,4 +1,5 @@
 #!/bin/bash
+# Syntax: openfido [OPTIONS ...] FUNCTION [ARGUMENTS ...]
 if [ ! -x $GLD_BIN/openfido ]; then
 	curl -sL https://raw.githubusercontent.com/openfido/cli/main/install.sh | bash
 fi
