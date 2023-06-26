@@ -54,7 +54,6 @@ class {classname}
 	double pressure[mbar];
 	char256 clouds;
 	char1024 metar;
-	on_init "python:metar_weather.weather_init";
 }}
 """)
 for station in station_list:

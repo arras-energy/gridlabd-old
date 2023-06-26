@@ -42,7 +42,7 @@ def get(station):
 		"dew_point" : f"{obs.dewpt.value()} degC",
 		"wind_speed" : f"{obs.wind_speed.value()} knot",
 		"wind_dir" : f"{obs.wind_dir.value()} deg",
-		"visibility" : f"{obs.vis.value()} miles",
+		"visibility" : f"{obs.vis.value()} mile",
 		"pressure" : f"{obs.press.value()} inH2O",
 		"clouds" : obs.sky_conditions(),
 	}
