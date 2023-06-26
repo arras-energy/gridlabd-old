@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: contributors [<options>]
 import sys, os, github
 
 E_NONE = None

@@ -1,8 +1,8 @@
 ''':'
 exec "${GLD_BIN:-/usr/local/opt/gridlabd/current}/python3" "$0" "$@"
 :' '''
-
-__doc__ = """Syntax: gridlabd loaddata [OPTIONS]
+# Syntax: loaddata [OPTIONS ...]
+__doc__ = """Syntax: gridlabd loaddata [OPTIONS ...]
 
 Downloads building load data from the NREL ResStock and ComStock data lakes. 
 

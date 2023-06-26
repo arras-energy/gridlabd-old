@@ -1,3 +1,4 @@
+# Syntax: install [OPTIONS ...] ORGANIZATION/REPOSITORY ...
 """GridLAB-D tool installer
 
 Syntax:

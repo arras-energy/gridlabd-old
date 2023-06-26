@@ -2,7 +2,7 @@
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
-"""Global elevation data acquisition
+__doc__="""Global elevation data acquisition
 
 REQUIREMENTS
 

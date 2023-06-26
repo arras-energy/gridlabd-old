@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: json-get [keys ...] [-k|--keys] [-j|--json|-r|--raw|-r|--csv] [-i|--input INTPUT] [-o|--output OUTPUT]
 import sys
 import json
 

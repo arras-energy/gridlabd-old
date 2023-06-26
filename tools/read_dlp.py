@@ -1,4 +1,4 @@
-# read_dlp FILENAME.DLP [OPTIONS ...] 
+# Syntax: read_dlp FILENAME.DLP [OPTIONS ...] 
 """Read Dynamic Load Profile
 
 Syntax: python3 -m read_dlp FILENAME.DLP [OPTIONS ...] 
