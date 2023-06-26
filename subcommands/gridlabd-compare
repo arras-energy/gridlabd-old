@@ -1,8 +1,8 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
-"""gridlabd-compare subcommand
+# Syntax: compare [OPTIONS] FILE1 FILE2
+__doc__="""gridlabd-compare subcommand
 """
 
 import sys, getopt

@@ -2,7 +2,7 @@
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
 
-"""Syntax: gridlabd_library <subcommand> <options>...
+__doc__="""Syntax: gridlabd_library <subcommand> <options>...
 Subcommands:
   help
 """

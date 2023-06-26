@@ -1,0 +1,63 @@
+BODY.TOPBAR {
+    color: white;
+    background-color: #383838;
+    padding: 0px;
+}
+BODY.CONTENTS {
+    background-color: #f4f4f4;
+}
+BODY.PAGE {
+    background-color: #f4f4f4;
+}
+A:LINK,A:VISITED {
+	color: blue;
+	text-decoration: none;
+}
+A:ACTIVE {
+	color: blue;
+	text-decoration: underline;
+}
+A:BROKEN {
+	color: red;
+	text-decoration: none;
+}
+
+H1 {
+    border-bottom: 1px solid lightgrey;
+}
+CODE {
+    background-color: #f8f8f8;
+}
+
+PRE {
+    padding: 5px;
+
+    background-color: #f8f8f8;
+}
+DIV.HEADER {
+	font-size: small;
+}
+DIV.FOOTER {
+	font-size: small;
+}
+
+DIV.TOPBLOCK {
+    border: 1px solid lightgrey;
+}
+DIV.PAGE {
+    background-color: white;
+    border: 1px solid lightgrey;
+    padding: 20px;
+    border-radius: 10px;
+}
+DIV.CONTENTS {
+    background-color: white;
+    border: 1px solid grey;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+INPUT.HEADER {
+    font-size: large;
+    font-weight: bold;
+}

@@ -1,4 +1,5 @@
 # enable locking of the current executable to ensure only one runs at a time
+# Syntax: lock PIDFILE
 PIDFILE="/tmp/$(basename $0).pid"
 trap "rm -f ${PIDFILE}; exit" INT TERM EXIT
 if [ -e $PIDFILE ]; then

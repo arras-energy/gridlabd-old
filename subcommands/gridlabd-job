@@ -1,7 +1,7 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
-
+# Syntax: job [OPTIONS ...] FILES...
 #
 # This script runs multiple jobs as specified by the controlfile.csv, 
 # where the columns are the globals and rows are the job number.
@@ -12,7 +12,17 @@ import subprocess
 from multiprocessing import pool, freeze_support
 import curses
 
-SYNTAX="Syntax: gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-m|--modifyfile MODIFY] [-T|--threadcount NTHREADS] FILE1 ..."
+SYNTAX="""Syntax: gridlabd job [OPTIONS ...] FILES... 
+Options:
+  -v|--verbose                enable verbose output
+  -q|--quiet                  disable error messages
+  -d|--debug                  output debuggin messages
+  -j|--jobfile JOBFILE        select job file
+  -w|--workdir FOLDER         select work directory
+  -c|--configfile CONFIG      select configuration file
+  -m|--modifyfile MODIFY      select modification file
+  -T|--threadcount NTHREADS   select number of threads
+"""
 VERBOSE=False
 DEBUG=False
 QUIET=False
