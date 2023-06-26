@@ -129,7 +129,7 @@ object meter:671 {
 	       
                speed 360 1/min;       		 
 	       		
-	       torque 680 N.m;
+	       torque 680 N*m;
 	       	
 	       time_operation 20 min;
 	       	
