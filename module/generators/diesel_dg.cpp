@@ -55,7 +55,7 @@ diesel_dg::diesel_dg(MODULE *module)
 			PT_double, "speed[1/min]", PADDR(speed),PT_DESCRIPTION,"speed of an engine",
 			PT_double, "cylinders", PADDR(cylinders),PT_DESCRIPTION,"Total number of cylinders in a diesel engine",
 			PT_double, "stroke", PADDR(stroke),PT_DESCRIPTION,"category of internal combustion engines",
-			PT_double, "torque[N]", PADDR(torque),PT_DESCRIPTION,"Net brake load",
+			PT_double, "torque[N*m]", PADDR(torque),PT_DESCRIPTION,"Net brake load",
 			PT_double, "pressure[N/m^2]", PADDR(pressure),PT_DESCRIPTION,"",
 			PT_double, "time_operation[min]", PADDR(time_operation),PT_DESCRIPTION,"",
 			PT_double, "fuel[kg]", PADDR(fuel),PT_DESCRIPTION,"fuel consumption",

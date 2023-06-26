@@ -1,3 +1,4 @@
+# Syntax: create_schedule CSVFILE [-o|--output=GLMFILE] [OPTIONS ...]
 """Syntax: gridlabd create_schedule CSVFILE [-o|--output=GLMFILE] [OPTIONS ...]
 
 Options

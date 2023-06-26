@@ -1,4 +1,4 @@
-# fire_report [OPTIONS ...]
+# Syntax: fire_report [OPTIONS ...]
 """Fire Incident Report Tool
 
 SYNOPSIS

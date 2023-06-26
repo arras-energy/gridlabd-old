@@ -1,3 +1,4 @@
+# Syntax: create_ductbank [-i|--input]=INPUT.csv [-o|--output]=OUTPUT.glm [--PARAMETER=VALUE ...]
 """Create ductbank
 
 Syntax:
@@ -16,7 +17,7 @@ E_SYNTAX = 1
 sys.argv.append("--name=test")
 
 if len(sys.argv) == 1:
-	print("Syntax: gridlabd create_ductbank [-[-input|i]=INPUT.csv]] [-[-output|o]=OUTPUT.glm] [PARAMETER=VALUE ...]",file=sys.stderr)
+	print("Syntax: gridlabd create_ductbank [-i|--input]=INPUT.csv [-o|--output]=OUTPUT.glm [--PARAMETER=VALUE ...]",file=sys.stderr)
 	exit(E_SYNTAX)
 
 INPUT = sys.stdin

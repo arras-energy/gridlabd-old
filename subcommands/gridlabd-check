@@ -1,8 +1,9 @@
 ''':'
 exec "$GLD_BIN/python3" "$0" "$@"
 :' '''
+# Syntax: check [OPTIONS] FILE ...
 
-"""GridLAB-D model check routines
+__doc__="""GridLAB-D model check routines
 
 Syntax: gridlabd check [OPTIONS] FILE ...
 

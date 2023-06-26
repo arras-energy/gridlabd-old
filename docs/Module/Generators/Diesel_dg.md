@@ -17,7 +17,7 @@ GLM:
     speed "<decimal> 1/min";
     cylinders "<decimal>";
     stroke "<decimal>";
-    torque "<decimal> N";
+    torque "<decimal> N.m";
     pressure "<decimal> N/m^2";
     time_operation "<decimal> min";
     fuel "<decimal> kg";
@@ -388,7 +388,7 @@ Category of internal combustion engines
 ### `torque`
 
 ~~~
-  double torque[N];
+  double torque[N.m];
 ~~~
 
 Net brake load

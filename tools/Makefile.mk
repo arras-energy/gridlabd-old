@@ -1,3 +1,4 @@
+dist_pkgdata_DATA += tools/create_ductbank.py
 dist_pkgdata_DATA += tools/create_filter.py
 dist_pkgdata_DATA += tools/create_player.py
 dist_pkgdata_DATA += tools/create_meters.py
