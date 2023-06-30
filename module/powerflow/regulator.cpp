@@ -906,10 +906,23 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 		return t0;
 	}
 
-	if (first_run_flag[0] < 1 || first_run_flag[1] < 1 || first_run_flag[2] < 1) return t1;
-	else if (t1 <= next_time) return t1;
-	else if (next_time != TS_NEVER) return -next_time; //soft return to next tap change
-	else return TS_NEVER;
+	if ( first_run_flag[0] < 1 || first_run_flag[1] < 1 || first_run_flag[2] < 1 || t1 <= next_time ) 
+	{
+		// keep t1
+	}
+	else if ( next_time != TS_NEVER ) 
+	{
+		t1 = -next_time; // soft return to next tap change
+	}
+	else
+	{
+		t1 = TS_NEVER;
+	}
+	if ( t1 <= t0 )
+	{
+		warning("stopping the clock");
+	}
+	return t1 < 0 ? t1 : max(t1,t0+1);
 }
 TIMESTAMP regulator::postsync(TIMESTAMP t0)
 {
@@ -1138,7 +1151,7 @@ TIMESTAMP regulator::postsync(TIMESTAMP t0)
 		}
 	}
 
-	return t1;
+	return t1<=t0 ? t0+1 : t1;
 }
 
 
