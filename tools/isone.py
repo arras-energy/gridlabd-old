@@ -256,24 +256,24 @@ if __name__ == "__main__":
             properties = "\n    ".join([f'double {x};' for x in data.columns])
             with open(GLMFILE,"w") as glm:
                 glm.write(f"""// created by '{' '.join(sys.argv)}' at {datetime.datetime.now()}
-    class {CLASSNAME}
+class {CLASSNAME}
+{{
+    {properties}
+}}
+module tape;
+object {CLASSNAME}
+{{
+    name {OBJNAME};
+    object player
     {{
-        {properties}
-    }}
-    module tape;
-    object {CLASSNAME}
-    {{
-        name {OBJNAME};
-        object player
-        {{
-            file "{CSVFILE}";
-            property "{','.join(data.columns)}";
-        }};
-    }}
-    #define ISONE_TIMEZONE=EST+5EDT
-    #define ISONE_STARTDATE={data.index.get_level_values(0).min()}
-    #define ISONE_STOPDATE={data.index.get_level_values(0).max()+datetime.timedelta(days=1)}
-    """)
+        file "{CSVFILE}";
+        property "{','.join(data.columns)}";
+    }};
+}}
+#define ISONE_TIMEZONE=EST+5EDT
+#define ISONE_STARTDATE={data.index.get_level_values(0).min()}
+#define ISONE_STOPDATE={data.index.get_level_values(0).max()+datetime.timedelta(days=1)}
+""")
 
         fix_timestamps(data).to_csv(CSVFILE,float_format=FLOATFORMAT,header=(GLMFILE is None))
 
