@@ -1,0 +1,17 @@
+#python -m isone -d=smd/ME -s=2020-03-01 -e=2020-03-01 -c=test_isone.csv -g=test_isone_opt.glm
+#include "test_isone_opt.glm"
+object recorder
+{
+    parent isone;
+    file "test_isone_record.csv";
+    property "DA_Demand,RT_Demand,DA_LMP,DA_EC,DA_CC,DA_MLC,RT_LMP,RT_EC,RT_CC,RT_MLC,Dry_Bulb,Dew_Point";
+    interval 1h;
+}
+clock {
+    timezone ${ISONE_TIMEZONE};
+    starttime ${ISONE_STARTDATE};
+    stoptime ${ISONE_STOPDATE};
+}
+#ifexists "../test_isone_record.csv"
+#on_exit 0 diff ../test_isone_record.csv test_isone_record.csv > gridlabd.diff
+#endif
