@@ -123,7 +123,8 @@ def get_data(startdate=None,stopdate=None,dataset=None):
     for year in range(startdate.year,stopdate.year+1):
         data.append(get_year(year,dataset))
     data = pandas.concat(data)
-    return data.loc[pandas.date_range(startdate,stopdate)]
+    maxdate = min(data.index.get_level_values(0).max(),stopdate)
+    return data.loc[pandas.date_range(startdate,maxdate)]
 
 def fix_timestamps(df):
     """Fix timestamp in dataframe
