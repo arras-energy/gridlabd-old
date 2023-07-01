@@ -1,4 +1,8 @@
 #python -m isone -d=smd/ME -s=2020-03-01 -e=2020-03-01 -c=test_isone.csv -g=test_isone_opt.glm
+module tape
+{
+    csv_header_type NAME;
+}
 #include "test_isone_opt.glm"
 object recorder
 {
