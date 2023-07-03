@@ -13,6 +13,7 @@ dist_pkgdata_DATA += tools/gridlabd-editor.png
 dist_pkgdata_DATA += tools/gridlabd-editor.py
 dist_pkgdata_DATA += tools/insights.py
 dist_pkgdata_DATA += tools/install.py
+dist_pkgdata_DATA += tools/isone.py
 dist_pkgdata_DATA += tools/market_data.py
 dist_pkgdata_DATA += tools/mdb_info.py
 dist_pkgdata_DATA += tools/market_model.py
