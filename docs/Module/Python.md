@@ -2,7 +2,14 @@
 
 # Synopsis
 
-Python 3.6 or greater:
+Installation:
+~~~
+python3.10 -m venv myenv
+. myenv/bin/activate
+python3 -m pip install $(gridlabd --version=install)/share/gridlabd/*.whl
+~~~
+
+Python 3.10:
 ~~~
   >>> import gridlabd
   >>> gridlabd.title()
@@ -256,6 +263,7 @@ Saves the full model to the file.  The currently supported formats are `.glm`, `
 The following model is `test.glm`:
 ~~~
   module test;
+  #set suppress_repeat_messages=FALSE
   clock {
   	starttime '2018-01-01 00:00:00';
   	stoptime '2018-01-01 01:00:00';
