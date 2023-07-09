@@ -2,7 +2,14 @@
 
 # Synopsis
 
-Python 3.6 or greater:
+Installation:
+~~~
+python3.10 -m venv myenv
+. myenv/bin/activate
+python3 -m pip install $(gridlabd --version=install)/share/gridlabd/*.whl
+~~~
+
+Python 3.10:
 ~~~
   >>> import gridlabd
   >>> gridlabd.title()
