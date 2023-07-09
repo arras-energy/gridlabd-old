@@ -263,6 +263,7 @@ Saves the full model to the file.  The currently supported formats are `.glm`, `
 The following model is `test.glm`:
 ~~~
   module test;
+  #set suppress_repeat_messages=FALSE
   clock {
   	starttime '2018-01-01 00:00:00';
   	stoptime '2018-01-01 01:00:00';
