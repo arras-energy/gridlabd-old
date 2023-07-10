@@ -10,7 +10,7 @@ sh$ gridlabd shell
 
 # Description
 
-The `shell` subcommand opens a shell in the GridLAB-D environment. This can be used to run Python with the active python `venv` used for GridLAB-D.
+The `shell` subcommand opens a shell in the GridLAB-D environment. This can be used to run Python with the active python `venv` used for GridLAB-D, or to create a new Python virtual environment in which gridlabd can be run.
 
 The following environment variables are set in the shell environment:
 
@@ -34,6 +34,17 @@ The following environment variables are set in the shell environment:
 - `PYTHONPATH`: Python search path
 - `VIRTUAL_ENV`: Python virtual environment path
 - `VIRTUAL_ENV_PROMPT`: Python virtual environment prompt
+
+# Example
+
+The following commands open a GridLAB-D shell environment and create a Python virtual environment in which GridLAB-D is installed
+
+~~~
+gridlabd shell
+python$PYTHON_VER -m venv myenv
+. myenv/bin/activate
+python3 -m pip install $GLD_ETC/*.whl
+~~~
 
 # See also
 
