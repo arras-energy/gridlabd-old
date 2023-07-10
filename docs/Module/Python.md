@@ -5,12 +5,12 @@
 GridLAB-D Python venv:
 ~~~
 gridlabd shell
-python3.10 -m venv myenv
+python$PYTHON_VER -m venv myenv
 . myenv/bin/activate
-python3 -m pip install $(gridlabd --version=install)/share/gridlabd/*.whl
+python3 -m pip install $GLD_ETC/*.whl
 ~~~
 
-Python 3.10:
+Python 3:
 ~~~
   >>> import gridlabd
   >>> gridlabd.title()
