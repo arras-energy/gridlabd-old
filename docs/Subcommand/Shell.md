@@ -19,7 +19,6 @@ The following environment variables are set in the shell environment:
 - `CPPFLAGS`: C++ compiler flags
 - `CXXFLAGS`: C++ compiler flags
 - `GLD_BIN`: binary folder
-- `GLD_DOC`: documentation folder
 - `GLD_ETC`: shared files folder
 - `GLD_INC`: include files folder
 - `GLD_LIB`: library folder
