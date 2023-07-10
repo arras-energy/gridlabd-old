@@ -392,7 +392,7 @@ fi
 
 if test x$1 = xshell
 then :
-  $SHELL; exit $?
+  shift 1; $SHELL $@; exit $?
 fi
 
 if test -f "${GLD_ETC}/$1.py"
