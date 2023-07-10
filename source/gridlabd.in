@@ -265,7 +265,7 @@ as_nop=as_fn_nop
 ## -------------------- ##
 
 
-REALPATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' $0); 
+REALPATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' $0);
 export GLD_BIN=$(dirname $REALPATH)
 PREFIX=$(dirname $GLD_BIN)
 export GLD_ETC=$PREFIX/share/gridlabd
@@ -388,6 +388,11 @@ fi
 if test -f "${GLD_ETC}/gridlabd.rc"
 then :
   . ${GLD_ETC}/gridlabd.rc
+fi
+
+if test x$1 = xshell
+then :
+  $SHELL; exit $?
 fi
 
 if test -f "${GLD_ETC}/$1.py"
