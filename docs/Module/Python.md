@@ -2,8 +2,9 @@
 
 # Synopsis
 
-Installation:
+GridLAB-D Python venv:
 ~~~
+gridlabd shell
 python3.10 -m venv myenv
 . myenv/bin/activate
 python3 -m pip install $(gridlabd --version=install)/share/gridlabd/*.whl
@@ -316,7 +317,7 @@ bash$ python3
   2018-01-01 00:50:00 UTC,0.251099
   2018-01-01 00:55:00 UTC,2.778129
   2018-01-01 01:00:00 UTC,0.603100
-  4362511024
+  0
   >>> quit()
 ~~~
 The following example records all house temperature when the model commit if performed:
@@ -399,4 +400,6 @@ The first few lines of output are in `house.csv`:
 
 # See also
 
-* [[/Python subcommand]]
+* [[/Module/Python]]
+* [[/Subcommand/Shell]]
+
