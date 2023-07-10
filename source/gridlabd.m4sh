@@ -1,7 +1,7 @@
 dnl run "autom4te -l m4sh gridlabd.m4sh > gridlabd.in"
 AS_INIT
 
-REALPATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' $0); 
+REALPATH=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[[1]]))' $0); 
 export GLD_BIN=$(dirname $REALPATH)
 PREFIX=$(dirname $GLD_BIN)
 export GLD_ETC=$PREFIX/share/gridlabd
@@ -78,10 +78,12 @@ fi
 ###############################################################################
 # Python Configuration Data and Flags
 ###############################################################################
+PY_OS="$(uname -s)"
+
 . $GLD_BIN/activate
 
 export PYTHON_VER=$(python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)
-export PYTHON_CONFIG="$GLD_BIN/activate/python$PYTHON_VER-config"
+export PYTHON_CONFIG="python$PYTHON_VER-config"
 export PYCCFLAGS="$($PYTHON_CONFIG --cflags)"
 export INCLUDE="-I$GLD_ETC -I$GLD_VER/include -I/usr/include"
 export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
@@ -118,6 +120,10 @@ fi
 
 AS_IF([test -f "${GLD_ETC}/gridlabd.rc"],
   [. ${GLD_ETC}/gridlabd.rc],
+  [])
+
+AS_IF([test x$1 = xshell],
+  [shift 1; $SHELL $@; exit $?],
   [])
 
 AS_IF([test -f "${GLD_ETC}/$1.py"],
