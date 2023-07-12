@@ -95,7 +95,7 @@ Year the pole was installed.
     double repair_time[h];
 ~~~
 
-Time required to repair or replace the pole after failure.
+Time required to repair or replace the pole after failure. Includes time to identify the failure and reach the site.
 
 ### `wind_speed`
 
@@ -162,7 +162,7 @@ Constant c of the pole stress polynomial function.
     double susceptibility[pu*s/m];
 ~~~
 
-Susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed).
+Susceptibility of pole to wind stress (derivative of pole stress with respect to wind speed).
 
 ### `total_moment`
 
@@ -184,7 +184,7 @@ The total moment on the pole.
     double pole_moment[ft*lb];
 ~~~
 
-The moment of the pole. 
+The moment of the pole.
 
 ### `pole_moment_nowind`
 
@@ -192,7 +192,7 @@ The moment of the pole.
     double pole_moment_nowind[ft*lb];
 ~~~
 
-The moment of the pole without wind. 
+The moment of the pole without wind, due to its weight and tilt. 
 
 ### `equipment_moment`
 
