@@ -170,7 +170,7 @@ Susceptibility of pole to wind stress (derivative of pole stress with respect to
     double total_moment[ft*lb];
 ~~~
 
-The total moment on the pole. Calculated by summing each (vector) moment considered.
+The total moment on the pole. A vector sum of each moment considered.
 
 ### `resisting_moment`
 
