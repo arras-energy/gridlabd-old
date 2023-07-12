@@ -130,7 +130,7 @@ The wind gusts at the location of the pole.  This is automatically set is the
     double pole_stress[pu];
 ~~~
 
-Ratio of actual stress to critical stress.
+Ratio of actual stress to critical stress. When this reaches 1.0 or higher, the pole failes.
 
 ### `pole_stress_polynomial_a`
 
@@ -170,13 +170,15 @@ Susceptibility of pole to wind stress (derivative of pole stress with respect to
     double total_moment[ft*lb];
 ~~~
 
-The total moment on the pole.
+The total moment on the pole. Calculated by summing each (vector) moment considered.
 
 ### `resisting_moment`
 
 ~~~
     double resisting_moment[ft*lb];
 ~~~
+
+Maximum moment the pole can withstand before snapping. This is calculated based on the fiber strength of the wood species and the pole diameter where it is supported - either at ground line or where guy wire(s) are attached.
 
 ### `pole_moment`
 
