@@ -254,6 +254,6 @@ The pole reaches end of life status based on a degradation rate that is defined 
 
 # See also
 
-* [[/Module/Powerflow/Pole_configuration]]
+* [[/Module/Powerflow/Pole_configuration]](https://github.com/arras-energy/gridlabd/blob/master/docs/Module/Powerflow/Pole_configuration.md)
 * [Pole Loading Model](https://source.gridlabd.us/raw/master/module/powerflow/docs/pole_loading.pdf)
 * [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457)
