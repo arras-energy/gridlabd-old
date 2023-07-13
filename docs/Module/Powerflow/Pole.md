@@ -133,7 +133,7 @@ The wind gusts at the location of the pole.  This is automatically set is the
     double pole_stress[pu];
 ~~~
 
-Ratio of actual stress to critical stress. When this reaches 1.0 or higher, the pole failes.
+Ratio of actual (applied) moment to resisting moment (highest the pole can handle). When this reaches 1.0 or higher, the pole failes.
 
 ### `pole_stress_polynomial_a`
 
