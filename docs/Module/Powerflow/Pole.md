@@ -9,8 +9,8 @@ object pole
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
-    configuration "<pole-configuration-object>";
-    install_year "1970";
+    configuration "<pole-configuration-object>"; *
+    install_year "1970"; *
     repair_time "24 h";
     wind_speed 0.0 m/s;
     wind_direction 0.0 deg;
@@ -32,6 +32,9 @@ object pole
     guy_height "0 ft";
 }
 ~~~
+
+\* Starred attributes are required.
+
 
 # Description
 
