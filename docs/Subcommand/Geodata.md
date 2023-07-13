@@ -167,7 +167,7 @@ You must subscribe to the TrafficView service to use this dataset.
 The following command obtains the distance between two locations:
 
 ~~~
-% gridlabd geodata -d -D distance location 37.4150,-122.2056 37.3880,-122.2884
+% gridlabd geodata merge -d -D distance location 37.4150,-122.2056 37.3880,-122.2884
 latitude,longitude,distance
 37.415,-122.2056,0.0
 37.388,-122.2884,7906.193731232153
@@ -176,7 +176,7 @@ latitude,longitude,distance
 The following command obtains the coordinates for the points between two locations at 1 km resolution:
 
 ~~~
-% gridlabd geodata -d -D distance location 37.4150,-122.2056 37.3880,-122.2884 -r 1000
+% gridlabd geodata merge -d -D distance location 37.4150,-122.2056 37.3880,-122.2884 -r 1000
 latitude,longitude,distance
 37.415,-122.2056,0.0
 37.41158495593229,-122.21607280180764,1000.0
