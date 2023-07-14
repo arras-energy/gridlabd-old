@@ -341,18 +341,21 @@ int pole::init(OBJECT *parent)
     verbose("tilt_direction = %g deg",tilt_direction);
 
     // effective pole height
+    // height above the ground minus guy wire height (how far it extends without support, a.k.a. from where it would snap)
     height = config->pole_length - config->pole_depth - guy_height;
     verbose("height = %g ft",height);
 
 	// calculation resisting moment
+    // diameter at effective pole height, using linear interpolation from pole top diameter and ground diameter
+    // diameter = top diameter + height difference from top * (change in diameter / change in height)
     double diameter = config->top_diameter 
-        + height/(config->pole_length - config->pole_depth)
-            *(config->ground_diameter-config->top_diameter);
+        + height*(config->ground_diameter-config->top_diameter)
+	        /(config->pole_length - config->pole_depth);
 
 	resisting_moment = 0.008186
-		* config->strength_factor_250b_wood
-		* config->fiber_strength
-		* ( diameter * diameter * diameter);
+		* config->strength_factor_250b_wood // decreases the rated material strength by a safety factor to account for uncertainty.
+		* config->fiber_strength // max stress that can be applied at a point in the material (psi)
+		* ( diameter * diameter * diameter); // diameter cubed
 	verbose("resisting_moment = %.0f ft*lb (not aged)",resisting_moment);
 
     // pole moment per unit of wind pressure
