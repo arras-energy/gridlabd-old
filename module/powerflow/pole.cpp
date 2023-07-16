@@ -523,7 +523,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         double effective_moment = resisting_moment * (1+config->wind_overdesign);
         double wind_pressure_failure = sqrt( effective_moment*effective_moment - 
             (wire_weight+equipment_weight+pole_moment)*(wire_weight+equipment_weight+pole_moment)) 
-            / (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind); // ignore wiree_tension
+            / (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind); // ignore wire_tension
         critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24 * 2.24));
         verbose("wind_pressure_failure = %g psf (overdesighn facter = %g)",wind_pressure_failure,config->wind_overdesign); // unit: pounds per square foot
         verbose("critical_wind_speed = %g m/s",critical_wind_speed);
