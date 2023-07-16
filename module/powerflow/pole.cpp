@@ -151,7 +151,7 @@ pole::pole(MODULE *mod)
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wire moment due to conductor weight",
 
-            PT_double, "wire_moment_x[ft*lb]", get_wire_moment_x_offset(),
+            PT_double, "wire_moment_x[ft*lb]", get_wire_moment_x_offset(), // when I search for this, I get no results. What does it do? where is it defined? I want to add the ice loading in the same place as where the wire moment is being calculated in the absence of ice loading. Also why the word "offset"?
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wire moment in x-axis due to tension and wind load",
 
