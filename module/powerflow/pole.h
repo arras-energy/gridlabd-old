@@ -66,6 +66,7 @@ private:
     gld_property *wind_speed_ref;
 	gld_property *wind_direction_ref;
 	gld_property *wind_gusts_ref;
+	gld_property *temp_ref;
 private:
     void reset_commit_accumulators();
     void reset_sync_accumulators();

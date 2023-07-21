@@ -51,6 +51,16 @@ object pole
 }
 ~~~
 
+## Properties
+
+### `direction`
+
+~~~
+    double direction;
+~~~
+
+Direction from pole centerline at which equipment is mounted in degrees.
+
 # See also
 
 * [[/Module/Powerflow/Pole.md]]

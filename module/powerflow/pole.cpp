@@ -40,9 +40,10 @@ CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;
 pole *pole::defaults = NULL;
 
-static char32 wind_speed_name = "wind_speed";
-static char32 wind_dir_name = "wind_dir";
+static char32 wind_speed_name = "wind_speed"; // The name that a user writting glm code should use for
+static char32 wind_dir_name = "wind_dir";     //     the data (I should double check that this is true).
 static char32 wind_gust_name = "wind_gust";
+static char32 temperature_name = "temperature"; // Fahrenheit
 static double default_repair_time = 24.0;
 static bool stop_on_pole_failure = false;
 
@@ -57,7 +58,7 @@ pole::pole(MODULE *mod)
 		oclass->trl = TRL_PROTOTYPE;
 		if ( gl_publish_variable(oclass,
 
-	    PT_enumeration, "status", get_pole_status_offset(),
+	    PT_enumeration, "status", get_pole_status_offset(), // the offset in memory location, where to find the data
                 PT_KEYWORD, "OK", (enumeration)PS_OK,
                 PT_KEYWORD, "FAILED", (enumeration)PS_FAILED,
                 PT_DEFAULT, "OK",
@@ -151,7 +152,7 @@ pole::pole(MODULE *mod)
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wire moment due to conductor weight",
 
-            PT_double, "wire_moment_x[ft*lb]", get_wire_moment_x_offset(), // when I search for this, I get no results. What does it do? where is it defined? I want to add the ice loading in the same place as where the wire moment is being calculated in the absence of ice loading. Also why the word "offset"?
+            PT_double, "wire_moment_x[ft*lb]", get_wire_moment_x_offset(), 
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wire moment in x-axis due to tension and wind load",
 
@@ -201,10 +202,10 @@ double wind_gust_cdf(double wind_ratio)
   return w;
 }
 
-void pole::reset_commit_accumulators()
-{
+void pole::reset_commit_accumulators() // Called "accumulators" because multiple threads can
+{                                      // add to them.
 	equipment_moment_nowind = 0.0;
-	wire_load_nowind = 0.0;
+	wire_load_nowind = 0.0; // Updated in pole_mount sync, not used anywhere else in this file
 	wire_moment_nowind = 0.0;
     pole_moment = 0.0;
     pole_moment_wind = 0.0;
@@ -219,7 +220,7 @@ void pole::reset_commit_accumulators()
 
 void pole::reset_sync_accumulators()
 {
-    wire_wind = 0.0;
+    wire_wind = 0.0; // moment due to wind load on wires
 }
 
 int pole::create(void)
@@ -242,7 +243,8 @@ int pole::create(void)
     wind_speed_ref = NULL;
     wind_direction_ref = NULL;
     wind_gusts_ref = NULL;
-	return 1;
+    temp_ref = NULL;
+	return 1; 
 }
 
 int pole::init(OBJECT *parent)
@@ -324,6 +326,15 @@ int pole::init(OBJECT *parent)
         {
             verbose("wind_gusts = %g m/s (ref '%s')", wind_gusts, weather->name);
         }
+
+        temp_ref = new gld_property(weather,(const char*) temperature_name);
+        if ( ! temp_ref->is_valid() )
+        {
+            warning("weather data does not include %s, using local wind %s data only",(const char*)temperature_name,"temperature");
+            delete temp_ref;
+            temp_ref = NULL;
+        }
+
     }
 
 	// tilt
@@ -386,6 +397,11 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
     {
         wind_gusts = wind_gusts_ref->get_double();
     }
+    // temperature
+    if ( temp_ref )
+    {
+        temperature = temp_ref->get_double();
+    } 
     height = config->pole_length - config->pole_depth - guy_height;
     double diameter = config->top_diameter 
         + height*(config->ground_diameter-config->top_diameter)/(config->pole_length-config->pole_depth);
@@ -493,7 +509,17 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         double pole_moment_y = pole_moment_wind*sin(wind_direction*PI/180)+pole_moment*sin(tilt_angle/180*PI);
         verbose("pole_moment_x = %g ft*lb (moment in x-axis)", pole_moment_x);
         verbose("pole_moment_y = %g ft*lb (moment in y-axis)", pole_moment_y);
+        // Total moment on a pole results from
+        // wind pressure on the pole, 
+        //                  the conductors attached to the pole, 
+        //                  and the equipment mounted on the pole.
+        // Plus a transverse (perpendicular to the wires) load due to an angle
+        //      in the conductors on the pole.
 
+        // - wire moment covers tension, wind and weight of the lines
+        // - equipment moment covers gravitational load (equipment weight, 
+        //      pole tilt) and wind load (based on cross-sectional area of equipment)
+        // - pole moment covers pole weight and the wind on the pole
         total_moment = sqrt(
             (wire_moment_x+equipment_moment_x+pole_moment_x)*(wire_moment_x+equipment_moment_x+pole_moment_x) +
             (wire_moment_y+equipment_moment_y+pole_moment_y)*(wire_moment_y+equipment_moment_y+pole_moment_y));

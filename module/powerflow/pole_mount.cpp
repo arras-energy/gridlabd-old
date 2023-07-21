@@ -92,6 +92,7 @@ int pole_mount::create(void)
 
 int pole_mount::init(OBJECT *parent)
 {
+    // Input validation
     if ( my()->parent == NULL || ! get_parent()->isa("pole") )
     {
         error("pole_mount must have a pole as parent object");
@@ -151,7 +152,7 @@ int pole_mount::init(OBJECT *parent)
             config->phaseN_conductor ? config->phaseN_conductor->name : "(NA)");
         pole *mount = OBJECTDATA(my()->parent,pole);
         pole_configuration *pole_config = OBJECTDATA(mount->get_configuration(),pole_configuration);
-        double alpha = mount->get_tilt_angle()*PI/180;
+        double pole_tilt = mount->get_tilt_angle()*PI/180;
         double D1 = pole_config->top_diameter/12;
         double D0 = pole_config->ground_diameter/12;
         double H = pole_config->pole_length - pole_config->pole_depth;
@@ -165,7 +166,7 @@ int pole_mount::init(OBJECT *parent)
             (conductor[2]?conductor[2]->get_cable_weight():0.0) +
             (conductor[3]?conductor[3]->get_cable_weight():0.0) ) * pole_spacing / 2;
         verbose("cable weight = %g lbs (half)",weight);
-        if (alpha == 0.0)
+        if (pole_tilt == 0.0)
         {
             // when the pole is not tilted, the weight moment is cable_weight*radius 
             line_moment_weight = pole_config->overload_factor_vertical * (
@@ -192,7 +193,7 @@ int pole_mount::init(OBJECT *parent)
                     conductor[0]->cable_diameter+line->get_ice_thickness())*line->get_ice_thickness():0.0)
                 + radius_N*(conductor[0]?conductor[0]->get_cable_weight()+0.39744*PI*(
                     conductor[0]->cable_diameter+line->get_ice_thickness())*line->get_ice_thickness():0.0) 
-                ) * cos(alpha) + (
+                ) * cos(pole_tilt) + (
                 (spacing->distance_AtoE-mount->get_guy_height())*(conductor[0]?conductor[0]->get_cable_weight()+0.39744*PI*(
                     conductor[0]->cable_diameter+line->get_ice_thickness())*line->get_ice_thickness():0.0)
                 +(spacing->distance_BtoE-mount->get_guy_height())*(conductor[0]?conductor[0]->get_cable_weight()+0.39744*PI*(
@@ -201,7 +202,7 @@ int pole_mount::init(OBJECT *parent)
                     conductor[0]->cable_diameter+line->get_ice_thickness())*line->get_ice_thickness():0.0)
                 +(spacing->distance_NtoE-mount->get_guy_height())*(conductor[0]?conductor[0]->get_cable_weight()+0.39744*PI*(
                     conductor[0]->cable_diameter+line->get_ice_thickness())*line->get_ice_thickness():0.0)
-                ) * sin(alpha)) * pole_spacing / 2; // 1/2 works for poles at the same elevation level
+                ) * sin(pole_tilt)) * pole_spacing / 2; // 1/2 works for poles at the same elevation level
         }
         verbose("line_moment_weight = %g ft*lb (due to the weight of conductor and ice)",line_moment_weight);
         double transverse_load_nowind = 1 * (
@@ -214,7 +215,7 @@ int pole_mount::init(OBJECT *parent)
         line_load_nowind = transverse_load_nowind * pole_spacing;
         verbose("line_load_nowind = %g lb (wind load is 1 lb/sf)",line_load_nowind);
         // everything below the guyed height is ignored 
-        line_moment_nowind = 1 * pole_spacing * cos(alpha) * pole_config->overload_factor_transverse_wire * (
+        line_moment_nowind = 1 * pole_spacing * cos(pole_tilt) * pole_config->overload_factor_transverse_wire * (
         (spacing->distance_AtoE-mount->get_guy_height()) * (conductor[0]?conductor[0]->cable_diameter+2*line->get_ice_thickness():0.0) +
         (spacing->distance_BtoE-mount->get_guy_height()) * (conductor[1]?conductor[1]->cable_diameter+2*line->get_ice_thickness():0.0) +
         (spacing->distance_CtoE-mount->get_guy_height()) * (conductor[2]?conductor[2]->cable_diameter+2*line->get_ice_thickness():0.0) +
@@ -226,7 +227,7 @@ int pole_mount::init(OBJECT *parent)
             + (conductor[2]?conductor[2]->get_cable_strength():0.0)
             + (conductor[3]?conductor[3]->get_cable_strength():0.0);
         verbose("strength = %g lb", strength);
-        line_moment_tension = pole_config->overload_factor_transverse_wire * cos(alpha) * (
+        line_moment_tension = pole_config->overload_factor_transverse_wire * cos(pole_tilt) * (
             (spacing->distance_AtoE-mount->get_guy_height()) * (conductor[0]?conductor[0]->get_cable_strength():0.0) + 
             (spacing->distance_BtoE-mount->get_guy_height()) * (conductor[1]?conductor[1]->get_cable_strength():0.0) + 
             (spacing->distance_CtoE-mount->get_guy_height()) * (conductor[2]?conductor[2]->get_cable_strength():0.0) + 
@@ -239,15 +240,15 @@ int pole_mount::init(OBJECT *parent)
         verbose("equipment = %s",get_equipment()->name);
         pole *mount = OBJECTDATA(my()->parent,pole);
         pole_configuration *pole_config = OBJECTDATA(mount->get_configuration(),pole_configuration);
-        double alpha = mount->get_tilt_angle()*PI/180;
+        double pole_tilt = mount->get_tilt_angle()*PI/180;
         verbose("equipment area = %g sf",area);
         verbose("equipment weight = %g lbs",weight);
         // the first term is contributed by the weight perpendicular to the pole and the second term is weight moment
-        equipment_offset = (height-mount->get_guy_height())*sin(alpha)+offset*cos(alpha); 
+        equipment_offset = (height-mount->get_guy_height())*sin(pole_tilt)+offset*cos(pole_tilt); 
         verbose("equipment_offset = %g (measured in ft)",equipment_offset);
         equipment_moment_weight = weight * equipment_offset * pole_config->overload_factor_vertical;
         verbose("equipment_moment_weight = %g ft*lb",equipment_moment_weight);
-        equipment_load_nowind = 1 * area * cos(alpha);
+        equipment_load_nowind = 1 * area * cos(pole_tilt);
         verbose("equipment_load_nowind = %g lb (wind load is 1 lb/sf)",equipment_load_nowind);
         equipment_moment_nowind = (height-mount->get_guy_height())*pole_config->overload_factor_transverse_general*equipment_load_nowind;
         verbose("equipment_moment_nowind = %g ft*lb (wind load is 1 lb/sf)", equipment_moment_nowind);
@@ -314,9 +315,9 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
 {
     //  - pole_mount    update moment accumulators
     pole *mount = OBJECTDATA(my()->parent,pole);
-    double alpha = mount->get_tilt_angle()*PI/180;
-    double beta = mount->get_tilt_direction()*PI/180;
-    double theta = direction*PI/180;
+    double pole_tilt = mount->get_tilt_angle()*PI/180;
+    double pole_tilt_dir = mount->get_tilt_direction()*PI/180;
+    double theta = direction*PI/180; // direction from pole centerline at which equipment is mounted.
     if ( mount->recalc )
     {
         verbose("%s recalculation flag set",my()->parent->name);
@@ -324,6 +325,8 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
         verbose("pole_mount wind_speed = %g m/s",wind_speed);
         if ( equipment_is_line )
         {
+            // line_moment_nowind represents the components of the equation for moment on the 
+            // pole due to wind other than the wind itself (i.e. cross-sectional area * torque radius)
             line_moment_wind = line_moment_nowind * wind_pressure * abs(sin((wind_direction-direction)*PI/180)); 
             verbose("line_moment_wind = %g ft*lb",line_moment_wind); // the line moment due to wind
             mount->set_wire_wind(mount->get_wire_wind() + line_moment_wind ); // moment due to wind load on wires
@@ -333,10 +336,10 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             mount->set_wire_tension(mount->get_wire_tension() + line_moment_tension); // moment due to conductor tension
             double x = ( line_moment_tension + line_moment_wind ) * cos(theta);
             double y = ( line_moment_tension + line_moment_wind ) * sin(theta);
-            if ( alpha > 0.0 )
+            if ( pole_tilt > 0.0 )
             {
-                x += line_moment_weight * cos(beta);
-                y += line_moment_weight * sin(beta);
+                x += line_moment_weight * cos(pole_tilt_dir);
+                y += line_moment_weight * sin(pole_tilt_dir);
             }
             else
             {
@@ -355,10 +358,10 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
             verbose("equipment_moment_wind = %g ft*lb",equipment_moment_wind);
             double x = equipment_moment_wind * cos(wind_direction*PI/180);
             double y = equipment_moment_wind * sin(wind_direction*PI/180);
-            if ( alpha > 0.0 )
+            if ( pole_tilt > 0.0 )
             {
-                x += equipment_moment_weight * cos(beta);
-                y += equipment_moment_weight * sin(beta);
+                x += equipment_moment_weight * cos(pole_tilt_dir);
+                y += equipment_moment_weight * sin(pole_tilt_dir);
             }
             else
             {
