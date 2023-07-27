@@ -5,11 +5,16 @@ Syntax: group -i=INPUT [-o=OUTPUT] [OPTIONS ...]
 
 Options
 -------
-	-b|--by=GROUPER 	specify grouping (default is 'island')
-	-i|--input=INPUT 	input JSON file name
-	-o|--output=OUTPUT  output file name (JSON or GLM)
-	-m|--modify			output GLM modify statements instead of full modify
-	-f|--force			force overwrite of existing groupid data
+    -b|--by=GROUPER     specify grouping (default is 'island')
+    -c|--cut=CLASSES    command-separated list classes of cut objects (default is 'switch')
+    -i|--input=INPUT    input JSON file name
+    -o|--output=OUTPUT  output file name (JSON or GLM)
+    -m|--modify	        output GLM modify statements instead of full modify
+    -f|--force	        force overwrite of existing groupid data
+
+The `group` tools identify groups of object based on a grouper method and a
+cut criteria. The only grouper currently supported is the `island` grouper
+with `switch` cut object criteria.
 """
 
 import sys, os
@@ -23,8 +28,9 @@ FORCE = True
 DEBUG = False
 WARNING = True
 GROUPER = 'island'
+CUTOBJECTS = 'switch'
 INPUT = 'gridlabd.json'
-OUTPUT = 'output.json'
+OUTPUT = 'gridlabd.glm'
 
 E_OK = 0
 E_INVALID = 1
@@ -102,7 +108,7 @@ def grouper_island(input=None):
 		groupid = model['objects'][bus]['groupid']
 		for link in nodes[bus]:
 			link_data = model['objects'][link]
-			if not link_data['class'] in ['switch']:
+			if not link_data['class'] in CUTOBJECTS:
 				debug(f"tagging link '{link}' from '{bus}' as '{groupid}'")
 				model['objects'][link]['groupid'] = groupid
 				for node in links[link]:
@@ -154,9 +160,13 @@ for arg in sys.argv[1:]:
 	token,value = (arg.split('=')[0],'='.join(arg.split('=')[1:]) if '=' in arg else None)
 	if token in ['-h','--help','help']:
 		print(__doc__)
+		exit(E_OK)
 	# -b|--by=GROUPER 	specify grouping (default is 'island')
 	elif token in ['-b','--by']:
 		GROUPER = value
+	# -c|--cut=CUTOBJECTS
+	elif token in ['-c','--cut']:
+		CUTOBJECTS = value.split(',') if ',' in value else [value]
 	# -i|--input=INPUT 	input JSON file name
 	elif token in ['-i','--input']:
 		INPUT = value
@@ -178,10 +188,10 @@ if __name__ == "__main__":
 	if "grouper_"+GROUPER not in globals():
 		error(f"grouper '{GROUPER}' is invalid")
 		E_INVALID
-	model = globals()["grouper_"+GROUPER](INPUT)
+	model = globals()["grouper_"+GROUPER]()
 	with open(OUTPUT,"w") as fh:
 		if MODIFY:
-			for obj,data in model['objects']:
+			for obj,data in model['objects'].items():
 				print(f"modify {obj}.groupid '{data['groupid']}';",file=fh)
 		else:
 			json.dump(model,fh,indent=4)
