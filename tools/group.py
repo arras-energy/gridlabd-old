@@ -30,13 +30,12 @@ def debug(msg):
 #
 with open("gridlabd.json","r") as fh:
 	model = json.load(fh)
-	objects = model['objects']
 
 #
 # Check groupid
 #
 if not FORCE:
-	for obj,data in objects.items():
+	for obj,data in model['objects'].items():
 		if 'groupid' in data and data['groupid']:
 			raise GroupidException(f"{obj}.groupid='{data['groupid']}' (use --force to overwrite)")
 
@@ -47,7 +46,7 @@ swing_buses = []
 groupid = 1
 links = {}
 nodes = {}
-for obj,data in objects.items():
+for obj,data in model['objects'].items():
 	if 'bustype' in data and data['bustype'] == "SWING":
 		swing_buses.append(obj)
 		model['objects'][obj]['groupid'] = f"island_{groupid}"
@@ -57,7 +56,7 @@ for obj,data in objects.items():
 	if 'from' in data or 'to' in data:
 		from_node = data['from']
 		to_node = data['to']
-		links[obj] = (from_node,to_node)
+		links[obj] = [from_node,to_node]
 		if not from_node in nodes:
 			nodes[from_node] = [obj]
 		elif obj not in nodes[from_node]:
@@ -74,27 +73,32 @@ def group(bus):
 	global model
 	groupid = model['objects'][bus]['groupid']
 	for link in nodes[bus]:
-		link_data = objects[link]
-		if not link_data['class'] in ['switch','recloser','relay','fuse']:
-			debug(f"tagging link {link} from {bus} as {groupid}")
+		link_data = model['objects'][link]
+		if not link_data['class'] in ['switch','recloser','relay','fuse','breaker']:
+			debug(f"tagging link '{link}' from '{bus}' as '{groupid}'")
 			model['objects'][link]['groupid'] = groupid
 			for node in links[link]:
 				if model['objects'][node]['groupid'] is None:
-					debug(f"tagging node {node,} from {link} as {groupid}")
+					debug(f"tagging node '{node}' from '{link}' as '{groupid}'")
 					model['objects'][node]['groupid'] = groupid
 					group(node)
 		else:
 			model['objects'][link]['groupid'] = 0
-			debug(f"tagging link {link} from {bus} as {groupid}")
-
+			debug(f"tagging control '{link}' from '{bus}' as '0'")
 for bus in swing_buses:
 	group(bus)
 
+#
+# Recursively tag objects
+#
 for obj,data in model['objects'].items():
 	if 'bustype' in data and data['groupid'] is None:
-		warning(f"node '{obj}' is not connected to network")
-		del model['objects'][obj]['groupid']
-	if 'from' in data and 'to' in data and data['groupid'] is None:
+		if 'parent' not in data:
+			warning(f"node '{obj}' is not connected to network")
+			del model['objects'][obj]['groupid']
+		else:
+			model['objects'][data['parent']]['groupid'] = model['objects'][obj]['groupid']
+	elif 'from' in data and 'to' in data and data['groupid'] is None:
 		if data['groupid'] == 0:
 			from_node = model['objects'][obj]['from']
 			to_node = model['objects'][obj]['to']
@@ -103,9 +107,8 @@ for obj,data in model['objects'].items():
 			groupid = model['objects'][obj] = f"control_{from_group}_{to_group}"
 			debug(f"tagging link {link} from {bus} as {groupid}")
 		else:
-			warning(f"link '{obj}' is not connected to network")
+			warning(f"link '{obj}' was not tagged")
 			del model['objects'][obj]['groupid']
-
 with open("output.json","w") as fh:
 	json.dump(model,fh,indent=4)
 
