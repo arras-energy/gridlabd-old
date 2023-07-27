@@ -23,6 +23,16 @@ depending on the use of the `-m|--modify` option. When `modify` is not used, the
 format is JSON. When `modify` is used, the output file format is GLM.
 
 The `-f|--force` option is used to overwrite any existing `groupid` values found in the model.
+
+Example:
+
+The following example generates a GLM modify file for the IEEE 123 model based on switch islanding.
+
+~~~
+gridlabd model get IEEE/123
+gridlabd -C 123.glm -o 123.json
+gridlabd group -i=123.json --modify -o=groups.glm --force
+~~~
 """
 
 import sys, os
@@ -32,9 +42,10 @@ class GroupException(Exception):
 	pass
 
 MODIFY = False
-FORCE = True
+FORCE = False
 DEBUG = False
-WARNING = True
+WARNING = False
+QUIET = False
 GROUPER = 'island'
 CUTOBJECTS = 'switch'
 INPUT = 'gridlabd.json'
@@ -56,7 +67,7 @@ def error(msg,code=None):
 		raise GroupException(f"{code} is an invalid error code")
 
 def warning(msg):
-	if WARNING:
+	if not WARNING:
 		print(f"WARNING [groupid]: {msg}",file=sys.stderr)
 
 def debug(msg):
@@ -166,6 +177,7 @@ if len(sys.argv) == 1:
 			exit(E_SYNTAX)
 for arg in sys.argv[1:]:
 	token,value = (arg.split('=')[0],'='.join(arg.split('=')[1:]) if '=' in arg else None)
+	# -h|--help|help
 	if token in ['-h','--help','help']:
 		print(__doc__)
 		exit(E_OK)
@@ -175,18 +187,27 @@ for arg in sys.argv[1:]:
 	# -c|--cut=CUTOBJECTS
 	elif token in ['-c','--cut']:
 		CUTOBJECTS = value.split(',') if ',' in value else [value]
-	# -i|--input=INPUT 	input JSON file name
-	elif token in ['-i','--input']:
-		INPUT = value
-	# -o|--output=OUTPUT  output file name (JSON or GLM)
-	elif token in ['-o','--output']:
-		OUTPUT = value
-	# -m|--modify			output GLM modify statements instead of full modify
-	elif token in ['-m','--modify']:
-		MODIFY = True
+	# -d|--debug
+	elif token in ['-d','--debug']:
+		DEBUG = True
 	# -f|--force			force overwrite of existing groupid data
 	elif token in ['-f','--force']:
 		FORCE = True
+	# -i|--input=INPUT 	input JSON file name
+	elif token in ['-i','--input']:
+		INPUT = value
+	# -m|--modify			output GLM modify statements instead of full modify
+	elif token in ['-m','--modify']:
+		MODIFY = True
+	# -o|--output=OUTPUT  output file name (JSON or GLM)
+	elif token in ['-o','--output']:
+		OUTPUT = value
+	# -q|--quiet
+	elif token in ['-q','--quiet']:
+		QUIET = True
+	# -w|--warning
+	elif token in ['-w','--warning']:
+		WARNING = True
 
 #
 # Process commands
@@ -200,7 +221,8 @@ if __name__ == "__main__":
 	with open(OUTPUT,"w") as fh:
 		if MODIFY:
 			for obj,data in model['objects'].items():
-				print(f"modify {obj}.groupid '{data['groupid']}';",file=fh)
+				if data['groupid']:
+					print(f"modify {obj}.groupid '{data['groupid']}';",file=fh)
 		else:
 			json.dump(model,fh,indent=4)
 
