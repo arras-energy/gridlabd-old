@@ -14,7 +14,15 @@ Options
 
 The `group` tools identify groups of object based on a grouper method and a
 cut criteria. The only grouper currently supported is the `island` grouper
-with `switch` cut object criteria.
+with `switch` cut object criteria. Additional cut classes can be specified
+using a comma-separated list of class names, e.g., `--cut=switch,relay,breaker`.
+
+The input file must a GridLAB-D JSON file. You can use the `gridlabd -o|--output FILENAME.json` 
+optionto generate a JSON file from a GLM model.  The output file may be a JSON or GLM file, 
+depending on the use of the `-m|--modify` option. When `modify` is not used, the output file
+format is JSON. When `modify` is used, the output file format is GLM.
+
+The `-f|--force` option is used to overwrite any existing `groupid` values found in the model.
 """
 
 import sys, os
