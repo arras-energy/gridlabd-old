@@ -7,10 +7,13 @@ Options
 -------
     -b|--by=GROUPER     specify grouping (default is 'island')
     -c|--cut=CLASSES    command-separated list classes of cut objects (default is 'switch')
-    -i|--input=INPUT    input JSON file name
-    -o|--output=OUTPUT  output file name (JSON or GLM)
-    -m|--modify	        output GLM modify statements instead of full modify
+    -d|--debug          enable debugging output and exception handling
     -f|--force	        force overwrite of existing groupid data
+    -i|--input=INPUT    input JSON file name
+    -m|--modify	        output GLM modify statements instead of full modify
+    -o|--output=OUTPUT  output file name (JSON or GLM)
+    -q|--quiet          disable error output
+    -w|--warning        disable warning output
 
 The `group` tools identify groups of object based on a grouper method and a
 cut criteria. The only grouper currently supported is the `island` grouper
