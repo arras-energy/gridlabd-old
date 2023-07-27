@@ -18,12 +18,16 @@ class GroupidException(Exception):
 
 MODIFY = False
 FORCE = True
+DEBUG = False
+WARNING = True
 
 def warning(msg):
-	print(f"WARNING [groupid]: {msg}",file=sys.stderr)
+	if WARNING:
+		print(f"WARNING [groupid]: {msg}",file=sys.stderr)
 
 def debug(msg):
-	print(f"DEBUG [groupid]: {msg}",file=sys.stderr)
+	if DEBUG:
+		print(f"DEBUG [groupid]: {msg}",file=sys.stderr)
 
 #
 # Load model
@@ -74,7 +78,7 @@ def group(bus):
 	groupid = model['objects'][bus]['groupid']
 	for link in nodes[bus]:
 		link_data = model['objects'][link]
-		if not link_data['class'] in ['switch','recloser','relay','fuse','breaker']:
+		if not link_data['class'] in ['switch']:
 			debug(f"tagging link '{link}' from '{bus}' as '{groupid}'")
 			model['objects'][link]['groupid'] = groupid
 			for node in links[link]:
@@ -94,8 +98,11 @@ for bus in swing_buses:
 for obj,data in model['objects'].items():
 	if 'bustype' in data and data['groupid'] is None:
 		if 'parent' not in data:
-			warning(f"node '{obj}' is not connected to network")
-			del model['objects'][obj]['groupid']
+			model['objects'][obj]['groupid'] = f'island_{groupid}'
+			group(obj)
+			warning(f"group '{data['groupid']}' does not have a swing bus")
+			groupid += 1
+			# del model['objects'][obj]['groupid']
 		else:
 			model['objects'][data['parent']]['groupid'] = model['objects'][obj]['groupid']
 	elif 'from' in data and 'to' in data and data['groupid'] is None:
