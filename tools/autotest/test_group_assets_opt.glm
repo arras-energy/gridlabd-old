@@ -16,7 +16,9 @@ object weather
     name "example";
 }
 
-#include "./pole_configuration.glm"
+#library get pole_configuration.glm
+#include "${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm"
+
 object pole
 {
     name "pole_node_6101";
