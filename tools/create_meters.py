@@ -145,7 +145,7 @@ def fix_parent(parent,name,oclass):
     if pclass and pclass == oclass.replace('load','node'):
 
         # change node to meter
-        nclass = pclass.replace('load','meter')
+        nclass = pclass.replace('node','meter')
         set_data(parent,'class',nclass)
 
     else:
