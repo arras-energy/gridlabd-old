@@ -17,7 +17,7 @@ object weather
 }
 
 #library get pole_configuration.glm
-#sleep 1
+#sleep 10
 #include "${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm"
 
 object pole
