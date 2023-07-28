@@ -16,9 +16,8 @@ object weather
     name "example";
 }
 
-#library get pole_configuration.glm
-#sleep 10
-#include "${GLD_ETC}/library/${country}/${region}/${organization}/pole_configuration.glm"
+#system curl -sL https://library.gridlabd.us/US/CA/SLAC/pole_configuration.glm > pole_configuration.glm
+#include "pole_configuration.glm"
 
 object pole
 {
