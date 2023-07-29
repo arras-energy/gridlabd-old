@@ -42,18 +42,18 @@ using a comma-separated list of class names, e.g.,
 `--cut=switch,relay,breaker`.
 
 The input file must a GridLAB-D JSON file. You can use the
-`gridlabd -o|--output FILENAME.json` optionto generate a JSON file from a GLM
-model.  The output file may be a JSON or GLM file, depending on the use of
-the `-m|--modify` option. When `modify` is not used, the output file format
-is JSON. When `modify` is used, the output file format is GLM, and python
-variables defined to provide information about the grouping. The variable
-`groups` contains a dictionary of all the groups created and which object
-belong to each group.  The variable `controls` contains a dictionary of
-control objects and which groups are connected by that object. The variable
-`swingbus` contains a dictionary of the swing buses for each island. The
-variable `isolated` contains a list of groups that do not have a swing bus.
-These groups are considered isolated when they are not connected to a group
-that has a swing bus.
+`gridlabd -o|--output FILENAME.json` option to generate a JSON file from a
+GLM model.  The output file may be a JSON or GLM file, depending on the use
+of the `-m|--modify` option. When `modify` is not used, the output file
+format is JSON. When `modify` is used, the output file format is GLM, and
+python variables defined to provide information about the grouping. The
+variable `groups` contains a dictionary of all the groups created and which
+objects belong to each group.  The variable `controls` contains a dictionary
+of control objects and which groups are connected by that object. The
+variable `swingbus` contains a dictionary of the swing buses for each island.
+The variable `isolated` contains a list of groups that do not have a swing
+bus. These groups are considered isolated when they are not connected to a
+group that has a swing bus.
 
 The `-f|--force` option is used to overwrite any existing `groupid` values
 found in the model.
