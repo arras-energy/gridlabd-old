@@ -7,15 +7,17 @@ Options
 -------
     -b|--by=GROUPER     specify grouping (default is 'island')
     -c|--cut=CLASSES    command-separated list classes of cut objects (default is 'switch')
+    --control=NAME      set control groupid (default "control_")
     --copy_from=CLASS.PROPERTY,... specify CLASS.PROPERTY from which groupid is copied (default 
                         is `pole_mount.equipment`)
     --copy_to=CLASS.PROPERTY,... specify CLASS.PROPERTY to which groupid is copied (default 
                         is `pole_mount.parent`)
     -d|--debug          enable debugging output and exception handling
     -f|--force	        force overwrite of existing groupid data
-    -i|--input=INPUT    input JSON file name
+    -i|--input=INPUT    input JSON file name (default is stdin)
     -m|--modify	        output GLM modify statements instead of full modify
-    -o|--output=OUTPUT  output file name (JSON or GLM)
+    -o|--output=OUTPUT  output file name (JSON or GLM, default is stdout)
+    -p|--prefix=PREFIX  set the groupid prefix (default "island_")
     -q|--quiet          disable error output
     -w|--warning        disable warning output
 
@@ -55,18 +57,31 @@ DEBUG = False
 WARNING = False
 QUIET = False
 GROUPER = 'island'
+PREFIX = 'island_'
+CONTROL = 'control_'
 CUTOBJECTS = 'switch'
-INPUT = 'gridlabd.json'
-OUTPUT = 'gridlabd.glm'
+INPUT = "/dev/stdin"
+OUTPUT = None
 COPYFROM = 'pole_mount.equipment'
 COPYTO = 'pole_mount.parent'
 
 E_OK = 0
 E_INVALID = 1
 E_FAILED = 2
+E_MISSING = 3
+E_EXCEPTION = 8
 E_SYNTAX = 9
 
 def error(msg,code=None):
+	"""Output error message or raise exception
+
+	Parameters:
+	  msg (str) - error message
+	  code (None, int) - termination code
+
+	If code is None, only message is displayed. If code
+	is int, `exit(code)` is called.
+	"""
 	if not QUIET:
 		print(f"ERROR [groupid]: {msg}",file=sys.stderr)
 	if DEBUG:
@@ -77,15 +92,24 @@ def error(msg,code=None):
 		raise GroupException(f"{code} is an invalid error code")
 
 def warning(msg):
+	"""Output warning message"""
 	if not WARNING:
 		print(f"WARNING [groupid]: {msg}",file=sys.stderr)
 
 def debug(msg):
+	"""Output a debugging message"""
 	if DEBUG:
 		print(f"DEBUG [groupid]: {msg}",file=sys.stderr)
 
 def grouper_island(input=None):
+	"""Group object by connectivity in powerflow solution
 
+	Parameters:
+	  input (str) - input file name
+
+	Returns:
+	  dict - processed gridlabd model
+	"""
 	if input is None:
 		input = INPUT
 
@@ -101,7 +125,7 @@ def grouper_island(input=None):
 	if not FORCE:
 		for obj,data in model['objects'].items():
 			if 'groupid' in data and data['groupid']:
-				raise GroupException(f"{obj}.groupid='{data['groupid']}' (use --force to overwrite)")
+				error(f"{obj}.groupid='{data['groupid']}' (use --force to overwrite)",E_FAILED)
 
 	# 
 	# Find swing buses and build network graph
@@ -114,7 +138,7 @@ def grouper_island(input=None):
 		model['objects'][obj]['groupid'] = None
 		if 'bustype' in data and data['bustype'] == "SWING":
 				swing_buses.append(obj)
-				model['objects'][obj]['groupid'] = f"{GROUPER}_{groupid}"
+				model['objects'][obj]['groupid'] = f"{PREFIX}{groupid}"
 				groupid += 1
 		elif 'from' in data or 'to' in data:
 			from_node = data['from']
@@ -147,21 +171,10 @@ def grouper_island(input=None):
 						model['objects'][node]['groupid'] = groupid
 						group(node)
 			else:
-				model['objects'][link]['groupid'] = 0
-				debug(f"tagging control '{link}' from '{bus}' as '0'")
+				model['objects'][link]['groupid'] = CONTROL
+				debug(f"tagging control '{link}' from '{bus}' as '{CONTROL}'")
 	for bus in swing_buses:
 		group(bus)
-
-	#
-	# Process children
-	#
-	# for obj,data in model['objects'].items():
-	# 	for classname in CHILDREN.split(','):
-	# 		print('linking',classname,'children of',obj)
-	# 		if data['class'] == classname and 'parent' in data and data['groupid'] is None:
-	# 			parent = data[parent]
-	# 			model['objects'][parent]['groupid'] = data['groupid'] 
-	# 			print('parent of ',obj,'-->',parent)
 
 	#
 	# Recursively tag objects
@@ -169,7 +182,7 @@ def grouper_island(input=None):
 	for obj,data in model['objects'].items():
 		if 'bustype' in data and data['groupid'] is None:
 			if 'parent' not in data:
-				model['objects'][obj]['groupid'] = f'{GROUPER}_{groupid}'
+				model['objects'][obj]['groupid'] = f'{PREFIX}{groupid}'
 				group(obj)
 				warning(f"group '{data['groupid']}' does not have a swing bus")
 				groupid += 1
@@ -177,7 +190,7 @@ def grouper_island(input=None):
 			else:
 				model['objects'][data['parent']]['groupid'] = model['objects'][obj]['groupid']
 		elif 'from' in data and 'to' in data and data['groupid'] is None:
-			if data['groupid'] == 0:
+			if data['groupid'] == CONTROL:
 				from_node = model['objects'][obj]['from']
 				to_node = model['objects'][obj]['to']
 				from_group = model['objects'][from_node]['groupid']
@@ -192,6 +205,8 @@ def grouper_island(input=None):
 	# Process linkages and children
 	#
 	for obj,data in model['objects'].items():
+
+		# copy groupid from objects
 		for linkage in COPYFROM.split(','):
 			classname,propname = linkage.split('.')
 			if data['class'] == classname and propname in data:
@@ -203,6 +218,7 @@ def grouper_island(input=None):
 				elif data['groupid'] != ref['groupid']:
 					warning(f"{classname} link from {ref_name} {ref['groupid']} differs from {obj} {data['groupid']}")
 
+		# copy groupid to objects
 		for children in COPYTO.split(','):
 			classname,propname = children.split('.')
 			if data['class'] == classname:
@@ -211,7 +227,7 @@ def grouper_island(input=None):
 				if ref['groupid'] is None and propname in data:
 					model['objects'][ref_name]['groupid'] = data['groupid']
 					# print(classname,'linkage from',ref_name,'to',obj,'as',ref['groupid'])
-				elif data['groupid'] != ref['groupid'] and ref['groupid'] != 0:
+				elif data['groupid'] != ref['groupid'] and ref['groupid'] != CONTROL:
 					warning(f"{classname} link to {ref_name} {ref['groupid']} differs from {obj} {data['groupid']}")
 
 	return model
@@ -226,61 +242,165 @@ if len(sys.argv) == 1:
 			exit(E_SYNTAX)
 for arg in sys.argv[1:]:
 	token,value = (arg.split('=')[0],'='.join(arg.split('=')[1:]) if '=' in arg else None)
+
+	#
 	# -h|--help|help
+	#
 	if token in ['-h','--help','help']:
 		print(__doc__)
 		exit(E_OK)
+	
+	#
 	# -b|--by=GROUPER 	specify grouping (default is 'island')
+	#
 	elif token in ['-b','--by']:
 		GROUPER = value
+	
+	#
 	# -c|--cut=CUTOBJECTS
+	#
 	elif token in ['-c','--cut']:
 		CUTOBJECTS = value.split(',') if ',' in value else [value]
+    
+    #
+    # --control=NAME      set control groupid (default "control_")
+    #
+	elif token in ['--control']:
+		CONTROL = value
+	#
     # --copy_from=CLASS.PROPERTY,... specify CLASS.PROPERTY from which groupid is copied (default 
     #                     is `pole_mount.equipment`)
+	#
 	elif token in ['--copy_from']:
 		COPYFROM = value
+    
+	#
     # --copy_to=CLASS.PROPERTY,... specify CLASS.PROPERTY to which groupid is copied (default 
     #                     is `pole_mount.parent`)
+	#
 	elif token in ['--copy_to']:
 		COPYTO = value
+	
+	#
 	# -d|--debug
+	#
 	elif token in ['-d','--debug']:
 		DEBUG = True
+	
+	#
 	# -f|--force			force overwrite of existing groupid data
+	#
 	elif token in ['-f','--force']:
 		FORCE = True
+	
+	#
 	# -i|--input=INPUT 	input JSON file name
+	#
 	elif token in ['-i','--input']:
-		INPUT = value
+		if os.path.splitext(value)[1] in [".json"]:
+			INPUT = value
+		else:
+			error("only JSON input files are supported",E_INVALID)
+	
+	#
 	# -m|--modify			output GLM modify statements instead of full modify
+	#
 	elif token in ['-m','--modify']:
 		MODIFY = True
+	
+	#
 	# -o|--output=OUTPUT  output file name (JSON or GLM)
+	#
 	elif token in ['-o','--output']:
 		OUTPUT = value
+	
+	#
+    # -p|--prefix=PREFIX  set the groupid prefix (default "island_")
+	#
+	elif token in ['--prefix']:
+		PREFIX = value
+
 	# -q|--quiet
+	#
 	elif token in ['-q','--quiet']:
 		QUIET = True
+	
+	#
 	# -w|--warning
+	#
 	elif token in ['-w','--warning']:
 		WARNING = True
+
+	#
+	# invalid arg
+	#
+	else:
+		error(f"option {arg} is invalid",E_INVALID)
 
 #
 # Process commands
 #
 if __name__ == "__main__":
 
+	EXITCODE = E_OK
+	#
+	# check for existence of grouper function
+	#
 	if "grouper_"+GROUPER not in globals():
-		error(f"grouper '{GROUPER}' is invalid")
-		E_INVALID
-	model = globals()["grouper_"+GROUPER]()
-	with open(OUTPUT,"w") as fh:
-		if MODIFY:
-			print(f"// generated by {' '.join(sys.argv)} at {datetime.datetime.now()}",file=fh)
-			for obj,data in model['objects'].items():
-				if data['groupid']:
-					print(f"modify {obj}.groupid '{data['groupid']}';",file=fh)
-		else:
-			json.dump(model,fh,indent=4)
+		error(f"grouper '{GROUPER}' is invalid",E_INVALID)
 
+	#
+	# check for consistent use of modify and output file extension
+	#
+	if OUTPUT is None:
+		OUTPUT = "/dev/stdout"
+	elif MODIFY and os.path.splitext(OUTPUT)[1] != ".glm":
+		error(f"modify output must be GLM",E_INVALID)
+	elif not MODIFY and os.path.splitext(OUTPUT)[1] != ".json":
+		error(f"model output must be JSON",E_INVALID)
+
+	try:
+
+		#
+		# call grouper
+		#
+		model = globals()["grouper_"+GROUPER]()
+
+		#
+		# generate output
+		#
+		with open(OUTPUT,"w") as fh:
+			if MODIFY:
+				print(f"// generated by {' '.join(sys.argv)} at {datetime.datetime.now()}",file=fh)
+				groups = {}
+				for obj,data in model['objects'].items():
+					groupid = data['groupid']
+					if groupid:
+						if not data['groupid'] in groups:
+							groups[groupid] = [obj]
+						else:
+							groups[groupid].append(obj)
+				print(f"""#begin python
+groups = {groups}
+#end
+""",file=fh)
+				for obj,data in model['objects'].items():
+					groupid = data['groupid']
+					if groupid:
+						print(f"modify {obj}.groupid '{groupid}';",file=fh)
+			else:
+				json.dump(model,fh,indent=4)
+
+	except SystemExit as err:
+
+		EXITCODE = err
+
+	except:
+
+		if DEBUG:
+			raise
+		
+		e_type,e_value,e_trace = sys.exc_info()
+		error(f"{e_type.__name__} {e_value} at line {e_trace.tb_lineno}",E_EXCEPTION)
+
+	exit(EXITCODE)
