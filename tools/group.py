@@ -1,7 +1,7 @@
 # Syntax: group -i=INPUT [-o=OUTPUT] [OPTIONS ...]
 """Set group according to powerflow islanding
 
-Syntax: group -i=INPUT [-o=OUTPUT] [OPTIONS ...]
+Syntax: group [-i=INPUT] [-o=OUTPUT] [OPTIONS ...]
 
 Options
 -------
