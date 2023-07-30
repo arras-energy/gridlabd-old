@@ -109,7 +109,7 @@ def error(msg,code=None):
 	is int, `exit(code)` is called.
 	"""
 	if not QUIET:
-		print(f"ERROR [groupid]: {msg}",file=sys.stderr)
+		print(f"ERROR [group]: {msg}",file=sys.stderr)
 	if DEBUG:
 		raise GroupException(msg)
 	if type(code) is int:
@@ -120,12 +120,12 @@ def error(msg,code=None):
 def warning(msg):
 	"""Output warning message"""
 	if not WARNING:
-		print(f"WARNING [groupid]: {msg}",file=sys.stderr)
+		print(f"WARNING [group]: {msg}",file=sys.stderr)
 
 def debug(msg):
 	"""Output a debugging message"""
 	if DEBUG:
-		print(f"DEBUG [groupid]: {msg}",file=sys.stderr)
+		print(f"DEBUG [group]: {msg}",file=sys.stderr)
 
 def grouper_island(input=None):
 	"""Group object by connectivity in powerflow solution
