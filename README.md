@@ -30,13 +30,13 @@ The preferred method for running HiPAS GridLAB-D is to download the master image
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 
 ~~~
-docker run -it -v $PWD:/model arras-energy/gridlabd:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
+docker run -it -v $PWD:/model lfenergy/arras:latest gridlabd -W /model [LOADOPTIONS] [FILENAME.EXT] [RUNOPTIONS] 
 ~~~ 
 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 
 ~~~
-alias gridlabd='docker run -it -v $PWD:/tmp arras-energy/gridlabd:latest gridlabd'
+alias gridlabd='docker run -it -v $PWD:/tmp lfenergy/arras:latest gridlabd'
 ~~~
 
 Note that this alias will interfere with any host-based installation. You may use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
