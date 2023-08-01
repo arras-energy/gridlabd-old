@@ -127,7 +127,7 @@ pole::pole(MODULE *mod)
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the pole",
 
-            PT_double, "pole_moment_nowind[ft*lb]", get_pole_moment_nowind_offset(),
+            PT_double, "pole_moment_per_wind[ft*lb]", get_pole_moment_per_wind_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the pole without wind",
 
@@ -201,6 +201,39 @@ double wind_gust_cdf(double wind_ratio)
   return w;
 }
 
+// Effective pole height: 
+// height above the ground minus guy wire height (how far it extends without support, a.k.a. from where it would snap)
+double pole::calc_height() {
+   return config->pole_length - config->pole_depth - guy_height; 
+}
+
+// Diameter at effective pole height, using linear interpolation from pole top diameter and ground diameter
+// diameter = top diameter + height difference from top * (change in diameter / change in height)
+double pole::calc_diameter() {
+    return config->top_diameter 
+            + height*(config->ground_diameter-config->top_diameter)
+	                /(config->pole_length - config->pole_depth);
+}
+
+// Pole moment per unit of wind pressure
+// Equation comes from Pole Loading Model, pdf linked in docs.
+//    moment   =             force                    *           radius    
+// Pole moment = wind pressure * cross-sectional area * height from supported point
+// Calculated by approximating the pole's cross sectional area as a very tall trapezoid (diameter at the bottom 
+//    is larger than that at the top). Integrating to sum up the contribution to moment from every slice 
+//    of area at a given height gives:
+//    pole moment = 1/6 W H^2 (D_base + 2*D_top)
+//    where W = wind pressure, dropped from the equation to be multiplied in later
+//          H = pole height
+//          D = diameter at the supported base and at the top
+//          * 1/12 to convert diameter from inches to feet
+//          * Overload capacity factor increases the modeled force on the pole. 
+//            For reliability, the National Electrical Safety Code requires that these overload factors 
+//            be used when calculating the maximum force a pole must withstand.
+double pole::calc_pole_moment_per_wind() {
+    return  1/6 * height * height * (diameter + 2*config->top_diameter)/12 * config->overload_factor_transverse_general;
+}
+
 void pole::reset_commit_accumulators()
 {
 	equipment_moment_nowind = 0.0;
@@ -236,7 +269,7 @@ int pole::create(void)
     pole_stress = 0.0;
     critical_wind_speed = 0.0;
     susceptibility = 0.0;
-    pole_moment_nowind = 0.0;
+    pole_moment_per_wind = 0.0;
     reset_commit_accumulators();
     reset_sync_accumulators();
     wind_speed_ref = NULL;
@@ -341,23 +374,23 @@ int pole::init(OBJECT *parent)
     verbose("tilt_direction = %g deg",tilt_direction);
 
     // effective pole height
-    height = config->pole_length - config->pole_depth - guy_height;
+    // height above the ground minus guy wire height (how far it extends without support, a.k.a. from where it would snap)
+    height = calc_height();
     verbose("height = %g ft",height);
 
-	// calculation resisting moment
-    double diameter = config->top_diameter 
-        + height/(config->pole_length - config->pole_depth)
-            *(config->ground_diameter-config->top_diameter);
-
-	resisting_moment = 0.008186
+    // diameter at effective pole height
+    diameter = calc_diameter();
+	
+    // calculation resisting moment
+    resisting_moment = 0.008186
 		* config->strength_factor_250b_wood
 		* config->fiber_strength
 		* ( diameter * diameter * diameter);
-	verbose("resisting_moment = %.0f ft*lb (not aged)",resisting_moment);
+    verbose("resisting_moment = %.0f ft*lb (not aged)",resisting_moment);
 
     // pole moment per unit of wind pressure
-	pole_moment_nowind = height * height * (diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general * cos(tilt_angle/180*PI);
-    verbose("pole_moment_nowind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_nowind);
+    pole_moment_per_wind = calc_pole_moment_per_wind();
+    verbose("pole_moment_per_wind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_per_wind);
 
     // check install year
 	if ( install_year > gl_globalclock )
@@ -383,9 +416,8 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
     {
         wind_gusts = wind_gusts_ref->get_double();
     }
-    height = config->pole_length - config->pole_depth - guy_height;
-    double diameter = config->top_diameter 
-        + height*(config->ground_diameter-config->top_diameter)/(config->pole_length-config->pole_depth);
+    height = calc_height(); // effective pole height (length of unsupported pole)
+    diameter = calc_diameter(); // diameter at effective pole height
     double t0_year = 1970 + (int)(t0/86400/365.24);
 	double age = t0_year - install_year;
     if ( age > 0 && config->degradation_rate > 0 )
@@ -441,14 +473,13 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         verbose("pole_moment = %g ft*lb (tilt moment)",pole_moment);
 
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
-        pole_moment_nowind = height * height * (diameter+2*config->top_diameter)/72 
-                                * config->overload_factor_transverse_general * cos(tilt_angle/180*PI);
-        verbose("pole_moment_nowind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_nowind);
+        pole_moment_per_wind = calc_pole_moment_per_wind();
+        verbose("pole_moment_per_wind = %g ft*lb (wind load is 1 lb/sf)",pole_moment_per_wind);
         
         last_wind_speed = wind_speed;
         if ( wind_pressure > 0.0 )
         {
-            pole_moment_wind = wind_pressure * pole_moment_nowind;
+            pole_moment_wind = wind_pressure * pole_moment_per_wind;
             verbose("pole_moment_wind = %g ft*lb",pole_moment_wind);
         }
 
@@ -510,7 +541,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         if ( wind_speed > 0.0 )
             // d(total_moment)/d(wind_speed)
 			// susceptibility = 2*(pole_moment+equipment_moment+wire_wind)/resisting_moment/(wind_speed)/(0.00256)/(2.24);
-            susceptibility = (cos(wind_direction*PI/180) + sin(wind_direction*PI/180)) * (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind) * (
+            susceptibility = (cos(wind_direction*PI/180) + sin(wind_direction*PI/180)) * (pole_moment_per_wind+equipment_moment_nowind+wire_moment_nowind) * (
                 (wire_moment_x+equipment_moment_x+pole_moment_x) + (wire_moment_y+equipment_moment_y+pole_moment_y)
                 ) * (0.00256*2*2.24*wind_speed*2.24) / total_moment;
 		else
@@ -520,7 +551,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         double effective_moment = resisting_moment * (1+config->wind_overdesign);
         double wind_pressure_failure = sqrt( effective_moment*effective_moment - 
             (wire_weight+equipment_weight+pole_moment)*(wire_weight+equipment_weight+pole_moment)) 
-            / (pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind); // ignore wiree_tension
+            / (pole_moment_per_wind+equipment_moment_nowind+wire_moment_nowind); // ignore wiree_tension
         critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24 * 2.24));
         verbose("wind_pressure_failure = %g psf (overdesighn facter = %g)",wind_pressure_failure,config->wind_overdesign); // unit: pounds per square foot
         verbose("critical_wind_speed = %g m/s",critical_wind_speed);
@@ -541,7 +572,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
 
         // // M = a * V^2 + b * V + c
         // // TODO
-        // pole_stress_polynomial_a = pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind;
+        // pole_stress_polynomial_a = pole_moment_per_wind + equipment_moment_nowind + wire_moment_nowind;
         // pole_stress_polynomial_b = 0.0;
         // pole_stress_polynomial_c = wire_tension;
 
