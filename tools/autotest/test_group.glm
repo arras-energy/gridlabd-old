@@ -1,0 +1,16 @@
+#ifexist ../test_group_network_opt.glm
+#define DIR=..
+#endif
+
+#include "${DIR:-.}/test_group_network_opt.glm"
+#include "${DIR:-.}/test_group_assets_opt.glm"
+
+#resolve now
+#write test_group.json
+
+#python -m group -i=test_group.json --modify --force -o=test_group_modify_opt.glm
+#include "test_group_modify_opt.glm"
+
+#ifexist ../test_group_modify_opt.glm
+#on_exit 0 diff -I '^[#/].*' ../test_group_modify_opt.glm test_group_modify_opt.glm > gridlabd.diff
+#endif
