@@ -72,7 +72,7 @@ object solar {
 	phases CS;
 	parent DHHL_3_inv;
 	area 141.76 ft^2;
-	tilt_angle 90.0;
+	tilt_degree 90.0;
 	efficiency 0.05;
 	orientation_azimuth 180; //equator-facing (South)
 	orientation DEFAULT;

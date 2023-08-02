@@ -148,7 +148,7 @@ pole_data_template = {
     "pole_length" : 45, # in ft
     "pole_depth" : 4.5, # in ft
     "guy_height" : 0.0, # in ft
-    "tilt_angle" : 0.0, # in degree
+    "tilt_degree" : 0.0, # in degree
     "tilt_direction" : 0.0, # in degree
     "fiber_strength" : 8000.0, # in psi
     "material_density" : 35.0, # in lbs/sf3
@@ -205,64 +205,64 @@ def pole_diameter(g_diameter,t_diameter,h,H):
     x_diameter = g_diameter - h*(g_diameter-t_diameter)/H
     return x_diameter
 
-def reactions_PW(g_diameter,t_diameter,height,density,tilt_angle,tilt_direction):
+def reactions_PW(g_diameter,t_diameter,height,density,tilt_degree,tilt_direction):
     # reactions due to pole weight and pole tilt
-    pole_weight = density*sin(pi*tilt_angle/180)*pi\
+    pole_weight = density*sin(pi*tilt_degree/180)*pi\
                     *(g_diameter**2+g_diameter*t_diameter+t_diameter**2)*height/(3*4)
     xV = -pole_weight*cos(pi*tilt_direction/180)
     yV = -pole_weight*sin(pi*tilt_direction/180)
     (g_diameter/(g_diameter-t_diameter)-height*sqrt(g_diameter/(2*(g_diameter-t_diameter))))
     return xV, yV
 
-def reactions_CT(strength,tilt_angle,heading_direction):
+def reactions_CT(strength,tilt_degree,heading_direction):
     # reactions due to cable tension
-    cable_tension = strength*cos(pi*tilt_angle/180)
+    cable_tension = strength*cos(pi*tilt_degree/180)
     xV = -cable_tension*cos(pi*heading_direction/180)
     yV = -cable_tension*sin(pi*heading_direction/180)
     return xV, yV
 
-def reactions_CW(g_diameter,t_diameter,height,weight,gP,zP,tilt_angle,tilt_direction,offset_direction):
+def reactions_CW(g_diameter,t_diameter,height,weight,gP,zP,tilt_degree,tilt_direction,offset_direction):
     # reactions due to cable weight
     x_diameter = pole_diameter(g_diameter,t_diameter,zP,height)
     x_radius = x_diameter/2
     cable_weight_moment = weight*x_radius
-    if tilt_angle == 0:
+    if tilt_degree == 0:
         xV = -cable_weight_moment*cos(pi*offset_direction/180)/(zP-gP)
         yV = -cable_weight_moment*sin(pi*offset_direction/180)/(zP-gP)
     else:
-        xyV = -(weight*sin(pi*tilt_angle/180)+cable_weight_moment*cos(pi*tilt_angle/180)/(zP-gP))
+        xyV = -(weight*sin(pi*tilt_degree/180)+cable_weight_moment*cos(pi*tilt_degree/180)/(zP-gP))
         xV = xyV*cos(pi*tilt_direction/180)
         yV = xyV*sin(pi*tilt_direction/180)
     return xV, yV
 
-def reactions_EW(weight,gP,zP,offset,tilt_angle,tilt_direction,offset_direction):
+def reactions_EW(weight,gP,zP,offset,tilt_degree,tilt_direction,offset_direction):
     # reactions due to equiption weight
     equipment_weight_moment = weight*offset
-    if tilt_angle == 0:
+    if tilt_degree == 0:
         xV = -equipment_weight_moment*cos(pi*offset_direction/180)/(zP-gP)
         yV = -equipment_weight_moment*sin(pi*offset_direction/180)/(zP-gP)
     else:
-        xyV = -(weight*sin(pi*tilt_angle/180)+equipment_weight_moment*cos(pi*tilt_angle/180)/(zP-gP))
+        xyV = -(weight*sin(pi*tilt_degree/180)+equipment_weight_moment*cos(pi*tilt_degree/180)/(zP-gP))
         xV = xyV*cos(pi*tilt_direction/180)
         yV = xyV*sin(pi*tilt_direction/180)
     return xV, yV
 
-def reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_angle):
+def reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_degree):
     # reactions due to wind loads (in lbs/ft2) on pole
-    wind_load = wind_presure*height**2*(g_diameter+2*t_diameter)*cos(pi*tilt_angle/180)/72
+    wind_load = wind_presure*height**2*(g_diameter+2*t_diameter)*cos(pi*tilt_degree/180)/72
     xV = -wind_load*cos(pi*wind_direction/180)
     yV = -wind_load*sin(pi*wind_direction/180)
     return xV, yV
 
-def reactions_WC(wind_presure,wind_direction,cable_area,tilt_angle,heading_direction):
+def reactions_WC(wind_presure,wind_direction,cable_area,tilt_degree,heading_direction):
     # reactions due to wind loads (in lbs/ft2) on cable
-    wind_load = wind_presure*cable_area*abs(sin(pi*(wind_direction-heading_direction)/180))*cos(pi*tilt_angle/180)
+    wind_load = wind_presure*cable_area*abs(sin(pi*(wind_direction-heading_direction)/180))*cos(pi*tilt_degree/180)
     xV = -wind_load*cos(pi*heading_direction/180)
     yV = -wind_load*sin(pi*heading_direction/180)
     return xV, yV
 
-def reactions_WE(wind_presure,wind_direction,equipment_area,tilt_angle):
-    wind_load = wind_presure*equipment_area*cos(pi*tilt_angle/180)
+def reactions_WE(wind_presure,wind_direction,equipment_area,tilt_degree):
+    wind_load = wind_presure*equipment_area*cos(pi*tilt_degree/180)
     xV = -wind_load*cos(pi*wind_direction/180)
     yV = -wind_load*sin(pi*wind_direction/180)
     return xV, yV
@@ -313,7 +313,7 @@ def shear_moment_WC(xV,yV,zP,gP,Z):
         yMoment[i] = ymoment
     return xShear, yShear, xMoment, yMoment  
 
-def shear_moment_WP(wind_presure,wind_direction,gP,Z,g_diameter,t_diameter,height,tilt_angle):
+def shear_moment_WP(wind_presure,wind_direction,gP,Z,g_diameter,t_diameter,height,tilt_degree):
     #Cycle through the structure and calculate the shear force and bending moment at each point
     xShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for equipment weight
     yShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for equipment weight
@@ -323,8 +323,8 @@ def shear_moment_WP(wind_presure,wind_direction,gP,Z,g_diameter,t_diameter,heigh
         if x >= gP:
             x = x - gP
             x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            shear = -wind_presure*(t_diameter+x_diameter)*(height-x)*cos(pi*tilt_angle/180)/2
-            moment = wind_presure*cos(pi*tilt_angle/180)*(height**2*(g_diameter+2*t_diameter)/72 \
+            shear = -wind_presure*(t_diameter+x_diameter)*(height-x)*cos(pi*tilt_degree/180)/2
+            moment = wind_presure*cos(pi*tilt_degree/180)*(height**2*(g_diameter+2*t_diameter)/72 \
             + x*(x_diameter*(x-height)-height*t_diameter - x**2*(g_diameter-t_diameter)/(3*height))/24)
         else:
             shear = 0.0
@@ -405,7 +405,7 @@ def shear_moment_CT(xV,yV,zP,gP,Z,heading_direction):
         yMoment[i] = ymoment
     return xShear, yShear, xMoment, yMoment
 
-def shear_moment_PW(g_diameter,t_diameter,gP,Z,height,density,tilt_angle,tilt_direction):  
+def shear_moment_PW(g_diameter,t_diameter,gP,Z,height,density,tilt_degree,tilt_direction):  
     #Cycle through the structure and calculate the shear force and bending moment at each point
     xShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for pole weight
     yShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for pole weight
@@ -415,9 +415,9 @@ def shear_moment_PW(g_diameter,t_diameter,gP,Z,height,density,tilt_angle,tilt_di
         if x >= gP:
             x = x - gP
             x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            pole_weight = density*sin(pi*tilt_angle/180)*pi*(x_diameter**2+x_diameter*t_diameter+t_diameter**2)\
+            pole_weight = density*sin(pi*tilt_degree/180)*pi*(x_diameter**2+x_diameter*t_diameter+t_diameter**2)\
                         *(height-x)/(3*4*12*12)
-            pole_weight_moment = density*sin(pi*tilt_angle/180)*pi*\
+            pole_weight_moment = density*sin(pi*tilt_degree/180)*pi*\
             (g_diameter**2*(height**2-x**2)/(2*4)+(g_diameter-t_diameter)**2*(height**4-x**4)/(4*4*height**2)\
             -2*g_diameter*(g_diameter-t_diameter)*(height**3-x**3)/(3*4*height))/(12*12)
         else:
@@ -543,8 +543,8 @@ def main(inputfile,**options):
         data = model["objects"][name]
         if "class" in data.keys() and data["class"] == "pole":
             poles[name] = pole_data_template.copy()
-            if "tilt_angle" in data.keys():
-                poles[name]["tilt_angle"] = float(data["tilt_angle"].split()[0])
+            if "tilt_degree" in data.keys():
+                poles[name]["tilt_degree"] = float(data["tilt_degree"].split()[0])
             if "tilt_direction" in data.keys():
                 poles[name]["tilt_direction"] = float(data["tilt_direction"].split()[0])
             config_name = data["configuration"]
@@ -631,7 +631,7 @@ def main(inputfile,**options):
             t_diameter = pole_data['top_diameter']
             g_diameter = pole_diameter(pole_data['ground_diameter'],t_diameter,guy_height,pole_length)
             density = pole_data['material_density']
-            tilt_angle = pole_data['tilt_angle']
+            tilt_degree = pole_data['tilt_degree']
             tilt_direction = pole_data['tilt_direction']
             delta_height = pole_length/segment_dives
             Z = np.arange(0, pole_length + delta_height, delta_height) #Range of z-coordinates
@@ -645,13 +645,13 @@ def main(inputfile,**options):
             strength_factor_250b_wood = pole_data["strength_factor_250b_wood"]
 
             ## pole weight
-            xV, yV = reactions_PW(g_diameter,t_diameter,height,density,tilt_angle,tilt_direction)
+            xV, yV = reactions_PW(g_diameter,t_diameter,height,density,tilt_degree,tilt_direction)
             xV = xV * overload_factor_vertical # consider overload factor
             yV = yV * overload_factor_vertical
             PW_record = np.append(PW_record, [np.array([xV, yV])], axis=0)
             reactions[0] = reactions[0] + xV
             reactions[1] = reactions[1] + yV
-            xShear, yShear, xMoment, yMoment = shear_moment_PW(g_diameter,t_diameter,guy_height,Z,height,density,tilt_angle,\
+            xShear, yShear, xMoment, yMoment = shear_moment_PW(g_diameter,t_diameter,guy_height,Z,height,density,tilt_degree,\
                                                                tilt_direction)
             xShearForce = np.append(xShearForce, [xShear], axis=0) #Store shear force record for pole weight
             yShearForce = np.append(yShearForce, [yShear], axis=0) #Store shear force record for pole weight
@@ -670,7 +670,7 @@ def main(inputfile,**options):
                     offset_direction = mount_data["direction"]
                     ## cable tension
                     if guy_height < zP:
-                        xV, yV = reactions_CT(strength,tilt_angle,heading_direction)
+                        xV, yV = reactions_CT(strength,tilt_degree,heading_direction)
                         xV = xV * overload_factor_transverse_wire
                         yV = yV * overload_factor_transverse_wire
                     else:
@@ -686,7 +686,7 @@ def main(inputfile,**options):
                     yBendingMoment = np.append(yBendingMoment, [yMoment], axis=0) #Store bending moment for cable tension
                     ## cable weight
                     if guy_height < zP:
-                        xV, yV = reactions_CW(g_diameter,t_diameter,height,weight,guy_height,zP,tilt_angle,tilt_direction,\
+                        xV, yV = reactions_CW(g_diameter,t_diameter,height,weight,guy_height,zP,tilt_degree,tilt_direction,\
                                               offset_direction)
                         xV = xV * overload_factor_vertical
                         yV = yV * overload_factor_vertical
@@ -708,7 +708,7 @@ def main(inputfile,**options):
                     offset_direction = mount_data["offset_direction"]
                     offset = mount_data["offset"]
                     if guy_height < zP:
-                        xV, yV = reactions_EW(weight,guy_height,zP,offset,tilt_angle,tilt_direction,offset_direction)
+                        xV, yV = reactions_EW(weight,guy_height,zP,offset,tilt_degree,tilt_direction,offset_direction)
                         xV = xV * overload_factor_vertical
                         yV = yV * overload_factor_vertical
                     else:
@@ -742,14 +742,14 @@ def main(inputfile,**options):
                     xAnalysisBendingMoment = np.empty([0,len(Z)]) #Bending moment at each data point
                     yAnalysisBendingMoment = np.empty([0,len(Z)]) #Bending moment at each data point
                     ## wind load on pole
-                    xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_angle)
+                    xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_degree)
                     xV = xV * overload_factor_transverse_general
                     yV = yV * overload_factor_transverse_general
                     WP_record = np.append(WP_record, [np.array([xV, yV])], axis=0)
                     reactions[0] = reactions[0] + xV
                     reactions[1] = reactions[1] + yV
                     xShear, yShear, xMoment, yMoment = shear_moment_WP(wind_presure,wind_direction,guy_height,Z,g_diameter,\
-                                                                       t_diameter,height,tilt_angle)
+                                                                       t_diameter,height,tilt_degree)
                     xAnalysisShearForce = np.append(xAnalysisShearForce, [xShear],axis=0) #Store shear force record for pole wind load
                     yAnalysisShearForce = np.append(yAnalysisShearForce, [yShear],axis=0) #Store shear force record for pole wind load
                     xAnalysisBendingMoment = np.append(xAnalysisBendingMoment,[xMoment], axis=0) #Store bending moment for pole wind load
@@ -762,7 +762,7 @@ def main(inputfile,**options):
                                          * mount_data["pole_spacing"] # in ft2
                             heading_direction = mount_data["direction"]
                             zP = mount_data["height"]
-                            xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_angle,heading_direction)
+                            xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_degree,heading_direction)
                             xV = xV * overload_factor_transverse_general
                             yV = yV * overload_factor_transverse_general
                             WC_record = np.append(WC_record, [np.array([xV, yV])], axis=0)
@@ -776,7 +776,7 @@ def main(inputfile,**options):
                         else:
                             equipment_area = mount_data["area"] # in ft2
                             zP = mount_data["height"]
-                            xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_angle)
+                            xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_degree)
                             xV = xV * overload_factor_transverse_general
                             yV = yV * overload_factor_transverse_general
                             WE_record = np.append(WE_record, [np.array([xV, yV])], axis=0)
@@ -826,14 +826,14 @@ def main(inputfile,**options):
                     yAnalysisBendingMoment = np.empty([0,len(Z)]) #Bending moment at each data point
                     wind_presure = 0.00256*(2.24*wind_speed)**2 #2.24 account for m/s to mph conversion, in lb/ft2
                     ## wind load on pole
-                    xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_angle)
+                    xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_degree)
                     xV = xV * overload_factor_transverse_general
                     yV = yV * overload_factor_transverse_general
                     WP_record = np.append(WP_record, [np.array([xV, yV])], axis=0)
                     reactions[0] = reactions[0] + xV
                     reactions[1] = reactions[1] + yV
                     xShear, yShear, xMoment, yMoment = shear_moment_WP(wind_presure,wind_direction,guy_height,Z,g_diameter,\
-                                                                       t_diameter,height,tilt_angle)
+                                                                       t_diameter,height,tilt_degree)
                     xAnalysisShearForce = np.append(xAnalysisShearForce, [xShear],axis=0) #Store shear force record for pole wind load
                     yAnalysisShearForce = np.append(yAnalysisShearForce, [yShear],axis=0) #Store shear force record for pole wind load
                     xAnalysisBendingMoment = np.append(xAnalysisBendingMoment,[xMoment], axis=0) #Store bending moment for pole wind load
@@ -846,7 +846,7 @@ def main(inputfile,**options):
                                          * mount_data["pole_spacing"] # in ft2
                             heading_direction = mount_data["direction"]
                             zP = mount_data["height"]
-                            xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_angle,heading_direction)
+                            xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_degree,heading_direction)
                             xV = xV * overload_factor_transverse_general
                             yV = yV * overload_factor_transverse_general
                             WC_record = np.append(WC_record, [np.array([xV, yV])], axis=0)
@@ -860,7 +860,7 @@ def main(inputfile,**options):
                         else:
                             equipment_area = mount_data["area"] # in ft2
                             zP = mount_data["height"]
-                            xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_angle)
+                            xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_degree)
                             xV = xV * overload_factor_transverse_general
                             yV = yV * overload_factor_transverse_general
                             WE_record = np.append(WE_record, [np.array([xV, yV])], axis=0)
@@ -900,14 +900,14 @@ def main(inputfile,**options):
                     wind_direction = DEFAULT_WIND_DIRECTION
                 wind_presure = 0.00256*(2.24*wind_speed)**2 #2.24 account for m/s to mph conversion, in lb/ft2
                 ## wind load on pole
-                xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_angle)
+                xV, yV = reactions_WP(wind_presure,wind_direction,g_diameter,t_diameter,height,tilt_degree)
                 xV = xV * overload_factor_transverse_general
                 yV = yV * overload_factor_transverse_general
                 WP_record = np.append(WP_record, [np.array([xV, yV])], axis=0)
                 reactions[0] = reactions[0] + xV
                 reactions[1] = reactions[1] + yV
                 xShear, yShear, xMoment, yMoment = shear_moment_WP(wind_presure,wind_direction,guy_height,Z,g_diameter,\
-                                                                   t_diameter,height,tilt_angle)
+                                                                   t_diameter,height,tilt_degree)
                 xShearForce = np.append(xShearForce, [xShear], axis=0) #Store shear force record for pole wind load
                 yShearForce = np.append(yShearForce, [yShear], axis=0) #Store shear force record for pole wind load
                 xBendingMoment = np.append(xBendingMoment, [xMoment], axis=0) #Store bending moment for pole wind load
@@ -920,7 +920,7 @@ def main(inputfile,**options):
                                      * mount_data["pole_spacing"] # in ft2
                         heading_direction = mount_data["direction"]
                         zP = mount_data["height"]
-                        xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_angle,heading_direction)
+                        xV, yV = reactions_WC(wind_presure,wind_direction,cable_area,tilt_degree,heading_direction)
                         xV = xV * overload_factor_transverse_general
                         yV = yV * overload_factor_transverse_general
                         WC_record = np.append(WC_record, [np.array([xV, yV])], axis=0)
@@ -934,7 +934,7 @@ def main(inputfile,**options):
                     else:
                         equipment_area = mount_data["area"] # in ft2
                         zP = mount_data["height"]
-                        xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_angle)
+                        xV, yV = reactions_WE(wind_presure,wind_direction,equipment_area,tilt_degree)
                         xV = xV * overload_factor_transverse_general
                         yV = yV * overload_factor_transverse_general
                         WE_record = np.append(WE_record, [np.array([xV, yV])], axis=0)

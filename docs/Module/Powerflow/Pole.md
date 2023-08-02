@@ -6,7 +6,7 @@
 object pole
 {
     status "OK";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
     configuration "<pole-configuration-object>"; *
@@ -23,9 +23,9 @@ object pole
     total_moment "0 ft*lb";
     resisting_moment "0 ft*lb";
     pole_moment "0 ft*lb"; 
-    pole_moment_nowind "0 ft*lb"; 
+    pole_moment_per_wind "0 ft*lb"; 
     equipment_moment "0 ft*lb"; 
-    equipment_moment_nowind "0 ft*lb"; 
+    equipment_moment_per_wind "0 ft*lb"; 
     critical_wind_speed "0 m/s";
     wire_moment "0 ft*lb";
     wire_tension "0 ft*lb";
@@ -52,10 +52,10 @@ Generally, any link object in a powerflow model can be mounted on a pole by crea
 
 The status of the pole.
 
-### `tilt_angle`
+### `tilt_degree`
 
 ~~~
-    double tilt_angle[deg];
+    double tilt_degree[deg];
 ~~~
 
 The tilt angle of the pole.
@@ -173,7 +173,8 @@ Susceptibility of pole to wind stress (derivative of pole stress with respect to
     double total_moment[ft*lb];
 ~~~
 
-The total moment on the pole. A vector sum of each moment considered.
+The total moment on the pole. This results from wind loads, gravitational loads, and potentially a transverse (perpendicular to the wires) load due to an angle in the conductors. There is wind pressure on the pole itself, the conductors attached to the pole, and the equipment mounted on the pole. Wind on equipment is usually much less signinficant than wind on the conductors. There are also gravitaional loads based on the pole tilt, it's weight and that of the mounted equipment and lines.
+
 
 ### `resisting_moment`
 
@@ -189,15 +190,15 @@ Maximum moment the pole can withstand before snapping. This is calculated based 
     double pole_moment[ft*lb];
 ~~~
 
-The moment of the pole.
+Moment on the pole due to it's own weight and tilt.
 
-### `pole_moment_nowind`
+### `pole_moment_per_wind`
 
 ~~~
-    double pole_moment_nowind[ft*lb];
+    double pole_moment_per_wind[ft*lb];
 ~~~
 
-The moment of the pole without wind, due to its weight and tilt. 
+ The components of the equation for moment due to wind on the pole, except for wind pressure, i.e. moment per unit wind pressure. Accounts for the pole's cross-sectional area (for calculating the force of wind on the pole) and height (torque raduis).
 
 ### `equipment_moment`
 
@@ -205,17 +206,15 @@ The moment of the pole without wind, due to its weight and tilt.
     double equipment_moment[ft*lb];
 ~~~
 
-The moment of the equipment. 
+Moments on the pole due to gravitational load (equipment weight, pole tilt) and wind load (based on cross-sectional area of equipment). 
 
-### `equipment_moment_nowind`
+### `equipment_moment_per_wind`
 
 ~~~
-    double equipment_moment_nowind[ft*lb];
+    double equipment_moment_per_wind[ft*lb];
 ~~~
 
-The moment of the equipment without wind. 
-
-The resisting moment on the pole.
+ The components of the equation for moment due to wind on equipment, all except the wind pressure, i.e. moment per unit wind pressure.
 
 ### `critical_wind_speed`
 
@@ -231,7 +230,7 @@ Wind speed at pole failure.
     double wire_moment[ft*lb];
 ~~~
 
-Wire moment due to conductor weight.
+Moments due to line tension, weight, and wind on the lines.
 
 ### `wire_tension`
 

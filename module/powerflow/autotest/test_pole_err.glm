@@ -80,7 +80,7 @@ object pole {
     name pole1;
     weather weather;
     configuration "WOOD-C-45/5";
-    tilt_angle 20 deg;
+    tilt_degree 20 deg;
     tilt_direction 180;
     install_year 1990;
     object pole_mount
@@ -93,7 +93,7 @@ object pole {
 	name pole2;
 	weather weather;
 	configuration "WOOD-C-45/5";
-	tilt_angle 8 deg;
+	tilt_degree 8 deg;
 	tilt_direction 270;
 	install_year 2000;
     object pole_mount

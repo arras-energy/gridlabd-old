@@ -39,7 +39,7 @@ object pole_configuration {
 }
 object pole { 
 	name "pole_267462S";
-	tilt_angle 1.1 deg;
+	tilt_degree 1.1 deg;
 	tilt_direction 10 deg;
 	// latitude 34.4002833340685;
 	// longitude "-116.962349732192";
@@ -48,7 +48,7 @@ object pole {
 }
 object pole { 
 	name "pole_280565E";
-	tilt_angle 5.0 deg;
+	tilt_degree 5.0 deg;
 	tilt_direction 30.0 deg;
 	latitude 33.9459351039498;
 	longitude "-117.896961270715";
@@ -58,7 +58,7 @@ object pole {
 }
 object pole { 
 	name "pole_306771E";
-	tilt_angle 0 deg;
+	tilt_degree 0 deg;
 	tilt_direction 0 deg;
 	latitude 33.5318268108841;
 	longitude "-117.767614658085";
@@ -67,7 +67,7 @@ object pole {
 }
 object pole { 
 	name "pole_311032S";
-	tilt_angle 0 deg;
+	tilt_degree 0 deg;
 	tilt_direction 0 deg;
 	latitude 33.84445388;
 	longitude "-117.28241728";
@@ -76,7 +76,7 @@ object pole {
 }
 object pole { 
 	name "pole_312148E";
-	tilt_angle 0 deg;
+	tilt_degree 0 deg;
 	tilt_direction 0 deg;
 	latitude 36.1926329370634;
 	longitude "-119.158966357457";

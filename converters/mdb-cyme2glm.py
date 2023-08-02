@@ -2226,7 +2226,7 @@ class GLM:
             "panel_type": "MULTI_CRYSTAL_SILICON",
             "efficiency": panel_efficiency,
             "area": panel_area,
-            "tilt_angle": "45",
+            "tilt_degree": "45",
             "orientation_azimuth": "180",
             "orientation": "FIXED_AXIS",
         }

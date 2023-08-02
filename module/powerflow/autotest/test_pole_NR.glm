@@ -341,7 +341,7 @@ object pole {
      name p633;
 	 weather weather;
 	 configuration "WOOD-C-45/5";
-	 tilt_angle 5 deg;
+	 tilt_degree 5 deg;
 	 tilt_direction 270;
 }
 
@@ -357,7 +357,7 @@ object pole {
      name p630;
 	 weather weather;
 	 configuration "WOOD-C-45/5";
-	 tilt_angle 5 deg;
+	 tilt_degree 5 deg;
 	 tilt_direction 270;
 }
 
@@ -373,7 +373,7 @@ object pole {
      name p632;
 	 weather weather;
 	 configuration "WOOD-C-45/5";
-	 tilt_angle 5 deg;
+	 tilt_degree 5 deg;
 	 tilt_direction 270;
 }
 
@@ -399,7 +399,7 @@ object pole {
      name p680;
 	 weather weather;
 	 configuration "WOOD-C-45/5";
-	 tilt_angle 5 deg;
+	 tilt_degree 5 deg;
 	 tilt_direction 270;
 }
 
@@ -416,7 +416,7 @@ object pole {
      name p684;
 	 weather weather;
 	 configuration "WOOD-C-45/5";
-	 tilt_angle 5 deg;
+	 tilt_degree 5 deg;
 	 tilt_direction 270;
 }
 

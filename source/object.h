@@ -512,12 +512,14 @@ const char* object_get_header_string(OBJECT *obj, const char *item, char *buffer
 #define object_parent(X) ((X)?(X)->parent:NULL) /**< get the parent of the object */
 #define object_rank(X) ((X)?(X)->name:-1) /**< get the rank of the object */
 
-// If X is a valid pointer (not NULL), moves the following memory location and 
-//  typecasts to a pointer of type `T`.
-#define OBJECTDATA(X,T) ((T*)((X)?((X)+1):NULL)) /**< get the object data structure */
+
+//  OBJECTDATA(X,T): If X is a valid pointer (not NULL), moves to the memory location of the next object  
+//  (assuming the next one is the same type) and typecasts to a pointer of type `T`. The given pointer
+//  should point to the object hear, the returned one should be the object data structure.
+#define OBJECTDATA(X,T) ((T*)((X)?((X)+1):NULL)) /**< get a pointer to the object data structure given a pointer to the header*/
 #define GETADDR(O,P) ((O)?((void*)((char*)((O)+1)+(unsigned int64)((P)->addr))):NULL) /**< get the addr of an object's property */
-#define OBJECTHDR(X) ((X)?(((OBJECT*)X)-1):NULL) /**< get the header from the object's data structure */
-#define THISOBJECTHDR (((OBJECT*)this)-1)
+#define OBJECTHDR(X) ((X)?(((OBJECT*)X)-1):NULL) /**< get the header from the given object's data structure */
+#define THISOBJECTHDR (((OBJECT*)this)-1) /**< get the header from this object's data structure */ 
 
 #define MY (((OBJECT*)this)-1)
 #define MYPARENT (MY->parent) /**< get the parent from the object's data structure */

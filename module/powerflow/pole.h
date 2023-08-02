@@ -25,7 +25,7 @@ public:
 	GL_ATOMIC(enumeration, pole_status);
 	enum {FT_UNKNOWN=0, FT_FOUNDATION=1, FT_BASE=2, FT_MIDDLE=3, FT_TOP=4};
 	GL_ATOMIC(enumeration, failure_type);
-	GL_ATOMIC(double, tilt_angle);
+	GL_ATOMIC(double, tilt_degree);
 	GL_ATOMIC(double, tilt_direction);
 	GL_ATOMIC(object, configuration);
 	GL_ATOMIC(double, degradation_rate);
@@ -36,20 +36,20 @@ public:
     GL_ATOMIC(double, wind_direction);
     GL_ATOMIC(double, wind_gusts);
     GL_ATOMIC(double, pole_moment);		// (see Section D)
-	GL_ATOMIC(double, pole_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, pole_moment_per_wind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, pole_moment_wind); 
     GL_ATOMIC(double, resisting_moment); 	// (see Section B)
 	GL_ATOMIC(double, equipment_moment);	// (see Section E)
 	GL_ATOMIC(double, equipment_weight);	// (see Section E)
-	GL_ATOMIC(double, equipment_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, equipment_moment_per_wind); // wire moment without the wind component for wind speed at failure calc
     GL_ATOMIC(double, wire_wind);		// (see Section F)
-	GL_ATOMIC(double, wire_load_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, wire_load_per_wind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, wire_weight);		// (see Section F)
 	GL_ATOMIC(double, wire_moment_x);		// wire moment in x-axis due to tension and wind load
 	GL_ATOMIC(double, wire_moment_y);		// wire moment in y-axis due to tension and wind load
 	GL_ATOMIC(double, equipment_moment_x);	// equipment moment in x-axis due to wind load
 	GL_ATOMIC(double, equipment_moment_y);	// equipment moment in y-axis due to wind load
-	GL_ATOMIC(double, wire_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, wire_moment_per_wind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, wind_pressure);		// (see Section D)
 	GL_ATOMIC(double, wire_tension);	// (see Section G)
 	GL_ATOMIC(double, pole_stress);	// ratio of total to resisting moment
@@ -70,10 +70,14 @@ private:
 private:
     void reset_commit_accumulators();
     void reset_sync_accumulators();
+	double calc_height();
+	double calc_diameter();
+	double calc_pole_moment_per_wind();
 private:
 	class pole_configuration *config;
 	double last_wind_speed;
 	TIMESTAMP down_time;
+	double diameter; // diameter at effective pole height, using linear interpolation from pole top diameter and ground diameter
 public:
 	double height; // effective pole height for moment calculations
     bool recalc; // flag for recalculation

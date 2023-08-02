@@ -28,17 +28,17 @@ public:
 private:
     double equipment_moment_weight;
     double equipment_moment_wind;
-    double equipment_moment_nowind;
-    double equipment_load_nowind;
+    double equipment_moment_per_wind;
+    double equipment_load_per_wind;
     gld_property *pole_status;
     gld_property *equipment_status;
     bool equipment_is_line;
     double strength;
-    double line_moment_weight;
-    double line_moment_wind;
-    double line_moment_nowind;
-    double line_moment_tension;
-    double line_load_nowind;
+    double wire_moment_weight;
+    double wire_moment_wind;
+    double wire_moment_per_wind;
+    double wire_moment_tension;
+    double line_load_per_wind;
     double equipment_offset;
 public:
 	pole_mount(MODULE *);

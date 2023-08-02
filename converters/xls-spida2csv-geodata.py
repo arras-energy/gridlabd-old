@@ -93,7 +93,7 @@ def convert(input_file, output_file, options={}):
 
 	# Rename columns to its corresponding column name in Gridlabd.
 	# I believe class in the file is referring to grade, so it is renamed. 
-	df_current_sheet.rename(columns = {np.nan : 'name', 'Lean Angle': 'tilt_angle', 
+	df_current_sheet.rename(columns = {np.nan : 'name', 'Lean Angle': 'tilt_degree', 
 		'Lean Direction': 'tilt_direction', 'Effective Allowable Stress': 'fiber_strength',\
 		 'Length' : 'pole_length', 'GLC' : 'ground_diameter', 'AGL' : 'pole_depth',\
 		  'Class': "grade"}, inplace=True) # for sec data
@@ -104,7 +104,7 @@ def convert(input_file, output_file, options={}):
 
 	# Split the dataframe based on properties of pole_config and pole_library.
 	df_pole_config = df_current_sheet[['pole_length', 'pole_depth', 'ground_diameter', 'fiber_strength']].copy()
-	df_pole_library = df_current_sheet[['tilt_angle', 'tilt_direction', 'latitude', 'longitude']].copy()
+	df_pole_library = df_current_sheet[['tilt_degree', 'tilt_direction', 'latitude', 'longitude']].copy()
 
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'

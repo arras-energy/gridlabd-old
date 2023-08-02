@@ -1,4 +1,4 @@
-timestamp,weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_angle, p633:pole_stress
+timestamp,weather:wind_speed, p633:resisting_moment, p633:total_moment, p633:status, p633:tilt_degree, p633:pole_stress
 2020-07-01 00:00:00 EDT,+0.5,+16651.4,+0,OK,+0,+0
 2020-07-01 01:00:00 EDT,+1,+16651.4,+1.26358,OK,+0,+7.58845e-05
 2020-07-01 02:00:00 EDT,+1.2,+16651.4,+5.05432,OK,+0,+0.000303538

@@ -8,7 +8,7 @@ This converter allows for any arbitrary object to be imported via CSV-formatted 
 
 Any arbitrary objects can be listed in a CSV file and convertered to GLM-formatted object. The table format is as below : 
 
-class | name | tilt_angle | tilt_direction | weather | configuration | equipment_area | equipment_height | install_year	| repair_time | latitude | longitude | phases | nominal_voltage | tmyfile
+class | name | tilt_degree | tilt_direction | weather | configuration | equipment_area | equipment_height | install_year	| repair_time | latitude | longitude | phases | nominal_voltage | tmyfile
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
 powerflow.pole | pole1 | 5 deg | 270	| weather | WOOD-C-45/5 | | | 1990 | 1 h | 37.4275 | 122.1697 | ABC | 12470
 powerflow.pole | pole2 | 8 deg | 270	| weather | WOOD-C-45/5 | | | 2000 | 8 h | 37.127 | 122.1646 | ABC | 12470

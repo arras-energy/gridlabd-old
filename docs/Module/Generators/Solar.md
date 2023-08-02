@@ -40,7 +40,7 @@ class solar {
      complex VA_Out[VA];
      object weather;
      double shading_factor[pu];
-     double tilt_angle[deg];
+     double tilt_degree[deg];
      double orientation_azimuth[deg]; 
      bool latitude_angle_fix; 
      enumeration {DEFAULT=0,FIXED_AXIS=1,ONE_AXIS=2,TWO_AXIS=3,AZIMUTH_AXIS=4}orientation;  
@@ -239,9 +239,9 @@ Reference to a climate object from which temperature, humidity, and solar flux a
 double	shading_factor[pu]	
 ~~~
 Shading factor for scaling solar power to the array. 
-### tilt_angle	
+### tilt_degree	
 ~~~
-double    tilt_angle[deg]	
+double    tilt_degree[deg]	
 ~~~
 Tilt angle of PV array.
 ### orientation_azimuth
