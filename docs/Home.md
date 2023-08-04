@@ -1,12 +1,12 @@
-Welcome to the [HiPAS GridLAB-D](http://www.gridlabd.us/) documentation.
+Welcome to the [Arras Energy](http://www.gridlabd.us/) documentation.
 
 # [[/Features]] 
 
-*Learn the latest features of HiPAS GridLAB-D*
+*Learn the latest features of Arras Energy*
 
 # [[/Getting Started]] 
 
-*Get started using HiPAS GridLAB-D*
+*Get started using Arras Energy*
 
 # [[/Documentation]]
 

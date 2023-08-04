@@ -1,4 +1,4 @@
-# HiPAS GridLAB-D 4.3 User's Manual
+# Arras Energy 4.3 User's Manual
 
 By David P. Chassin, SLAC National Accelerator Laboratory
 

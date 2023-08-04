@@ -154,7 +154,7 @@ jobs:
 
     - name: Set output
       run: |
-        echo "VERSION=Arras Energy HiPAS GridLAB-D $(./build-aux/version.sh --version)" >> $GITHUB_ENV
+        echo "VERSION=Arras Energy $(./build-aux/version.sh --version)" >> $GITHUB_ENV
         echo "TAGNAME=gridlabd/$(./build-aux/version.sh --version)-$(./build-aux/version.sh --number)-$(./build-aux/version.sh --branch)" >> $GITHUB_ENV
 
     - name: Install Packer

@@ -37,4 +37,4 @@ Deliver version information.
 
 # `www.gridlabd.us`
 
-General landing page for HiPAS GridLAB-D.
+General landing page for Arras Energy.

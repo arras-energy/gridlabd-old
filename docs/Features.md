@@ -1,4 +1,4 @@
-The following features are new or improved in HiPAS GridLAB-D 4.2.
+The following features are available in Arras Energy 4.3.
 
 # Cloud
 
