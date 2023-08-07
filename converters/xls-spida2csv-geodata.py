@@ -18,6 +18,9 @@ DESCRIPTION
 	This converter extracts pole geodata from a SPIDAcalc pole asset report spreadsheet
 	and generates a GriDLAB-D geodata CSV file.
 
+	This SPIDACalc API documentation explains the data in the pole asset report spreadsheet:
+	https://github.com/spidasoftware/schema/blob/master/doc/calc.md
+
 OPTIONS:
 
 - `precision=2`: specify the number of digits in a number and function ROUND will be used (default 2)
@@ -47,6 +50,8 @@ def string_clean(input_str):
 
 def convert(input_file, output_file, options={}):
 	# Round to nearest hundreth decimal place if value has more decimal places than that.
+
+	# Creates global variables for all the options:
 	for name, value in default_options.items():
 		globals()[name] = value
 	for name, value in options.items():
@@ -73,17 +78,12 @@ def convert(input_file, output_file, options={}):
 	parse_column(df_current_sheet, 'Lean Angle', parse_angle)
 	parse_column(df_current_sheet, 'Lean Direction', parse_angle)
 	parse_column(df_current_sheet, 'Length', parse_length)
-	parse_column(df_current_sheet, 'GLC', parse_circumference_to_diamater)
-	parse_column(df_current_sheet, 'AGL', parse_length)
+	parse_column(df_current_sheet, 'GLC', parse_circumference_to_diamater) # GroundLine Circumference
+	parse_column(df_current_sheet, 'AGL', parse_length) # Above Ground Length
 	parse_column(df_current_sheet, 'Effective Allowable Stress', parse_pressure) # for sec data
 	parse_column(df_current_sheet, 'GPS Point', check_lat_long)
 
-
-	# Prepare GPS Point column for splitting and split value into lat and long. 
-	df_current_sheet['GPS Point'] = df_current_sheet['GPS Point'].apply(lambda x: str(x).replace('', ',') if str(x) == '' else str(x))
-	df_current_sheet[['latitude','longitude']] = df_current_sheet['GPS Point'].str.split(',', expand=True)
-
-	# Subtract agl from length to get depth. 
+	# Subtract AGL from length to get depth. 
 	for row in range(0,len(df_current_sheet['AGL'])):
 		try: 
 			df_current_sheet.at[row,'AGL'] = subtract_length_columns(str(df_current_sheet.at[row,'Length']), str(df_current_sheet.at[row,'AGL']), 'Length', 'AGL', row)
@@ -99,6 +99,9 @@ def convert(input_file, output_file, options={}):
 		  'Class': "grade"}, inplace=True) # for sec data
 
 	# Split GPS Point into longitude and latitude, then parse.
+	# Prepare GPS Point column for splitting and split value into lat and long. 
+	df_current_sheet['GPS Point'] = df_current_sheet['GPS Point'].apply(lambda x: str(x).replace('', ',') if str(x) == '' else str(x))
+	df_current_sheet[['latitude','longitude']] = df_current_sheet['GPS Point'].str.split(',', expand=True)
 	# Remove original GPS Point column
 	df_current_sheet.drop(columns = {'GPS Point'},axis=1,inplace=True) # sce data
 

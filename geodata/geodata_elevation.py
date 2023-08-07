@@ -134,7 +134,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
 # Elevation data processing
 #
 
-def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"]):
+def get_elevation(pos,repo_url=default_config["repourl"],cachedir=default_config["cachedir"]):
     """Compute the elevations at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
@@ -148,21 +148,22 @@ def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config[
         DataFrame       Pandas dataframe containing the latitudes, longitudes,
                         and elevations.
     """
-    n,e = get_imagedata(pos,repourl,cachedir)
+    # elev_data (nparray) The elevation data from the image
+    _, elev_data = get_imagedata(pos,repo_url,cachedir)
     row,col = get_rowcol(pos)
     dx = 1.0-math.modf(abs(pos[1])*3600)[0]
     dy = 1.0-math.modf(abs(pos[0])*3600)[0]
-    e00 = float(e[row][col])
+    e00 = float(elev_data[row][col])
     if row > 0:
-        e10 = float(e[row-1][col])
+        e10 = float(elev_data[row-1][col])
     else:
         e10 = e00
     if col > 0:
-        e01 = float(e[row][col-1])
+        e01 = float(elev_data[row][col-1])
     else:
         e01 = e00
     if row > 0 and col > 0:
-        e11 = float(e[row-1][col-1])
+        e11 = float(elev_data[row-1][col-1])
     else:
         e11 = e00
     e0 = dx*e00 + (1-dx)*e01
