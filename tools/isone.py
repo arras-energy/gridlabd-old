@@ -146,10 +146,10 @@ def get_data(startdate=None,stopdate=None,dataset=None):
     :return: pandas.DataFrame - the requested data
     """
     if startdate == None:
-        startdate = datetime.datetime(year=datetime.datetime.now().year)
+        startdate = datetime.datetime(year=datetime.datetime.now().year,month=1,day=1)
     else:
         startdate = datetime.datetime.strptime(startdate,DATEFORMAT)
-    if startdate == None:
+    if stopdate == None:
         stopdate = datetime.datetime.now()
     else:
         stopdate = datetime.datetime.strptime(stopdate,DATEFORMAT)
