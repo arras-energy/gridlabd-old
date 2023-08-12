@@ -1,10 +1,26 @@
+# Syntax: isone [OPTIONS ...]
 """ISO New England data access module
 
-Syntax: gridlabd isone OPTIONS ...
+Syntax
+------
 
-Options:
+Shell:
+
+~~~
+gridlabd isone [OPTIONS ...]
+~~~
+
+GLM:
+
+~~~
+#python -m isone [OPTIONS ...]
+~~~
+
+Options
+-------
     -d|--dataset=DATASET/SUBSET     Download data from the specified dataset
                                     (and subset, default is `smd/ISO NE CA`)
+    --debug                         Enable traceback output on exceptions
     -c|--csv=FILENAME               Save CSV data to the specified file
                                     (default is /dev/stdout)
     -C|--CLASS=CLASSNAME            Specify the GLM class name (default is
@@ -14,17 +30,37 @@ Options:
     -f|--freshen                    Freshen the data cache
     -g|--glm=FILENAME               Save GLM data to the specified file
                                     (default is /dev/null)
+    -h|--help|help                  Output the help documentation
     -l|--list                       Output a list of available sheets in dataset
     -N|--NAME=OBJECTNAME            Specify the GLM object name (default is
                                     `isone`)
+    -q|--quiet                      Suppress error output messages
     -s|--start=YEAR|STARTDATE       Download data starting on the specified
                                     year or date (last month by default)
+    -v|--verbose                    Enable verbose output
     -y|--year[=YEAR]                Download data for the specified year
                                     (current year by default)
 
 Currently the only supported dataset is `smd`. The valid subsets depend on the
 dataset and year. See https://www.iso-ne.com/isoexpress/web/reports/load-and-demand/-/tree/zone-info
 for more information.
+
+Example
+-------
+
+The following generates the wholesale market data New Hampshire for May 2023:
+
+~~~
+sh$ gridlabd isone -d=smd/NH -f -s=2023-05-01 -e=2023-06-01
+timestamp,DA_Demand,RT_Demand,DA_LMP,DA_EC,DA_CC,DA_MLC,RT_LMP,RT_EC,RT_CC,RT_MLC,Dry_Bulb,Dew_Point
+2023-05-01 00:00:00,801.30,924.94,24.63,24.64,-0.05,0.04,18.96,18.75,0.18,0.03,53,51
+2023-05-01 01:00:00,807.90,899.31,20.61,20.59,-0.03,0.05,18.88,18.70,0.18,0.00,54,53
+2023-05-01 02:00:00,765.20,885.84,20.56,20.57,-0.03,0.02,18.12,17.73,0.41,-0.02,54,53
+...
+2023-06-01 21:00:00,1753.00,1594.43,58.33,57.55,0.00,0.78,41.90,41.65,0.00,0.25,75,61
+2023-06-01 22:00:00,1495.20,1425.32,50.57,50.31,0.00,0.26,35.95,35.82,0.00,0.13,77,59
+2023-06-01 23:00:00,1269.60,1283.86,53.36,52.86,0.00,0.50,36.52,36.40,0.00,0.12,77,59
+~~~
 """
 
 import sys, os
