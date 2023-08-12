@@ -18,9 +18,9 @@ GLM:
 
 Options
 -------
-    -d|--dataset=DATASET/SUBSET     Download data from the specified dataset
+    -d|-debug                       Enable traceback output on exceptions
+    -D|--dataset=DATASET/SUBSET     Download data from the specified dataset
                                     (and subset, default is `smd/ISO NE CA`)
-    --debug                         Enable traceback output on exceptions
     -c|--csv=FILENAME               Save CSV data to the specified file
                                     (default is /dev/stdout)
     -C|--CLASS=CLASSNAME            Specify the GLM class name (default is
@@ -51,7 +51,7 @@ Example
 The following generates the wholesale market data New Hampshire for May 2023:
 
 ~~~
-sh$ gridlabd isone -d=smd/NH -f -s=2023-05-01 -e=2023-06-01
+sh$ gridlabd isone -D=smd/NH -f -s=2023-05-01 -e=2023-06-01
 timestamp,DA_Demand,RT_Demand,DA_LMP,DA_EC,DA_CC,DA_MLC,RT_LMP,RT_EC,RT_CC,RT_MLC,Dry_Bulb,Dew_Point
 2023-05-01 00:00:00,801.30,924.94,24.63,24.64,-0.05,0.04,18.96,18.75,0.18,0.03,53,51
 2023-05-01 01:00:00,807.90,899.31,20.61,20.59,-0.03,0.05,18.88,18.70,0.18,0.00,54,53
@@ -70,7 +70,7 @@ import requests
 import traceback
 
 EXECNAME = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-DATASET = "smd"
+DATASET = "smd/ISO NE CA"
 CSVFILE = "/dev/stdout"
 GLMFILE = None
 CLASSNAME = "isone"
@@ -91,7 +91,12 @@ E_SYNTAX = 1
 E_INVALID = 2
 E_FAILED = 3
 
+class IsoneException(Exception):
+    pass
+
 def error(msg,code=None):
+    if DEBUG:
+        raise IsoneException(msg)
     if not QUIET:
         print(f"ERROR [{EXECNAME}]: {msg}",flush=True,file=sys.stderr)
     if not code is None:
@@ -115,6 +120,9 @@ def get_year(year=None,dataset=None):
         dataset = DATASET
         verbose(f"setting to default dataset '{dataset}'")
     specs = dataset.split("/")
+    if len(specs) != 2:
+        error(f"dataset {dataset} is not valid",E_INVALID)
+
     cachefile = os.path.join(CACHEDIR,f"{specs[0]}_{year}.xlsx")
     if FRESHEN or not os.path.exists(cachefile):
         verbose(f"creating cache directory '{CACHEDIR}'")
@@ -131,12 +139,8 @@ def get_year(year=None,dataset=None):
                 error(f"unable to download data from '{url}' (HTTP code {req.status_code})",E_FAILED)
         except Exception as err:
             error(f"unable to get data from '{url}' ({err})",E_FAILED)
-    if len(specs) > 1:
-        verbose(f"loading '{specs[1]}' from '{cachefile}'")
-        return pandas.read_excel(cachefile,sheet_name=specs[1],index_col=[0,1],parse_dates=[0])
-    else:
-        verbose(f"loading data from '{cachefile}'")
-        return pandas.read_excel(cachefile,sheet_name=None)
+    verbose(f"loading '{specs[1]}' from '{cachefile}'")
+    return pandas.read_excel(cachefile,sheet_name=specs[1],index_col=[0,1],parse_dates=[0])
 
 def get_data(startdate=None,stopdate=None,dataset=None):
     """Get data from a date range
@@ -195,12 +199,12 @@ if __name__ == "__main__":
             VERBOSE = True
         elif token in ["-q","--quiet"]:
             QUIET = True
-        elif token in ["--debug"]:
+        elif token in ["-d","--debug"]:
             DEBUG = True
 
-        # -d|--dataset=DATASET/SUBSET     Download data from the specified dataset
+        # -D|--dataset=DATASET/SUBSET     Download data from the specified dataset
         #                                 (and subset, default is `smd/ISO NE CA`)
-        elif token in ["-d","--dataset"]:
+        elif token in ["-D","--dataset"]:
             if value:
                 DATASET = value 
             else:
