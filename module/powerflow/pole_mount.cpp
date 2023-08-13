@@ -330,7 +330,7 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
     pole *mount = OBJECTDATA(my()->parent,pole);
     double pole_tilt = mount->get_tilt_degree()*PI/180;
     double pole_tilt_dir = mount->get_tilt_direction()*PI/180;
-    double mount_dir = direction*PI/180; // direction from pole centerline at which equipment is mounted.
+    double mount_dir = direction*PI/180; // Angle clockwise from North at which equipment is mounted, with vertex at pole centerline.
     if ( mount->recalc )
     {
         verbose("%s recalculation flag set",my()->parent->name);

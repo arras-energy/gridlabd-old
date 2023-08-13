@@ -59,7 +59,7 @@ object pole
     double direction;
 ~~~
 
-Direction from pole centerline at which equipment is mounted in degrees.
+Bearing of the mounted equipment, an angle measured clockwise from North in degrees with vertex at the pole centerline.
 
 # See also
 

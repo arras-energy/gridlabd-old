@@ -18,7 +18,8 @@ DESCRIPTION
 	This converter extracts pole geodata from a SPIDAcalc pole asset report spreadsheet
 	and generates a GriDLAB-D geodata CSV file.
 
-	This SPIDACalc API documentation explains the data in the pole asset report spreadsheet:
+	This SPIDACalc API documentation explains data in the pole asset report spreadsheet:
+	https://github.com/spidasoftware/schema/blob/66cb5d102dde5bf23b487dbddb261d3a88fc0907/doc/wfs.md 
 	https://github.com/spidasoftware/schema/blob/master/doc/calc.md
 
 OPTIONS:
@@ -52,6 +53,8 @@ def convert(input_file, output_file, options={}):
 	# Round to nearest hundreth decimal place if value has more decimal places than that.
 
 	# Creates global variables for all the options:
+	# These are defined implicitly using the global symbols dictionary; some IDEs
+	# may warn that they are undefined when they appear in the code.
 	for name, value in default_options.items():
 		globals()[name] = value
 	for name, value in options.items():
@@ -63,51 +66,51 @@ def convert(input_file, output_file, options={}):
 	df = pd.read_excel(input_file, sheet_name=None,)  
 
 	# First do operations on the sheet 'Design - Pole.'
-	df_current_sheet = df['Design - Pole'].copy()
-	new_header_index = df_current_sheet.iloc[:, 0].first_valid_index()
-	new_header = df_current_sheet.iloc[new_header_index-1]
-	df_current_sheet = df_current_sheet[new_header_index:]
-	df_current_sheet.columns = new_header
-	df_current_sheet.index = range(len(df_current_sheet.index))
-	df_current_sheet.columns.name = None
+	df_design_pole = df['Design - Pole'].copy()
+	new_header_index = df_design_pole.iloc[:, 0].first_valid_index()
+	new_header = df_design_pole.iloc[new_header_index-1]
+	df_design_pole = df_design_pole[new_header_index:]
+	df_design_pole.columns = new_header
+	df_design_pole.index = range(len(df_design_pole.index))
+	df_design_pole.columns.name = None
 
 	# Drop unneeded columns 
-	df_current_sheet.drop(['Owner', 'Foundation', 'Ground Water Level',],axis=1,inplace=True)
+	df_design_pole.drop(['Owner', 'Foundation', 'Ground Water Level',],axis=1,inplace=True)
 
 	# Parse necessary columns into a format supported by Gridlabd.
-	parse_column(df_current_sheet, 'Lean Angle', parse_angle)
-	parse_column(df_current_sheet, 'Lean Direction', parse_angle)
-	parse_column(df_current_sheet, 'Length', parse_length)
-	parse_column(df_current_sheet, 'GLC', parse_circumference_to_diamater) # GroundLine Circumference
-	parse_column(df_current_sheet, 'AGL', parse_length) # Above Ground Length
-	parse_column(df_current_sheet, 'Effective Allowable Stress', parse_pressure) # for sec data
-	parse_column(df_current_sheet, 'GPS Point', check_lat_long)
+	parse_column(df_design_pole, 'Lean Angle', parse_angle)
+	parse_column(df_design_pole, 'Lean Direction', parse_angle)
+	parse_column(df_design_pole, 'Length', parse_length)
+	parse_column(df_design_pole, 'GLC', parse_circumference_to_diamater) # GroundLine Circumference
+	parse_column(df_design_pole, 'AGL', parse_length) # Above Ground Length
+	parse_column(df_design_pole, 'Effective Allowable Stress', parse_pressure) # for sec data
+	parse_column(df_design_pole, 'GPS Point', check_lat_long)
 
-	# Subtract AGL from length to get depth. 
-	for row in range(0,len(df_current_sheet['AGL'])):
+	# Subtract Above Ground Length from length to get depth. 
+	for row in range(0,len(df_design_pole['AGL'])):
 		try: 
-			df_current_sheet.at[row,'AGL'] = subtract_length_columns(str(df_current_sheet.at[row,'Length']), str(df_current_sheet.at[row,'AGL']), 'Length', 'AGL', row)
+			df_design_pole.at[row,'AGL'] = subtract_length_columns(str(df_design_pole.at[row,'Length']), str(df_design_pole.at[row,'AGL']), 'Length', 'AGL', row)
 
 		except ValueError as e: 
-			df_current_sheet.at[row,'AGL'] = ""
+			df_design_pole.at[row,'AGL'] = ""
 
 	# Rename columns to its corresponding column name in Gridlabd.
 	# I believe class in the file is referring to grade, so it is renamed. 
-	df_current_sheet.rename(columns = {np.nan : 'name', 'Lean Angle': 'tilt_degree', 
+	df_design_pole.rename(columns = {np.nan : 'name', 'Lean Angle': 'tilt_degree', 
 		'Lean Direction': 'tilt_direction', 'Effective Allowable Stress': 'fiber_strength',\
 		 'Length' : 'pole_length', 'GLC' : 'ground_diameter', 'AGL' : 'pole_depth',\
 		  'Class': "grade"}, inplace=True) # for sec data
 
 	# Split GPS Point into longitude and latitude, then parse.
 	# Prepare GPS Point column for splitting and split value into lat and long. 
-	df_current_sheet['GPS Point'] = df_current_sheet['GPS Point'].apply(lambda x: str(x).replace('', ',') if str(x) == '' else str(x))
-	df_current_sheet[['latitude','longitude']] = df_current_sheet['GPS Point'].str.split(',', expand=True)
+	df_design_pole['GPS Point'] = df_design_pole['GPS Point'].apply(lambda x: str(x).replace('', ',') if str(x) == '' else str(x))
+	df_design_pole[['latitude','longitude']] = df_design_pole['GPS Point'].str.split(',', expand=True)
 	# Remove original GPS Point column
-	df_current_sheet.drop(columns = {'GPS Point'},axis=1,inplace=True) # sce data
+	df_design_pole.drop(columns = {'GPS Point'},axis=1,inplace=True) # sce data
 
 	# Split the dataframe based on properties of pole_config and pole_library.
-	df_pole_config = df_current_sheet[['pole_length', 'pole_depth', 'ground_diameter', 'fiber_strength']].copy()
-	df_pole_library = df_current_sheet[['tilt_degree', 'tilt_direction', 'latitude', 'longitude']].copy()
+	df_pole_config = df_design_pole[['pole_length', 'pole_depth', 'ground_diameter', 'fiber_strength']].copy()
+	df_pole_library = df_design_pole[['tilt_degree', 'tilt_direction', 'latitude', 'longitude']].copy()
 
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'
@@ -115,17 +118,20 @@ def convert(input_file, output_file, options={}):
 
 	# Additional properties for each class. These values are just for testing purposes for now. 
 	pole_configuration_name = []
-	pole_name = []
-	for i in range(len(df_current_sheet["name"])):
-		pole_configuration_name.append(f"pole_configuration_{df_current_sheet['name'][i]}")
-		pole_name.append(f"pole_{df_current_sheet['name'][i]}")
+	# Pole names are made in the form: f'pole_{id}'
+	pole_names = []
+	for i in range(len(df_design_pole["name"])): # Every row is a pole, so this goes over every pole
+		pole_configuration_name.append(f"pole_configuration_{df_design_pole['name'][i]}")
+		pole_names.append(f"pole_{df_design_pole['name'][i]}")
 
 	df_pole_config.loc[:,'class'] = 'pole_configuration'
 	df_pole_library.loc[:,'class'] = 'pole'
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
-	df_pole_library.loc[:,'name'] = pole_name
-	if include_weather:
+	df_pole_library.loc[:,'name'] = pole_names
+	if include_weather: # a user-specified option.
+	# Your IDE may warn that include_weather is undefined; it is defined implicitly
+	# using the global symbols dictionary accessed by the built-in function globals().
 		df_pole_library.loc[:,'weather'] = include_weather
 	else:
 		df_pole_library.loc[:,'wind_speed'] = '0 m/s'
@@ -134,20 +140,23 @@ def convert(input_file, output_file, options={}):
 	df['Design - Pole']= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
 
 	# Secondly do operations on the sheet 'Design - Structure'
-	if extract_equipment:
-		df_current_sheet = df['Design - Structure'].copy()
-		new_header_index = df_current_sheet.iloc[:, 0].first_valid_index()
-		new_header = df_current_sheet.iloc[new_header_index+1]
-		df_current_sheet = df_current_sheet[new_header_index:]
-		df_current_sheet.columns = new_header
-		df_current_sheet.index = range(len(df_current_sheet.index))
-		df_current_sheet.columns.name = None
+	del df_design_pole # We are done with the 'Design - Pole' sheet
+	if extract_equipment: # a user-specified option.
+	# Your IDE may warn that extract_equipment is undefined; it is defined implicitly
+	# using the global symbols dictionary accessed by the built-in function globals().
+		df_design_structure = df['Design - Structure'].copy()
+		new_header_index = df_design_structure.iloc[:, 0].first_valid_index()
+		new_header = df_design_structure.iloc[new_header_index+1]
+		df_design_structure = df_design_structure[new_header_index:]
+		df_design_structure.columns = new_header
+		df_design_structure.index = range(len(df_design_structure.index))
+		df_design_structure.columns.name = None
 		pos_index = []
 		pole_index = 0
-		for i in range(len(df_current_sheet["ID#"])):
-			if df_current_sheet.iloc[i]["ID#"] == pole_name[pole_index].split('_')[1]:
+		for i in range(len(df_design_structure["ID#"])):
+			if df_design_structure.iloc[i]["ID#"] == pole_names[pole_index].split('_')[1]:
 				pos_index.append(i)
-				if pole_index == len(pole_name)-1:
+				if pole_index == len(pole_names)-1:
 					break
 				else:
 					pole_index += 1
@@ -158,91 +167,100 @@ def convert(input_file, output_file, options={}):
 		mount_wep_dic = {}
 		for i in range(len(pos_index)-1):
 			for k in range(pos_index[i]+2,pos_index[i+1]-1):
-				mount_ID = df_current_sheet.iloc[k]["ID#"]
+				mount_ID = df_design_structure.iloc[k]["ID#"]
 				if "Wire" in mount_ID:
-					mount_height = parse_length(df_current_sheet.iloc[k]["Height"], "Height", f"{k}")
-					mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-					mount_wire_dic[f"OL_{mount_ID}_{pole_name[pole_index]}"] = {
-						"equipment" : f"OL_{mount_ID}_{pole_name[pole_index]}",
+					mount_height = parse_length(df_design_structure.iloc[k]["Height"], "Height", f"{k}")
+					mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+					mount_wire_dic[f"OL_{mount_ID}_{pole_names[pole_index]}"] = { # OL means Overhead Line
+						"equipment" : f"OL_{mount_ID}_{pole_names[pole_index]}",
 						"class" : "pole_mount",
-						"parent" : pole_name[pole_index],
+						"parent" : pole_names[pole_index],
 						"height" : mount_height,
 						"direction" : mount_direction,
-						"pole_spacing" : f'WEP_{df_current_sheet.iloc[k]["Related"]}_{pole_name[pole_index]}',
-						"// cable_type" : df_current_sheet.iloc[k]["Size"],
+						# In the source data, pole spacing is associated with Wire End Points (WEP), not individual wires.
+						# A placeholder indicating the 'Related' WEP is stored, to be replaced after WEP data is read in.
+						"pole_spacing" : f'WEP_{df_design_structure.iloc[k]["Related"]}_{pole_names[pole_index]}',
+						"// cable_type" : df_design_structure.iloc[k]["Size"],
 						"flags" : "NONE",
-						
+						# Source data may include a Tension Group in the 'Type' column. SPIDACalc lets users define these, they are not consistent 
+						# enough to be interpreted here.
 					}
 				elif "Equip" in mount_ID:
-					mount_height = parse_length(df_current_sheet.iloc[k]["Height"], "Height", f"{k}")
-					mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-					mount_equip_dic[f"TF_{mount_ID}_{pole_name[pole_index]}"] = {
-						"equipment" : f"TF_{mount_ID}_{pole_name[pole_index]}",
+					mount_height = parse_length(df_design_structure.iloc[k]["Height"], "Height", f"{k}")
+					mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+					mount_equip_dic[f"TF_{mount_ID}_{pole_names[pole_index]}"] = {
+						"equipment" : f"TF_{mount_ID}_{pole_names[pole_index]}",
 						"class" : "pole_mount",
-						"parent" : pole_name[pole_index],
+						"parent" : pole_names[pole_index],
 						"height" : mount_height,
 						"direction" : mount_direction,
 						"offset" : "1 ft",
 						"area" : "1 sf",
 						"weight" : "10 lb",
-						"// equipment_type" : df_current_sheet.iloc[k]["Size"],
+						"// equipment_type" : df_design_structure.iloc[k]["Size"],
 						"flags" : "NONE",
 						
 					}
-				elif "WEP" in mount_ID:
-					mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-					mount_offset = parse_length(df_current_sheet.iloc[k]["Offset/Lead"], "Offset/Lead", f"{k}")
-					mount_wep_dic[f"WEP_{mount_ID}_{pole_name[pole_index]}"] = {
-						"name" : f"WEP_{mount_ID}_{pole_name[pole_index]}",
+				elif "WEP" in mount_ID: # Wire End Point (the pole or building at the other end of a wire)
+					mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+					wire_distance = parse_length(df_design_structure.iloc[k]["Offset/Lead"], "Offset/Lead", f"{k}") # Distance to object at the other end of the wire
+					mount_wep_dic[f"WEP_{mount_ID}_{pole_names[pole_index]}"] = {
+						"name" : f"WEP_{mount_ID}_{pole_names[pole_index]}",
 						"direction" : mount_direction,
-						"distance" : mount_offset,
+						"distance" : wire_distance,
 					}
 			pole_index += 1
-		for k in range(pos_index[-1]+2,len(df_current_sheet["ID#"])):
-			mount_ID = df_current_sheet.iloc[k]["ID#"]
+		for k in range(pos_index[-1]+2,len(df_design_structure["ID#"])):
+			mount_ID = df_design_structure.iloc[k]["ID#"]
 			if "Wire" in mount_ID:
-				mount_height = parse_length(df_current_sheet.iloc[k]["Height"], "Height", f"{k}")
-				mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-				mount_wire_dic[f"OL_{mount_ID}_{pole_name[pole_index]}"] = {
-					"equipment" : f"OL_{mount_ID}_{pole_name[pole_index]}",
+				mount_height = parse_length(df_design_structure.iloc[k]["Height"], "Height", f"{k}")
+				mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+				mount_wire_dic[f"OL_{mount_ID}_{pole_names[pole_index]}"] = { # OL means Overhead Line
+					"equipment" : f"OL_{mount_ID}_{pole_names[pole_index]}",
 					"class" : "pole_mount",
-					"parent" : pole_name[pole_index],
+					"parent" : pole_names[pole_index],
 					"height" : mount_height,
 					"direction" : mount_direction,
-					"pole_spacing" : f'WEP_{df_current_sheet.iloc[k]["Related"]}_{pole_name[pole_index]}',
-					"// cable_type" : df_current_sheet.iloc[k]["Size"],
+					# In the source data, pole spacing is associated with Wire End Points (WEP), not individual wires.
+					# A placeholder indicating the 'Related' WEP is stored, to be replaced after WEP data is read in.
+					"pole_spacing" : f'WEP_{df_design_structure.iloc[k]["Related"]}_{pole_names[pole_index]}',
+					"// cable_type" : df_design_structure.iloc[k]["Size"],
 					"flags" : "NONE",
-
+					# Source data may include a Tension Group in the 'Type' column. SPIDACalc lets users define these, they are not consistent 
+					# enough to be interpreted here.
 				}
 			elif "Equip" in mount_ID:
-				mount_height = parse_length(df_current_sheet.iloc[k]["Height"], "Height", f"{k}")
-				mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-				mount_equip_dic[f"TF_{mount_ID}_{pole_name[pole_index]}"] = {
-					"equipment" : f"TF_{mount_ID}_{pole_name[pole_index]}",
+				mount_height = parse_length(df_design_structure.iloc[k]["Height"], "Height", f"{k}")
+				mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+				mount_equip_dic[f"TF_{mount_ID}_{pole_names[pole_index]}"] = {
+					"equipment" : f"TF_{mount_ID}_{pole_names[pole_index]}",
 					"class" : "pole_mount",
-					"parent" : pole_name[pole_index],
+					"parent" : pole_names[pole_index],
 					"height" : mount_height,
 					"direction" : mount_direction,
 					"offset" : "1 ft",
 					"area" : "1 sf",
 					"weight" : "10 lb",
-					"// equipment_type" : df_current_sheet.iloc[k]["Size"],
+					"// equipment_type" : df_design_structure.iloc[k]["Size"],
 					"flags" : "NONE",
 				}
-			elif "WEP" in mount_ID:
-				mount_direction = parse_angle(df_current_sheet.iloc[k]["Direction"], "Direction", f"{k}")
-				mount_offset = parse_length(df_current_sheet.iloc[k]["Offset/Lead"], "Offset/Lead", f"{k}")
-				mount_wep_dic[f"WEP_{mount_ID}_{pole_name[pole_index]}"] = {
-					"name" : f"WEP_{mount_ID}_{pole_name[pole_index]}",
+			elif "WEP" in mount_ID: # Wire End Point (the pole or building at the other end of a wire)
+				mount_direction = parse_angle(df_design_structure.iloc[k]["Direction"], "Direction", f"{k}")
+				wire_distance = parse_length(df_design_structure.iloc[k]["Offset/Lead"], "Offset/Lead", f"{k}")
+				mount_wep_dic[f"WEP_{mount_ID}_{pole_names[pole_index]}"] = {
+					"name" : f"WEP_{mount_ID}_{pole_names[pole_index]}",
 					"direction" : mount_direction,
-					"distance" : mount_offset,
+					"distance" : wire_distance,
 				}
-		for key in mount_wire_dic.keys():
-			mount_wire_dic[key]["pole_spacing"] = mount_wep_dic[mount_wire_dic[key]["pole_spacing"]]["distance"]
-		df_mount_wire = pd.DataFrame.from_dict(mount_wire_dic, orient='index')
-		df_mount_equip = pd.DataFrame.from_dict(mount_equip_dic, orient='index')
-		df['Design - Structure']= pd.concat([df_mount_wire, df_mount_equip], axis=0, ignore_index=True)
-		df['Design - Pole']= pd.concat([df['Design - Pole'], df['Design - Structure']], axis=0, ignore_index=True)
+		# The source data associates pole spacing data with Wire End Points rather than wires. Replace placeholder key
+		# in the wire dict with actual pole spacing from WEP dict.
+		for wireID in mount_wire_dic.keys():
+			wepID = mount_wire_dic[wireID]["pole_spacing"] # placeholder key
+			mount_wire_dic[wireID]["pole_spacing"] = mount_wep_dic[wepID]["distance"]
+		df_mount_wire = pd.DataFrame.from_dict(mount_wire_dic, orient='index') # rows are wires, columns are wire data
+		df_mount_equip = pd.DataFrame.from_dict(mount_equip_dic, orient='index') # rows are different equipment mounts
+		df['Design - Structure'] = pd.concat([df_mount_wire, df_mount_equip], axis=0, ignore_index=True)
+		df['Design - Pole'] = pd.concat([df['Design - Pole'], df['Design - Structure']], axis=0, ignore_index=True)
 		
 		if include_network:
 			df['Design - Pole'] = xls2glm_object(df['Design - Pole'],input_file)
@@ -521,13 +539,13 @@ def parse_space_to_underscore(cell_string, current_column, current_row):
 
 def xls2glm_object(df_glm, input_file):
 	glm_node_dic = {}
-	glm_OLLC_dic = {}
-	glm_LS_dic = {}
-	glm_LC_dic = {}
-	glm_OL_dic = {}
-	glm_TC_dic = {}
-	glm_TF_dic = {}
-	swing_node = f"ND_{os.path.basename(input_file).split('.')[0]}"
+	glm_OLLC_dic = {} # OLLC - Overhead Line Conductor
+	glm_LS_dic = {} # LS - Line Spacing
+	glm_LC_dic = {} # LC - Line Configuration
+	glm_OL_dic = {} # OL - Overhead Line
+	glm_TC_dic = {} # TC - Transformer Configuration
+	glm_TF_dic = {} # TF - Transformer
+	swing_node = f"ND_{os.path.basename(input_file).split('.')[0]}" # ND - Node
 	glm_node_dic[swing_node] = {
 		"name" : swing_node,
 		"class" : "node",
@@ -537,7 +555,9 @@ def xls2glm_object(df_glm, input_file):
 	}
 	last_node = swing_node
 	for n in range(len(df_glm["class"])):
+		# Iterating over every pole_mount:
 		if df_glm.iloc[n]["class"] == "pole_mount":
+			# For every Overhead Line,
 			if df_glm.iloc[n]["equipment"].split('_')[0] == "OL":
 				if f'ND_{df_glm.iloc[n]["equipment"]}' not in glm_node_dic.keys():
 					glm_node_dic[f'ND_{df_glm.iloc[n]["equipment"]}'] = {
