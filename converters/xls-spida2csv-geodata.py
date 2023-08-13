@@ -222,7 +222,8 @@ def convert(input_file, output_file, options={}):
 					"height" : mount_height,
 					"direction" : mount_direction,
 					# In the source data, pole spacing is associated with Wire End Points (WEP), not individual wires.
-					# A placeholder indicating the 'Related' WEP is stored, to be replaced after WEP data is read in.
+					# A placeholder indicating the 'Related' WEP is stored as the value for pole_spacing, 
+					#    to be replaced after WEP data is read in.
 					"pole_spacing" : f'WEP_{df_design_structure.iloc[k]["Related"]}_{pole_names[pole_index]}',
 					"// cable_type" : df_design_structure.iloc[k]["Size"],
 					"flags" : "NONE",
