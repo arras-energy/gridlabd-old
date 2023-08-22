@@ -8,6 +8,8 @@ import os
 
 """Convert XLS SPIDAcalc pole data to geodata
 
+See docs/Converters/Import/Spida_data.md
+
 SYNOPSIS
 
 	GLM:
@@ -95,11 +97,12 @@ def convert(input_file, output_file, options={}):
 			df_design_pole.at[row,'AGL'] = ""
 
 	# Rename columns to its corresponding column name in Gridlabd.
+	# Some values are replaced with analogous information, like GroundLine Circumference (GLC) to ground_diameter.
 	# I believe class in the file is referring to grade, so it is renamed. 
 	df_design_pole.rename(columns = {np.nan : 'name', 'Lean Angle': 'tilt_degree', 
 		'Lean Direction': 'tilt_direction', 'Effective Allowable Stress': 'fiber_strength',\
 		 'Length' : 'pole_length', 'GLC' : 'ground_diameter', 'AGL' : 'pole_depth',\
-		  'Class': "grade"}, inplace=True) # for sec data
+		  'Class': "grade"}, inplace=True) # for Southern California Edison data
 
 	# Split GPS Point into longitude and latitude, then parse.
 	# Prepare GPS Point column for splitting and split value into lat and long. 
@@ -253,8 +256,8 @@ def convert(input_file, output_file, options={}):
 					"direction" : mount_direction,
 					"distance" : wire_distance,
 				}
-		# The source data associates pole spacing data with Wire End Points rather than wires. Replace placeholder key
-		# in the wire dict with actual pole spacing from WEP dict.
+		# The source data associates pole spacing data with Wire End Points rather than wires.
+		# Replace placeholder key in the wire dict with actual pole spacing from WEP dict.
 		for wireID in mount_wire_dic.keys():
 			wepID = mount_wire_dic[wireID]["pole_spacing"] # placeholder key
 			mount_wire_dic[wireID]["pole_spacing"] = mount_wep_dic[wepID]["distance"]

@@ -17,6 +17,7 @@ There are many different types of XLS files that can be imported. Each is docume
   * [[/Converters/Import/Ceus_data]]
   * [[/Converters/Import/Rbsa_data]]
   * [[/Converters/Import/Scada_data]]
+  * [[/Converters/Import/Spida_data]]
 * GLM models
   * [[/Converters/Import/Config_data]]
   * [[/Converters/Import/Ica_data]]
