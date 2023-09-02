@@ -202,8 +202,10 @@ def verbose(msg):
         print(msg)
 
 def pole_diameter(g_diameter,t_diameter,h,H):
-    x_diameter = g_diameter - h*(g_diameter-t_diameter)/H
-    return x_diameter
+    '''Returns the pole diameter at height h.
+    Linearly interpolates between ground diameter and top diameter for a pole of height H.'''
+    z_diameter = g_diameter - h*(g_diameter-t_diameter)/H
+    return z_diameter
 
 def reactions_PW(g_diameter,t_diameter,height,density,tilt_degree,tilt_direction):
     # reactions due to pole weight and pole tilt
@@ -223,9 +225,9 @@ def reactions_CT(strength,tilt_degree,heading_direction):
 
 def reactions_CW(g_diameter,t_diameter,height,weight,gP,zP,tilt_degree,tilt_direction,offset_direction):
     # reactions due to cable weight
-    x_diameter = pole_diameter(g_diameter,t_diameter,zP,height)
-    x_radius = x_diameter/2
-    cable_weight_moment = weight*x_radius
+    z_diameter = pole_diameter(g_diameter,t_diameter,zP,height)
+    z_radius = z_diameter/2
+    cable_weight_moment = weight*z_radius
     if tilt_degree == 0:
         xV = -cable_weight_moment*cos(pi*offset_direction/180)/(zP-gP)
         yV = -cable_weight_moment*sin(pi*offset_direction/180)/(zP-gP)
@@ -319,13 +321,13 @@ def shear_moment_WP(wind_presure,wind_direction,gP,Z,g_diameter,t_diameter,heigh
     yShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for equipment weight
     xMoment = np.zeros(len(Z)) #Initialise a container to hold all moment force data for equipment weight
     yMoment = np.zeros(len(Z)) #Initialise a container to hold all moment force data for equipment weight
-    for i, x in enumerate(Z):
-        if x >= gP:
-            x = x - gP
-            x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            shear = -wind_presure*(t_diameter+x_diameter)*(height-x)*cos(pi*tilt_degree/180)/2
+    for i, z in enumerate(Z):
+        if z >= gP:
+            z = z - gP
+            z_diameter = pole_diameter(g_diameter,t_diameter,z,height)
+            shear = -wind_presure*(t_diameter+z_diameter)*(height-z)*cos(pi*tilt_degree/180)/2
             moment = wind_presure*cos(pi*tilt_degree/180)*(height**2*(g_diameter+2*t_diameter)/72 \
-            + x*(x_diameter*(x-height)-height*t_diameter - x**2*(g_diameter-t_diameter)/(3*height))/24)
+            + z*(z_diameter*(z-height)-height*t_diameter - z**2*(g_diameter-t_diameter)/(3*height))/24)
         else:
             shear = 0.0
             moment = 0.0
@@ -405,21 +407,23 @@ def shear_moment_CT(xV,yV,zP,gP,Z,heading_direction):
         yMoment[i] = ymoment
     return xShear, yShear, xMoment, yMoment
 
-def shear_moment_PW(g_diameter,t_diameter,gP,Z,height,density,tilt_degree,tilt_direction):  
-    #Cycle through the structure and calculate the shear force and bending moment at each point
+def shear_moment_PW(g_diameter,t_diameter,guy_height,Z,height,density,tilt_degree,tilt_direction):  
+    '''Calculate the shear force and bending moment at each point along the pole length.
+
+    Z is a list of z-coordinates (heights) from 0 to pole_length.'''
     xShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for pole weight
     yShear = np.zeros(len(Z))  #Initialise a container to hold all shear force data for pole weight
     xMoment = np.zeros(len(Z)) #Initialise a container to hold all moment force data for pole weight
     yMoment = np.zeros(len(Z)) #Initialise a container to hold all moment force data for pole weight
-    for i, x in enumerate(Z):
-        if x >= gP:
-            x = x - gP
-            x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            pole_weight = density*sin(pi*tilt_degree/180)*pi*(x_diameter**2+x_diameter*t_diameter+t_diameter**2)\
-                        *(height-x)/(3*4*12*12)
+    for i, z in enumerate(Z):
+        if z >= guy_height:
+            z = z - guy_height
+            z_diameter = pole_diameter(g_diameter,t_diameter,z,height)
+            pole_weight = density*sin(pi*tilt_degree/180)*pi*(z_diameter**2+z_diameter*t_diameter+t_diameter**2)\
+                        *(height-z)/(3*4*12*12)
             pole_weight_moment = density*sin(pi*tilt_degree/180)*pi*\
-            (g_diameter**2*(height**2-x**2)/(2*4)+(g_diameter-t_diameter)**2*(height**4-x**4)/(4*4*height**2)\
-            -2*g_diameter*(g_diameter-t_diameter)*(height**3-x**3)/(3*4*height))/(12*12)
+            (g_diameter**2*(height**2-z**2)/(2*4)+(g_diameter-t_diameter)**2*(height**4-z**4)/(4*4*height**2)\
+            -2*g_diameter*(g_diameter-t_diameter)*(height**3-z**3)/(3*4*height))/(12*12)
         else:
             pole_weight = 0.0
             pole_weight_moment = 0.0
@@ -440,8 +444,8 @@ def calcDeflection(M, gP, Z, E, delX, theta_0, v_0, g_diameter,t_diameter, heigh
         ind = i
         if i > 0 and Z[i] >= gP:
             x = Z[i] - gP
-            x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            I = 3.14*(x_diameter/2/12)**4/4 #ft4
+            z_diameter = pole_diameter(g_diameter,t_diameter,x,height)
+            I = 3.14*(z_diameter/2/12)**4/4 #ft4
             
             M_im1 = M[ind-1]
             M_i = M[ind]
@@ -461,10 +465,10 @@ def calcStress(M, gP, Z, g_diameter,t_diameter, height):
     Stress =  np.zeros(len(Z))
     for i, m in enumerate(M):
         if Z[i] >= gP:
-            x = Z[i] - gP
-            x_diameter = pole_diameter(g_diameter,t_diameter,x,height)
-            I = 3.14*(x_diameter/2/12)**4/4
-            stress = m*x_diameter/(2*I*12) # in lbs/ft2
+            z = Z[i] - gP
+            z_diameter = pole_diameter(g_diameter,t_diameter,z,height)
+            I = 3.14*(z_diameter/2/12)**4/4
+            stress = m*z_diameter/(2*I*12) # in lbs/ft2
             Stress[i] = stress * 0.00694 # lbs/ft2 to psi
     return Stress
 
@@ -634,7 +638,7 @@ def main(inputfile,**options):
             tilt_degree = pole_data['tilt_degree']
             tilt_direction = pole_data['tilt_direction']
             delta_height = pole_length/segment_dives
-            Z = np.arange(0, pole_length + delta_height, delta_height) #Range of z-coordinates
+            Z = np.arange(0, pole_length + delta_height, delta_height) # Range of z-coordinates
             xShearForce = np.empty([0,len(Z)]) #Shear forces at each data point
             yShearForce = np.empty([0,len(Z)]) #Shear forces at each data point
             xBendingMoment = np.empty([0,len(Z)]) #Bending moment at each data point
@@ -664,9 +668,15 @@ def main(inputfile,**options):
                     strength = mount_data["strength"]
                     heading_direction = mount_data["direction"]
                     zP = mount_data["height"]
-                    weight = mount_data["weight"]*mount_data["pole_spacing"]/2 + pi*mount_data["ice_thickness"]*\
-                        (mount_data["ice_thickness"]+mount_data["cable_diameter"])*mount_data["pole_spacing"]*\
-                        ice_density*12/2
+                             # cable weight
+                             # mount_data["weight"] is lbs per ft
+                    weight = (mount_data["weight"] * mount_data["pole_spacing"]/2
+                             # ice weight
+                             # Assumes an even coating of ice all around the cable (so a circular cross-section).
+                             # pi * ice radius * (ice radius + cable diameter) =  pi * (ice radius + cable radius)^2 - pi * (cable radius)^2
+                             # ice_density is in lbs per cubic inch, so pole_spacing is multiplied by 12 to convert to inches
+                            + pi*mount_data["ice_thickness"]*(mount_data["ice_thickness"]+mount_data["cable_diameter"])
+                              *ice_density * 12*mount_data["pole_spacing"]/2)
                     offset_direction = mount_data["direction"]
                     ## cable tension
                     if guy_height < zP:
@@ -731,10 +741,10 @@ def main(inputfile,**options):
                     warning(f"wind direction increment hasn't defined, use DEFAULT_DIRECTION_INCREMENT (2 degree)")
                     direction_increment = DEFAULT_DIRECTION_INCREMENT
 
-                anaglysis_directions = np.arange(0, 360, direction_increment) #Range of wind direction
-                anaglysis_stress =  np.zeros(len(anaglysis_directions))
+                analysis_directions = np.arange(0, 360, direction_increment) # Range of wind direction
+                analysis_stress =  np.zeros(len(analysis_directions))
 
-                for i, anaglysis_direction in enumerate(anaglysis_directions):
+                for i, anaglysis_direction in enumerate(analysis_directions):
                     wind_direction = anaglysis_direction
                     wind_presure = 0.00256*(2.24*wind_speed)**2 #2.24 account for m/s to mph conversion, in lb/ft2
                     xAnalysisShearForce = np.empty([0,len(Z)]) #Shear forces at each data point
@@ -799,11 +809,11 @@ def main(inputfile,**options):
                     verbose(f"analysis direction: {wind_direction}, stress: {max(Stress)}")
                     if max(Stress) > 100:
                         warning(f"[{pole}] stress = {max(Stress)}% at direction {anaglysis_direction} degree")
-                    anaglysis_stress[i] = max(Stress)
+                    analysis_stress[i] = max(Stress)
                 ## record data
-                verbose(f"analysis anagle: {anaglysis_directions}")
-                verbose(f"analysis stress: {anaglysis_stress}")
-                pole_analysis[pole]['worst_angle'] = anaglysis_directions[np.argmax(anaglysis_stress)]
+                verbose(f"analysis angle: {analysis_directions}")
+                verbose(f"analysis stress: {analysis_stress}")
+                pole_analysis[pole]['worst_angle'] = analysis_directions[np.argmax(analysis_stress)]
                 pole_analysis[pole]['worst_angle_speed'] = wind_speed
             elif ANALYSIS == "critical_speed":
                 if np.isnan(wind_direction):
@@ -814,7 +824,7 @@ def main(inputfile,**options):
                     speed_increment = DEFAULT_SPEED_INCREMENT
 
                 anaglysis_windspeed = [] #list of wind speed
-                anaglysis_stress =  []
+                analysis_stress =  []
                 critical_wind_speed = 0.0
                 critical_stress = 0.0
                 while critical_stress < 100.0:
@@ -883,12 +893,12 @@ def main(inputfile,**options):
                     critical_stress = max(Stress)
                     verbose(f"critical_stress: {critical_stress}")
                     anaglysis_windspeed.append(wind_speed) #list of wind speed
-                    anaglysis_stress.append(critical_stress)
+                    analysis_stress.append(critical_stress)
                     ## update data
                     critical_wind_speed = critical_wind_speed + speed_increment
                 ## record data
                 verbose(f"analysis anagle: {anaglysis_windspeed}")
-                verbose(f"analysis stress: {anaglysis_stress}")
+                verbose(f"analysis stress: {analysis_stress}")
                 pole_analysis[pole]['critical_wind_speed'] = critical_wind_speed - speed_increment
                 pole_analysis[pole]['critical_wind_direction'] = wind_direction
             elif ANALYSIS == "loading_scenario":
