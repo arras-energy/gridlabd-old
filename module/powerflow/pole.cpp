@@ -443,8 +443,8 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 	double age = t0_year - install_year;
     if ( age > 0 && config->degradation_rate > 0 )
 	{
-		if ( age > 0 )
-			current_hollow_diameter = 2.0*age*config->degradation_rate*diameter/config->ground_diameter;
+		if ( age > 0 ) // Decay expands from the center, the hollow region making up the same fraction of the pole diameter at every height.
+			current_hollow_diameter = 2.0*age*config->degradation_rate * diameter/config->ground_diameter;
 		else
 			current_hollow_diameter = 0.0; // ignore future installation years
         verbose("current_hollow_diameter = %g in",current_hollow_diameter);
@@ -457,7 +457,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
     // update resisting moment considering aging
     resisting_moment = 0.008186 // constant * pi^3
         * config->strength_factor_250b_wood
-        * config->fiber_strength
+        * config->fiber_strength  // max stress that can be applied at a point in the material (psi)
         * (diameter*diameter*diameter-current_hollow_diameter*current_hollow_diameter*current_hollow_diameter);
     verbose("updated resisting moment %.0f ft*lb (aged)",resisting_moment);
 
@@ -467,7 +467,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 		tilt_degree = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
-		install_year = 1970 + (unsigned int)(t0/86400/365.24);
+		install_year = 1970 + (unsigned int)(t0/86400/365.24); 
         verbose("install_year = %d (pole repaired)", install_year);
 
         recalc = true;
