@@ -150,7 +150,10 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 		df_pole_library.loc[:,'wind_speed'] = '0 m/s'
 		df_pole_library.loc[:,'wind_direction'] = '0 deg'
 	df_pole_library.loc[:,'flags'] = 'NONE'
-	df= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
+	if include_mount : 
+		df= pd.concat([df_pole_config, df_pole_library, df_pole_mount], axis=0, ignore_index=True)	
+	else : 
+		df= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
 
 	# Drop rows with duplicate entries under the 'ID' column
 	df = df.drop_duplicates(subset=['name'])
