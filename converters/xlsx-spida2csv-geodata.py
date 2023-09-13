@@ -142,6 +142,7 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 	if include_mount : 
 		df_pole_mount.loc[:,'class'] = 'pole_mount'
 		df_pole_mount.loc[:,'name'] = pole_mount_name
+		df_pole_mount.loc[:,'parent'] = pole_name
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
 	df_pole_library.loc[:,'name'] = pole_name
