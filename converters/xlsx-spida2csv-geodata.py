@@ -670,6 +670,3 @@ def xls2glm_object(df_glm, input_file):
 	df_glm= pd.concat([df_glm, df_glm_network], axis=0, ignore_index=True)
 
 	return df_glm.copy()
-
-
-convert('CARDINAL_Polar - Design CalcDesign DSO.xlsx', 'CARDINAL_PolarDesign Attachment and Equipment_Asset Details from SPIDA and SAP.xlsx', 'test.csv', options={'extract_equipment':'yes','include_network':'yes'})
