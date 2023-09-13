@@ -118,11 +118,12 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 	# # Adding a pole mount for each pole 
 	if include_mount : 
 		df_pole_mount = pd.DataFrame()
+		df_pole_mount.loc[:,'class'] = 'powerflow.pole_mount'
 
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'
 	df_pole_library.loc[:,'class'] = 'powerflow.pole'
-	df_pole_mount.loc[:,'class'] = 'powerflow.pole_mount'
+	
 
 	# Additional properties for each class. These values are just for testing purposes for now. 
 	pole_configuration_name = []
