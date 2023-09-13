@@ -117,8 +117,9 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 
 	# # Adding a pole mount for each pole 
 	if include_mount : 
-		df_pole_mount = pd.DataFrame()
-		df_pole_mount.loc[:,'class'] = 'powerflow.pole_mount'
+		df_pole_mount = df[['tilt_angle']].copy()
+		df_pole_mount.drop(['tilt_angle'],axis=1, inplace=True)
+		df_pole_mount['class'] = 'powerflow.pole_mount'
 
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'
@@ -572,92 +573,92 @@ def xls2glm_object(df_glm, input_file):
 		"nominal_voltage" : "2401 V",
 	}
 	last_node = swing_node
-	for n in range(len(df_glm["class"])):
-		if df_glm.iloc[n]["class"] == "pole_mount":
-			if df_glm.iloc[n]["equipment"].split('_')[0] == "OL":
-				if f'ND_{df_glm.iloc[n]["equipment"]}' not in glm_node_dic.keys():
-					glm_node_dic[f'ND_{df_glm.iloc[n]["equipment"]}'] = {
-						"name" : f"ND_{df_glm.iloc[n]['equipment']}",
-						"class" : "node",
-						"phases" : "A",
-						"nominal_voltage" : "2401 V",
-					}
+	# for n in range(len(df_glm["class"])):
+	# 	if df_glm.iloc[n]["class"] == "pole_mount":
+	# 		if df_glm.iloc[n]["equipment"].split('_')[0] == "OL":
+	# 			if f'ND_{df_glm.iloc[n]["equipment"]}' not in glm_node_dic.keys():
+	# 				glm_node_dic[f'ND_{df_glm.iloc[n]["equipment"]}'] = {
+	# 					"name" : f"ND_{df_glm.iloc[n]['equipment']}",
+	# 					"class" : "node",
+	# 					"phases" : "A",
+	# 					"nominal_voltage" : "2401 V",
+	# 				}
 				
-				name_overhead_line_conductor = f'OC_{string_clean(df_glm.iloc[n]["// cable_type"])}'
-				if name_overhead_line_conductor not in glm_OLLC_dic.keys():
-					glm_OLLC_dic[name_overhead_line_conductor] = {
-						"name" : name_overhead_line_conductor,
-						"class" : "overhead_line_conductor",
-						"diameter" : "0.1 in",
-						"resistance" : "0.1 Ohm/mile",
-						"weight" : "0.1 lb/ft",
-						"strength" : "100 lb",
-					}
+	# 			name_overhead_line_conductor = f'OC_{string_clean(df_glm.iloc[n]["// cable_type"])}'
+	# 			if name_overhead_line_conductor not in glm_OLLC_dic.keys():
+	# 				glm_OLLC_dic[name_overhead_line_conductor] = {
+	# 					"name" : name_overhead_line_conductor,
+	# 					"class" : "overhead_line_conductor",
+	# 					"diameter" : "0.1 in",
+	# 					"resistance" : "0.1 Ohm/mile",
+	# 					"weight" : "0.1 lb/ft",
+	# 					"strength" : "100 lb",
+	# 				}
 				
-				name_line_spacing = f'LS_{string_clean(df_glm.iloc[n]["height"])}'
-				if name_line_spacing not in glm_LS_dic.keys():
-					glm_LS_dic[name_line_spacing] = {
-						"name" : name_line_spacing,
-						"class" : "line_spacing",
-						"distance_AE" : df_glm.iloc[n]["height"],
-					}
+	# 			name_line_spacing = f'LS_{string_clean(df_glm.iloc[n]["height"])}'
+	# 			if name_line_spacing not in glm_LS_dic.keys():
+	# 				glm_LS_dic[name_line_spacing] = {
+	# 					"name" : name_line_spacing,
+	# 					"class" : "line_spacing",
+	# 					"distance_AE" : df_glm.iloc[n]["height"],
+	# 				}
 				
-				name_line_configuration = f'LC_{df_glm.iloc[n]["equipment"]}'
-				if name_line_configuration not in glm_LC_dic.keys():
-					glm_LC_dic[name_line_configuration] = {
-						"name" : name_line_configuration,
-						"class" : "line_configuration",
-						"conductor_A" : name_overhead_line_conductor,
-						"spacing" : name_line_spacing,
-					}
+	# 			name_line_configuration = f'LC_{df_glm.iloc[n]["equipment"]}'
+	# 			if name_line_configuration not in glm_LC_dic.keys():
+	# 				glm_LC_dic[name_line_configuration] = {
+	# 					"name" : name_line_configuration,
+	# 					"class" : "line_configuration",
+	# 					"conductor_A" : name_overhead_line_conductor,
+	# 					"spacing" : name_line_spacing,
+	# 				}
 				
-				name_overhead_line = f'{df_glm.iloc[n]["equipment"]}'
-				if name_overhead_line not in glm_OL_dic.keys():
-					glm_OL_dic[name_overhead_line] = {
-						"name" : name_overhead_line,
-						"class" : "overhead_line",
-						"phases" : "A",
-						"from" : last_node,
-						"to" : f'ND_{df_glm.iloc[n]["equipment"]}',
-						"length" : df_glm.iloc[n]["pole_spacing"],
-						"configuration" : name_line_configuration
-					}
-				last_node = f'ND_{df_glm.iloc[n]["equipment"]}'
-			elif df_glm.iloc[n]["equipment"].split('_')[0] == "TF":
-				if f'ND_{df_glm.iloc[n]["equipment"]}' not in glm_node_dic.keys():
-					glm_node_dic[f'ND_{df_glm.iloc[n]["equipment"]}'] = {
-						"name" : f"ND_{df_glm.iloc[n]['equipment']}",
-						"class" : "node",
-						"phases" : "A",
-						"nominal_voltage" : "2401 V",
-					}
+	# 			name_overhead_line = f'{df_glm.iloc[n]["equipment"]}'
+	# 			if name_overhead_line not in glm_OL_dic.keys():
+	# 				glm_OL_dic[name_overhead_line] = {
+	# 					"name" : name_overhead_line,
+	# 					"class" : "overhead_line",
+	# 					"phases" : "A",
+	# 					"from" : last_node,
+	# 					"to" : f'ND_{df_glm.iloc[n]["equipment"]}',
+	# 					"length" : df_glm.iloc[n]["pole_spacing"],
+	# 					"configuration" : name_line_configuration
+	# 				}
+	# 			last_node = f'ND_{df_glm.iloc[n]["equipment"]}'
+	# 		elif df_glm.iloc[n]["equipment"].split('_')[0] == "TF":
+	# 			if f'ND_{df_glm.iloc[n]["equipment"]}' not in glm_node_dic.keys():
+	# 				glm_node_dic[f'ND_{df_glm.iloc[n]["equipment"]}'] = {
+	# 					"name" : f"ND_{df_glm.iloc[n]['equipment']}",
+	# 					"class" : "node",
+	# 					"phases" : "A",
+	# 					"nominal_voltage" : "2401 V",
+	# 				}
 				
-				name_transformer_configuration = f'TC_{df_glm.iloc[n]["equipment"]}'
-				if name_transformer_configuration not in glm_TC_dic.keys():
-					glm_TC_dic[name_transformer_configuration] = {
-						"name" : name_transformer_configuration,
-						"class" : "transformer_configuration",
-						"connect_type" : "WYE_WYE",
-						"install_type" : "PADMOUNT",
-						"power_rating" : "100 kVA",
-						"primary_voltage" : "2401 V",
-						"secondary_voltage" : "2401 V",
-						"resistance" : "0.000333",
-						"reactance" : "0.00222",
-					}
-				name_transformer = f'{df_glm.iloc[n]["equipment"]}'
-				if name_transformer not in glm_TF_dic.keys():
-					glm_TF_dic[name_transformer] = {
-						"name" : name_transformer,
-						"class" : "transformer",
-						"phases" : "AN",
-						"from" : last_node,
-						"to" : f'ND_{df_glm.iloc[n]["equipment"]}',
-						"configuration" : name_transformer_configuration,
-					}
-				last_node = f'ND_{df_glm.iloc[n]["equipment"]}'
-			else:
-				raise Exception(f"cannot convert equipment")
+	# 			name_transformer_configuration = f'TC_{df_glm.iloc[n]["equipment"]}'
+	# 			if name_transformer_configuration not in glm_TC_dic.keys():
+	# 				glm_TC_dic[name_transformer_configuration] = {
+	# 					"name" : name_transformer_configuration,
+	# 					"class" : "transformer_configuration",
+	# 					"connect_type" : "WYE_WYE",
+	# 					"install_type" : "PADMOUNT",
+	# 					"power_rating" : "100 kVA",
+	# 					"primary_voltage" : "2401 V",
+	# 					"secondary_voltage" : "2401 V",
+	# 					"resistance" : "0.000333",
+	# 					"reactance" : "0.00222",
+	# 				}
+	# 			name_transformer = f'{df_glm.iloc[n]["equipment"]}'
+	# 			if name_transformer not in glm_TF_dic.keys():
+	# 				glm_TF_dic[name_transformer] = {
+	# 					"name" : name_transformer,
+	# 					"class" : "transformer",
+	# 					"phases" : "AN",
+	# 					"from" : last_node,
+	# 					"to" : f'ND_{df_glm.iloc[n]["equipment"]}',
+	# 					"configuration" : name_transformer_configuration,
+	# 				}
+	# 			last_node = f'ND_{df_glm.iloc[n]["equipment"]}'
+	# 		else:
+	# 			raise Exception(f"cannot convert equipment")
 	df_glm_node = pd.DataFrame.from_dict(glm_node_dic, orient='index')
 	df_glm_OLLC = pd.DataFrame.from_dict(glm_OLLC_dic, orient='index')
 	df_glm_LS = pd.DataFrame.from_dict(glm_LS_dic, orient='index')
