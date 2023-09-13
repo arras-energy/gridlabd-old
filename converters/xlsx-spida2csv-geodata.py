@@ -35,6 +35,7 @@ default_options = {
 	"extract_equipment" : None,
 	"include_network" : None,
 	"include_weather" : None,
+	"include_mount" : None
 }
 
 def string_clean(input_str):
@@ -110,27 +111,39 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 	# Remove original GPS Point column
 	df.drop(columns = {'AS-IS GPS Point'},axis=1,inplace=True) # sce data
 
-
 	# Split the dataframe based on properties of pole_config and pole_library.
 	df_pole_config = df[['pole_length', 'pole_depth', 'ground_diameter', 'fiber_strength']].copy()
 	df_pole_library = df[['tilt_angle', 'tilt_direction', 'latitude', 'longitude']].copy()
 
+	# # Adding a pole mount for each pole 
+	if include_mount : 
+		df_pole_mount = pd.DataFrame()
+
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'
 	df_pole_library.loc[:,'class'] = 'powerflow.pole'
+	df_pole_mount.loc[:,'class'] = 'powerflow.pole_mount'
 
 	# Additional properties for each class. These values are just for testing purposes for now. 
 	pole_configuration_name = []
 	pole_name = []
+	pole_mount_name = []
+
 	for i in range(len(df["name"])):
 		pole_configuration_name.append(f"pole_configuration_{df['name'][i]}")
 		pole_name.append(f"pole_{df['name'][i]}")
+		if include_mount : 
+			pole_mount_name.append(f"mount_{df['name'][i]}")
 
 	df_pole_config.loc[:,'class'] = 'pole_configuration'
 	df_pole_library.loc[:,'class'] = 'pole'
+	if include_mount : 
+		df_pole_mount.loc[:,'class'] = 'pole_mount'
+		df_pole_mount.loc[:,'name'] = pole_mount_name
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
 	df_pole_library.loc[:,'name'] = pole_name
+
 	if include_weather:
 		df_pole_library.loc[:,'weather'] = include_weather
 	else:
@@ -149,6 +162,7 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 		columns_to_keep = ['ID', 'Structure_x0020_ID', 'AS-IS_x0020_Size', 'AtHeight_x0020_Unit', 'AtHeight_x0020_Value', 'Usage_x0020_Group', 'AS-IS_x0020_Height', 'AS-IS_x0020_Direction',
        'AS-IS_x0020_Offset_x002F_Lead']
 		df_structure = df_structure_raw[columns_to_keep]
+
 
 		# new_header_index = df_structure.iloc[:, 0].first_valid_index()
 		# new_header = df_structure.iloc[new_header_index+1]
