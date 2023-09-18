@@ -10,7 +10,7 @@ import os
 SYNOPSIS
 
 	GLM:
-		#convert SPIDACALC.xlsx GEODATA.csv -f xlsx-spida -t csv-geodata [precision=2] [extract_equipment=yes] [include_network=yes]
+		#convert SPIDACALC.xlsx GEODATA.csv -f xlsx-spida -t csv-geodata [precision=2] [extract_equipment=yes] [include_dummy_network=yes]
 
 DESCRIPTION
 
@@ -23,9 +23,13 @@ OPTIONS:
 
 - `extract_equipment=yes`: enable the conversion of pole-mounted equipment, dummy values will be used for equipment properties (default None)
 
-- `include_network=yes`: enable the generation of a bus-type feeder, dummy values will be used for properties of feeder and equipment (default None)
+- `include_dummy_network=yes`: enable the generation of a bus-type feeder, dummy values will be used for properties of feeder and equipment (default None)
 
 - `include_weather=NAME`: name the weather object and do not use dummy values for weather data (default None)
+
+- `include_mount=yes` : enable the generation of pole mounts objects for the ability to connect poles to network
+
+- `include_network=NAME` : name the distribution feeder network to reference the connection via include mount.
 	
 """
 
@@ -33,9 +37,10 @@ OPTIONS:
 default_options = {
 	"precision" : 2,
 	"extract_equipment" : None,
-	"include_network" : None,
+	"include_dummy_network" : None,
 	"include_weather" : None,
-	"include_mount" : None
+	"include_mount" : None,
+	"include_network" : None 
 }
 
 def string_clean(input_str):
@@ -52,9 +57,19 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 		if name not in default_options.keys():
 			raise Exception("option '{name}={value}' is not valid")
 		globals()[name] = value
+	if include_network : 
+		include_mount="yes"
 
 	# Read all the sheets in the .xls file 
-	df = pd.read_excel(input_pole_file, sheet_name=0)  
+	df = pd.read_excel(input_pole_file, sheet_name=0) 
+
+	# Read the overhead lines 
+	df_lines = pd.read_csv(include_network)
+	overheadline_names = []
+	for index, row in df_lines.iterrows(): 
+
+		if row['class']=="overhead_line" : 
+			overheadline_names.append(row['name'])
 
 	# SPIDA export with 1 sheet 
 
@@ -115,12 +130,11 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 	df_pole_config = df[['pole_length', 'pole_depth', 'ground_diameter', 'fiber_strength']].copy()
 	df_pole_library = df[['tilt_angle', 'tilt_direction', 'latitude', 'longitude']].copy()
 
-	# # Adding a pole mount for each pole 
-	if include_mount : 
-		df_pole_mount = df[['tilt_angle']].copy()
-		df_pole_mount.drop(['tilt_angle'],axis=1, inplace=True)
-		df_pole_mount['class'] = 'powerflow.pole_mount'
-
+	# # # Adding a pole mount for each pole 
+	# if include_mount : 
+	# 	df_pole_mount = df[['tilt_angle']].copy()
+	# 	df_pole_mount.drop(['tilt_angle'],axis=1, inplace=True)
+	# 	df_pole_mount['class'] = 'powerflow.pole_mount'
 	# Specify class of the properties.
 	df_pole_config.loc[:,'class'] = 'powerflow.pole_configuration'
 	df_pole_library.loc[:,'class'] = 'powerflow.pole'
@@ -134,18 +148,16 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 	for i in range(len(df["name"])):
 		pole_configuration_name.append(f"pole_configuration_{df['name'][i]}")
 		pole_name.append(f"pole_{df['name'][i]}")
-		if include_mount : 
-			pole_mount_name.append(f"mount_{df['name'][i]}")
+
 
 	df_pole_config.loc[:,'class'] = 'pole_configuration'
 	df_pole_library.loc[:,'class'] = 'pole'
-	if include_mount : 
-		df_pole_mount.loc[:,'class'] = 'pole_mount'
-		df_pole_mount.loc[:,'name'] = pole_mount_name
-		df_pole_mount.loc[:,'parent'] = pole_name
+
+	
 	df_pole_config.loc[:,'name'] = pole_configuration_name
 	df_pole_library.loc[:,'configuration'] = pole_configuration_name
 	df_pole_library.loc[:,'name'] = pole_name
+	
 
 	if include_weather:
 		df_pole_library.loc[:,'weather'] = include_weather
@@ -154,7 +166,38 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 		df_pole_library.loc[:,'wind_direction'] = '0 deg'
 	df_pole_library.loc[:,'flags'] = 'NONE'
 	if include_mount : 
-		df= pd.concat([df_pole_config, df_pole_library, df_pole_mount], axis=0, ignore_index=True)	
+		
+
+		equipment_name = {}
+
+		for pole in pole_name : 
+			if [p for p in overheadline_names if pole[5:] in p] : 
+				# equipment_name_raw.append([p for p in overheadline_names if pole[5:] in p])
+				# matching_lines = 
+				equipment_name[pole] = [p for p in overheadline_names if pole[5:] in p]
+				# equipment_name_raw = {pole[5:]: p for p in overheadline_names if pole[5:] in p}
+				# equipment_name = [item for sublist in equipment_name_raw for item in sublist]
+		
+		# Create an empty list to hold the formatted data
+		formatted_equipment = []
+
+		# Iterate through the dictionary items and format them
+		for pole, lines in equipment_name.items():
+		    for line in lines:
+		        formatted_equipment.append([pole, line])
+
+		# Create a DataFrame from the formatted data
+		df_pole_mount = pd.DataFrame(formatted_equipment, columns=['parent', 'equipment'])
+		df_pole_mount.loc[:,'class'] = 'pole_mount'
+		df_pole_mount.loc[:,'name'] = 'pole_mount_'+df_pole_mount['equipment']
+
+		poles_with_parents_named = set([p for p in pole_name if any(p[5:] in l for l in overheadline_names)])
+		
+		# Filtering poles to the ones that found in overheadline names
+		df_pole_library_filtered= df_pole_library[df_pole_library['name'].isin(poles_with_parents_named)]
+
+	if include_mount : 
+		df= pd.concat([df_pole_config, df_pole_library_filtered, df_pole_mount], axis=0, ignore_index=True)	
 	else : 
 		df= pd.concat([df_pole_config, df_pole_library], axis=0, ignore_index=True)	
 
@@ -277,7 +320,7 @@ def convert(input_pole_file, input_equipment_file, output_file, options={}):
 		# df['Design - Structure']= pd.concat([df_mount_wire, df_mount_equip], axis=0, ignore_index=True)
 		# df['Design - Pole']= pd.concat([df['Design - Pole'], df['Design - Structure']], axis=0, ignore_index=True)
 		
-	if include_network:
+	if include_dummy_network:
 		df = xls2glm_object(df,input_pole_file)
 
 
@@ -672,3 +715,9 @@ def xls2glm_object(df_glm, input_file):
 	df_glm= pd.concat([df_glm, df_glm_network], axis=0, ignore_index=True)
 
 	return df_glm.copy()
+
+convert('CARDINAL_Polar - Design CalcDesign DSO.xlsx', 'CARDINAL_PolarDesign Attachment and Equipment_Asset Details from SPIDA and SAP.xlsx', 'cardinal_poles.csv', options={'extract_equipment':'yes','include_network':'yes', 'include_mount':'yes', 'include_network':'CARDINAL.csv'})
+
+
+
+
