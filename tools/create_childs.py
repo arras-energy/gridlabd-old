@@ -5,6 +5,7 @@ Options
 -------
     -P|--parents=NAME:VALUE,... specify parent property pattern to match
     -C|--childs=NAME:VALUE,...  specify child property list to assign
+    -N|--names=STRING           specify object naming convention
 
 Description
 -----------
@@ -16,7 +17,9 @@ Parent patterns and child properties as specified as a comma-separate list of
 `NAME:VALUE` strings, e.g., `class:node` or `nominal_voltage:2.4kV`. Parent
 patterns use `regex` pattern matching. Child properties may include `{NAME}` 
 format strings where `NAME` is a property of the parent object. This
-allows copying of values from the parent object.
+allows copying of values from the parent object. This formatting also can be
+applied to the naming string, e.g., `-N='{name}_L' to append '_L' to the
+parent object name.
 
 Example
 -------
