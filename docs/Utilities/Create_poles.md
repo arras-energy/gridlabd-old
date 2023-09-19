@@ -59,7 +59,7 @@ on using libraries.
 Some network models include latitude and longitude information.  When this information is present,
 the line length information checked.  If there is a discrepancy between these, a warning is printed
 and the latitude/longitude information is used.  The `--ignore_length` option will suppress this
-warning. The `--ignore_location` warning will cause the model to use the line length data instead.
+warning. The `--ignore_location` option will cause the model to use the line length data instead.
 
 The `--include_network` adds a `#include "FILENAME"` directive in the output to ensure that the 
 resulting GLM file contains all the objects required to run the simulation, e.g.,
@@ -85,7 +85,7 @@ Pole and pole_mount objects are created with the following default properties:
 
   * pole
     - install_year: 2000
-    - tilt_angle: 0 deg
+    - tilt_degree: 0 deg
     - tilt_direction: 0 deg
   * pole_mount
     height: 40 ft

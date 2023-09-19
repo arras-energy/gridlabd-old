@@ -51,6 +51,16 @@ object pole
 }
 ~~~
 
+## Properties
+
+### `direction`
+
+~~~
+    double direction;
+~~~
+
+Bearing of the mounted equipment, an angle measured clockwise from North in degrees with vertex at the pole centerline.
+
 # See also
 
 * [[/Module/Powerflow/Pole.md]]

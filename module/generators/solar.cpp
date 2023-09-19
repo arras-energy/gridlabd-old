@@ -108,7 +108,7 @@ solar::solar(MODULE *module)
 			PT_object, "weather", PADDR(weather),
 
 			PT_double, "shading_factor[pu]", PADDR(shading_factor), PT_DEFAULT,"1 pu", PT_DESCRIPTION, "Shading factor for scaling solar power to the array",
-			PT_double, "tilt_angle[deg]", PADDR(tilt_angle), PT_DEFAULT,"45 deg", PT_DESCRIPTION, "Tilt angle of PV array",
+			PT_double, "tilt_degree[deg]", PADDR(tilt_degree), PT_DEFAULT,"45 deg", PT_DESCRIPTION, "Tilt angle of PV array",
 			PT_double, "orientation_azimuth[deg]", PADDR(orientation_azimuth), PT_DEFAULT,"180 deg", PT_DESCRIPTION, "Facing direction of the PV array",
 			PT_bool, "latitude_angle_fix", PADDR(fix_angle_lat), PT_DEFAULT,"FALSE", PT_DESCRIPTION, "Fix tilt angle to installation latitude value",
 
@@ -328,25 +328,25 @@ int solar::init_climate()
 				if (obj->latitude < 0)	//Southern hemisphere
 				{
 					//Get the latitude from the climate file
-					tilt_angle = -obj->latitude;
+					tilt_degree = -obj->latitude;
 				}
 				else	//Northern
 				{
 					//Get the latitude from the climate file
-					tilt_angle = obj->latitude;
+					tilt_degree = obj->latitude;
 				}
 			}
 
 			//Check the tilt angle for absurdity
-			if (tilt_angle < 0)
+			if (tilt_degree < 0)
 			{
-				GL_THROW("Invalid tilt_angle - tilt must be between 0 and 90 degrees");
+				GL_THROW("Invalid tilt_degree - tilt must be between 0 and 90 degrees");
 				/*  TROUBLESHOOT
 				A negative tilt angle was specified.  This implies the array is under the ground and will
 				not receive any meaningful solar irradiation.  Please correct the tilt angle and try again.
 				*/
 			}
-			else if (tilt_angle > 90.0)
+			else if (tilt_degree > 90.0)
 			{
 				GL_THROW("Invalid tilt angle - values above 90 degrees are unsupported!");
 				/*  TROUBLESHOOT
@@ -856,19 +856,19 @@ TIMESTAMP solar::sync(TIMESTAMP t0, TIMESTAMP t1)
 				{
 					if (weather == NULL)
 					{
-						Insolation = shading_factor*(*pSolarD) + *pSolarH + *pSolarG*(1 - cos(tilt_angle))*(*pAlbedo)/2.0;
+						Insolation = shading_factor*(*pSolarD) + *pSolarH + *pSolarG*(1 - cos(tilt_degree))*(*pAlbedo)/2.0;
 					}
 					else
 					{
-						ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double *))(*calc_solar_radiation))(weather, RAD(tilt_angle), obj->latitude, obj->longitude, shading_factor, &Insolation);
+						ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double *))(*calc_solar_radiation))(weather, RAD(tilt_degree), obj->latitude, obj->longitude, shading_factor, &Insolation);
 					}
 					break;
 				}
 			case FIXED_AXIS: // NOTE that this means FIXED, stationary. There is no AXIS at all. FIXED_AXIS is known as Single Axis Tracking by some, so the term is misleading.
 				{
 					//Snag solar insolation - prorate by shading (direct axis) - uses model selected earlier
-					ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double, double *))(*calc_solar_radiation))(weather,RAD(tilt_angle),RAD(orientation_azimuth_corrected),obj->latitude,obj->longitude,shading_factor,&Insolation);
-					//ret_value = ((int64 (*)(OBJECT *, double, double, double, double *))(*calc_solar_radiation))(weather,tilt_angle,orientation_azimuth_corrected,shading_factor,&Insolation);
+					ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double, double *))(*calc_solar_radiation))(weather,RAD(tilt_degree),RAD(orientation_azimuth_corrected),obj->latitude,obj->longitude,shading_factor,&Insolation);
+					//ret_value = ((int64 (*)(OBJECT *, double, double, double, double *))(*calc_solar_radiation))(weather,tilt_degree,orientation_azimuth_corrected,shading_factor,&Insolation);
 
 					//Make sure it worked
 					if (ret_value == 0)

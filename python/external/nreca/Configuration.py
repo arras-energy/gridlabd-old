@@ -763,7 +763,7 @@ def ConfigurationFunc(config_file, classification=None):
 							 '', 						#12 # efficiency [unit] -- set by panel type selection if not set here:
 							 '', 						#13 # area [sf] -- default is 323 #TODO: should they be allowed to change this since it's figured out according to load size?
 							 '', 						#14 # shading_factor -- default is 1 (no shading)
-							 '20',  					#15 # tilt_angle -- default is 45 degrees
+							 '20',  					#15 # tilt_degree -- default is 45 degrees
 							 '', 						#16 # orientation_azimuth -- default is 0 (equator facing)
 							 '', 						#17 # latitude_angle_fix (TRUE|FALSE) -- default is false (this fixes tilt angle to regions latitude as determined by the included climate info
 							 'FIXED_AXIS'] 				#18 # orientation  (FIXED|DEFAULT) -- default is DEFAULT, which means tracking

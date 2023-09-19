@@ -2583,6 +2583,7 @@ public:
 
 // Define: GL_ATOMIC(<type>,<name>)
 // Define an atomic property (e.g., int, double, etc)
+// Defines methods for that property, to get the memory address, read and write with optional locks
 //
 // Methods:
 // size_t get_<name>_offset(void) - return the address of the value
@@ -2597,6 +2598,7 @@ public:
 // void init_<name>(void) - initialize the value to the default
 // void init_<name>(<type> value) - initialize the value
 #define GL_ATOMIC(T,X) protected: T X; public: \
+    // An explanantion of the get offset function and defaults is in docs>Developer>reading-the-code.md
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline T get_##X(void) { return X; }; \
 	inline gld_property get_##X##_property(void) { return gld_property(my(),#X); }; \
@@ -2753,6 +2755,13 @@ public:
 
 	// Method: my
 	// Returns: reference the object header
+	// OBJECT is a user-defined type. `this` is a keyword, a pointer to the 
+	// class instance that this function `my` is being called from. 
+	// The class of this instance must inherit from OBJECT, because otherwise
+	// it would not be possible to typecast a pointer to this instance to 
+	// type OBJECT. Subtracting 1 from the memory address means that it 
+	// moves to the memory location to the preceeding OBJECT. (To work correctly,
+	// this requires that objects of type OBJECT are stored sequentially in memory.)
 	inline OBJECT *my() { return (((OBJECT*)this)-1); }
 
 public:

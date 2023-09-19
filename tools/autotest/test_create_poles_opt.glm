@@ -6,7 +6,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -59,7 +59,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -90,7 +90,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -110,7 +110,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -163,7 +163,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "2 deg";
+    tilt_degree "2 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -183,7 +183,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "2 deg";
+    tilt_degree "2 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -203,7 +203,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "2 deg";
+    tilt_degree "2 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -223,7 +223,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "2 deg";
+    tilt_degree "2 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -243,7 +243,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "1 deg";
+    tilt_degree "1 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -274,7 +274,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "1 deg";
+    tilt_degree "1 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -294,7 +294,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "1 deg";
+    tilt_degree "1 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -314,7 +314,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2010";
-    tilt_angle "1 deg";
+    tilt_degree "1 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -334,7 +334,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -354,7 +354,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -374,7 +374,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -394,7 +394,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -414,7 +414,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -434,7 +434,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -454,7 +454,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -474,7 +474,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -494,7 +494,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -514,7 +514,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -534,7 +534,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -554,7 +554,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -574,7 +574,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -594,7 +594,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -614,7 +614,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -634,7 +634,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -654,7 +654,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -674,7 +674,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -694,7 +694,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -714,7 +714,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -734,7 +734,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -754,7 +754,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -774,7 +774,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -794,7 +794,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -814,7 +814,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -845,7 +845,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -865,7 +865,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -885,7 +885,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -905,7 +905,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -925,7 +925,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -945,7 +945,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -965,7 +965,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -985,7 +985,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1005,7 +1005,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1025,7 +1025,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1045,7 +1045,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1065,7 +1065,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1085,7 +1085,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1105,7 +1105,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1125,7 +1125,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1145,7 +1145,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1165,7 +1165,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1185,7 +1185,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1205,7 +1205,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1225,7 +1225,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1245,7 +1245,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1265,7 +1265,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1285,7 +1285,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1305,7 +1305,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1325,7 +1325,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1345,7 +1345,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1365,7 +1365,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1396,7 +1396,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1416,7 +1416,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1436,7 +1436,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1456,7 +1456,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1476,7 +1476,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1496,7 +1496,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {
@@ -1516,7 +1516,7 @@ object pole
     configuration "WOOD-EC-45/4";
     weather "example";
     install_year "2000";
-    tilt_angle "0 deg";
+    tilt_degree "0 deg";
     tilt_direction "0 deg";
     object pole_mount
     {

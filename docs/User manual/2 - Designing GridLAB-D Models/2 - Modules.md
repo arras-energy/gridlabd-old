@@ -31,7 +31,7 @@ In addition, modules generally should be able to implement the following
 It turns out that implementing these capabilities is not as easy as it
 at first seems.  In particular, the synchronization has typically been one
 of the most challenging concepts for programmers to understand.  Given
-the amount of time spend in sync calls, it is recommended that
+the amount of time spent in sync calls, it is recommended that
 considerable time and effort be put into its design.
 
 = Basic Synchronization =

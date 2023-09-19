@@ -67,7 +67,7 @@ object solar {
 	weather "CA-Chino";
 	rated_power 4.0 kVA;
 	area 29.6296 m^2;
-	tilt_angle 90.0;
+	tilt_degree 90.0;
 	efficiency 0.135;
 	orientation_azimuth 180; //equator-facing (South)
 	orientation FIXED_AXIS;
@@ -98,7 +98,7 @@ object solar {
 	weather "CA-Chino";
 	rated_power 4.0 kVA;
 	area 29.6296 m^2;
-	tilt_angle 20.0;
+	tilt_degree 20.0;
 	efficiency 0.135;
 	orientation_azimuth 180; //South
 	orientation FIXED_AXIS;

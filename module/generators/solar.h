@@ -72,7 +72,7 @@ public:
 	double module_Tcoeff;			//Maximum power temperature coefficient
 
 	double shading_factor;			//Shading factor
-	double tilt_angle;				//Installation tilt angle
+	double tilt_degree;				//Installation tilt angle
 	double orientation_azimuth;		//published Orientation of the array
 	bool fix_angle_lat;				//Fix tilt angle to latitude (replicates NREL SAM function)
 	double soiling_factor;			//Soiling factor to be applied - makes user specifiable

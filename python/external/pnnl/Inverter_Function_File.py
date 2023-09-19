@@ -107,7 +107,7 @@ def PV_residential_allocation(feeder_name, sorted_triplex, penetration_kVA, trip
                 if orientation_azimuth<360 and orientation_azimuth > 0:
                     break
             
-        tilt_angle = random.choice(range(1,40))
+        tilt_degree = random.choice(range(1,40))
             
             
         if '6' in sorted_triplex['FALSE'].keys():
@@ -164,7 +164,7 @@ def PV_residential_allocation(feeder_name, sorted_triplex, penetration_kVA, trip
                 if sorted_triplex[care][bin_no] == []:
                     del sorted_triplex[care][bin_no]
 
-                solar_installation_data.append([tri_meter, PV_residential_weights[care][bin_no]['size'], tilt_angle, orientation_azimuth, triplex_meter_data[tri_meter][0]])
+                solar_installation_data.append([tri_meter, PV_residential_weights[care][bin_no]['size'], tilt_degree, orientation_azimuth, triplex_meter_data[tri_meter][0]])
                 
                 installed_capacity += PV_residential_weights[care][bin_no]['size']
         
@@ -461,15 +461,15 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
         efficiency = [0.2]
         rated_power_solar = [0]
 #         Rated_kVA = [0]
-        tilt_angle = [i[2]]
+        tilt_degree = [i[2]]
         orientation_azimuth = [i[3]]
         
         
         
-        if tilt_angle[0] == 0:
+        if tilt_degree[0] == 0:
             de_rate_value = 0.89
         
-        if tilt_angle[0] > 0 and tilt_angle[0] <= 15:
+        if tilt_degree[0] > 0 and tilt_degree[0] <= 15:
             if orientation_azimuth >0 and orientation_azimuth <= 112.5:
                 de_rate_value = 0.88
             if orientation_azimuth > 112.5 and orientation_azimuth <= 157.5:
@@ -481,7 +481,7 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
             if orientation_azimuth > 247.5:
                 de_rate_value = 0.97
         
-        if tilt_angle[0] > 15 and tilt_angle[0] <= 30:
+        if tilt_degree[0] > 15 and tilt_degree[0] <= 30:
             if orientation_azimuth >0 and orientation_azimuth <= 112.5:
                 de_rate_value = 0.84
             if orientation_azimuth > 112.5 and orientation_azimuth <= 157.5:
@@ -493,7 +493,7 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
             if orientation_azimuth > 247.5:
                 de_rate_value = 0.84
                 
-        if tilt_angle[0] > 30 and tilt_angle[0] <= 45:
+        if tilt_degree[0] > 30 and tilt_degree[0] <= 45:
             if orientation_azimuth >0 and orientation_azimuth <= 112.5:
                 de_rate_value = 0.78
             if orientation_azimuth > 112.5 and orientation_azimuth <= 157.5:
@@ -505,7 +505,7 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
             if orientation_azimuth > 247.5:
                 de_rate_value = 0.78
                 
-        if tilt_angle[0] > 45 and tilt_angle[0] <= 60:
+        if tilt_degree[0] > 45 and tilt_degree[0] <= 60:
             if orientation_azimuth >0 and orientation_azimuth <= 112.5:
                 de_rate_value = 0.7
             if orientation_azimuth > 112.5 and orientation_azimuth <= 157.5:
@@ -517,7 +517,7 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
             if orientation_azimuth > 247.5:
                 de_rate_value = 0.70
                 
-        if tilt_angle[0] > 60 and tilt_angle[0] <= 90:
+        if tilt_degree[0] > 60 and tilt_degree[0] <= 90:
             if orientation_azimuth >0 and orientation_azimuth <= 112.5:
                 de_rate_value = 0.52
             if orientation_azimuth > 112.5 and orientation_azimuth <= 157.5:
@@ -535,7 +535,7 @@ def residential_solar_create(solar_installation_data, triplex_meter_data, V_1, Q
         
         orientation = ['FIXED_AXIS']
            
-        glm_parameters = solar_name +  SOLAR_POWER_MODEL + parent + generator_status + generator_mode + panel_type + efficiency + rated_power_solar + tilt_angle + orientation_azimuth + orientation + phases
+        glm_parameters = solar_name +  SOLAR_POWER_MODEL + parent + generator_status + generator_mode + panel_type + efficiency + rated_power_solar + tilt_degree + orientation_azimuth + orientation + phases
 
          
         solar_dict = Inverter_add_glm_object_dictionary.create_glm_object_dictionary(solar_dict, 'solar', glm_parameters)
@@ -584,11 +584,11 @@ def com_solar_create(com_solar_installation_data, com_meter_data, V_1, Q_1,V_2,Q
         panel_type = ['SINGLE_CRYSTAL_SILICON']   
         efficiency = [0.2]
         rated_power_com_solar = [str(i[1]) + ' kW']
-        tilt_angle = [0]
+        tilt_degree = [0]
         orientation_azimuth = [0]
         orientation = ['FIXED_AXIS']
            
-        glm_parameters = solar_name +  SOLAR_POWER_MODEL + parent + generator_status + generator_mode + panel_type + efficiency + rated_power_com_solar + tilt_angle + orientation_azimuth + orientation + phases
+        glm_parameters = solar_name +  SOLAR_POWER_MODEL + parent + generator_status + generator_mode + panel_type + efficiency + rated_power_com_solar + tilt_degree + orientation_azimuth + orientation + phases
 
         com_solar_dict = Inverter_add_glm_object_dictionary.create_glm_object_dictionary(solar_dict, 'solar', glm_parameters)
     
@@ -1339,7 +1339,7 @@ def PV_residential_allocation_UNIFORM(feeder_name, sorted_triplex, penetration_k
                 if orientation_azimuth<360 and orientation_azimuth > 0:
                     break
             
-        tilt_angle = random.choice(range(1,40))
+        tilt_degree = random.choice(range(1,40))
         
         care = random.choice(care_choices)
         bin_no = random.choice(bin_no_choices)
@@ -1356,7 +1356,7 @@ def PV_residential_allocation_UNIFORM(feeder_name, sorted_triplex, penetration_k
                     del sorted_triplex[care][bin_no]
                     
 
-                solar_installation_data.append([tri_meter, PV_residential_weights[care][bin_no]['size'], tilt_angle, orientation_azimuth, triplex_meter_data[tri_meter]])
+                solar_installation_data.append([tri_meter, PV_residential_weights[care][bin_no]['size'], tilt_degree, orientation_azimuth, triplex_meter_data[tri_meter]])
                 
                 installed_capacity += PV_residential_weights[care][bin_no]['size']
         

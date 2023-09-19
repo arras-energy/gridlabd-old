@@ -36,7 +36,7 @@ object climate {
 object multi_recorder
 {
 	file "test_IEEE13_pole_output.csv";
-	property weather:wind_speed, n633:wind_pressure, n633:resisting_moment, n633:total_moment, n633:pole_status, n633:tilt_angle, n633:pole_stress;
+	property weather:wind_speed, n633:wind_pressure, n633:resisting_moment, n633:total_moment, n633:pole_status, n633:tilt_degree, n633:pole_stress;
 	interval -1; 
 }
 object pole_configuration 

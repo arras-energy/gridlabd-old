@@ -1,4 +1,4 @@
-timestamp,weather:wind_speed, weather:wind_dir,pole1:tilt_angle, pole1:tilt_direction,pole1:pole_stress, pole1:total_moment, pole1:resisting_moment,pole1:susceptibility, pole1:status,device1:status,pole2:tilt_angle, pole2:tilt_direction,pole2:pole_stress, pole2:total_moment, pole2:resisting_moment,pole2:susceptibility, pole2:status,device2:status
+timestamp,weather:wind_speed, weather:wind_dir,pole1:tilt_degree, pole1:tilt_direction,pole1:pole_stress, pole1:total_moment, pole1:resisting_moment,pole1:susceptibility, pole1:status,device1:status,pole2:tilt_degree, pole2:tilt_direction,pole2:pole_stress, pole2:total_moment, pole2:resisting_moment,pole2:susceptibility, pole2:status,device2:status
 2020-01-01 00:00:00 PST,+3.1,+160,+5,+270,+0.0253352,+1563.75,+61722.3,+82.4413,OK,OK,+8,+180,+0.0172462,+1064.48,+61722.3,+191.518,OK,OK
 2020-01-01 01:00:00 PST,+0,+0,+5,+270,+0.0253352,+1563.75,+61722.3,+82.4413,OK,OK,+8,+180,+0.0172462,+1064.48,+61722.3,+191.518,OK,OK
 2020-01-01 02:00:00 PST,+0,+0,+5,+270,+0.0256613,+1583.87,+61722.3,+0,OK,OK,+8,+180,+0.0177696,+1096.78,+61722.3,+0,OK,OK

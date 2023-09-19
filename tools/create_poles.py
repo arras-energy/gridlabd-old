@@ -114,7 +114,7 @@ properties:
 
   * pole
     - install_year: 2000
-    - tilt_angle: 0 deg
+    - tilt_degree: 0 deg
     - tilt_direction: 0 deg
   * pole_mount
     height: 40 ft
@@ -132,7 +132,7 @@ format of the CSV files must always include the line name in the `name`
 column and the property values in columns using the property name.  For
 example,
 
-  name,install_year,tilt_angle
+  name,install_year,tilt_degree
   overhead_line1,2010,0
   overhead_line2,2010,0
   overhead_line3,2010,0
@@ -220,7 +220,7 @@ weather_locations = []
 properties = {
     "pole" : dict(
         install_year = "2000",
-        tilt_angle = "0 deg",
+        tilt_degree = "0 deg",
         tilt_direction = "0 deg",
         ),
     "pole_mount" : dict(

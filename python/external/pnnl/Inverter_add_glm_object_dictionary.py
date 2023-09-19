@@ -546,7 +546,7 @@ def create_glm_object_dictionary(glm_dict,glm_object,glm_parameters):
 		#    31 : 'Rated_kVA'
 		#    32 : 'weather'
 		#    33 : 'shading_factor'
-		#    34 : 'tilt_angle'
+		#    34 : 'tilt_degree'
 		#    35 : 'orientation_azimuth'
 		#    36 : 'latitude_angle_fix'
 		#    37 : 'orientation'
@@ -959,7 +959,7 @@ def create_glm_object_dictionary(glm_dict,glm_object,glm_parameters):
 						    'csvreader' : ['name','groupid','filename','timefmt','timezone','comments'],
 							#'inverter' : ['name','parent','inverter_type', 'four_quadrant_control_mode', 'generator_status', 'generator_mode','rated_power', 'inverter_efficiency', 'V1', 'Q1', 'V2', 'Q2', 'V3', 'Q3', 'V4', 'Q4'],
 							'inverter' : ['name','parent','inverter_type', 'four_quadrant_control_mode', 'generator_status', 'generator_mode','rated_power', 'inverter_efficiency', 'V1', 'Q1', 'V2', 'Q2', 'V3', 'Q3', 'V4', 'Q4', 'V_base', 'phases'],
-						    'solar' : ['name','SOLAR_POWER_MODEL', 'parent','generator_status','generator_mode','panel_type','efficiency','rated_power','tilt_angle','orientation_azimuth','orientation','phases'],
+						    'solar' : ['name','SOLAR_POWER_MODEL', 'parent','generator_status','generator_mode','panel_type','efficiency','rated_power','tilt_degree','orientation_azimuth','orientation','phases'],
 						    'auction' : ['name','groupid','type','unit','period','latency','market_id','price_cap','special_mode','statistic_mode','fixed_price','fixed_quantity','capacity_reference_object','capacity_reference_property','capacity_reference_bid_price','capacity_reference_bid_quantity','max_capacity_reference_bid_quantity','init_price','init_stdev','future_mean_price','use_future_mean_price','margin_mode','warmup','transaction_log_file','curve_log_file','curve_log_info','comments'],
 						    'controller' : ['name','groupid','simple_mode','bid_mode','use_override','control_mode','resolve_mode','ramp_low','ramp_high','range_low','range_high','target','setpoint','demand','load','total','market','state','avg_target','std_target','base_setpoint','period','slider_setting','slider_setting_heat','slider_setting_cool','override','heating_range_high','heating_range_low','heating_ramp_high','heating_ramp_low','cooling_range_high','cooling_range_low','cooling_ramp_high','cooling_ramp_low','heating_base_setpoint','cooling_base_setpoint','deadband','heating_setpoint','heating_demand','cooling_setpoint','cooling_demand','sliding_time_delay','use_predictive_bidding','comments'],
 						    'passive_controller' : ['name','groupid','control_mode','dlc_mode','input_state','input_setpoint','input_chained','sensitivity','period','expectation_prop','expectation_obj','setpoint_prop','state_prop','observation_obj','observation_prop','mean_observation_prop','stdev_observation_prop','cycle_length','base_setpoint','ramp_high','ramp_low','range_high','range_low','critical_day','two_tier_cpp','daily_elasticity','sub_elasticity_first_second','sub_elasticity_first_third','second_tier_hours','first_tier_hours','first_tier_price','second_tier_price','third_tier_price','linearize_elasticity','price_offset','pool_pump_model','base_duty_cycle','distribution_type','comfort_level','cycle_length_off','cycle_length_on','comments'],
