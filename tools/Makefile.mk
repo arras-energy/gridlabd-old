@@ -11,6 +11,7 @@ dist_pkgdata_DATA += tools/fire_danger.py
 dist_pkgdata_DATA += tools/fit_filter.py
 dist_pkgdata_DATA += tools/gridlabd-editor.png
 dist_pkgdata_DATA += tools/gridlabd-editor.py
+dist_pkgdata_DATA += tools/group.py
 dist_pkgdata_DATA += tools/insights.py
 dist_pkgdata_DATA += tools/install.py
 dist_pkgdata_DATA += tools/isone.py
