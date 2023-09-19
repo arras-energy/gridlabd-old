@@ -79,7 +79,7 @@ def main():
                 ok = False
                 break
         if ok:
-            name = f"{classname}_{obj}"
+            name = f"{classname}_{obj}" if NAMING is None else NAMING.format(**data)
             OBJECTS[name] = dict(parent=obj,name=name)
             for prop,value in CHILDS.items():
                 if not prop in ["class"]:
@@ -99,6 +99,7 @@ INPUTFILE = "/dev/stdin"
 OUTPUTFILE = "/dev/stdout"
 PARENTS = None
 CHILDS = None
+NAMING = None
 
 if __name__ == "__main__":
 
@@ -126,6 +127,8 @@ if __name__ == "__main__":
             PARENTS = dict([x.split(":") for x in value.split(",")])
         elif tag in ["-C","--childs"]:
             CHILDS = dict([x.split(":") for x in value.split(",")])
+        elif tag in ["-N","--names"]:
+            NAMING = value
         else:
             error(f"option '{arg}' is invalid",E_INVALID)
 
