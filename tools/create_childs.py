@@ -4,7 +4,7 @@
 Options
 -------
     -P|--parents=NAME:VALUE,... specify parent property pattern to match
-    -C|--childs=NAME:VALUE,...   specify child property list to assign
+    -C|--childs=NAME:VALUE,...  specify child property list to assign
 
 Description
 -----------
