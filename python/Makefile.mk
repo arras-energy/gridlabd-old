@@ -12,6 +12,8 @@ $(PYPKG)-$(PYTHONVERSION).tar.gz: $(top_srcdir)/python/dist/gridlabd-$(PYTHONVER
 	@cp $(top_srcdir)/python/dist/gridlabd-$(PYTHONVERSION)*.{tar.gz,whl} $(PYENV)/lib/python$(PYVER)/site-packages
 
 python-install: $(PYPKG)-$(PYTHONVERSION).dist-info
+	@mkdir -p $(datadir)/$(PACKAGE)/ 
+	@cp $(PYPKG)-$(PYTHONVERSION)-*.whl $(datadir)/$(PACKAGE)/ 
 
 $(PYPKG)-$(PYTHONVERSION).dist-info: $(PYPKG)-$(PYTHONVERSION).tar.gz
 	@echo "installing gridlabd-$(PYTHONVERSION)..."
@@ -27,3 +29,5 @@ python-uninstall:
 	@rm -rf $(PYPKG)*
 
 BUILT_SOURCES += python-install
+
+pkginclude_HEADERS += $(wildcard $(top_srcdir)/python/*.h)
