@@ -94,21 +94,7 @@ gridlabd_bin_SOURCES += $(top_srcdir)/source/build.h
 BUILT_SOURCES += $(top_srcdir)/source/build.h
 CLEANFILES += $(top_srcdir)/source/build.h origin.txt
 
-pkginclude_HEADERS =
-pkginclude_HEADERS += $(top_srcdir)/source/build.h
-pkginclude_HEADERS += source/class.h
-pkginclude_HEADERS += source/complex.h
-pkginclude_HEADERS += source/debug.h
-pkginclude_HEADERS += source/enduse.h
-pkginclude_HEADERS += source/exception.h
-pkginclude_HEADERS += source/loadshape.h
-pkginclude_HEADERS += source/lock.h
-pkginclude_HEADERS += source/module.h
-pkginclude_HEADERS += source/object.h
-pkginclude_HEADERS += source/property.h
-pkginclude_HEADERS += source/schedule.h
-pkginclude_HEADERS += source/test.h
-pkginclude_HEADERS += source/version.h
+pkginclude_HEADERS += $(wildcard $(top_srcdir)/source/*.h)
 
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
