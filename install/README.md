@@ -30,7 +30,7 @@ sudo ./setup.sh --local
 
 # Security
 
-HiPAS GridLAB-D requires access to two python virtual environments to build and run.  The build `venv` is created in the user's home folder under the name `.gridlabd`.  This environment contains all the modules needed to build and install `gridlabd`. The runtime `venv` is created in the `gridlabd/bin` folder and contains all the modules needed to run `gridlabd`.  Because `gridlabd` users needed access to these, there must a set of group permissions for them to use.  The following procedure implements a security policy that achieves this.
+Arras Energy requires access to two python virtual environments to build and run.  The build `venv` is created in the user's home folder under the name `.gridlabd`.  This environment contains all the modules needed to build and install `gridlabd`. The runtime `venv` is created in the `gridlabd/bin` folder and contains all the modules needed to run `gridlabd`.  Because `gridlabd` users needed access to these, there must a set of group permissions for them to use.  The following procedure implements a security policy that achieves this.
 
 1. Create a `gridlabd` user and group, e.g., `adduser gridlabd`.
 2. Add each `gridlabd` user to the `gridlabd` group, e.g., `adduser $USER gridlabd`.

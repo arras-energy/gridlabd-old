@@ -34,7 +34,7 @@ Currently, the supported categories are
 
 # Caveat
 
-Collects version usage data for HiPAS GridLAB-D by year and month.  If month
+Collects version usage data for Arras Energy by year and month.  If month
 is not specified, then all months of the current year are returned. If year
 is not specified, then all months of all years are returned.
 

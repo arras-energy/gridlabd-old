@@ -1,6 +1,6 @@
-[[/Cloud/README]] -- HiPAS GridLAB-D Cloud Support
+[[/Cloud/README]] -- Arras Energy Cloud Support
 
-HiPAS GridLAB-D was developed to support cloud operations. Currently the following cloud services are supported.
+Arras Energy was developed to support cloud operations. Currently the following cloud services are supported.
 
 * [[/Cloud/AWS]]
 * [[/Cloud/Docker]]

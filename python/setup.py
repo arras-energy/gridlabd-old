@@ -162,8 +162,8 @@ if len(sys.argv) > 1:
 setup (	
 	name = 'gridlabd',
 	version = get_version(),
-	description = 'HiPAS GridLAB-D',
+	description = 'Arras Energy',
 	author = 'SLAC Gismo',
 	author_email = 'gridlabd@gmail.com',
 	ext_modules = [gridlabd],
-	url = "https://www.gridlabd.us/")
+	url = "https://arras.energy/")

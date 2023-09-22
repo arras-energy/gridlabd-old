@@ -1,22 +1,22 @@
-Welcome to the user and modeling manuals for HiPAS GridLAB-D. The following manual sections are available in this branch. 
+Welcome to the user and modeling manuals for Arras Energy. The following manual sections are available in this branch. 
 
 # [Cloud](/index.html?folder=/Cloud)
-*HiPAS GridLAB-D resources on the cloud using AWS, GitHub, and CircleCI*
+*Arras Energy resources on the cloud using AWS, GitHub, and CircleCI*
 
 # [Command](/index.html?folder=/Command)
-*Command line options that change how HiPAS GridLAB-D works*
+*Command line options that change how Arras Energy works*
 
 # [Developer](/index.html?folder=/Developer)
-*Develop guides for integrating and extending HiPAS GridLAB-D*
+*Develop guides for integrating and extending Arras Energy*
 
 # [GLM](/index.html?folder=/GLM)
-*GLM is HiPAS GridLAB-D's powerful multi-domain modeling language*
+*GLM is Arras Energy's powerful multi-domain modeling language*
 
 # [Global](/index.html?folder=/Global)
-*Variables that control features and environment of HiPAS GridLAB-D*
+*Variables that control features and environment of Arras Energy*
 
 # [Install](/index.html?folder=/Install)
-*Installing HiPAS GridLAB-D on various platforms and system*
+*Installing Arras Energy on various platforms and system*
 
 # [Macro](/index.html?folder=/Macro)
 *Macros control how GLM files are loaded and read*
@@ -28,7 +28,7 @@ Welcome to the user and modeling manuals for HiPAS GridLAB-D. The following manu
 *Servers allow access to a simulation while it is running*
 
 # [Subcommand](/index.html?folder=/Subcommand)
-*Subcommand deliver extra features and extensions to HiPAS GridLAB-D*
+*Subcommand deliver extra features and extensions to Arras Energy*
 
 # [Tips and Tricks](http://docs-dev.gridlabd.us/_page.html?folder=/Tips%20and%20tricks)
 *Lots of helpful hints and solutions to common problems*

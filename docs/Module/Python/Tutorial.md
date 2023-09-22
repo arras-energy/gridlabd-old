@@ -1,5 +1,5 @@
 
-The `python` module allows HiPAS GridLAB-D models to be manipulated using Python code, and GridLAB-D simulations of those models to be controlled directly from Python.
+The `python` module allows Arras Energy models to be manipulated using Python code, and GridLAB-D simulations of those models to be controlled directly from Python.
 
 # Runtime Structure
 

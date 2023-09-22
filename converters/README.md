@@ -1,6 +1,6 @@
 # Converters
 
-This folder contains the automatic file converters for HiPAS GridLAB-D.
+This folder contains the automatic file converters for Arras Energy.
 
 Converters are implement in a two-level paradigm. This top level implements
 the file format converter based on the files' extensions. The second level

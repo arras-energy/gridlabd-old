@@ -103,4 +103,4 @@ if __name__ == "__main__":
     except Exception as err:
         print("EXCEPTION:",err)
     messagebox.showinfo("Welcome",
-        f"HiPAS GridLAB-D\n{version}-{build} ({branch}) {system}\n\n{copyright}\n{__doc__}")
+        f"Arras Energy\n{version}-{build} ({branch}) {system}\n\n{copyright}\n{__doc__}")

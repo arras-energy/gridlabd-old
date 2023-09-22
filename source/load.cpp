@@ -8822,7 +8822,7 @@ void GldLoader::sublime_syntax(void)
 	output_message("%%YAML 1.2");
 	output_message("---");
 	output_message("# See http://www.sublimetext.com/docs/3/syntax.html");
-	output_message("name: HiPAS GridLAB-D");
+	output_message("name: Arras Energy");
 	output_message("file_extensions:");
 	output_message("  - glm");
 	output_message("scope: source");
