@@ -126,7 +126,7 @@ test -f $HOME/.gridlabd/bin/activate || error "$HOME/.gridlabd is not found. Run
 test ! -z "$VIRTUAL_ENV" || . $HOME/.gridlabd/bin/activate 1>$STDOUT 2>$STDERR
 test ! -z "$VIRTUAL_ENV" || error "unable to activate gridlabd venv"
 test -f ./configure || autoreconf -isf 1>$STDOUT 2>$STDERR || error "autoconf failed"
-test -f Makefile || ./configure $CONFIGURE 1>$STDOUT 2>$STDERR || error "./configure failed"
+test -f Makefile || ./configure --enable-silent-rules $CONFIGURE 1>$STDOUT 2>$STDERR || error "./configure failed"
 make $MAKEFLAGS $TARGET 1>$STDOUT 2>$STDERR || error "unable to make build"
 if [ ! -z "$VERIFY" ]; then
 	$(build-aux/version.sh --install)/bin/gridlabd $VERIFY 1>$STDOUT 2>$STDERR || error "unable to verify install"

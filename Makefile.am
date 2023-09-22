@@ -10,6 +10,8 @@
 # Authors:
 #   DP Chassin (dchassin@slac.stanford.edu)
 
+.SILENT:
+
 $(info Current target is $(shell $(top_srcdir)/build-aux/version.sh --name))
 
 # !!! must match version specified in configure.ac
@@ -50,6 +52,7 @@ AM_LDFLAGS += -module
 AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
 AM_LDFLAGS += $(GLD_LDFLAGS) -lpython$(PYVER)
+AM_LIBTOOLFLAGS = --quiet
 
 # makefile fragments populate these variables
 BUILT_SOURCES = 
@@ -57,6 +60,7 @@ CLEANFILES =
 EXTRA_DIST =
 dist_pkgdata_DATA = requirements.txt
 pkgdata_DATA =
+pkginclude_HEADERS =
 noinst_LTLIBRARIES =
 pkglib_LTLIBRARIES =
 bin_PROGRAMS =
@@ -291,10 +295,17 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 	@mkdir -p $(prefix)
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
-system: python-install install
+system: python-install install $(prefix)/src
 	@echo "Setting $$($(top_srcdir)/build-aux/version.sh --install) to the current system version"
 	@$(prefix)/bin/gridlabd version set
 	@test "$$(gridlabd --version=install)" = "$$($(top_srcdir)/build-aux/version.sh --install)" || echo 'WARNING : build and install versions differ; use build `--clean` option to fix this problem'
+
+$(prefix)/src:
+	@echo Copying source files to $@...
+	@mkdir -p $(prefix)/src/source $(prefix)/src/python
+	@cp $(top_srcdir)/source/*.cpp $(prefix)/src/source
+	@cp $(top_srcdir)/python/*.cpp $(prefix)/src/python
+	@chmod -R 555 $(prefix)/src
 
 index: weather library template
 
