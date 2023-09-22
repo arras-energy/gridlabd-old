@@ -27,3 +27,5 @@ python-uninstall:
 	@rm -rf $(PYPKG)*
 
 BUILT_SOURCES += python-install
+
+pkginclude_HEADERS += $(wildcard $(top_srcdir)/python/*.h)
