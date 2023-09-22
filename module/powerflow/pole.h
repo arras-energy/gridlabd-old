@@ -36,7 +36,7 @@ public:
     GL_ATOMIC(double, wind_direction);
     GL_ATOMIC(double, wind_gusts);
     GL_ATOMIC(double, pole_moment);		// (see Section D)
-	GL_ATOMIC(double, pole_moment_nowind); // wire moment without the wind component for wind speed at failure calc
+	GL_ATOMIC(double, pole_moment_per_wind); // wire moment without the wind component for wind speed at failure calc
 	GL_ATOMIC(double, pole_moment_wind); 
     GL_ATOMIC(double, resisting_moment); 	// (see Section B)
 	GL_ATOMIC(double, equipment_moment);	// (see Section E)
@@ -69,6 +69,9 @@ private:
 private:
     void reset_commit_accumulators();
     void reset_sync_accumulators();
+    double calc_height();
+    double calc_diameter();
+    double calc_pole_moment_per_wind();
 private:
 	class pole_configuration *config;
 	double last_wind_speed;
