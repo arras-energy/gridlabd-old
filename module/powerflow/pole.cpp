@@ -486,8 +486,8 @@ TIMESTAMP pole::postsync(TIMESTAMP t0) ////
         verbose("equipment_moment_x = %g ft*lb (moment in x-axis)", equipment_moment_x);
         verbose("equipment_moment_y = %g ft*lb (moment in y-axis)", equipment_moment_y);
 
-        double pole_moment_x = pole_moment_wind*cos(wind_direction*PI/180)+pole_moment*cos(tilt_angle/180*PI);
-        double pole_moment_y = pole_moment_wind*sin(wind_direction*PI/180)+pole_moment*sin(tilt_angle/180*PI);
+        double pole_moment_x = pole_moment_wind*cos(wind_direction*PI/180)+pole_moment*cos(tilt_direction*PI/180);
+        double pole_moment_y = pole_moment_wind*sin(wind_direction*PI/180)+pole_moment*sin(tilt_direction*PI/180);
         verbose("pole_moment_x = %g ft*lb (moment in x-axis)", pole_moment_x);
         verbose("pole_moment_y = %g ft*lb (moment in y-axis)", pole_moment_y);
 
