@@ -1,10 +1,3 @@
-import pandas as pd 
-import string
-import math
-import re
-import numpy as np
-import os
-
 """Convert XLSX SPIDAcalc pole data to geodata
 
 SYNOPSIS
@@ -32,6 +25,13 @@ OPTIONS:
 - `include_network=NAME` : name the distribution feeder network to reference the connection via include mount.
 	
 """
+
+import pandas as pd 
+import string
+import math
+import re
+import numpy as np
+import os
 
 
 default_options = {
@@ -717,7 +717,3 @@ def xls2glm_object(df_glm, input_file):
 	return df_glm.copy()
 
 convert('CARDINAL_Polar - Design CalcDesign DSO.xlsx', 'CARDINAL_PolarDesign Attachment and Equipment_Asset Details from SPIDA and SAP.xlsx', 'cardinal_poles.csv', options={'extract_equipment':'yes','include_network':'yes', 'include_mount':'yes', 'include_network':'CARDINAL.csv'})
-
-
-
-

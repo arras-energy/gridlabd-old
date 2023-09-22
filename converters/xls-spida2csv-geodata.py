@@ -1,11 +1,3 @@
-import pandas as pd 
-import string
-import math
-import re
-import gridlabd
-import numpy as np
-import os
-
 """Convert XLS SPIDAcalc pole data to geodata
 
 SYNOPSIS
@@ -29,6 +21,14 @@ OPTIONS:
 - `include_weather=NAME`: name the weather object and do not use dummy values for weather data (default None)
 	
 """
+
+import pandas as pd 
+import string
+import math
+import re
+import gridlabd
+import numpy as np
+import os
 
 default_options = {
 	"precision" : 2,
