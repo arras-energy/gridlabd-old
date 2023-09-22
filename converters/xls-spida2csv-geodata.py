@@ -1,11 +1,3 @@
-import pandas as pd 
-import string
-import math
-import re
-import gridlabd
-import numpy as np
-import os
-
 """Convert XLS SPIDAcalc pole data to geodata
 
 SYNOPSIS
@@ -30,7 +22,13 @@ OPTIONS:
 	
 """
 
-import pandas
+import pandas as pd 
+import string
+import math
+import re
+import gridlabd
+import numpy as np
+import os
 
 default_options = {
 	"precision" : 2,
